@@ -1,0 +1,62 @@
+cc_defaults {
+    name: "imsstack_native_test_defaults",
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    test_suites: [
+        "general-tests"
+    ],
+    static_libs: [
+        "libgmock",
+        "libgtest_main",
+        "liblog",
+    ],
+    shared_libs: [
+        "libandroid_runtime",
+        "libbinder",
+        "libcutils",
+        "libgui",
+        "liblog",
+        "libnativehelper",
+        "libsqlite",
+        "libutils",
+        // TLS
+        "libcrypto",
+        "libssl",
+        // XML
+        "libxml2",
+        // ZLIB
+        "libz",
+    ],
+}
+
+cc_test {
+    name: "ImsStackNativeTests",
+    defaults: [
+        "imsstack_native_test_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    header_libs: [
+        "libimsstack_config_headers",
+        "libimsstack_enabler_headers",
+        "libimsstack_enabler_loader_headers",
+        "libimsstack_engine_headers",
+        "libimsstack_main_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_platform_os_android_system-intf_headers",
+        "libimsstack_protocol_headers",
+    ],
+    static_libs: [
+        "libimsstack-config",
+        "libimsstack-enabler",
+        "libimsstack-engine",
+        "libimsstack-jni",
+        "libimsstack-main",
+        "libimsstack-platform",
+        "libimsstack-protocol",
+    ],
+
+    test_config: "ImsStackNativeTests.xml",
+}

@@ -1,0 +1,229 @@
+#ifndef _AOS_IPSEC_H_
+#define _AOS_IPSEC_H_
+
+#include "IPAddress.h"
+#include "ByteArray.h"
+#include "SIPSecurityHeader.h"
+#include "IIPSecPolicyListener.h"
+
+class INetIPSec;
+class IIPSecPolicy;
+class UeIpsecInfo;
+class PcscfIpsecInfo;
+class IAosIpsecListener;
+
+/**
+ * @brief This class provides ipsec information of UE
+ */
+class UeIpsecInfo
+{
+public:
+    UeIpsecInfo()
+        : nSpiC(0)
+        , nSpiS(0)
+        , nPortC(0)
+        , nPortS(0)
+    {
+    }
+    ~UeIpsecInfo() {}
+public:
+    IMS_UINT32 nSpiC;
+    IMS_UINT32 nSpiS;
+    IMS_UINT32 nPortC;
+    IMS_UINT32 nPortS;
+    IPAddress objIpa;
+    ByteArray objIk;
+    ByteArray objCk;
+};
+
+/**
+ * @brief This class provides ipsec information of pcscf
+ */
+class PcscfIpsecInfo
+{
+public:
+    PcscfIpsecInfo()
+        : nSpiC(0)
+        , nSpiS(0)
+        , nPortC(0)
+        , nPortS(0)
+    {
+    }
+    ~PcscfIpsecInfo() {}
+public:
+    IMS_UINT32 nSpiC;
+    IMS_UINT32 nSpiS;
+    IMS_UINT32 nPortC;
+    IMS_UINT32 nPortS;
+    IPAddress objIpa;
+};
+
+/**
+ * @brief This class manages the ipsec related data for making Security Associations(SAs)
+ *        and Security Policies(SPs) in the kernel layer.
+ */
+class AosIpsec
+    : public IIPSecPolicyListener
+{
+public:
+    AosIpsec(IN IAosIpsecListener* piListener, IN IMS_SINT32 nSlotId);
+    virtual ~AosIpsec();
+
+private:
+    AosIpsec(IN const AosIpsec& objRhs);
+    AosIpsec& operator=(IN const AosIpsec& objRhs);
+
+public:
+    enum
+    {
+        TYPE_CLIENT = 0,
+        TYPE_SERVER
+    };
+
+    enum
+    {
+        DIRECTION_OUTBOUND = 0,
+        DIRECTION_INBOUND
+    };
+
+    enum
+    {
+        TCP_CLIENT_OUTBOUND = 0,
+        TCP_CLIENT_INBOUND,
+        TCP_SERVER_OUTBOUND,
+        TCP_SERVER_INBOUND
+    };
+
+    enum
+    {
+        SA_DIR_UC_PS = 0,
+        SA_DIR_US_PC,
+        SA_DIR_PC_US,
+        SA_DIR_PS_UC,
+    };
+
+    /// IIPSecPolicyListener Interface
+    virtual void ExpiredSAs(IN IIPSecPolicy* piIpsecPolicy);
+
+    /// Create UE Transport Port and SPI Identity
+    IMS_UINT32 CreateUePort();
+    IMS_UINT32 CreateUeSpi();
+
+    /// Create SPs for TCP or UDP
+    void CreateSps(IN IMS_UINT32 nType);
+    /// Create SAs
+    void CreateSas();
+
+    /// Add Policy to IPSEC Libs
+    IMS_BOOL AddPolicy();
+
+    /// Set Sa Establishment
+    void SetSaEstablished();
+
+    /// Get Sa Established Info
+    IMS_BOOL IsSaEstablished();
+
+    /// Set Local and P-CSCF IP Address
+    void SetIps(IN const IPAddress& objLocalIpa, IN const IPAddress& objPcscfIpa);
+
+    /// Set Securtity Keys - IK, CK
+    void SetKeys(IN const ByteArray& objAuthKey, IN const ByteArray& objEncrKey);
+
+    /// Set Integrity Algorithm
+    void SetSecurityAlgorithm(IN IMS_UINT32 nSecuAlog, IN IMS_UINT32 nAuthAlgo,
+        IN IMS_UINT32 nEncrAlgo);
+
+    /// Set UE Ports(C,S) and SPIs(C,S)
+    void SetUePortsAndSpis(IN IMS_UINT32 nPortC, IN IMS_UINT32 nPortS, IN IMS_UINT32 nSpiC,
+        IN IMS_UINT32 nSpiS);
+
+    /// Set PCSCF Ports(C,S) and SPIs(C,S)
+    void SetPcscfPortsAndSpis(IN IMS_UINT32 nPortC, IN IMS_UINT32 nPortS, IN IMS_UINT32 nSpiC,
+        IN IMS_UINT32 nSpiS);
+
+    /// Make Security Client Header
+    void MakeSecurityClientH(IN SIPSecurityHeader& objSecuH, IN IMS_BOOL bSpi3gpp = IMS_TRUE);
+
+    /// Set lifetime of SAs
+    void IgnorePolicyLifetime();
+    void ManagePolicyLifetime(IN IMS_UINT32 nDuration);
+
+    /// Get Policy Interface
+    IIPSecPolicy* GetPolicy();
+
+    /// Get Integrity Algorithm
+    IMS_UINT32 GetIntegrityAlgorithm();
+
+    /// Get UE Port & Spi
+    const IPAddress& GetUeIpa();
+    IMS_UINT32 GetUePort(IN IMS_UINT32 nType);
+    IMS_UINT32 GetUeSpi(IN IMS_UINT32 nType);
+
+    /// Get P-CSCF Port & Spi
+    const IPAddress& GetPcscfIpa();
+    IMS_UINT32 GetPcscfPort(IN IMS_UINT32 nType);
+    IMS_UINT32 GetPcscfSpi(IN IMS_UINT32 nType);
+
+    /// Display SAs Dump
+    void DumpSas();
+
+private:
+    /// Create SPs in Both Protocols
+    void CreateSpforUdp(IN IMS_UINT32 nDir);
+    void CreateSpforTcp(IN IMS_UINT32 nType);
+    /// Create SAs
+    void CreateSa(IN IMS_UINT32 nType);
+
+    /// At this time, N/A - Create Pcscf Port & SPI
+    IMS_UINT32 CreatePcscfPort();
+
+public:
+    // ePDG requires a certain range of UE ports. So here we made a change from 58001 to 38001.
+    static const IMS_UINT32 UE_PORT_LOWER = 38001;
+    static const IMS_UINT32 UE_PORT_UPPER = 39000;
+    // UE Server Port 9001 ~ 10000
+    static const IMS_UINT32 PCSCF_PORT_LOWER = 10001;
+    static const IMS_UINT32 PCSCF_PORT_UPPER = 11000;
+    // Pcscf Server Port 11001 ~ 12000
+
+    // Server Port + 1000
+    static const IMS_UINT32 PORTS_INTERVAL = 1000;
+
+    /// Set the SPI to 10 digits.
+    static const IMS_UINT32 SPI_MIN = 1000000000;
+    /// Increase the SPI for sending REGISTER doing authentication
+    static const IMS_UINT32 SPI_VALUE_TO_BE_INCREASED = 2;
+
+private:
+    IAosIpsecListener* m_piListener;
+    INetIPSec* m_piNetIpsec;
+    IIPSecPolicy* m_piPolicy;
+    UeIpsecInfo* m_pUeInfo;
+    PcscfIpsecInfo* m_pPcscfInfo;
+    IMS_UINT32 m_nSecuProto;
+    IMS_UINT32 m_nAuthAlgo;
+    IMS_UINT32 m_nEncrAlgo;
+    IMS_UINT32 m_nMode;
+    IMS_BOOL m_bAddPolicy;
+    IMS_BOOL m_bSaEstablished;
+    IMS_BOOL m_bIgnorePolicyExpired;
+    IMS_SINT32 m_nSlotId;
+    AString m_strTag;
+};
+
+/**
+ * @brief This class provides related ipsec information to AosIpsecHelper.
+ */
+class IAosIpsecListener
+{
+public:
+    /**
+     * @brief Notify to AosIpsecHelper when the duration of the ipsec policy is expired.
+     *
+     * @param pAosIpsec Expired AosIpsec.
+     */
+    virtual void IPSecPolicyExpired(IN AosIpsec* pAosIpsec) = 0;
+
+};
+
+#endif // _AOS_IPSEC_H_

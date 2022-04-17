@@ -1,0 +1,154 @@
+#include "ServiceTrace.h"
+#include "precondition/QosTimer.h"
+// #include "define/MtcStringDef.h"
+// #include "precondition/QosStringDef.h"
+
+__IMS_TRACE_TAG_COM_MTC__;
+
+
+PUBLIC
+QosTimer::QosTimer(IN IQosTimerListener* pListener) :
+        m_objTimers(IMSMap<QosTimerType, ITimer*>()),
+        m_pQosTimerListener(pListener)
+{
+    IMS_TRACE_D("+QosTimer", 0, 0, 0);
+}
+
+PUBLIC VIRTUAL
+QosTimer::~QosTimer()
+{
+    IMS_TRACE_D("~QosTimer", 0, 0, 0);
+
+    for (IMS_UINT32 index = 0; index < m_objTimers.GetSize(); index++)
+    {
+        ITimer* piTimer = m_objTimers.GetValueAt(index);
+
+        if (piTimer)
+        {
+            piTimer->KillTimer();
+            TimerService::GetTimerService()->DestroyTimer(piTimer);
+            piTimer = IMS_NULL;
+        }
+    }
+
+    m_objTimers.Clear();
+
+    if (m_pQosTimerListener)
+    {
+        m_pQosTimerListener = IMS_NULL;
+    }
+}
+
+PUBLIC VIRTUAL
+void QosTimer::Timer_TimerExpired(IN ITimer* piExpiredTimer)
+{
+    if (!m_pQosTimerListener)
+    {
+        return;
+    }
+
+    for (IMS_UINT32 index = 0; index < m_objTimers.GetSize(); index++)
+    {
+        ITimer* piTimer = m_objTimers.GetValueAt(index);
+        if (piTimer != piExpiredTimer)
+        {
+            continue;
+        }
+
+        QosTimerType eTimerType = m_objTimers.GetKeyAt(index);
+
+        if (eTimerType == QosTimerType::WAIT_AVAILABLE)
+        {
+            m_pQosTimerListener->OnWaitTimerExpired(this);
+        }
+        else if (eTimerType == QosTimerType::GUARD_INACTIVE)
+        {
+            m_pQosTimerListener->OnGuardInactiveTimerExpired(this);
+        }
+        else if (eTimerType == QosTimerType::FORCE_AVAILABLE)
+        {
+            m_pQosTimerListener->OnForceAvailableTimerExpired(this);
+        }
+
+        m_objTimers.Remove(eTimerType);
+        piTimer->KillTimer();
+        TimerService::GetTimerService()->DestroyTimer(piTimer);
+
+        IMS_TRACE_D("Timer_TimerExpired : Type[%d] removed. Timers size[%d]",
+                eTimerType, m_objTimers.GetSize(), 0);
+
+        return;
+    }
+
+    IMS_TRACE_D("Timer_TimerExpired : can't find expired timer", 0, 0, 0);
+}
+
+// PUBLIC
+// void QosTimer::SetListener(IN IQosTimerListener* pListener)
+// {
+//     m_pQosTimerListener = pListener;
+// }
+
+PUBLIC
+void QosTimer::StartQosTimer(IN QosTimerType eType, IN IMS_SINT32 nDuration)
+{
+    IMS_TRACE_D("StartQosTimer : Type[%d]", eType, 0, 0);
+
+    if (GetTimer(eType))
+    {
+        IMS_TRACE_D("StartQosTimer : It is already started.", 0, 0, 0);
+        return;
+    }
+
+    IMS_TRACE_D("StartQosTimer : Duration[%d]", nDuration, 0, 0);
+
+    if (nDuration <= 0)
+    {
+        return;
+    }
+
+    ITimer* piTimer = TimerService::GetTimerService()->CreateTimer();
+
+    m_objTimers.Add(eType, piTimer);
+    piTimer->SetTimer(nDuration, this);
+
+    IMS_TRACE_D("StartQosTimer : Timer size[%d]", m_objTimers.GetSize(), 0, 0);
+}
+
+PUBLIC
+void QosTimer::StopQosTimer(IN QosTimerType eType)
+{
+    ITimer* piTimer = GetTimer(eType);
+
+    if (!piTimer)
+    {
+        IMS_TRACE_D("StopQosTimer : Type[%d] no active timer", eType, 0, 0);
+        return;
+    }
+
+    IMS_SLONG nIndex = m_objTimers.GetIndexOfKey(eType);
+    m_objTimers.RemoveAt(nIndex);
+
+    piTimer->KillTimer();
+    TimerService::GetTimerService()->DestroyTimer(piTimer);
+
+    IMS_TRACE_D("StopQosTimer : Type[%d]", eType, 0, 0);
+    IMS_TRACE_D("StopQosTimer : Timer size[%d]", m_objTimers.GetSize(), 0, 0);
+}
+
+PUBLIC
+IMS_BOOL QosTimer::IsQosTimerActivated(IN QosTimerType eType)
+{
+    IMS_BOOL bResult = (GetTimer(eType)) ? IMS_TRUE : IMS_FALSE;
+
+    IMS_TRACE_D("IsQosTimerActivated : Type[%d] Result[%d]", eType, bResult, 0);
+    return bResult;
+}
+
+PRIVATE
+ITimer* QosTimer::GetTimer(IN QosTimerType eType)
+{
+    IMS_SLONG nIndex = m_objTimers.GetIndexOfKey(eType);
+
+    return (nIndex < 0) ? IMS_NULL : m_objTimers.GetValueAt(nIndex);
+}

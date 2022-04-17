@@ -1,0 +1,63 @@
+#ifndef _AOS_APP_CONTEXT_H_
+#define _AOS_APP_CONTEXT_H_
+
+#include "interface/IAosAppContext.h"
+
+class AosAppContext
+    : public IAosAppContext
+{
+public:
+    AosAppContext(IN AosStaticProfile* pProfile);
+    virtual ~AosAppContext();
+
+private:
+    AosAppContext(IN CONST AosAppContext& objRHS);
+    AosAppContext& operator=(IN CONST AosAppContext& objRHS);
+
+public:
+    virtual IMS_SINT32 GetSlotId() const;
+
+    virtual const AString& GetProfileId() const;
+
+    virtual IAosHandle* GetHandle(IN CONST AString& strSrvId) const;
+    virtual IAosHandle* GetHandle(IN IMS_UINT32 nServiceType);
+    virtual IMSMap<AString, IAosHandle*>& GetHandles();
+
+    virtual IAosApplication* GetApp() const;
+    virtual IAosConnection* GetConnection() const;
+    virtual IAosRegistration* GetRegistration() const;
+    virtual IAosNetTracker* GetNetTracker() const;
+    virtual IAosBlock* GetBlock() const;
+    virtual IAosSubscriber* GetSubscriber() const;
+    virtual IAosPcscf* GetPcscf() const;
+    virtual AosStaticProfile* GetStaticProfile() const;
+
+private:
+    virtual void SetSlotId(IN IMS_SINT32 nSlotId);
+
+    virtual void AddHandle(IN CONST AString& strSrvId, IN IAosHandle* piHandle);
+
+    virtual void SetApp(IN IAosApplication* piApp);
+    virtual void SetConnection(IN IAosConnection* piConnection);
+    virtual void SetRegistration(IN IAosRegistration* piRegistration);
+    virtual void SetNetTracker(IN IAosNetTracker* piNetTracker);
+    virtual void SetBlock(IN IAosBlock* piBlock);
+    virtual void SetSubscriber(IN IAosSubscriber* piSubscriber);
+    virtual void SetPcscf(IN IAosPcscf* piPcscf);
+
+private:
+    IMS_SINT32 m_nSlotId;
+
+    AosStaticProfile* m_pStaticProfile;
+
+    IMSMap<AString, IAosHandle*> objAosHandles;
+
+    IAosApplication* m_piApp;
+    IAosConnection* m_piConnection;
+    IAosRegistration* m_piRegistration;
+    IAosNetTracker* m_piNetTracker;
+    IAosBlock* m_piBlock;
+    IAosSubscriber* m_piSubscriber;
+    IAosPcscf* m_piPcscf;
+ };
+#endif // _AOS_APP_CONTEXT_H_

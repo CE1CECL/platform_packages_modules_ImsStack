@@ -1,0 +1,11 @@
+cc_test {
+    name: "ImsStackNativeEnablerMtsTests",
+    defaults: [
+        "imsstack_native_test_enabler_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+
+    test_config: "ImsStackNativeEnablerMtsTests.xml",
+}

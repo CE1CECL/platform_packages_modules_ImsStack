@@ -1,0 +1,479 @@
+#include "IuMtcCall.h"
+#include "IuMtcService.h"
+#include "JniMtcCallThread.h"
+#include "JniMtcServiceThread.h"
+#include "call/MtcUiNotifier.h"
+#include "ServiceTrace.h"
+
+__IMS_TRACE_TAG_COM_MTC__;
+
+PUBLIC
+MtcUiNotifier::MtcUiNotifier() :
+        m_pCallThread(IMS_NULL),
+        m_pServiceThread(IMS_NULL)
+{
+}
+
+PUBLIC
+MtcUiNotifier::~MtcUiNotifier()
+{
+}
+
+
+PUBLIC
+void MtcUiNotifier::SendIncomingCallReceived(
+        IN CallKey nKey,
+        IN CallInfo& objCallInfo,
+        IN MediaInfo& objMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN ParticipantInfo& objParticipantInfo)
+{
+    if (!m_pServiceThread)
+    {
+        IMS_TRACE_E(0, "SendIncomingCallReceived : Not available", 0, 0, 0);
+        return;
+    }
+
+    m_pServiceThread->OnIncomingCallReceived(
+            nKey, &objCallInfo, &objMediaInfo, objSuppServices, &objParticipantInfo);
+}
+
+PUBLIC
+void MtcUiNotifier::SendStarted(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendStarted", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnStarted(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendStartFailed(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendStartFailed : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnStartFailed(objReason);
+}
+
+PUBLIC
+void MtcUiNotifier::SendProgressing(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN IMS_BOOL bAlerted /*= IMS_FALSE */)
+{
+    IMS_TRACE_I("SendProgressing", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnProgressing(pCallInfo, pMediaInfo, objSuppServices, bAlerted);
+}
+
+PUBLIC
+void MtcUiNotifier::SendHeld(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendHeld", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnHeld(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendHoldFailed(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendHoldFailed : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnHoldFailed(objReason);
+}
+
+PUBLIC
+void MtcUiNotifier::SendResumed(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendResumed", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnResumed(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendResumeFailed(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendResumeFailed : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnResumeFailed(objReason);
+}
+
+PUBLIC
+void MtcUiNotifier::SendHeldBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendHeldBy", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnHeldBy(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendResumedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendResumedBy", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnResumedBy(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendTerminated(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendTerminated : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnTerminated(objReason);
+}
+
+PUBLIC
+void MtcUiNotifier::SendIncomingResume(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendIncomingResume", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnIncomingResume(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendIncomingUpdate(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendIncomingUpdate", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnIncomingUpdate(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendUpdated(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendUpdated", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnUpdated(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendUpdateFailed(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendUpdateFailed : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnUpdateFailed(objReason);
+}
+
+PUBLIC
+void MtcUiNotifier::SendUpdatedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendUpdatedBy", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    m_pCallThread->OnUpdatedBy(pCallInfo, pMediaInfo, objSuppServices);
+}
+
+PUBLIC
+void MtcUiNotifier::SendNotifyInfo(IN IMS_UINT32 eType, IN IMS_UINTP nImsKey,
+        IN AString strValue /*= AString::ConstNull() */, IN IMS_SINT32 nValue /*= -1 */,
+        IN IMS_BOOL bValue /*= IMS_FALSE */)
+{
+    IMS_TRACE_I("SendNotifyInfo : Type[%d]", eType, 0, 0);
+    IMS_TRACE_D("SendNotifyInfo : [%s][%d][%s]", strValue.GetStr(), nValue, PS_BOOL(bValue));
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionNotifyInfoParam* pParam = new IUUCSessionNotifyInfoParam();
+    //pParam->strUIKey = m_strUiKey;
+    pParam->nIMSKey = nImsKey;
+    pParam->eType = eType;
+    pParam->aStrValue = strValue;
+    pParam->nValue = nValue;
+    pParam->bValue = bValue;
+}
+
+PUBLIC
+void MtcUiNotifier::SendExpanded(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("SendExpanded", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfExpandedParam* pParam = new IUUCSessionConfExpandedParam();
+    pParam->pCallInfo = pCallInfo;
+    pParam->pMediaInfo = pMediaInfo;
+    pParam->objSuppServices = objSuppServices;
+}
+
+PUBLIC
+void MtcUiNotifier::SendExpandFailed(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendExpandFailed : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfExpandFailedParam* pParam = new IUUCSessionConfExpandFailedParam();
+    pParam->failReason = objReason;
+}
+
+PUBLIC
+void MtcUiNotifier::SendExpandedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN IMS_SINTP nReplaceKey /*= 0 */)
+{
+    IMS_TRACE_I("SendExpandedBy", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfExpandedByParam* pParam = new IUUCSessionConfExpandedByParam();
+    pParam->pCallInfo = pCallInfo;
+    pParam->pMediaInfo = pMediaInfo;
+    pParam->objSuppServices = objSuppServices;
+    pParam->nReplaceKey = nReplaceKey;
+}
+
+PUBLIC
+void MtcUiNotifier::SendMerged(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN IMSList<ConfUser*> lstConfUser)
+{
+    IMS_TRACE_I("SendMerged", 0, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfMergedParam* pParam = new IUUCSessionConfMergedParam();
+    pParam->pCallInfo = pCallInfo;
+    pParam->pMediaInfo = pMediaInfo;
+    pParam->objSuppServices = objSuppServices;
+    pParam->lstConfUsers = lstConfUser;
+}
+
+PUBLIC
+void MtcUiNotifier::SendMergeFailed(IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendMergeFailed : %s", PS_FR(objReason), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfMergeFailedParam* pParam = new IUUCSessionConfMergeFailedParam();
+    pParam->failReason = objReason;
+}
+
+PUBLIC
+void MtcUiNotifier::SendJoined(IN IMS_BOOL bResult, IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendJoined : Result[%s] %s", PS_BOOL(bResult), PS_FR(objReason), 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfJoinedParam* pParam = new IUUCSessionConfJoinedParam();
+    pParam->bResult = bResult;
+    pParam->failReason = objReason;
+}
+
+PUBLIC
+void MtcUiNotifier::SendDropped(IN IMS_BOOL bResult, IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendDropped : Result[%s] %s", PS_BOOL(bResult), PS_FR(objReason), 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfDroppedParam* pParam = new IUUCSessionConfDroppedParam();
+    pParam->bResult = bResult;
+    pParam->failReason = objReason;
+}
+
+PUBLIC
+void MtcUiNotifier::SendNotifyUsersInfo(IN IMSList<ConfUser*> lstConfUser)
+{
+    IMS_TRACE_I("SendNotifyUsersInfo : Size[%d]", lstConfUser.GetSize(), 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfNotifyUsersInfoParam* pParam = new IUUCSessionConfNotifyUsersInfoParam();
+
+    pParam->objUsers = lstConfUser;
+}
+
+PUBLIC
+void MtcUiNotifier::SendNotifyConfInfo(IN AString strDisplayText, IN AString strSubject,
+        IN IMS_SINT32 nMaxUserCount, IN IMS_UINT32 nUserCount, IN AString strHostEntity)
+{
+    IMS_TRACE_D("SendNotifyConfInfo : [%s][%s]", strDisplayText.GetStr(), strSubject.GetStr(), 0);
+    IMS_TRACE_D("SendNotifyConfInfo : [%d][%d][%s]", nMaxUserCount, nUserCount,
+            strHostEntity.GetStr());
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionConfNotifyConfInfoParam* pParam = new IUUCSessionConfNotifyConfInfoParam();
+    pParam->aStrDisplayText = strDisplayText;
+    pParam->aStrSubject = strSubject;
+    pParam->nMaxUserCount = nMaxUserCount;
+    pParam->nUserCount = nUserCount;
+    pParam->aStrHostEntity = strHostEntity;
+}
+
+PUBLIC
+void MtcUiNotifier::SendReplacedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
+        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN IMS_SINTP nKey, IN IMS_UINTP nType)
+{
+    IMS_TRACE_I("SendReplacedBy : Key[%" PFLS_u "]", nKey, 0, 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionECTStartedParam* pParam = new IUUCSessionECTStartedParam();
+
+    pParam->pCallInfo = pCallInfo;
+    pParam->pMediaInfo = pMediaInfo;
+    pParam->objSuppServices = objSuppServices;
+    pParam->nReplaceKey = nKey;
+    pParam->nType = nType;
+}
+
+PUBLIC
+void MtcUiNotifier::SendECTCompleted(IN IMS_BOOL bResult, IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendECTCompleted : Result[%s] %s", PS_BOOL(bResult), PS_FR(objReason), 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionECTCompletedParam* pParam = new IUUCSessionECTCompletedParam();
+    pParam->bResult = bResult;
+    pParam->failReason = objReason;
+}
+
+PUBLIC
+void MtcUiNotifier::SendCallPushCompleted(IN IMS_BOOL bResult, IN const FailReason& objReason)
+{
+    IMS_TRACE_I("SendCallPushCompleted : Result[%s] %s", PS_BOOL(bResult), PS_FR(objReason), 0);
+
+    if (!IsAvailableToSend())
+    {
+        return;
+    }
+
+    IUUCSessionCallPushCompletedParam* pParam = new IUUCSessionCallPushCompletedParam();
+    pParam->bResult = bResult;
+    pParam->failReason = objReason;
+}
+
+PRIVATE
+IMS_BOOL MtcUiNotifier::IsAvailableToSend()
+{
+    if (m_pCallThread == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "IsAvailableToSend : Not available", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    return IMS_TRUE;
+}

@@ -1,0 +1,18 @@
+cc_test {
+    name: "ImsStackNativePlatformTests",
+    defaults: [
+        "imsstack_native_test_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    header_libs: [
+        "libimsstack_platform_headers",
+        "libimsstack_platform_os_android_system-intf_headers",
+    ],
+    static_libs: [
+        "libimsstack-platform",
+    ],
+
+    test_config: "ImsStackNativePlatformTests.xml",
+}

@@ -1,0 +1,11 @@
+cc_test {
+    name: "ImsStackNativeProtocolSipTests",
+    defaults: [
+        "imsstack_native_test_protocol_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+
+    test_config: "ImsStackNativeProtocolSipTests.xml",
+}

@@ -1,0 +1,89 @@
+// Do not add additional include paths with three depths.
+cc_library_headers {
+    name: "libimsstack_enabler_headers",
+    export_include_dirs: [
+        "interface",
+        "interface/aos",
+        "interface/media",
+        "interface/mtc",
+        "interface/mts",
+        "interface/sipdelegate",
+        "interface/uce",
+    ],
+}
+
+// main: load all eanblers.
+cc_library_headers {
+    name: "libimsstack_enabler_loader_headers",
+    export_include_dirs: [
+        "interface",
+        "interface/loader",
+    ],
+}
+
+// JniConnector
+cc_library_headers {
+    name: "libimsstack_enabler_mtc_headers",
+    export_include_dirs: [
+        "include/mtc",
+    ],
+}
+
+cc_library_headers {
+    name: "libimsstack_enabler_aos_headers",
+    export_include_dirs: [
+        "include/aos",
+        "include/aos/interface",
+    ],
+}
+
+cc_library_static {
+    name:"libimsstack-enabler",
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    header_libs: [
+        "libimsmedia_config_headers",
+        "libimsstack_config_headers",
+        "libimsstack_enabler_headers",
+        "libimsstack_enabler_loader_headers",
+        "libimsstack_engine_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_protocol_headers",
+    ] + [
+        "libimsstack_jni_mtc_headers",
+        "libimsstack_jni_media_headers",
+        "libimsstack_jni_aos_headers",
+    ],
+    include_dirs: [
+        "system/libbase/include",
+    ],
+    local_include_dirs: [
+        "include",
+        "include/aos",
+        "include/config",
+        "include/internal",
+        "include/loader",
+        "include/media",
+        "include/mtc",
+        "include/mts",
+        "include/sipdelegate",
+        "include/uce",
+    ],
+    // For unit-test
+    export_include_dirs: [
+        "include",
+        "include/aos",
+        "include/config",
+        "include/internal",
+        "include/loader",
+        "include/media",
+        "include/mtc",
+        "include/mts",
+        "include/sipdelegate",
+        "include/uce",
+    ],
+}

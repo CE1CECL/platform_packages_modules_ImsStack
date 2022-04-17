@@ -1,0 +1,149 @@
+#include "ServiceTrace.h"
+#include "call/IMtcCallManager.h"
+#include "call/IMtcCallContext.h"
+#include "conferencecall/GroupCallController.h"
+#include "conferencecall/ConferenceConfigurationWrapper.h"
+#include "conferencecall/ConferenceOperationQueue.h"
+#
+
+
+__IMS_TRACE_TAG_COM_MTC__;
+
+PUBLIC
+GroupCallController::GroupCallController(IN IMtcCallContext& objContext) :
+        ConferenceController(objContext)
+{
+    IMS_TRACE_I("+GroupCallController", 0, 0, 0);
+}
+
+PUBLIC VIRTUAL
+GroupCallController::~GroupCallController()
+{
+    IMS_TRACE_I("~GroupCallController", 0, 0, 0);
+}
+
+PUBLIC VIRTUAL
+void GroupCallController::OnReferenceStartFailed(IN IConferenceReference* piConfRef)
+{
+    IMS_TRACE_D("OnReferenceStartFailed", 0, 0, 0);
+
+    if (piConfRef->GetType() != REFERENCE_TYPE_INVITE)
+    {
+        return ConferenceController::OnReferenceStartFailed(piConfRef);
+    }
+
+    StopFinalSipfragWaitTimer();
+    ConfUser* pTempUser = m_objParticipantList.GetConfUser(piConfRef);
+
+    if (pTempUser != IMS_NULL)
+    {
+        pTempUser->eStatus = CONFINFO_STATUS_FAIL;
+    }
+
+    Recover();
+    CompleteCurrentAndDoNextOperation(CONTROL_OPERATION_REFER_INVITE, pTempUser);
+    RemoveReference(piConfRef);
+
+    if ((GetState() == STATE_JOINING) && (m_objIConfReferences.GetSize() <= 0))
+    {
+        m_objOperationQueue.CreateNPut(CONTROL_OPERATION_NOTIFY_RESULT_TO_UI, IMS_TRUE);
+    }
+}
+
+#ifdef _PROTECTED_METHOD_
+#endif
+
+PROTECTED VIRTUAL
+void GroupCallController::ProcessGroupCall(IN IMSList<ConfUser*>& objUsers,
+        IN CallInfo& objCallInfo, IN MediaInfo& objMediaInfo,
+        IN IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+{
+    IMS_TRACE_I("ProcessGroupCall", 0, 0, 0);
+    if (IsReadyToPerformCmd() == IMS_FALSE)
+    {
+        m_objNotifier.NotifyGroupCallFailed(FailReason(FAIL_REASON_UNKNOWN, -1));
+        return;
+    }
+
+    SetState(STATE_GROUPCALLING);
+    AddUserToParticipantList(objUsers);
+
+    CallStartOperationParams* pParams = new CallStartOperationParams(CONF_CREATE_START, objCallInfo,
+            objMediaInfo, objUsers, objSuppServices);
+
+    m_objOperationQueue.CreateNPut(CONTROL_OPERATION_CREATE_CONFERENCE_SESSION, pParams);
+    m_objOperationQueue.CreateNPut(CONTROL_OPERATION_NOTIFY_RESULT_TO_UI);
+    m_objOperationQueue.CreateNPut(CONTROL_OPERATION_SUBSCRIBE);
+
+    m_objOperationQueue.SetAddingOperationSetCompleted();
+}
+
+PUBLIC VIRTUAL
+void GroupCallController::StartConferenceCall(IN CallStartOperationParams* pParams)
+{
+    IMtcCall* piCall = m_objCallManager.GetCallByCallKey(m_objConfCallContext.GetCallKey());
+
+    /*
+    {
+        IMS_TRACE_I("StartConferenceCall : session is null", 0, 0, 0);
+        delete pParams;
+        Recover();
+        SendClosed();
+    }
+    */
+
+    // TODO: CallType? start type?
+    piCall->StartConference(CallType::VOIP, pParams->objSuppServices, &(pParams->objMediaInfo),
+            pParams->objUsers);
+}
+
+PROTECTED VIRTUAL
+void GroupCallController::Recover()
+{
+    IMS_TRACE_I("Recover", 0, 0, 0);
+
+    switch (m_objOperationQueue.GetTypeOfCurrentOperation())
+    {
+        case CONTROL_OPERATION_CREATE_CONFERENCE_SESSION:
+            RecoverOnCreating();
+            break;
+        case CONTROL_OPERATION_SUBSCRIBE:
+            break;
+        case CONTROL_OPERATION_REFER_INVITE:
+            RecoverOnReferring();
+            break;
+
+        default:
+            IMS_TRACE_I("Recover : not handled.", 0, 0, 0);
+            break;
+    }
+}
+
+PRIVATE
+void GroupCallController::RecoverOnCreating()
+{
+    if (GetState() != STATE_GROUPCALLING)
+    {
+        IMS_TRACE_D("RecoverOnCreating : nothing to be handled", 0, 0, 0);
+        return;
+    }
+
+    IMS_TRACE_D("RecoverOnCreating", 0, 0, 0);
+
+    m_objNotifier.NotifyGroupCallFailed(FailReason(FAIL_REASON_UNKNOWN, -1));
+    m_objOperationQueue.Clear();
+    SetState(STATE_IDLE);
+}
+
+PRIVATE
+void GroupCallController::RecoverOnReferring()
+{
+    if (GetState() != STATE_JOINING)
+    {
+        IMS_TRACE_D("RecoverOnReferring : nothing to be handled", 0, 0, 0);
+        return;
+    }
+
+    IMS_TRACE_D("RecoverOnReferring : state[%d]", GetState(), 0, 0);
+    NotifyUsersInfo();
+}

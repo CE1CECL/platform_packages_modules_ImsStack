@@ -1,0 +1,84 @@
+// JniConnector
+cc_library_headers {
+    name: "libimsstack_jni_mtc_headers",
+    export_include_dirs: [
+        "include",
+        "include/enabler/mtc",
+    ],
+}
+
+cc_library_headers {
+    name: "libimsstack_jni_media_headers",
+    export_include_dirs: [
+        "include",
+        "include/enabler/media",
+    ],
+}
+
+cc_library_headers {
+    name: "libimsstack_jni_aos_headers",
+    export_include_dirs: [
+        "include",
+        "include/enabler/aos",
+    ],
+}
+
+cc_library_static {
+    name:"libimsstack-jni",
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    include_dirs: [
+        "frameworks/native/libs/arect/include",
+        "frameworks/native/libs/nativebase/include",
+        "frameworks/native/libs/nativewindow/include",
+        "frameworks/native/libs/ui/include",
+        "system/libhidl/base/include",
+        "system/libhidl/transport/token/1.0/utils/include",
+        "system/libvintf/include",
+    ],
+    header_libs: [
+        "libimsmedia_config_headers",
+        "libimsstack_config_headers",
+        "libimsstack_enabler_headers",
+        "libimsstack_main_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_platform_os_android_system-intf_headers",
+    ] + [
+        "libimsstack_enabler_mtc_headers",
+        "libimsstack_enabler_aos_headers",
+    ],
+    local_include_dirs: [
+        "include",
+        "include/enabler",
+        "include/enabler/aos",
+        "include/enabler/media",
+        "include/enabler/mtc",
+        "include/enabler/mts",
+        "include/enabler/sipdelegate",
+        "include/enabler/uce",
+        "include/system",
+    ],
+    // For unit-test
+    export_include_dirs: [
+        "include",
+        "include/enabler",
+        "include/enabler/aos",
+        "include/enabler/mtc",
+        "include/enabler/mts",
+        "include/enabler/sipdelegate",
+        "include/enabler/uce",
+        "include/system",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.bufferqueue@1.0",
+        "android.hardware.graphics.bufferqueue@2.0",
+        "android.hardware.graphics.common@1.1",
+        "android.hardware.graphics.common@1.2",
+        "libgui",
+        "libnativehelper",
+    ],
+}

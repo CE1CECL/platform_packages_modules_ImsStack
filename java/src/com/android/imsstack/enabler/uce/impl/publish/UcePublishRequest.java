@@ -1,0 +1,138 @@
+package com.android.imsstack.enabler.uce.impl.publish;
+
+import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.agentif.IPreference;
+import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.enabler.uce.impl.define.UceConstant;
+import com.android.imsstack.enabler.uce.impl.define.UceMessage;
+import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
+import com.android.imsstack.enabler.uce.interf.PublishResponse;
+import com.android.imsstack.enabler.uce.interf.UceApiConstant;
+import com.android.internal.annotations.VisibleForTesting;
+
+import android.os.Parcel;
+import android.text.TextUtils;
+
+public class UcePublishRequest {
+    private final int mSlotId;
+    private final int mKey;
+    private final PublishResponse callback;
+    private final boolean mIsUseExpiredEtag;
+
+    private String mPidfXml;
+    private int mExtended;
+    private long mCapability;
+    private UceJNI mUceJNI;
+
+    public UcePublishRequest(PublishResponse cb, int slotId, int key, boolean useExpiredEtag) {
+        mKey = key;
+        callback = cb;
+        mSlotId = slotId;
+        mIsUseExpiredEtag = useExpiredEtag;
+        mUceJNI = UceJNI.getInstance();
+    }
+
+    @VisibleForTesting
+    public UcePublishRequest(PublishResponse cb, int slotId, int key, boolean useExpiredEtag,
+            UceJNI jni) {
+        mKey = key;
+        callback = cb;
+        mSlotId = slotId;
+        mIsUseExpiredEtag = useExpiredEtag;
+        mUceJNI = jni;
+    }
+
+    /**
+     * Set up data for sending publish requests.
+     * @param pidfXml The XML PIDF document containing the capabilities of this device to be sent
+     * to the carrier’s presence server.
+     * @param bAvailability Whether the time value is extended when the expire header is set.
+     * @param capability The value converted from pidf xml to long. When the publish is successful,
+     *                   this is set to the latest capability.
+     */
+    public void setRequestInfo(String pidfXml, boolean bAvailability, long capability) {
+        ImsLog.d("setRequestInfo:bAvailability=" + bAvailability + ", capability=" + capability);
+        mPidfXml = pidfXml;
+        mExtended = bAvailability == true ? 1 : 0;
+        mCapability = capability;
+    }
+
+    /**
+     * The capabilities of this device have been updated and should be published to the network.
+     */
+    public boolean sendRequest() {
+        ImsLog.d("sendRequest:PIDF XML=" + mPidfXml);
+        if (TextUtils.isEmpty(mPidfXml)) {
+            ImsLog.e("pidfXml is empty");
+            informCommandError(UceApiConstant.COMMAND_CODE_INVALID_PARAM);
+            return false;
+        }
+        String etag = "";
+        if (mIsUseExpiredEtag) {
+            IPreference pf = (IPreference)AgentFactory.getAgent(AgentFactory.PREFERENCE, mSlotId);
+            if (pf != null) {
+                etag = pf.getPreferenceStrValue(UceConstant.PREFERENCE_ETAG, mSlotId);
+            }
+        }
+        Parcel parcel = Parcel.obtain();
+
+        parcel.writeInt(UceMessage.UCE_SEND_PUBLISH_CMD);
+        parcel.writeInt(mKey);
+        parcel.writeInt(mExtended);
+        parcel.writeLong(mCapability);
+        parcel.writeString(mPidfXml);
+        parcel.writeString(etag);
+        mUceJNI.sendMessage(mSlotId, parcel);
+        return true;
+    }
+
+    /**
+     * Handles responses to PUBLISH requests.
+     * @param responseCode the received sip response code.
+     * @param reason the received sip reason value.
+     * @param reasonHdrCause the received cause value of sip reason header
+     * @param reasonHdrText the received text value of sip reason header
+     * @param eTag the received sip etag value.
+     */
+    public void informNetworkResponse(int responseCode, String reason,
+        int reasonHdrCause, String reasonHdrText, String eTag) {
+        ImsLog.d("informNetworkResponse:responseCode=" + responseCode +
+            ", reasonHdrCause=" + reasonHdrCause);
+        try {
+            if (reasonHdrCause <= 0) {
+                callback.onNetworkResponse(responseCode, reason);
+            } else {
+                callback.onNetworkResponse(responseCode, reason, reasonHdrCause, reasonHdrText);
+            }
+        } catch (Exception e) {
+            ImsLog.e("Exception:" + e.toString());
+        }
+        if (!TextUtils.isEmpty(eTag)) {
+            IPreference pf = (IPreference)AgentFactory.getAgent(AgentFactory.PREFERENCE, mSlotId);
+            if (pf != null) {
+                pf.setPreferenceStrValue(UceConstant.PREFERENCE_ETAG, eTag, mSlotId);
+            }
+        }
+    }
+
+    /**
+     * Send command error regarding this request.
+     * @param code the command error code. it is one of the {@link UceApiConstant}.
+     */
+    public void informCommandError(int code) {
+        ImsLog.d("informCommandError:code=" + code);
+        try {
+            callback.onCommandError(code);
+        } catch (Exception e) {
+            ImsLog.e("Exception:" + e.toString());
+        }
+    }
+
+    /**
+     * Get the my request key.
+     * @return The requested key.
+     */
+    public int getKey() {
+        return mKey;
+    }
+}

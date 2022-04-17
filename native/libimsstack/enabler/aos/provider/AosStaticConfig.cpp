@@ -1,0 +1,108 @@
+/*
+
+*/
+
+#include "ServiceTrace.h"
+
+#include "ImsServiceConfig.h"
+
+#include "provider/AosStaticProfile.h"
+
+#include "provider/AosStaticConfig.h"
+
+__IMS_TRACE_TAG_USER_DECL__("AOS");
+
+
+PUBLIC
+AosStaticConfig::AosStaticConfig()
+    : m_objProfiles(IMSList<AosStaticProfile*>())
+{
+
+}
+
+PUBLIC VIRTUAL
+AosStaticConfig::~AosStaticConfig()
+{
+
+}
+
+PUBLIC VIRTUAL
+AosStaticConfig* AosStaticConfig::GetInstance()
+{
+    static AosStaticConfig* s_pConfig = IMS_NULL;
+
+    if (s_pConfig == IMS_NULL)
+    {
+        s_pConfig = new AosStaticConfig();
+    }
+
+    return s_pConfig;
+}
+
+PUBLIC
+IMS_BOOL AosStaticConfig::Create()
+{
+    IMS_TRACE_D("Create", 0, 0, 0);
+    // for normal
+    AosStaticProfile* pProfile = new AosStaticProfile();
+    pProfile->SetProflieType(AosStaticProfile::Type::NORMAL);
+
+    IMSList<ImsServiceName> objServiceName = ImsServiceConfig::GetServiceNames(
+            ImsServiceConfig::GetServiceProfile());
+
+    for (IMS_UINT32 i = 0; i < objServiceName.GetSize(); i++)
+    {
+        ImsServiceName objService = objServiceName.GetAt(i);
+        pProfile->AddService(objService.GetAppId(), objService.GetServiceId());
+    }
+    m_objProfiles.Append(pProfile);
+
+    // for emergency
+    AosStaticProfile* pEProfile = new AosStaticProfile();
+    pEProfile->SetProflieType(AosStaticProfile::Type::EMERGENCY);
+
+    IMSList<ImsServiceName> objEServiceName = ImsServiceConfig::GetServiceNames(
+            ImsServiceConfig::GetEmergencyServiceProfile());
+
+    for (IMS_UINT32 i = 0; i < objEServiceName.GetSize(); i++)
+    {
+        ImsServiceName objService = objEServiceName.GetAt(i);
+        pEProfile->AddService(objService.GetAppId(), objService.GetServiceId());
+    }
+    m_objProfiles.Append(pEProfile);
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+AosStaticProfile* AosStaticConfig::GetProfile(IN const AString& strAppId,
+        IN const AString& strServiceId)
+{
+    for (IMS_UINT32 i = 0; i < m_objProfiles.GetSize(); i++)
+    {
+        AosStaticProfile* pProfile = m_objProfiles.GetAt(i);
+
+        if (pProfile == IMS_NULL) continue;
+
+        const IMSList<AosServiceProfile*>& objServices = pProfile->GetServiceProfiles();
+        for (IMS_UINT32 j = 0; j < objServices.GetSize(); j++)
+        {
+            AosServiceProfile* pService = objServices.GetAt(j);
+            if (pService == IMS_NULL) continue;
+
+            if (strAppId.Equals(pService->GetAppId()) &&
+                    strServiceId.Equals(pService->GetServiceId()))
+            {
+                return pProfile;
+            }
+        }
+    }
+
+    return IMS_NULL;
+}
+
+PUBLIC
+const IMSList<AosStaticProfile*>& AosStaticConfig::GetProfiles() const
+{
+   return m_objProfiles;
+}

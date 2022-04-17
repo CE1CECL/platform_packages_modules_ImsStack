@@ -1,0 +1,65 @@
+#ifndef NULL_CALL_H_
+#define NULL_CALL_H_
+
+#include "IMSList.h"
+#include "IMSTypeDef.h"
+#include "call/IMtcCall.h"
+#include "CallInfo.h"
+#include "MtcDef.h"
+
+class AString;
+class ISession;
+class JniMtcServiceThread;
+class MediaInfo;
+class SuppService;
+struct FailReason;
+
+/**
+ * This class represents the call that doesn't exist. It has no states and basically does nothing.
+ */
+class NullCall final
+        : public IMtcCall
+{
+public:
+    NullCall() {}
+    virtual ~NullCall() {}
+    NullCall(IN const NullCall&) = delete;
+    NullCall& operator=(IN const NullCall&) = delete;
+
+    inline void Attach(IN JniMtcCallThread*) override {}
+    inline void Detach() override {}
+
+    inline void Start(
+            IN CallType,
+            IN const AString&,
+            IN MediaInfo*,
+            IN const IMSMap<IMS_UINT32, SuppService*>&,
+            IN JniMediaSessionThread*) override {}
+    inline void StartConference(
+            IN CallType, IN const IMSMap<IMS_UINT32, SuppService*>&, IN MediaInfo*,
+            IN IMSList<ConfUser*>) override {}
+    inline void ExpandToConference(IN CallInfo*, IN IMSList<ConfUser*>) override {}
+    inline void MergeToConference(IN CallType, IN CallInfo*, IN IMSList<ConfUser*>) override {}
+    inline void HandleIncoming(IN ISession*, IN JniMtcServiceThread*) override {}
+    inline void HandleUserAlert() override {}
+    inline void Accept(IN CallType, IN MediaInfo*) override {}
+    inline void Reject(IN const FailReason&) override {}
+    inline void Hold(IN MediaInfo*) override {}
+    inline void Resume(IN MediaInfo*) override {}
+    inline void AcceptResume(IN CallType, IN MediaInfo*) override {}
+    inline void RejectResume(IN const FailReason&) override {}
+    inline void Convert(IN CallType, IN MediaInfo*) override {}
+    inline void AcceptConvert(IN CallType, IN MediaInfo*) override {}
+    inline void RejectConvert(IN const FailReason&) override {}
+    inline void CancelConvert(IN const FailReason&) override {}
+    inline void Terminate(IN const FailReason&) override {}
+    inline void SendDtmf(IN const AString&, IN IMS_SINT32) override {}
+    inline void SendUssi(IN const AString&) override {}
+    inline void HandleSrvccSuccess() override {}
+    inline void HandleSrvccFailure(IN UpdateType) override {}
+
+    inline CallKey GetKey() const override { return -1; }
+    inline State GetState() const override { return State::IDLE; }
+};
+
+#endif

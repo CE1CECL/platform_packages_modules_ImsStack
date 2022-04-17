@@ -1,0 +1,184 @@
+package com.android.imsstack.core.agents;
+
+import android.content.Context;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Pair;
+
+import android.telephony.CarrierConfigManager;
+import android.telephony.gba.UaSecurityProtocolIdentifier;
+import android.telephony.TelephonyManager;
+
+import com.android.imsstack.core.agents.agentif.IGBA;
+import com.android.imsstack.core.agents.agentif.UaCipherSuite;
+import com.android.imsstack.util.AppContext;
+import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.util.MSimUtils;
+
+import java.lang.InterruptedException;
+
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.TimeUnit;
+
+public class GBAAgent implements IGBA {
+    private int mSlotId = -1;
+    private Context mContext;
+    private ExecutorService mExecutorService = null;
+
+    public GBAAgent(int slotId) {
+        mSlotId = slotId;
+    }
+
+    @Override
+    public void init(Context context) {
+        mContext = context;
+    }
+
+    @Override
+    public void cleanup() {
+        ImsLog.d(mSlotId, "clean up");
+
+        if (mExecutorService != null) {
+            mExecutorService.shutdown();
+            mExecutorService = null;
+        }
+    }
+
+    @Override
+    public Pair<String, String> getGbaKey(int appType, int gbaMode, boolean isTls, String nafFqdn,
+            String securityProtocol, boolean isForced) {
+        ImsLog.d(mSlotId, "appType : " + appType + ",gbaMode : " + gbaMode + ", isTls : " + isTls
+                + ", nafFqdn : " + nafFqdn + ", Protocol : " + securityProtocol
+                + ", isForced : " + isForced);
+
+        Uri nafUri = getNafUri(gbaMode, isTls, nafFqdn);
+        GbaCredentials credintials = null;
+        try {
+            credintials = requestTelephonyGbaAuthentication(appType, nafUri, securityProtocol,
+                    isForced).get(30L, TimeUnit.SECONDS);
+        } catch (CancellationException e) {
+            ImsLog.e(mSlotId, "CancellationException");
+        } catch (ExecutionException e) {
+            ImsLog.e(mSlotId, "ExecutionException");
+        } catch (InterruptedException e) {
+            ImsLog.e(mSlotId, "InterruptedException");
+        } catch (TimeoutException e) {
+            ImsLog.e(mSlotId, "TimeoutException");
+        }
+
+        Pair<String, String> keyPair = null;
+        if (credintials != null) {
+            keyPair = Pair.create(credintials.getTransactionId(), credintials.getKey());
+        }
+
+        return keyPair;
+    }
+
+    private CompletableFuture<GbaCredentials> requestTelephonyGbaAuthentication(int appType,
+            Uri nafUri, String securityProtocol, boolean isForced) {
+        int protocol =
+                UaSecurityProtocolIdentifier.UA_SECURITY_PROTOCOL_3GPP_HTTP_DIGEST_AUTHENTICATION;
+        if (TextUtils.isEmpty(securityProtocol) == false) {
+            protocol = UaSecurityProtocolIdentifier.UA_SECURITY_PROTOCOL_3GPP_TLS_DEFAULT;
+        }
+
+        UaSecurityProtocolIdentifier.Builder uspi =
+                new UaSecurityProtocolIdentifier.Builder()
+                        .setOrg(UaSecurityProtocolIdentifier.ORG_3GPP)
+                        .setProtocol(protocol);
+
+        if (TextUtils.isEmpty(securityProtocol) == false) {
+            int tlsCipherSuite = UaCipherSuite.getInstance().getCipherSuiteValue(securityProtocol);
+            uspi.setTlsCipherSuite(tlsCipherSuite);
+        }
+
+        CompletableFuture<GbaCredentials> credentialsFuture = new CompletableFuture<>();
+
+        TelephonyManager tm = getTelephonyManager();
+        tm.bootstrapAuthenticationRequest(appType, nafUri, uspi.build(), isForced, getExecutor(),
+                new TelephonyManager.BootstrapAuthenticationCallback() {
+                    @Override
+                    public void onKeysAvailable(byte[] gbaKey, String transactionId) {
+                        String key = Base64.encodeToString(gbaKey, Base64.NO_WRAP);
+                        GbaCredentials credintials = new GbaCredentials(transactionId, key);
+                        credentialsFuture.complete(credintials);
+                    }
+
+                    @Override
+                    public void onAuthenticationFailure(int reason) {
+                        ImsLog.e(mSlotId, "reason : " + reason);
+                        credentialsFuture.complete(null);
+                    }
+                });
+
+        return credentialsFuture;
+    }
+
+    private ExecutorService getExecutor() {
+        if (mExecutorService == null) {
+            mExecutorService = Executors.newSingleThreadExecutor();
+        }
+
+        return mExecutorService;
+    }
+
+    private Uri getNafUri(int gbaMode, boolean isTls, String nafFqdn) {
+        final String STR_GBA = "3GPP-bootstrapping";
+
+        String scheme = "http";
+        if (isTls) { // KEY_UT_TRANSPORT_TYPE_INT
+            scheme = "https";
+        }
+
+        String nafPrefix;
+        switch (gbaMode) { // KEY_GBA_MODE_INT
+            case CarrierConfigManager.GBA_ME: // 1
+                nafPrefix = STR_GBA;
+                break;
+            case CarrierConfigManager.GBA_U: // 2
+                nafPrefix = STR_GBA + "-uicc";
+                break;
+            case CarrierConfigManager.GBA_DIGEST: // 3
+                nafPrefix = STR_GBA + "-digest";
+                break;
+            default:
+                nafPrefix = STR_GBA;
+                break;
+        }
+
+        String authority = nafPrefix + "@" + nafFqdn;
+        Uri nafUri = new Uri.Builder().scheme(scheme).encodedAuthority(authority).build();
+
+        //ImsLog.d(mSlotId, "nafUri for GBA is " + nafUri);
+        return nafUri;
+    }
+
+    private TelephonyManager getTelephonyManager() {
+        int subId = MSimUtils.getSubId(mSlotId);
+        return AppContext.getTelephonyManager(subId);
+    }
+
+    private class GbaCredentials {
+        private String transactionId;
+        private String key;
+
+        private GbaCredentials(String transactionId, String key) {
+            this.transactionId = transactionId;
+            this.key = key;
+        }
+
+        private String getTransactionId() {
+            return transactionId;
+        }
+
+        private String getKey() {
+            return key;
+        }
+    }
+}

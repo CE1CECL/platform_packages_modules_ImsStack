@@ -1,0 +1,323 @@
+package com.android.imsstack.enabler.uce.impl.subscribe;
+
+import com.android.imsstack.enabler.uce.interf.UceEventListener;
+import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.enabler.uce.impl.define.UceConstant;
+import com.android.imsstack.enabler.uce.impl.define.UceMessage;
+import com.android.imsstack.enabler.uce.impl.define.UceResponseData;
+import com.android.imsstack.enabler.uce.impl.jni.IUceJNIListener;
+import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
+import com.android.imsstack.enabler.uce.impl.utils.UceUtils;
+import com.android.imsstack.enabler.uce.interf.SubscribeResponse;
+import com.android.imsstack.enabler.uce.interf.UceApiConstant;
+
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Parcel;
+import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+interface UceSubscribeMessageHandler {
+    public void onHandle(Message objMessage);
+}
+
+public class UceSubscribeRequestController implements IUceJNIListener {
+    private final int mSlotId;
+    private final Map<Integer, UceSubscribeRequest> mUceSubscribeRequestMap;
+    private final UceSubscribeControllerHandler mUceSubscribeControllerHandler;
+    private boolean mIsImsRegistered;
+
+    private HashMap<Integer, UceSubscribeMessageHandler> mMessageHandler =
+        new HashMap<Integer, UceSubscribeMessageHandler>();
+
+    public UceSubscribeRequestController(int slotId, Looper looper) {
+        mSlotId = slotId;
+        mIsImsRegistered = false;
+        mUceSubscribeRequestMap = new HashMap<Integer, UceSubscribeRequest>();
+        mUceSubscribeControllerHandler = new UceSubscribeControllerHandler(looper);
+
+        UceJNI.getInstance().addListener(mSlotId, this, UceMessage.UCE_SUBSCRIBE_RESPONSE_IND);
+        UceJNI.getInstance().addListener(mSlotId, this, UceMessage.UCE_PRESENCE_NOTIFY_IND);
+        UceJNI.getInstance().addListener(mSlotId, this, UceMessage.UCE_SUBSCRIBE_CMD_ERROR_IND);
+        UceJNI.getInstance().addListener(mSlotId, this,
+            UceMessage.UCE_SUBSCRIBE_RESOURCE_TERMINATED_IND);
+        UceJNI.getInstance().addListener(mSlotId, this, UceMessage.UCE_SUBSCRIBE_TERMINATED_IND);
+    }
+
+    /**
+     * Set the current ims registration status.
+     * @param imsRegistered set to true if the ims registration is successful, false otherwise.
+     */
+    public void setImsRegistrationStatus(boolean imsRegistered) {
+        if (mIsImsRegistered != imsRegistered) {
+            mIsImsRegistered = imsRegistered;
+            ImsLog.i("IsImsRegistered:" + mIsImsRegistered);
+        }
+    }
+
+    /**
+     * The user capabilities of one or multiple contacts have been requested by the framework.
+     */
+    public void subscribeCapabilities(Collection<Uri> uris, SubscribeResponse cb) {
+        if (!mIsImsRegistered) {
+            sendCommandError(cb, UceApiConstant.COMMAND_CODE_SERVICE_UNAVAILABLE);
+            return;
+        }
+        if (uris.isEmpty()) {
+            sendCommandError(cb, UceApiConstant.COMMAND_CODE_INVALID_PARAM);
+            return;
+        }
+
+        int key = UceUtils.generateKey();
+        UceSubscribeRequest request = new UceSubscribeRequest(cb, mSlotId, key);
+        ArrayList<String> queryingUri = new ArrayList<>();
+        uris.forEach(uri -> {
+            queryingUri.add(uri.toString());
+        });
+        if (request.sendRequest(queryingUri)) {
+            mUceSubscribeRequestMap.put(key, request);
+        }
+    }
+
+    class UceSubscribeControllerHandler extends Handler {
+        public UceSubscribeControllerHandler(Looper looper) {
+            super(looper);
+            mMessageHandler.put(UceMessage.UCE_MSG_SUBSCRIBE_RESPONSE, mResponseMsgHandler);
+            mMessageHandler.put(UceMessage.UCE_MSG_PRESENCE_NOTIFY, mNotifyMsgHandler);
+            mMessageHandler.put(UceMessage.UCE_MSG_SUBSCRIBE_CMD_ERROR, mCommandMsgHandler);
+            mMessageHandler.put(UceMessage.UCE_MSG_SUBSCRIBE_TERMINATED, mTerminatedMsgHandler);
+            mMessageHandler.put(UceMessage.UCE_MSG_SUBSCRIBE_RESOURCE_TERMINATED,
+                mResourceTerminatedMsgHandler);
+        }
+
+        @Override
+        public void handleMessage(Message objMessage) {
+            if (objMessage == null) {
+                ImsLog.e("Message is null");
+                return;
+            }
+            UceSubscribeMessageHandler objMsgHandler = mMessageHandler.get(objMessage.what);
+            if (objMsgHandler == null) {
+                ImsLog.e("message can not be handled.");
+                return;
+            }
+            objMsgHandler.onHandle(objMessage);
+        }
+
+        private UceSubscribeMessageHandler mResponseMsgHandler = new UceSubscribeMessageHandler() {
+            @Override
+            public void onHandle(Message objMessage) {
+                int requestKey = objMessage.arg1;
+                UceSubscribeRequest request = getSubscribeRequest(requestKey);
+                if (request == null) {
+                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    return;
+                }
+                UceResponseData data = (UceResponseData)objMessage.obj;
+                int responseCode = data.getResponseCode();
+                String reason = data.getReason();
+                int reasonHeaderCause = data.getReasonHeaderCause();
+                String reasonHeaderText = data.getReasonHeaderText();
+
+                request.informNetworkResponse(responseCode, reason, reasonHeaderCause,
+                    reasonHeaderText);
+                if (responseCode != 200 && responseCode != 202) {
+                    removeSubscribeRequest(requestKey);
+                }
+            }
+        };
+
+        private UceSubscribeMessageHandler mNotifyMsgHandler = new UceSubscribeMessageHandler() {
+            @Override
+            public void onHandle(Message objMessage) {
+                int requestKey = objMessage.arg1;
+                UceSubscribeRequest request = getSubscribeRequest(requestKey);
+                if (request == null) {
+                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    return;
+                }
+                List<String> pidfXmls = (List)objMessage.obj;
+                request.informCapabilitiesUpdate(pidfXmls);
+            }
+        };
+
+        private UceSubscribeMessageHandler mCommandMsgHandler = new UceSubscribeMessageHandler() {
+            @Override
+            public void onHandle(Message objMessage) {
+                int requestKey = objMessage.arg1;
+                UceSubscribeRequest request = getSubscribeRequest(requestKey);
+                if (request == null) {
+                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    return;
+                }
+                int commandErrorCode = objMessage.arg2;
+                request.informCommandError(commandErrorCode);
+                removeSubscribeRequest(requestKey);
+            }
+        };
+
+        private UceSubscribeMessageHandler mTerminatedMsgHandler =
+            new UceSubscribeMessageHandler() {
+            @Override
+            public void onHandle(Message objMessage) {
+                int requestKey = objMessage.arg1;
+                UceSubscribeRequest request = getSubscribeRequest(requestKey);
+                if (request == null) {
+                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    return;
+                }
+                int retryAfterMillsecond = objMessage.arg2;
+                Bundle bundle = objMessage.getData();
+                String reason = bundle.getString(UceConstant.BUNDLE_GET_REASON);
+                request.informTerminate(reason, retryAfterMillsecond);
+                removeSubscribeRequest(requestKey);
+            }
+        };
+
+        private UceSubscribeMessageHandler mResourceTerminatedMsgHandler =
+            new UceSubscribeMessageHandler() {
+            @Override
+            public void onHandle(Message objMessage) {
+                int requestKey = objMessage.arg1;
+                UceSubscribeRequest request = getSubscribeRequest(requestKey);
+                if (request == null) {
+                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    return;
+                }
+                ArrayList<UceResourceInfo> list = (ArrayList)objMessage.obj;
+                request.informResourceTerminate(list);
+            }
+        };
+    }
+
+    private void sendCommandError(SubscribeResponse cb, int code) {
+        ImsLog.d("sendCommandError:" + code);
+        try {
+            cb.onCommandError(code);
+        } catch (Exception e) {
+            ImsLog.e("Exception:" + e.toString());
+        }
+    }
+
+    private UceSubscribeRequest getSubscribeRequest(int key) {
+        UceSubscribeRequest request = null;
+        try {
+            request = mUceSubscribeRequestMap.get(key);
+        } catch (ClassCastException e) {
+            ImsLog.e("ClassCastException:" + e.toString());
+        } catch (NullPointerException e) {
+            ImsLog.e("NullPointerException:" + e.toString());
+        } finally {
+            return request;
+        }
+    }
+
+    private void removeSubscribeRequest(int key) {
+        try {
+            mUceSubscribeRequestMap.remove(key);
+            ImsLog.d("remove key:" + key);
+        } catch (ClassCastException e) {
+            ImsLog.e("ClassCastException:" + e.toString());
+        } catch (NullPointerException e) {
+            ImsLog.e("NullPointerException:" + e.toString());
+        } catch (UnsupportedOperationException e) {
+            ImsLog.e("UnsupportedOperationException:" + e.toString());
+        } finally {
+            return;
+        }
+    }
+
+    @Override
+    public void onSubscribeResponseMessage(Parcel parcel) {
+        Message msg = Message.obtain();
+        int messageType = parcel.readInt();
+        switch (messageType) {
+            case UceMessage.UCE_SUBSCRIBE_RESPONSE_IND: {
+                ImsLog.d("UCE_SUBSCRIBE_RESPONSE_IND");
+                msg.what = UceMessage.UCE_MSG_SUBSCRIBE_RESPONSE;
+                int requestKey = parcel.readInt();
+                int responseCode = parcel.readInt();
+                String reason = parcel.readString();
+                int reasonHeaderCause = parcel.readInt();
+                String reasonHeaderText = parcel.readString();
+
+                ImsLog.d("responseCode:" + responseCode + ", reason:" + reason + "reasonHeaderCause"
+                    + reasonHeaderCause + "reasonHeaderText:" + reasonHeaderText);
+
+                msg.arg1 = requestKey;
+                UceResponseData data = new UceResponseData(responseCode, reason);
+                data.setReasonHeaderCause(reasonHeaderCause);
+                data.setReasonHeaderText(reasonHeaderText);
+                msg.obj = data;
+                break;
+            }
+            case UceMessage.UCE_PRESENCE_NOTIFY_IND: {
+                ImsLog.d("UCE_PRESENCE_NOTIFY_IND");
+                msg.what = UceMessage.UCE_MSG_PRESENCE_NOTIFY;
+                int requestKey = parcel.readInt();
+                int count = parcel.readInt();
+                List<String> pidfXmls = new ArrayList<>();
+                for (int i = 0; i < count; i++) {
+                    String pidfXml = parcel.readString();
+                    pidfXmls.add(pidfXml);
+                }
+                msg.arg1 = requestKey;
+                msg.obj = pidfXmls;
+                break;
+            }
+            case UceMessage.UCE_SUBSCRIBE_CMD_ERROR_IND: {
+                ImsLog.d("UCE_SUBSCRIBE_CMD_ERROR_IND");
+                msg.what = UceMessage.UCE_MSG_SUBSCRIBE_CMD_ERROR;
+                int requestKey = parcel.readInt();
+                int commandErrorCode = parcel.readInt();
+                msg.arg1 = requestKey;
+                msg.arg2 = commandErrorCode;
+                break;
+            }
+            case UceMessage.UCE_SUBSCRIBE_TERMINATED_IND: {
+                ImsLog.d("UCE_SUBSCRIBE_TERMINATED_IND");
+                msg.what = UceMessage.UCE_MSG_SUBSCRIBE_TERMINATED;
+                int requestKey = parcel.readInt();
+                String reason = parcel.readString();
+                int retryAfterMillsecond = parcel.readInt();
+
+                msg.arg1 = requestKey;
+                msg.arg2 = retryAfterMillsecond;
+
+                Bundle bundle = new Bundle();
+                bundle.putString(UceConstant.BUNDLE_GET_REASON, reason);
+                msg.setData(bundle);
+                break;
+            }
+            case UceMessage.UCE_SUBSCRIBE_RESOURCE_TERMINATED_IND: {
+                ImsLog.d("UCE_SUBSCRIBE_RESOURCE_TERMINATED_IND");
+                msg.what = UceMessage.UCE_MSG_SUBSCRIBE_RESOURCE_TERMINATED;
+                int requestKey = parcel.readInt();
+                int count = parcel.readInt();
+                ArrayList<UceResourceInfo> list = new ArrayList<>();
+                for (int i = 0; i < count; i++) {
+                    String id = parcel.readString();
+                    String reason = parcel.readString();
+                    if (!TextUtils.isEmpty(id)) {
+                        UceResourceInfo resource = new UceResourceInfo(id, reason);
+                        list.add(resource);
+                    }
+                }
+                msg.arg1 = requestKey;
+                msg.obj = list;
+                break;
+            }
+            default:
+                return;
+        }
+        mUceSubscribeControllerHandler.sendMessage(msg);
+    }
+}

@@ -1,0 +1,551 @@
+package com.android.imsstack.core.agents;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Registrant;
+import android.os.RegistrantList;
+
+import com.android.imsstack.core.agents.agentif.IWifiState;
+import com.android.imsstack.system.ISystemAPIWifi;
+import com.android.imsstack.system.SystemInterface;
+import com.android.imsstack.util.ImsLog;
+
+import java.util.Hashtable;
+import java.util.Locale;
+
+public class WifiStateAgent implements IWifiState, ISystemAPIWifi {
+    // Constants--------------------------------------------------
+    // Internal Event
+    private static final int EVENT_NETWORK_STATE_CHAGED_ACTION = 1001;
+    private static final int EVENT_WIFI_STATE_CHANGED_ACTION = 1002;
+    private static final int EVENT_RSSI_CHANGED_ACTION = 1003;
+    private static final int EVENT_TURN_ON_OFF = 1004;
+
+    // Variables--------------------------------------------------
+    private static final Hashtable<NetworkInfo.State, Integer> sStateTable;
+    private static final Hashtable<NetworkInfo.DetailedState, Integer> sDetailedStateTable;
+
+    private static IWifiState sWifiStateAgent;
+    private Context mContext;
+
+    private WifiStateReceiverListener mReceiverListener;
+    private Handler mWifiStateHandler;
+
+    private RegistrantList mWifiStateRegistrants = new RegistrantList();
+
+    private int mWifiState = WifiManager.WIFI_STATE_UNKNOWN;
+    private int mWifiDetailedStatus = 9; // WHY??
+
+    private boolean mWifiSupported = false;
+    private boolean mIsWifiConnected = false;
+
+    // Static loading materials ----------------------------------
+    // Public methods --------------------------------------------
+    public WifiStateAgent() {
+   }
+
+    public static IWifiState getInstance() {
+        if (sWifiStateAgent == null) {
+            sWifiStateAgent = new WifiStateAgent();
+        }
+
+        return sWifiStateAgent;
+    }
+
+    // Interface implementation methods --------------------------
+    @Override
+    public void init(Context context) {
+        if (context == null) {
+            return;
+        }
+
+        mContext = context;
+
+        SystemInterface.getInstance().setISystemAPIWifi(this);
+
+        if (isWifiConnectionRequired()) {
+            mReceiverListener = new WifiStateReceiverListener();
+            mContext.registerReceiver(mReceiverListener,
+                    mReceiverListener.getFilter(), Context.RECEIVER_EXPORTED);
+
+            mWifiStateHandler = new WifiStateHandler();
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        ImsLog.d("");
+
+        if (isWifiConnectionRequired()) {
+            if (mWifiStateHandler != null) {
+                mWifiStateHandler.removeCallbacksAndMessages(null);
+                mWifiStateHandler = null;
+            }
+
+            if (mReceiverListener != null && mContext != null) {
+                mContext.unregisterReceiver(mReceiverListener);
+                mReceiverListener = null;
+            }
+        }
+
+        SystemInterface.getInstance().setISystemAPIWifi(null);
+    }
+
+    @Override
+    public void registerForWifiStateChanged(Handler h, int what, Object obj) {
+        mWifiStateRegistrants.add(new Registrant(h, what, obj));
+    }
+
+    @Override
+    public void unregisterForWifiStateChanged(Handler h) {
+        mWifiStateRegistrants.remove(h);
+    }
+
+    @Override
+    public boolean isWifiConnected() {
+        ImsLog.i("wifi is" + (mIsWifiConnected ? " " : " not ") + "connected");
+        return mIsWifiConnected;
+    }
+
+    @Override
+    public int getWifiDetailedStatus() {
+        ImsLog.i("mWifiDetailedStatus : " + mWifiDetailedStatus);
+        return mWifiDetailedStatus;
+    }
+
+    @Override
+    public String getWifiSSID() {
+        WifiInfo wifiInfo = getWifiInfo();
+
+        if (wifiInfo == null) {
+            ImsLog.w("WifiInfo is null");
+            return null;
+        }
+
+        String ssid = wifiInfo.getSSID();
+
+        if ((ssid != null) && ssid.startsWith("\"") && ssid.endsWith("\"")) {
+            ssid = ssid.substring(1, ssid.length() - 1);
+        }
+
+        return ssid;
+    }
+
+    @Override
+    public void setWifiSupported(boolean input) {
+        ImsLog.i("wifi is supported = " + input);
+        mWifiSupported = input;
+    }
+
+    @Override
+    public String getLocalAddress() {
+        WifiInfo wifiInfo = getWifiInfo();
+
+        if (wifiInfo == null) {
+            ImsLog.w("WifiInfo is null");
+            return "";
+        }
+
+        int ipAddress = wifiInfo.getIpAddress();
+
+        String strWifiIp = String.format(Locale.US, "%d.%d.%d.%d",
+                (ipAddress & 0xff),
+                (ipAddress >> 8 & 0xff),
+                (ipAddress >> 16 & 0xff),
+                (ipAddress >> 24 & 0xff));
+
+        ImsLog.i("Wifi IP : " + strWifiIp);
+        return strWifiIp;
+    }
+
+    @Override
+    public int getWifiState4Sys() {
+        return getWifiState();
+    }
+
+    @Override
+    public int getWifiDetailedState4Sys() {
+        return getWifiDetailedStatus();
+    }
+
+    @Override
+    public String getWifiBssId4Sys() {
+        return getWifiBSSID();
+    }
+
+    @Override
+    public String getWifiSsId4Sys() {
+        return getWifiSSID();
+    }
+
+    @Override
+    public int getWifiIfaceId4Sys() {
+        WifiManager wm = getWifiManager();
+
+        if (wm == null ) {
+            ImsLog.w("WifiManager is null");
+            return -1;
+        }
+
+        Network network = wm.getCurrentNetwork();
+
+        if (network == null) {
+            ImsLog.w("Network is null");
+            return -1;
+        }
+
+        return network.getNetId();
+    }
+
+    @Override
+    public int getWifiMtu4Sys() {
+        LinkProperties lp = getLinkProperties();
+
+        if (lp != null) {
+            return lp.getMtu();
+        }
+
+        return 0;
+    }
+
+    @Override
+    public void turnOnOff(boolean on) {
+        if (mWifiStateHandler == null) {
+            handleWifiSupported(on);
+        } else {
+            Message.obtain(mWifiStateHandler, EVENT_TURN_ON_OFF, on ? 1 : 0, 0).sendToTarget();
+        }
+    }
+
+    // Private/Protected methods ---------------------------------
+    private LinkProperties getLinkProperties() {
+        if (mContext == null) {
+            return null;
+        }
+
+        ConnectivityManager cm = mContext.getSystemService(ConnectivityManager.class);
+
+        if (cm == null) {
+            return null;
+        }
+
+        /* ImsStack-Build_ConnectivityManager#TYPE_
+        return cm.getLinkProperties(ConnectivityManager.TYPE_WIFI);
+        */
+        return null;
+    }
+
+    private WifiManager getWifiManager() {
+        if (mContext == null) {
+            return null;
+        }
+
+        return mContext.getSystemService(WifiManager.class);
+    }
+
+    private WifiInfo getWifiInfo() {
+        WifiManager wm = getWifiManager();
+        return (wm != null) ? wm.getConnectionInfo() : null;
+    }
+
+    private int getWifiState() {
+        ImsLog.i("wifi state = " + mWifiState);
+        return mWifiState;
+    }
+
+    private String getWifiBSSID() {
+        WifiInfo wifiInfo = getWifiInfo();
+
+        if (wifiInfo == null) {
+            ImsLog.w("WifiInfo is null");
+            return null;
+        }
+
+        String bssID = wifiInfo.getBSSID();
+
+        ImsLog.i("BSS ID is " + bssID);
+
+        return bssID;
+    }
+
+    private void handleNetworkStateChanged(Message msg) {
+        Intent intent = (Intent)msg.obj;
+
+        if (intent == null) {
+            return;
+        }
+
+        final NetworkInfo networkInfo = (NetworkInfo)intent.getParcelableExtra(
+            WifiManager.EXTRA_NETWORK_INFO);
+
+        if (networkInfo == null) {
+            ImsLog.w("NetworkInfo is NULL" );
+            return;
+        }
+
+        ImsLog.d("NETWORK_STATE_CHANGED_ACTION : networkinfo (" + networkInfo.toString() + ")");
+
+        /*
+            CONNECTING, CONNECTED, SUSPENDED, DISCONNECTING, DISCONNECTED, UNKNOWN
+         */
+        //eState = networkInfo.getState();
+
+        /*
+            IDLE, SCANNING, CONNECTING, AUTHENTICATING,
+            OBTAINING_IPADDR, CONNECTED, SUSPENDED,
+            DISCONNECTING, DISCONNECTED, FAILED
+        */
+        setWifiConnectedState(networkInfo);
+
+        mWifiDetailedStatus = getNetworkInfoDetailedState(networkInfo.getDetailedState());
+
+        // if wifi service is supported
+        if (mWifiSupported == true) {
+            SystemInterface.getInstance().notifyWifiDetailedStateChanged(mWifiDetailedStatus);
+        }
+    }
+
+    private int getNetworkInfoState(NetworkInfo.State state) {
+        Integer niState = sStateTable.get(state);
+        return (niState != null) ? niState.intValue() : (-1);
+    }
+
+    private int getNetworkInfoDetailedState(NetworkInfo.DetailedState state) {
+        Integer niDetailedState = sDetailedStateTable.get(state);
+        return (niDetailedState != null) ? niDetailedState.intValue() : (-1);
+    }
+
+    private void handleWifiStateChanged(Message msg) {
+        Intent intent = (Intent)msg.obj;
+
+        if (intent == null) {
+            return;
+        }
+
+        /*
+            NetworkInfo networkInfo = (NetworkInfo)intent.getParcelableExtra(
+                WifiManager.EXTRA_NETWORK_INFO);
+        */
+        mWifiState = intent.getIntExtra(
+            WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+
+        ImsLog.i("WIFI_STATE_CHANGED_ACTION : nStatus (" + mWifiState + ")");
+
+        // if wifi service is supported
+        if (mWifiSupported == true) {
+            SystemInterface.getInstance().notifyWifiStateChanged(mWifiState);
+        }
+    }
+
+    private void handleRSSIChanged(Message msg) {
+        Intent intent = (Intent)msg.obj;
+
+        if (intent == null) {
+            return;
+        }
+
+        int newRssi = (int)intent.getIntExtra(WifiManager.EXTRA_NEW_RSSI, -200);
+        newRssi = newRssi * (-1);
+
+        ImsLog.i("RSSI_CHANGED_ACTION : [" + newRssi + "]");
+    }
+
+    private void handleWifiSupported(boolean on) {
+        if (on) {
+            SystemInterface.getInstance().notifyWifiStateChanged(mWifiState);
+            SystemInterface.getInstance().notifyWifiDetailedStateChanged(mWifiDetailedStatus);
+
+            setWifiSupported(true);
+        } else {
+            setWifiSupported(false);
+        }
+    }
+
+    private boolean isWifiConnectionRequired() {
+        return true;
+    }
+
+    private void setWifiConnectedState(NetworkInfo netInfo) {
+        boolean oldWifiConnected = mIsWifiConnected;
+
+        if (netInfo == null) {
+            return;
+        }
+
+        NetworkInfo.DetailedState detailedState = netInfo.getDetailedState();
+        if (detailedState == null) {
+            ImsLog.w("DetailedState is null");
+            return;
+        }
+
+        if (detailedState == NetworkInfo.DetailedState.CONNECTED
+                || detailedState == NetworkInfo.DetailedState.CAPTIVE_PORTAL_CHECK) {
+            mIsWifiConnected = true;
+        } else {
+            if ((mIsWifiConnected)
+                    && (detailedState == NetworkInfo.DetailedState.OBTAINING_IPADDR
+                            || detailedState == NetworkInfo.DetailedState.VERIFYING_POOR_LINK)) {
+                mIsWifiConnected = true;
+            } else {
+                mIsWifiConnected = false;
+            }
+        }
+
+        if (oldWifiConnected != mIsWifiConnected) {
+            mWifiStateRegistrants.notifyResult(Integer.valueOf((mIsWifiConnected) ? 1 : 0));
+        }
+
+        ImsLog.i("DetailedState = " + detailedState + " , mIsWifiConnected = " + mIsWifiConnected);
+    }
+
+    private void updateWifiState() {
+        if (mContext == null) {
+            return;
+        }
+
+        ConnectivityManager cm = mContext.getSystemService(ConnectivityManager.class);
+
+        if (cm == null) {
+            return;
+        }
+
+        /* ImsStack-Build_ConnectivityManager#TYPE_ */
+        final NetworkInfo networkInfo = null; // cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (networkInfo == null) {
+            return;
+        }
+
+        ImsLog.i("wifi state = " + networkInfo.getState() + " detailed state = "
+            + networkInfo.getDetailedState());
+
+        setWifiConnectedState(networkInfo);
+
+        mWifiDetailedStatus = getNetworkInfoDetailedState(networkInfo.getDetailedState());
+
+        if (mWifiSupported == true) {
+            SystemInterface.getInstance().notifyWifiDetailedStateChanged(mWifiDetailedStatus);
+        }
+    }
+
+    // -----------------------------------------------------------
+    private class WifiStateReceiverListener extends BroadcastReceiver {
+        IntentFilter mIntentFilter = new IntentFilter();
+
+        public WifiStateReceiverListener() {
+            mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+            mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+            mIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        }
+
+        public IntentFilter getFilter() {
+            return mIntentFilter;
+        }
+
+        @Override
+        public synchronized void onReceive(Context context, Intent intent) {
+            if (mWifiStateHandler == null || intent == null) {
+                return;
+            }
+
+            String action = intent.getAction();
+            int nMsg = 0;
+            if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
+                nMsg = EVENT_NETWORK_STATE_CHAGED_ACTION;
+            } else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
+                nMsg = EVENT_WIFI_STATE_CHANGED_ACTION;
+            } else if (WifiManager.RSSI_CHANGED_ACTION.equals(action)) {
+                nMsg = EVENT_RSSI_CHANGED_ACTION;
+            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
+                NetworkInfo netInfo = (NetworkInfo)intent.getParcelableExtra(
+                    ConnectivityManager.EXTRA_NETWORK_INFO);
+
+                if (netInfo != null) {
+                    /* ImsStack-Build_ConnectivityManager#TYPE_
+                    if (netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                        ImsLog.d(netInfo.toString());
+                        nMsg = EVENT_NETWORK_STATE_CHAGED_ACTION;
+                    }*/
+                }
+            }
+
+            if (nMsg != 0) {
+                ImsLog.i(ImsLog.lastSubString(action, "."));
+
+                Message msg = Message.obtain();
+                if (msg == null) {
+                    return;
+                }
+
+                msg.what = nMsg;
+                msg.obj = (Object)intent;
+
+                mWifiStateHandler.sendMessage(msg);
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    private class WifiStateHandler extends Handler {
+        public void handleMessage(Message msg) {
+            if (msg == null) {
+                return;
+            }
+
+            ImsLog.i("WifiState :: msg=" + msg.what);
+
+            switch(msg.what) {
+                // Receiver Event
+                case EVENT_NETWORK_STATE_CHAGED_ACTION:
+                    handleNetworkStateChanged(msg);
+                    break;
+                case EVENT_WIFI_STATE_CHANGED_ACTION:
+                    handleWifiStateChanged(msg);
+                    break;
+                case EVENT_RSSI_CHANGED_ACTION:
+                    handleRSSIChanged(msg);
+                    break;
+                case EVENT_TURN_ON_OFF:
+                    handleWifiSupported((msg.arg1 == 1) ? true : false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    static {
+        // NOTICE: This needs to be synchronize with native constant values.
+        sStateTable = new Hashtable<NetworkInfo.State, Integer>();
+        sStateTable.put(NetworkInfo.State.CONNECTING, 0);
+        sStateTable.put(NetworkInfo.State.CONNECTED, 1);
+        sStateTable.put(NetworkInfo.State.SUSPENDED, 2);
+        sStateTable.put(NetworkInfo.State.DISCONNECTING, 3);
+        sStateTable.put(NetworkInfo.State.DISCONNECTED, 4);
+        sStateTable.put(NetworkInfo.State.UNKNOWN, 5);
+
+        sDetailedStateTable = new Hashtable<NetworkInfo.DetailedState, Integer>();
+        sDetailedStateTable.put(NetworkInfo.DetailedState.IDLE, 0);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.SCANNING, 1);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.CONNECTING, 2);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.AUTHENTICATING, 3);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.OBTAINING_IPADDR, 4);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.CONNECTED, 5);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.SUSPENDED, 6);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.DISCONNECTING, 7);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.DISCONNECTED, 8);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.FAILED, 9);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.BLOCKED, 10);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.VERIFYING_POOR_LINK, 11);
+        sDetailedStateTable.put(NetworkInfo.DetailedState.CAPTIVE_PORTAL_CHECK, 12);
+    }
+}

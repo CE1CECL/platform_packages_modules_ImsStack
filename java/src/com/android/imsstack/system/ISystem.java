@@ -1,0 +1,220 @@
+/*
+    Author
+    <table>
+    date      author                      description
+    --------  --------------              ----------
+    20131201  joonhun.shin@        Created
+    </table>
+
+    Description
+ */
+
+package com.android.imsstack.system;
+
+public interface ISystem {
+    /**
+     * return slot id
+     */
+    public int getSlotId();
+
+    public void setSystemCallInterface(SystemCallInterface systemCall);
+
+    /**
+     * set system interface
+     */
+    public void setISystemAPICallInfo(ISystemAPICallInfo api);
+    public void setISystemAPIIMSPhone(ISystemAPIIMSPhone api);
+    public void setISystemAPINetwork(ISystemAPINetwork api);
+    public void setISystemAPISendEvent(ISystemAPISendEvent api);
+    public void setISystemAPISRVCC(ISystemAPISRVCC api);
+    public void setISystemAPISIM(ISystemAPISIM api);
+    public void setISystemAPITelephonyState(ISystemAPITelephonyState api);
+    public void setISystemAPITelephonySubscriber(ISystemAPITelephonySubscriber api);
+    public void setISystemAPIWifiCalling(ISystemAPIWifiCalling api);
+    public void setISystemAPILocation(ISystemAPILocation api);
+    public void setISystemAPIVoNR(ISystemAPIVoNR api);
+
+    /**
+     * Notifies the changes of airplane mode in the phone settings.
+     *
+     * @param airplaneMode the current airplane mode status 0: Airplane mode
+     *            OFF, 1: Airplane mode ON
+     */
+    public void notifyAirplaneModeChanged(final int airplaneMode);
+
+    /**
+     * Notifies the failure result to connect a data connection of the specified
+     * APN type.
+     *
+     * @param apnType the APN type (1: ims, 2: internet, 3: xcap, 9: emergency,
+     *            21: wifi)
+     */
+    public void notifyDataConnectionFailed(final int apnType);
+
+    /**
+     * Notifies the IPCAN category of the attached data connection.
+     *
+     * @param apnType the APN type (1: ims, 2: internet, 3: xcap, 9: emergency,
+     *            21: wifi)
+     * @param ipcanCategory the IPCAN category (0: MOBILE, 1: WLAN); Refer to IIPCAN.h
+     */
+    public void notifyDataConnectionIpcanChanged(final int apnType,
+            final int ipcanCategory);
+
+    /**
+     * Notifies the state of the specified data connection.
+     *
+     * @param apnType the APN type (1: ims, 2: internet, 3: xcap, 9: emergency,
+     *            21: wifi)
+     * @param state the data state (TelephonyManager.DATA_*)
+     *            {@link TelephonyManager.DATA_UNKNOWN} (-1)
+     *            {@link TelephonyManager.DATA_DISCONNECTED} (0)
+     *            {@link TelephonyManager.DATA_CONNECTING} (1)
+     *            {@link TelephonyManager.DATA_CONNECTED} (2)
+     *            {@link TelephonyManager.DATA_SUSPENDED} (3)
+     */
+    public void notifyDataConnectionStateChanged(final int apnType,
+        final int state);
+
+    /**
+     * Notifies the network type which the device is attached.
+     *
+     * @param networkType the network type (TelephonyManager.NETWORK_TYPE_*)
+     *          {@link RAT_NONET} (0)
+     *          {@link RAT_EHRPD} (1)
+     *          {@link RAT_4G} (2)
+     *          {@link RAT_3G} (3)
+     *          {@link RAT_1XRTT} (4)
+     *          {@link RAT_2G} (5)
+     *          {@link RAT_EVDO} (6)
+     *          {@link RAT_5G} (7)
+     */
+    public void notifyNetworkTypeChanged(final int networkType);
+
+    /**
+     * Notifies the voice network type which the device is attached.
+     *
+     * @param voice networkType defined in DCNetWatcher
+     *          {@link RAT_NONET} (0)
+     *          {@link RAT_EHRPD} (1)
+     *          {@link RAT_4G} (2)
+     *          {@link RAT_3G} (3)
+     *          {@link RAT_1XRTT} (4)
+     *          {@link RAT_2G} (5)
+     *          {@link RAT_EVDO} (6)
+     *          {@link RAT_5G} (7)
+     */
+    public void notifyVoiceNetworkTypeChanged(final int networkType);
+
+    /**
+     * Notifies the service state related to the attached network.
+     *
+     * @param serviceState the service state (ServiceState.STATE_*)
+     *            {@link ServiceState.STATE_IN_SERVICE} (0)
+     *            {@link ServiceState.STATE_OUT_OF_SERVICE} (1)
+     *            {@link ServiceState.STATE_EMERGENCY_ONLY} (2)
+     *            {@link ServiceState.STATE_POWER_OFF} (3)
+     */
+    public void notifyServiceStateChanged(final int serviceState);
+
+    /**
+     * Notifies the voice call (CS / IMS) state.
+     *
+     * @param state the call state (TelephonyManager.CALL_STATE_*)
+     *            {@link TelephonyManager.CALL_STATE_IDLE} (0)
+     *            {@link TelephonyManager.CALL_STATE_RINGING} (1)
+     *            {@link TelephonyManager.CALL_STATE_OFFHOOK} (2)
+     */
+    public void notifyVoiceCallStateChanged(final int state);
+
+    /**
+     * Notifies the changes of the IMS configuration.
+     *
+     * @param configs the configuration items to be updated
+     */
+    public void notifyConfigurationChanged(final int configs);
+
+    /**
+     * Notifies the events which are registered by the native modules.
+     *
+     * @param event the current event
+     * @param param1 the parameter related to the current event
+     * @param param2 the additional parameter related to the current event
+     */
+    public void notifyEvent(final int event, final int param1, final int param2);
+
+    /**
+     * Notifies the ISIM events of the
+     *
+     * @param event the current event
+     * @param param1 the parameter related to the current event
+     * @param param2 the additional parameter related to the current event
+     */
+    public void notifyISIMState(final int event, final String state);
+
+    /**
+     * Notifies the ISIM events of the
+     *
+     * @param event the current event
+     * @param param1 the parameter related to the current event
+     * @param param2 the additional parameter related to the current event
+     */
+    public void notifyISIMFileAttributeResponse(final int event, final int EF_type,
+        final int size, final String[] values);
+
+    /**
+     * Notifies the ISIM events of the
+     *
+     * @param event the current event
+     * @param param1 the parameter related to the current event
+     * @param param2 the additional parameter related to the current event
+     */
+    public void notifyISIMFileFileValueResponse(final int event, final int EF_type,
+        final int index, final String value);
+
+    /**
+     * Notifies the ISIM events of the
+     *
+     * @param event the current event
+     * @param param1 the parameter related to the current event
+     * @param param2 the additional parameter related to the current event
+     */
+    public void notifyISIMAuthResponse(
+            final int event, final String response, final long owner);
+
+    /**
+     * Notifies the USIM events of the
+     *
+     * @param event the current event
+     * @param param1 the parameter related to the current event
+     * @param param2 the additional parameter related to the current event
+     */
+    public void notifyUSIMAuthResponse(
+            final int event, final String response, final long owner);
+
+    /**
+     * Notifies the call ready for requesting call preference
+     *
+     *
+     * @param
+     */
+    public void notifyCallReady(int event, int sysMode);
+
+    /**
+     * Notifies the call ready for requesting call preference
+     *
+     *
+     * @param
+     */
+    public void notifyHandoffInformation(int event, int status, int sRat, int tRat,
+        int reasonType, int reason);
+
+    /**
+     * Notifies the UAC response
+     *
+     *
+     * @param
+     */
+    public void notifyUacResponse(int event, int callType, int sysMode, int result,
+        int barringTime);
+}

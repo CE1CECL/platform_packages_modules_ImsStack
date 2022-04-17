@@ -1,0 +1,32 @@
+cc_defaults {
+    name: "imsstack_native_test_enabler_defaults",
+    defaults: [
+        "imsstack_native_test_defaults",
+    ],
+    header_libs: [
+        "libimsstack_config_headers",
+        "libimsstack_enabler_headers",
+        "libimsstack_engine_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_protocol_headers",
+    ],
+    static_libs: [
+        "libimsstack-config",
+        "libimsstack-enabler",
+        "libimsstack-engine",
+        "libimsstack-platform",
+        "libimsstack-protocol",
+    ],
+}
+
+cc_test {
+    name: "ImsStackNativeEnablerTests",
+    defaults: [
+        "imsstack_native_test_enabler_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+
+    test_config: "ImsStackNativeEnablerTests.xml",
+}

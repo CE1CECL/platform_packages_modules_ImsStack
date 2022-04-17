@@ -1,0 +1,122 @@
+package com.android.imsstack.enabler.aos;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import android.annotation.IntRange;
+import android.annotation.Nullable;
+
+/**
+ * This class provides the interworking interface between Java and native layer
+ * for AoS(Always On Service) functionalities.
+ * It manages the IMS registration state, and sends any information to native layer
+ * to run AoS enabler.
+ */
+public interface IAosRegistration {
+
+    /**
+     * Registers a new Listener to receive registration updates.
+     *
+     * @param listener listener to be notified
+     */
+    public void addListener(IAosRegistrationListener listener);
+
+    /**
+     * Removes a listener previously registered with {@link #addListener(IAosRegistrationListener)}
+     *
+     * @param listener listener previously registered
+     */
+    public void removeListener(IAosRegistrationListener listener);
+
+    /**
+    * Called by the framework to request that the ImsService perform the network registration
+    * of all SIP delegates associated with this ImsService.
+    */
+    public void updateSipDelegateRegistration();
+
+    /**
+     * Called by the framework to request that the ImsService perform the network deregistration
+     * of all SIP delegates associated with this ImsService.
+     */
+    public void triggerSipDelegateDeregistration();
+
+    /**
+     * Called by the framework to notify the ImsService that a SIP delegate connection has received
+     * a SIP message containing a permanent failure response (such as a 403) or an indication that
+     * a SIP response timer has timed out in response to an outgoing SIP message.
+     */
+    public void triggerFullNetworkRegistration(@IntRange(from = 100, to = 699) int sipCode,
+            @Nullable String sipReason);
+
+    /**
+     * This method is called when capabilities are changed.
+     *
+     * If the capabilities changed by calling this method is not updated,
+     * the following API is called. {@link IAosRegistrationListener#notifyCapabilitiesUpdateFailed}
+     *
+     * @param capabilityPairs Type of {@link CapabilityPairs},
+     *     a pair of capabilities and network Type. (@code capabilityPairs} contains
+     *     all enabled capabilities for each network type.
+     * @see {@link IAosRegistrationListener.Capability}
+     * @see {@link IAosRegistrationListener.NetworkType}
+     */
+    public void changeCapabilities(CapabilityPairs capabilityPairs);
+
+    /**
+     * CapabilityPairs
+     */
+    public final class CapabilityPairs {
+
+        /**
+         * The key of Map<Integer, Integer> is networkType.
+         * {@link IAosRegistrationListener.NetworkType}
+         *
+         * The value of Map<Integer, Integer> is Capability.
+         * {@link IAosRegistrationListener.Capability}
+         */
+        private final Map<Integer, Integer> mCapabilities;
+
+        public CapabilityPairs() {
+            mCapabilities = new LinkedHashMap<Integer, Integer>();
+        }
+
+        public CapabilityPairs(Integer networkType, Integer capability) {
+            mCapabilities = new LinkedHashMap<Integer, Integer>();
+            addCapability(networkType, capability);
+        }
+
+        public void addCapability(Integer networkType, Integer capability) {
+            mCapabilities.put(networkType,
+                    mCapabilities.getOrDefault(networkType, 0) | capability);
+        }
+
+        /**
+         * This method returns a pair of capabilities.
+         *
+         * @return mCapabilities is type of Map<Integer, Integer>.
+         */
+        public Map<Integer, Integer> getCapabilities() {
+            return mCapabilities;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (!(o instanceof CapabilityPairs)) {
+                return false;
+            }
+
+            CapabilityPairs that = (CapabilityPairs)o;
+
+            if (this.getCapabilities().size() != that.getCapabilities().size()) {
+                return false;
+            }
+
+            return this.getCapabilities().entrySet().stream().allMatch(
+                    e -> e.getValue().equals(that.getCapabilities().get(e.getKey())));
+        }
+    }
+}

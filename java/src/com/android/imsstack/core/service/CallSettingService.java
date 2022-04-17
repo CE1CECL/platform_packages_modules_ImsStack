@@ -1,0 +1,1634 @@
+package com.android.imsstack.core.service;
+
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Registrant;
+import android.os.RegistrantList;
+import android.provider.Settings;
+import android.telephony.RadioAccessFamily;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+
+import com.android.imsstack.core.ImsGlobal;
+import com.android.imsstack.core.OperatorInfo;
+import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.RegiProcessAgent;
+import com.android.imsstack.core.agents.agentif.IRegiProcess;
+import com.android.imsstack.core.agents.agentif.ISubscription;
+import com.android.imsstack.core.agents.agentif.SubscriptionListener;
+import com.android.imsstack.core.agents.dcm.DCFactory;
+import com.android.imsstack.core.agents.dcmif.IDCNetWatcher;
+import com.android.imsstack.core.config.ImsDbController;
+import com.android.imsstack.core.config.ProviderInterface;
+import com.android.imsstack.core.service.serviceif.ICallSettingService;
+import com.android.imsstack.core.service.serviceif.IVoLteService;
+import com.android.imsstack.system.ImsEventDef;
+import com.android.imsstack.system.ISystem;
+import com.android.imsstack.system.SystemInterface;
+import com.android.imsstack.util.AppContext;
+import com.android.imsstack.util.DBUtils;
+import com.android.imsstack.util.ImsConstants;
+import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.util.ImsPrivateProperties;
+import com.android.imsstack.util.ImsProperties;
+import com.android.imsstack.util.MSimUtils;
+import com.android.imsstack.util.SettingsUtils;
+import com.android.internal.telephony.RILConstants;
+
+public class CallSettingService implements ICallSettingService {
+
+    public final static class VoWIFI {
+        // ATT only feature
+        public final static Uri CONTENT_URI_AID = Uri.parse(
+            "content://com.xxx.wfcprovider/wfcconfig_att");
+        public final static String KEY_ADDRESSID = "AID";
+
+        public final static int MODE_WIFI_ONLY = 0;
+        public final static int MODE_CELL_PREF = 1;
+        public final static int MODE_WIFI_PREF = 2;
+
+        public final static int MODE_ROAMING_CELL_PREF = 0;
+        public final static int MODE_ROAMING_WIFI_PREF = 1;
+    }
+
+    // constants
+    private final static int DISABLED = 0;
+    private final static int ENABLED = 1;
+
+    private ContentObserver mVoLTESettingObserver = null;
+    private ContentObserver mVoWIFISettingObserver = null;
+    private ContentObserver mMobileDataSettingObserver = null;
+    private ContentObserver mVideoCallSettingObserver = null;
+    private ContentObserver mVideoCallRoamingSettingObserver = null;
+    private ContentObserver mVoLTERoamingObserver = null;
+    private ContentObserver mVoWIFIPreferenceObserver = null;
+    private ContentObserver mVoWIFIRoamingSetObserver = null;
+    private ContentObserver mNetworkModeSettingObserver = null;
+    private ContentObserver mDataRoamingSettingObserver = null;
+    private ContentObserver mRttModeSettingObserver = null;
+    private ContentObserver mVoWIFINetworkPreferenceObserver = null;
+
+    private RegistrantList mVoLTESettingRegistrants = new RegistrantList();
+    private RegistrantList mVoWIFISettingRegistrants = new RegistrantList();
+    private RegistrantList mVideoCallSettingRegistrants = new RegistrantList();
+    private RegistrantList mVideoCallRoamingSettingRegistrants = new RegistrantList();
+    private RegistrantList mVoLTERoamingRegistrants = new RegistrantList();
+    private RegistrantList mVoWIFIPreferenceRegistrants = new RegistrantList();
+    private RegistrantList mVoWIFIRoamingSetRegistrants = new RegistrantList();
+    private RegistrantList mMobileDataSettingRegistrants = new RegistrantList();
+    private RegistrantList mNetworkModeSettingRegistrants = new RegistrantList();
+    private RegistrantList mDataRoamingSettingRegistrants = new RegistrantList();
+    private RegistrantList mRttModeSettingRegistrants = new RegistrantList();
+    private RegistrantList mVoWIFINetworkPreferenceRegistrants = new RegistrantList();
+
+    private SubscriptionListenerProxy mSubscriptionListener = null;
+    private IVoLteService mVoLteService = null;
+    private boolean mVoLTESet = false;
+    private boolean mVoWIFISet = false;
+    private boolean mVideoCallSet = false;
+    private boolean mVideoCallRoamingSet = false;
+    private boolean mVoLTERoamingSet = false;
+    private boolean mVoWIFIRoamingSet = false;
+    private boolean mMobileDataEnabled = false;
+    private boolean mDataRoamingEnabled = false;
+    private int mVoWIFIPreference = -1; // 0: wifi only /1: cellular pref. /2: wifi pref.
+    private int mVoWIFINetworkPreference = -1; // 0: wifi only /1: cellular pref. /2: wifi pref.
+    private int mNetworkMode = -1;
+    private int mRttMode = -1;
+
+    public CallSettingService() {
+    }
+
+    // IService interface {
+    @Override
+    public boolean start(IVoLteService voLteService) {
+        mVoLteService = voLteService;
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.setISystemAPIWifiCalling(this);
+        }
+
+        AgentFactory.setAgentForMIms(this, AgentFactory.CALL_SETTING, getSlotId());
+
+        if (mSubscriptionListener == null) {
+            mSubscriptionListener = new SubscriptionListenerProxy();
+            ISubscription subs = (ISubscription)AgentFactory.getAgent(AgentFactory.SUBSCRIPTION);
+
+            if (subs != null) {
+                subs.addListener(mSubscriptionListener);
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void cleanup(Context context) {
+        ImsLog.d(getSlotId(), "");
+
+        if (mSubscriptionListener != null) {
+            ISubscription subs = (ISubscription)AgentFactory.getAgent(AgentFactory.SUBSCRIPTION);
+
+            if (subs != null) {
+                subs.removeListener(mSubscriptionListener);
+            }
+
+            mSubscriptionListener = null;
+        }
+
+        unregisterObserver(mVoLTESettingObserver);
+        mVoLTESettingObserver = null;
+        unregisterObserver(mVoWIFISettingObserver);
+        mVoWIFISettingObserver = null;
+        unregisterObserver(mVideoCallSettingObserver);
+        mVideoCallSettingObserver = null;
+        unregisterObserver(mVideoCallRoamingSettingObserver);
+        mVideoCallRoamingSettingObserver = null;
+        unregisterObserver(mVoLTERoamingObserver);
+        mVoLTERoamingObserver = null;
+        unregisterObserver(mVoWIFIPreferenceObserver);
+        mVoWIFIPreferenceObserver = null;
+        unregisterObserver(mVoWIFIRoamingSetObserver);
+        mVoWIFIRoamingSetObserver = null;
+        unregisterObserver(mNetworkModeSettingObserver);
+        mNetworkModeSettingObserver = null;
+        unregisterObserver(mDataRoamingSettingObserver);
+        mDataRoamingSettingObserver = null;
+        unregisterObserver(mRttModeSettingObserver);
+        mRttModeSettingObserver = null;
+        unregisterObserver(mVoWIFINetworkPreferenceObserver);
+        mVoWIFINetworkPreferenceObserver = null;
+    }
+
+    @Override
+    public void update(Context context) {
+    }
+    // }
+
+    // IAgent interface {
+    @Override
+    public void init(Context context) {
+    }
+
+    @Override
+    public void cleanup() {
+    }
+    // }
+
+    // ISystemAPIWifiCalling interface {
+    @Override
+    public int isWifiCallingEnabled4Sys() {
+        return isVoWIFIEnabled() ? 1 : 0;
+    }
+
+    @Override
+    public int isWifiCallingProvisioned4Sys() {
+        return isVoWIFIProvisioned() ? 1 : 0;
+    }
+
+    @Override
+    public int getWifiCallingPreferences4Sys() {
+        return getVoWIFIPreference();
+    }
+
+    @Override
+    public String getWifiCallingAddressID4Sys() {
+        return ImsPrivateProperties.Persistent.get(
+                ImsPrivateProperties.Persistent.KEY_VOWIFI_ENTITLEMENT_ID,
+                "",
+                getSlotId());
+    }
+    // }
+
+    @Override
+    public boolean isVoLTEUsedForHDVoice() {
+        if (ImsGlobal.isCountry(getSlotId(), "KR")) {
+            if (isRoaming()) {
+                return getVoLTERoamingSetForKR();
+            } else {
+                if (ImsGlobal.isOperator(getSlotId(), "KT")) {
+                    return getVoLTESetForKT();
+                }
+            }
+        }
+
+        return isVoLTEEnabled();
+    }
+
+    @Override
+    public boolean isWfcEnabled() {
+        return isVoWIFIEnabled();
+    }
+
+    @Override
+    public boolean isVideoCallEnabled() {
+        return isVideoCallSetEnabled();
+    }
+
+    @Override
+    public int getRTTMode() {
+        return getRttMode();
+    }
+
+    @Override
+    public void notifySystemEvents() {
+        notifySystemEventForMobileData();
+        notifySystemEventForVideoCall();
+        notifySystemEventForVoLTE();
+        notifySystemEventForVoWIFI();
+        notifySystemEventForVoWIFIPreference();
+        notifySystemEventForVoWIFIRoaming();
+        notifySystemEventForDataRoamingSettingChanged();
+    }
+
+    @Override
+    public void updateForSetting() {
+        updateForVoLTESetting();
+    }
+
+    @Override
+    public void updateForRoamingSetting(boolean bRoaming) {
+        updateForVoWIFIRoamingSetting(bRoaming);
+        updateForVoLTERoamingSetting(bRoaming);
+    }
+
+    @Override
+    public void registerForMobileDataSettingChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mMobileDataSettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerMobileDataSettingObserver();
+    }
+
+    @Override
+    public void registerForVideoCallSetChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVideoCallSettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVideoCallSetObserver();
+    }
+
+    @Override
+    public void registerForVideoCallRoamingSetChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVideoCallRoamingSettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVideoCallRoamingSetObserver();
+    }
+
+
+    @Override
+    public void registerForVoLTESetChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVoLTESettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVoLTESetObserver();
+    }
+
+    @Override
+    public void registerForVoLTERoamingSetChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVoLTERoamingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVoLTERoamingSetObserver();
+    }
+
+    @Override
+    public void registerForVoWIFISetChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVoWIFISettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVoWIFISetObserver();
+    }
+
+    @Override
+    public void registerForVoWIFIPreferenceChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVoWIFIPreferenceRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVoWIFIPreferenceObserver();
+    }
+
+    @Override
+    public void registerForVoWIFIRoamingSetChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVoWIFIRoamingSetRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerVoWIFIRoamingSetObserver();
+    }
+
+    @Override
+    public void registerForNetworkModeSettingChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mNetworkModeSettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerNetworkModeSettingObserver();
+    }
+
+    @Override
+    public void registerForDataRoamingSettingChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mDataRoamingSettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerDataRoamingSettingObserver();
+    }
+
+    @Override
+    public void registerForRttModeSettingChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mRttModeSettingRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        registerRttModeSettingObserver();
+    }
+
+    @Override
+    public void registerForVoWIFINetworkPreferenceChanged(Handler h, int what, Object obj) {
+        if (h != null) {
+            mVoWIFINetworkPreferenceRegistrants.add(new Registrant(h, what, obj));
+        }
+
+        mVoWIFINetworkPreference = getVoWIFINetworkPreference();
+        registerVoWIFINetworkPreferenceObserver();
+    }
+
+    @Override
+    public void unregisterForMobileDataSettingChanged(Handler h) {
+        if (h != null) {
+            mMobileDataSettingRegistrants.remove(h);
+        }
+
+        if (mMobileDataSettingRegistrants.size() == 0) {
+            unregisterObserver(mMobileDataSettingObserver);
+            mMobileDataSettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVideoCallSetChanged(Handler h) {
+        if (h != null) {
+            mVideoCallSettingRegistrants.remove(h);
+        }
+
+        if (mVideoCallSettingRegistrants.size() == 0) {
+            unregisterObserver(mVideoCallSettingObserver);
+            mVideoCallSettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVideoCallRoamingSetChanged(Handler h) {
+        if (h != null) {
+            mVideoCallRoamingSettingRegistrants.remove(h);
+        }
+
+        if (mVideoCallRoamingSettingRegistrants.size() == 0) {
+            unregisterObserver(mVideoCallRoamingSettingObserver);
+            mVideoCallRoamingSettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVoLTESetChanged(Handler h) {
+        if (h != null) {
+            mVoLTESettingRegistrants.remove(h);
+        }
+
+        if (mVoLTESettingRegistrants.size() == 0) {
+            unregisterObserver(mVoLTESettingObserver);
+            mVoLTESettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVoLTERoamingSetChanged(Handler h) {
+        if (h != null) {
+            mVoLTERoamingRegistrants.remove(h);
+        }
+
+        if (mVoLTERoamingRegistrants.size() == 0) {
+            unregisterObserver(mVoLTERoamingObserver);
+            mVoLTERoamingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVoWIFISetChanged(Handler h) {
+        if (h != null) {
+            mVoWIFISettingRegistrants.remove(h);
+        }
+
+        if (mVoWIFISettingRegistrants.size() == 0) {
+            unregisterObserver(mVoWIFISettingObserver);
+            mVoWIFISettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVoWIFIPreferenceChanged(Handler h) {
+        if (h != null) {
+            mVoWIFIPreferenceRegistrants.remove(h);
+        }
+
+        if (mVoWIFIPreferenceRegistrants.size() == 0) {
+            unregisterObserver(mVoWIFIPreferenceObserver);
+            mVoWIFIPreferenceObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVoWIFIRoamingSetChanged(Handler h) {
+        if (h != null) {
+            mVoWIFIRoamingSetRegistrants.remove(h);
+        }
+
+        if (mVoWIFIRoamingSetRegistrants.size() == 0) {
+            unregisterObserver(mVoWIFIRoamingSetObserver);
+            mVoWIFIRoamingSetObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForNetworkModeSettingChanged(Handler h) {
+        if (h != null) {
+            mNetworkModeSettingRegistrants.remove(h);
+        }
+
+        if (mNetworkModeSettingRegistrants.size() == 0) {
+            unregisterObserver(mNetworkModeSettingObserver);
+            mNetworkModeSettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForDataRoamingSettingChanged(Handler h) {
+        if (h != null) {
+            mDataRoamingSettingRegistrants.remove(h);
+        }
+
+        if (mDataRoamingSettingRegistrants.size() == 0) {
+            unregisterObserver(mDataRoamingSettingObserver);
+            mDataRoamingSettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForRttModeSettingChanged(Handler h) {
+        if (h != null) {
+            mRttModeSettingRegistrants.remove(h);
+        }
+
+        if (mRttModeSettingRegistrants.size() == 0) {
+            unregisterObserver(mRttModeSettingObserver);
+            mRttModeSettingObserver = null;
+        }
+    }
+
+    @Override
+    public void unregisterForVoWIFINetworkPreferenceChanged(Handler h) {
+        if (h != null) {
+            mVoWIFINetworkPreferenceRegistrants.remove(h);
+        }
+
+        if (mVoWIFINetworkPreferenceRegistrants.size() == 0) {
+            unregisterObserver(mVoWIFINetworkPreferenceObserver);
+            mVoWIFINetworkPreferenceObserver = null;
+        }
+    }
+
+    @Override
+    public boolean isNetworkMode3GOnly() {
+        boolean networkMode3GOnly = false;
+        int networkMode = MSimUtils.getNetworkMode(getContext().getContentResolver(), getSlotId());
+
+        if (networkMode < TelephonyManager.NETWORK_MODE_LTE_CDMA_EVDO) {
+            networkMode3GOnly = true;
+        }
+
+        ImsLog.d(getSlotId(), "NetworkMode 3G only : " + networkMode3GOnly);
+        return networkMode3GOnly;
+    }
+
+    private void registerMobileDataSettingObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mMobileDataSettingObserver != null) {
+            return;
+        }
+
+        mMobileDataSettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onMobileDataSettingChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForSecure(getContext().getContentResolver(),
+                Settings.Global.MOBILE_DATA, mMobileDataSettingObserver);
+
+        onMobileDataSettingChanged();
+    }
+
+    private void registerVideoCallSetObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVideoCallSettingObserver != null) {
+            return;
+        }
+
+        mVideoCallSettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onVideoCallSetChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForCallSettings(getContext(),
+                SettingsUtils.getKeyForVtImsEnabled(getSlotId()),
+                mVideoCallSettingObserver, getSlotId());
+
+        onVideoCallSetChanged();
+    }
+
+    private void registerVideoCallRoamingSetObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVideoCallRoamingSettingObserver != null) {
+            return;
+        }
+
+        mVideoCallRoamingSettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onVideoCallRoamingSetChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForSecure(getContext().getContentResolver(),
+                "data_network_video_calling_status_roaming"
+                /*SettingsConstants.Secure.DATA_NETWORK_VIDEO_CALLING_STATUS_ROAMING*/,
+                mVideoCallRoamingSettingObserver);
+
+        onVideoCallRoamingSetChanged();
+    }
+
+
+    private void registerVoLTESetObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVoLTESettingObserver != null) {
+            return;
+        }
+
+        mVoLTESettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onVoLTESetChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForCallSettings(getContext(),
+                SettingsUtils.getKeyForDataNetworkEnhanced4GLteMode(getSlotId()),
+                mVoLTESettingObserver, getSlotId());
+
+        onVoLTESetChanged();
+    }
+
+    private void registerVoLTERoamingSetObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVoLTERoamingObserver != null) {
+            return;
+        }
+
+        mVoLTERoamingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onVoLTERoamingSetChanged();
+            }
+        };
+
+        ContentResolver cr = getContext().getContentResolver();
+
+        SettingsUtils.registerObserverForGlobal(cr,
+                "roaming_hdvoice_enabled"
+                /*SettingsConstants.Global.ROAMING_HDVOICE_ENABLED*/,
+                mVoLTERoamingObserver);
+
+        if (!ImsGlobal.isOperator(getSlotId(), "SKT")) {
+            SettingsUtils.registerObserverForSecure(cr,
+                    "data_lte_roaming"
+                    /*SettingsConstants.Secure.DATA_LTE_ROAMING*/,
+                    mVoLTERoamingObserver);
+        }
+
+        onVoLTERoamingSetChanged();
+    }
+
+    private void registerVoWIFISetObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVoWIFISettingObserver != null) {
+            return;
+        }
+
+        mVoWIFISettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onVoWIFISetChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForCallSettings(getContext(),
+                SettingsUtils.getKeyForWFCImsEnabled(getSlotId()),
+                mVoWIFISettingObserver, getSlotId());
+
+        onVoWIFISetChanged();
+    }
+
+    private void registerVoWIFIPreferenceObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVoWIFIPreferenceObserver != null) {
+            return;
+        }
+
+        mVoWIFIPreferenceObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+
+                int preference = getVoWIFIPreference();
+
+                if (mVoWIFIPreference == preference) {
+                    return;
+                }
+
+                ImsLog.i(getSlotId(), "vowifi preference changed : "
+                        + mVoWIFIPreference + " => " + preference);
+                mVoWIFIPreference = preference;
+
+                mVoWIFIPreferenceRegistrants.notifyResult(mVoWIFIPreference);
+
+                notifySystemEventForVoWIFIPreference();
+            }
+        };
+
+        SettingsUtils.registerObserverForCallSettings(getContext(),
+                SettingsUtils.getKeyForWFCImsMode(getSlotId()),
+                mVoWIFIPreferenceObserver, getSlotId());
+
+        mVoWIFIPreference = getVoWIFIPreference();
+
+        notifySystemEventForVoWIFIPreference();
+    }
+
+    private void registerVoWIFIRoamingSetObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVoWIFIRoamingSetObserver != null) {
+            return;
+        }
+
+        mVoWIFIRoamingSetObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+
+                boolean roamingEnabled = isVoWIFIRoamingEnabled();
+                if (mVoWIFIRoamingSet == roamingEnabled) {
+                    return;
+                }
+
+                ImsLog.i(getSlotId(), "vowifi roaming set changed : "
+                        + mVoWIFIRoamingSet + " => " + roamingEnabled);
+                mVoWIFIRoamingSet = roamingEnabled;
+
+                mVoWIFIRoamingSetRegistrants.notifyResult(mVoWIFIRoamingSet);
+
+                notifySystemEventForVoWIFIRoaming();
+            }
+        };
+
+        SettingsUtils.registerObserverForCallSettings(getContext(),
+                SettingsUtils.getKeyForWFCImsRoamingEnabled(getSlotId()),
+                mVoWIFIRoamingSetObserver, getSlotId());
+
+        mVoWIFIRoamingSet = isVoWIFIRoamingEnabled();
+
+        notifySystemEventForVoWIFIRoaming();
+    }
+
+    private void registerNetworkModeSettingObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mNetworkModeSettingObserver != null) {
+            ImsLog.d(getSlotId(), "Observer: network mode is already registered");
+            return;
+        }
+
+        mNetworkModeSettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onNetworkModeChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForGlobal(getContext().getContentResolver(),
+                Settings.Global.PREFERRED_NETWORK_MODE + MSimUtils.getSubId(getSlotId()),
+                mNetworkModeSettingObserver);
+
+        onNetworkModeChanged();
+    }
+
+    private void registerDataRoamingSettingObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mDataRoamingSettingObserver != null) {
+            return;
+        }
+
+        mDataRoamingSettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onDataRoamingSettingChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForSecure(getContext().getContentResolver(),
+                Settings.Global.DATA_ROAMING,
+                mDataRoamingSettingObserver);
+
+        onDataRoamingSettingChanged();
+    }
+
+    private void registerRttModeSettingObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mRttModeSettingObserver != null) {
+            return;
+        }
+
+        mRttModeSettingObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onRttModeSettingChanged();
+            }
+        };
+
+        SettingsUtils.registerObserverForSystem(getContext().getContentResolver(),
+                "rtt_option"
+                /*SettingsConstants.System.RTT_OPTION*/,
+                mRttModeSettingObserver);
+        SettingsUtils.registerObserverForSystem(getContext().getContentResolver(),
+                "rtt_operation_mode"
+                /*SettingsConstants.System.RTT_OPERATION_MODE*/,
+                mRttModeSettingObserver);
+
+        onRttModeSettingChanged();
+    }
+
+    private void registerVoWIFINetworkPreferenceObserver() {
+        ImsLog.d(getSlotId(), "");
+
+        if (mVoWIFINetworkPreferenceObserver != null) {
+            return;
+        }
+
+        mVoWIFINetworkPreferenceObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean bChange) {
+                super.onChange(bChange);
+                onVoWIFINetworkPreferenceChanged();
+            }
+        };
+
+        Uri uri = getCarrierDBUriForVoWIFI();
+
+        if (uri != null) {
+            try {
+               getContext().getContentResolver().registerContentObserver(uri, true,
+                        mVoWIFINetworkPreferenceObserver);
+            } catch (Exception e) {
+                ImsLog.e(getSlotId(), e.toString());
+            }
+        }
+
+        onVoWIFINetworkPreferenceChanged();
+    }
+
+    private void unregisterObserver(ContentObserver co) {
+        SettingsUtils.unregisterObserver(getContext().getContentResolver(), co);
+    }
+
+    private boolean getVoLTERoamingSetForKR() {
+        if (ImsConstants.USE_GOOGLE_NATIVE_APPS) {
+            return isVoLTEEnabled();
+        }
+
+        //if (OperatorInfo.isKrOpen() && ImsProperties.MODEL.contains("G910N")) {
+        if (OperatorInfo.isKrOpen()) {
+            return true;
+        }
+
+        ContentResolver cr = getContext().getContentResolver();
+        boolean bVolteRoamingEnabled = SettingsUtils.isRoamingHDVoiceEnabled(cr);
+
+        if (isSupport5G()) {
+            if (ImsGlobal.isOperator(getSlotId(), "SKT")) {
+                return bVolteRoamingEnabled;
+            }
+            return true;
+        }
+
+        boolean bLTERoamingEnabled = SettingsUtils.isDataLteRoaming(cr);
+
+        ImsLog.d(getSlotId(), "HDVoiceRoamingSetting - HDVoiceEnabled : "
+                + bVolteRoamingEnabled);
+
+        if (ImsGlobal.isOperator(getSlotId(), "SKT")) {
+            return bVolteRoamingEnabled;
+        }
+
+        if (ImsGlobal.isOperator(getSlotId(), "KT")) {
+            if (!isKTRoamingUISpec_v1_3_6_applied()) {
+                return (bLTERoamingEnabled && bVolteRoamingEnabled);
+            }
+            return true;
+        }
+        return bLTERoamingEnabled;
+    }
+
+    private boolean getVoLTESetForKT() {
+        boolean bNetMode = isVoLTEEnabled();
+
+        if (ImsConstants.USE_GOOGLE_NATIVE_APPS) {
+            return bNetMode;
+        }
+
+        boolean bVolteEnable = false;
+        int hdVoiceSetting = SettingsUtils.CallSettings.getInt(getContext(),
+                SettingsUtils.CallSettings.KEY_KT_HD_VOICE_SETTING,
+                SettingsUtils.VALUE_NOT_INITIALIZED);
+        boolean bVolteSet = (hdVoiceSetting == 1
+                || hdVoiceSetting == SettingsUtils.VALUE_NOT_INITIALIZED);
+
+        ImsLog.d(getSlotId(), "VoLte :: setting=" + bVolteSet + ", lteMode=" + bNetMode);
+
+        if (bVolteSet && bNetMode) {
+            bVolteEnable = true;
+        }
+
+        //KT MQI (Mobile Quality Information) API
+        ImsLog.d(getSlotId(), "KT MQI - VoLTE Setting : " + (bVolteEnable ? "On" : "Off"));
+        //setMobileQualityInfo(1, bVolteEnable ? 1 : 0, "");
+
+        return bVolteEnable;
+    }
+
+    private int getVoWIFIPreference() {
+        if (ImsGlobal.isOperator(getSlotId(), "ATT")) {
+            return ImsEventDef.MODE_WFC_PREFERRED;
+        }
+
+        return SettingsUtils.getWFCImsMode(getContext(), getSlotId());
+    }
+
+    // Sprint ONLY {
+    private Uri getCarrierDBUriForVoWIFI() {
+        if (ImsGlobal.isOperator(getSlotId(), "SPR")) {
+            return Uri.parse("content://com.android.imsstack.node/ims_node");
+        }
+
+        return null;
+    }
+
+    private int getVoWIFINetworkPreference() {
+        Uri uri = getCarrierDBUriForVoWIFI();
+
+        if (uri != null) {
+            String selection = "key = \"MobileNetworks_NetworkPreference_Home\"";
+            String networkPreference = DBUtils.CP.getString(getContext().getContentResolver(),
+                                    uri, selection, "value", "WIFI");
+
+            return ("CELL".equalsIgnoreCase(networkPreference) ?
+                        ImsEventDef.MODE_CELLULAR_PREFERRED: ImsEventDef.MODE_WFC_PREFERRED);
+        }
+
+        return ImsEventDef.MODE_WFC_PREFERRED;
+    }
+    // }
+
+    private String getVoWIFIAddressID() {
+        String value = null;
+        Cursor c = null;
+
+        try {
+            c = getContext().getContentResolver().query(VoWIFI.CONTENT_URI_AID,
+                new String[] {"value"},
+                "name = ?", new String[]{ VoWIFI.KEY_ADDRESSID }, null);
+
+            if ((c != null) && c.moveToNext()) {
+                String buffer = c.getString(0);
+                if (!TextUtils.isEmpty(buffer)) {
+                    value = buffer;
+                }
+            }
+        } catch (Exception e) {
+            ImsLog.e(getSlotId(), e.toString());
+        } finally {
+            if (c != null) {
+                c.close();
+                c = null;
+            }
+        }
+
+        return value;
+    }
+
+    private int getRttMode() {
+        ContentResolver cr = getContext().getContentResolver();
+        int option = SettingsUtils.getRttOption(cr);
+
+        if (option == 0) {
+            return ImsEventDef.IMS_RTT_CAPABLE_OFF;
+        } else if (option == 1) {
+            int mode = SettingsUtils.getRttOperationMode(cr);
+
+            if (mode == 0) {
+                return ImsEventDef.IMS_RTT_VISIBLE_DURING_CALLS;
+            } else if (mode == 1) {
+                return ImsEventDef.IMS_RTT_ALWAYS_VISIBLE;
+            }
+        }
+
+        return ImsEventDef.IMS_RTT_MODE_NONE;
+    }
+
+    private boolean isSupport5G() {
+        return (RILConstants.PREFERRED_NETWORK_MODE == RILConstants.NETWORK_MODE_NR_LTE_GSM_WCDMA);
+    }
+
+    private boolean isMobileDataEnabled() {
+        return SettingsUtils.isMobileDataEnabled(getContext().getContentResolver());
+    }
+
+    private boolean isNetworkMode3GOnly(int mode) {
+        return (mode < TelephonyManager.NETWORK_MODE_LTE_CDMA_EVDO) ? true : false;
+    }
+
+    private boolean isNetworkModeSupportsCDMA(int nNetworkMode) {
+        int nwModeRaf = RadioAccessFamily.getRafFromNetworkType(nNetworkMode);
+        return (((nwModeRaf & RadioAccessFamily.RAF_IS95A) == RadioAccessFamily.RAF_IS95A)
+                || ((nwModeRaf & RadioAccessFamily.RAF_IS95B) == RadioAccessFamily.RAF_IS95B)
+                || ((nwModeRaf & RadioAccessFamily.RAF_1xRTT) == RadioAccessFamily.RAF_1xRTT));
+    }
+
+    private boolean isVoLTEEnabled() {
+        return SettingsUtils.isDataNetworkEnhanced4GLteMode(getContext(), getSlotId());
+    }
+
+    private boolean isVoLTERoamingEnabled() {
+        return SettingsUtils.isRoamingHDVoiceEnabled(getContext().getContentResolver());
+    }
+
+    private boolean isVoWIFIEnabled() {
+        return SettingsUtils.isWFCImsEnabled(getContext(), getSlotId());
+    }
+
+    private boolean isVoWIFIProvisioned() {
+        String vwfMDN = SettingsUtils.getVoWIFIMDN(getContext().getContentResolver());
+
+        if (TextUtils.isEmpty(vwfMDN)) {
+            ImsLog.d(getSlotId(), "VoWIFI MDN is invalid");
+            return false;
+        }
+
+        TelephonyManager tm = AppContext.getTelephonyManager(MSimUtils.getSubId(getSlotId()));
+        String mdn = (tm != null) ? tm.getLine1Number() : null;
+
+        if (TextUtils.isEmpty(mdn)) {
+            ImsLog.d(getSlotId(), "Telephony MDN is invalid");
+            return false;
+        }
+
+        boolean result = mdn.equals(vwfMDN);
+
+        ImsLog.d(getSlotId(), vwfMDN + " " + mdn + " is Wfc Provisioned? "
+                + (result ? "Provisioned" : "not Provisioned"));
+
+        return result;
+    }
+
+    private boolean isVoWIFIRoamingEnabled() {
+        return SettingsUtils.isWFCImsRoamingEnabled(getContext(), getSlotId());
+    }
+
+    private boolean isVideoCallSetEnabled() {
+        return SettingsUtils.isDataNetworkVideoCallingStatus(getContext(), getSlotId());
+    }
+
+    private boolean isVideoCallRoamingSetEnabled() {
+        return SettingsUtils.isDataNetworkVideoCallingStatusRoaming(
+                getContext().getContentResolver());
+    }
+
+    private boolean isDataRoamingSettingEnabled() {
+        return SettingsUtils.isDataRoamingEnabled(getContext().getContentResolver());
+    }
+
+    private void notifySystemEventForMobileData() {
+        if (mMobileDataSettingObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(
+                    ImsEventDef.IMS_EVENT_MOBILE_DATA_SETTING,
+                    mMobileDataEnabled ?
+                    ImsEventDef.IMS_MOBILE_DATA_SETTING_ON :
+                    ImsEventDef.IMS_MOBILE_DATA_SETTING_OFF, 0);
+        }
+    }
+
+    private void notifySystemEventForVideoCall() {
+        if (mVideoCallSettingObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(
+                    ImsEventDef.IMS_EVENT_VIDEO_SETTING,
+                    mVideoCallSet ? ImsEventDef.IMS_VIDEO_SETTING_ON
+                            : ImsEventDef.IMS_VIDEO_SETTING_OFF,
+                    0);
+        }
+    }
+
+    private void notifySystemEventForVideoCallRoaming() {
+        if (mVideoCallRoamingSettingObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(
+                    ImsEventDef.IMS_EVENT_VIDEO_SETTING,
+                    mVideoCallRoamingSet ? ImsEventDef.IMS_VIDEO_SETTING_ON
+                            : ImsEventDef.IMS_VIDEO_SETTING_OFF,
+                    0);
+        }
+    }
+
+    private void notifySystemEventForVoLTE() {
+        if (mVoLTESettingObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            if (ImsGlobal.isOperator(getSlotId(), "VZW")) {
+                system.notifyEvent(ImsEventDef.IMS_EVENT_VOIP_SETTING,
+                        mVoLTESet ? ImsEventDef.IMS_VOIP_SETTING_ON
+                                : ImsEventDef.IMS_VOIP_SETTING_OFF,
+                        0);
+            } else {
+                system.notifyEvent(ImsEventDef.IMS_EVENT_VOLTE_SETTING,
+                        mVoLTESet ? ImsEventDef.IMS_VOLTE_SETTING_ON
+                                : ImsEventDef.IMS_VOLTE_SETTING_OFF,
+                        0);
+                system.notifyEvent(ImsEventDef.IMS_EVENT_NETWORK_MODE_SETTING,
+                        isNetworkMode3GOnly() ? ImsEventDef.IMS_NETWORK_MODE_OFF
+                                : ImsEventDef.IMS_NETWORK_MODE_ON,
+                        0);
+            }
+        }
+    }
+
+    private void notifySystemEventForVoWIFI() {
+        if (mVoWIFISettingObserver == null) {
+            return;
+        }
+
+        if (isRoaming()
+                && mVoWIFIRoamingSetObserver != null
+                && isVoWIFIRoamingRequired()) {
+            notifySystemEventForVoWIFIRoaming();
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(ImsEventDef.IMS_EVENT_WFC_SETTING_CHANGED,
+                    mVoWIFISet ? 1 : 0, getVoWIFIPreference());
+        }
+    }
+
+    private void notifySystemEventForVoWIFIPreference() {
+        if (mVoWIFIPreferenceObserver == null) {
+            return;
+        }
+
+        if (isRoaming()
+                && mVoWIFIRoamingSetObserver != null
+                && isVoWIFIRoamingRequired()) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(ImsEventDef.IMS_EVENT_WFC_SETTING_CHANGED,
+                    isVoWIFIEnabled() ? 1 : 0, mVoWIFIPreference);
+        }
+    }
+
+    private void notifySystemEventForVoWIFIRoaming() {
+        if (mVoWIFIRoamingSetObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            if (ImsGlobal.isOperator(getSlotId(), "VZW")) {
+                system.notifyEvent(
+                        ImsEventDef.IMS_EVENT_ROAMING_PREFERRED_VOICE_CALL_NETWORK,
+                        mVoWIFIRoamingSet ? ImsEventDef.IMS_ROAMING_PREFERRED_WIFI_NETWORK
+                                : ImsEventDef.IMS_ROAMING_PREFERRED_CELLULAR_NETWORK, 0);
+            } else {
+                if (isRoaming()) {
+                    system.notifyEvent(ImsEventDef.IMS_EVENT_WFC_SETTING_CHANGED,
+                            isVoWIFIEnabled() ? 1 : 0,
+                            mVoWIFIRoamingSet ? ImsEventDef.MODE_WFC_PREFERRED
+                                    : ImsEventDef.MODE_CELLULAR_PREFERRED);
+                }
+            }
+        }
+    }
+
+    private void notifySystemEventForDataRoamingSettingChanged() {
+        if (mDataRoamingSettingObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(
+                    ImsEventDef.IMS_EVENT_DATA_ROAMING_SETTING,
+                    mDataRoamingEnabled ? ImsEventDef.IMS_DATA_ROAMING_ALLOWED
+                            : ImsEventDef.IMS_DATA_ROAMING_DENYED,
+                    0);
+        }
+    }
+
+    private void notifySystemEventForRttModeSettingChanged() {
+        if (mRttModeSettingObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(ImsEventDef.IMS_EVENT_RTT_SETTING, mRttMode, 0);
+        }
+    }
+
+    private void notifySystemEventForVoWIFINetworkPreferenceChanged() {
+        if (mVoWIFINetworkPreferenceObserver == null) {
+            return;
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(ImsEventDef.IMS_EVENT_WFC_SETTING_CHANGED,
+                isVoWIFIEnabled() ? 1 : 0, mVoWIFINetworkPreference);
+        }
+    }
+
+    private void onMobileDataSettingChanged() {
+        boolean enabled = isMobileDataEnabled();
+
+        if (mMobileDataEnabled == enabled) {
+            return;
+        }
+
+        ImsLog.i(getSlotId(), "mobile data set changed : "
+                + mMobileDataEnabled + " => " + enabled);
+
+        mMobileDataEnabled = enabled;
+
+        mMobileDataSettingRegistrants.notifyResult(Boolean.valueOf(enabled));
+
+        DBUtils.CP.putString(getContext().getContentResolver()
+                        , ProviderInterface.Setting.CONTENT_URI
+                        , ProviderInterface.Setting.MOBILE_DATA_SETTING
+                        , enabled ? "true" : "false"
+                        , ImsDbController.selectForSlot(getSlotId()));
+
+        notifySystemEventForMobileData();
+    }
+
+    private void onVideoCallSetChanged() {
+        boolean setValue = isVideoCallSetEnabled();
+
+        if (mVideoCallSet == setValue) {
+            return;
+        }
+
+        if (ImsGlobal.isOperator(getSlotId(), "TEL")) {
+            if (isRoaming()) {
+                ImsLog.d(getSlotId(), "roaming, ignore it");
+                return;
+            }
+        }
+
+        ImsLog.i(getSlotId(), "video call set changed : " + mVideoCallSet + " => " + setValue);
+
+        mVideoCallSet = setValue;
+
+        mVideoCallSettingRegistrants.notifyResult(mVideoCallSet);
+
+        DBUtils.CP.putString(getContext().getContentResolver()
+                        , ProviderInterface.Setting.CONTENT_URI
+                        , ProviderInterface.Setting.VIDEO_SETTING
+                        , mVideoCallSet ? "true" : "false"
+                        , ImsDbController.selectForSlot(getSlotId()));
+
+        notifySystemEventForVideoCall();
+    }
+
+
+    private void onVideoCallRoamingSetChanged() {
+        boolean setValue = isVideoCallRoamingSetEnabled();
+
+        if (mVideoCallRoamingSet == setValue) {
+            return;
+        }
+
+        if (ImsGlobal.isOperator(getSlotId(), "TEL")) {
+            if (!isRoaming()) {
+                ImsLog.d(getSlotId(), "not roaming, ignore it");
+                return;
+            }
+        }
+
+        ImsLog.i(getSlotId(), "(roaming) video call set changed : "
+                + mVideoCallRoamingSet + " => " + setValue);
+
+        mVideoCallRoamingSet = setValue;
+
+        mVideoCallRoamingSettingRegistrants.notifyResult(mVideoCallRoamingSet);
+
+        DBUtils.CP.putString(getContext().getContentResolver()
+                            , ProviderInterface.Setting.CONTENT_URI
+                            , ProviderInterface.Setting.VIDEO_SETTING
+                            , mVideoCallRoamingSet ? "true" : "false"
+                            , ImsDbController.selectForSlot(getSlotId()));
+
+        notifySystemEventForVideoCallRoaming();
+    }
+
+    private boolean isRoaming() {
+        IDCNetWatcher dcnw = (IDCNetWatcher)DCFactory.getDC(
+                DCFactory.NETWORK_WATCHER, getSlotId());
+        return (dcnw != null) ? dcnw.isRoaming() : false;
+    }
+
+    private void onVoLTESetChanged() {
+        boolean bValue = false;
+        int nEvent = ImsEventDef.IMS_EVENT_VOLTE_SETTING;
+        int nParam1 = -1;
+
+        // variation according to operators -- start
+        if (ImsGlobal.isOperator(getSlotId(), "KT")) {
+            bValue = getVoLTESetForKT();
+        } else if (ImsGlobal.isOperator(getSlotId(), "VZW")) {
+            nEvent = ImsEventDef.IMS_EVENT_VOIP_SETTING;
+            bValue = isVoLTEEnabled();
+        } else {
+            bValue = isVoLTEEnabled();
+        }
+        // end
+
+        switch(nEvent) {
+            case ImsEventDef.IMS_EVENT_VOIP_SETTING:
+                if (bValue) {
+                    nParam1 = ImsEventDef.IMS_VOIP_SETTING_ON;
+                } else {
+                    nParam1 = ImsEventDef.IMS_VOIP_SETTING_OFF;
+                }
+                break;
+            default:
+                if (bValue) {
+                    nParam1 = ImsEventDef.IMS_VOLTE_SETTING_ON;
+                } else {
+                    nParam1 = ImsEventDef.IMS_VOLTE_SETTING_OFF;
+                }
+                break;
+        }
+
+        ImsLog.i(getSlotId(), "volte set changed : " + mVoLTESet + " => " + bValue);
+
+        if (mVoLTESet == bValue) {
+            return;
+        }
+
+        mVoLTESet = bValue;
+
+        // send Registrants
+        mVoLTESettingRegistrants.notifyResult(mVoLTESet);
+
+        if (ImsGlobal.isOperator(getSlotId(), "VZW")) {
+            DBUtils.CP.putString(getContext().getContentResolver()
+                                , ProviderInterface.Setting.CONTENT_URI
+                                , ProviderInterface.Setting.VOIP_SETTING
+                                , mVoLTESet ? "true" : "false"
+                                , ImsDbController.selectForSlot(getSlotId()));
+        }
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            system.notifyEvent(nEvent, nParam1, 0);
+        }
+    }
+
+    private void onVoLTERoamingSetChanged() {
+        boolean setValue = false;
+
+        if (ImsGlobal.isCountry(getSlotId(), "KR")) {
+            setValue = getVoLTERoamingSetForKR();
+        } else {
+            setValue = isVoLTERoamingEnabled();
+        }
+
+        ImsLog.i(getSlotId(), "volte roaming changed : "
+                + mVoLTERoamingSet + " => " + setValue);
+
+        if (mVoLTERoamingSet == setValue) {
+            return;
+        }
+
+        mVoLTERoamingSet = setValue;
+        mVoLTERoamingRegistrants.notifyResult(mVoLTERoamingSet);
+    }
+
+    private void onVoWIFISetChanged() {
+        boolean setValue = isVoWIFIEnabled();
+
+        if (mVoWIFISet == setValue) {
+            return;
+        }
+
+        ImsLog.i(getSlotId(), "vowifi changed : " + mVoWIFISet + " => " + setValue);
+
+        mVoWIFISet = setValue;
+
+        mVoWIFISettingRegistrants.notifyResult(mVoWIFISet);
+
+        notifySystemEventForVoWIFI();
+    }
+
+    private void onNetworkModeChanged() {
+        int currNetworkMode = MSimUtils.getNetworkMode(
+                getContext().getContentResolver(), getSlotId());
+
+        ImsLog.i(getSlotId(), "NetworkMode : " + mNetworkMode + " >> " + currNetworkMode);
+
+        ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+        if (system != null) {
+            if (mNetworkMode != currNetworkMode) {
+                mNetworkMode = currNetworkMode;
+
+                if (isRoaming()) {
+                    if (ImsGlobal.isCountry(getSlotId(), "KR")
+                            && isNetworkMode3GOnly(mNetworkMode)) {
+                        IRegiProcess rpa = RegiProcessAgent.getInstance(getSlotId());
+                        if (rpa != null && rpa.isRegistered()) {
+                            system.notifyEvent(ImsEventDef.IMS_EVENT_REG_CONTROL,
+                                ImsEventDef.IMS_REG_CONTROL_STOP, 0);
+                        }
+                    }
+                }
+
+                system.notifyEvent(ImsEventDef.IMS_EVENT_NETWORK_MODE_SETTING,
+                        isNetworkMode3GOnly(mNetworkMode) ? ImsEventDef.IMS_NETWORK_MODE_OFF
+                        : ImsEventDef.IMS_NETWORK_MODE_ON, 0);
+
+                system.notifyEvent(ImsEventDef.IMS_EVENT_NETWORK_MODE_SUPPORTS_CDMA,
+                    (isNetworkModeSupportsCDMA(mNetworkMode) ? ImsEventDef.IMS_CDMA_SUPPORTED
+                        : ImsEventDef.IMS_CDMA_NOT_SUPPORTED), 0);
+            }
+        }
+    }
+
+    private void onDataRoamingSettingChanged() {
+        boolean setValue = isDataRoamingSettingEnabled();
+
+        if (mDataRoamingEnabled == setValue) {
+            return;
+        }
+
+        ImsLog.i(getSlotId(), "Data roaming setting changed : "
+                + mDataRoamingEnabled + " => " + setValue);
+
+        mDataRoamingEnabled = setValue;
+        mDataRoamingSettingRegistrants.notifyResult(mDataRoamingEnabled);
+
+        notifySystemEventForDataRoamingSettingChanged();
+    }
+
+    private void onRttModeSettingChanged() {
+        int rttMode = getRttMode();
+
+        if (rttMode > 0 && mRttMode != rttMode) {
+            ImsLog.i(getSlotId(), "RTT mode setting changed : " + mRttMode + " => " + rttMode);
+
+            mRttMode = rttMode;
+            mRttModeSettingRegistrants.notifyResult(mRttMode);
+
+            notifySystemEventForRttModeSettingChanged();
+        }
+    }
+
+    private void onVoWIFINetworkPreferenceChanged() {
+        int voWifiPreference = getVoWIFINetworkPreference();
+
+        ImsLog.d(getSlotId(), "VoWIFINetworkPreference: "
+                + mVoWIFINetworkPreference + " >> " + voWifiPreference);
+
+        if (mVoWIFINetworkPreference != voWifiPreference) {
+            mVoWIFINetworkPreference = voWifiPreference;
+            notifySystemEventForVoWIFINetworkPreferenceChanged();
+        }
+    }
+
+    private void updateForVoLTESetting() {
+        if (ImsGlobal.isOperator(getSlotId(), "KT") || ImsGlobal.isOperator(getSlotId(), "SKT")) {
+            boolean voLteSet = false;
+
+            if (ImsGlobal.isOperator(getSlotId(), "KT")) {
+                voLteSet = getVoLTESetForKT();
+            } else if (ImsGlobal.isOperator(getSlotId(), "SKT")) {
+                voLteSet = isVoLTEEnabled();
+            }
+
+            ImsLog.i(getSlotId(), "volte setting : " + mVoLTESet + " => " + voLteSet);
+
+            ISystem system = SystemInterface.getInstance().getSystem(getSlotId());
+
+            if (system != null) {
+                system.notifyEvent(ImsEventDef.IMS_EVENT_VOLTE_SETTING,
+                        voLteSet ? ImsEventDef.IMS_VOLTE_SETTING_ON
+                                : ImsEventDef.IMS_VOLTE_SETTING_OFF,
+                        0);
+            }
+
+            if (mVoLTESet != voLteSet) {
+                mVoLTESet = voLteSet;
+                // send Registrants
+                mVoLTESettingRegistrants.notifyResult(mVoLTESet);
+            }
+        }
+    }
+
+    private void updateForVoWIFIRoamingSetting(boolean roaming) {
+        if (mVoWIFIRoamingSetObserver == null ) {
+            return;
+        }
+
+        if (roaming) {
+            notifySystemEventForVoWIFIRoaming();
+        } else {
+            notifySystemEventForVoWIFI();
+        }
+    }
+
+    private void updateForVoLTERoamingSetting(boolean roaming) {
+        if (roaming) {
+            boolean roamingSet = false;
+
+            if (ImsGlobal.isCountry(getSlotId(), "KR")) {
+                roamingSet = getVoLTERoamingSetForKR();
+            } else {
+                return;
+            }
+
+            ImsLog.i(getSlotId(), "volte roaming changed : "
+                    + mVoLTERoamingSet + " => " + roamingSet);
+
+            if (mVoLTERoamingSet == roamingSet) {
+                return;
+            }
+
+            mVoLTERoamingSet = roamingSet;
+            mVoLTERoamingRegistrants.notifyResult(mVoLTERoamingSet);
+        } else {
+            updateForVoLTESetting();
+        }
+    }
+
+    private boolean isVoWIFIRoamingRequired() {
+        if (ImsGlobal.isOperator(getSlotId(), "DTAG")
+                || ImsGlobal.isRegion(getSlotId(), "SCA")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean contains(String[] stringArray, String value) {
+        if (TextUtils.isEmpty(value)) {
+            return false;
+        }
+
+        for (String item : stringArray) {
+            if (value.contains(item)) {
+                ImsLog.d(ImsLog.hiddenString(value) + "is contained");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isKTRoamingUISpec_v1_3_6_applied() {
+        if (OperatorInfo.isKrOpen()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private Context getContext() {
+        return (mVoLteService != null) ? mVoLteService.getContext() : ImsGlobal.getInstance();
+    }
+
+    private int getSlotId() {
+        return (mVoLteService != null) ? mVoLteService.getSlotID() : (-1);
+    }
+
+    private void updateObserverForCurrentUser(int subId, int phoneId) {
+        // Network mode settings
+        if (mNetworkModeSettingObserver != null) {
+            ImsLog.d(getSlotId(), "Observer: network mode");
+
+            unregisterObserver(mNetworkModeSettingObserver);
+            SettingsUtils.registerObserverForGlobal(
+                    getContext().getContentResolver(),
+                    Settings.Global.PREFERRED_NETWORK_MODE + subId,
+                    mNetworkModeSettingObserver);
+        }
+    }
+
+    private final class SubscriptionListenerProxy extends SubscriptionListener {
+        @Override
+        public void onCarrierConfigChanged(int phoneId, int subId) {
+            if (getSlotId() != phoneId) {
+                return;
+            }
+
+            ImsLog.i(getSlotId(), "onCarrierConfigChanged :: subId="
+                    + subId + ", phoneId=" + phoneId);
+
+            if (subId != MSimUtils.INVALID_SUB_ID) {
+                updateObserverForCurrentUser(subId, phoneId);
+            }
+        }
+    }
+}

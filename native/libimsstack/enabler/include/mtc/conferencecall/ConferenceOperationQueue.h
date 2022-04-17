@@ -1,0 +1,163 @@
+#ifndef CONFERENCE_OPERATION_QUEUE_H_
+#define CONFERENCE_OPERATION_QUEUE_H_
+
+#include "IMSList.h"
+#include "IMSMap.h"
+#include "ITimer.h"
+#include "IuMtcCall.h"
+#include "MtcDef.h"
+#include "conferencecall/ConferenceDef.h"
+#include "conferencecall/IConferenceOperationQueueListener.h"
+
+struct CallStartOperationParams
+{
+public:
+    // TODO: copy or reference.
+    // if copy and delete every time an operation is deleted, then too many copy.
+    CallStartOperationParams(IN IMS_UINT32 _nType, IN CallInfo& _objCallInfo,
+            IN MediaInfo& _objMediaInfo, IN IMSList<ConfUser*>& _objUsers,
+            IN IMSMap<IMS_UINT32, SuppService*>& _objSuppServices) :
+            nType(_nType),
+            objCallInfo(_objCallInfo),
+            objMediaInfo(_objMediaInfo),
+            objUsers(_objUsers),
+            objSuppServices(_objSuppServices)
+    {}
+
+public:
+    IMS_UINT32 nType;
+    CallInfo& objCallInfo;
+    MediaInfo& objMediaInfo;
+    IMSList<ConfUser*>& objUsers;
+    IMSMap<IMS_UINT32, SuppService*>& objSuppServices;
+};
+
+class ConferenceOperationQueue final :
+        public ITimerListener
+{
+public:
+    struct ConferenceOperation
+    {
+    public:
+        // constructor
+        inline ConferenceOperation(IN IMS_UINT32 nType, IN IMS_UINT32 nDelayMillisec)
+        {
+            m_nType = nType;
+            m_nDelayMillisec = nDelayMillisec;
+            m_pParam = IMS_NULL;
+            m_nCallId = 0;
+            m_nTerminateReason = FAIL_REASON_NONE;
+        }
+
+        // destructor
+        inline ~ConferenceOperation()
+        {
+            m_objConfUsers.Clear();
+            delete m_pParam;
+        }
+
+        // setters
+        inline void SetConfUsers(IN IMSList<ConfUser*> objConfUsers)
+        { m_objConfUsers = objConfUsers; }
+
+        inline void SetConfUser(IN ConfUser* pConfUser)
+        { m_objConfUsers.Append(pConfUser); }
+
+        inline void SetParam(IN CallStartOperationParams* pParam)
+        { m_pParam = pParam; }
+
+        inline void SetCallId(IN IMS_UINTP nCallId)
+        { m_nCallId = nCallId; }
+
+        inline void SetTerminateReason(IN IMS_SINT32 nTerminateReason)
+        { m_nTerminateReason = nTerminateReason; }
+
+        inline void RemoveTimerValue()
+        { m_nDelayMillisec = 0; }
+
+        // getters
+        inline IMS_UINT32 GetType()
+        { return m_nType; }
+        inline IMS_UINT32 GetDelayMilliSec()
+        { return m_nDelayMillisec; }
+        inline const IMSList<ConfUser*>& GetUsers() const
+        { return m_objConfUsers; }
+        inline CallStartOperationParams* GetParam()
+        { return m_pParam; }
+        inline IMS_UINTP GetCallId()
+        { return m_nCallId; }
+        inline IMS_SINT32 GetTerminateReason()
+        { return m_nTerminateReason; }
+
+    private:
+        IMS_UINT32 m_nType;
+        IMS_UINT32 m_nDelayMillisec;
+        IMSList<ConfUser*> m_objConfUsers;
+        CallStartOperationParams* m_pParam;
+        IMS_UINTP m_nCallId; // TODO: this must be CallKey, too.
+        IMS_SINT32 m_nTerminateReason;
+    };
+
+public:
+    explicit ConferenceOperationQueue();
+    ~ConferenceOperationQueue();
+    ConferenceOperationQueue(IN const ConferenceOperationQueue&) = delete;
+    ConferenceOperationQueue& operator=(IN const ConferenceOperationQueue&) = delete;
+
+public:
+
+    // implements ITimerListener interfaces.
+    void Timer_TimerExpired(IN ITimer* piTimer) override;
+    void SetListener(IN IConferenceOperationQueueListener* piListener);
+    void AddDelay(IN IMS_UINT32 nDelayMillisec);
+
+    void CreateNPut(IN IMS_UINT32 nType, IN IMS_BOOL bStandAloneOperation = IMS_FALSE);
+    void CreateNPut(IN IMS_UINT32 nType, IN IMSList<ConfUser*> objUsers,
+            IN IMS_BOOL bStandAloneOperation = IMS_FALSE);
+    void CreateNPut(IN IMS_UINT32 nType, IN ConfUser* pConfUser,
+            IN IMS_BOOL bStandAloneOperation = IMS_FALSE);
+    void CreateNPut(IN IMS_UINT32 nType, IN CallStartOperationParams* pParams,
+            IN IMS_BOOL bStandAloneOperation = IMS_FALSE);
+    void CreateNPut(IN IMS_UINT32 nType, IN IMS_UINTP nCallId,
+            IN IMS_BOOL bStandAloneOperation = IMS_FALSE);
+    void CreateNPut(IN IMS_UINT32 nType, IN IMS_SINT32 nTerminateReason,
+            IN IMS_BOOL bStandAloneOperation = IMS_FALSE);
+
+    void SetAddingOperationSetCompleted();
+
+    ConferenceOperationQueue::ConferenceOperation* GetNextOperation();
+    IMS_BOOL CompleteCurrentOperation(IN IMS_UINT32 nOperationType,
+            IN ConfUser* pConfUser = IMS_NULL);
+    ConferenceOperationQueue::ConferenceOperation* GetCurrentOperation() const;
+    IMS_UINT32 GetTypeOfCurrentOperation() const;
+    const IMSList<ConfUser*>& GetUsersOfCurrentOperation() const;
+
+    IMS_BOOL HasPendingOperation() const;
+
+    void Remove(IN ConferenceOperation* pOperation);
+    void Clear();
+
+private:
+    void Put(IN ConferenceOperation* pOperation, IN IMS_BOOL bStandAloneOperation);
+    void RemoveActiveOperation();
+    IMS_BOOL IsSameOperation(IN IMS_UINT32 nOperationType, IN ConfUser* pConfUser) const;
+    IMS_UINT32 GetNResetDelay();
+
+    IMS_RESULT StartTimer(IN IMS_SINT32 nDuration);
+    void StopTimer();
+
+    const IMS_CHAR* ConvertOperationToString(IN IMS_SINT32 nOperation) const;
+
+private:
+    static const IMS_UINT32 DELAY_IMMEDIATELY = 0;
+    static const IMS_UINT32 ACTIVE_OPERATION_NUMBER = 0; // 0th operation is the active one.
+    static const IMS_UINT32 TIMER_PERFORM_DELAYED_OPERATION = 0;
+
+    IMSList<ConferenceOperation*> m_objOperationQueue;
+    IConferenceOperationQueueListener* m_piListener;
+    ITimer* m_pIDelayedOperationTimer;
+    IMS_UINT32 m_nNextDelay;
+    IMS_BOOL m_bNeedToStartOperationSet;
+};
+
+#endif

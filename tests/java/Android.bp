@@ -1,0 +1,34 @@
+android_test {
+    name: "ImsStackJavaTests",
+    manifest: "AndroidManifest.xml",
+
+    srcs: [
+        ":imsstack_java_srcs",
+        ":imsstack_aidl_srcs",
+        "**/*.java",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "ims-common",
+        "telephony-common",
+    ],
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.rules",
+        "mockito-target",
+        "platform-test-annotations",
+        "truth-prebuilt",
+        "testables",
+        // TODO: move this to libs after API review
+        "android.telephony.imsmedia",
+    ] + [
+        "imsstack-common",
+    ],
+
+    platform_apis: true,
+    certificate: "platform",
+    instrumentation_for: "ImsStack",
+    test_suites: ["general-tests"],
+}

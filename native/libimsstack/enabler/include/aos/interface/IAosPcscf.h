@@ -1,0 +1,78 @@
+#ifndef _INTERFACE_AOS_PCSCF_H_
+#define _INTERFACE_AOS_PCSCF_H_
+
+#include "IMSTypeDef.h"
+#include "IMSList.h"
+#include "IPAddress.h"
+#include "AStringArray.h"
+
+class IAosPcscfListener;
+
+class IAosPcscf
+{
+public:
+    virtual void Configure(IN IMS_UINT32 nIpVersion = IPAddress::UNKNOWN) = 0;
+    virtual IMS_BOOL IsConfigured() const = 0;
+
+    virtual IMS_BOOL IsAsyncDnsDiscovery() const = 0;
+    virtual IMS_BOOL IsSinglePcoScheme() = 0;
+
+    virtual const AStringArray& GetPcscfs() = 0;
+    virtual const IMSList<IMS_SINT32>& GetPcscfsPorts() = 0;
+    virtual void UpdatePcscfs(IN const AStringArray& objPcscfs,
+            IN IMSList<IMS_SINT32> objPorts = IMSList<IMS_SINT32>()) = 0;
+
+    virtual IMS_BOOL HasPcscf(IN IMS_SINT32 nIndex) = 0;
+    virtual IMS_UINT32 GetPcscfCount() = 0;
+
+    virtual void SetCurrentPcscfInvalid(IN IMS_BOOL bIsTimer = IMS_FALSE,
+            IN IMS_UINT32 nSeconds = 0) = 0;
+    virtual void RemoveCurrentPcscf() = 0;
+    virtual void SetAllPcscfValid() = 0;
+
+    virtual IMS_BOOL GetCurrentPcscf(OUT AString& objPcscf, OUT IMS_UINT32& nPort) = 0;
+    virtual IMS_UINT32 GetCurrentIndex() const = 0;
+
+    virtual IMS_BOOL IsFirstPcscf() = 0;
+    virtual IMS_BOOL GetFirstPcscf(OUT AString& objPcscf, OUT IMS_UINT32& nPort) = 0;
+
+    virtual IMS_BOOL HasNextPcscf() = 0;
+    virtual IMS_SINT32 GetNextPcscfIndex() = 0;
+    virtual IMS_BOOL GetNextPcscf(OUT AString& objPcscf, OUT IMS_UINT32& nPort) = 0;
+
+    virtual void SetFirstPcscfIndex() = 0;
+
+    virtual IMS_BOOL CheckAndProcessChangeFromPco() = 0;
+    virtual IMS_UINT32 GetChangedType()= 0;
+
+    virtual void RequestCmd(IN IMS_UINT32 nType) = 0;
+
+    virtual void SetListener(IN IAosPcscfListener* piListener) = 0;
+
+    enum
+    {
+        TYPE_CONFIG = 0,
+        TYPE_NORMAL_REGISTRATION,
+        TYPE_CONFIG_EX
+    };
+
+    enum
+    {
+        TYPE_CHANGED_SAME = 0,
+        TYPE_CHANGED_DIFFERENT,
+        TYPE_CHANGED_REORDER
+    };
+protected:
+    friend class AosBuildDirector;
+    friend class AosAppContext;
+    virtual void Init() = 0;
+    virtual void CleanUp() = 0;
+};
+
+class IAosPcscfListener
+{
+public:
+    virtual void Pcscf_NotifyResult(IN IMS_BOOL bResult) = 0;
+};
+
+#endif // _INTERFACE_AOS_PCSCF_H_

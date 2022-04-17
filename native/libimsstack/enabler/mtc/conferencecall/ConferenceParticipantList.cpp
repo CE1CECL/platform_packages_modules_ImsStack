@@ -1,0 +1,299 @@
+#include "ServiceTrace.h"
+#include "AStringBuffer.h"
+#include "call/IMtcCallManager.h"
+#include "conferencecall/ConferenceParticipantList.h"
+
+__IMS_TRACE_TAG_COM_MTC__;
+
+PRIVATE
+ConferenceParticipantList::ConferenceParticipantList() :
+        m_objParticipants(IMSList<ConferenceParticipant*>()),
+        m_strLocalUri(AString::ConstNull()),
+        m_nVersion(-1),
+        m_nMaxUserCount(0)
+{
+    IMS_TRACE_D("+ConferenceParticipantList", 0, 0, 0);
+}
+
+PUBLIC
+ConferenceParticipantList::~ConferenceParticipantList()
+{
+    IMS_TRACE_D("~ConferenceParticipantList", 0, 0, 0);
+
+    for (IMS_UINT32 i = 0; i < m_objParticipants.GetSize(); i++)
+    {
+        delete m_objParticipants.GetAt(i);
+    }
+
+    m_objParticipants.Clear();
+}
+
+PUBLIC
+ConferenceParticipantList::ConferenceParticipant::~ConferenceParticipant()
+{
+    IMS_TRACE_D("~ConferenceParticipant", 0, 0, 0);
+
+    if (m_pConfUser != IMS_NULL)
+    {
+        delete m_pConfUser;
+    }
+}
+
+PUBLIC
+void ConferenceParticipantList::ConferenceParticipant::Login()
+{
+    AStringBuffer objBuffer(256);
+    objBuffer.Append("CallID=");
+    objBuffer.Append(m_pConfUser->nCallID);
+    objBuffer.Append(" Target=");
+    objBuffer.Append(m_pConfUser->aStrTarget);
+    objBuffer.Append(" UserEntity=");
+    objBuffer.Append(m_pConfUser->aStrUserEntity);
+    objBuffer.Append(" EPEntity=");
+    objBuffer.Append(m_pConfUser->aStrEPEntity);
+    objBuffer.Append(" DisplayName=");
+    objBuffer.Append(m_pConfUser->aStrDisplayName);
+    objBuffer.Append(" Status=");
+    objBuffer.Append(m_pConfUser->eStatus);
+
+    IMS_TRACE_I("Login : %s", objBuffer.GetString().GetStr(), 0, 0);
+}
+
+PUBLIC
+void ConferenceParticipantList::AddUser(IN const ConfUser* pConfUser)
+{
+    ConferenceParticipant* pParticipant = new ConferenceParticipant();
+    m_objParticipants.Append(pParticipant);
+    pParticipant->SetConfUser(pConfUser); // TODO: CopyConfUser
+}
+
+PUBLIC
+void ConferenceParticipantList::RemoveUser(IN const ConfUser* pConfUser)
+{
+    IMS_TRACE_I("RemoveUser", 0, 0, 0);
+
+    IMS_SINT32 nIndex = FindParticipant(pConfUser);
+    if (nIndex >= 0)
+    {
+        m_objParticipants.RemoveAt(nIndex);
+    }
+}
+
+PUBLIC
+ConfUser* ConferenceParticipantList::GetConfUser(IN IConferenceReference* piConfReference) const
+{
+    IMS_TRACE_I("GetConfUser", 0, 0, 0);
+
+    for (IMS_SINT32 i = 0; i < static_cast<IMS_SINT32>(m_objParticipants.GetSize()); i++)
+    {
+        ConferenceParticipant* pTemp = m_objParticipants.GetAt(i);
+        if (pTemp->GetReference() == piConfReference)
+        {
+            return pTemp->GetConfUser();
+        }
+    }
+
+    return IMS_NULL;
+}
+
+PUBLIC
+IMS_BOOL ConferenceParticipantList::IsConnectedUser(IN const ConfUser* pConfUser,
+        IN IMS_BOOL bIncludingConnecting/* = IMS_FALSE*/) const
+{
+    if (pConfUser == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    if (pConfUser->eStatus == CONFINFO_STATUS_CONNECTED ||
+            pConfUser->eStatus == CONFINFO_STATUS_ONHOLD)
+    {
+        return IMS_TRUE;
+    }
+
+    if (bIncludingConnecting)
+    {
+        if (pConfUser->eStatus == CONFINFO_STATUS_IDLE ||
+                pConfUser->eStatus == CONFINFO_STATUS_PENDING ||
+                pConfUser->eStatus == CONFINFO_STATUS_ALERTING ||
+                pConfUser->eStatus == CONFINFO_STATUS_DIALING_IN ||
+                pConfUser->eStatus == CONFINFO_STATUS_DIALING_OUT)
+        {
+            return IMS_TRUE;
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMSList<ConfUser*> ConferenceParticipantList::GetConfUsers(IN IMS_BOOL bCopy/* = IMS_FALSE*/) const
+{
+    IMSList<ConfUser*> objTempUsers;
+    for (IMS_UINT32 i = 0; i < m_objParticipants.GetSize(); i++)
+    {
+        if (bCopy == IMS_TRUE)
+        {
+            ConfUser* pUser = new ConfUser(*(m_objParticipants.GetAt(i)->GetConfUser()));
+            objTempUsers.Append(pUser);
+        }
+        else
+        {
+            objTempUsers.Append(m_objParticipants.GetAt(i)->GetConfUser());
+        }
+    }
+
+    return objTempUsers;
+}
+
+PUBLIC
+void ConferenceParticipantList::SetReference(IN IConferenceReference* piReference,
+        IN const ConfUser* pConfUser)
+{
+    ConferenceParticipant* pTemp = m_objParticipants.GetAt(FindParticipant(pConfUser));
+    if (pTemp != IMS_NULL)
+    {
+        pTemp->SetReference(piReference);
+    }
+}
+
+PUBLIC
+IConferenceReference* ConferenceParticipantList::GetReference(IN const ConfUser* pConfUser) const
+{
+    ConferenceParticipant* pTemp = m_objParticipants.GetAt(FindParticipant(pConfUser));
+    if (pTemp != IMS_NULL)
+    {
+        return pTemp->GetReference();
+    }
+    return IMS_NULL;
+}
+
+PUBLIC
+void ConferenceParticipantList::ResetReference(IN IConferenceReference* piConfReference)
+{
+    for (IMS_SINT32 i = 0; i < static_cast<IMS_SINT32>(m_objParticipants.GetSize()); i++)
+    {
+        ConferenceParticipant* pTemp = m_objParticipants.GetAt(i);
+        if (pTemp->GetReference() == piConfReference)
+        {
+            pTemp->SetReference(IMS_NULL);
+        }
+    }
+}
+
+PUBLIC
+void ConferenceParticipantList::SetReferInviteUri(IN AString strReferInviteUri,
+        IN const ConfUser* pConfUser)
+{
+    ConferenceParticipant* pTemp = m_objParticipants.GetAt(FindParticipant(pConfUser));
+    if (pTemp != IMS_NULL)
+    {
+        pTemp->SetReferInviteUri(strReferInviteUri);
+    }
+}
+
+PUBLIC
+AString ConferenceParticipantList::GetReferInviteUri(IN const ConfUser* pConfUser)
+{
+    ConferenceParticipant* pTemp = m_objParticipants.GetAt(FindParticipant(pConfUser));
+    if (pTemp != IMS_NULL)
+    {
+        return pTemp->GetReferInviteUri();
+    }
+    return AString::ConstEmpty();
+}
+
+PUBLIC
+IMS_SINT32 ConferenceParticipantList::FindParticipant(IN IMS_UINTP nCallID)
+{
+    for (IMS_SINT32 i = 0; i < static_cast<IMS_SINT32>(m_objParticipants.GetSize()); i++)
+    {
+        if (m_objParticipants.GetAt(i)->GetConfUser()->nCallID == nCallID)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+PUBLIC
+void ConferenceParticipantList::ReOrder(IN IMtcCallManager& objCallManager)
+{
+    IMSList<ConferenceParticipant*> objTemp;
+
+    IMSList<IMtcCall*> objCalls = objCallManager.GetCalls();
+     for (IMS_UINT32 nSessIndex = 0; nSessIndex < objCalls.GetSize(); nSessIndex ++)
+    {
+        IMtcCall* piTempCall = objCalls.GetAt(nSessIndex);
+
+        for (IMS_UINT32 nIndex = 0; nIndex < m_objParticipants.GetSize(); nIndex++)
+        {
+            ConferenceParticipant* pTempParticipant = m_objParticipants.GetAt(nIndex);
+            ConfUser* pTempUser = pTempParticipant ? pTempParticipant->GetConfUser() : IMS_NULL;
+            if (pTempUser && pTempUser->nCallID == piTempCall->GetKey())
+            {
+                objTemp.Append(pTempParticipant);
+                break;
+            }
+        }
+    }
+
+    m_objParticipants.Clear();
+    for (IMS_UINT32 nIndex = 0; nIndex < objTemp.GetSize(); nIndex++)
+    {
+        m_objParticipants.Append(objTemp.GetAt(nIndex));
+    }
+    objTemp.Clear();
+}
+
+PUBLIC
+void ConferenceParticipantList::Login()
+{
+    for (IMS_UINT32 i = 0; i < m_objParticipants.GetSize(); i++)
+    {
+        m_objParticipants.GetAt(i)->Login();
+    }
+}
+
+PUBLIC
+ConfUser* ConferenceParticipantList::GetConfUser(IN IMS_UINT32 nIndex) const
+{
+    if (nIndex >= GetSize())
+    {
+        return IMS_NULL;
+    }
+
+    return m_objParticipants.GetAt(nIndex)->GetConfUser();
+}
+
+PUBLIC
+IMS_UINT32 ConferenceParticipantList::GetConnectedParticipantSize(
+        IN IMS_BOOL bIncludingConnecting/* = IMS_FALSE*/)
+{
+    IMS_UINT32 nCount = 0;
+    IMSList<ConfUser*> objConfUsers = GetConfUsers();
+    for (IMS_UINT32 i = 0; i < objConfUsers.GetSize(); i++)
+    {
+        if (IsConnectedUser(objConfUsers.GetAt(i), bIncludingConnecting))
+        {
+            nCount++;
+        }
+    }
+
+    return nCount;
+}
+
+PRIVATE
+IMS_SINT32 ConferenceParticipantList::FindParticipant(IN const ConfUser* pConfUser) const
+{
+    for (IMS_SINT32 i = 0; i < static_cast<IMS_SINT32>(m_objParticipants.GetSize()); i++)
+    {
+        if (m_objParticipants.GetAt(i)->GetConfUser() == pConfUser)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}

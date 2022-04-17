@@ -1,0 +1,160 @@
+package com.android.imsstack.core.agents.dcmif;
+
+import android.content.Context;
+import android.net.Network;
+import android.os.Message;
+
+public interface IApn {
+    public static final int IPCAN_CATEGORY_MOBILE = 0;
+    public static final int IPCAN_CATEGORY_WLAN = 1;
+    public static final int DEFAULT_TIME_FOR_RECOVERY = 1000;
+    public static final int TIME_FOR_WATING_LOST_EVENT = 10000;
+
+    public static final int HANDOVER_UNKNOWN = 10;
+    public static final int HANDOVER_START = 11;
+    public static final int HANDOVER_SUCCESS = 12;
+    public static final int HANDOVER_FAILURE = 13;
+
+    void cleanup();
+
+    /**
+     * Set reference of DCSettings object in each apn object.
+     * If Apn object refer to DCSettings object directly, it cause Circular reference.
+     * So, when DCApn set reference of DCSettings to Apn to prevent circular reference.
+     */
+    void setSettings(IDCSettings settings);
+
+    /**
+     * Return DCSettings object.
+     */
+    IDCSettings getSettings();
+
+    /**
+     * Set reference of DCNetWatcher object in each apn object.
+     * If Apn object refer to DCSettings object directly, it cause Circular reference.
+     * So, when DCApn set reference of DCNetWatcher to Apn to prevent circular reference.
+     */
+    void setNetWatcher(IDCNetWatcher netWatcher);
+
+    /**
+     * Return DCNetWatcher object.
+     */
+    IDCNetWatcher getNetWatcher();
+
+    /**
+     * Add/Remove Listener to receive ip category chaged event
+     */
+    void addListener(ApnStateListener listener);
+    void removeListener(ApnStateListener listener);
+
+    /**
+     * request apn connection to use target apn.
+     * There are many conditions before requesting to use target apn to connectivity manager
+     * This condition can be different based on operator requirement and apn type
+     */
+    boolean connect();
+
+    /**
+     * request apn connection to use target apn with category type.
+     * For now, API works same as connect() API and ignore ipcanType param.
+     * Additional implementation is needed if there is requirement and this API should be used.
+     */
+    boolean connect(int ipcanType);
+
+    /**
+     * request apn disconnection stop to use target apn with recovery timer.
+     */
+    void disconnect(int timeAfterRecover);
+
+    /**
+     * request apn disconnection stop to use target apn with recovery timer.
+     * For now, API works same as disconnect(int timeAfterRecover) API and ignore ipcanType param.
+     * Additional implementation is needed if there is requirement and this API should be used.
+     */
+    void disconnect(int ipcanType, int timeAfterRecover);
+
+    /**
+     * Return Apn name value of target apn
+     */
+    String getApn();
+
+    /**
+     * Return if target apn is connected state or not
+     */
+    boolean isConnected();
+
+    /**
+     * Return data connection state of target apn
+     */
+    int getDataState();
+
+    /**
+     * Return Ipcan category of target apn
+     * In default, return value is "IPCAN_CATEGORY_MOBILE"
+     */
+    int getIpcanCategory();
+
+    /**
+     * Return Ip version setting of target apn.
+     */
+    int getIpVersion();
+
+    /**
+     * Return slot id of target apn.
+     */
+    int getSlotId();
+
+    /**
+     * Return Context object that stored in target apn.
+     * Reference of context object delivered to child operator apn classes.
+     */
+    Context getContext();
+
+    /**
+     * Send message object to target Apn.
+     * Apn extends Handler class,so each apn can handle those message
+     */
+    boolean sendMessage(Message msg);
+
+    /**
+     * Set to use this apn. This api increase the value of EmployCount.
+     */
+    void employApn();
+
+    /**
+     * Set not to use this apn. This api decreate the value of EmployCount.
+     */
+    void dismissApn();
+
+    /**
+     * Return how many service was registered to use  use this apn.
+     * When employ counter is 0 or below, this means there is no service to use this apn.
+     * In this case, apn should not trigger 'requestNetwork' to use this apn.
+     */
+    int getApnEmployCount();
+
+    /**
+     * Returns mESMCuasePermamentFailure (true/false)
+     */
+    boolean isESMCausePermanentFailure();
+
+    /**
+     * Return cached network of APN
+     */
+    Network getCachedNetwork();
+
+    /**
+     * Notifies IPCAN change (CELLULAR/IWLAN)
+     */
+    void notifyIPCanChange(int ipcanType);
+
+    /**
+     * Set Manual Detach triggered value when User turn on airplane, LTE menu
+     */
+    void setManualDetachedTriggered(boolean value);
+
+    /**
+     * Return preference of APN (CELLULAR_ONLY, CELLULAR_PREFERRED, EPDG_ONLY, EPDG_PREFERRED)
+     */
+    int getWlanPreference();
+}

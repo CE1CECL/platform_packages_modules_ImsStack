@@ -1,0 +1,116 @@
+package com.android.imsstack.enabler.ssc;
+
+import android.text.TextUtils;
+
+import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.agentif.IPreference;
+import com.android.imsstack.util.ImsLog;
+
+import java.util.Locale;
+
+public class SscXui {
+    private static final String IMPU_FILE_NAME = "impu_list";
+    private static final String IMPU_LIST_SIZE = "size";
+
+    private static final String XUI_TOP_PREFERRED = "top";
+    private static final String XUI_SIP_PREFERRED = "sip";
+    private static final String XUI_TEL_PREFERRED = "tel";
+
+    public static String getXUI(int slotId, String password) {
+        String xui = null;
+
+        int paidListSize = getPAssociatedUriSize(slotId);
+        if (paidListSize > 0) {
+            String paidFormat = XUI_TOP_PREFERRED;
+            if (!TextUtils.isEmpty(password)) {
+                paidFormat = XUI_SIP_PREFERRED;
+            }
+
+            String paid = null;
+            if (XUI_TOP_PREFERRED.equalsIgnoreCase(paidFormat)) {
+                paid = getPAssociatedUriValue(slotId, 0);
+                if (paid != null) {
+                    xui = paid;
+                }
+            } else {
+                for (int i = 0; i < paidListSize; i++) {
+                    paid = getPAssociatedUriValue(slotId, i);
+                    if (paid != null && paid.toLowerCase(Locale.ROOT).startsWith(paidFormat)) {
+                        xui = paid;
+                        break;
+                    }
+                }
+
+                if (xui == null) {
+                    // in case of no preferred type, return top value
+                    paid = getPAssociatedUriValue(slotId, 0);
+                    if (paid != null) {
+                        xui = paid;
+                    }
+                }
+            }
+        }
+
+        if (xui == null) {
+            xui = SscUtils.getImpu(slotId);
+        }
+
+        ImsLog.d("XUI :" + xui);
+        return setUserInfoWithPassword(xui, password);
+    }
+
+    private static String setUserInfoWithPassword(String xui, String password) {
+        if (TextUtils.isEmpty(xui)) {
+            return null;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            return xui;
+        }
+
+        if (!xui.toLowerCase(Locale.ROOT).startsWith(XUI_SIP_PREFERRED)) {
+            ImsLog.e("XUI isn't a SIP URI.");
+            return xui;
+        }
+
+        String xuiWithPassword;
+        String[] tokens = xui.split("@");
+        if (tokens.length < 2) {
+            xuiWithPassword = xui + ":" + password;
+        } else {
+            xuiWithPassword = tokens[0] + ":" + password + "@" + tokens[1];
+        }
+
+        return xuiWithPassword;
+    }
+
+    private static int getPAssociatedUriSize(int slotId) {
+        IPreference pfa = (IPreference)AgentFactory.getAgent(AgentFactory.PREFERENCE, slotId);
+        if (pfa == null) {
+            return 0;
+        }
+
+        String strNumberOfImpu = pfa.getPreferenceStrValue(IMPU_FILE_NAME, IMPU_LIST_SIZE, slotId);
+        int numberOfImpu = 0;
+        try {
+            numberOfImpu = Integer.parseInt(strNumberOfImpu);
+        } catch (NumberFormatException e) {
+            ImsLog.d(e.toString());
+            e.printStackTrace();
+        }
+
+        ImsLog.d("slotId/numberOfImpu : " + slotId + "/" + numberOfImpu);
+        return numberOfImpu;
+    }
+
+    private static String getPAssociatedUriValue(int slotId, int index) {
+        IPreference pfa = (IPreference)AgentFactory.getAgent(AgentFactory.PREFERENCE, slotId);
+        if (pfa == null) {
+            return null;
+        }
+
+        String impu = pfa.getPreferenceStrValue(IMPU_FILE_NAME, Integer.toString(index), slotId);
+        ImsLog.d("SlotId/Index : " + slotId + "/" + index + ", Impu : " + impu);
+        return impu;
+    }
+}

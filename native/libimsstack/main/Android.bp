@@ -1,0 +1,23 @@
+cc_library_headers {
+    name: "libimsstack_main_headers",
+    export_include_dirs: [
+        "include",
+    ],
+}
+
+cc_library_static {
+    name:"libimsstack-main",
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    header_libs: [
+        "libimsstack_config_headers",
+        "libimsstack_enabler_loader_headers",
+        "libimsstack_engine_headers",
+        "libimsstack_main_headers",
+        "libimsstack_platform_headers",
+    ],
+}

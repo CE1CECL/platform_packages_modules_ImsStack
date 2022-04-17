@@ -1,0 +1,85 @@
+#ifndef _AOS_SERVICE_AVAILABLE_H_
+#define _AOS_SERVICE_AVAILABLE_H_
+
+#include "IMSList.h"
+#include "interface/IAosBlock.h"
+#include "interface/IAosBlockListener.h"
+
+class IAosAppContext;
+class IAosServiceAvailableListener;
+
+class AosServiceAvailable
+{
+protected:
+    AosServiceAvailable(AString strName);
+    virtual ~AosServiceAvailable();
+
+public:
+    void Init(IN IAosAppContext* piAosAppContext);
+    void CleanUp();
+    void SetListener(IN IAosServiceAvailableListener* piListener);
+    void RemoveListener(IN IAosServiceAvailableListener* piListener);
+    void RefreshServiceAvailablility();
+    IMS_BOOL IsAvailable();
+
+    inline virtual void StartToCheckNetworkConnection() {};
+    virtual void HandleEvent(IN IMS_UINT32 eEvent, IN IMS_UINT32 nState,
+            IN IMS_SINT32 nStateEx);
+    virtual IMS_BOOL StopToCheckNetworkConnection(IN IMS_BOOL bNeedToCheckAvailable = IMS_TRUE);
+
+protected:
+    inline virtual void RegisterListener() {};
+    inline virtual void DeregisterListener() {};
+
+    virtual void HandleCallStateChanged(IN IMS_UINT32 nState, IN IMS_SINT32 nStateEx);
+    virtual void HandleNetworkStateChanged();
+    virtual void HandleBlockChanged(IN IMS_UINT32 nState, IN IMS_UINT32 nStateEx);
+    virtual void HandleRoamingChanged(IN IMS_UINT32 nState);
+    virtual void HandleAirplaneModeChanged(IN IMS_UINT32 nState);
+    virtual void HandleVolteSettingChanged(IN IMS_UINT32 nState);
+    virtual void HandleVopsChanged(IN IMS_UINT32 nState);
+    virtual void HandleWfcSettingChanged(IN IMS_UINT32 nState);
+    virtual void HandleWiFiConnectionChanged();
+    virtual void HandleLocationInfoChanged();
+    virtual IMS_BOOL CheckServiceAvailable();
+
+    void Notify();
+    void RequestCommand(IN IMS_UINT32 nCommand, IN IMS_UINT32 nReason);
+
+    IMS_BOOL IsSameAsBeforeUnavailableReason();
+
+    static const IMS_CHAR* EventToString(IN IMS_UINT32 eEvent);
+
+public:
+    enum
+    {
+        EVENT_AIRPLANE = 0,
+        EVENT_ROAMING,
+        EVENT_VOLTE_SETTING,
+        EVENT_VOPS,
+        EVENT_WFC_SETTING,
+        EVENT_LOCATION,
+        EVENT_CALL,
+        EVENT_NETWORK,
+        EVENT_WIFI_STATE,
+        EVENT_BLOCK,
+        EVENT_MAX
+    };
+
+protected:
+    IAosAppContext* m_piAppContext;
+    IMS_SINT32 m_nSlotId;
+    AString m_strTag;
+    AString m_strName;
+
+    IMS_BOOL m_bAirplaneMode;
+    IMS_BOOL m_bRoamingState;
+
+private:
+    IMS_BOOL m_bAvailableLastNotified;
+
+    static IMSList<IMS_UINT32> m_objBlockReasonsLastNotified;
+    IMSList<IAosServiceAvailableListener*> m_objListeners;
+};
+
+#endif // _AOS_SERVICE_AVAILABLE_H_

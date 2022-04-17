@@ -1,0 +1,48 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef CONFIG_LOADER_H_
+#define CONFIG_LOADER_H_
+
+#include "IMSMap.h"
+#include "IConfigBuffer.h"
+
+class ConfigLoader
+{
+private:
+    ConfigLoader();
+
+public:
+    static IConfigBuffer* GetConfig(IN const AString& strConfName, IN IMS_SINT32 nId);
+    static IConfigBuffer* GetConfig(IN const AString& strConfData);
+    static const AString& GetConfName(IN IMS_SINT32 nConfName, IN IMS_SINT32 nId);
+    static IMS_BOOL LoadIndexConfig(IN IMS_SINT32 nId);
+
+public:
+    enum
+    {
+        CONFIG_INVALID = (-1),
+
+        CONFIG_SUBSCRIBER = 0,
+        CONFIG_MEDIA,
+
+        CONFIG_MAX
+    };
+
+private:
+    static IMSMap<IMS_SINT32, AString> s_objIndexConfig;
+};
+
+#endif

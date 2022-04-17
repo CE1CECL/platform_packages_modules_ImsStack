@@ -1,0 +1,318 @@
+package com.android.imsstack.util;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import java.util.Locale;
+
+/**
+ * This class provides the wrapper APIs for IMS internal properties.
+ * It's generally used by hidden menu.
+ */
+public final class ImsPrivateProperties {
+    public static class Ephemeral {
+        /**
+         * Codec information during IMS call.
+         * Value: string
+         */
+        public static final String KEY_CODEC_IN_USE = "codec_in_use";
+        /**
+         * TTA version for KR operators.
+         * Value: string
+         */
+        public static final String KEY_KR_TTA_VERSION = "kr_tta_version";
+        /**
+         * Configuration information for registration recovery interval.
+         *    Retry Base Time
+         *    Retry Max Time
+         *    Consecutive Failure
+         *    Upperbound Waiting Time
+         *    Actual Waiting Time
+         * Value: int
+         */
+        public static final String KEY_REG_0_BT = "reg_0_bt";
+        public static final String KEY_REG_1_MT = "reg_1_mt";
+        public static final String KEY_REG_2_CF = "reg_2_cf";
+        public static final String KEY_REG_3_UWT = "reg_3_uwt";
+        public static final String KEY_REG_4_AWT = "reg_4_awt";
+        /**
+         * sms network bind for KR operators
+         * Value: boolean
+         */
+        public static final String KEY_SMS_NETWORK_REG_BIND = "sms_network_reg_bind";
+
+        /**
+         * Caches the default dialer information and it will be checked in active call.
+         * Value: boolean
+         */
+        public static final String KEY_THIRD_PARTY_DIALER_FOR_VIDEO_CALL
+                = "third_party_dialer_for_video_call";
+        /**
+         * Caches the video quality information for H.265 if operator provides this value.
+         * It may be used for preview's video resolution for 3rd party dialer.
+         * Value: String
+         */
+        public static final String KEY_H265_VIDEO_QUALITY = "h265_video_quality";
+
+        private static final String NAME = "ephemeral_prop";
+
+        public static String get(String key, int slotId) {
+            return get(key, null, slotId);
+        }
+
+        public static boolean getBoolean(String key, int slotId) {
+            return getBoolean(key, false, slotId);
+        }
+
+        public static int getInt(String key, int slotId) {
+            return getInt(key, -1, slotId);
+        }
+
+        public static String get(String key, String defValue, int slotId) {
+            SharedPreferences sp = getSharedPreferences(slotId);
+            return sp.getString(key, defValue);
+        }
+
+        public static boolean getBoolean(String key, boolean defValue, int slotId) {
+            return Boolean.valueOf(get(key, String.valueOf(defValue), slotId));
+        }
+
+        public static int getInt(String key, int defValue, int slotId) {
+            return Integer.valueOf(get(key, String.valueOf(defValue), slotId));
+        }
+
+        public static void set(String key, String value, int slotId) {
+            SharedPreferences.Editor editor = getSharedPreferences(slotId).edit();
+            editor.putString(key, value);
+            editor.commit();
+        }
+
+        public static void setBoolean(String key, boolean value, int slotId) {
+            set(key, String.valueOf(value), slotId);
+        }
+
+        public static void setInt(String key, int value, int slotId) {
+            set(key, String.valueOf(value), slotId);
+        }
+
+        public static void remove(String key, int slotId) {
+            SharedPreferences.Editor editor = getSharedPreferences(slotId).edit();
+            editor.remove(key);
+            editor.commit();
+        }
+
+        public static void removeAll(int slotId) {
+            SharedPreferences.Editor editor = getSharedPreferences(slotId).edit();
+            editor.clear();
+            editor.commit();
+        }
+
+        private static SharedPreferences getSharedPreferences(int slotId) {
+            String name = String.format(Locale.US, "%s_%d", NAME, slotId);
+            return AppContext.get().getSharedPreferences(name, Context.MODE_PRIVATE);
+        }
+    }
+
+    public static class Persistent {
+        // Test properties
+        /**
+         * IMS preferred operator for test purpose.
+         * Value: string
+         */
+        public static final String KEY_PREF_OPERATOR = "pref_operator";
+        /**
+         * IMS preferred country for test purpose.
+         * Value: string
+         */
+        public static final String KEY_PREF_COUNTRY = "pref_country";
+        /**
+         * Enables / disables KR operator's USIM mobility enabler (KR enabler) for test purpose.
+         * Value: boolean (true / false)
+         */
+        public static final String KEY_PREF_KR_ENABLER = "pref_kr_enabler";
+        /**
+         * Wi-Fi test configuration.
+         * Value: int (1 / 0)
+         */
+        public static final String KEY_WIFI_TEST = "wifi_test";
+
+        // Release properties
+        /**
+         * SIM operator
+         * Value: string
+         */
+        public static final String KEY_SIM_OPERATOR = "sim_operator";
+        /**
+         * SIM operator-sub
+         * Value: string
+         */
+        public static final String KEY_SIM_OPERATOR_SUB = "sim_operator_sub";
+        /**
+         * SIM country
+         * Value: string
+         */
+        public static final String KEY_SIM_COUNTRY = "sim_country";
+
+        /**
+         * Tracks the last access network information.
+         *    - TMUS
+         * Value: string
+         */
+        public static final String KEY_LAST_ACCESS_NETWORK_INFO = "last_access_network_info";
+        /**
+         * Shows Wi-Fi calling information pop-up for one time.
+         *    - ORG
+         * Value: boolean (true / false)
+         */
+        public static final String KEY_SHOW_WFC_INFO = "show_wfc_info";
+        /**
+         * SIP device id (UUID-based) for multi-device requirement.
+         * Value: string
+         */
+        public static final String KEY_SIP_DEVICE_ID = "sip_device_id";
+        /**
+         * Device's latest SW version.
+         *    - TMUS
+         * Value: string
+         * SlotId SHOULD be a zero for this key because it's a device's information.
+         */
+        public static final String KEY_DEVICE_SW_VERSION = "device_sw_version";
+        /**
+         * Keep the last boot count to identify whether IMS is started by boot-up.
+         * Value: int
+         * SlotId: always 0
+         */
+        public static final String KEY_LAST_BOOT_COUNT = "last_boot_count";
+        /**
+         * keep the old DB(gims.db) version
+         * Value : int
+         * SlotId : always 0
+         */
+        public static final String KEY_DB_IMS_OLD_VERSION
+                = "db_ims_old_version";
+        /**
+         * keep the old DB(smart_configuration.db) version
+         * Value : int
+         * SlotId : always 0
+         */
+        public static final String KEY_DB_SMART_CONFIGURATION_OLD_VERSION
+                = "db_smart_configuration_old_version";
+
+        /**
+         * Keeps the flag to indicate whether the pre-defined User-Agent string is used.
+         * Value : boolean (true / false)
+         */
+        public static final String KEY_USE_PREDEFINED_USER_AGENT = "use_predefined_user_agent";
+        /**
+         * Keeps the pre-defined User-Agent string.
+         * Value : string
+         */
+        public static final String KEY_CONFIG_USER_AGENT = "config_user_agent";
+
+        /**
+         * Stores VoWiFi's entitlement identifier(AT&T: E911 AID).
+         * Value : string
+         */
+        public static final String KEY_VOWIFI_ENTITLEMENT_ID = "vowifi_entitlement_id";
+
+        /**
+         * Configuration items which can be provisioned for a test purpose.
+         *  - List of P-CSCF address
+         *  - IMPI (Private user identity)
+         *  - List of IMPU (Public user identities)
+         *  - Home domain name
+         */
+        public static final String KEY_CONFIG_PCSCF_ADDRESS_LIST = "config_pcscf_address_list";
+        public static final String KEY_CONFIG_IMPI = "config_impi";
+        public static final String KEY_CONFIG_IMPU_LIST = "config_impu_list";
+        public static final String KEY_CONFIG_HOME_DOMAIN_NAME = "config_home_domain_name";
+
+        /**
+         * Keeps the test carrier id.
+         * Value : int
+         */
+        public static final String KEY_TEST_CARRIER_ID = "test_carrier_id";
+
+        private static final String NAME = "persistent_prop";
+        private static final String[] TEST_PROPERTIES =
+            {
+                KEY_PREF_OPERATOR,
+                KEY_PREF_COUNTRY,
+                KEY_PREF_KR_ENABLER,
+                KEY_WIFI_TEST,
+                KEY_USE_PREDEFINED_USER_AGENT,
+                KEY_TEST_CARRIER_ID
+            };
+
+        public static String get(String key, int slotId) {
+            return get(key, null, slotId);
+        }
+
+        public static boolean getBoolean(String key, int slotId) {
+            return getBoolean(key, false, slotId);
+        }
+
+        public static int getInt(String key, int slotId) {
+            return getInt(key, -1, slotId);
+        }
+
+        public static String get(String key, String defValue, int slotId) {
+            return get(AppContext.get(), key, defValue, slotId);
+        }
+
+        public static String get(Context c, String key, String defValue, int slotId) {
+            SharedPreferences sp = getSharedPreferences(c, slotId);
+            return (sp != null) ? sp.getString(key, defValue) : defValue;
+        }
+
+        public static boolean getBoolean(String key, boolean defValue, int slotId) {
+            return Boolean.valueOf(get(key, String.valueOf(defValue), slotId));
+        }
+
+        public static int getInt(String key, int defValue, int slotId) {
+            return Integer.valueOf(get(key, String.valueOf(defValue), slotId));
+        }
+
+        public static void set(String key, String value, int slotId) {
+            set(AppContext.get(), key, value, slotId);
+        }
+
+        public static void set(Context c, String key, String value, int slotId) {
+            if (c == null) {
+                return;
+            }
+
+            SharedPreferences sp = getSharedPreferences(c, slotId);
+
+            if (sp != null) {
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString(key, value);
+                editor.commit();
+            }
+        }
+
+        public static void setBoolean(String key, boolean value, int slotId) {
+            set(key, String.valueOf(value), slotId);
+        }
+
+        public static void setInt(String key, int value, int slotId) {
+            set(key, String.valueOf(value), slotId);
+        }
+
+        public static void removeTestProperties(int slotId) {
+            SharedPreferences.Editor editor = getSharedPreferences(
+                    AppContext.get(), slotId).edit();
+
+            for (String prop : TEST_PROPERTIES) {
+                editor.remove(prop);
+            }
+
+            editor.commit();
+        }
+
+        private static SharedPreferences getSharedPreferences(Context c, int slotId) {
+            String name = String.format(Locale.US, "%s_%d", NAME, slotId);
+            return c.getSharedPreferences(name, Context.MODE_PRIVATE);
+        }
+    }
+}

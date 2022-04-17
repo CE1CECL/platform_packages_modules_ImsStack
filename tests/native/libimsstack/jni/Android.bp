@@ -1,0 +1,21 @@
+cc_test {
+    name: "ImsStackNativeJniTests",
+    defaults: [
+        "imsstack_native_test_defaults",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    header_libs: [
+        "libimsstack_config_headers",
+        "libimsstack_enabler_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_platform_os_android_system-intf_headers",
+    ],
+    static_libs: [
+        "libimsstack-jni",
+        "libimsstack-platform",
+    ],
+
+    test_config: "ImsStackNativeJniTests.xml",
+}

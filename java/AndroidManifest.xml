@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.imsstack"
+    coreApp="true"
+    android:process="com.android.imsstack"
+    android:versionCode="1001"
+    android:versionName="1.0.01">
+
+    <!-- ims permission -->
+    <permission android:name="com.android.imsstack.permission.WRITE_IMS_STATE"
+        android:protectionLevel="signatureOrSystem" />
+    <permission android:name="com.android.imsstack.permission.READ_IMS"
+        android:protectionLevel="signatureOrSystem" />
+    <permission android:name="com.android.imsstack.permission.WRITE_IMS"
+        android:protectionLevel="signatureOrSystem" />
+    <permission android:name="com.android.imsstack.permission.IMS"
+        android:protectionLevel="signatureOrSystem" />
+
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.LOCATION_BYPASS"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PRECISE_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
+    <uses-permission android:name="com.android.imsstack.permission.READ_IMS"/>
+    <uses-permission android:name="com.android.imsstack.permission.WRITE_IMS"/>
+    <uses-permission android:name="com.android.imsstack.permission.WRITE_IMS_STATE"/>
+
+    <!--  Application -->
+    <application
+        android:label="@string/app_name"
+        android:persistent="true"
+        android:process="com.android.imsstack"
+        android:name="com.android.imsstack.ImsStackApp"
+        android:allowClearUserData="false"
+        android:directBootAware="true"
+        android:defaultToDeviceProtectedStorage="true"
+        android:usesCleartextTraffic="true">
+
+        <!-- Operator required hidden menu -->
+        <activity
+            android:permission="com.android.imsstack.permission.IMS"
+            android:name=".test.menu.IMSSettings"
+            android:process="com.android.imsstack"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.imsstack.action.IMS_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- IMS engineering hidden menu -->
+        <activity
+            android:permission="com.android.imsstack.permission.IMS"
+            android:name=".test.menu.IMSProvisioning"
+            android:resizeableActivity="true"
+            android:process="com.android.imsstack"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.imsstack.action.IMS_PROVISIONING" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:permission="com.android.imsstack.permission.IMS"
+            android:name=".test.menu.CarrierConfigMenu"
+            android:resizeableActivity="true"
+            android:process="com.android.imsstack"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.imsstack.action.CARRIER_CONFIG_MENU" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".test.menu.MediaSetting"
+            android:process="com.android.imsstack"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.android.imsstack.action.IMS_MEDIA_SETTING" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- Activity for IMS miscellaneous information -->
+        <activity
+            android:name=".test.menu.MiscInfo"
+            android:process="com.android.imsstack"
+            android:exported="false"
+            android:configChanges="orientation|screenSize"
+            android:resizeableActivity="true" >
+            <intent-filter>
+                <action android:name="com.android.imsstack.action.MISC_INFO" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- Activity for Location debug screen -->
+        <activity
+            android:name=".test.menu.LocationDebugScreen"
+            android:process="com.android.imsstack"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.android.imsstack.action.LOCATION_DEBUG_SCREEN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Service -->
+        <service
+            android:name=".imsservice.ImsService"
+            android:exported="true"
+            android:persistent="true"
+            android:singleUser="true"
+            android:permission="android.permission.BIND_IMS_SERVICE"
+            android:process="com.android.imsstack">
+            <meta-data android:name="android.telephony.ims.MMTEL_FEATURE"
+                android:value="true"/>
+            <meta-data android:name="android.telephony.ims.EMERGENCY_MMTEL_FEATURE"
+                android:value="true"/>
+            <meta-data android:name="android.telephony.ims.RCS_FEATURE"
+                android:value="true"/>
+            <intent-filter>
+                <action android:name="android.telephony.ims.ImsService"/>
+            </intent-filter>
+        </service>
+
+        <!-- Provider -->
+        <provider
+            android:name=".provider.ConfigurationProvider"
+            android:authorities="com.android.imsstack.provider.gims"
+            android:exported="true"
+            android:singleUser="true"
+            android:writePermission="com.android.imsstack.permission.WRITE_IMS">
+        </provider>
+        <provider
+            android:name=".provider.SmartConfigProvider"
+            android:authorities="com.android.imsstack.provider.smart_configuration"
+            android:multiprocess="false"
+            android:readPermission="com.android.imsstack.permission.READ_IMS"
+            android:syncable="false"
+            android:writePermission="com.android.imsstack.permission.WRITE_IMS"
+            android:singleUser="true" />
+        <!-- Providers for external modules -->
+        <!-- ImsState -->
+        <provider
+            android:name=".provider.ImsStateProvider"
+            android:authorities="com.android.imsstack.provider.ims_state"
+            android:exported="true"
+            android:multiprocess="false"
+            android:singleUser="true"
+            android:syncable="false"
+            android:writePermission="com.android.imsstack.permission.WRITE_IMS_STATE" />
+        <!-- ImsFeature -->
+        <provider
+            android:name=".provider.ImsFeatureProvider"
+            android:authorities="com.android.imsstack.provider.ims_feature"
+            android:exported="true"
+            android:multiprocess="false"
+            android:singleUser="true"
+            android:syncable="false" />
+    </application>
+
+    <uses-sdk android:minSdkVersion="31" />
+
+</manifest>

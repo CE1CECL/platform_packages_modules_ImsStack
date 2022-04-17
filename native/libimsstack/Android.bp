@@ -1,0 +1,37 @@
+cc_library_shared {
+    name: "libimsstack",
+    system_ext_specific: true,
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    srcs: [
+        "libimsstack.cpp",
+    ],
+    static_libs: [
+        "libimsmedia_config",
+        "libimsstack-platform",
+        "libimsstack-protocol",
+        "libimsstack-config",
+        "libimsstack-engine",
+        "libimsstack-enabler",
+        "libimsstack-main",
+        "libimsstack-jni",
+    ],
+    shared_libs: [
+        "libandroid_runtime",
+        "libbinder",
+        "libcutils",
+        "libgui",
+        "liblog",
+        "libnativehelper",
+        "libsqlite",
+        "libutils",
+        // TLS
+        "libcrypto",
+        "libssl",
+        // XML
+        "libxml2",
+        // ZLIB
+        "libz",
+    ],
+}

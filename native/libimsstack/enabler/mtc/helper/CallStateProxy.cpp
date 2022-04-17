@@ -1,0 +1,195 @@
+#include "IMSActivity.h"
+#include "IMSTypeDef.h"
+#include "call/IMtcCallManager.h"
+#include "helper/CallStateProxy.h"
+#include "call/IMtcCall.h"
+#include "ServiceMSG.h"
+#include "ServiceTrace.h"
+
+__IMS_TRACE_TAG_COM_MTC__;
+
+
+PUBLIC
+CallStateProxy::CallStateProxy(IN IMtcCallManager& objCallManager) :
+        IMSActivity(),
+        m_objSynchronousListeners(IMSList<IMtcCallStateListener*>()),
+        m_objAsynchronousListeners(IMSList<IMtcCallStateListener*>()),
+        m_objCallManager(objCallManager),
+        m_eTotalState(IMtcCall::State::IDLE)
+{
+    IMS_TRACE_D("+CallStateProxy", 0, 0, 0);
+}
+
+PUBLIC VIRTUAL
+CallStateProxy::~CallStateProxy()
+{
+}
+
+PUBLIC
+void CallStateProxy::AddListener(IN IMtcCallStateListener* pListener)
+{
+    IMS_TRACE_D("+AddListener", 0, 0, 0);
+    if (pListener->IsSynchronousCallRequired())
+    {
+        m_objSynchronousListeners.Append(pListener);
+    }
+    else
+    {
+        m_objAsynchronousListeners.Append(pListener);
+    }
+}
+
+PUBLIC
+void CallStateProxy::RemoveListener(IN IMtcCallStateListener* pListener)
+{
+    if (pListener->IsSynchronousCallRequired())
+    {
+        for (IMS_UINT32 i = 0; i < m_objSynchronousListeners.GetSize(); i++)
+        {
+            if (pListener == m_objSynchronousListeners.GetAt(i))
+            {
+                m_objSynchronousListeners.RemoveAt(i);
+                return;
+            }
+        }
+    }
+    else
+    {
+        for (IMS_UINT32 i = 0; i < m_objAsynchronousListeners.GetSize(); i++)
+        {
+            if (pListener == m_objAsynchronousListeners.GetAt(i))
+            {
+                m_objAsynchronousListeners.RemoveAt(i);
+                return;
+            }
+        }
+    }
+}
+
+PUBLIC
+void CallStateProxy::UpdateCallState(IN CallKey nCallkey, IN CallInfo& objCallInfo,
+        IN IMtcCall::State eState, IN IMS_SINT32 nReason/* = FAIL_REASON_NONE*/)
+{
+    IMS_TRACE_D("UpdateCallState", 0, 0, 0);
+    IMS_BOOL bTotalCallStateUpdated = UpdateTotalCallState();
+
+    CallStateDetails* pDetails = new CallStateDetails(nCallkey,
+            static_cast<IMtcCallStateListener::State>(eState),
+            static_cast<IMtcCallStateListener::Type>(objCallInfo.eCallType),
+            objCallInfo.bEmergency, nReason);
+
+    if (m_objSynchronousListeners.GetSize() > 0)
+    {
+        NotifyToListeners(IMS_TRUE, pDetails, bTotalCallStateUpdated);
+    }
+    if (m_objAsynchronousListeners.GetSize() > 0)
+    {
+        PostMessage(MESSAGE_ASYNC_NOTIFY, reinterpret_cast<IMS_UINTP>(pDetails),
+                static_cast<IMS_UINTP>(bTotalCallStateUpdated));
+    }
+    else
+    {
+        delete pDetails;
+    }
+}
+
+PROTECTED VIRTUAL
+IMS_BOOL CallStateProxy::DispatchMessage(IN IMSMSG& objMsg)
+{
+
+    switch (objMsg.GetName())
+    {
+        case MESSAGE_ASYNC_NOTIFY:
+            {
+                CallStateDetails* pDetails = reinterpret_cast<CallStateDetails*>(objMsg.nWparam);
+                NotifyToListeners(IMS_FALSE, pDetails, static_cast<IMS_BOOL>(objMsg.nLparam));
+                delete pDetails;
+                return IMS_TRUE;
+            }
+        default:
+            break;
+    }
+
+    return IMS_TRUE;
+}
+
+PRIVATE
+IMS_BOOL CallStateProxy::UpdateTotalCallState()
+{
+    IMtcCall::State eCalculatedState = CalculateTotalCallState();
+    if (m_eTotalState == eCalculatedState)
+    {
+        return IMS_FALSE;
+    }
+
+    m_eTotalState = eCalculatedState;
+    return IMS_TRUE;
+}
+
+PRIVATE
+IMtcCall::State CallStateProxy::CalculateTotalCallState()
+{
+    IMSList<IMtcCall*> objCalls = m_objCallManager.GetCalls();
+    IMtcCall::State eTotalState = IMtcCall::State::IDLE;
+
+    for (IMS_UINT32 i = 0; i < objCalls.GetSize(); i++)
+    {
+        switch (objCalls.GetAt(i)->GetState())
+        {
+            case IMtcCall::State::ESTABLISHED:
+            case IMtcCall::State::UPDATING:
+                return IMtcCall::State::ESTABLISHED;
+
+            case IMtcCall::State::INCOMING:
+            case IMtcCall::State::ALERTING:
+                eTotalState = IMtcCall::State::INCOMING;
+                break;
+
+            case IMtcCall::State::OUTGOING:
+                eTotalState = IMtcCall::State::OUTGOING;
+                break;
+
+            case IMtcCall::State::IDLE:
+            case IMtcCall::State::TERMINATING:
+                break;
+        }
+    }
+
+    return eTotalState;
+}
+
+PRIVATE
+void CallStateProxy::NotifyToListeners(IN IMS_BOOL bSynchronous, IN CallStateDetails* pDetails,
+        IN IMS_BOOL bTotalCallStateUpdated)
+{
+    IMS_TRACE_D("NotifyToListeners sync[%s]", _TRACE_B_(bSynchronous), 0, 0);
+    IMSList<IMtcCallStateListener*> pListener =
+            bSynchronous ? m_objSynchronousListeners : m_objAsynchronousListeners;
+
+    NotifyCallState(pListener, pDetails);
+    if (bTotalCallStateUpdated)
+    {
+        NotifyTotalCallState(pListener);
+    }
+}
+
+PRIVATE
+void CallStateProxy::NotifyCallState(IN IMSList<IMtcCallStateListener*> objListeners,
+        IN CallStateDetails* pDetails)
+{
+    for (IMS_UINT32 i = 0; i < objListeners.GetSize(); i ++)
+    {
+        objListeners.GetAt(i)->OnCallStateChanged(pDetails->nCallKey, pDetails->eState,
+                pDetails->eType, pDetails->bEmergency, pDetails->nReason);
+    }
+}
+
+PRIVATE
+void CallStateProxy::NotifyTotalCallState(IN IMSList<IMtcCallStateListener*> objListeners)
+{
+    for (IMS_UINT32 i = 0; i < objListeners.GetSize(); i ++)
+    {
+        objListeners.GetAt(i)
+                ->OnTotalCallStateChanged(static_cast<IMtcCallStateListener::State>(m_eTotalState));
+    }
+}

@@ -1,0 +1,44 @@
+// Do not add additional include paths with three depths.
+cc_library_headers {
+    name: "libimsstack_protocol_headers",
+    export_include_dirs: [
+        "interface",
+        "interface/sdp",
+        "interface/sip",
+        "interface/xml",
+    ],
+}
+
+cc_library_static {
+    name:"libimsstack-protocol",
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    cflags: [
+        "-DSIP_BADMESSAGE_PARSING",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    header_libs: [
+        "libimsstack_platform_headers",
+        "libimsstack_protocol_headers",
+    ],
+    include_dirs: [
+        "external/libxml2/include",
+    ],
+    local_include_dirs: [
+        "include",
+        "include/sip",
+        "include/xml",
+    ],
+    // For unit-test
+    export_include_dirs: [
+        "include",
+        "include/sip",
+        "include/xml",
+    ],
+    shared_libs: [
+        "libxml2",
+    ]
+}

@@ -1,0 +1,53 @@
+#ifndef MTC_CALL_MANAGER_H_
+#define MTC_CALL_MANAGER_H_
+
+#include "IMSList.h"
+#include "IMSTypeDef.h"
+#include "call/IMtcCall.h"
+#include "call/IMtcCallManager.h"
+#include "IMtcService.h"
+#include "IuMtcService.h"
+#include "interface/mtc/IMtcCallStateListener.h"
+
+class ICoreService;
+class IMtcContext;
+class MtcCall;
+class NullCall;
+
+class MtcCallManager final :
+        public IMtcCallManager,
+        public IMtcCallStateListener
+{
+public:
+    MtcCallManager(IN IMtcContext& objContext);
+    virtual ~MtcCallManager();
+    MtcCallManager(IN const MtcCallManager&) = delete;
+    MtcCallManager& operator=(IN const MtcCallManager&) = delete;
+
+    void Init();
+
+    IMtcCall* CreateCall(IN ServiceType eServiceType, IN CallInfo& objCallInfo) override;
+    void RemoveCall(IN CallKey nCallKey) override;
+
+    IMtcCall* GetCallByCallKey(IN CallKey nCallKey) override;
+
+    IMSList<IMtcCall*> GetCalls() override;
+    IMSList<IMtcCall*> GetCallsByType(IN CallType eCallType) override;
+    IMSList<IMtcCall*> GetCallsByServiceType(IN ServiceType eServiceType) override;
+    IMSList<IMtcCall*> GetCallsInConference() override;
+
+    void OnCallStateChanged(IN CallKey nCallKey, IN State eState,
+            IN Type eType, IN IMS_BOOL bEmergency, IN IMS_SINT32 nReason) override;
+    void OnTotalCallStateChanged(IN State eState) override;
+
+private:
+    IMS_SINT32 GetFirstIndexByFilter(IN std::function<IMS_BOOL (MtcCall*)> objFilter);
+    IMSList<IMtcCall*> GetCallsByFilter(IN std::function<IMS_BOOL (MtcCall*)> objFilter);
+
+    static NullCall* const s_pNullCall;
+
+    IMtcContext& m_objContext;
+    IMSList<MtcCall*> m_lstCalls;
+};
+
+#endif

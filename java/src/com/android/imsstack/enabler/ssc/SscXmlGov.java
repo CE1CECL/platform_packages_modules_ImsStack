@@ -1,0 +1,161 @@
+package com.android.imsstack.enabler.ssc;
+
+import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.enabler.ssc.data.SscServiceData;
+import com.android.imsstack.enabler.ssc.data.SscServiceQueryData;
+
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class SscXmlGov {
+    private static HashMap<Integer, SscXmlGov> sUtXmlGovs = new HashMap<>();
+    private SscXmlParser mSscXmlParser = null;
+    private SscXmlCreator mSscXmlCreator = null;
+    private Document mSimservDoc = null;
+    private Document mSimservDocForUpdate = null;
+
+    public SscXmlGov() {
+        ImsLog.d("");
+        mSscXmlCreator = new SscXmlCreator();
+        mSscXmlParser = new SscXmlParser();
+    }
+
+    public static SscXmlGov getInstance(int slotId) {
+        if (!sUtXmlGovs.containsKey(slotId)) {
+            sUtXmlGovs.put(slotId, new SscXmlGov());
+        }
+        return sUtXmlGovs.get(slotId);
+    }
+
+    public Document getXmlData() {
+        return mSimservDoc;
+    }
+
+    public void setXmlData(Document doc) {
+        mSimservDoc = doc;
+    }
+
+    public void updateXmlData(int responseCode) {
+        if (responseCode >= 200 || responseCode < 300) {
+            mSimservDoc = mSimservDocForUpdate;
+        }
+        mSimservDocForUpdate = null;
+    }
+
+    public boolean isXmlDataPresent() {
+        return (mSimservDoc != null) ? true : false;
+    }
+
+    public SscServiceData parseXMLStream(SscServiceData updateData, Document document) {
+        SscServiceQueryData convertedData = new SscServiceQueryData(updateData.getSlotId(),
+                updateData.getSsType(), updateData.getEventNumber(), updateData.getTransactionId(),
+                updateData.getServiceClass());
+        convertedData.setResponseCode(updateData.getResponseCode());
+        return parseXMLStream(convertedData, document);
+    }
+
+    public SscServiceData parseXMLStream(SscServiceQueryData queryData, Document document) {
+        int slotId = queryData.getSlotId();
+        if (queryData.getResponseCode() == SscConstant.HTTP_NOT_MODIFIED) {
+            // use previous XML data when 304 case
+            document = mSimservDoc;
+        }
+
+        if (document == null) {
+            return null;
+        }
+
+        Element rootElement = document.getDocumentElement();
+        if (rootElement != null) {
+            ImsLog.d(slotId, "\n" + getStringFromDoc(rootElement));
+        }
+
+        SscServiceData data = mSscXmlParser.getSSCServiceFromDoc(queryData, document, mSimservDoc);
+        if (data == null) {
+            ImsLog.e("SscServiceData is null");
+            return null;
+        }
+
+        return data;
+    }
+
+    public String createXMLStream(SscServiceData data) {
+        if (mSimservDoc == null) {
+            ImsLog.e(data.getSlotId(), "mSimservDoc is null");
+            return null;
+        }
+
+        mSimservDocForUpdate = getNewDoc();
+        if (mSimservDocForUpdate == null) {
+            return null;
+        }
+
+        Element rootElement =
+                (Element) mSimservDocForUpdate.importNode(mSimservDoc.getDocumentElement(), true);
+        mSimservDocForUpdate.appendChild(rootElement);
+
+        Element resultXml = mSscXmlCreator.createXML(mSimservDocForUpdate, data);
+        return getStringFromDoc(resultXml);
+    }
+
+    private String getStringFromDoc(Element xmlElement) {
+        return getStringFromDoc(xmlElement, true);
+    }
+
+    private String getStringFromDoc(Element xmlElement, boolean omitXmlDeclaration) {
+        if (xmlElement == null) {
+            return null;
+        }
+        String output = null;
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer;
+        try {
+            transformer = tf.newTransformer();
+            transformer.setOutputProperty(
+                    OutputKeys.OMIT_XML_DECLARATION, (omitXmlDeclaration ? "yes" : "no"));
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(xmlElement), new StreamResult(writer));
+            output = writer.getBuffer().toString();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+
+        return output;
+    }
+
+    private Document getNewDoc() {
+        Document doc = null;
+
+        try {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            doc = docBuilder.newDocument();
+            doc.setXmlStandalone(true);
+        } catch (Exception e) {
+            ImsLog.e(e.toString());
+            e.printStackTrace();
+            return null;
+        }
+
+        return doc;
+    }
+}

@@ -1,0 +1,180 @@
+/******************************************************************************
+ * Project Name     : SIP_RTP
+ * Group            : IP-CS [MSG-2]
+ * Security         : Confidential
+ *****************************************************************************/
+
+/******************************************************************************
+
+ * Filename              : SipIdentityHeader.cpp
+ * Purpose               :
+ * Platform              : Windows OR Android
+ * Author(s)           :
+ * E-mail id.            : saurabh31.srivastava@
+ * Creation date       : July. 27, 2010
+ *
+ * Edit History             Modification                         Description(s)
+ *
+ * Date                Name            Version        Bug-ID        Description
+ * ----------        ----------        -------        ------        -------------
+ * Month. Date,10        Name                 0.0a            Initial creation
+ *****************************************************************************/
+
+
+/*****************************************************************************
+  Header Inclusions
+ *****************************************************************************/
+#include "msg/SipIdentityHeader.h"
+#include "sip_error.h"
+#include "sip_debug.h"
+#include "SipTrace.h"
+#include "platform/sip_pf_string.h"
+#include "SipConfiguration.h"
+#include "msg/sip_msgutil.h"
+
+/****************************************************************************
+  Macro Definitions
+ *****************************************************************************/
+
+/****************************************************************************
+  Class Member Function Implementations
+ *****************************************************************************/
+
+/******************************************************************************
+ * Function name      : SipIdentityHeader::SipIdentityHeader
+ *
+ * Description     :
+ *
+ * Preconditions      :
+ *
+ * Side Effects      : none
+ *****************************************************************************/
+SipIdentityHeader::SipIdentityHeader()
+    : SipHeaderBase(SipHeaderBase::IDENTITY)
+{
+}
+
+/******************************************************************************
+ * Function name      : SipIdentityHeader::SipIdentityHeader
+ *
+ * Description     :
+ *
+ * Preconditions      :
+ *
+ * Side Effects      : none
+ *****************************************************************************/
+SipIdentityHeader::SipIdentityHeader(const SipIdentityHeader &objHeader)
+    : SipHeaderBase(objHeader)
+{
+}
+
+/******************************************************************************
+ * Function name      : SipIdentityHeader::~SipIdentityHeader
+ *
+ * Description     :
+ *
+ * Preconditions      :
+ *
+ * Side Effects      : none
+ *****************************************************************************/
+SipIdentityHeader::~SipIdentityHeader()
+{
+}
+
+/******************************************************************************
+ * Function name      : SipIdentityHeader::EncodeHdr
+ *
+ * Description     :
+ *
+ * Preconditions      :
+ *
+ * Side Effects      : none
+ *****************************************************************************/
+SIP_BOOL SipIdentityHeader::EncodeHdr
+(
+    SIP_CHAR     **ppucCurrPos,
+    SIP_BOOL     /*bParams = SIP_TRUE*/
+)
+{
+    const SIP_CHAR *pValue = GetValue();
+    if (pValue == SIP_NULL)
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODENCODER, "Empty value", SIP_ZERO, SIP_ZERO);
+        return SIP_FALSE;
+    }
+
+    /*Encode the Left DQoute*/
+    SIP_ENC_LDQUOT(*ppucCurrPos);
+
+    /*Encoding of header Value*/
+    SipPf_Strcpy(*ppucCurrPos, pValue);
+    SipEnc_UpdateCurrPos(ppucCurrPos);
+
+    /*Encode the right DQoute*/
+    SIP_ENC_RDQUOT(*ppucCurrPos);
+
+    return SIP_TRUE;
+}
+
+/******************************************************************************
+ * Function name      : SipIdentityHeader::DecodeHdr
+ *
+ * Description     :
+ *
+ * Preconditions      :
+ *
+ * Side Effects      : none
+ *****************************************************************************/
+SIP_BOOL SipIdentityHeader::DecodeHdr
+(
+ SIP_CHAR    *pucStartPt,
+ SIP_UINT32  uiDecLen
+ )
+{
+    if (uiDecLen == SIP_ZERO)
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "Empty buffer", SIP_ZERO, SIP_ZERO);
+        return SIP_FALSE;
+    }
+
+    /*Find the position of First DQUOTE*/
+    SIP_CHAR *pucEndPt = pucStartPt + uiDecLen - SIP_ONE;
+    SIP_CHAR *pucTemp  = SIP_NULL;
+
+    if (sipFindPostDelimiter(pucStartPt, pucEndPt, &pucTemp, DQUOTE) == SIP_FALSE)
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "left DQUOTE not found", SIP_ZERO, SIP_ZERO);
+        return SIP_FALSE;
+    }
+
+    pucStartPt = pucTemp;
+    pucTemp = SIP_NULL;
+
+    /*Find the position of Second DQUOTE*/
+    if (sipFindPreDelimiter(pucStartPt, pucEndPt, &pucTemp, DQUOTE) == SIP_FALSE)
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "right DQUOTE not found", SIP_ZERO, SIP_ZERO);
+        return SIP_FALSE;
+    }
+
+    SIP_CHAR *pszValue = sipCreateString(pucStartPt, pucTemp);
+    if (SIP_FALSE == SetValue(pszValue))
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "Memory Allocation Fail", SIP_ZERO, SIP_ZERO);
+        if (pszValue != SIP_NULL) {
+            delete[] pszValue;
+        }
+        return SIP_FALSE;
+    }
+    delete[] pszValue;
+
+    return SIP_TRUE;
+}
+
+SipHeaderBase* SipIdentityHeader::GetNewObj(SIP_INT32 /*eHdr*/, SipHeaderBase* pHeader)
+{
+    if (pHeader != SIP_NULL) {
+        return new SipIdentityHeader(*reinterpret_cast<SipIdentityHeader*>(pHeader));
+    }
+    return new SipIdentityHeader();
+}

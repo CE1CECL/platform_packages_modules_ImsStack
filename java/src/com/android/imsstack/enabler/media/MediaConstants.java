@@ -1,0 +1,55 @@
+/**
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.imsstack.enabler.media;
+
+/**
+ * This consists of constants required for MediaSession
+ */
+public class MediaConstants {
+
+    public static final int SOCKETS_MAX = 10;
+    public static final int IMS_MSG_BASE_MEDIA = 1400;
+
+    // Requests
+    public static final int IMSMEDIA_REQUEST            = IMS_MSG_BASE_MEDIA;
+    public static final int REQUEST_OPEN_SESSION        = (IMSMEDIA_REQUEST + 1);
+    public static final int REQUEST_CLOSE_SESSION       = (IMSMEDIA_REQUEST + 2);
+    public static final int REQUEST_MODIFY_SESSION      = (IMSMEDIA_REQUEST + 3);
+    public static final int REQUEST_ADD_CONFIG          = (IMSMEDIA_REQUEST + 4);
+    public static final int REQUEST_DELETE_CONFIG       = (IMSMEDIA_REQUEST + 5);
+    public static final int REQUEST_CONFIRM_CONFIG      = (IMSMEDIA_REQUEST + 6);
+    public static final int REQUEST_SEND_DTMF           = (IMSMEDIA_REQUEST + 7);
+    public static final int REQUEST_SET_MEDIA_QUALITY   = (IMSMEDIA_REQUEST + 8);
+    public static final int REQUEST_HEADER_EXTENSION    = (IMSMEDIA_REQUEST + 9);
+
+    // Responses
+    public static final int IMSMEDIA_RESPONSE           = (IMSMEDIA_REQUEST + 100);
+    public static final int IMSMEDIA_MAX                = (IMSMEDIA_RESPONSE + 100);
+    public static final int RESPONSE_OPEN_SESSION       = (IMSMEDIA_RESPONSE + 1);
+    public static final int RESPONSE_SESSION_CHANGED    = (IMSMEDIA_RESPONSE + 2);
+    public static final int RESPONSE_MODIFY_SESSION     = (IMSMEDIA_RESPONSE + 3);
+    public static final int RESPONSE_ADD_CONFIG         = (IMSMEDIA_RESPONSE + 4);
+    public static final int RESPONSE_CONFIRM_CONFIG     = (IMSMEDIA_RESPONSE + 5);
+
+    // Notifications
+    public static final int NOTIFY_FIRST_PACKET         = (IMSMEDIA_RESPONSE + 6);
+    public static final int NOTIFY_HEADER_EXTENSION     = (IMSMEDIA_RESPONSE + 7);
+    public static final int NOTIFY_MEDIA_INACTIVITY     = (IMSMEDIA_RESPONSE + 8);
+    public static final int NOTIFY_PACKET_LOSS          = (IMSMEDIA_RESPONSE + 9);
+    public static final int NOTIFY_JITTER               = (IMSMEDIA_RESPONSE + 10);
+    public static final int NOTIFY_MEDIA_QUALITY_CHANGE = (IMSMEDIA_RESPONSE + 11);
+};

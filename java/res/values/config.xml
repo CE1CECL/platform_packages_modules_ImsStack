@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- List the operators which supports the call control by USIM
+         - numeric: mccmnc, numeric: mcc, alpha: operator, alpha: operator-country -->
+    <string-array name="config_operators_for_call_control_by_usim" translatable="false">
+        <item>45005</item>
+        <item>45011</item>
+        <item>302220</item>
+        <item>302221</item>
+        <item>302222</item>
+        <item>302760</item>
+        <item>302500</item>
+        <item>302510</item>
+        <item>724</item>
+    </string-array>
+</resources>

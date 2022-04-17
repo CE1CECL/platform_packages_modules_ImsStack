@@ -1,0 +1,21 @@
+
+filegroup {
+    name: "imsstack_common_srcs",
+    srcs: [
+        "src/com/android/imsstack/**/*.java",
+    ],
+    path: "src",
+}
+
+java_library {
+    name: "imsstack-common",
+
+    srcs: [
+        ":imsstack_common_srcs",
+    ],
+
+    libs: [
+        "ims-common",
+        "telephony-common",
+    ],
+}

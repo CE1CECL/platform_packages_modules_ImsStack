@@ -1,0 +1,897 @@
+/*
+    Author
+    <table>
+    date        author                  description
+    --------    --------------          ----------
+    20150624    hwangoo.park@           Created
+    </table>
+
+    Description
+*/
+
+package com.android.imsstack.imsservice.mmtel;
+
+import android.content.Context;
+import android.database.ContentObserver;
+import android.os.PowerManager;
+import android.telephony.ims.ImsCallProfile;
+import android.telephony.ims.ImsCallSession;
+import android.telephony.ims.ImsReasonInfo;
+
+import com.android.imsstack.core.ImsGlobal;
+import com.android.imsstack.core.VoLteFactory;
+import com.android.imsstack.core.agents.ImsWakeLock;
+import com.android.imsstack.core.agents.agentif.IRilCommand;
+import com.android.imsstack.core.agents.dcmif.IDCNetWatcher;
+import com.android.imsstack.enabler.mtc.CallTracker;
+import com.android.imsstack.enabler.mtc.ConferenceInfoHelper;
+import com.android.imsstack.enabler.mtc.IECallStateTracker;
+import com.android.imsstack.enabler.mtc.IUMtcService;
+import com.android.imsstack.enabler.mtc.IncomingCallInfo;
+import com.android.imsstack.enabler.mtc.IncomingMtcCall;
+import com.android.imsstack.enabler.mtc.MtcApp;
+import com.android.imsstack.enabler.mtc.MtcCall;
+import com.android.imsstack.enabler.mtc.dialogs.DialogsInfo;
+import com.android.imsstack.external.ims.ImsDialogState;
+import com.android.imsstack.imsservice.mmtel.base.ICallContext;
+import com.android.imsstack.imsservice.mmtel.base.IMmTelCallListener;
+import com.android.imsstack.imsservice.mmtel.internal.SrvccStateTracker;
+import com.android.imsstack.provider.ImsStateController;
+import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.util.MSimUtils;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class ImsCallManager {
+    private static final int MAX_CALL_ID = Integer.MAX_VALUE;
+    private ConcurrentHashMap<String, ImsCallSessionImpl> mSessions
+            = new ConcurrentHashMap<String, ImsCallSessionImpl>(8, 0.9f, 1);
+    private ConcurrentHashMap<String, ImsCallSessionImpl> mPendingSessions
+            = new ConcurrentHashMap<String, ImsCallSessionImpl>(4, 0.9f, 1);
+    private final Object mLock = new Object();
+    private final ICallContext mCallContext;
+    private final MtcApp mMtcApp;
+    private final IMmTelCallListener mMmTelCallListener;
+    private int mCallId = 1;
+    private ImsCallTracker mCT = new ImsCallTracker();
+    private MtcAppCallListenerProxy mCallListener = new MtcAppCallListenerProxy();
+    private WifiCallWakeLock mWifiCallWakeLock = null;
+    private ImsCallProfile mIncomingCallInfo = null;
+
+    public ImsCallManager(ICallContext callContext, MtcApp mtcApp, IMmTelCallListener listener) {
+        mCallContext = callContext;
+        mMtcApp = mtcApp;
+        mMmTelCallListener = listener;
+
+        init();
+    }
+
+    public void dispose() {
+        logi("dispose :: phoneId=" + getPhoneId());
+
+        clear();
+    }
+
+    public void init() {
+        log("init");
+
+        mMtcApp.setCallListener(mCallListener);
+
+        if (isCallOverWifiSupported()) {
+            mWifiCallWakeLock = new WifiCallWakeLock();
+        }
+    }
+
+    public void clear() {
+        log("clear");
+
+        mMtcApp.setCallListener(null);
+
+        closeAllSessions();
+
+        removeIncomingCallInfo();
+
+        if (mWifiCallWakeLock != null) {
+            mWifiCallWakeLock.clear();
+            mWifiCallWakeLock = null;
+        }
+    }
+
+    public void closeAllSessions() {
+        terminateAllPendingSessions();
+        terminateAllSessions(0);
+        removePendingSessions();
+        destroyAllSessions();
+
+        synchronized (mPendingSessions) {
+            mPendingSessions.clear();
+        }
+
+        synchronized (mSessions) {
+            mSessions.clear();
+        }
+
+        // MULTI_SIM_TUNE_AWAY_CONTROL
+        enableTuneAway();
+    }
+
+    public ImsCallSessionImpl createSession(ImsCallProfile profile) {
+        boolean wifi = false;
+        boolean emergency = false;
+        boolean offline = false;
+        boolean ussi = false;
+
+        int sessionAttributes = MtcCall.FLAG_MO | MtcCall.FLAG_LOCK_JNI_EVENT_LOOP;
+
+        if (profile.mServiceType == ImsCallProfile.SERVICE_TYPE_EMERGENCY) {
+            sessionAttributes |= MtcCall.FLAG_EMERGENCY;
+            emergency = true;
+
+            // ECBM
+            checkAndExitEcbm();
+
+            if (ImsCallUtils.isEmergencyCallViaWfc(profile)) {
+                sessionAttributes|= MtcCall.FLAG_WIFI_EMERGENCY;
+                wifi = true;
+            } else if (isNormalCallRequiredForEmergencyCall(profile)) {
+                emergency = false;
+                profile.mServiceType = ImsCallProfile.SERVICE_TYPE_NORMAL;
+                profile.setCallExtraBoolean(ImsCallProfile.EXTRA_EMERGENCY_CALL, true);
+            } else if (ImsCallUtils.isEmergencyCallRedialed(profile)) {
+                offline = true;
+            }
+        } else if (profile.mServiceType == ImsCallProfile.SERVICE_TYPE_NORMAL) {
+            if (profile.getCallExtraInt(ImsCallProfile.EXTRA_DIALSTRING, -1)
+                    == ImsCallProfile.DIALSTRING_USSD) {
+                ussi = true;
+            }
+
+            if (ImsRegUtils.isImsRegisteredOnWifi(mCallContext)) {
+                wifi = true;
+            }
+        } else if (profile.mServiceType == ImsCallProfile.SERVICE_TYPE_NONE) {
+            offline = true;
+        }
+
+        if (ImsCallUtils.isVideoCall(profile.mCallType)) {
+            sessionAttributes |= MtcCall.FLAG_VIDEO_CALL;
+        }
+
+        if (profile.mMediaProfile.isRttCall()) {
+            sessionAttributes |= MtcCall.FLAG_RTT;
+        }
+
+        MtcCall call = mMtcApp.createCall(sessionAttributes);
+        String callId = createCallId();
+
+        if (call == null) {
+            loge("Creating a MtcCall failed", null);
+            // EXCEPTION_HANDLING: Call UI stuck
+            return new ImsCallSessionImpl(mCallContext, mCT, null, callId, profile, true);
+        }
+
+        ImsCallSessionImpl callSession = new ImsCallSessionImpl(
+                mCallContext, mCT, call, callId, profile, true);
+
+        onCallCreate(callSession);
+
+        // CALL_CONNECTION_ID
+        int ccId = ImsCallConnectionIds.getNewId(mCallContext.getSlotId());
+        callSession.setCallConnectionId(ccId);
+        ImsCallConnectionIds.add(mCallContext.getSlotId(), ccId);
+
+        // Unlock JNI event loop if it's locked
+        call.startJNIEventLoop();
+        call.open(wifi, emergency, offline, ussi);
+
+        return callSession;
+    }
+
+    public boolean takeSession(ImsCallSessionImpl callSession) {
+        ImsCallSessionImpl newSession = null;
+
+        synchronized (mPendingSessions) {
+            log("takeSession :: callId=" + callSession.getCallId() +
+                    ", pendingSessions=" + mPendingSessions.size());
+
+            newSession = mPendingSessions.get(callSession.getCallId());
+
+            if (newSession != null) {
+                onCallCreate(newSession);
+
+                // CALL_CONNECTION_ID
+                int ccId = ImsCallConnectionIds.getNewId(mCallContext.getSlotId());
+                newSession.setCallConnectionId(ccId);
+                ImsCallConnectionIds.add(mCallContext.getSlotId(), ccId);
+
+                newSession.takeCall();
+            }
+        }
+
+        removeIncomingCallInfo();
+
+        if (newSession != null) {
+            removePendingSession(newSession);
+            return true;
+        }
+
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ImsCallSessionImpl getConferenceCall() {
+        if (mSessions.isEmpty()) {
+            return null;
+        }
+
+        Map.Entry<String, ImsCallSessionImpl>[] entries =
+                mSessions.entrySet().toArray(new Map.Entry[mSessions.size()]);
+
+        for (Map.Entry<String, ImsCallSessionImpl> entry : entries) {
+            ImsCallSessionImpl call = entry.getValue();
+
+            if (call.getState() >= ImsCallSession.State.ESTABLISHED) {
+                try {
+                    String conference = call.getProperty(MtcCall.EXTRA_CONFERENCE);
+
+                    if ((conference != null) && conference.equalsIgnoreCase("true")) {
+                        return call;
+                    }
+                } catch (Throwable t) {
+                    loge("Exception: " + t.toString(), t);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public ImsCallSessionImpl getActiveSession() {
+        synchronized (mSessions) {
+            if (mSessions.isEmpty()) {
+                return null;
+            }
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                MtcCall call = entry.getValue().getMtcCall();
+
+                if ((call != null) && call.isInCall() && !call.isOnHold()) {
+                    return entry.getValue();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public ImsCallSessionImpl getHoldSession() {
+        synchronized (mSessions) {
+            if (mSessions.isEmpty()) {
+                return null;
+            }
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                MtcCall call = entry.getValue().getMtcCall();
+
+                if ((call != null) && call.isOnHold()) {
+                    return entry.getValue();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public int getPhoneId() {
+        return mCallContext.getPhoneId();
+    }
+
+    public MtcApp getMtcApp() {
+        return mMtcApp;
+    }
+
+    private String createCallId() {
+        // Call-Id: 1 ~ (Integer.MAX - 1)
+        int newId = 0;
+        String newCallId = "0";
+
+        do {
+            synchronized (mLock) {
+                newId = mCallId;
+                mCallId++;
+
+                if (mCallId == MAX_CALL_ID) {
+                    mCallId = 1;
+                }
+            }
+
+            newCallId = String.valueOf(newId);
+
+            synchronized (mSessions) {
+                if (mSessions.get(newCallId) != null) {
+                    log("createCallId: collision in active sessions - newId=" + newCallId);
+                    newId = 0;
+                }
+            }
+
+            synchronized (mPendingSessions) {
+                if (mPendingSessions.get(newCallId) != null) {
+                    log("createCallId: collision in pending sessions - newId=" + newCallId);
+                    newId = 0;
+                }
+            }
+        } while (newId == 0);
+
+        return newCallId;
+    }
+
+    private boolean isNormalCallRequiredForEmergencyCall(ImsCallProfile profile) {
+        IDCNetWatcher dcnw = mCallContext.getDCNetWatcher();
+        boolean is3GNetwork = (dcnw != null) ? dcnw.is3G() : false;
+
+        if (ImsCallUtils.isVideoCall(profile.mCallType)
+                && is3GNetwork
+                && ImsGlobal.isCountry(mCallContext.getSlotId(), "KR")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isCallOverWifiSupported() {
+        return ImsGlobal.isWfcEnabled(mCallContext.getContext(), mCallContext.getSlotId());
+    }
+
+    private void checkAndExitEcbm() {
+        // It requires to exit an ECBM if emergency call is initiated
+        IECallStateTracker ecst = mCallContext.getECallStateTracker();
+
+        if ((ecst != null) && ecst.isEcbmEntered()) {
+            ecst.exitEmergencyCallbackMode(true);
+        }
+    }
+
+    private void addPendingSession(ImsCallSessionImpl session) {
+        synchronized (mPendingSessions) {
+            removePendingSessions();
+            mPendingSessions.put(session.getCallId(), session);
+
+            log("pendingSessions=" + mPendingSessions.size() +
+                    ", session=" + session.getCallId());
+        }
+    }
+
+    private void removePendingSession(ImsCallSessionImpl session) {
+        String key = session.getCallId();
+
+        synchronized (mPendingSessions) {
+            ImsCallSessionImpl s = mPendingSessions.remove(key);
+
+            // Validity check
+            if ((s != null) && (s != session)) {
+                log("removePendingSession :: " + session +
+                        " is not associated with key(" + key + ")");
+
+                mPendingSessions.put(key, s);
+
+                for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
+                    if (entry.getValue() == s) {
+                        mPendingSessions.remove(entry.getKey());
+                    }
+                }
+            }
+        }
+    }
+
+    private void removeIncomingCallInfo() {
+        if (mIncomingCallInfo != null) {
+            log("removeIncomingCallInfo");
+
+            mIncomingCallInfo = null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removePendingSessions() {
+        if (mPendingSessions.isEmpty()) {
+            return;
+        }
+
+        Map.Entry<String, ImsCallSessionImpl>[] entries
+                = mPendingSessions.entrySet().toArray(new Map.Entry[mPendingSessions.size()]);
+
+        for (Map.Entry<String, ImsCallSessionImpl> entry : entries) {
+            if (entry.getValue().getState() != ImsCallSession.State.NEGOTIATING) {
+                mPendingSessions.remove(entry.getKey());
+            }
+        }
+    }
+
+    private void onCallCreate(ImsCallSessionImpl session) {
+        synchronized (mSessions) {
+            mSessions.put(session.getCallId(), session);
+
+            // SRVCC_STATE_TRACKING
+            if (mSessions.size() == 1) {
+                SrvccStateTracker sst = (SrvccStateTracker)mCallContext.getSrvccStateTracker();
+
+                if (sst != null) {
+                    sst.start();
+                }
+
+                // MULTI_SIM_TUNE_AWAY_CONTROL
+                disableTuneAway();
+            }
+        }
+
+        logi("onCallCreate :: sessions=" + mSessions.size() +
+                ", session=" + session.getCallId());
+    }
+
+    private void onCallDestroy(ImsCallSessionImpl session) {
+        String key = session.getCallId();
+
+        synchronized (mSessions) {
+            ImsCallSessionImpl s = mSessions.remove(key);
+
+            // Validity check
+            if ((s != null) && (s != session)) {
+                log("onCallDestroy :: " + session +
+                        " is not associated with key(" + key + ")");
+
+                mSessions.put(key, s);
+
+                for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                    if (entry.getValue() == s) {
+                        mSessions.remove(entry.getKey());
+                    }
+                }
+            }
+
+            // If all the sessions are destroyed,
+            // then remove all the ConferenceInfo if present.
+            if (mSessions.isEmpty()) {
+                ConferenceInfoHelper.destroyAllConferenceInfos();
+
+                ImsGarbageCalls gc = ImsGarbageCalls.getInstance();
+
+                if (gc.getCount(mCallContext.getSlotId()) >= ImsGarbageCalls.MAX_CALL) {
+                    gc.removeAll(mCallContext.getSlotId());
+                }
+
+                // SRVCC_STATE_TRACKING
+                SrvccStateTracker sst = (SrvccStateTracker)mCallContext.getSrvccStateTracker();
+
+                if (sst != null) {
+                    sst.stop();
+                }
+
+                // MULTI_SIM_TUNE_AWAY_CONTROL
+                enableTuneAway();
+
+                // CALL_CONNECTION_ID
+                ImsCallConnectionIds.removeAll(mCallContext.getSlotId());
+
+                if (mWifiCallWakeLock != null) {
+                    mWifiCallWakeLock.clearLock();
+                }
+            }
+        }
+
+        logi("onCallDestroy :: sessions=" + mSessions.size() +
+                ", session=" + session.getCallId());
+
+        updateCallProfileOnSingleCall();
+    }
+
+    private void onCallReceived(final ImsCallSessionImpl session) {
+        if (mMmTelCallListener == null) {
+            rejectAndDestroyCall(session, false);
+            return;
+        }
+
+        addPendingSession(session);
+
+        try {
+            logi("IncomingCall :: callId=" + session.getCallId()
+                    + ", phoneId=" + getPhoneId());
+
+            mMmTelCallListener.onIncomingCallReceived(session);
+        } catch (Throwable t) {
+            loge("onCallReceived :: exception occurred, drop the incoming call", t);
+            rejectAndDestroyCall(session, true);
+        }
+    }
+
+    private void onCallInfoReceived(final ImsCallProfile profile) {
+        mIncomingCallInfo = profile;
+        logi("onCallInfoReceived :: calltype=" + mIncomingCallInfo.mCallType);
+    }
+
+    private void postAndRunTask(Runnable task) {
+        mCallContext.getExecutor().execute(task);
+    }
+
+    private void rejectAndDestroyCall(final ImsCallSessionImpl session,
+            boolean isPendingSession) {
+        // Reject the incoming call
+        postAndRunTask(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    session.reject(ImsReasonInfo.CODE_LOCAL_SERVICE_UNAVAILABLE);
+                } catch (Throwable t) {
+                    loge("Exception: " + t.toString(), t);
+                }
+            }
+        });
+
+        // Destroy the incoming call
+        postAndRunTask(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    session.close();
+                    onCallDestroy(session);
+                } catch (Throwable t) {
+                    loge("Exception: " + t.toString(), t);
+                }
+            }
+        });
+
+        if (isPendingSession) {
+            // Remove the pending session
+            postAndRunTask(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        session.close();
+                        removePendingSession(session);
+                    } catch (Throwable t) {
+                        loge("Exception: " + t.toString(), t);
+                    }
+                }
+            });
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void destroyAllSessions() {
+        synchronized (mSessions) {
+            if (mSessions.isEmpty()) {
+                return;
+            }
+
+            Map.Entry<String, ImsCallSessionImpl>[] entries =
+                    mSessions.entrySet().toArray(new Map.Entry[mSessions.size()]);
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : entries) {
+                onCallDestroy((ImsCallSessionImpl)entry.getValue());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void terminateAllSessions(int reason /* not used */) {
+        synchronized (mSessions) {
+            if (mSessions.isEmpty()) {
+                return;
+            }
+
+            int count = 0;
+            Map.Entry<String, ImsCallSessionImpl>[] entries =
+                    mSessions.entrySet().toArray(new Map.Entry[mSessions.size()]);
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : entries) {
+                ImsCallSessionImpl callSession = entry.getValue();
+                callSession.notifyCallTerminatedByServiceUnavailable();
+
+                try {
+                    callSession.close();
+                    count++;
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+
+            log("terminateAllSessions :: closed=" + count);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void terminateAllPendingSessions() {
+        synchronized (mPendingSessions) {
+            if (mPendingSessions.isEmpty()) {
+                return;
+            }
+
+            int count = 0;
+            Map.Entry<String, ImsCallSessionImpl>[] entries =
+                    mPendingSessions.entrySet().toArray(new Map.Entry[mPendingSessions.size()]);
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : entries) {
+                ImsCallSessionImpl callSession = entry.getValue();
+
+                if (callSession.getState() == ImsCallSession.State.IDLE) {
+                    try {
+                        callSession.close();
+                        count++;
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                }
+            }
+
+            log("terminateAllPendingSessions :: closed=" + count);
+        }
+    }
+
+    private int getActiveSessionCount() {
+        synchronized (mSessions) {
+            int count = mSessions.size();
+
+            if (count == 0) {
+                return 0;
+            }
+
+            int activeSessionCount = 0;
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                ImsCallSessionImpl session = entry.getValue();
+
+                if ((session != null) && session.isInCall()) {
+                    activeSessionCount++;
+                }
+            }
+
+            return activeSessionCount;
+        }
+    }
+
+    private void updateCallProfileOnSingleCall() {
+        if (!ImsCallUtils.isCallOnNativeAppsAndCountryKR(mCallContext)) {
+            return;
+        }
+
+        ImsCallSessionImpl callSession = null;
+
+        synchronized (mSessions) {
+            int count = mSessions.size();
+
+            if (count != 1) {
+                return;
+            }
+
+            // When single call is remained, update the call profile
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                ImsCallSessionImpl session = entry.getValue();
+
+                if ((session != null) && session.isInCall()) {
+                    callSession = session;
+                    break;
+                }
+            }
+        }
+
+        if (callSession != null) {
+            callSession.updateCallProfileByCallManager();
+        }
+    }
+
+    private static void disableTuneAway() {
+        IRilCommand rc = (IRilCommand)VoLteFactory.getInstance().getAgent(
+                VoLteFactory.AGENT_RILCOMMAND);
+
+        if (rc != null) {
+            rc.disableTuneAway();
+        }
+    }
+
+    private static void enableTuneAway() {
+        IRilCommand rc = (IRilCommand)VoLteFactory.getInstance().getAgent(
+                VoLteFactory.AGENT_RILCOMMAND);
+
+        if (rc != null) {
+            rc.enableTuneAway();
+        }
+    }
+
+    private static void log(String s) {
+        ImsLog.d("[GII-IMPL] " + s);
+    }
+
+    private static void loge(String s, Throwable t) {
+        if (t == null) {
+            ImsLog.e("[GII-IMPL] " + s);
+        } else {
+            ImsLog.e("[GII-IMPL] " + s, t);
+        }
+    }
+
+    private static void logi(String s) {
+        ImsLog.i("[GII-IMPL] " + s);
+    }
+
+    private class WifiCallWakeLock extends ContentObserver {
+        private int mCallState = ImsStateController.STATE_INACTIVE;
+        private ImsWakeLock mWakeLock = null;
+
+        public WifiCallWakeLock() {
+            super(mCallContext.getDefaultHandler());
+            init();
+        }
+
+        public void clear() {
+            ImsStateController.CallState.unregisterObserver(
+                    mCallContext.getContext().getContentResolver(), this);
+
+            clearLock();
+            mWakeLock = null;
+        }
+
+        public void clearLock() {
+            if (mWakeLock != null) {
+                mWakeLock.release(this);
+            }
+        }
+
+        public void init() {
+            mCallState = ImsStateController.STATE_INACTIVE;
+
+            createLock();
+
+            ImsStateController.CallState.registerObserver(
+                    mCallContext.getContext().getContentResolver(), this);
+        }
+
+        public void initStateAndLock() {
+            mCallState = ImsStateController.STATE_INACTIVE;
+
+            clearLock();
+            mWakeLock = null;
+
+            createLock();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            final int callState = ImsStateController.CallState.getConnectedCallOnWifiForPhoneId(
+                    mCallContext.getContext().getContentResolver(),
+                    mCallContext.getPhoneId());
+
+            if (mCallState != callState) {
+                mCallState = callState;
+
+                if (mWakeLock != null) {
+                    if (mCallState != ImsStateController.STATE_ACTIVE) {
+                        mWakeLock.release(this);
+                    } else {
+                        mWakeLock.acquire(this);
+                    }
+                }
+            }
+        }
+
+        private void createLock() {
+            if (mWakeLock == null) {
+                mWakeLock = new ImsWakeLock(
+                        mCallContext.getContext().getSystemService(PowerManager.class),
+                        WifiCallWakeLock.class.getSimpleName());
+            }
+        }
+    }
+
+    private class ImsCallTracker implements CallTracker {
+        @Override
+        public String createCallId() {
+            return ImsCallManager.this.createCallId();
+        }
+
+        @Override
+        public int getActiveCalls() {
+            return getActiveSessionCount();
+        }
+
+        @Override
+        public void updateCallState(Object session, int event, Object extraInfo) {
+
+            // If the session is null, do not handle any operations...
+            if (session == null) {
+                return;
+            }
+
+            if (!(session instanceof ImsCallSessionImpl)) {
+                return;
+            }
+
+            switch (event) {
+            case CALL_EVENT_CREATE:
+                onCallCreate((ImsCallSessionImpl)session);
+                break;
+            case CALL_EVENT_DESTROY:
+                onCallDestroy((ImsCallSessionImpl)session);
+                break;
+            case CALL_EVENT_ESTABLISHING: // FALL-THROUGH
+            case CALL_EVENT_RINGING: // FALL-THROUGH
+            case CALL_EVENT_ACCEPT: // FALL-THROUGH
+            case CALL_EVENT_ESTABLISHED: // FALL-THROUGH
+            case CALL_EVENT_UPDATED: // FALL-THROUGH
+            case CALL_EVENT_TERMINATING: // FALL-THROUGH
+            case CALL_EVENT_TERMINATED: // FALL-THROUGH
+            default:
+                break;
+            }
+        }
+    }
+
+    private class MtcAppCallListenerProxy extends MtcApp.CallListener {
+        @Override
+        public void onDialogStateChanged(MtcApp app, DialogsInfo dialogsInfo) {
+            final ImsDialogState dialogState = ImsCallUtils.createDialogState(dialogsInfo);
+
+            postAndRunTask(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mMmTelCallListener.onImsDialogStateChanged(dialogState);
+                    } catch (Throwable t) {
+                        loge("Exception: " + t.toString(), t);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onIncomingCallReceived(MtcApp app, long sessionObject,
+                IncomingMtcCall incomingSession) {
+            MtcCall call = mMtcApp.getPendingCall(sessionObject, true);
+
+            if (call == null) {
+                // fatal error
+                return;
+            }
+
+            ImsCallProfile profile = ImsCallUtils.createCallProfileFromIncomingCallInfo(
+                    mCallContext, incomingSession);
+            String callId = createCallId();
+
+            ImsCallSessionImpl callSession = new ImsCallSessionImpl(
+                    mCallContext, mCT, call, callId, profile, false);
+
+            onCallReceived(callSession);
+
+            if (incomingSession.isAutoRejectedCall()) {
+                return;
+            }
+
+            // Unlock JNI event loop if it's locked
+            call.startJNIEventLoop();
+        }
+
+        @Override
+        public void onIncomingCallInfoReceived(IncomingCallInfo incomingCallInfo) {
+            logi("onIncomingCallInfoReceived");
+
+            if (incomingCallInfo.mOIR == IncomingCallInfo.OIPTYPE_INVALID) {
+                removeIncomingCallInfo();
+            } else {
+                ImsCallProfile profile = new ImsCallProfile();
+
+                profile.mCallType = ImsCallUtils.getProfileCallTypeFromCallInfo(
+                        incomingCallInfo.mVideoCapable, incomingCallInfo.mCallType);
+                profile.setCallExtraInt(ImsCallProfile.EXTRA_OIR, incomingCallInfo.mOIR);
+                profile.setCallExtraInt(ImsCallProfile.EXTRA_CNAP, incomingCallInfo.mCNAP);
+                profile.setCallExtra(ImsCallProfile.EXTRA_OI, incomingCallInfo.mOI);
+                profile.setCallExtra(ImsCallProfile.EXTRA_CNA, incomingCallInfo.mCNA);
+                onCallInfoReceived(profile);
+            }
+        }
+    }
+
+    static {
+        ImsSuppInfoUtils.init();
+    }
+}

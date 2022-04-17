@@ -1,0 +1,83 @@
+
+package com.android.imsstack.util;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Process;
+
+import java.util.concurrent.Executor;
+
+/**
+ * Executes the tasks in the other thread rather than the calling thread.
+ */
+public class ThreadMessageExecutor extends Thread implements Executor {
+    private MyHandler mHandler = null;
+
+    public ThreadMessageExecutor() {
+        super(ThreadMessageExecutor.class.getSimpleName());
+    }
+
+    public ThreadMessageExecutor(String name) {
+        super(name);
+    }
+
+    @Override
+    public void execute(Runnable r) {
+        synchronized (this) {
+            if (mHandler == null) {
+                executeInternalThread(r);
+                return;
+            }
+        }
+
+        Message m = Message.obtain(mHandler, 0 /* don't care */, r);
+        m.sendToTarget();
+    }
+
+    @Override
+    public void run() {
+        Looper.prepare();
+
+        log(getName() + " is started; tid=" + Process.myTid());
+
+        synchronized (this) {
+            mHandler = new MyHandler();
+        }
+
+        Looper.loop();
+    }
+
+    private void executeInternal(Runnable r) {
+        try {
+            r.run();
+        } catch (Throwable t) {
+            loge("run task=" + r);
+            t.printStackTrace();
+        } finally {
+        }
+    }
+
+    private void executeInternalThread(Runnable r) {
+        new Thread(r, "ThreadExecutor").start();
+    }
+
+    private static void log(String s) {
+        Log.d(Log.TAG, "[ThreadMessageExecutor] " + s);
+    }
+
+    private static void loge(String s) {
+        Log.e(Log.TAG, "[ThreadMessageExecutor] " + s);
+    }
+
+    private class MyHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.obj instanceof Runnable) {
+                executeInternal((Runnable)msg.obj);
+            } else {
+                log("Not runnable object; ignore the msg=" + msg);
+            }
+        }
+    }
+}

@@ -1,0 +1,200 @@
+#ifndef MTC_CALL_H_
+#define MTC_CALL_H_
+
+#include "IMSList.h"
+#include "IMSTypeDef.h"
+#include "IMtcContext.h"
+#include "ISessionListener.h"
+#include "MtcDef.h"
+#include "base/IMessageMediator.h"
+#include "call/IMtcCall.h"
+#include "call/IMtcCallContext.h"
+#include "call/MtcSession.h"
+#include "call/MtcUiNotifier.h"
+#include "call/ParticipantInfo.h"
+#include "call/state/MtcCallState.h"
+#include "call/state/MtcCallStateMachine.h"
+#include "call/UpdatingInfo.h"
+#include "helper/IMtcTimerListener.h"
+#include "helper/MtcSupplementaryService.h"
+#include "helper/MtcTimerWrapper.h"
+#include "helper/block/IMtcBlockChecker.h"
+#include "media/MtcMediaManager.h"
+#include "precondition/MtcPreconditionManager.h"
+
+class IMtcContext;
+class IMtcService;
+class IReference;
+class ISession;
+class IMtcMediaManager;
+class IMtcPreconditionManager;
+class JniMediaSessionThread;
+class JniMtcCallThread;
+class MessageSender;
+class MtcConfigurationProxy;
+class MtcDialingPlan;
+class MtcVonrManager;
+class MtcSipInterfaceFactory;
+struct FailReason;
+
+class MtcCall final :
+        public IMtcCall,
+        public IMtcCallContext,
+        public ISessionListener,
+        public IMessageMediator,
+        public IMtcTimerListener,
+        public IMtcBlockCheckListener,
+        public IMtcPreconditionListener,
+        public IMtcCallStateFactory<MtcCallState, CallStateName>,
+        public IMtcCallStateWatcher<CallStateName>
+{
+public:
+    MtcCall(IN IMtcContext& objContext, IN IMtcService& objService, IN CallInfo objCallInfo);
+    virtual ~MtcCall();
+    MtcCall(IN const MtcCall&) = delete;
+    MtcCall& operator=(IN const MtcCall&) = delete;
+
+    void Attach(IN JniMtcCallThread* pJniMtcCallThread) override;
+    void Detach() override;
+
+    void Start(
+            IN CallType eCallType,
+            IN const AString& strTarget,
+            IN MediaInfo* pMediaInfo,
+            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN JniMediaSessionThread* pJniMediaThread) override;
+    void StartConference(
+            IN CallType eCallType,
+            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN MediaInfo* pMediaInfo,
+            IN IMSList<ConfUser*> lstUsers) override;
+    void ExpandToConference(IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers) override;
+    void MergeToConference(
+            IN CallType eCallType, IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers)
+            override;
+    void HandleIncoming(
+            IN ISession* piSession,
+            IN JniMtcServiceThread* pServiceThread) override;
+    void HandleUserAlert() override;
+    void Accept(IN CallType eCallType, IN MediaInfo* pMediaInfo) override;
+    void Reject(IN const FailReason& objReason) override;
+    void Hold(IN MediaInfo* pMediaInfo) override;
+    void Resume(IN MediaInfo* pMediaInfo) override;
+    void AcceptResume(IN CallType eCallType, IN MediaInfo* pMediaInfo) override;
+    void RejectResume(IN const FailReason& objReason) override;
+    void Convert(IN CallType eCallType, IN MediaInfo* pMediaInfo) override;
+    void AcceptConvert(IN CallType eCallType, IN MediaInfo* pMediaInfo) override;
+    void RejectConvert(IN const FailReason& objReason) override;
+    void CancelConvert(IN const FailReason& objReason) override;
+    void Terminate(IN const FailReason& objReason) override;
+    void SendDtmf(IN const AString& strSignal, IN IMS_SINT32 nDuration) override;
+    void SendUssi(IN const AString& strUssi) override;
+    void HandleSrvccSuccess() override;
+    void HandleSrvccFailure(IN UpdateType eUpdateType) override;
+
+    inline CallKey GetKey() const override { return m_nKey; }
+    inline CallStateName GetState() const override { return m_objStateMachine.GetState(); }
+
+    inline IMS_UINTP GetCallKey() const override { return m_nKey; }
+    inline IMS_BOOL IsEct() const override { return m_bEct; }
+    inline IMS_BOOL IsHeldByMe() const override { return m_bHeldByMe; }
+    inline CallInfo& GetCallInfo() override { return m_objCallInfo; }
+    inline ParticipantInfo& GetParticipantInfo() override { return m_objParticipantInfo; }
+    inline MtcSession* GetSession() override { return m_pSession; }
+    inline IMtcService& GetService() override { return m_objService; }
+    inline MtcUiNotifier& GetUiNotifier() override { return m_objUiNotifier; }
+    inline IMtcMediaManager& GetMediaManager() override { return m_objMediaManager; }
+    inline IMtcPreconditionManager& GetPreconditionManager() override
+    { return m_objPreconditionManager; }
+    UpdatingInfo& GetUpdatingInfo() override;
+    MtcSession* CreateSession(IN ISession& objSession) override;
+    IMtcBlockChecker* CreateBlockChecker(IN const IMSList<IMtcBlockRule*>& lstRules) override;
+    void DeleteUpdatingInfo() override;
+    inline MtcTimerWrapper& GetTimer() override { return m_objTimer; }
+    inline MtcSupplementaryService& GetSupplementaryService() override
+    { return m_objSupplementaryService; }
+    inline IMS_SINT32 GetSlotId() override { return m_objContext.GetSlotId(); }
+    inline MtcDialingPlan& GetDialingPlan() override { return m_objContext.GetDialingPlan(); }
+    inline IMtcService* GetServiceByType(IN ServiceType eServiceType) override
+    { return m_objContext.GetServiceByType(eServiceType); }
+    inline IMtcCallManager& GetCallManager() override { return m_objContext.GetCallManager(); }
+    inline MtcCallController& GetCallController() override
+    { return m_objContext.GetCallController(); }
+    inline MtcVonrManager& GetVonrManager() override { return m_objContext.GetVonrManager(); }
+    inline MtcConfigurationProxy& GetConfigurationProxy() override
+    { return m_objContext.GetConfigurationProxy(); }
+    inline CallStateProxy& GetCallStateProxy() override { return m_objContext.GetCallStateProxy(); }
+    inline MtcImsEventReceiver& GetImsEventReceiver() override
+    { return m_objContext.GetImsEventReceiver(); }
+    inline MtcAosConnector* GetAosConnector(IN ServiceType eServiceType) override
+    { return m_objContext.GetAosConnector(eServiceType); }
+    inline MtcSipInterfaceFactory& GetSipInterfaceFactory() override
+    { return m_objContext.GetSipInterfaceFactory(); }
+
+    inline void SetSession(IN MtcSession* pSession) override { m_pSession = pSession; }
+    inline void SetHeldByMe(IN IMS_BOOL bHeldByMe) override { m_bHeldByMe = bHeldByMe; }
+
+    void SessionAlerting(IN ISession* piSession) override;
+    void SessionReferenceReceived(
+            IN ISession* piSession, IN IReference* piReference) override;
+    void SessionStarted(IN ISession* piSession) override;
+    void SessionStartFailed(IN ISession* piSession) override;
+    void SessionTerminated(IN ISession* piSession) override;
+    void SessionUpdated(IN ISession* piSession) override;
+    void SessionUpdateFailed(IN ISession* piSession) override;
+    void SessionUpdateReceived(IN ISession* piSession) override;
+    void SessionCancelDelivered(IN ISession* piSession) override;
+    void SessionCancelDeliveryFailed(IN ISession* piSession) override;
+    void SessionEarlyMediaUpdated(IN ISession* piSession) override;
+    void SessionEarlyMediaUpdateFailed(IN ISession* piSession) override;
+    void SessionEarlyMediaUpdateReceived(IN ISession* piSession) override;
+    void SessionForkedResponseReceived(
+            IN ISession* piSession, IN ISession* piForkedSession) override;
+    void SessionPRAckDelivered(IN ISession* piSession) override;
+    void SessionPRAckDeliveryFailed(IN ISession* piSession) override;
+    void SessionPRAckReceived(IN ISession* piSession) override;
+    void SessionProvisionalResponseReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
+    void SessionRPRDeliveryFailed(IN ISession* piSession) override;
+    void SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
+    void SessionTransactionReceived(
+            IN ISession* piSession, IN ISIPServerConnection* piSipServerConnection) override;
+
+    IMS_RESULT MessageMediator_AdjustMessage(
+            IN_OUT ISIPMessage* piSipMessage, IN IMS_SINT32 nMessage) override;
+
+    void OnTimerExpired(IN IMS_SINT32 nType) override;
+
+    void OnBlockChecked(IN IMtcBlockChecker::Result objResult) override;
+
+    void QosReserved(IN ISession* piSession, IN IMS_UINT32 eMediaType) override;
+    void QosReserveFailed(IN ISession* piSession, IN QosLossPolicy eNextAction) override;
+
+    MtcCallState* CreateState(IN CallStateName eState) override;
+    void OnStateTransition(IN CallStateName eState) override;
+
+private:
+    IMtcContext& m_objContext;
+    IMtcService& m_objService;
+
+    CallKey m_nKey;
+
+    IMS_BOOL m_bEct;
+    IMS_BOOL m_bHeldByMe;
+
+    CallInfo m_objCallInfo;
+    ParticipantInfo m_objParticipantInfo;
+    UpdatingInfo* m_pUpdatingInfo;
+
+    MtcCallStateMachine<MtcCallState, CallStateName> m_objStateMachine;
+    MtcSession* m_pSession;
+    MtcTimerWrapper m_objTimer;
+    MtcUiNotifier m_objUiNotifier;
+    MtcMediaManager m_objMediaManager;
+    MtcPreconditionManager m_objPreconditionManager;
+    MtcSupplementaryService m_objSupplementaryService;
+
+    void OnInternalFailure();
+    void SetVideoCapable(IN ISession* piSession);
+};
+
+#endif

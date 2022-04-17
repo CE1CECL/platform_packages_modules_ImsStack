@@ -1,0 +1,51 @@
+/*
+    Author
+    <table>
+    date      author                    description
+    --------  --------------            ----------
+    20091208  toastops@                 Created
+    </table>
+
+    Description
+
+*/
+
+#include "ServiceMemory.h"
+#include "ServiceTrace.h"
+#include "IMSCore.h"
+#include "media/StreamMediaProposal.h"
+
+__IMS_TRACE_TAG_IMS_CORE__;
+
+
+
+PUBLIC
+StreamMediaProposal::StreamMediaProposal(IN ISDPOAState *piOAState_, IN IMS_SINT32 nStreamType_)
+    : MediaProposal(piOAState_)
+    , nStreamType(nStreamType_)
+{
+}
+
+PUBLIC VIRTUAL
+StreamMediaProposal::~StreamMediaProposal()
+{
+    //---------------------------------------------------------------------------------------------
+
+    IMS_TRACE_D("Destructor :: StreamMediaProposal", 0, 0, 0);
+}
+
+PUBLIC VIRTUAL
+IMS_SINT32 StreamMediaProposal::GetType() const
+{
+    //---------------------------------------------------------------------------------------------
+
+    return IMSCore::MEDIA_TYPE_STREAM;
+}
+
+PUBLIC
+IMS_SINT32 StreamMediaProposal::GetStreamType() const
+{
+    //---------------------------------------------------------------------------------------------
+
+    return nStreamType;
+}

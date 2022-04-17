@@ -1,0 +1,67 @@
+#ifndef NORMAL_DIALING_PLAN_H_
+#define NORMAL_DIALING_PLAN_H_
+
+#include "ImsIdentity.h"
+#include "AString.h"
+
+class IMtcContext;
+
+class NormalDialingPlan
+{
+public:
+    enum class NumberFormat
+    {
+        // Default format is local number format
+        LOCAL_FORMAT = 1,
+        GLOBAL_FORMAT = 2,
+
+        // Internal usage; In case the dialed number is not local/global number digits
+        NON_NUMBER = 3
+    };
+
+    enum class LocalNumberPolicy
+    {
+        HOME, // refers. ImsIdentity::DIALING_POLICY_HOME_LOCAL
+        GEO, // refers. ImsIdentity::DIALING_POLICY_GEO_LOCAL
+        GEO_LOCAL_ONLY_IN_ROAMING
+    };
+
+    enum class Scheme
+    {
+        UNKNOWN = 0,
+        TEL,
+        SIP
+    };
+
+    // TODO: removing bAquot is for VZW GetEntryUri. should not be required.
+    static AString& GetTranslatedUri(IN IMtcContext& objContext, IN_OUT AString& strNumber,
+            Scheme eScheme);
+    static AString& GetTranslatedUriForDialString(IN IMtcContext& objContext,
+            IN_OUT AString& strNumber);
+
+private:
+    static AString& Translate(IN IMtcContext& objContext, IN_OUT AString& strNumber,
+            IN Scheme eScheme);
+
+    static void FormSipUri(IN IMtcContext& objContext, IN_OUT AString& strNumber);
+    static void FormTelUri(IN IMtcContext& objContext, IN_OUT AString& strNumber);
+    static void FormTelUriAsGlobal(IN IMtcContext& objContext, IN_OUT AString& strNumber);
+    static void FormTelUriAsLocal(IN IMtcContext& objContext, IN_OUT AString& strNumber);
+
+    static IMS_BOOL IsVisualSeparator(IN IMS_CHAR ch);
+    static IMS_BOOL IsNameAddress(IN const AString& strNumber);
+    static IMS_BOOL IsAddressSpec(IN const AString& strNumber);
+    static void AddAquotIfRequired(IN_OUT AString& strNumber);
+
+    static NumberFormat GetDialedNumberFormat(IN const AString& strNumber);
+
+    // For geo-local number format
+    static AccessNetworkInfo& GetAccessNetworkInfo(IN IMtcContext& objContext,
+            OUT AccessNetworkInfo& objAni);
+
+    static Scheme GetScheme(IN IMtcContext& objContext);
+    static NumberFormat GetNumberFormat(IN IMtcContext& objContext);
+    static LocalNumberPolicy GetLocalNumberPolicy(IN IMtcContext& objContext);
+};
+
+#endif

@@ -1,0 +1,54 @@
+// Do not add additional include paths with three depths.
+cc_library_headers {
+    name: "libimsstack_engine_headers",
+    export_include_dirs: [
+        "interface",
+        "interface/connection",
+        "interface/core",
+        "interface/registration",
+        "interface/service",
+        "interface/sipcore",
+    ],
+}
+
+cc_library_static {
+    name:"libimsstack-engine",
+    defaults: [
+        "imsstack_native_defaults",
+    ],
+    cflags: [
+        "-DSIP_BADMESSAGE_PARSING",
+    ],
+    srcs: [
+        "**/*.cpp",
+    ],
+    exclude_srcs: [
+        "sipcore/SIPStack.cpp",
+        "sipcore/SIPStackHelper.cpp",
+    ],
+    header_libs: [
+        "libimsstack_config_headers",
+        "libimsstack_engine_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_protocol_headers",
+    ],
+    local_include_dirs: [
+        "include",
+        "include/base",
+        "include/connection",
+        "include/core",
+        "include/registration",
+        "include/service",
+        "include/sipcore",
+    ],
+    // For unit-test
+    export_include_dirs: [
+        "include",
+        "include/base",
+        "include/connection",
+        "include/core",
+        "include/registration",
+        "include/service",
+        "include/sipcore",
+    ],
+}

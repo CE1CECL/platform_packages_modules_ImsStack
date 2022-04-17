@@ -1,0 +1,920 @@
+#include "ServiceTrace.h"
+#include "ServiceTimer.h"
+#include "ServiceSystemTime.h"
+#include "ServiceUtil.h"
+#include "ServicePhoneInfo.h"
+#include "Configuration.h"
+#include "INetWatcher.h"
+#include "IConfigurable.h"
+#include "ISIPHeader.h"
+#include "ISIPMessage.h"
+#include "IRegistration.h"
+#include "ISIPRTConfigHelper.h"
+#include "SIPFactory.h"
+#include "Ims3gpp.h"
+#include "TextParser.h"
+#include "SIP.h"
+#include "SIPParameter.h"
+#include "SIPParsingHelper.h"
+#include "provider/AosUtil.h"
+#include "provider/AosString.h"
+
+__IMS_TRACE_TAG_USER_DECL__("AOS");
+
+PUBLIC
+AosUtil::AosUtil()
+    : m_bIsMtkChipset(IMS_FALSE)
+{
+    IMS_TRACE_D("AosUtil()", 0, 0, 0);
+
+    m_bIsMtkChipset = UtilService::GetUtilService()->GetSystemProperty(
+            )->GetChipsetVendor().EqualsIgnoreCase("MediaTek");
+}
+
+PUBLIC VIRTUAL
+AosUtil::~AosUtil()
+{
+    IMS_TRACE_D("~AosUtil()", 0, 0, 0);
+}
+
+PUBLIC GLOBAL
+AosUtil* AosUtil::GetInstance()
+{
+    static AosUtil* s_pUtil = IMS_NULL;
+
+    if (s_pUtil == IMS_NULL)
+    {
+        s_pUtil = new AosUtil();
+    }
+
+    return s_pUtil;
+}
+
+PUBLIC
+IMS_SINT32 AosUtil::GetResponseCode(IN const ISIPMessage* piSipMsg)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return -1;
+    }
+
+    return piSipMsg->GetStatusCode();
+}
+
+PUBLIC
+IMS_UINT32 AosUtil::GetRetryAfterValue(IN const IRegistration* piRegistration)
+{
+    if (piRegistration == IMS_NULL)
+    {
+        return 0;
+    }
+
+    IMS_SINT32 nRetryAfter = GetRetryAfterValue(piRegistration->GetPreviousResponse());
+
+    if (nRetryAfter > 0)
+    {
+        return static_cast<IMS_UINT32>(nRetryAfter);
+    }
+
+    return 0;
+}
+
+PUBLIC
+IMS_SINT32 AosUtil::GetRetryAfterValue(IN const ISIPMessage* piSipMsg)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return -1;
+    }
+
+    AString strHeader = piSipMsg->GetHeader(ISIPHeader::RETRY_AFTER_SEC);
+
+    if (strHeader.GetLength() == 0)
+    {
+        return -1;
+    }
+
+    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::RETRY_AFTER_SEC, strHeader);
+
+    if (piHeader == IMS_NULL)
+    {
+        return -1;
+    }
+
+    IMS_SINT32 nValue = piHeader->GetValueInt();
+
+    piHeader->Destroy();
+
+    IMS_TRACE_I("GetRetryAfterValue :: (%d)", nValue, 0, 0);
+
+    return nValue;
+}
+
+PUBLIC
+IMS_SINT32 AosUtil::GetMinExpiresValue(IN const ISIPMessage* piSipMsg)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return -1;
+    }
+
+    AString strHeader = piSipMsg->GetHeader(ISIPHeader::MIN_EXPIRES);
+
+    if (strHeader.GetLength() == 0)
+    {
+        return -1;
+    }
+
+    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::MIN_EXPIRES, strHeader);
+
+    if (piHeader == IMS_NULL)
+    {
+        return -1;
+    }
+
+    IMS_SINT32 nValue = piHeader->GetValueInt();
+
+    piHeader->Destroy();
+
+    IMS_TRACE_I("GetMinExpiresValue :: (%d)", nValue, 0, 0);
+
+    return nValue;
+}
+
+PUBLIC
+IMS_SINT32 AosUtil::GetKeepAliveValue(IN const ISIPMessage* piSipMsg)
+{
+    IMS_SINT32 nKeepValue = -1;
+
+    if (piSipMsg == IMS_NULL)
+    {
+        return nKeepValue;
+    }
+
+    AString strViaHeader = piSipMsg->GetHeader(ISIPHeader::VIA);
+
+    if (strViaHeader.GetLength() == 0)
+    {
+        return nKeepValue;
+    }
+
+    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::VIA, strViaHeader);
+    if (piHeader == IMS_NULL)
+    {
+        return nKeepValue;
+    }
+
+    const SIPParameter* pKeep = piHeader->GetParameter("keep");
+    if (pKeep == IMS_NULL)
+    {
+        piHeader->Destroy();
+        return nKeepValue;
+    }
+
+    const AString& strKeep = pKeep->GetValue();
+    IMS_BOOL bOk = IMS_FALSE;
+
+    nKeepValue = strKeep.ToInt32(&bOk) * 1000;
+    if (bOk == IMS_FALSE)
+    {
+        nKeepValue = -1;
+    }
+
+    IMS_TRACE_I("GetKeepAliveValue :: keep time (%d)", nKeepValue, 0, 0);
+
+    piHeader->Destroy();
+
+    return nKeepValue;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::GetProxyFromContact(IN const ISIPMessage* piSipMsg,
+        OUT AString& strUseProxy, OUT IMS_UINT32& nUseProxyPort)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    AString strHeader = piSipMsg->GetHeader(ISIPHeader::CONTACT_NORMAL);
+    if (strHeader.GetLength() == 0)
+    {
+        return IMS_FALSE;
+    }
+
+    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::CONTACT_NORMAL, strHeader);
+    if (piHeader == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    const SIPAddress* pSip = piHeader->GetSIPAddress();
+    if (pSip == IMS_NULL)
+    {
+        piHeader->Destroy();
+        return IMS_FALSE;
+    }
+
+    AString strProxy = pSip->GetHost().GetStr();
+    IMS_UINT32 nProxyPort = pSip->GetPort();
+
+    if (strProxy.GetLength() == 0)
+    {
+        piHeader->Destroy();
+        return IMS_FALSE;
+    }
+
+    strUseProxy = strProxy;
+
+    if ((nProxyPort == 0) || (nProxyPort == SIP::PORT_UNSPECIFIED))
+    {
+        nProxyPort = SIP::PORT_5060;
+    }
+
+    nUseProxyPort = nProxyPort;
+
+    IMS_TRACE_D("Host (%s) , Port (%d)", strUseProxy.GetStr(), nUseProxyPort, 0);
+
+    piHeader->Destroy();
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+AString AosUtil::GetWarningHeader(IN const ISIPMessage* piSipMsg)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return AString::ConstEmpty();
+    }
+
+    AString strValue = piSipMsg->GetHeader(ISIPHeader::WARNING);
+    IMS_TRACE_D("Warning (%s)", strValue.GetStr(), 0, 0);
+    return strValue;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsReasonPhraseExist(IN const ISIPMessage* piSipMsg, IN AString strReason)
+{
+    AString strPhrase = piSipMsg->GetReasonPhrase();
+
+    if (strPhrase.GetLength() > 0)
+    {
+        IMS_TRACE_I("IsReasonPhraseExist :: reason phrase (%s)", strPhrase.GetStr(), 0, 0);
+
+        if (strPhrase.MakeUpper().Contains(strReason.MakeUpper()))
+        {
+            return IMS_TRUE;
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsInitialRegistrationRequired(IN ISIPMessage* piSipMsg)
+{
+    IMS_BOOL bInitialRegistration = IMS_FALSE;
+
+    if (piSipMsg != IMS_NULL)
+    {
+        IMSList<ISIPMessageBodyPart*> objBodyParts = piSipMsg->GetBodyParts();
+        if (!objBodyParts.IsEmpty())
+        {
+            ISIPMessageBodyPart* piBodyPart = objBodyParts.GetAt(0);
+            if (piBodyPart != IMS_NULL)
+            {
+                AString strContentTypeHdr =
+                        piBodyPart->GetHeader(ISIPMessageBodyPart::CONTENT_TYPE);
+
+                AString strType,strSubType;
+                TextParser::ParseMediaType(strContentTypeHdr, strType, strSubType);
+
+                if (strType.EqualsIgnoreCase(AosString::STR_APPLICATION) &&
+                        strSubType.EqualsIgnoreCase(AosString::STR_3GPP_IMS_XML))
+                {
+                    Ims3gpp* pIms3gpp = new Ims3gpp();
+                    if (pIms3gpp->Parse(piBodyPart->GetContent().ToString()))
+                    {
+                        IMS_SINT32 nAction = pIms3gpp->GetAlternativeService().GetAction();
+                        if (nAction == Ims3gpp::AlternativeService::ACTION_INITIAL_REGISTRATION)
+                        {
+                            bInitialRegistration = IMS_TRUE;
+                        }
+                    }
+                    delete pIms3gpp;
+                }
+            }
+        }
+    }
+
+    return bInitialRegistration;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+        IN IMS_SINT32 nHeaderType, IN const AString& strParameter)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    IMSList<AString> objHeaders = piSipMsg->GetHeaders(nHeaderType);
+
+    if (objHeaders.IsEmpty())
+    {
+        return IMS_FALSE;
+    }
+
+    for (IMS_UINT32 nAt = 0; nAt < objHeaders.GetSize(); ++nAt)
+    {
+        AString strHeader = objHeaders.GetAt(nAt);
+
+        if (strHeader.Contains(strParameter))
+        {
+            IMS_TRACE_I("Parameter (%s) is in header [%d]", strParameter.GetStr(), nHeaderType, 0);
+            return IMS_TRUE;
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+        IN IMS_SINT32 nHeaderType, IN const AString& strName, IN const AString& strParameter)
+{
+    if (piSipMsg == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    IMSList<AString> objHeaders = piSipMsg->GetHeaders(nHeaderType, strName);
+
+    if (objHeaders.IsEmpty())
+    {
+        return IMS_FALSE;
+    }
+
+    for (IMS_UINT32 nAt = 0; nAt < objHeaders.GetSize(); ++nAt)
+    {
+        AString strHeader = objHeaders.GetAt(nAt);
+
+        if (strHeader.Contains(strParameter))
+        {
+            IMS_TRACE_I("Parameter (%s) is in header [%s]", strParameter.GetStr(),
+                    strName.GetStr(), 0);
+            return IMS_TRUE;
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMS_SINT32 AosUtil::GetLocalPort(IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    const ISipConfig* piConfig = Configuration::GetInstance()->GetSipConfig(nSlotId);
+    IMS_SINT32 nPort = -1;
+
+    if (piConfig != IMS_NULL)
+    {
+        nPort = piConfig->GetPort();
+    }
+
+    return nPort;
+}
+
+PUBLIC
+void AosUtil::AddFeature(IN IMS_UINT32 nAdd, IN_OUT IMS_UINT32& nFeatures)
+{
+    nFeatures |= nAdd;
+}
+
+PUBLIC
+void AosUtil::RemoveFeature(IN IMS_UINT32 nRemove, IN_OUT IMS_UINT32& nFeatures)
+{
+    nFeatures &= ~(nRemove);
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsFeatureOn(IN IMS_UINT32 nFeature, IN IMS_UINT32 nFeatures)
+{
+    return (nFeatures & nFeature);
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsFeatureCleared(IN IMS_UINT32 nFeatures)
+{
+    return (nFeatures == 0);
+}
+
+PUBLIC
+void AosUtil::ClearFeature(IN_OUT IMS_UINT32& nFeatures)
+{
+    nFeatures = 0;
+}
+
+PUBLIC
+ITimer* AosUtil::StartTimer(IN IMS_UINT32 nDuration,
+        IN ITimerListener* piListener, IN AString strLog /* = AString("") */)
+{
+    ITimer* piTimer = TimerService::GetTimerService()->CreateTimer();
+    IMS_UINTP nId = piTimer->SetTimer(nDuration, piListener);
+
+    IMS_TRACE_I("StartTimer :: id (%p) , type (%s) , duration (%d)",
+            nId, strLog.GetStr(), nDuration);
+
+    return piTimer;
+}
+
+PUBLIC
+void AosUtil::StopTimer(IN ITimer*& piTimer, IN AString strLog /* = AString("") */)
+{
+    if (piTimer == IMS_NULL)
+    {
+        return;
+    }
+
+    piTimer->KillTimer();
+    TimerService::GetTimerService()->DestroyTimer(piTimer);
+    piTimer = IMS_NULL;
+
+    IMS_TRACE_I("StopTimer :: type (%s)", strLog.GetStr(), 0, 0);
+}
+
+PUBLIC
+void AosUtil::AddElementToList(IN IMS_UINT32 nElement, IN IMSList<IMS_UINT32>& objTarget)
+{
+    for (IMS_UINT32 nAt = 0; nAt < objTarget.GetSize(); nAt++)
+    {
+        IMS_UINT32 nCurrElement = objTarget.GetAt(nAt);
+        if (nElement == nCurrElement)
+        {
+            return;
+        }
+    }
+
+    objTarget.Append(nElement);
+}
+
+PUBLIC
+void AosUtil::RemoveElementToList(IN IMS_UINT32 nElement, IN IMSList<IMS_UINT32>& objTarget)
+{
+    for (IMS_UINT32 nAt = 0; nAt < objTarget.GetSize(); nAt++)
+    {
+        IMS_UINT32 nCurrElement = objTarget.GetAt(nAt);
+        if (nElement == nCurrElement)
+        {
+            objTarget.RemoveAt(nAt);
+            return;
+        }
+    }
+}
+
+PUBLIC
+void AosUtil::CombineLists(IN const IMSList<IMS_UINT32>& objList1,
+        IN const IMSList<IMS_UINT32>& objList2, IN IMSList<IMS_UINT32>& objTarget)
+{
+    for (IMS_UINT32 i = 0; i < objList1.GetSize(); i++)
+    {
+        AddElementToList(objList1.GetAt(i), objTarget);
+    }
+
+    for (IMS_UINT32 j = 0; j < objList2.GetSize(); j++)
+    {
+        AddElementToList(objList2.GetAt(j), objTarget);
+    }
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsListEqual(IN const AStringArray& objLeft,
+        IN const AStringArray& objRight, IN IMS_BOOL bIsIpAddress /* = IMS_FALSE */)
+{
+    if (objLeft.GetCount() != objRight.GetCount())
+    {
+        return IMS_FALSE;
+    }
+
+    for (IMS_SINT32 nAt = 0; nAt < objLeft.GetCount(); ++nAt)
+    {
+        const AString& strL = objLeft.GetElementAt(nAt);
+        IMS_BOOL bEqual = IMS_FALSE;
+
+        for (IMS_SINT32 nRightAt = 0; nRightAt < objRight.GetCount(); ++nRightAt)
+        {
+            const AString& strR = objRight.GetElementAt(nRightAt);
+
+            if (bIsIpAddress == IMS_TRUE)
+            {
+                IPAddress objIpAddrL(strL);
+                IPAddress objIpAddrR(strR);
+
+                if (objIpAddrL.Equals(objIpAddrR))
+                {
+                    bEqual = IMS_TRUE;
+                    break;
+                }
+            }
+            else
+            {
+                if (strL.Equals(strR))
+                {
+                    bEqual = IMS_TRUE;
+                    break;
+                }
+            }
+        }
+
+        if (!bEqual)
+        {
+            return IMS_FALSE;
+        }
+    }
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsListEquivalent(IN const AStringArray& objLeft,
+        IN const AStringArray& objRight, IN IMS_BOOL bIsIpAddress /* = IMS_FALSE */)
+{
+    if (objLeft.GetCount() != objRight.GetCount())
+    {
+        return IMS_FALSE;
+    }
+
+    for (IMS_SINT32 nAt = 0; nAt < objLeft.GetCount(); ++nAt)
+    {
+        const AString& strL = objLeft.GetElementAt(nAt);
+        const AString& strR = objRight.GetElementAt(nAt);
+
+        if (bIsIpAddress == IMS_TRUE)
+        {
+            IPAddress objIpAddrL(strL);
+            IPAddress objIpAddrR(strR);
+
+            if (!objIpAddrL.Equals(objIpAddrR))
+            {
+                return IMS_FALSE;
+            }
+        }
+        else
+        {
+            if (!strL.Equals(strR))
+            {
+                return IMS_FALSE;
+            }
+        }
+    }
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsListAllDifferent(IN const AStringArray& objLeft,
+        IN const AStringArray& objRight, IN IMS_BOOL bIsIpAddress /* = IMS_FALSE */)
+{
+    for (IMS_SINT32 nAt = 0; nAt < objLeft.GetCount(); ++nAt)
+    {
+        const AString& strL = objLeft.GetElementAt(nAt);
+        for (IMS_SINT32 nRightAt = 0; nRightAt < objRight.GetCount(); ++nRightAt)
+        {
+            const AString& strR = objRight.GetElementAt(nRightAt);
+
+            if (bIsIpAddress == IMS_TRUE)
+            {
+                IPAddress objIpAddrL(strL);
+                IPAddress objIpAddrR(strR);
+
+                if (objIpAddrL.Equals(objIpAddrR))
+                {
+                    return IMS_FALSE;
+                }
+            }
+            else
+            {
+                if (strL.Equals(strR))
+                {
+                    return IMS_FALSE;
+                }
+            }
+        }
+    }
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsStrExistInList(IN const AString& strValue,
+        IN const AStringArray& objList, IN IMS_BOOL bIsIpAddress /* = IMS_FALSE */)
+{
+    for (IMS_SINT32 nAt = 0; nAt < objList.GetCount(); ++nAt)
+    {
+        const AString& strCurr = objList.GetElementAt(nAt);
+
+        if (bIsIpAddress == IMS_TRUE)
+        {
+            IPAddress objIpAddrCurr(strCurr);
+            IPAddress objIpAddrValue(strValue);
+
+            if (objIpAddrCurr.Equals(objIpAddrValue))
+            {
+                return IMS_TRUE;
+            }
+        }
+        else
+        {
+            if (strCurr.Equals(strValue))
+            {
+                return IMS_TRUE;
+            }
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsListEqual(IN const IMSList<IMS_UINT32>& objLeft,
+        IN const IMSList<IMS_UINT32>& objRight, IN IMS_BOOL bOrderChecked)
+{
+    if (objLeft.GetSize() != objRight.GetSize())
+    {
+        return IMS_FALSE;
+    }
+
+    if (bOrderChecked)
+    {
+        for (IMS_UINT32 nAt = 0; nAt < objLeft.GetSize(); nAt++)
+        {
+            if (objLeft.GetAt(nAt) != objRight.GetAt(nAt))
+            {
+                return IMS_FALSE;
+            }
+        }
+    }
+    else
+    {
+        for (IMS_UINT32 nAt = 0; nAt < objLeft.GetSize(); nAt++)
+        {
+            IMS_UINT32 nLeftValue = objLeft.GetAt(nAt);
+            IMS_BOOL bEqual = IMS_FALSE;
+
+            for (IMS_UINT32 nRightAt = 0; nRightAt < objRight.GetSize(); nRightAt++)
+            {
+                if (nLeftValue == objRight.GetAt(nRightAt))
+                {
+                    bEqual = IMS_TRUE;
+                    break;
+                }
+            }
+
+            if (!bEqual)
+            {
+                return IMS_FALSE;
+            }
+        }
+    }
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsElementsExistInList(IN const IMSList<IMS_UINT32>& objElements,
+        IN const IMSList<IMS_UINT32>& objTarget)
+{
+    for (IMS_UINT32 nAt = 0; nAt < objElements.GetSize(); nAt++)
+    {
+        IMS_UINT32 nElement = objElements.GetAt(nAt);
+
+        for (IMS_UINT32 nListAt = 0; nListAt < objTarget.GetSize(); nListAt++)
+        {
+            IMS_UINT32 nTarget = objTarget.GetAt(nListAt);
+            if (nElement == nTarget)
+            {
+                return IMS_TRUE;
+            }
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMS_UINT32 AosUtil::Pow(IN IMS_UINT32 nArg1, IN IMS_UINT32 nArg2)
+{
+    IMS_UINT32 nResult = 1;
+
+    if (nArg2 == 0)
+    {
+        return nResult;
+    }
+
+    for (IMS_UINT32 i = 0; i < nArg2; i++)
+    {
+        nResult = nResult * nArg1;
+    }
+
+    IMS_TRACE_I("Pow :: (%d) ^ (%d) = (%d)", nArg1, nArg2, nResult);
+
+    return nResult;
+}
+
+PUBLIC
+IMS_UINT32 AosUtil::CalculateUpperBoundTime(IN IMS_UINT32 nBaseTime,
+        IN IMS_UINT32 nMaxTime, IN IMS_UINT32 nConsecutiveFailCount)
+{
+
+    if (nConsecutiveFailCount > REASONABLE_MAX_FAILURE_COUNT)
+    {
+        IMS_TRACE_I("Consecutive Fail Count reach REASONABLE_MAX_FAILURE_COUNT", 0, 0, 0);
+        return nMaxTime;
+    }
+
+    IMS_UINT32 nUpperBoundWaitTime = nBaseTime * (Pow(2, nConsecutiveFailCount));
+
+    nUpperBoundWaitTime = (nUpperBoundWaitTime > nMaxTime) ? nMaxTime : nUpperBoundWaitTime;
+
+    return nUpperBoundWaitTime;
+}
+
+PUBLIC
+IMS_UINT32 AosUtil::WaitTimeForFlowRecovery(IN IMS_UINT32 nBaseTime,
+        IN IMS_UINT32 nMaxTime, IN IMS_UINT32 nConsecutiveFailCount)
+{
+    IMS_UINT32 nUpperBoundWaitTime = CalculateUpperBoundTime(
+            nBaseTime, nMaxTime, nConsecutiveFailCount);
+
+    IMS_UINT32 nWaitTime = (nUpperBoundWaitTime / 2) + IMS_SYS_GetSRandom(nUpperBoundWaitTime / 2);
+
+    IMS_TRACE_I("WaitTimeForFlowRecovery(), WaitTime(%d), BaseTime(%d), UpperBoundTime(%d)",
+            nWaitTime, nBaseTime, nUpperBoundWaitTime);
+
+    return nWaitTime;
+}
+
+PUBLIC
+void AosUtil::GetMsisdn(OUT AString& objMsisdn, IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    if (PhoneInfoService::GetPhoneInfoService()->GetSubscriberInfo(nSlotId)->GetPhoneNumber(
+            objMsisdn) == IMS_FALSE)
+    {
+        IMS_TRACE_I("Failed to get MSISDN", 0, 0, 0);
+        objMsisdn = AString::ConstNull();
+        return;
+    }
+
+    if (objMsisdn.GetLength() <= 0)
+    {
+        IMS_TRACE_I("Failed to get MSISDN", 0, 0, 0);
+        objMsisdn = AString::ConstNull();
+        return;
+    }
+
+    IMS_TRACE_D("MSISDN: %s", objMsisdn.GetStr(), 0, 0);
+}
+
+PUBLIC
+void AosUtil::GetUserInfoFromSipAddress(IN const AString& strSipAddress,
+        OUT AString& strUserInfo)
+{
+    strUserInfo = AString::ConstNull();
+
+    if (strSipAddress.IsEmpty())
+    {
+        return;
+    }
+
+    SIPAddress objSipAddress;
+
+    if (objSipAddress.Create(strSipAddress) == IMS_FALSE)
+    {
+        IMS_TRACE_I("Failed to parse P-Associated-URI", 0, 0, 0);
+        return;
+    }
+
+    if (objSipAddress.IsSchemeSIP() || objSipAddress.IsSchemeSIPS())
+    {
+        strUserInfo = objSipAddress.GetUser();
+    }
+    else if (objSipAddress.IsSchemeTEL())
+    {
+        strUserInfo = objSipAddress.GetHost();
+    }
+
+    IMS_TRACE_D("User Info: %s", strUserInfo.GetStr(), 0, 0);
+}
+
+PUBLIC
+void AosUtil::SetSocketOption(IN IMS_UINT32 nOption, IN IMS_UINT32 nValue,
+        IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    IMS_TRACE_I("SocketOption: %d, value=%d", nOption, nValue, 0);
+
+    ISIPRTConfigHelper* piRunTimeConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
+    SIPRTConfig::SocketOption objSO;
+
+    objSO.nValue = nValue;
+    piRunTimeConfigHelper->SetConfig(nOption, &objSO);
+}
+
+PUBLIC
+void AosUtil::SetSocketOptionLinger(IN IMS_UINT32 nOption, IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    ISIPRTConfigHelper* piRunTimeConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
+    SIPRTConfig::SocketOption objSO;
+
+    objSO.nValue = nOption;
+
+    piRunTimeConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_LINGER, &objSO);
+}
+
+PUBLIC
+void AosUtil::SetSocketOptionShutDown(IN IMS_UINT32 nOption,
+        IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    ISIPRTConfigHelper* piRunTimeConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
+    SIPRTConfig::SocketOption objSO;
+
+    // 0 (RX) / 1 (TX) / 2 (RX & TX) / 3 (No Shutdown)
+    objSO.nValue = nOption;
+
+    piRunTimeConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_SHUTDOWN, &objSO);
+}
+
+PUBLIC
+IMS_BOOL AosUtil::UpdateFeatureTagOptions(IN IMS_UINT32 nUpdatedFeatureTags,
+        IN IMS_BOOL bIsSupported, IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    const ISipConfigV* piSipConfigV =
+            Configuration::GetInstance()->GetSipConfig(nSlotId)->GetSipConfigV();
+
+    if (piSipConfigV != IMS_NULL)
+    {
+        IConfigurable* piConfigurable = piSipConfigV->GetConfigurable();
+
+        if (piConfigurable != IMS_NULL)
+        {
+            IMS_UINT32 nOldFeatureTags = piSipConfigV->GetFeatureTagOptions();
+            IMS_UINT32 nNewFeatureTags = 0;
+
+            if (bIsSupported == IMS_TRUE)
+            {
+                nNewFeatureTags = nOldFeatureTags | nUpdatedFeatureTags;
+            }
+            else
+            {
+                nNewFeatureTags = nOldFeatureTags & (~nUpdatedFeatureTags);
+            }
+
+            if (nNewFeatureTags == nOldFeatureTags)
+            {
+                IMS_TRACE_I("No change in FeatureTags", 0, 0, 0);
+                return IMS_FALSE;
+            }
+
+            AString strSipFeatures;
+            strSipFeatures.Sprintf("0x%08x", nNewFeatureTags);
+
+            if (!piConfigurable->Update(IConfigurable::CP_I_FEATURE_TAG_OPTIONS, strSipFeatures))
+            {
+                IMS_TRACE_D("Updating CP_I_SIP_FEATURES failed", 0, 0, 0);
+                return IMS_FALSE;
+            }
+
+            IMS_TRACE_I("UpdateFeatureTagOptions (%s)", strSipFeatures.GetStr(), 0, 0);
+            return IMS_TRUE;
+        }
+    }
+
+    return IMS_FALSE;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsMtkChipset() const
+{
+    return m_bIsMtkChipset;
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsSupportedNetworkType(IN IMS_UINT32 nType) const
+{
+    switch (nType)
+    {
+        case NW_REPORT_RADIO_LTE: // FALL-THROUGH
+        case NW_REPORT_RADIO_NR: // FALL-THROUGH
+        case NW_REPORT_RADIO_WLAN:
+            return IMS_TRUE;
+
+        default:
+            return IMS_FALSE;
+    }
+}
+
+PUBLIC
+IMS_BOOL AosUtil::IsSupportedNetworkTypeForCellular(IN IMS_UINT32 nType) const
+{
+    return (nType == NW_REPORT_RADIO_LTE || nType == NW_REPORT_RADIO_NR);
+}

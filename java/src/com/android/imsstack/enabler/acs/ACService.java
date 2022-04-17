@@ -1,0 +1,210 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.imsstack.enabler.acs;
+
+import android.annotation.IntDef;
+import android.annotation.NonNull;
+import android.telephony.SubscriptionManager;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
+
+/**
+ * Provide interface for ACService(Auto Configuration Service) client to retrieve Provisioning xml
+ * from service provider.
+  */
+public class ACService {
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(prefix = "STATE_TYPE_", flag = true, value = {
+            STATE_TYPE_NONE,
+            STATE_TYPE_READY,
+            STATE_TYPE_PROGRESS
+    })
+    public @interface ACServiceStateFlag {}
+
+    public static final int STATE_TYPE_NONE = 0;
+    public static final int STATE_TYPE_READY = 1;
+    public static final int STATE_TYPE_PROGRESS = 2;
+
+    /**
+     * The callback for Provisioning changes.
+     */
+    public static class ACServiceCallback {
+        private static class Callback implements IACServiceImplCallback {
+            private final ACServiceCallback mLocalCallback;
+            private Executor mExecutor;
+
+            private Callback(ACServiceCallback serviceCallback) {
+                mLocalCallback = serviceCallback;
+            }
+
+            private void setExecutor(Executor executor) {
+                mExecutor = executor;
+            }
+
+            @Override
+            public void onReceivedProvisioning(byte[] data, boolean isDeProvision) {
+                mExecutor.execute(() -> mLocalCallback.onReceivedProvisioning(data, isDeProvision));
+            }
+
+            @Override
+            public void onReceivedPreProvisioning(byte[] data) {
+                mExecutor.execute(() -> mLocalCallback.onReceivedPreProvisioning(data));
+            }
+
+            @Override
+            public void onReceivedError(int errorCode, String errorString) {
+                mExecutor.execute(() -> mLocalCallback.onReceivedError(errorCode, errorString));
+            }
+        }
+
+        private final Callback mCallback = new Callback(this);
+
+        public final IACServiceImplCallback getCallback() {
+            return mCallback;
+        }
+
+        /**
+         * Set an executor to call registered callback
+         * @param executor The executor of the caller that registered the callback
+         */
+        public void setExecutor(Executor executor) {
+            mCallback.setExecutor(executor);
+        }
+
+        /**
+         * If override method, then the notification will be transferred when the device receives
+         * the provisioning data from service provider server
+         * @param data has provisioning.xml
+         * @param isDeProvision indicates Provisioning or De-Provisioning
+         */
+        public void onReceivedProvisioning(byte[] data, boolean isDeProvision) {}
+
+        /**
+         * If override method, then the notification will be transferred when the device receives
+         * the pre-provisioning data (self-provisioning) from service provider server
+         * @param data has provisioning.xml
+         */
+        public void onReceivedPreProvisioning(byte[] data) {}
+
+        /**
+         * If override method, then the notification will be transferred when the device receives
+         * the error response regarding request of provisioning
+         * @param errorCode HTTP response code
+         * @param errorString Text of response code
+         */
+        public void onReceivedError(int errorCode, String errorString) {}
+    }
+
+    private static final String TAG = "ACServiceImplBase";
+    private int mSubId;
+
+    private ACService(int subId) {
+        mSubId = subId;
+    }
+
+    /**
+     * Create a new ACService for the subscription specified and IllegalArgumentException will be
+     * thrown if the subscription is not valid.
+     * @param subId The ID of the subscription that this ACService will use.
+     * @return Instance of the ACService
+     */
+    public static ACService createForSubscriptionId(int subId) {
+        if (!SubscriptionManager.isValidSubscriptionId(subId)) {
+            throw new IllegalArgumentException("Invalid subscription ID");
+        }
+
+        return new ACService(subId);
+    }
+
+    /**
+     * Register a new ACServiceCallback to listen to changes of provisioning
+     * @param executor The executor to call the callback method
+     * @param serviceCallback The callback to be registered.
+     * @return true if the registration callback process is success, or false otherwise.
+     */
+    public boolean setCallback(@NonNull Executor executor,
+            @NonNull ACServiceCallback serviceCallback) {
+        serviceCallback.setExecutor(executor);
+        //ACServiceImpl.setCallback(mSubId, serviceCallback.getCallback());
+        return true;
+    }
+
+    /**
+     * Unregister an existing callback. When the subscription associated with this callback is
+     * removed, this callback will automatically be removed.
+     * @param serviceCallback The callback to be removed.
+     */
+    public void removeCallback(@NonNull ACServiceCallback serviceCallback) {
+        //ACServiceImpl.removeCallBack(mSubId, serviceCallback.getCallback());
+    }
+
+    /**
+     * Provide the client configuration parameters which to be included the RCS auto configuration
+     * request.
+     * @param clientInfo RCS client configuration
+     * @return true if the operation is success, or false otherwise.
+     */
+    public boolean setClientInfo(@NonNull ACServiceClientInfo clientInfo) {
+        //ACServiceImpl.setClientInfo(mSubId, clientInfo);
+        return true;
+    }
+
+    /**
+     * Reconfiguration triggered by the caller
+     * @return true if the ACService module can to request provisioning and the result will be
+     * notified by callback, or false otherwise.
+     */
+    public boolean start() {
+        // return ACServiceImpl.start();
+        return false;
+    }
+
+    /**
+     * Stop the configuration process, it is only available when the provisioning process is
+     * running. (before called the registered callback)
+     */
+    public void stop() {
+        // ACServiceImpl.stop();
+    }
+
+    /**
+     * Notify the provisioning xml has been received
+     * @param data Provisioning xml
+     * @param isCompressed The xml file is compressed in gzip format
+     */
+    public void notifyProvisioningReceived(byte[] data, boolean isCompressed) {
+        // ACServiceImpl.notifyConfigDataReceived(data, isCompressed);
+    }
+
+    /**
+     * The provisioning xml through notifyConfigDataReceived() is not available anymore.
+     */
+    public void notifyProvisioningRemoved() {
+        // ACServiceImpl.notifyConfigDataRemoved();
+    }
+
+    /**
+     * Get the state of ACService module
+     * @return The state is defined in ACServiceSateFlag
+     */
+    public @ACServiceStateFlag int getState() {
+        // return ACServiceImpl.getState()
+        return STATE_TYPE_NONE;
+    }
+}

@@ -1,0 +1,105 @@
+#ifndef _AOS_UTIL_H_
+#define _AOS_UTIL_H_
+
+#include "AStringArray.h"
+
+class ITimer;
+class ITimerListener;
+class ISIPMessage;
+class IRegistration;
+
+/**
+ * @brief This class provides useful services to be used commonly to Aos classes
+ */
+
+class AosUtil
+{
+public:
+    AosUtil();
+    virtual ~AosUtil();
+
+    static AosUtil* GetInstance();
+
+    // SIP Message
+    IMS_SINT32 GetResponseCode(IN const ISIPMessage* piSipMsg);
+    IMS_UINT32 GetRetryAfterValue(IN const IRegistration* piRegistration);
+    IMS_SINT32 GetRetryAfterValue(IN const ISIPMessage* piSipMsg);
+    IMS_SINT32 GetMinExpiresValue(IN const ISIPMessage* piSipMsg);
+    IMS_SINT32 GetKeepAliveValue(IN const ISIPMessage* piSipMsg);
+    IMS_BOOL GetProxyFromContact(IN const ISIPMessage* piSipMsg,
+            OUT AString& strUseProxy, OUT IMS_UINT32& nUseProxyPort);
+    AString GetWarningHeader(IN const ISIPMessage* piSipMsg);
+
+    IMS_BOOL IsReasonPhraseExist(IN const ISIPMessage* piSipMsg, IN AString strReason);
+    IMS_BOOL IsInitialRegistrationRequired(IN ISIPMessage* piSipMsg);
+    // Check whether some extension is unsupported (included in "Unsupported" header)
+    IMS_BOOL IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+            IN IMS_SINT32 nHeaderType, IN const AString& strParameter);
+    // Check whether parameter is included in specific header
+    IMS_BOOL IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+            IN IMS_SINT32 nHeaderType, IN const AString& strName, IN const AString& strParameter);
+
+    // Configuration
+    IMS_SINT32 GetLocalPort(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+
+    // Feature (Bit Mask)
+    void AddFeature(IN IMS_UINT32 nAdd, IN_OUT IMS_UINT32& nFeatures);
+    void RemoveFeature(IN IMS_UINT32 nRemove, IN_OUT IMS_UINT32& nFeatures);
+    IMS_BOOL IsFeatureOn(IN IMS_UINT32 nFeature, IN IMS_UINT32 nFeatures);
+    IMS_BOOL IsFeatureCleared(IN IMS_UINT32 nFeatures);
+    void ClearFeature(IN_OUT IMS_UINT32& nFeatures);
+
+    // Timer
+    ITimer* StartTimer(IN IMS_UINT32 nDuration,
+            IN ITimerListener* piListener, IN AString strLog = AString(""));
+    void StopTimer(IN ITimer*& piTimer, IN AString strLog = AString(""));
+
+    // List
+    void AddElementToList(IN IMS_UINT32 nElement, IN IMSList<IMS_UINT32>& objTarget);
+    void RemoveElementToList(IN IMS_UINT32 nElement, IN IMSList<IMS_UINT32>& objTarget);
+    void CombineLists(IN const IMSList<IMS_UINT32>& objList1,
+            IN const IMSList<IMS_UINT32>& objList2, IN IMSList<IMS_UINT32>& objTarget);
+
+    IMS_BOOL IsListEqual(IN const AStringArray& objLeft, IN const AStringArray& objRight,
+            IN IMS_BOOL bIsIpAddress = IMS_FALSE);
+    IMS_BOOL IsListEquivalent(IN const AStringArray& objLeft, IN const AStringArray& objRight,
+            IN IMS_BOOL bIsIpAddress = IMS_FALSE);
+    IMS_BOOL IsListAllDifferent(IN const AStringArray& objLeft, IN const AStringArray& objRight,
+            IN IMS_BOOL bIsIpAddress = IMS_FALSE);
+    IMS_BOOL IsStrExistInList(IN const AString& strValue, IN const AStringArray& objList,
+            IN IMS_BOOL bIsIpAddress = IMS_FALSE);
+    IMS_BOOL IsListEqual(IN const IMSList<IMS_UINT32>& objLeft,
+            IN const IMSList<IMS_UINT32>& objRight, IN IMS_BOOL bOrderChecked);
+    IMS_BOOL IsElementsExistInList(IN const IMSList<IMS_UINT32>& objElements,
+            IN const IMSList<IMS_UINT32>& objTarget);
+
+
+    // Misc
+    IMS_UINT32 Pow(IN IMS_UINT32 nArg1, IN IMS_UINT32 nArg2);
+    IMS_UINT32 CalculateUpperBoundTime(IN IMS_UINT32 nBaseTime, IN IMS_UINT32 nMaxTime,
+            IN IMS_UINT32 nConsecutiveFailCount);
+    IMS_UINT32 WaitTimeForFlowRecovery(IN IMS_UINT32 nBaseTime, IN IMS_UINT32 nMaxTime,
+            IN IMS_UINT32 nConsecutiveFailCount);
+    void GetMsisdn(OUT AString& objMsisdn, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    void GetUserInfoFromSipAddress(IN const AString& strSipAddress,
+            OUT AString& strUserInfo);
+
+    void SetSocketOption(IN IMS_UINT32 nOption, IN IMS_UINT32 nValue,
+            IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    void SetSocketOptionLinger(IN IMS_UINT32 nOption, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    void SetSocketOptionShutDown(IN IMS_UINT32 nOption, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    IMS_BOOL UpdateFeatureTagOptions(IN IMS_UINT32 nUpdatedFeatureTags,
+            IN IMS_BOOL bIsSupported, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+
+    IMS_BOOL IsMtkChipset() const;
+
+    IMS_BOOL IsSupportedNetworkType(IN IMS_UINT32 nType) const;
+    IMS_BOOL IsSupportedNetworkTypeForCellular(IN IMS_UINT32 nType) const;
+
+private:
+    // ( 2^24 * BaseTime ) MUST be bigger than MaxTime
+    static const IMS_UINT32 REASONABLE_MAX_FAILURE_COUNT = 24;
+
+    IMS_BOOL m_bIsMtkChipset;
+};
+#endif // _AOS_UTIL_H_

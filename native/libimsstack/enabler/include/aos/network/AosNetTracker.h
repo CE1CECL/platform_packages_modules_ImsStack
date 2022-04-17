@@ -1,0 +1,200 @@
+#ifndef _AOS_NET_TRACKER_H_
+#define _AOS_NET_TRACKER_H_
+
+#include "AString.h"
+#include "ITimer.h"
+#include "INetWatcher.h"
+#include "IWifiWatcher.h"
+#include "interface/IAosConnectionListener.h"
+#include "interface/IAosNetTracker.h"
+
+class IAosAppContext;
+class IAosConnection;
+class AosUtil;
+
+class AosNetTracker
+    : public IAosNetTracker
+    , public IAosConnectionListener
+    , public INetWatcherListener
+    , public IWifiWatcherListener
+    , public IEventListener
+    , public ITimerListener
+{
+
+public:
+    AosNetTracker(IN IAosAppContext *piAppContext_);
+    virtual ~AosNetTracker();
+
+public:
+    // IAosNetTracker
+    virtual IMS_BOOL IsServiceIN(IN IMS_UINT32 nType = TYPE_DEFAULT);
+    virtual IMS_BOOL IsDataIN();
+    virtual IMS_BOOL IsNetworkIN();
+    virtual IMS_BOOL IsEmergencyLteAttach();
+    virtual IMS_BOOL IsSuspended();
+    virtual IMS_BOOL IsSessionContinuitySupported();
+    virtual IMS_BOOL IsServiceTimerRunning();
+
+    virtual IMS_UINT32 GetMobileChangingNetworkType();
+    virtual IMS_UINT32 GetMobileNetworkType();
+    virtual IMS_SINT32 GetMobileVoiceServiceState();
+    virtual IMS_UINT32 GetMobileVoiceNetworkType();
+    virtual IMS_UINT32 GetNetworkType();
+
+    virtual void SetRATGuardTime(IN IMS_UINT32 nGuardTime);
+    virtual void SetSrvOutGuardTime(IN IMS_UINT32 nGuardTime);
+    virtual void SetSrvInGuardTime(IN IMS_UINT32 nGuardTime);
+
+    virtual void SetListener(IN IAosNetTrackerListener *piListener);
+    virtual void RemoveListener(IN IAosNetTrackerListener *piListener);
+
+    // INetWatcherListener
+    virtual void NotifyNetWatcherStatus(IN class INetWatcherInfo* piNetTrackerInfo);
+
+    // IWifiWatcherListener
+    virtual void NotifyStateChanged(IN class IWifiWatcher *pIWifiWatcher);
+
+    // IEventListener
+    virtual void Event_NotifyEvent(IN IMS_SINT32 nEvent,
+            IN IMS_UINT32 nWParam, IN IMS_UINT32 nLParam);
+
+private:
+    void InitConfig();
+    void InitCnxPolicy(IN IMSVector<IMS_SINT32>& objRats);
+    void InitRoamingCnxPolicy(IN IMSVector<IMS_SINT32>& objRoamingRats);
+    void InitObject();
+
+    void Update();
+    void UpdateVoiceNetwork();
+    void Notify();
+
+    void GetStatus(OUT IMS_SINT32 &nService, OUT IMS_UINT32 &nRadioTech, OUT IMS_BOOL &bIsIN);
+    IMS_UINT32 GetAccessPolicy() const;
+
+    void ProcessNetworkChanged(IMS_SINT32 nReason);
+    void ProcessVoiceNetworkChanged();
+
+    IMS_BOOL IsRadioTechAvailable(IN IMS_UINT32 nPolicy, IN IMS_UINT32 nRadioTech);
+    IMS_BOOL IsServiceAvailable(IN IMS_UINT32 nPolicy, IN IMS_UINT32 nService);
+    IMS_BOOL IsDomainAvailable(IN IMS_UINT32 nPolicy, IN IMS_UINT32 nDomain);
+    IMS_BOOL IsNetworkChanged(IN IMS_UINT32 nCurrRat, IN IMS_SINT32 nCurrService);
+
+    IMS_BOOL IsCnxTypeEqual(IN IMS_SINT32 nType) const;
+    IMS_BOOL IsDataConnected() const;
+    IMS_BOOL IsEpdgEnabled() const;
+    IMS_BOOL IsWlanEnabled() const;
+    IMS_BOOL IsWifiConnected() const;
+    IMS_BOOL IsVoNRSupported();
+    IMS_BOOL IsRoamingAccessPolicyRequired() const;
+
+    void SetDataConnected(IN IMS_BOOL bConnected);
+    void SetEpdgEnabled(IN IMS_BOOL bEnabled);
+    void SetWifiConnected(IN IMS_BOOL bConnected);
+
+    // Timer
+    void ProcessInTimerExpired();
+    void ProcessOutTimerExpired();
+    void ProcessRatTimerExpired();
+    void ProcessVoiceRatTimerExpired();
+
+    void ClearTimers();
+    void StartTimer(IN IMS_UINT32 nType, IN IMS_UINT32 nDuration);
+    void StopTimer(IN IMS_UINT32 nType);
+
+    // IAosConnectionListener
+    virtual void AosConnection_StateChanged(IN IMS_UINT32 nState);
+    virtual void AosConnection_IpChanged();
+    virtual void AosConnection_IpcanCatChanged();
+    virtual void AosConnection_PcscfChanged();
+    virtual void AosConnection_ConnectionFailed();
+
+    // ITimerListener
+    virtual void Timer_TimerExpired(IN ITimer *piTimer);
+
+    // LOG
+    AString FeaturesToString();
+
+    static const IMS_CHAR* DomainTypeToString(IN IMS_UINT32 nState);
+    static const IMS_CHAR* RadioTypeToString(IN IMS_UINT32 nState);
+    static const IMS_CHAR* ServiceTypeToString(IN IMS_UINT32 nState);
+    static const IMS_CHAR* TimerToString(IN IMS_UINT32 nType);
+
+    enum
+    {
+        FEATURE_NONE            = (0x0),
+        FEATURE_IN_GUARD        = (0x01 << 0),
+        FEATURE_OUT_GUARD       = (0x01 << 1),
+        FEATURE_RAT_GUARD       = (0x01 << 2),
+        FEATURE_VOICE_RAT_GUARD = (0x01 << 3)
+    };
+
+    enum
+    {
+        TIMER_IN_GUARD = 100,
+        TIMER_OUT_GUARD,
+        TIMER_RAT_GUARD,
+        TIMER_VOICE_RAT_GUARD
+    };
+
+private:
+    enum
+    {
+        REASON_NONE = 0,
+        REASON_NET_STATE_CHANGED,
+        REASON_ROAMING_SATAE_CHANGED
+    };
+
+    // access_policy (ex 0x20000004)
+    IMS_UINT32 nCnxPolicy;
+    IMS_UINT32 nCnxPolicyInRoaming;
+
+    INetWatcherInfo *piNetWatcherInfo;
+    IWifiWatcher *piWifiWatcher;
+//    IAosAppContext *piAppContext;
+    IAosConnection *piConnection;
+    AosUtil *pUtil;
+
+    IMS_SINT32 nSlotId;
+    IMS_SINT32 nNetServiceType;
+    IMS_UINT32 nNetRadioType;
+    IMS_UINT32 nChangingRat;
+
+    IMS_UINT32 nNetVoiceRadioType;
+    IMS_UINT32 nNetChangingVoiceRadioType;
+
+    // IN or OUT (data service & radio tech)
+    IMS_BOOL bIsNetAvailable;
+
+    // roaming network
+    IMS_BOOL bIsRoaming;
+
+    // ePDG network (IPCAN_WLAN)
+    IMS_BOOL bIsEpdgEnabled;
+
+    // wifi network
+    IMS_BOOL bIsWifiConnected;
+
+    // mobile network
+    IMS_BOOL bIsDataConnected;
+
+    // Guard Time Feature
+    IMS_UINT32 nFeature;
+    IMS_UINT32 nServiceInTime;
+    IMS_UINT32 nServiceOutTime;
+    IMS_UINT32 nRatTime;
+    IMS_UINT32 nVoiceRatGuardTime;
+
+    ITimer *piServiceInTimer;
+    ITimer *piServiceOutTimer;
+    ITimer *piRatTimer;
+    ITimer *piVoiceRatTimer;
+
+    IMSList<IAosNetTrackerListener*> objListeners;
+
+    AString strTag;
+
+    static const IMS_UINT32 SERVICE_IN_TIME_MILLI_SEC = 2000;
+    static const IMS_UINT32 SERVICE_OUT_TIME_MILLI_SEC = 1000;
+};
+
+#endif // _AOS_NET_TRACKER_H_

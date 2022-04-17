@@ -1,0 +1,242 @@
+package com.android.imsstack.util;
+
+import android.content.ContentResolver;
+import android.content.Context;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
+import android.sysprop.TelephonyProperties;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
+
+import com.android.internal.telephony.IccCardConstants;
+import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneConstants;
+
+import com.android.imsstack.external.ims.ImsFeatureProvider;
+
+/**
+ * This class provides the utility APIs to control the multi-sim.
+ */
+public final class MSimUtils {
+    public static final int DEFAULT_PHONE_ID = 0;
+    public static final int DEFAULT_SUB_ID = SubscriptionManager.DEFAULT_SUBSCRIPTION_ID;
+    public static final int INVALID_PHONE_ID = (-1);
+    public static final int INVALID_SLOT_ID = (-1);
+    public static final int INVALID_SUB_ID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+    public static final int DEFAULT_SLOT_ID = 0;
+    public static final int PREFERRED_NETWORK_MODE = Phone.PREFERRED_NT_MODE;
+
+    public static final int MULTI_SIM_NONE = 0; // Single SIM
+    public static final int MULTI_SIM_DSDS = 1;
+    public static final int MULTI_SIM_DSDA = 2;
+    public static final int MULTI_SIM_TSTS = 3;
+
+    // Intent extra: WfcInformation, Hidden menu
+    public static final String EXTRA_KEY_SLOT_ID = "SLOT_ID";
+
+    public static final String PHONE_KEY = "phone";
+
+    private static final int MAX_PHONE_COUNT_TRI_SIM = 3;
+    // 0x7FFFFFFB
+    private static final int DUMMY_SUB_ID_BASE
+            = (SubscriptionManager.MAX_SUBSCRIPTION_ID_VALUE - MAX_PHONE_COUNT_TRI_SIM);
+    private static final String MSIM_CONFIG
+            = TelephonyProperties.multi_sim_config().orElse("");
+    private static final boolean MULTI_IMS = false;
+    private static final boolean MULTI_LTE = false;
+    private static boolean sSingleImsEnabledOnDsdv = false;
+    private static int sMultiSim = (-1);
+
+    public static int getDefaultDataSubId() {
+        return SubscriptionManager.getDefaultDataSubscriptionId();
+    }
+
+    public static int getDefaultSubId() {
+        return SubscriptionManager.getDefaultSubscriptionId();
+    }
+
+    public static int getImsDefaultSubId() {
+        if (isMultiSimEnabled()) {
+            return getDefaultDataSubId();
+        } else {
+            return getSubId(DEFAULT_PHONE_ID);
+        }
+    }
+
+    public static String getImsi(int subId) {
+        TelephonyManager tm = AppContext.getTelephonyManager(subId);
+        return (tm != null) ? tm.getSubscriberId() : null;
+    }
+
+    public static int getMaxSimSlot() {
+        int simConfig = getMultiSimEnabled();
+
+        switch (simConfig)
+        {
+        case MULTI_SIM_DSDS:
+        case MULTI_SIM_DSDA:
+            return 2;
+        case MULTI_SIM_TSTS:
+            return 3;
+        default:
+            return 1;
+        }
+    }
+
+    public static int getMultiSimEnabled() {
+        if (sMultiSim < MULTI_SIM_NONE) {
+            if (MSIM_CONFIG.equals("dsds")) {
+                sMultiSim = MULTI_SIM_DSDS;
+            } else if (MSIM_CONFIG.equals("dsda")) {
+                sMultiSim = MULTI_SIM_DSDA;
+            } else if (MSIM_CONFIG.equals("tsts")) {
+                sMultiSim = MULTI_SIM_TSTS;
+            } else {
+                sMultiSim = MULTI_SIM_NONE;
+            }
+        }
+
+        return sMultiSim;
+    }
+
+    public static int getNetworkMode(ContentResolver cr, int phoneId) {
+        int networkMode = PREFERRED_NETWORK_MODE;
+        int subId = getSubId(phoneId);
+
+        if (!isValidSubId(subId)) {
+            return networkMode;
+        }
+
+        try {
+            networkMode = Settings.Global.getInt(cr,
+                    Settings.Global.PREFERRED_NETWORK_MODE + subId);
+        } catch (SettingNotFoundException e) {
+            networkMode = Phone.PREFERRED_NT_MODE;
+        }
+
+        return networkMode;
+    }
+
+    public static int getPhoneCount() {
+        TelephonyManager tm = AppContext.getTelephonyManager();
+        return (tm != null) ? tm.getActiveModemCount() : 1;
+    }
+
+    public static int getPhoneId(int subId) {
+        return getPhoneId(subId, DEFAULT_PHONE_ID);
+    }
+
+    public static int getPhoneId(int subId, int defaultPhoneId) {
+        int phoneId = SubscriptionManager.getSlotIndex(subId);
+
+        if (phoneId < DEFAULT_PHONE_ID || phoneId >= getPhoneCount()) {
+            // Set the phoneId as a default
+            phoneId = defaultPhoneId;
+        }
+
+        return phoneId;
+    }
+
+    public static int getPhoneIdForDummySubId(int subId) {
+        if (isDummySubId(subId)) {
+            if (!isMultiSimEnabled()) {
+                return DEFAULT_PHONE_ID;
+            } else {
+                return getPhoneId(subId, INVALID_PHONE_ID);
+            }
+        } else if (isValidSubId(subId)) {
+            return getPhoneId(subId, INVALID_PHONE_ID);
+        }
+
+        return INVALID_PHONE_ID;
+    }
+
+    public static String getSimState(int slotId) {
+        return ImsExtApi.Uicc.getSimState(slotId);
+    }
+
+    public static int getSlotId(int subId) {
+        return SubscriptionManager.getSlotIndex(subId);
+    }
+
+    public static int getSubId(int phoneId) {
+        SubscriptionManager sm = AppContext.get().getSystemService(SubscriptionManager.class);
+        int[] subIds = (sm != null) ? sm.getSubscriptionIds(phoneId) : null;
+        if ((subIds != null) && (subIds.length > 0)) {
+            return subIds[0];
+        }
+
+        return INVALID_SUB_ID;
+    }
+
+    public static boolean hasIccCard(int slotId) {
+        TelephonyManager tm = AppContext.getTelephonyManager(getSubId(slotId));
+        return (tm != null) ? tm.hasIccCard() : false;
+    }
+
+    public static boolean isDummySubId(int subId) {
+        // FIXME: for other chipset.
+        /** QCT */
+        return (subId >= DUMMY_SUB_ID_BASE)
+                && (subId <= DEFAULT_SUB_ID);
+    }
+
+    public static boolean isMultiImsEnabled() {
+        return MULTI_IMS || isSingleImsEnabledOnDsdv();
+    }
+
+    public static boolean isMultiLteEnabled() {
+        // As a default, single LTE is required on dual SIM environment.
+        return MULTI_LTE;
+    }
+
+    public static boolean isMultiSimEnabled() {
+        if (isMultiSimEnabledInternal()) {
+            return true;
+        }
+
+        TelephonyManager tm = AppContext.getTelephonyManager();
+        if (tm == null) {
+            return isMultiSimEnabledInternal();
+        }
+
+        return tm.getActiveModemCount() > 1;
+    }
+
+    public static boolean isSimLoaded(int slotId) {
+        return IccCardConstants.INTENT_VALUE_ICC_LOADED.equals(getSimState(slotId));
+    }
+
+    public static boolean isValidSubId(int subId) {
+        return SubscriptionManager.isUsableSubscriptionId(subId);
+    }
+
+    // DSDV-SV (Dual SIM Dual VoLTE - Single VoLTE) {
+    // Assume that slot-0 only supports VoLTE.
+    public static int getSlotIdForSingleImsOnDsdv() {
+        return DEFAULT_SLOT_ID;
+    }
+
+    public static boolean isSingleImsEnabledOnDsdv() {
+        return sSingleImsEnabledOnDsdv && isMultiLteEnabled();
+    }
+
+    public static boolean isSlotIdForSingleImsOnDsdv(int slotId) {
+        return slotId == getSlotIdForSingleImsOnDsdv();
+    }
+
+    public static void setSingleImsEnabledOnDsdv(Context c) {
+        sSingleImsEnabledOnDsdv = ImsFeatureProvider.hasFeature(c, ImsFeature.FEATURE_DSDV_SV);
+    }
+    // }
+
+    // DSSV-DV (Dual SIM Single VoLTE - Dual VoLTE for emergency {
+    public static boolean isMultiImsEnabledOnDssv() {
+        return isMultiSimEnabled() && ImsProperties.TARGET_COUNTRY.equals("AU");
+    }
+    // }
+
+    private static boolean isMultiSimEnabledInternal() {
+        return getMultiSimEnabled() > MULTI_SIM_NONE;
+    }
+}

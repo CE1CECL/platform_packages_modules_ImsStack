@@ -1,0 +1,39 @@
+#ifndef __SIP_DEFTIMERUTIL_H__
+#define __SIP_DEFTIMERUTIL_H__
+
+#include "sip_pf_datatypes.h"
+#include "ISipTimerUtil.h"
+#include "ICoreTimer.h"
+
+/*This can be an inner private class of SipDefTimerUtil*/
+
+
+
+class SipDefTimerUtil: public ISipTimerUtil
+{
+    //    ICoreTimer* m_pTimer;
+    //    DefTimerListener* m_pListener;
+    public:
+        SipDefTimerUtil();
+        ~SipDefTimerUtil();
+
+    public:
+        SIP_BOOL StartTimer(
+                SIP_VOID        **pvTimerId,
+                SIP_UINT32        uiDuration,
+                SIP_UINT16        usResetFlag,
+                SIPCB_TIMERHANDLER        cbTimerHandler,
+                SIP_VOID            *pvData);//{return SIP_TRUE;}
+
+        SIP_VOID* StopTimer(
+                SIP_VOID        *pvTimerId);//{return SIP_TRUE;}
+
+        SIP_BOOL ResetTimer    (
+                SIP_VOID*    pvTimerId,
+                SIP_UINT32    uiNewDuration);//{return SIP_TRUE;}
+
+        SIP_VOID* StopTimerEx(
+                SIP_VOID*     pvTimerId);//{return SIP_TRUE;}
+};
+
+#endif //__SIP_DEFTIMERUTIL_H__

@@ -1,0 +1,384 @@
+#ifndef _AOS_APPLICATION_H_
+#define _AOS_APPLICATION_H_
+
+#include "IMSActivityEx.h"
+#include "IMSStateMachine.h"
+#include "IEventListener.h"
+#include "ITimer.h"
+
+#include "interface/AosInternalMsgDef.h"
+#include "AoSReason.h"
+#include "interface/IAosApplication.h"
+#include "interface/IAosBlock.h"
+#include "interface/IAosCallTrackerListener.h"
+#include "interface/IAosConditionListener.h"
+#include "interface/IAosConnectorListener.h"
+#include "interface/IAosNetTrackerListener.h"
+#include "interface/IAosRegistrationListener.h"
+#include "provider/AosStaticProfile.h"
+
+class IAosAppContext;
+class IAosRegistration;
+class IAosCallTracker;
+class IAosNetTracker;
+class AosCondition;
+class AosConnector;
+class AosUtil;
+
+class AosApplication
+    : public IMSActivityEx
+    , public IMSStateMachine
+    , public IAosApplication
+    , public IAosConditionListener
+    , public IAosConnectorListener
+    , public IAosRegistrationListener
+    , public IAosCallTrackerListener
+    , public IEventListener
+    , public ITimerListener
+    , public IAosNetTrackerListener
+{
+    DECLARE_STATE_MAP()
+
+    DECLARE_STATE_MSG_MAP(STATE_NOTREADY)
+    DECLARE_STATE_MSG_MAP(STATE_READY)
+    DECLARE_STATE_MSG_MAP(STATE_CONNECTING)
+    DECLARE_STATE_MSG_MAP(STATE_CONNECTED)
+    DECLARE_STATE_MSG_MAP(STATE_UPDATING)
+    DECLARE_STATE_MSG_MAP(STATE_DISCONNECTING)
+
+public:
+    AosApplication(IN IAosAppContext* piAppContext, IN AString& strAppId);
+    virtual ~AosApplication();
+
+    // IAosApplication
+    virtual void Reconfig();
+    virtual IMS_BOOL RequestCmd(IN IMS_UINT32 nCmdType, IN IMS_UINT32 nReason = 0);
+
+    virtual const AString& GetActivityName();
+    virtual void GetProperty(IN IMS_UINT32 nType, OUT IMS_UINT32& nValue, OUT AString& strValue);
+    virtual IMS_UINT32 GetAppState();
+    virtual IMS_UINT32 GetOffReason();
+
+    virtual IMS_BOOL IsActivated();
+    virtual IMS_BOOL IsOn();
+
+    virtual void SetActivation(IN IMS_BOOL bActivation);
+    virtual void NotifyPublishState(IN IMS_BOOL bStart);
+
+protected:
+    void ClearOffReason();
+    void ClearPending();
+
+    void SetOffReason(IN IMS_UINT32 nReason);
+    void SetImsCall(IN IMS_BOOL bActive);
+    void SetPublishState(IN IMS_BOOL bActive);
+    void SetRegRecoveryHeld(IN IMS_BOOL bHeld);
+
+    void ResetBlock(IN BLOCK_REASON nReason);
+
+    IMS_BOOL IsEmergency() const;
+    IMS_BOOL IsStateMessage(IN IMS_UINT32 nMsg) const;
+    IMS_BOOL IsNotReady();
+    IMS_BOOL IsEqualOrLessState(IN IMS_UINT32 nState);
+    IMS_BOOL IsRegRecoveryHeld() const;
+    IMS_BOOL IsImsCall() const;
+    IMS_BOOL IsPublished() const;
+    IMS_BOOL IsAllDetached() const;
+    IMS_BOOL IsTimerRunning(IN IMS_UINT32 nType) const;
+    IMS_BOOL IsRegTypeNormal() const;
+    IMS_BOOL IsVonrSupported() const;
+    IMS_BOOL IsRegStateUpdatedByNrLteRatChange() const;
+
+    // Create
+    virtual void CreateAosCondition();
+    virtual void CreateAosConnector();
+    virtual void CreateAosLocationStarter(IN IMS_BOOL bInitiation = IMS_TRUE);
+
+    virtual void AddEventListener();
+    virtual void RemoveEventListener();
+    virtual void SetNetTrackerListener();
+
+    virtual void SetAppType(IN AosRegistrationType eRegType);
+    virtual void SetAppState(IN IMS_UINT32 nState);
+    virtual void SetCleanState();
+
+    virtual IMS_BOOL IsUpdateAvailable();
+    virtual IMS_BOOL IsRegReconfigAvailable();
+    virtual IMS_BOOL IsReconfigHandleChanged();
+    virtual IMS_BOOL IsRequestCmdHeldByCondition(IN IMS_UINT32 nCommand,
+            IN IMS_UINT32 nReason = 0);
+    virtual IMS_BOOL IsAllHandleDetached();
+    virtual IMS_BOOL IsConditionTimerSkippedDueToTimer();
+    virtual IMS_BOOL IsRegUpdatedByNrLteRatChange();
+
+    // Clean
+    virtual void CleanAll(IN IMS_UINT32 nOffReason = AoSReason::NONE);
+    virtual void ClearConnection();
+
+    virtual IMS_UINT32 GetReportState();
+
+    // IMSActivityEx
+    virtual IMS_BOOL OnMessage(IN IMSMSG& objMsg);
+
+    // Message
+    virtual IMS_BOOL ProcessMessage(IN IMSMSG& objMsg);
+    virtual void ProcessRegStart(IN IMSMSG& objMsg);
+    virtual void ProcessRegUpdate(IN IMSMSG& objMsg);
+    virtual void ProcessRegStop(IN IMSMSG& objMsg);
+    virtual void ProcessRegReconfig(IN IMSMSG& objMsg);
+    virtual void ProcessRegRecovery(IN IMSMSG& objMsg);
+    virtual void ProcessIpcanChanged(IN IMSMSG& objMsg);
+    virtual void ProcessDestroy(IN IMSMSG& objMsg);
+    virtual void ProcessServiceControl(IN IMSMSG& objMsg);
+    virtual void ProcessRegExchange(IN IMSMSG& objMsg);
+    virtual void ProcessAutoConfigurationComplete(IN IMSMSG& objMsg);
+    virtual void ProcessPcscfRecovery(IN IMSMSG& objMsg);
+    virtual void ProcessScscfRestoration(IN IMSMSG& objMsg);
+    virtual void ProcessOthers(IN IMSMSG& objMsg);
+
+    // StateMachine
+    virtual IMS_BOOL PreprocessStateMessage(IN IMSMSG& objMsg);
+    virtual IMS_BOOL PreprocessStateMessage_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateNotReady_Condition(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateNotReady_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateReady_Condition(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateReady_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateConnecting_Condition(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateConnecting_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateConnecting_Registration(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateConnected_Condition(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateConnected_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateConnected_Registration(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateUpdating_Condition(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateUpdating_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateUpdating_Registration(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateDisconnecting_Condition(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateDisconnecting_Connection(IN IMSMSG& objMsg);
+    virtual IMS_BOOL StateDisconnecting_Registration(IN IMSMSG& objMsg);
+
+    virtual void ProcessRegTrying_StateConnecting(IN IMS_UINT32 nReason);
+    virtual void ProcessRegFailed_StateConnecting(IN IMS_UINT32 nReason);
+    virtual void ProcessRegTrying_StateConnected(IN IMS_UINT32 nReason);
+    virtual void ProcessRegFailed_StateConnected(IN IMS_UINT32 nReason);
+    virtual void ProcessRegTrying_StateUpdating(IN IMS_UINT32 nReason);
+    virtual void ProcessRegFailed_StateUpdating(IN IMS_UINT32 nReason);
+    virtual void ProcessConnectionUpdated_StateDisconnecting(IN IMS_UINT32 nReason);
+
+    virtual void ProcessConnectionDeactivated(IN IMS_UINT32 nReason);
+    virtual void ProcessConnectionUpdated(IN IMS_UINT32 nReason);
+    virtual void ProcessConnectionUpdated_Pcscf();
+
+    virtual void ProcessRegSucceeded(IN IMS_UINT32 nReason);
+    virtual void ProcessRegFailed_Start(IN IMS_UINT32 nReason);
+    virtual void ProcessRegFailed_Update(IN IMS_UINT32 nReason);
+    virtual void ProcessRegFailed_Terminated();
+
+    virtual void ProcessDisconnectingState(IN IMS_UINT32 nReason = 0);
+    virtual void ProcessIpcanHandoverEvent(IN IMS_UINT32 nResult, IN IMS_UINT32 nPreferredRat);
+    virtual void ProcessNetworkEvent(IN IMS_UINT32 nType, IN IMS_UINT32 nState);
+    virtual void ProcessStateStart(IN IMS_UINT32 nTime = 0);
+    virtual void ProcessRegControlEvent(IN IMS_UINT32 nType, IN IMS_UINT32 nReason);
+    virtual void ProcessRegInternalFailed(IN IMS_UINT32 nReason = 0);
+    virtual void ProcessRegAuthenticationFailed();
+    virtual void ProcessRegTerminated();
+    virtual void ProcessPingCommand();
+    virtual void ProcessPdnReconnect();
+
+    virtual void ProcessAppActivatedTimerExpired();
+    virtual void ProcessAppConnectedTimerExpired();
+    virtual void ProcessAppTerminatedTimerExpired();
+    virtual void ProcessReconfigTimerExpired();
+    virtual void ProcessRegBlockedTimerExpired();
+    virtual void ProcessRegStopTimerExpired();
+    virtual void ProcessPdnBlockedTimerExpired();
+
+    virtual void ProcessPdnBlock();
+    virtual void ProcessPdnBlockWithTime();
+
+    // Report to Other Context
+    virtual void OnAppStateChanged();
+
+    // Report to Handle
+    virtual void Report_StateChanged(IN IMS_BOOL bIsStateChecked = IMS_TRUE);
+    virtual void Report_Notify();
+    virtual void Report_Request(IN IMS_UINT32 nType, IN IMS_UINT32 nState);
+
+    virtual IMS_BOOL UpdateRegRecoveryHeld();
+    virtual IMS_BOOL UpdateRegStopHeld();
+
+    // Timer
+    virtual void StartTimer(IN IMS_UINT32 nType, IN IMS_UINT32 nDuration);
+    virtual void StopTimer(IN IMS_UINT32 nType);
+    virtual void ClearTimers();
+
+    // To External Interface
+    virtual void UpdateRegState();
+    virtual IMS_UINT32 UpdateConnectedServices(IN IMS_BOOL bEnforceUpdateRegService);
+    virtual void UpdateRegisteredRat(IN IMS_UINT32 nRegisteredRat);
+    virtual void UpdateMonitorNotify(IN IMS_UINT32 nType, IN IMS_UINT32 nState);
+
+    // IAosConditionListener
+    virtual void Condition_Changed(IN IMS_UINT32 nReason = 0);
+    virtual void Condition_RequestCommand(IN IMS_UINT32 nCommand, IN IMS_UINT32 nReason = 0);
+
+    // IAosConnectorListener
+    virtual void Connector_Activated();
+    virtual void Connector_Deactivated(IN IMS_UINT32 nReason);
+    virtual void Connector_Updated(IN IMS_UINT32 nReason);
+
+    // IAosRegistrationListener
+    virtual void Registration_StateChanged(IN IMS_UINT32 nResult, IN IMS_UINT32 nReason = 0);
+    virtual void Registration_PreNotify(IN IMS_UINT32 nPreReason);
+
+    // IAosCallTrackerListener
+    virtual void CallTracker_StateChanged(IN IMS_UINT32 nType, IN IMS_UINT32 nState);
+
+    // IAosNetTrackerListener
+    virtual void NetTracker_StatusChanged();
+
+    // IEventListener
+    virtual void Event_NotifyEvent(IN IMS_SINT32 nEvent, IN IMS_UINT32 nWParam,
+            IN IMS_UINT32 nLParam);
+
+    // ITimerListener
+    virtual void Timer_TimerExpired(IN ITimer* piTimer);
+
+protected:
+    enum
+    {
+        TYPE_NORMAL = 0,
+        TYPE_EMERGENCY
+    };
+
+    enum
+    {
+        // State-Machine MSG
+        MSG_CONDITION = AOSMSG_SERVICE_INTERNAL,
+        MSG_CONNECTION,
+        MSG_REGISTRATION,
+
+        // NO State-Machine MSG
+        MSG_INIT = AOSMSG_SERVICE_INTERNAL + 10,
+        MSG_REG_START,
+        MSG_REG_UPDATE,
+        MSG_REG_STOP,
+        MSG_REG_RECONFIG,
+        MSG_REG_RECOVER,
+        MSG_IPCAN_CHANGED,
+        MSG_PUB_TERMINATED,
+        MSG_DESTROY,
+        MSG_SERVICE_CONTROL,
+        MSG_REG_EXCHANGE,
+        MSG_AC_CONFIGURED,
+        MSG_PCSCF_RECOVER,
+        MSG_SCSCF_RESTORATION,
+        MSG_OTHERS
+    };
+
+    // INTMSG CONNECTION wParam
+    enum
+    {
+        CONNECTION_ACTIVATED = 10,
+        CONNECTION_DEACTIVATED,
+        CONNECTION_UPDATED
+    };
+
+    // INTMSG REGISTRATION
+    // wParam : nReason , lParam : nReasonEx
+
+    // MSG_REG_EXCHANGE wparam
+    enum
+    {
+        REG_EXCHANGE_NEED = 0,
+        REG_EXCHANGE_NO_NEED,
+        REG_EXCHANGE_AVAILABLE
+    };
+
+    enum
+    {
+        TIMER_RECONFIG_GUARD = 0,
+        TIMER_MSG_CONITION,
+        TIMER_REG_STOP,
+        TIMER_REG_BLOCKED,
+        TIMER_APP_ACTIVATED,
+        TIMER_APP_CONNECTED,
+        TIMER_APP_TERMINATED,
+        TIMER_PDN_BLOCKED
+    };
+
+    enum
+    {
+        PENDING_NONE = 0x0,
+
+        // REG PENDING
+        PENDING_REG_RECOVERY_HELD = 0x1,
+
+        // REG STOP PENDING
+        PENDING_REG_STOP_HELD = 0x2,
+
+        // APP PENDING
+        PENDING_APP_DESTROY_HELD = 0x4,
+
+        // REG RECONFIG PENDING
+        PENDING_REG_RECONFIG_HELD = 0x8,
+
+        // After CSFB
+        PENDING_REG_AFTER_CSFB_COMPLETE = 0x10,
+
+        // IPCAN PENDING
+        PENDING_IPCAN_HELD = 0x20,
+
+        // REG UPDATE PENDING
+        PENDING_REG_UPDATE_HELD = 0x40
+    };
+
+protected:
+    virtual void Init();
+    virtual void CleanUp();
+
+protected:
+    IAosAppContext* m_piContext;
+    IAosRegistration* m_piRegistration;
+    IAosCallTracker* m_piCallTracker;
+    IAosNetTracker* m_piNetTracker;
+    AosCondition* m_pCondition;
+    AosConnector* m_pConnector;
+    AosUtil* m_pUtil;
+
+    ITimer* m_piReconfigTimer;
+    ITimer* m_piMsgConditionTimer;
+    ITimer* m_piRegStopTimer;
+    ITimer* m_piRegBlockedTimer;
+    ITimer* m_piAppActivatedTimer;
+    ITimer* m_piAppConnectedTimer;
+    ITimer* m_piAppTerminatedTimer;
+    ITimer* m_piPdnBlockedTimer;
+
+    AString m_strAppId;
+    IMS_UINT32 m_nAppType;
+    IMS_UINT32 m_nOffReason;
+    IMS_UINT32 m_nRat;
+    AosRegistrationType m_eRegType;
+    IMS_UINT32 m_nReportState;
+    IMS_UINT32 m_nRegPending;
+    IMS_UINT32 m_nRegisteredRat;
+    IMS_UINT32 m_nRecoverReason;
+    IMS_UINT32 m_nLteAttachState;
+    IMS_UINT32 m_nVoiceServiceState;
+    IMS_SINT32 m_nSlotId;
+
+    IMS_BOOL m_bConnected;
+    IMS_BOOL m_bRegRecoveryHeld;
+    IMS_BOOL m_bIsImsCall;
+    IMS_BOOL m_bIsPublished;
+    IMS_BOOL m_bIsActivated;
+    IMS_BOOL m_bIsVonrSupported;
+
+    AString m_strTag;
+
+    static const IMS_UINT32 RECONFIG_GUARD_TIME_MILLIS = 1000;
+    static const IMS_UINT32 REG_STOP_WAITING_TIME_MILLIS = 1000;
+    static const IMS_UINT32 APP_START_WAITING_TIME_MILLIS = 4000;
+    static const IMS_UINT32 UNEXPECTED_ERROR_APP_START_WAITING_TIME_MILLIS = 10000;
+};
+#endif // _AOS_APPLICATION_H_

@@ -1,0 +1,235 @@
+#ifndef __SIP_CONFIGURATION_H__
+#define __SIP_CONFIGURATION_H__
+
+/******************************************************************************
+ * Project Name  : SIP_RTP
+ * Group    : IP-CS [MSG-2]
+ * Security   : Confidential
+ *****************************************************************************/
+
+/******************************************************************************
+ * Filename    : SipConfiguration.h
+ * Purpose    :
+ * Platform    : Windows OR Android
+ * Author(s)    : Syed Malgimani
+ * E-mail id.    : syed.malgimani@
+ * Creation date   : May. 25,2010
+ *
+ * Edit History     Modification           Description(s)
+ *
+ * Date      Name    Version    Bug-ID    Description
+ * ----------    ----------    -------    ------    -------------
+ * Month. Date,10    Name       0.0a    ---    Initial creation
+
+ *****************************************************************************/
+
+/*****************************************************************************
+  Header Inclusions
+ *****************************************************************************/
+#include "sip_pf_datatypes.h"
+/****************************************************************************
+  Macro Definitions
+ *****************************************************************************/
+
+/****************************************************************************
+  Enum Declaration
+ *****************************************************************************/
+typedef enum _SipEn_MsgOption
+{
+    ESIPMSGOPT_NONE = 0,
+    ESIPMSGOPT_ENCMULTILINE  =  (1<<0),
+    ESIPMSGOPT_ENCSHORTFORM  =  (1<<1),
+    ESIPMSGOPT_DECSTRICT    =  (1<<2),
+    ESIPMSGOPT_END,
+    ESIPMSGOPT_INVALID    =  SIP_INVALID
+}SipEn_MsgOption;
+
+/****************************************************************************
+  Structure Declaration
+ *****************************************************************************/
+
+
+/****************************************************************************
+  Global Variables
+ *****************************************************************************/
+class SipConfiguration
+{
+
+    public:
+        SipConfiguration();
+        virtual ~SipConfiguration();
+
+        inline SIP_VOID EnablePANIHeaderForACK(SIP_BOOL bPANIHeader)
+        {
+            bPANIHeaderForACK = bPANIHeader;
+        }
+        inline SIP_BOOL IsPANIHeaderReqdForACK() const
+        {
+            return bPANIHeaderForACK;
+        }
+
+        /* TODO: Need to rething how to provide parsing option for easy operation */
+        SIP_VOID SetMultiLineEncoding(SIP_BOOL bEnableMultiLine);
+        SIP_VOID SetShortFormEncoding(SIP_BOOL bEncInShortForm);
+        SIP_VOID SetDecodeStrictness(SIP_BOOL bEnableStrictDecode);
+
+        /* Timer Values A-K */
+
+        /* T1: RTT Estimate */
+        inline SIP_VOID SetT1(SIP_UINT32 usDur)
+        {
+            m_usT1 = usDur;
+        }
+        inline SIP_UINT32 GetT1() const
+        {
+            return m_usT1;
+        }
+
+        /* The Max Retransmit interval for non-INVITE Req and INVITE Resp */
+        inline SIP_VOID SetT2(SIP_UINT32 usDur)
+        {
+            m_usT2 = usDur;
+        }
+        inline SIP_UINT32 GetT2() const
+        {
+            return m_usT2;
+        }
+
+        /* Maximum duration a message will remain in the network */
+        inline SIP_VOID SetT4(SIP_UINT32 usDur)
+        {
+            m_usT4 = usDur;
+        }
+        inline SIP_UINT32 GetT4() const
+        {
+            return m_usT4;
+        }
+
+        inline SIP_UINT32 GetStackSettings() const
+        {
+            return m_usParseStyle;
+        }
+
+        /*TimerB  INVITE transaction timeout timer*/
+        inline SIP_VOID SetTimerB(SIP_UINT32 usDur)
+        {
+            m_usTimerB = usDur;
+        }
+        inline SIP_UINT32 GetTimerB() const
+        {
+            return m_usTimerB;
+        }
+
+        /*timer C proxy INVITE transaction timeout*/
+        inline SIP_VOID SetTimerC(SIP_UINT32 usDur)
+        {
+            m_usTimerC = usDur;
+        }
+        inline SIP_UINT32 GetTimerC() const
+        {
+            return m_usTimerC;
+        }
+
+        inline SIP_VOID SetTimerCr(SIP_UINT32 usDur)
+        {
+            m_usTimerCr = usDur;
+        }
+        inline SIP_UINT32 GetTimerCr() const
+        {
+            return m_usTimerCr;
+        }
+
+        /*Timer D Wait time for response retransmits*/
+        inline SIP_VOID SetTimerD(SIP_UINT32 usDur)
+        {
+            m_usTimerD_T3 = usDur;
+        }
+        inline SIP_UINT32 GetTimerD() const
+        {
+           return m_usTimerD_T3;
+        }
+
+        /*Timer F non-INVITE transaction timeout timer*/
+        inline SIP_VOID SetTimerF(SIP_UINT32 usDur)
+        {
+            m_usTimerF_T3 = usDur;
+        }
+        inline SIP_UINT32 GetTimerF() const
+        {
+           return m_usTimerF_T3;
+        }
+
+        /*Timer H Wait time for ACK receipt*/
+        inline SIP_VOID SetTimerH(SIP_UINT32 usDur)
+        {
+            m_usTimerH = usDur;
+        }
+        inline SIP_UINT32 GetTimerH() const
+        {
+           return m_usTimerH;
+        }
+
+        /*timer I Wait time for ACK retransmits*/
+        inline SIP_VOID SetTimerI(SIP_UINT32 usDur)
+        {
+            m_usTimerI_T4 = usDur;
+        }
+        inline SIP_UINT32 GetTimerI() const
+        {
+            return m_usTimerI_T4;
+        }
+
+        /*Timer J Wait time for non-INVITE request retransmits*/
+        inline SIP_VOID SetTimerJ(SIP_UINT32 usDur)
+        {
+            m_usTimerJ_T3 = usDur;
+        }
+        inline SIP_UINT32 GetTimerJ() const
+        {
+            return m_usTimerJ_T3;
+        }
+
+        /*Timer K Wait time for response retransmits*/
+        SIP_VOID SetTimerK(SIP_UINT32 usDur)
+        {
+            m_usTimerK_T4 = usDur;
+        }
+        inline SIP_UINT32 GetTimerK() const
+        {
+            return m_usTimerK_T4;
+        }
+
+        static SipConfiguration* GetInstance();
+
+    private:
+        static SipConfiguration* pSipConfig;
+
+        SIP_BOOL bPANIHeaderForACK;
+        SIP_UINT32 m_usParseStyle;
+
+        /*Timer T1 RTT Estimate*/
+        SIP_UINT32 m_usT1;
+        /*Timer T2 The maximum retransmit interval for non-INVITE requests and INVITE responses*/
+        SIP_UINT32 m_usT2;
+        /* Maximum duration a message will remain in the network */
+        SIP_UINT32 m_usT4;
+        /*TimerB  INVITE transaction timeout timer*/
+        SIP_UINT32 m_usTimerB;
+        /*timer C proxy INVITE transaction timeout*/
+        SIP_UINT32 m_usTimerC;
+        SIP_UINT32 m_usTimerCr;
+        /*Timer D Wait time for response retransmits*/
+        SIP_UINT32 m_usTimerD_T3;
+        /*Timer F non-INVITE transaction timeout timer*/
+        SIP_UINT32 m_usTimerF_T3;
+        /*Timer H Wait time for ACK receipt*/
+        SIP_UINT32 m_usTimerH;
+        /*timer I Wait time for ACK retransmits*/
+        SIP_UINT32 m_usTimerI_T4;
+        /*Timer J Wait time for non-INVITE request retransmits*/
+        SIP_UINT32 m_usTimerJ_T3;
+        /*Timer K Wait time for response retransmits*/
+        SIP_UINT32 m_usTimerK_T4;
+};
+
+#endif //__SIP_CONFIGURATION_H__
