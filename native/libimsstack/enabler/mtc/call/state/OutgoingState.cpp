@@ -16,6 +16,7 @@
 #include "helper/MtcTimerWrapper.h"
 #include "call/MtcUiNotifier.h"
 #include "call/state/OutgoingState.h"
+#include "call/termination/EarlyUpdateErrorHandler.h"
 #include "call/termination/StartErrorHandler.h"
 #include "call/termination/TerminationHandler.h"
 #include "SIPAddress.h"
@@ -295,25 +296,9 @@ CallStateName OutgoingState::SessionEarlyMediaUpdated(IN ISession* piSession)
 PUBLIC VIRTUAL
 CallStateName OutgoingState::SessionEarlyMediaUpdateFailed(IN ISession* piSession)
 {
-    IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(
+    IMessage* piResponse = MessageUtil::GetPreviousResponse(
             piSession, IMessage::SESSION_EARLY_UPDATE);
-    FailReason objReason(FAIL_REASON_NONE);
-    /*
-    if (UC_FAILURE(m_objContext.GetSlotId())->EarlyUpdateFailure(piSession, nStatusCode, objReason))
-    {
-        return GetCurrentState();
-    }
-    */
-
-    if (nStatusCode == SIPStatusCode::SC_INVALID)
-    {
-        objReason.nReason = FAIL_REASON_SESSION_RES_TIMEOUT;
-    }
-    else
-    {
-        objReason.nReason = FAIL_REASON_SESSION_SETUPFAILED;
-    }
-    objReason.nExtra = nStatusCode;
+    FailReason objReason = EarlyUpdateErrorHandler().Handle(piResponse);
 
     HandleCancel(piSession, objReason);
     OnStartFailed(piSession, objReason);

@@ -2,6 +2,7 @@
 #include "call/MtcSession.h"
 #include "call/MtcUiNotifier.h"
 #include "call/state/UpdatingState.h"
+#include "call/termination/UpdateErrorHandler.h"
 #include "call/termination/TerminationHandler.h"
 #include "call/UpdatingInfo.h"
 #include "helper/MtcSupplementaryService.h"
@@ -145,13 +146,23 @@ CallStateName UpdatingState::SessionUpdated(IN ISession* /* piSession */)
 }
 
 PUBLIC VIRTUAL
-CallStateName UpdatingState::SessionUpdateFailed(IN ISession* /* piSession */)
+CallStateName UpdatingState::SessionUpdateFailed(IN ISession* piSession)
 {
     IMS_TRACE_D("SessionUpdateFailed", 0, 0, 0);
 
-    HandleModificationFailed();
+    IMessage* piResponse = MessageUtil::GetPreviousResponse(piSession, IMessage::SESSION_UPDATE);
+    FailReason objReason = UpdateErrorHandler(m_objContext).Handle(piResponse);
 
-    return CallStateName::ESTABLISHED;
+    if (objReason.nReason == FAIL_REASON_SESSION_DESTROYED)
+    {
+        HandleTerminate(objReason);
+        return CallStateName::TERMINATING;
+    }
+    else    // TODO: retry
+    {
+        RecoverModificationFailure();
+        return CallStateName::ESTABLISHED;
+    }
 }
 
 PRIVATE
@@ -321,9 +332,9 @@ CallStateName UpdatingState::HandleReceivedModificationSucceeded()
 }
 
 PRIVATE
-void UpdatingState::HandleModificationFailed()
+void UpdatingState::RecoverModificationFailure()
 {
-    IMS_TRACE_D("HandleModificationFailed", 0, 0, 0);
+    IMS_TRACE_D("RecoverModificationFailure", 0, 0, 0);
 
     m_objContext.GetMediaManager().RestoreSdp(&m_objContext.GetSession()->GetISession());
 

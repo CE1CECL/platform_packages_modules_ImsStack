@@ -33,7 +33,7 @@ private:
     CallStateName HandleModificationSucceeded();
     CallStateName HandleRequestedModificationSucceeded();
     CallStateName HandleReceivedModificationSucceeded();
-    void HandleModificationFailed();
+    void RecoverModificationFailure();
     void NotifyIncomingUpdate();
 
 };
