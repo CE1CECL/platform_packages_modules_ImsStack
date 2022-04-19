@@ -348,6 +348,8 @@ public abstract class Apn extends Handler implements IApn {
         NetworkRequest.Builder nrb = new NetworkRequest.Builder();
         NetworkRequest nr = null;
 
+        nrb.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+
         if (MSimUtils.isMultiSimEnabled()) {
             mSubId = MSimUtils.getSubId(nSlotId);
             registerSubscription();
@@ -355,7 +357,6 @@ public abstract class Apn extends Handler implements IApn {
             nrb.setNetworkSpecifier(new TelephonyNetworkSpecifier.Builder()
                     .setSubscriptionId(MSimUtils.getSubId(nSlotId)).build());
         }
-        nrb.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
 
         if (eType.getType() == DCConstants.TYPE_IMS) {
             nr = nrb.addCapability(NetworkCapabilities.NET_CAPABILITY_IMS).build();
@@ -414,6 +415,8 @@ public abstract class Apn extends Handler implements IApn {
         NetworkRequest.Builder nrb = new NetworkRequest.Builder();
         NetworkRequest nr = null;
 
+        nrb.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+
         if (MSimUtils.isMultiSimEnabled()) {
             boolean setSubId = true;
 
@@ -433,7 +436,6 @@ public abstract class Apn extends Handler implements IApn {
                         .setSubscriptionId(MSimUtils.getSubId(nSlotId)).build());
             }
         }
-        nrb.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
 
         if (eType.getType() == DCConstants.TYPE_IMS) {
             nr = nrb.addCapability(NetworkCapabilities.NET_CAPABILITY_IMS).build();
