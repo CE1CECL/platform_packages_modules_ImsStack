@@ -113,6 +113,7 @@ public:
     virtual IMSVector<IMS_SINT32>& GetSmsOverImsSupportedRats();
     virtual IMSVector<IMS_SINT32>& GetSpecificRegErrNumMultipliedByPcscfNum();
     virtual IMSVector<IMS_SINT32>& GetSpecificRegistrationErrorCode();
+    virtual IMSVector<IMS_SINT32>& GetReregRetryErrCodeWithInitialRegWithSamePcscf();
 
 private:
     friend class AosBuildDirector;
