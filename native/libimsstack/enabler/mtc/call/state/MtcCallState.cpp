@@ -362,6 +362,7 @@ void MtcCallState::HandleTerminate(IN const FailReason& objReason)
     }
 
     pSession->GetMessageSender().Terminate(IMS_TRUE, objReason);
+    m_objContext.GetUiNotifier().SendTerminated(objReason);
 }
 
 PROTECTED
