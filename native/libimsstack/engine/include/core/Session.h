@@ -248,7 +248,6 @@ protected:
 private:
     void AddSessionToCallControlHelper();
     void RemoveSessionFromCallControlHelper();
-    void UpdateSessionForCallControlHelper();
 
     void CleanupOnDestroy();
 

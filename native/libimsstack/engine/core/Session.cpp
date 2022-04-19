@@ -6088,40 +6088,16 @@ Remarks
 PRIVATE
 void Session::AddSessionToCallControlHelper()
 {
-    SessionParameter *pSessionParameter = pOAState->GetPeerView();
-
-    //---------------------------------------------------------------------------------------------
-
-    if (pSessionParameter == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "There is no peer view as a part of session's description", 0, 0, 0);
-        return;
-    }
-
-    const SdpSessionParameter &objSDPSessionParameter = pSessionParameter->GetSessionParameter();
-
     // If the sessionId is already present, please remove the session from the CallControlHelper
     if (strSessionIdForCallControl.GetLength() > 0)
     {
         RemoveSessionFromCallControlHelper();
     }
 
-    strSessionIdForCallControl = objSDPSessionParameter.GetOrigin().GetSessionId();
-
-    if (strSessionIdForCallControl.GetLength() <= 0)
-    {
-        IMS_TRACE_E(0, "No session id in o-line", 0, 0, 0);
-        return;
-    }
-
-    // NO_SDP_SESSION_ID_FOR_CALL_CONTROL
-    if (strSessionIdForCallControl.Equals("0"))
-    {
-        strSessionIdForCallControl = CallControlHelper::CreateSessionId();
-    }
+    strSessionIdForCallControl = CallControlHelper::CreateSessionId();
 
     // Create a Replaces header info...
-    Replaces *pReplaces = CallControlHelper::CreateReplaces(IsMobileOriginated(), GetDialog());
+    Replaces* pReplaces = CallControlHelper::CreateReplaces(IsMobileOriginated(), GetDialog());
 
     CallControlHelper::GetInstance()->AddSession(strSessionIdForCallControl, pReplaces);
 
@@ -6137,8 +6113,6 @@ Remarks
 PRIVATE
 void Session::RemoveSessionFromCallControlHelper()
 {
-    //---------------------------------------------------------------------------------------------
-
     if (strSessionIdForCallControl.GetLength() <= 0)
     {
         IMS_TRACE_D("No session id for the 3rd-party call control", 0, 0, 0);
@@ -6152,74 +6126,6 @@ void Session::RemoveSessionFromCallControlHelper()
             CallControlHelper::GetInstance()->GetSessionCount(), 0);
 
     strSessionIdForCallControl = AString::ConstNull();
-}
-
-/*
-
-Remarks
-
-*/
-PRIVATE
-void Session::UpdateSessionForCallControlHelper()
-{
-    //---------------------------------------------------------------------------------------------
-
-    if (strSessionIdForCallControl.GetLength() <= 0)
-    {
-        IMS_TRACE_D("No session id for the 3rd-party call control", 0, 0, 0);
-        return;
-    }
-
-    SessionParameter *pSessionParameter = pOAState->GetPeerView();
-
-    if (pSessionParameter == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "There is no peer view as a part of session's description", 0, 0, 0);
-        return;
-    }
-
-    const SdpSessionParameter &objSDPSessionParameter = pSessionParameter->GetSessionParameter();
-    const AString &strSessionId = objSDPSessionParameter.GetOrigin().GetSessionId();
-
-    if (strSessionId.GetLength() <= 0)
-    {
-        IMS_TRACE_E(0, "No session id in o-line", 0, 0, 0);
-        return;
-    }
-
-    if (strSessionIdForCallControl.Equals(strSessionId))
-    {
-        IMS_TRACE_D("CallControlHelper :: session-id is not changed", 0, 0, 0);
-        return;
-    }
-
-    Replaces *pReplaces = CallControlHelper::GetInstance()->GetReplacesFromSessionId(
-                                strSessionIdForCallControl);
-
-    if (pReplaces == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "No Replaces for session-id (%s)",
-                strSessionIdForCallControl.GetStr(), 0, 0);
-        return;
-    }
-
-    Replaces *pNewReplaces = new Replaces(*pReplaces);
-
-    // If the sessionId is already present, please remove the session from the CallControlHelper
-    RemoveSessionFromCallControlHelper();
-
-    strSessionIdForCallControl = strSessionId;
-
-    // NO_SDP_SESSION_ID_FOR_CALL_CONTROL
-    if (strSessionIdForCallControl.Equals("0"))
-    {
-        strSessionIdForCallControl = CallControlHelper::CreateSessionId();
-    }
-
-    CallControlHelper::GetInstance()->AddSession(strSessionIdForCallControl, pNewReplaces);
-
-    IMS_TRACE_D("CallControlHelper :: AddSession (%s)",
-            strSessionIdForCallControl.GetStr(), 0, 0);
 }
 
 /*
