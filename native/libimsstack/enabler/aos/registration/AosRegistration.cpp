@@ -5111,7 +5111,7 @@ PRIVATE
 IMS_BOOL AosRegistration::IsErrorCodeExisted(IN const IMSVector<IMS_SINT32>& objErrorCode,
         IN IMS_SINT32 nCode) const
 {
-    for (int i = 0; objErrorCode.GetSize(); i++)
+    for (int i = 0; i < objErrorCode.GetSize(); i++)
     {
         if (nCode == objErrorCode.GetAt(i))
         {
@@ -5128,7 +5128,7 @@ IMS_BOOL AosRegistration::IsErrorCodeExistedForSpecificRegistration(IN IMS_SINT3
     IMSVector<IMS_SINT32>& objErrorCode =
             GET_N_CONFIG(m_nSlotId)->GetSpecificRegistrationErrorCode();
 
-    for (int i = 0; objErrorCode.GetSize(); i++)
+    for (int i = 0; i < objErrorCode.GetSize(); i++)
     {
         if (nCode == objErrorCode.GetAt(i))
         {
