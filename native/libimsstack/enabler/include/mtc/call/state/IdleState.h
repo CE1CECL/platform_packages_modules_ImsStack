@@ -33,13 +33,13 @@ public:
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices)
             override;
     CallStateName StartConference(
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN IMSList<ConfUser*> lstUsers)
             override;
     CallStateName StartConference(
@@ -74,7 +74,6 @@ private:
     void SetResourceListForConference(
             IN_OUT IMessage& objMessage, IN IMSList<AString>& lstEntryUris);
     void UpdateIncomingInformation(IN ISession* piSession);
-    IMS_BOOL IsSupportCallingNumberVerification();
     IMSList<IMtcBlockRule*> GetIncomingCallBlockRules();
     IMSList<IMtcBlockRule*> GetOutgoingCallBlockRules();
     void SetAcceptContact(IN ISIPMessage* piSipMessage);

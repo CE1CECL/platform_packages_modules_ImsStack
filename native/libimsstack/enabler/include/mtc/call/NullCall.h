@@ -34,10 +34,11 @@ public:
             IN CallType,
             IN const AString&,
             IN MediaInfo*,
-            IN const IMSMap<IMS_UINT32, SuppService*>&) override {}
+            IN const IMSMap<SuppType, SuppService*>&) override {}
+
     inline void StartConference(
             IN CallType, IN const AString&, IN MediaInfo*,
-            IN const IMSMap<IMS_UINT32, SuppService*>&, IN IMSList<ConfUser*>) override {}
+            IN const IMSMap<SuppType, SuppService*>&, IN IMSList<ConfUser*>) override {}
     inline void StartConference(
             IN CallType, IN const AString&, IN IMSList<ConfUser*>) override {}
     inline void HandleIncoming(IN ISession*, IN JniMtcServiceThread*) override {}

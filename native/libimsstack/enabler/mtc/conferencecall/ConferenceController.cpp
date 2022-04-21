@@ -246,7 +246,7 @@ void ConferenceController::Timer_TimerExpired(IN ITimer* piTimer)
 PUBLIC VIRTUAL
 void ConferenceController::ProcessCommand(IN IMS_UINT32 nCmd, IN IMSList<ConfUser*>& objUsers,
         IN CallInfo& objCallInfo, IN MediaInfo& objMediaInfo,
-        IN IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_D("ProcessCommand : [%d]", nCmd, 0, 0);
 

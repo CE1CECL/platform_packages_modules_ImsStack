@@ -57,7 +57,7 @@ void GroupCallController::OnReferenceStartFailed(IN IConferenceReference* piConf
 PROTECTED VIRTUAL
 void GroupCallController::ProcessGroupCall(IN IMSList<ConfUser*>& objUsers,
         IN CallInfo& objCallInfo, IN MediaInfo& objMediaInfo,
-        IN IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("ProcessGroupCall", 0, 0, 0);
     if (IsReadyToPerformCmd() == IMS_FALSE)

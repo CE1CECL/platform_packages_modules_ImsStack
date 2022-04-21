@@ -3,23 +3,15 @@
 
 #include "AString.h"
 #include "IMSTypeDef.h"
-#include "call/message/IMtcMessageHandler.h"
+#include "helper/MtcSupplementaryService.h"
 
 class IMessage;
 class IMtcCallContext;
 
-enum class OipType
-{
-    NONE        = 0,
-    IDENTITY    = 1,
-    RESTRICTED  = 2,
-};
-
 /**
  * This class stores caller and callee info.
  */
-class ParticipantInfo final :
-        public IMtcMessageHandler
+class ParticipantInfo final
 {
 public:
     explicit ParticipantInfo(IN IMtcCallContext& objContext);
@@ -36,11 +28,6 @@ public:
     void SetRemoteNumber(IN const AString& strRemoteNumber);
     void SetRemoteUri(IN const AString& strRemoteUri);
 
-    void FormatRequest(IN IMS_UINT32 eMethod, IN_OUT IMessage& objRequest) override;
-    void FormatResponse(IN IMS_UINT32 eMethod, IN_OUT IMessage& objResponse) override;
-    void HandleRequest(IN IMS_UINT32 eMethod, IN const IMessage& objRequest) override;
-    void HandleResponse(IN IMS_UINT32 eMethod, IN const IMessage& objResponse) override;
-
 private:
     static const AString URI_SET_BY_IMS_ENGINE;
     static const AString ANONYMOUS_ADDRESS;
@@ -48,14 +35,12 @@ private:
 
     AString GetLocalUriForEmergencyCall() const;
     AString GetRemoteUriForConferenceCall() const;
-    OipType GetOipTypeFrom(IN const IMessage& objMessage) const;
 
     AString GetMcc() const;
     AString GetMnc(IN IMS_UINT32 nLength) const;
 
     AString m_strRemoteUri;
     AString m_strRemoteDisplayName;
-    OipType m_eOipType;
 
     IMtcCallContext& m_objContext;
 };

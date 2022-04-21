@@ -1,5 +1,6 @@
 #define IMS_STL_USE
 
+#include "IuMtcService.h"
 #include "JniMtcCall.h"
 #include "JniMtcServiceThread.h"
 #include "JniMtcUtils.h"
@@ -30,7 +31,7 @@ void JniMtcServiceThread::OnServiceChanged(IN IMS_SINT32 eStatus, IN IMS_SINT32 
 {
     IMS_TRACE_D("OnServiceChanged [%d]", eStatus, 0, 0);
     Parcel objParcel;
-    objParcel.writeInt32(1101/*SERVICE_CHANGED*/);
+    objParcel.writeInt32(IuMtcService::SERVICE_CHANGED);
     objParcel.writeInt32(eStatus);
     objParcel.writeInt32(eReason);
 
@@ -39,12 +40,12 @@ void JniMtcServiceThread::OnServiceChanged(IN IMS_SINT32 eStatus, IN IMS_SINT32 
 
 PUBLIC
 void JniMtcServiceThread::OnIncomingCallReceived(IN IMS_UINTP nCallKey, IN CallInfo* pCallInfo,
-        IN MediaInfo* pMediaInfo, IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN MediaInfo* pMediaInfo, IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN ParticipantInfo* pParticipantInfo)
 {
     IMS_TRACE_D("OnIncomingCallReceived", 0, 0, 0);
     Parcel objParcel;
-    objParcel.writeInt32(1103/*INCOMING_SESSION*/); // align?
+    objParcel.writeInt32(IuMtcService::INCOMING_CALL);
     objParcel.writeInt32(nCallKey);
 
     // this object will be released by IMSInterface

@@ -16,7 +16,7 @@ public class IUMtcService {
     // Event : IMS to UI
     public static final int SERVICE_CHANGED                = (EVENT_I2U + 1);
     public static final int E_SERVICE_CHANGED            = (EVENT_I2U + 2);
-    public static final int INCOMING_SESSION            = (EVENT_I2U + 3);
+    public static final int INCOMING_CALL            = (EVENT_I2U + 3);
     public static final int INCOMING_CALL_INFO            = (EVENT_I2U + 4);
     public static final int AUTO_REJECTED_CALL            = (EVENT_I2U + 5);
 
@@ -53,8 +53,4 @@ public class IUMtcService {
     public static final int ES_UNAVAILABLE_REASON_NONE    = 0;
     public static final int ES_UNAVAILABLE_REASON_NO_CSFB = 1;
     public static final int ES_UNAVAILABLE_REASON_SSAC    = 2;
-
-    // ACTION
-    public static final String ACTION_INCOMING_SESSION =
-            "com.android.imsstack.service.uc.IncomingUCSession";
 };

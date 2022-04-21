@@ -224,28 +224,52 @@ enum MEDIA_REPORT_TYPE
     MEDIA_REPORT_UC_TERMINATED = 100,
 };
 
-enum
+enum class SuppType
 {
-    SUPP_TYPE_CALLERID                  = 0,
-    SUPP_TYPE_CNAP                      = 1,
-    SUPP_TYPE_CNAPEX                    = 2,
-    SUPP_TYPE_MMC                       = 3,
-    SUPP_TYPE_GTT                       = 4,
-    SUPP_TYPE_CDIV_CAUSE                = 5,
-    SUPP_TYPE_CDIV_HISTORY              = 6,
-    SUPP_TYPE_CW                        = 7,
-    SUPP_TYPE_USSD                      = 8,
-    SUPP_TYPE_VM                        = 9,
-    SUPP_TYPE_HD                        = 10,
-    SUPP_TYPE_ANSWERHOLD                = 11,
-    SUPP_TYPE_MCID                      = 12,
-    SUPP_TYPE_DUALNUMBER                = 13,
-    SUPP_TYPE_ENFORCE_LT                = 14,
-    SUPP_TYPE_TARGET_URI                = 15,
-    SUPP_TYPE_CALLING_NUM_VERIFICATION  = 16,
-    SUPP_TYPE_VRBT                      = 17,
-    SUPP_TYPE_TIP                       = 18,
-    SUPP_TYPE_GEOLOCATION               = 101,
+    NONE                      = -1,
+    CALLER_ID                 = 0,
+    CNAP                      = 1,
+    CNAP_EX                   = 2,
+    MMC                       = 3,
+    GTT                       = 4,
+    CDIV_CAUSE                = 5,
+    CDIV_HISTORY              = 6,
+    CW                        = 7,
+    USSD                      = 8,
+    VM                        = 9,
+    HD                        = 10,
+    ANSWER_HOLD               = 11,
+    MCID                      = 12,
+    DUAL_NUMBER               = 13,
+    ENFORCE_LT                = 14,
+    TARGET_URI                = 15,
+    CALLING_NUM_VERIFICATION  = 16,
+    VRBT                      = 17,
+    TIP                       = 18,
+    GEOLOCATION               = 101,
+};
+
+enum class OipType
+{
+    INVALID    = -1,
+    NONE       = 0,
+    IDENTITY   = 1,
+    RESTRICTED = 2
+};
+
+enum class CdivCause
+{
+    NONE                = 0,
+    UNCONDITION         = 1,
+    BUSY                = 2,
+    REJECT              = 3,
+    NOANSWER            = 4,
+    NO_REPLY            = 5,
+    DEFLECTION          = 6,
+    NOT_LOGGED_IN       = 7,
+    DEFLECTION_ALERTING = 8,
+    NOT_REACHABLE       = 9
+
 };
 
 enum
@@ -512,26 +536,26 @@ inline const IMS_CHAR* Str_MediaType(IN IMS_UINT32 eType)
 
 /* ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------ */
-inline const IMS_CHAR* Str_SuppType(IN IMS_UINT32 eType)
+inline const IMS_CHAR* Str_SuppType(IN SuppType eType)
 {
     switch(eType)
     {
-        case SUPP_TYPE_CALLERID:
-            return "SUPP_TYPE_CALLERID";
-        case SUPP_TYPE_CNAP:
-            return "SUPP_TYPE_CNAP";
-        case SUPP_TYPE_MMC:
-            return "SUPP_TYPE_MMC";
-        case SUPP_TYPE_GTT:
-            return "SUPP_TYPE_GTT";
-        case SUPP_TYPE_CDIV_CAUSE:
-            return "SUPP_TYPE_CDIV_CAUSE";
-        case SUPP_TYPE_CDIV_HISTORY:
-            return "SUPP_TYPE_CDIV_HISTORY";
-        case SUPP_TYPE_CW:
-            return "SUPP_TYPE_CW";
-        case SUPP_TYPE_VM:
-            return "SUPP_TYPE_VM";
+        case SuppType::CALLER_ID:
+            return "SuppType::CALLER_ID";
+        case SuppType::CNAP:
+            return "SuppType::CNAP";
+        case SuppType::MMC:
+            return "SuppType::MMC";
+        case SuppType::GTT:
+            return "SuppType::GTT";
+        case SuppType::CDIV_CAUSE:
+            return "SuppType::CDIV_CAUSE";
+        case SuppType::CDIV_HISTORY:
+            return "SuppType::CDIV_HISTORY";
+        case SuppType::CW:
+            return "SuppType::CW";
+        case SuppType::VM:
+            return "SuppType::VM";
         default:
             return "__INVALID__";
     }
@@ -714,8 +738,7 @@ class SuppService
 {
 public:
     inline SuppService()
-        : nType(-1) // SUPP_TYPE_xxx in UCSessDef.h
-        , aStrValue(AString::ConstNull())
+        : strValue(AString::ConstNull())
         , nValue(0)
         , bValue(IMS_FALSE)
     {
@@ -723,8 +746,7 @@ public:
                 this, 0);
     }
     inline SuppService(IN const SuppService &objRHS)
-        : nType(objRHS.nType)
-        , aStrValue(objRHS.aStrValue)
+        : strValue(objRHS.strValue)
         , nValue(objRHS.nValue)
         , bValue(objRHS.bValue)
     {
@@ -742,8 +764,7 @@ public:
     {
         if (this != &objRHS)
         {
-            nType = objRHS.nType;
-            aStrValue = objRHS.aStrValue;
+            strValue = objRHS.strValue;
             nValue = objRHS.nValue;
             bValue = objRHS.bValue;
         }
@@ -752,9 +773,7 @@ public:
     }
 
 public:
-    IMS_UINT32              nType;
-
-    AString                 aStrValue;
+    AString                 strValue;
     IMS_SINT32              nValue;
     IMS_BOOL                bValue;
 };

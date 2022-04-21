@@ -86,7 +86,7 @@ IMS_BOOL UCLocationObject::IsGeolocationInfoRequired(IN IMtcCall *pSession)
         return IMS_FALSE;
     }
 
-    const SuppService *pSuppService = pMtcSuppService->Get(SUPP_TYPE_GEOLOCATION);
+    const SuppService *pSuppService = pMtcSuppService->Get(SuppType::GEOLOCATION);
     if (pSuppService == IMS_NULL || !pSuppService->bValue)
     {
         return IMS_FALSE;

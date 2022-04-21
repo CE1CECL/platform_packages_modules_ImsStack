@@ -28,7 +28,7 @@ public:
 protected:
     void ProcessGroupCall(IN IMSList<ConfUser*>& objUsers, IN CallInfo& objCallInfo,
             IN MediaInfo& objMediaInfo,
-            IN IMSMap<IMS_UINT32, SuppService*>& objSuppServices) override;
+            IN IMSMap<SuppType, SuppService*>& objSuppServices) override;
     void StartConferenceCall(IN ConferenceOperationQueue::ConferenceOperation* pOperation) override;
     void Recover() override;
 

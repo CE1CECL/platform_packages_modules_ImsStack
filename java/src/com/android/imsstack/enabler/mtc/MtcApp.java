@@ -313,7 +313,7 @@ public class MtcApp implements Closeable {
             logi("MtcApp::Mtc-MSG=" + msg);
 
             switch (msg) {
-            case IUMtcService.INCOMING_SESSION: // FALL-THROUGH
+            case IUMtcService.INCOMING_CALL: // FALL-THROUGH
             case IUMtcService.INCOMING_CALL_INFO: // FALL-THROUGH
             case IUMtcService.AUTO_REJECTED_CALL: // FALL-THROUGH
             case IUDialogs.NOTIFY_DIALOG_INFO:
@@ -330,7 +330,7 @@ public class MtcApp implements Closeable {
         }
 
         private void onMessageForCallApp(int msg, Parcel parcel) {
-            if (msg == IUMtcService.INCOMING_SESSION) {
+            if (msg == IUMtcService.INCOMING_CALL) {
                 IncomingMtcCall incomingCall = new IncomingMtcCall(parcel);
                 long callObject = incomingCall.callMtcKey;
 

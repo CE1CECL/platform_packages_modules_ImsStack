@@ -3,7 +3,6 @@
 
 #include "FailReason.h"
 #include "ImsMessageDef.h"
-#include "IMtcService.h"
 #include "IUBaseParam.h"
 #include "CallInfo.h"
 #include "MtcDef.h"
@@ -34,7 +33,7 @@ public:
     // --- Event : IMS to UI ----------------------------------------------------------------------
     static const IMS_SINT32 SERVICE_CHANGED         = (EVENT_I2U + 1);
     static const IMS_SINT32 E_SERVICE_CHANGED       = (EVENT_I2U + 2);
-    static const IMS_SINT32 INCOMING_SESSION        = (EVENT_I2U + 3);
+    static const IMS_SINT32 INCOMING_CALL           = (EVENT_I2U + 3);
     static const IMS_SINT32 INCOMING_CALL_INFO      = (EVENT_I2U + 4);
     static const IMS_SINT32 AUTO_REJECTED_CALL      = (EVENT_I2U + 5);
 
@@ -86,31 +85,6 @@ public:
         ES_UNAVAILABLE_REASON_NO_CSFB = 1,
         ES_UNAVAILABLE_REASON_SSAC    = 2
     };
-
-    enum
-    {
-        OIPTYPE_INVALID                     = -1,
-        OIPTYPE_NONE                        = 0,
-        OIPTYPE_IDENTITY                    = 1,
-        OIPTYPE_RESTRICTED                  = 2,
-        OIPTYPE_UNKNOWN                     = 3,
-    }; // OIPType
-
-    enum
-    {
-        CDIVCAUSE_NONE                                          = 0,
-        CDIVCAUSE_UNCONDITION                                   = 1,
-        CDIVCAUSE_BUSY                                          = 2,
-        CDIVCAUSE_REJECT                                        = 3,
-        CDIVCAUSE_NOANSWER                                      = 4,
-        // added by hoonsang.yun 130819
-        CDIVCAUSE_NO_REPLY,
-        CDIVCAUSE_DEFLECTION,
-        CDIVCAUSE_NOT_LOGGED_IN,
-        CDIVCAUSE_DEFLECTION_ALERTING,
-        CDIVCAUSE_NOT_REACHABLE,
-
-    }; // CDIVCAUSE
 
     inline static IMS_BOOL IsMsg(IN IMS_SINT32 nMsg)
     { return ((nMsg > EVENT_U2I) && (nMsg < MAXIMUM)); }
@@ -277,7 +251,7 @@ public:
         , nSessionKey(-1)
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
         , aStrJNIServiceName(AString::ConstNull())
         , pISession(IMS_NULL)
         , pService(IMS_NULL)
@@ -324,7 +298,7 @@ public:
     CallInfo*               pCallInfo;
     MediaInfo*              pMediaInfo;
     CallerInfo              stCallerInfo;
-    IMSMap<IMS_UINT32, SuppService*>   objSuppServices;
+    IMSMap<SuppType, SuppService*>   objSuppServices;
 
     AString             aStrJNIServiceName;        // ( -> UCSession ) By UCApp, ( IMS -> UI ) NONE
     ISession*           pISession;                // ( -> UCSession ) By UCApp, ( IMS -> UI ) NONE
@@ -335,6 +309,7 @@ public:
 };
 */
 
+/*
 class IUUCIncomingCallInfoParam // IUUCServiceIncomingCallInfoParam...
     : public IUUCServiceBaseParam
 {
@@ -394,6 +369,7 @@ public:
     ISession*               piSession;
     AString                 strJNIServiceName;
 };
+*/
 
 class IUUCHOConfirmParam
     : public IUUCServiceBaseParam

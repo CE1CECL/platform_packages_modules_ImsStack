@@ -2294,7 +2294,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         log("updateCallProfile");
 
         if (callInfo != null) {
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
         }
 
@@ -3350,7 +3350,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
             // FIXME : how to remove the existing values?
             ImsCallUtils.updateCallProfileForEmergency(mCallProfile, callInfo);
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallUtils.updateCallProfileOnSessionStarted(mCallProfile, suppInfo);
             ImsCallUtils.updateCallProfileFromSuppInfoExtension(
@@ -3574,7 +3574,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 invokeUpdatedRequired = true;
             }
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -3706,7 +3706,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             }
 
             boolean conferenceExtendedByRemote = isConferenceExtended(callInfo);
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -3805,7 +3805,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 invokeUpdatedRequired = true;
             }
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -3905,7 +3905,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             }
 
             boolean conferenceExtendedByRemote = isConferenceExtended(callInfo);
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -3943,7 +3943,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             }
 
             boolean conferenceExtendedByRemote = isConferenceExtended(callInfo);
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -4140,7 +4140,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 MtcCallUtils.reverseMediaDirection(mediaInfo);
             }
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mProposedCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mProposedCallProfile, mediaInfo);
@@ -4301,7 +4301,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 oldCall.setListener(null);
             }
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -4312,7 +4312,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
             setCallInfo(profile);
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mLocalCallProfile, callInfo);
             updateCallExtraForHDVoice(mLocalCallProfile, null);
 
@@ -5074,7 +5074,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 }
             }
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -5085,7 +5085,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
             setCallInfo(profile);
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mLocalCallProfile, callInfo);
             updateCallExtraForHDVoice(mLocalCallProfile, null);
 
@@ -5163,7 +5163,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 }
             }
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mCallProfile, callInfo);
             ImsCallMediaUtils.updateCallProfileFromMediaInfo(
                     mCallContext, mCallProfile, mediaInfo);
@@ -5174,7 +5174,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
             setCallInfo(profile);
 
-            ImsCallUtils.updateCallProfileFromSessInfo(
+            ImsCallUtils.updateCallProfileFromCallInfo(
                     mCallContext, mLocalCallProfile, callInfo);
             updateCallExtraForHDVoice(mLocalCallProfile, null);
 

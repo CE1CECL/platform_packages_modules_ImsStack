@@ -845,9 +845,9 @@ public class ImsCallManager {
         }
 
         @Override
-        public void onIncomingCallReceived(MtcApp app, long sessionObject,
-                IncomingMtcCall incomingSession) {
-            MtcCall call = mMtcApp.getPendingCall(sessionObject, true);
+        public void onIncomingCallReceived(MtcApp app, long callObject,
+                IncomingMtcCall incomingCall) {
+            MtcCall call = mMtcApp.getPendingCall(callObject, true);
 
             if (call == null) {
                 // fatal error
@@ -855,7 +855,7 @@ public class ImsCallManager {
             }
 
             ImsCallProfile profile = ImsCallUtils.createCallProfileFromIncomingCallInfo(
-                    mCallContext, incomingSession);
+                    mCallContext, incomingCall);
             String callId = createCallId();
 
             ImsCallSessionImpl callSession = new ImsCallSessionImpl(
@@ -863,7 +863,7 @@ public class ImsCallManager {
 
             onCallReceived(callSession);
 
-            if (incomingSession.isAutoRejectedCall()) {
+            if (incomingCall.isAutoRejectedCall()) {
                 return;
             }
 

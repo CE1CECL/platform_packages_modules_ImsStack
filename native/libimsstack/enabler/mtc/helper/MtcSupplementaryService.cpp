@@ -25,7 +25,7 @@ const IMS_CHAR MtcSupplementaryService::STR_VERSTAT_TN_VALIDATION_FAILED[] = "TN
 
 PUBLIC
 MtcSupplementaryService::MtcSupplementaryService(IN MtcConfigurationProxy& objConfigurationProxy,
-        IN IMSMap<IMS_UINT32, SuppService*> objSuppServices) :
+        IN IMSMap<SuppType, SuppService*> objSuppServices) :
         m_objSuppService(objSuppServices),
         m_objConfigurationProxy(objConfigurationProxy),
         m_nCnapType(CNAP_SCHEME_PAID_FROM)
@@ -41,12 +41,12 @@ MtcSupplementaryService::~MtcSupplementaryService()
     IMS_TRACE_MEM("mtc", "mtc_F : MtcSupplementaryService[%" PFLS_u "][%" PFLS_x "]",
             sizeof(MtcSupplementaryService), this, 0);
 
-    DeleteAll();
+    DeleteServices();
 }
 
 PUBLIC
-void MtcSupplementaryService::UpdateService(
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+void MtcSupplementaryService::UpdateOutgoingServices(
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_UINT32 nInServiceSize = objSuppServices.GetSize();
     IMS_TRACE_I("MtcSupplementaryService : ServiceNum[%d] InServiceNum[%d]",
@@ -54,58 +54,128 @@ void MtcSupplementaryService::UpdateService(
 
     for (IMS_UINT32 i = 0; i < nInServiceSize; i++)
     {
-        const IMS_UINT32 nType = objSuppServices.GetKeyAt(i);
-        IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(nType);
+        const SuppType eType = objSuppServices.GetKeyAt(i);
+        IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(eType);
 
         if (nIndex >= 0)
         {
-           delete m_objSuppService.GetValueAt(nIndex);
+            delete m_objSuppService.GetValueAt(nIndex);
         }
 
-        m_objSuppService.Add(nType, objSuppServices.GetValueAt(i));
+        m_objSuppService.Add(eType, objSuppServices.GetValueAt(i));
     }
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateService(IN ISession* piSession, IN IMessage* piMessage)
+void MtcSupplementaryService::UpdateTip(IN IMessage* piMessage)
+{
+    AString strPrivacy;
+    MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy);
+    IMS_BOOL bHasPAssertedIdentity =
+            MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY);
+
+    IMS_SINT32 tipType;
+    AString tipStr;
+    if (!bHasPAssertedIdentity && strPrivacy.EqualsIgnoreCase("id"))
+    {
+        tipType = TIP_TYPE_RESTRICTED;
+    }
+    else if (!bHasPAssertedIdentity && !(strPrivacy.EqualsIgnoreCase("id")))
+    {
+        tipType = TIP_TYPE_NONE;
+    }
+    else
+    {
+        tipType = TIP_TYPE_IDENTITY;
+        AString strNumber;
+        AString strName;
+        MessageUtil::GetUserPart(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strNumber);
+        MessageUtil::GetDisplayName(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strName);
+        tipStr.Append(strNumber);
+        tipStr.Append(',');
+        tipStr.Append(strName);
+    }
+    Add(SuppType::TIP, tipType);
+    Add(SuppType::TIP, tipStr);
+}
+
+PUBLIC
+IMS_BOOL MtcSupplementaryService::UpdateIncomingServices(IN IMessage* piMessage)
 {
     IMS_BOOL bUpdate = IMS_FALSE;
 
-    bUpdate |= UpdateCallerID(piSession, piMessage);
-    bUpdate |= UpdateCnap(piSession, piMessage);
-    bUpdate |= UpdateCNAPEX(piSession, piMessage);
-    bUpdate |= UpdateMMC(piSession, piMessage);
-    bUpdate |= UpdateGTT(piSession, piMessage);
-    bUpdate |= UpdateCDIV_CAUSE(piSession, piMessage);
-    bUpdate |= UpdateCDIV_HISTORY(piSession, piMessage);
-    bUpdate |= UpdateCW(piSession, piMessage);
-    bUpdate |= UpdateUSSD(piSession, piMessage);
-    bUpdate |= UpdateVM(piSession, piMessage);
-    bUpdate |= UpdateAnswerHold(piSession, piMessage);
-    bUpdate |= UpdateMCID(piSession, piMessage);
-    bUpdate |= UpdateDualNumber(piSession, piMessage);
-    bUpdate |= UpdateCallingNumVerification(piSession, piMessage);
+    bUpdate |= UpdateCallerId(piMessage);
+    bUpdate |= UpdateCnap(piMessage);
+    bUpdate |= UpdateCnapEx(piMessage);
+    bUpdate |= UpdateMmc(piMessage);
+    bUpdate |= UpdateGtt(piMessage);
+    bUpdate |= UpdateCdivCause(piMessage);
+    bUpdate |= UpdateCdivHistory(piMessage);
+    bUpdate |= UpdateCw(piMessage);
+    bUpdate |= UpdateUssd(piMessage);
+    bUpdate |= UpdateVm(piMessage);
+    bUpdate |= UpdateAnswerHold(piMessage);
+    bUpdate |= UpdateMcid(piMessage);
+    bUpdate |= UpdateDualNumber(piMessage);
+    bUpdate |= UpdateCallingNumVerification(piMessage);
 
     IMS_TRACE_I("UpdateService : [%s]", PS_BOOL(bUpdate), 0, 0);
     return bUpdate;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCallerID(IN ISession* /*piSession*/,
-        IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateCallerId(IN IMessage* piMessage)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
+    AString strPrivacy;
+    OipType eOipType = OipType::INVALID;
+    MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy);
 
-    if (bUpdate)
+    if (MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy) == IMS_SUCCESS)
     {
-        IMS_TRACE_I("UpdateCallerID", 0, 0, 0);
+        if (strPrivacy.EqualsIgnoreCase("id"))
+        {
+            eOipType = OipType::RESTRICTED;
+        }
+        else if (strPrivacy.EqualsIgnoreCase("none"))
+        {
+            eOipType = OipType::IDENTITY;
+        }
     }
 
-    return bUpdate;
+    switch (m_nCnapType)
+    {
+        case CNAP_SCHEME_PAID_FROM:
+            eOipType = (MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY) ||
+                    MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::FROM)) ?
+                    OipType::IDENTITY :
+                    OipType::NONE;
+            break;
+        case CNAP_SCHEME_FROM:
+            eOipType = MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::FROM) ?
+                    OipType::IDENTITY :
+                    OipType::NONE;
+            break;
+        case CNAP_SCHEME_PAID:
+            eOipType = MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY) ?
+                    OipType::IDENTITY :
+                    OipType::NONE;
+            break;
+        default:
+            IMS_TRACE_E(0, "Unhandled CNAP type[%d]", m_nCnapType, 0, 0);
+    }
+
+    Add(SuppType::CALLER_ID, static_cast<IMS_SINT32>(eOipType));
+
+    if (eOipType == OipType::INVALID)
+    {
+        return IMS_FALSE;
+    }
+
+    return IMS_TRUE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCnap(IN ISession* /*piSession*/, IN IMessage* piMessage)
+IMS_BOOL MtcSupplementaryService::UpdateCnap(IN IMessage* piMessage)
 {
     AString strDisplayName;
 
@@ -125,32 +195,20 @@ IMS_BOOL MtcSupplementaryService::UpdateCnap(IN ISession* /*piSession*/, IN IMes
         return IMS_FALSE;
     }
 
-    SuppService* pSuppService = new SuppService();
-    pSuppService->nType = SUPP_TYPE_CNAP;
-    pSuppService->aStrValue = strDisplayName;
-    m_objSuppService.Add(pSuppService->nType, pSuppService);
+    Add(SuppType::CNAP, strDisplayName);
 
     return IMS_TRUE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCNAPEX(IN ISession* /*piSession*/,
-        IN IMessage* /*piMessage*/)
-{
-    IMS_BOOL bUpdate = IMS_FALSE;
+IMS_BOOL MtcSupplementaryService::UpdateCnapEx(IN IMessage* /*piMessage*/){
 
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateCNAPEX", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateMMC(IN ISession* /*piSession*/, IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateMmc(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
     IMS_BOOL bUseMMC = m_objConfigurationProxy.Is(Feature::USE_MMC_SUPPLEMENTARY_SERVICE);
 
     if (bUseMMC)
@@ -158,173 +216,104 @@ IMS_BOOL MtcSupplementaryService::UpdateMMC(IN ISession* /*piSession*/, IN IMess
 
     }
 
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateMMC", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateGTT(IN ISession* /*piSession*/, IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateGtt(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
-
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateGTT", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCDIV_CAUSE(IN ISession* /*piSession*/,
-        IN IMessage* piMessage)
+IMS_BOOL MtcSupplementaryService::UpdateCdivCause(IN IMessage* piMessage)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
+    ISIPHeader* piHeader = GetHistoryInfoHeader(piMessage);
+
+    if (piHeader == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    IMS_SINT32 nCause;
+
+    if (GetCdivCause(piHeader->GetSIPAddress(), nCause))
+    {
+        Add(SuppType::CDIV_CAUSE, ConvertCdivCause(nCause));
+    }
+
+    piHeader->Destroy();
+
+    return IMS_TRUE;
+}
+
+PUBLIC
+IMS_BOOL MtcSupplementaryService::UpdateCdivHistory(IN IMessage* piMessage)
+{
 
     ISIPHeader* piHeader = GetHistoryInfoHeader(piMessage);
 
     if (piHeader == IMS_NULL)
     {
-        return bUpdate;
+        return IMS_FALSE;
     }
 
-    IMS_SINT32 nCause;
+    AString strTarget;
 
-    if (GetCDIVCause(piHeader->GetSIPAddress(), nCause))
+    if (GetCdivTarget(piHeader->GetSIPAddress(), strTarget))
     {
-        SuppService* pSuppService = new SuppService();
-
-        pSuppService->nType = SUPP_TYPE_CDIV_CAUSE;
-        pSuppService->nValue = ConvertCDIVCause(nCause);
-
-        m_objSuppService.Add(pSuppService->nType, pSuppService);
-        bUpdate = IMS_TRUE;
+        Add(SuppType::CDIV_HISTORY, strTarget);
     }
 
     piHeader->Destroy();
 
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateCDIV_CAUSE", 0, 0, 0);
-    }
 
-    return bUpdate;
+    return IMS_TRUE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCDIV_HISTORY(IN ISession* /*piSession*/,
-        IN IMessage* piMessage)
+IMS_BOOL MtcSupplementaryService::UpdateCw(IN IMessage* piMessage)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
-
-    ISIPHeader* piHeader = GetHistoryInfoHeader(piMessage);
-
-    if (piHeader != IMS_NULL)
-    {
-        AString strTarget;
-
-        if (GetCDIVTarget(piHeader->GetSIPAddress(), strTarget))
-        {
-            SuppService* pSuppService = new SuppService();
-
-            pSuppService->nType = SUPP_TYPE_CDIV_HISTORY;
-            pSuppService->aStrValue = strTarget;
-
-            m_objSuppService.Add(pSuppService->nType, pSuppService);
-            bUpdate = IMS_TRUE;
-        }
-
-        piHeader->Destroy();
-    }
-
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateCDIV_HISTORY", 0, 0, 0);
-    }
-
-    return bUpdate;
-}
-
-PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCW(IN ISession* /*piSession*/, IN IMessage* piMessage)
-{
-    IMS_BOOL bUpdate = IMS_FALSE;
 
     if (MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::UNKNOWN,
-            SIPHeaderName::ALERT_INFO) == IMS_TRUE)
+            SIPHeaderName::ALERT_INFO) == IMS_FALSE)
     {
-        IMS_TRACE_D("Alert Info header is present, Display the toast", 0, 0, 0);
-
-        SuppService* pSuppService = new SuppService();
-        pSuppService->nType = SUPP_TYPE_CW;
-        pSuppService->bValue = IMS_TRUE;
-
-        m_objSuppService.Add(pSuppService->nType, pSuppService);
-        bUpdate = IMS_TRUE;
+        return IMS_FALSE;
     }
 
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateCW", 0, 0, 0);
-    }
+    Add(SuppType::CW, IMS_TRUE);
 
-    return bUpdate;
+    return IMS_TRUE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateUSSD(IN ISession* /*piSession*/, IN IMessage* piMessage)
+IMS_BOOL MtcSupplementaryService::UpdateUssd(IN IMessage* piMessage)
 {
-    IMS_BOOL bUpdate = IsIncomingUSSDCall(piMessage);
-
-    if (bUpdate)
+    if (IsIncomingUssdCall(piMessage) == IMS_FALSE)
     {
-        IMS_TRACE_I("UpdateUSSD", 0, 0, 0);
-        SuppService* pSuppService = new SuppService();
-
-        pSuppService->nType = SUPP_TYPE_USSD;
-        pSuppService->aStrValue = "true";
-
-        m_objSuppService.Add(pSuppService->nType, pSuppService);
+        return IMS_FALSE;
     }
 
-    return bUpdate;
+    Add(SuppType::USSD, AString("true"));
+
+    return IMS_TRUE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateVM(IN ISession* /*piSession*/, IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateVm(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
-
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateVM", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateAnswerHold(IN ISession* /*piSession*/,
-        IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateAnswerHold(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
-
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateAnswerHold", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateMCID(IN ISession* /*piSession*/, IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateMcid(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
     IMS_BOOL bUseMCID = m_objConfigurationProxy.Is(Feature::USE_MCID_SUPPLEMENTARY_SERVICE);
 
     if (bUseMCID)
@@ -332,86 +321,62 @@ IMS_BOOL MtcSupplementaryService::UpdateMCID(IN ISession* /*piSession*/, IN IMes
 
     }
 
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateMCID", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateDualNumber(IN ISession* /*piSession*/,
-        IN IMessage* /*piMessage*/)
+IMS_BOOL MtcSupplementaryService::UpdateDualNumber(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
-
-    if (bUpdate)
-    {
-        IMS_TRACE_I("UpdateDualNumber", 0, 0, 0);
-    }
-
-    return bUpdate;
+    return IMS_FALSE;
 }
 
 PUBLIC
-IMS_BOOL MtcSupplementaryService::UpdateCallingNumVerification(IN ISession* /*piSession*/,
-        IN IMessage* piMessage)
+IMS_BOOL MtcSupplementaryService::UpdateCallingNumVerification(IN IMessage* piMessage)
 {
-    IMS_BOOL bUpdate = IMS_FALSE;
+// TODO :: need to check stiil using scheme below
+// PRIVATE
+// IMS_BOOL IdleState::IsSupportCallingNumberVerification()
+// {
+//     /* TODO:
+//     IMS_UINT32 nSupported = AoSSupportability::NOT_SUPPORTED;
 
-    IMS_SINT32 nHeaderType = GetCNVHeaderType(piMessage);
+//     if (m_objContext.GetService().GetIImsAosApp()->GetDetailedState(
+//             AoSAppRequest::STATE_SUPPORT_CALLING_NUMBER_VERIFICATION, nSupported))
+//     {
+//         if (nSupported == AoSSupportability::SUPPORTED)
+//         {
+//             return IMS_TRUE;
+//         }
+//     }
+//     */
+//     return IMS_FALSE;
+// }
+
+    IMS_SINT32 nHeaderType = GetCnvHeaderType(piMessage);
 
     AString strValue;
-    MessageUtil::GetParameterValueFromUri(piMessage, STR_VERSTAT, nHeaderType, strValue,
-            AString::ConstNull());
+    if (MessageUtil::GetParameterValueFromUri(piMessage, STR_VERSTAT, nHeaderType, strValue,
+            AString::ConstNull()) == IMS_FAILURE)
+    {
+        return IMS_FALSE;
+    }
 
-    SuppService* pSuppService = new SuppService();
+    Add(SuppType::CALLING_NUM_VERIFICATION, GetCallingNumVerificationResult(strValue));
 
-    pSuppService->nType = SUPP_TYPE_CALLING_NUM_VERIFICATION;
-    pSuppService->nValue = GetCallingNumVerificationResult(strValue);
-
-    bUpdate = IMS_TRUE;
-
-    m_objSuppService.Add(pSuppService->nType, pSuppService);
-    IMS_TRACE_D("UpdateCallingNumVerification : verstat[%d]", pSuppService->nValue, 0, 0);
-
-    return bUpdate;
+    return IMS_TRUE;
 }
 
 PUBLIC
-void MtcSupplementaryService::Add(IN SuppService* pService)
+void MtcSupplementaryService::Delete(IN SuppType eType)
 {
-    if (pService == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "pSession is NULL", 0, 0, 0);
-        return;
-    }
-
-    IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(pService->nType);
-
-    if (nIndex >= 0)
-    {
-        SuppService* pSuppService = m_objSuppService.GetValueAt(nIndex);
-        delete pSuppService;
-    }
-
-    m_objSuppService.Add(pService->nType, pService);
-
-    IMS_TRACE_I("Add : size[%d] Type[%d]", m_objSuppService.GetSize(), pService->nType, 0);
-}
-
-PUBLIC
-void MtcSupplementaryService::Delete(IN IMS_UINT32 nType)
-{
-    IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(nType);
+    IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(eType);
 
     if (nIndex >= 0)
     {
         SuppService* pSuppService = m_objSuppService.GetValueAt(nIndex);
         delete pSuppService;
         m_objSuppService.RemoveAt(nIndex);
-        IMS_TRACE_I("Delete : size[%d] Type[%d]", m_objSuppService.GetSize(), nType, 0);
+        IMS_TRACE_I("Delete : size[%d] Type[%d]", m_objSuppService.GetSize(), eType, 0);
         return;
     }
 
@@ -419,7 +384,7 @@ void MtcSupplementaryService::Delete(IN IMS_UINT32 nType)
 }
 
 PUBLIC
-void MtcSupplementaryService::DeleteAll()
+void MtcSupplementaryService::DeleteServices()
 {
     IMS_UINT32 nSize = m_objSuppService.GetSize();
 
@@ -435,7 +400,7 @@ void MtcSupplementaryService::DeleteAll()
 }
 
 PUBLIC
-const SuppService* MtcSupplementaryService::Get(IN IMS_UINT32 eType)
+const SuppService* MtcSupplementaryService::Get(IN SuppType eType)
 {
     IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(eType);
 
@@ -445,14 +410,62 @@ const SuppService* MtcSupplementaryService::Get(IN IMS_UINT32 eType)
         return pSuppService;
     }
 
-    IMS_TRACE_I("Get : NoT Matched Size[%d]", m_objSuppService.GetSize(), 0, 0);
+    IMS_TRACE_I("Get : NoT Matched, Size[%d]", m_objSuppService.GetSize(), 0, 0);
     return IMS_NULL;
 }
 
 PUBLIC
-IMSMap<IMS_UINT32, SuppService*>& MtcSupplementaryService::GetAll()
+const IMSMap<SuppType, SuppService*>& MtcSupplementaryService::GetServices()
 {
     return m_objSuppService;
+}
+
+PUBLIC
+void MtcSupplementaryService::Add(IN SuppType eSuppType, IN AString strValue)
+{
+    if (IsExist(eSuppType) == IMS_TRUE)
+    {
+        SuppService* pExistService = m_objSuppService.GetValue(eSuppType);
+        pExistService->strValue = strValue;
+    }
+    else
+    {
+        SuppService* pUpdateService = new SuppService();
+        pUpdateService->strValue = strValue;
+        m_objSuppService.Add(eSuppType, pUpdateService);
+    }
+}
+
+PUBLIC
+void MtcSupplementaryService::Add(IN SuppType eSuppType, IN IMS_SINT32 nValue)
+{
+    if (IsExist(eSuppType) == IMS_TRUE)
+    {
+        SuppService* pExistService = m_objSuppService.GetValue(eSuppType);
+        pExistService->nValue = nValue;
+    }
+    else
+    {
+        SuppService* pUpdateService = new SuppService();
+        pUpdateService->nValue = nValue;
+        m_objSuppService.Add(eSuppType, pUpdateService);
+    }
+}
+
+PUBLIC
+void MtcSupplementaryService::Add(IN SuppType eSuppType, IN IMS_BOOL bValue)
+{
+    if (IsExist(eSuppType) == IMS_TRUE)
+    {
+        SuppService* pExistService = m_objSuppService.GetValue(eSuppType);
+        pExistService->bValue = bValue;
+    }
+    else
+    {
+        SuppService* pUpdateService = new SuppService();
+        pUpdateService->bValue = bValue;
+        m_objSuppService.Add(eSuppType, pUpdateService);
+    }
 }
 
 PRIVATE
@@ -475,7 +488,7 @@ ISIPHeader* MtcSupplementaryService::GetHistoryInfoHeader(IN IMessage* piMessage
 }
 
 PRIVATE
-IMS_BOOL MtcSupplementaryService::GetCDIVCause(IN const SIPAddress* pAddress,
+IMS_BOOL MtcSupplementaryService::GetCdivCause(IN const SIPAddress* pAddress,
         OUT IMS_SINT32& nCause)
 {
     if (pAddress != IMS_NULL)
@@ -500,7 +513,7 @@ IMS_BOOL MtcSupplementaryService::GetCDIVCause(IN const SIPAddress* pAddress,
 }
 
 PRIVATE
-IMS_BOOL MtcSupplementaryService::GetCDIVTarget(IN const SIPAddress* pAddress,
+IMS_BOOL MtcSupplementaryService::GetCdivTarget(IN const SIPAddress* pAddress,
         OUT AString& strTarget)
 {
     if (pAddress == IMS_NULL)
@@ -528,36 +541,36 @@ IMS_BOOL MtcSupplementaryService::GetCDIVTarget(IN const SIPAddress* pAddress,
 }
 
 PRIVATE
-IMS_SINT32 MtcSupplementaryService::ConvertCDIVCause(IN IMS_SINT32 nCause)
+IMS_SINT32 MtcSupplementaryService::ConvertCdivCause(IN IMS_SINT32 nCause)
 {
     IMS_SINT32 nCDIVCause;
 
     switch (nCause)
     {
         case 302:
-            nCDIVCause = IuMtcService::CDIVCAUSE_UNCONDITION;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::UNCONDITION);
             break;
         case 404:
-            nCDIVCause = IuMtcService::CDIVCAUSE_NOT_LOGGED_IN;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::NOT_LOGGED_IN);
             break;
         case 408:
-            nCDIVCause = IuMtcService::CDIVCAUSE_NO_REPLY;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::NO_REPLY);
             break;
         case 480:
-            nCDIVCause = IuMtcService::CDIVCAUSE_DEFLECTION;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::DEFLECTION);
             break;
         case 486:
-            nCDIVCause = IuMtcService::CDIVCAUSE_BUSY;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::BUSY);
             break;
         case 487:
-            nCDIVCause = IuMtcService::CDIVCAUSE_DEFLECTION_ALERTING;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::DEFLECTION_ALERTING);
             break;
         case 503:
-            nCDIVCause = IuMtcService::CDIVCAUSE_NOT_REACHABLE;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::NOT_REACHABLE);
             break;
 
         default:
-            nCDIVCause = IuMtcService::CDIVCAUSE_NONE;
+            nCDIVCause = static_cast<IMS_SINT32>(CdivCause::NONE);
             break;
     }
 
@@ -565,9 +578,9 @@ IMS_SINT32 MtcSupplementaryService::ConvertCDIVCause(IN IMS_SINT32 nCause)
 }
 
 PRIVATE
-IMS_UINT32 MtcSupplementaryService::GetCallingNumVerificationResult(IN AString& strValue)
+IMS_SINT32 MtcSupplementaryService::GetCallingNumVerificationResult(IN AString& strValue)
 {
-    IMS_UINT32 nVerstatResult = CALLING_NUM_VERSTAT_NONE;
+    IMS_SINT32 nVerstatResult = CALLING_NUM_VERSTAT_NONE;
 
     if (strValue.GetLength() > 0)
     {
@@ -586,7 +599,7 @@ IMS_UINT32 MtcSupplementaryService::GetCallingNumVerificationResult(IN AString& 
 }
 
 PRIVATE
-IMS_BOOL MtcSupplementaryService::IsIncomingUSSDCall(IN IMessage* piMessage)
+IMS_BOOL MtcSupplementaryService::IsIncomingUssdCall(IN IMessage* piMessage)
 {
     if (piMessage == IMS_NULL)
     {
@@ -611,7 +624,7 @@ IMS_BOOL MtcSupplementaryService::IsIncomingUSSDCall(IN IMessage* piMessage)
 }
 
 PRIVATE
-IMS_SINT32 MtcSupplementaryService::GetCNVHeaderType(IN IMessage* piMessage)
+IMS_SINT32 MtcSupplementaryService::GetCnvHeaderType(IN IMessage* piMessage)
 {
     if (m_nCnapType == CNAP_SCHEME_PAID ||
             (m_nCnapType == CNAP_SCHEME_PAID_FROM &&
@@ -636,4 +649,17 @@ void MtcSupplementaryService::LoadConfig()
     }
 
     IMS_TRACE_I("LoadConfig : Done", 0, 0, 0);
+}
+
+PRIVATE
+IMS_BOOL MtcSupplementaryService::IsExist(IN SuppType suppType)
+{
+    IMS_SLONG nIndex = m_objSuppService.GetIndexOfKey(suppType);
+
+    if (nIndex >= 0)
+    {
+        return IMS_TRUE;
+    }
+
+    return IMS_FALSE;
 }

@@ -25,7 +25,7 @@ void MtcUiNotifier::SendIncomingCallReceived(
         IN CallKey nKey,
         IN CallInfo& objCallInfo,
         IN MediaInfo& objMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN ParticipantInfo& objParticipantInfo)
 {
     if (!m_pServiceThread)
@@ -40,7 +40,7 @@ void MtcUiNotifier::SendIncomingCallReceived(
 
 PUBLIC
 void MtcUiNotifier::SendStarted(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendStarted", 0, 0, 0);
 
@@ -67,7 +67,7 @@ void MtcUiNotifier::SendStartFailed(IN const FailReason& objReason)
 
 PUBLIC
 void MtcUiNotifier::SendProgressing(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMS_BOOL bAlerted /*= IMS_FALSE */)
 {
     IMS_TRACE_I("SendProgressing", 0, 0, 0);
@@ -82,7 +82,7 @@ void MtcUiNotifier::SendProgressing(IN CallInfo* pCallInfo, IN MediaInfo* pMedia
 
 PUBLIC
 void MtcUiNotifier::SendHeld(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendHeld", 0, 0, 0);
 
@@ -109,7 +109,7 @@ void MtcUiNotifier::SendHoldFailed(IN const FailReason& objReason)
 
 PUBLIC
 void MtcUiNotifier::SendResumed(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendResumed", 0, 0, 0);
 
@@ -136,7 +136,7 @@ void MtcUiNotifier::SendResumeFailed(IN const FailReason& objReason)
 
 PUBLIC
 void MtcUiNotifier::SendHeldBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendHeldBy", 0, 0, 0);
 
@@ -150,7 +150,7 @@ void MtcUiNotifier::SendHeldBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
 
 PUBLIC
 void MtcUiNotifier::SendResumedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendResumedBy", 0, 0, 0);
 
@@ -177,7 +177,7 @@ void MtcUiNotifier::SendTerminated(IN const FailReason& objReason)
 
 PUBLIC
 void MtcUiNotifier::SendIncomingResume(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendIncomingResume", 0, 0, 0);
 
@@ -191,7 +191,7 @@ void MtcUiNotifier::SendIncomingResume(IN CallInfo* pCallInfo, IN MediaInfo* pMe
 
 PUBLIC
 void MtcUiNotifier::SendIncomingUpdate(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendIncomingUpdate", 0, 0, 0);
 
@@ -205,7 +205,7 @@ void MtcUiNotifier::SendIncomingUpdate(IN CallInfo* pCallInfo, IN MediaInfo* pMe
 
 PUBLIC
 void MtcUiNotifier::SendUpdated(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendUpdated", 0, 0, 0);
 
@@ -232,7 +232,7 @@ void MtcUiNotifier::SendUpdateFailed(IN const FailReason& objReason)
 
 PUBLIC
 void MtcUiNotifier::SendUpdatedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendUpdatedBy", 0, 0, 0);
 
@@ -268,7 +268,7 @@ void MtcUiNotifier::SendNotifyInfo(IN IMS_UINT32 eType, IN IMS_UINTP nImsKey,
 
 PUBLIC
 void MtcUiNotifier::SendExpanded(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("SendExpanded", 0, 0, 0);
 
@@ -299,7 +299,7 @@ void MtcUiNotifier::SendExpandFailed(IN const FailReason& objReason)
 
 PUBLIC
 void MtcUiNotifier::SendExpandedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMS_SINTP nReplaceKey /*= 0 */)
 {
     IMS_TRACE_I("SendExpandedBy", 0, 0, 0);
@@ -318,7 +318,7 @@ void MtcUiNotifier::SendExpandedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaI
 
 PUBLIC
 void MtcUiNotifier::SendMerged(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMSList<ConfUser*> lstConfUser)
 {
     IMS_TRACE_I("SendMerged", 0, 0, 0);
@@ -416,7 +416,7 @@ void MtcUiNotifier::SendNotifyConfInfo(IN AString strDisplayText, IN AString str
 
 PUBLIC
 void MtcUiNotifier::SendReplacedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMS_SINTP nKey, IN IMS_UINTP nType)
 {
     IMS_TRACE_I("SendReplacedBy : Key[%" PFLS_u "]", nKey, 0, 0);

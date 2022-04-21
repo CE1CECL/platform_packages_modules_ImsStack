@@ -57,7 +57,6 @@ private:
     IMS_BOOL IsRttCapable(IN IMessage* piMessage);
     void UpdateCallType(IN ISession* piSession, IN IMessage* piMessage, IN IMS_BOOL bPeerView);
     void UpdateRemoteFeatures(IN IMessage* piMessage);
-    void HandleTip(IN IMessage* piMessage);
     void HandleCountrySpecificServiceUrn(IN IMessage* piMessage);
     void SendProgressing();
     void OnStarted(IN ISession* piSession);

@@ -58,7 +58,7 @@ PUBLIC VIRTUAL
 CallStateName MtcCallState::Start(IN CallType /* eCallType */,
         IN CONST AString& /* strTarget */,
         IN MediaInfo* /* pMediaInfo */,
-        IN const IMSMap<IMS_UINT32, SuppService*>& /* lstSuppServices */)
+        IN const IMSMap<SuppType, SuppService*>& /* lstSuppServices */)
 {
     return GetStateName();
 }
@@ -156,7 +156,7 @@ CallStateName MtcCallState::StartConference(
         IN CallType /* eCallType */,
         IN const AString&,
         IN MediaInfo* /* pMediaInfo */,
-        IN const IMSMap<IMS_UINT32, SuppService*>& /* lstSuppServices */,
+        IN const IMSMap<SuppType, SuppService*>& /* lstSuppServices */,
         IN IMSList<ConfUser*> /* lstUsers */)
 {
     return GetStateName();
@@ -434,24 +434,24 @@ void MtcCallState::NotifyHoldResumeState()
     {
         m_objContext.SetHeldByMe(IMS_TRUE);
         m_objContext.GetUiNotifier().SendHeld(&(m_objContext.GetCallInfo()), &objMediaInfo,
-                m_objContext.GetSupplementaryService().GetAll());
+                m_objContext.GetSupplementaryService().GetServices());
     }
     else if (m_objContext.GetUpdatingInfo().IsResumed())
     {
         m_objContext.SetHeldByMe(IMS_FALSE);
         m_objContext.GetUiNotifier().SendResumed(&(m_objContext.GetCallInfo()), &objMediaInfo,
-                m_objContext.GetSupplementaryService().GetAll());
+                m_objContext.GetSupplementaryService().GetServices());
     }
 
     if (m_objContext.GetUpdatingInfo().IsHeldBy())
     {
         m_objContext.GetUiNotifier().SendHeldBy(&(m_objContext.GetCallInfo()), &objMediaInfo,
-                m_objContext.GetSupplementaryService().GetAll());
+                m_objContext.GetSupplementaryService().GetServices());
     }
     else if (m_objContext.GetUpdatingInfo().IsResumedBy())
     {
         m_objContext.GetUiNotifier().SendResumedBy(&(m_objContext.GetCallInfo()), &objMediaInfo,
-                m_objContext.GetSupplementaryService().GetAll());
+                m_objContext.GetSupplementaryService().GetServices());
     }
 }
 
@@ -659,7 +659,7 @@ void MtcCallState::SendIncomingCallReceived()
             m_objContext.GetCallKey(),
             m_objContext.GetCallInfo(),
             objMediaInfo,
-            m_objContext.GetSupplementaryService().GetAll(),
+            m_objContext.GetSupplementaryService().GetServices(),
             m_objContext.GetParticipantInfo());
 }
 
@@ -672,7 +672,7 @@ void MtcCallState::SendStarted()
     m_objContext.GetUiNotifier().SendStarted(
             &m_objContext.GetCallInfo(),
             &objMediaInfo,
-            m_objContext.GetSupplementaryService().GetAll());
+            m_objContext.GetSupplementaryService().GetServices());
 }
 
 PROTECTED
