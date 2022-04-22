@@ -28,6 +28,7 @@ class IAosService;
 class IAosSubscriberManager;
 class IAosTrm;
 class IAosVonr;
+class IAosRetryRepository;
 
 class AosDnsQuery;
 class AosKeepAlive;
@@ -59,6 +60,7 @@ public:
     IAosSubscriberManager* GetSubscriberManager(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
     IAosTrm* GetTrm(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
     IAosVonr* GetVonr(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    IAosRetryRepository* GetRetryRepository(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
 
     void SetCallTracker(IN IAosCallTracker* piCt, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
     void SetLocationStarter(IN IAosLocationStarter* piLs, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
@@ -70,6 +72,8 @@ public:
             IN IMS_SINT32 nSlotId = IMS_SLOT_0);
     void SetTrm(IN IAosTrm* piTrm, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
     void SetVonr(IN IAosVonr* piVonr, IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    void SetRetryRepository(IN IAosRetryRepository* piRetryRepository,
+            IN IMS_SINT32 nSlotId = IMS_SLOT_0);
 
 private:
     class ProviderParam
@@ -85,6 +89,7 @@ private:
             , m_piSubscriberManager(IMS_NULL)
             , m_piTrm(IMS_NULL)
             , m_piVonr(IMS_NULL)
+            , m_piRetryRepository(IMS_NULL)
         {}
         inline ~ProviderParam()
         {}
@@ -99,6 +104,7 @@ private:
         IAosSubscriberManager* m_piSubscriberManager;
         IAosTrm* m_piTrm;
         IAosVonr* m_piVonr;
+        IAosRetryRepository* m_piRetryRepository;
     };
 
     IMutex* m_piLock;

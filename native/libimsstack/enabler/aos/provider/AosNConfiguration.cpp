@@ -453,6 +453,12 @@ IMS_SINT32 AosNConfiguration::GetSpecificRegistrationErrorPolicy() const
 }
 
 PUBLIC VIRTUAL
+IMS_SINT32 AosNConfiguration::GetSpecificRegistrationErrorMaxCount() const
+{
+    return m_objSpecificRegErr.nSpecificRegErrMaxCount;
+}
+
+PUBLIC VIRTUAL
 IMSVector<IMS_SINT32>& AosNConfiguration::GetRegistrationRetryIntervals()
 {
     return m_objRegRetryInterval.objRegistrationRetryIntervalSec;

@@ -151,6 +151,12 @@ IAosVonr* AosProvider::GetVonr(IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
 }
 
 PUBLIC
+IAosRetryRepository* AosProvider::GetRetryRepository(IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    return m_objParam.GetValue(nSlotId)->m_piRetryRepository;
+}
+
+PUBLIC
 void AosProvider::SetCallTracker(IN IAosCallTracker* piCt,
         IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
 {
@@ -269,5 +275,18 @@ void AosProvider::SetVonr(IN IAosVonr* piVonr, IN IMS_SINT32 nSlotId /* = IMS_SL
     if (pParam != IMS_NULL)
     {
         pParam->m_piVonr = piVonr;
+    }
+}
+
+PUBLIC
+void AosProvider::SetRetryRepository(IN IAosRetryRepository* piRetryRepository,
+        IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+{
+    LockGuard objLock(m_piLock);
+
+    ProviderParam* pParam = m_objParam.GetValue(nSlotId);
+    if (pParam != IMS_NULL)
+    {
+        pParam->m_piRetryRepository = piRetryRepository;
     }
 }

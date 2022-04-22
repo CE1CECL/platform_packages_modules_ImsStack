@@ -44,6 +44,7 @@ public:
     virtual IAosMsgHandler* BuildMsgHandler();
     virtual IAosService* BuildService(IN IMS_SINT32 nSlotId);
     virtual IAosSubscriberManager* BuildSubscriberManager(IN IMS_SINT32 nSlotId);
+    virtual IAosRetryRepository* BuildRetryRepository(IN IMS_SINT32 nSlotId);
     virtual IAosNConfiguration* BuildNConfiguration();
 };
 #endif // AOS_BUILDER_H_

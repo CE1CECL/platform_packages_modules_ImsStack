@@ -37,6 +37,7 @@ class IAosMsgHandler;
 class IAosService;
 class IAosSubscriberManager;
 class IAosNConfiguration;
+class IAosRetryRepository;
 
 class IAosBuilder
 {
@@ -61,6 +62,7 @@ public:
     virtual IAosMsgHandler* BuildMsgHandler() = 0;
     virtual IAosService* BuildService(IN IMS_SINT32 nSlotId) = 0;
     virtual IAosSubscriberManager* BuildSubscriberManager(IN IMS_SINT32 nSlotId) = 0;
+    virtual IAosRetryRepository* BuildRetryRepository(IN IMS_SINT32 nSlotId) = 0;
     virtual IAosNConfiguration* BuildNConfiguration() = 0;
 };
 #endif // INTERFACE_AOS_BUILDER_H_

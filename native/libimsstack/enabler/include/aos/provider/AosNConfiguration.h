@@ -104,6 +104,7 @@ public:
     virtual IMS_SINT32 GetRegistrationRetrySip503CodePolicy() const;
     virtual IMS_SINT32 GetSpecificRegistrationErrorFinalType() const;
     virtual IMS_SINT32 GetSpecificRegistrationErrorPolicy() const;
+    virtual IMS_SINT32 GetSpecificRegistrationErrorMaxCount() const;
 
     virtual IMSVector<IMS_SINT32>& GetRegistrationRetryIntervals();
     virtual IMSVector<IMS_SINT32>& GetRegistrationRandomRetryIntervals();

@@ -42,6 +42,7 @@
 #include "provider/AosMsgHandler.h"
 #include "provider/AosNConfiguration.h"
 #include "provider/AosSubscriberManager.h"
+#include "provider/AosRetryRepository.h"
 #include "external/AosService.h"
 
 #include "manager/AosBuilder.h"
@@ -226,6 +227,14 @@ IAosSubscriberManager* AosBuilder::BuildSubscriberManager(IN IMS_SINT32 nSlotId)
     IMS_TRACE_D("BuildSubscriberManager", 0, 0, 0);
 
     return new AosSubscriberManager(nSlotId);
+}
+
+PUBLIC VIRTUAL
+IAosRetryRepository* AosBuilder::BuildRetryRepository(IN IMS_SINT32 nSlotId)
+{
+    IMS_TRACE_D("BuildRetryRepository", 0, 0, 0);
+
+    return new AosRetryRepository(nSlotId);
 }
 
 PUBLIC VIRTUAL

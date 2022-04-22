@@ -616,6 +616,21 @@ public:
     virtual IMS_SINT32 GetSpecificRegistrationErrorPolicy() const = 0;
 
     /**
+     * @brief Indicate max of retry count the specific error for registration
+     *
+     *      CarrierConfig::Assets::ERROR_TYPE_REPEATED
+     *          Indicate the maximum retry count with the same PCSCF.
+     *          If the retry count reaches the maximum count, initial registration is tried
+     *          with other PCSCF.
+     *      CarrierConfig::Assets::ERROR_TYPE_CRITICAL
+     *          Indicate the number of error response that is included in KEY_ERROR_CODE_INT_ARRAY.
+     *          If this number reaches, it is handled as a critical error.
+     *
+     * @return IMS_SINT32 Return max of the specific error
+     */
+    virtual IMS_SINT32 GetSpecificRegistrationErrorMaxCount() const = 0;
+
+    /**
      * @brief Get the registration retry intervals for using when registration is failed
      *        as general codes.
      *

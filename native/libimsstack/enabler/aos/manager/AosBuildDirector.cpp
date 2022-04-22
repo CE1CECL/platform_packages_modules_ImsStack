@@ -33,6 +33,7 @@
 #include "provider/AosRegStateManager.h"
 #include "provider/AosStaticProfile.h"
 #include "provider/AosSubscriberManager.h"
+#include "provider/AosRetryRepository.h"
 #include "external/AosService.h"
 
 #include "manager/AosBuildDirector.h"
@@ -149,6 +150,8 @@ void AosBuildDirector::ConstructProvider()
             BuildSubscriberManager(m_nSlotId), m_nSlotId);
     AosProvider::GetInstance()->SetCallTracker(m_piBuilder->BuildCallTracker(m_nSlotId), m_nSlotId);
     AosProvider::GetInstance()->SetRegStateManager(m_piBuilder->BuildRegStateManager(), m_nSlotId);
+    AosProvider::GetInstance()->SetRetryRepository(m_piBuilder->BuildRetryRepository(m_nSlotId),
+            m_nSlotId);
 }
 
 PUBLIC
@@ -186,6 +189,13 @@ void AosBuildDirector::DestructAos()
 PUBLIC
 void AosBuildDirector::DestructProvider()
 {
+    IAosRetryRepository* piRetryRep = AosProvider::GetInstance()->GetRetryRepository(m_nSlotId);
+    if (piRetryRep != IMS_NULL)
+    {
+        AosProvider::GetInstance()->SetRetryRepository(IMS_NULL, m_nSlotId);
+        delete DYNAMIC_CAST(AosRetryRepository*, piRetryRep);
+    }
+
     IAosRegStateManager* piRsm = AosProvider::GetInstance()->GetRegStateManager(m_nSlotId);
     if (piRsm != IMS_NULL)
     {
