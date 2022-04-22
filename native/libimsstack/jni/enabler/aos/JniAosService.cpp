@@ -140,6 +140,10 @@ void JniAosService::HandleMessage(IN IMS_SINT32 nMsg, IN const Parcel& objParcel
             NotifyCapabilitiesChanged(objParcel);
             break;
 
+        case IIAosService::J2N_REQUEST_CONTROL_REGISTRATION:
+            ControlRegistration(objParcel);
+            break;
+
         case IIAosService::J2N_NOTIFY_AIRPLANE_SETTING:
             NotifyAirplaneSetting(objParcel);
             break;
@@ -293,6 +297,15 @@ void JniAosService::NotifyCapabilitiesChanged(IN const Parcel& objParcel)
     if (Attach())
     {
         m_piAosService->NotifyCapabilitiesChanged(objCapabilities);
+    }
+}
+
+PRIVATE
+void JniAosService::ControlRegistration(IN const android::Parcel& objParcel)
+{
+    if (Attach())
+    {
+        m_piAosService->ControlRegistration(objParcel.readInt32(), objParcel.readInt32());
     }
 }
 
