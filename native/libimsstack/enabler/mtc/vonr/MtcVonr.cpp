@@ -273,10 +273,8 @@ IMS_UINT32 MtcVonr::GetSysMode()
     IMS_UINT32 nSysMode = IVoNr::SYS_MODE_UNKNOWN;
     IMS_UINT32 nRadioTechType = m_piNetWatcherInfo->GetNetRadioTechType();
 
-    const NetworkPolicy* pNetPolicy
-            = NetworkServicePolicy::GetInstance()->GetPolicy(NetworkPolicy::APN_IMS);
-    const INetworkConnection* piNetConnection = (pNetPolicy != IMS_NULL) ?
-            NetworkService::GetNetworkService()->FindConnection(pNetPolicy->GetName()) : IMS_NULL;
+    const INetworkConnection* piNetConnection =
+            NetworkService::GetNetworkService()->FindConnection(NetworkPolicy::APN_IMS, m_nSlotId);
     IMS_BOOL bWLAN = (piNetConnection != IMS_NULL) ? piNetConnection->IsePDGEnabled() : IMS_FALSE;
 
     if (bWLAN)
