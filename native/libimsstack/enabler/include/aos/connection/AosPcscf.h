@@ -37,42 +37,26 @@ public:
         : m_strAddress(strAddress)
         , m_nPort(nPort)
         , m_bIsAvailable(IMS_TRUE)
+        , m_bIsTried(IMS_FALSE)
         , m_piTimer(IMS_NULL)
     {
     }
 
-    virtual ~Pcscf()
-    {
-        StopTimer();
-    }
+    virtual ~Pcscf() { StopTimer(); }
 
-    inline const AString& GetAddress()
-    {
-        return m_strAddress;
-    }
-
-    inline IMS_SINT32 GetPort()
-    {
-        return m_nPort;
-    }
-
-    inline IMS_BOOL IsAvailable()
-    {
-        return m_bIsAvailable;
-    }
+    inline const AString& GetAddress() { return m_strAddress; }
+    inline IMS_SINT32 GetPort() { return m_nPort; }
+    inline IMS_BOOL IsAvailable() { return m_bIsAvailable; }
 
     inline IMS_BOOL IsEqual(IN const AString& strCurr)
     {
         IPAddress objIpaCurr(strCurr);
         IPAddress objIpa(m_strAddress);
-
         return objIpaCurr.Equals(objIpa);
     }
 
-    inline void SetAddress(IN AString& strAddress)
-    {
-        m_strAddress = strAddress;
-    }
+    inline IMS_BOOL IsTried() { return m_bIsTried; }
+    inline void SetAddress(IN AString& strAddress) { m_strAddress = strAddress; }
 
     inline void SetAvailable(IN IMS_BOOL bAvailable)
     {
@@ -87,6 +71,8 @@ public:
         m_bIsAvailable = bAvailable;
     }
 
+    inline void SetTry(IN IMS_BOOL bTry) { m_bIsTried = bTry; }
+
     inline void SetUnavailableWithDuration(IN IMS_UINT32 nSeconds)
     {
        m_bIsAvailable = IMS_FALSE;
@@ -96,10 +82,7 @@ public:
        }
     }
 
-    inline void SetPort(IN IMS_SINT32 nPort)
-    {
-         m_nPort = nPort;
-    }
+    inline void SetPort(IN IMS_SINT32 nPort) { m_nPort = nPort; }
 
     inline void StartTimer(IN IMS_UINT32 nDuration)
     {
@@ -139,6 +122,7 @@ private:
     AString m_strAddress;
     IMS_SINT32 m_nPort;
     IMS_BOOL m_bIsAvailable;
+    IMS_BOOL m_bIsTried;
     ITimer* m_piTimer;
 };
 
@@ -206,6 +190,10 @@ public:
             IN IMS_UINT32 nSeconds = 0);
     virtual void RemoveCurrentPcscf();
     virtual void SetAllPcscfValid();
+
+    virtual IMS_BOOL IsAllPcscfTried();
+    virtual void SetCurrentPcscfTried();
+    virtual void ResetAllPcscfTried();
 
     virtual IMS_BOOL GetCurrentPcscf(OUT AString& objPcscf, OUT IMS_UINT32& nPort);
     virtual IMS_UINT32 GetCurrentIndex() const;

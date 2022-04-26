@@ -373,6 +373,62 @@ Remarks
 
 */
 PUBLIC VIRTUAL
+IMS_BOOL AosPcscf::IsAllPcscfTried()
+{
+    for (IMS_UINT32 nAt = 0; nAt < m_objPcscfList.GetSize(); nAt++)
+    {
+        Pcscf* pPcscf = m_objPcscfList.GetAt(nAt);
+        if (pPcscf != IMS_NULL && !pPcscf->IsTried())
+        {
+            return IMS_FALSE;
+        }
+    }
+
+    return IMS_TRUE;
+}
+
+/*
+
+Remarks
+
+*/
+PUBLIC VIRTUAL
+void AosPcscf::SetCurrentPcscfTried()
+{
+    if (m_nCurrentPcscfIndex < m_objPcscfList.GetSize())
+    {
+        Pcscf* pPcscf = m_objPcscfList.GetAt(m_nCurrentPcscfIndex);
+        if (pPcscf != IMS_NULL)
+        {
+            pPcscf->SetTry(IMS_TRUE);
+        }
+    }
+}
+
+/*
+
+Remarks
+
+*/
+PUBLIC VIRTUAL
+void AosPcscf::ResetAllPcscfTried()
+{
+    for (IMS_UINT32 nAt = 0; nAt < m_objPcscfList.GetSize(); nAt++)
+    {
+        Pcscf* pPcscf = m_objPcscfList.GetAt(nAt);
+        if (pPcscf != IMS_NULL)
+        {
+            pPcscf->SetTry(IMS_FALSE);
+        }
+    }
+}
+
+/*
+
+Remarks
+
+*/
+PUBLIC VIRTUAL
 IMS_BOOL AosPcscf::GetCurrentPcscf(OUT AString& objPcscf, OUT IMS_UINT32& nPort)
 {
     if ((m_objPcscfList.GetSize() - 1) < m_nCurrentPcscfIndex)

@@ -2372,8 +2372,7 @@ IMS_UINT32 AosRegistration::GetActualWaitTime()
 
         if (nSize > 0)
         {
-            IMS_SINT32 nAt = 0;
-            nAt = (m_nConsecutiveFailure > nSize) ? nSize : m_nConsecutiveFailure;
+            IMS_SINT32 nAt = (m_nConsecutiveFailure > nSize) ? nSize: m_nConsecutiveFailure;
 
             const IMSVector<IMS_SINT32>& objUpperRandom =
                     GET_N_CONFIG(m_nSlotId)->GetRegistrationRandomRetryIntervals();
@@ -2386,7 +2385,7 @@ IMS_UINT32 AosRegistration::GetActualWaitTime()
                     nAwt += IMS_SYS_GetRandom(objUpperRandom.GetAt(nAt - 1) + 1);
                 }
 
-                A_IMS_TRACE_I(REGID, "GetActualWaitTime :: failure count (%d) , awt (%s)",
+                A_IMS_TRACE_I(REGID, "GetActualWaitTime :: failure count (%d) , awt (%d)",
                         m_nConsecutiveFailure, nAwt, 0);
                 return nAwt;
             }
@@ -2568,6 +2567,7 @@ void AosRegistration::ClearPcscf()
     if (piPcscf != IMS_NULL)
     {
         piPcscf->SetFirstPcscfIndex();
+        piPcscf->ResetAllPcscfTried();
     }
 }
 
@@ -3204,7 +3204,6 @@ void AosRegistration::ProcessDefaultFlowRecovery_Start(IN IMS_SINT32 nStatusCode
     IMS_UINT32 nRetryAfter = 0;
     IMS_UINT32 nAwt = 0;
 
-
     if (GET_N_CONFIG(m_nSlotId)->IsRegErrCodeWithRetryAfterTimeOnlyDeifined())
     {
         if (IsErrorCodeExisted(GET_N_CONFIG(m_nSlotId)->GetRegErrCodeWithRetryAfterTime(),
@@ -3282,7 +3281,7 @@ void AosRegistration::ProcessDefaultFlowRecovery_Start(IN IMS_SINT32 nStatusCode
             nAwt = GetActualWaitTime();
         }
 
-        m_piContext->GetPcscf()->SetCurrentPcscfInvalid();
+        m_piContext->GetPcscf()->SetCurrentPcscfTried();
         if (SetNextPcscf())
         {
             StartTimer(TIMER_STOP_RETRY, nAwt * 1000);

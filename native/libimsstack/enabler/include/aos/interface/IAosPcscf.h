@@ -45,6 +45,10 @@ public:
     virtual void RemoveCurrentPcscf() = 0;
     virtual void SetAllPcscfValid() = 0;
 
+    virtual IMS_BOOL IsAllPcscfTried() = 0;
+    virtual void SetCurrentPcscfTried() = 0;
+    virtual void ResetAllPcscfTried() = 0;
+
     virtual IMS_BOOL GetCurrentPcscf(OUT AString& objPcscf, OUT IMS_UINT32& nPort) = 0;
     virtual IMS_UINT32 GetCurrentIndex() const = 0;
 
