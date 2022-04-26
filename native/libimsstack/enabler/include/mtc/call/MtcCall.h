@@ -74,10 +74,6 @@ public:
             IN CallType eCallType,
             IN const AString& strTarget,
             IN const IMSList<ConfUser*> objUsers) override;
-    void ExpandToConference(IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers) override;
-    void MergeToConference(
-            IN CallType eCallType, IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers)
-            override;
     void HandleIncoming(
             IN ISession* piSession,
             IN JniMtcServiceThread* pServiceThread) override;

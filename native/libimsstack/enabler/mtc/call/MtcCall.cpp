@@ -352,44 +352,6 @@ void MtcCall::StartConference(
 }
 
 PUBLIC VIRTUAL
-void MtcCall::ExpandToConference(
-        IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers)
-{
-    IMS_TRACE_I("ExpandToConference : key[%" PFLS_x "]", m_nKey, 0, 0);
-
-    if (pCallInfo == IMS_NULL)
-    {
-        OnInternalFailure();
-        return;
-    }
-
-    m_objStateMachine.RunStateOperation([&](MtcCallState* pState)
-    {
-        return pState->ExpandToConference(pCallInfo, lstUsers);
-    });
-}
-
-PUBLIC VIRTUAL
-void MtcCall::MergeToConference(
-            IN CallType eCallType,
-            IN CallInfo* pCallInfo,
-            IN IMSList<ConfUser*> lstUsers)
-{
-    IMS_TRACE_I("MergeToConference : key[%" PFLS_x "]", m_nKey, 0, 0);
-
-    if (pCallInfo == IMS_NULL)
-    {
-        OnInternalFailure();
-        return;
-    }
-
-    m_objStateMachine.RunStateOperation([&](MtcCallState* pState)
-    {
-        return pState->MergeToConference(eCallType, pCallInfo, lstUsers);
-    });
-}
-
-PUBLIC VIRTUAL
 void MtcCall::HandleSrvccSuccess()
 {
     IMS_TRACE_I("HandleSrvccSuccess : key[%" PFLS_x "]", m_nKey, 0, 0);

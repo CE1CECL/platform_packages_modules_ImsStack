@@ -40,8 +40,6 @@ public:
             IN const IMSMap<IMS_UINT32, SuppService*>&, IN IMSList<ConfUser*>) override {}
     inline void StartConference(
             IN CallType, IN const AString&, IN IMSList<ConfUser*>) override {}
-    inline void ExpandToConference(IN CallInfo*, IN IMSList<ConfUser*>) override {}
-    inline void MergeToConference(IN CallType, IN CallInfo*, IN IMSList<ConfUser*>) override {}
     inline void HandleIncoming(IN ISession*, IN JniMtcServiceThread*) override {}
     inline void HandleUserAlert() override {}
     inline void Accept(IN CallType, IN MediaInfo*) override {}

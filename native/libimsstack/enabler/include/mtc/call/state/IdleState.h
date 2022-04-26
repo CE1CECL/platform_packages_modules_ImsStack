@@ -47,11 +47,6 @@ public:
             IN const AString& strTarget,
             IN IMSList<ConfUser*> lstUsers)
             override;
-    CallStateName ExpandToConference(IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers)
-            override;
-    CallStateName MergeToConference(
-            IN CallType eCallType, IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers)
-            override;
     CallStateName HandleIncoming(
             IN ISession* piSession, IN JniMtcServiceThread* pServiceThread) override;
     CallStateName Terminate(IN const FailReason& objReason) override;

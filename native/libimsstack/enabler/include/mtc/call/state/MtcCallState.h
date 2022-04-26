@@ -59,10 +59,6 @@ public:
             IN CallType eCallType,
             IN const AString& strTarget,
             IN IMSList<ConfUser*> lstUsers);
-    virtual CallStateName ExpandToConference(
-            IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers);
-    virtual CallStateName MergeToConference(
-            IN CallType eCallType, IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers);
     virtual CallStateName HandleIncoming(
             IN ISession* piSession, IN JniMtcServiceThread* pServiceThread);
     virtual CallStateName HandleUserAlert();

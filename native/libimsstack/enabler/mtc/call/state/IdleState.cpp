@@ -137,47 +137,6 @@ CallStateName IdleState::StartConference(
 }
 
 PUBLIC VIRTUAL
-CallStateName IdleState::ExpandToConference(IN CallInfo* pCallInfo,
-        IN IMSList<ConfUser*> lstUsers)
-{
-    m_eConferenceStartType = ConferenceType::EXPAND;
-
-    CallInfo& objCallInfo = m_objContext.GetCallInfo();
-    objCallInfo = *pCallInfo;
-    objCallInfo.ePeerType = PeerType::MO;
-    objCallInfo.bConference = IMS_TRUE;
-
-    m_objOperationAfterBlockCheck = [&]()
-    {
-        return ContinueConference(IMS_NULL, lstUsers);
-    };
-    m_pBlockChecker = std::unique_ptr<IMtcBlockChecker>(
-            m_objContext.CreateBlockChecker(GetOutgoingCallBlockRules()));
-    return OnBlockChecked(m_pBlockChecker->Check());
-}
-
-PUBLIC VIRTUAL
-CallStateName IdleState::MergeToConference(
-        IN CallType eCallType, IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers)
-{
-    m_eConferenceStartType = ConferenceType::MERGE;
-
-    CallInfo& objCallInfo = m_objContext.GetCallInfo();
-    objCallInfo = *pCallInfo;
-    objCallInfo.ePeerType = PeerType::MO;
-    objCallInfo.eCallType = eCallType;
-    objCallInfo.bConference = IMS_TRUE;
-
-    m_objOperationAfterBlockCheck = [&]()
-    {
-        return ContinueConference(IMS_NULL, lstUsers);
-    };
-    m_pBlockChecker = std::unique_ptr<IMtcBlockChecker>(
-            m_objContext.CreateBlockChecker(GetOutgoingCallBlockRules()));
-    return OnBlockChecked(m_pBlockChecker->Check());
-}
-
-PUBLIC VIRTUAL
 CallStateName IdleState::HandleIncoming(
         IN ISession* piSession, IN JniMtcServiceThread* pServiceThread)
 {

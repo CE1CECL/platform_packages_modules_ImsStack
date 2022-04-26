@@ -172,21 +172,6 @@ CallStateName MtcCallState::StartConference(
 }
 
 PUBLIC VIRTUAL
-CallStateName MtcCallState::ExpandToConference(IN CallInfo* /* pCallInfo */,
-        IN IMSList<ConfUser*> /* lstUsers */)
-{
-    return GetStateName();
-}
-
-PUBLIC VIRTUAL
-CallStateName MtcCallState::MergeToConference(
-        IN CallType /* eCallType */, IN CallInfo* /* pCallInfo */,
-        IN IMSList<ConfUser*> /* lstUsers */)
-{
-    return GetStateName();
-}
-
-PUBLIC VIRTUAL
 CallStateName MtcCallState::HandleSrvccSuccess()
 {
     return TransitToTerminating(FailReason(FAIL_REASON_SESSION_SRVCC));

@@ -66,12 +66,6 @@ public:
             IN const AString& strTarget,
             IN const IMSList<ConfUser*> objUsers) = 0;
 
-    // TODO: deprecated
-    virtual void ExpandToConference(IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers) = 0;
-    // TODO: deprecated
-    virtual void MergeToConference(
-            IN CallType eCallType, IN CallInfo* pCallInfo, IN IMSList<ConfUser*> lstUsers) = 0;
-
     // Handles an incoming call.
     virtual void HandleIncoming(
             IN ISession* piSession,
