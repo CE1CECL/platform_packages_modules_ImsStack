@@ -36,7 +36,7 @@ void ConferenceEventNotifier::NotifyMerged(IN ConferenceParticipantList& objPart
     objParticipantList.Login();
 
     m_objConfCallContext.GetUiNotifier().SendMerged(CloneCallInfo(), CloneMediaInfo(),
-            m_objConfCallContext.GetSupplementaryService().GetAll(),
+            m_objConfCallContext.GetSupplementaryService().GetServices(),
             objParticipantList.GetConfUsers(IMS_TRUE));
 }
 
@@ -58,7 +58,7 @@ void ConferenceEventNotifier::NotifyGroupCallStarted()
     IUUCSessionStartedParam* pParam = new IUUCSessionStartedParam();
     pParam->pCallInfo = CloneCallInfo();
     pParam->pMediaInfo = CloneMediaInfo();
-    pParam->objSuppServices = m_objConfCallContext.GetSupplementaryService().GetAll();
+    pParam->objSuppServices = m_objConfCallContext.GetSupplementaryService().GetServices();
 }
 
 PUBLIC
@@ -80,7 +80,7 @@ void ConferenceEventNotifier::NotifyExpanded()
     IUUCSessionConfExpandedParam* pParam = new IUUCSessionConfExpandedParam();
     pParam->pCallInfo = CloneCallInfo();
     pParam->pMediaInfo = CloneMediaInfo();
-    pParam->objSuppServices = m_objConfCallContext.GetSupplementaryService().GetAll();
+    pParam->objSuppServices = m_objConfCallContext.GetSupplementaryService().GetServices();
 }
 
 PUBLIC

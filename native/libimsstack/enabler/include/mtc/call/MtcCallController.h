@@ -91,7 +91,7 @@ public:
      * @param pDialog TODO:
      */
     void Start(IN CallKey nCallKey, IN CallType eCallType, IN const AString& strTarget,
-            IN MediaInfo* pMediaInfo, IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN MediaInfo* pMediaInfo, IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN IDialogEvent* pDialog);
 
     /**
@@ -168,7 +168,7 @@ public:
     /*
     void StartGroupCall(IN CallKey nCallKey, IN IMS_UINT32 nCmd, IN IMSList<ConfUser*>& objUsers,
             IN CallInfo& objCallInfo, IN MediaInfo& objMediaInfo,
-            IN IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN IMSMap<SuppType, SuppService*>& objSuppServices);
     */
 
     void MergeToConference(IN CallKey nCallKey, IN IMSList<ConfUser*>& objUsers);

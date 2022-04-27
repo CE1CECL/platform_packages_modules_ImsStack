@@ -27,7 +27,7 @@ JniMtcCallThread::~JniMtcCallThread()
 
 PUBLIC
 void JniMtcCallThread::OnStarted(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::STARTED);
@@ -46,7 +46,7 @@ void JniMtcCallThread::OnStartFailed(IN const FailReason& objReason)
 
 PUBLIC
 void JniMtcCallThread::OnProgressing(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMS_BOOL bAlerted/* = IMS_FALSE*/)
 {
     Parcel objParcel;
@@ -58,7 +58,7 @@ void JniMtcCallThread::OnProgressing(IN CallInfo* pCallInfo, IN MediaInfo* pMedi
 
 PUBLIC
 void JniMtcCallThread::OnHeld(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::HELD);
@@ -77,7 +77,7 @@ void JniMtcCallThread::OnHoldFailed(IN const FailReason& objReason)
 
 PUBLIC
 void JniMtcCallThread::OnResumed(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::RESUMED);
@@ -96,7 +96,7 @@ void JniMtcCallThread::OnResumeFailed(IN const FailReason& objReason)
 
 PUBLIC
 void JniMtcCallThread::OnHeldBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::HELD_BY);
@@ -106,7 +106,7 @@ void JniMtcCallThread::OnHeldBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo
 
 PUBLIC
 void JniMtcCallThread::OnResumedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::RESUMED_BY);
@@ -125,7 +125,7 @@ void JniMtcCallThread::OnTerminated(IN const FailReason& objReason)
 
 PUBLIC
 void JniMtcCallThread::OnIncomingResume(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::INCOMING_RESUME);
@@ -135,7 +135,7 @@ void JniMtcCallThread::OnIncomingResume(IN CallInfo* pCallInfo, IN MediaInfo* pM
 
 PUBLIC
 void JniMtcCallThread::OnIncomingUpdate(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::INCOMING_UPDATE);
@@ -145,7 +145,7 @@ void JniMtcCallThread::OnIncomingUpdate(IN CallInfo* pCallInfo, IN MediaInfo* pM
 
 PUBLIC
 void JniMtcCallThread::OnUpdated(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::UPDATED);
@@ -164,7 +164,7 @@ void JniMtcCallThread::OnUpdateFailed(IN const FailReason& objReason)
 
 PUBLIC
 void JniMtcCallThread::OnUpdatedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     Parcel objParcel;
     objParcel.writeInt32(IuMtcCall::UPDATED_BY);
@@ -174,7 +174,7 @@ void JniMtcCallThread::OnUpdatedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaI
 
 PUBLIC
 void JniMtcCallThread::OnMerged(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN const IMSList<ConfUser*>& objUsers)
 {
     Parcel objParcel;
@@ -235,7 +235,7 @@ void JniMtcCallThread::OnConferenceParticipantsInfoChanged(IN const IMSList<Conf
 
 PRIVATE
 void JniMtcCallThread::SetCallDetails(IN_OUT Parcel& objParcel, IN CallInfo* pCallInfo,
-        IN MediaInfo* pMediaInfo, IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN MediaInfo* pMediaInfo, IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     JniMtcUtils::WriteCallInfoToParcel(pCallInfo, objParcel);
     JniMtcUtils::WriteMediaInfoToParcel(pMediaInfo, objParcel);

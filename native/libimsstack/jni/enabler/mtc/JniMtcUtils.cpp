@@ -51,21 +51,19 @@ MediaInfo* JniMtcUtils::ReadMediaInfo(IN const Parcel& objParcel)
 }
 
 PUBLIC GLOBAL
-IMSMap<IMS_UINT32, SuppService*> JniMtcUtils::ReadSupplementaryService(IN const Parcel& objParcel)
+IMSMap<SuppType, SuppService*> JniMtcUtils::ReadSupplementaryService(IN const Parcel& objParcel)
 {
-    IMSMap<IMS_UINT32, SuppService*> objSupp;
+    IMSMap<SuppType, SuppService*> objSupp;
 
     IMS_UINT32 nSuppService = objParcel.readInt32();
     for(IMS_UINT32 index = 0; index < nSuppService; index++)
     {
         SuppService* pSuppService = new SuppService();
 
-        pSuppService->nType = objParcel.readInt32();
-        ConvertString(objParcel.readString16(), pSuppService->aStrValue);
-        pSuppService->nValue= objParcel.readInt32();
-        pSuppService->bValue= (objParcel.readInt32()) ? IMS_TRUE : IMS_FALSE;
-
-        objSupp.Add(pSuppService->nType, pSuppService);
+        objSupp.Add(static_cast<SuppType>(objParcel.readInt32()), pSuppService);
+        ConvertString(objParcel.readString16(), pSuppService->strValue);
+        pSuppService->nValue = objParcel.readInt32();
+        pSuppService->bValue = (objParcel.readInt32()) ? IMS_TRUE : IMS_FALSE;
     }
 
     return objSupp;
@@ -99,8 +97,8 @@ IMSList<ConfUser*> JniMtcUtils::ReadConferenceParticipants(IN const Parcel& objP
 PUBLIC GLOBAL
 void JniMtcUtils::WriteCallInfoToParcel(IN CallInfo* pCallInfo, IN_OUT Parcel& objParcel)
 {
-    objParcel.writeInt32(static_cast<int32_t>(pCallInfo->eServiceType));
-    objParcel.writeInt32(static_cast<int32_t>(pCallInfo->eCallType));
+    objParcel.writeInt32(static_cast<IMS_SINT32>(pCallInfo->eServiceType));
+    objParcel.writeInt32(static_cast<IMS_SINT32>(pCallInfo->eCallType));
     IMS_SINT32 bWifi = (pCallInfo->bWifi) ? 1 : 0;
     objParcel.writeInt32(bWifi);
     IMS_SINT32 bEmergency = (pCallInfo->bEmergency) ? 1 : 0;
@@ -135,7 +133,7 @@ void JniMtcUtils::WriteMediaInfoToParcel(IN MediaInfo* pMediaInfo,
 
 PUBLIC GLOBAL
 void JniMtcUtils::WriteSuppServicesToParcel(
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices, IN_OUT Parcel& objParcel)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices, IN_OUT Parcel& objParcel)
 {
     IMS_UINT32 nSuppService = objSuppServices.GetSize();
 
@@ -144,8 +142,8 @@ void JniMtcUtils::WriteSuppServicesToParcel(
     {
         SuppService* pService = objSuppServices.GetValueAt(index);
 
-        objParcel.writeInt32(pService->nType);
-        objParcel.writeString16(String16(pService->aStrValue.GetStr()));
+        objParcel.writeInt32(static_cast<IMS_SINT32>(objSuppServices.GetKeyAt(index)));
+        objParcel.writeString16(String16(pService->strValue.GetStr()));
         objParcel.writeInt32(pService->nValue);
         objParcel.writeInt32(pService->bValue);
     }

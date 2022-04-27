@@ -212,7 +212,7 @@ public:
         , eCallType(CallType::VOIP)
         , aStrTarget(AString::ConstNull())
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
         , pService(IMS_NULL)
         , pDialog(IMS_NULL)
     {
@@ -249,7 +249,7 @@ public:
     AString                     aStrTarget;
 
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
 
     /* -------------------------------------------------- */
     IMtcService*                 pService;
@@ -783,7 +783,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionStartedParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionStartedParam), this, 0);
@@ -822,7 +822,7 @@ private:
 public:
     CallInfo*                   pCallInfo;
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -854,7 +854,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
         , bAlerted(IMS_FALSE)
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionProgressingParam[%" PFLS_u "][%" PFLS_x "]",
@@ -894,7 +894,7 @@ private:
 public:
     CallInfo*                   pCallInfo;
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
     IMS_BOOL                    bAlerted;
 };
 
@@ -907,7 +907,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionHeldParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionHeldParam), this, 0);
@@ -946,7 +946,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -979,7 +979,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionHeldByParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionHeldByParam), this, 0);
@@ -1018,7 +1018,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1030,7 +1030,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionResumedParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionResumedParam), this, 0);
@@ -1069,7 +1069,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1102,7 +1102,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionResumeByParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionResumeByParam), this, 0);
@@ -1141,7 +1141,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1153,7 +1153,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionIncomingResumeParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionIncomingResumeParam), this, 0);
@@ -1192,7 +1192,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1225,7 +1225,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionImcomingUpdateParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionImcomingUpdateParam), this, 0);
@@ -1264,7 +1264,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1276,7 +1276,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionUpdatedParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionUpdatedParam), this, 0);
@@ -1315,7 +1315,7 @@ private:
 public:
     CallInfo*                   pCallInfo;
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1348,7 +1348,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionUpdatedByParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionUpdatedByParam), this, 0);
@@ -1388,7 +1388,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1451,7 +1451,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
         , lstConfUsers(IMSList<ConfUser*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionConfMergedParam[%" PFLS_u "][%" PFLS_x "]",
@@ -1501,7 +1501,7 @@ private:
 public:
     CallInfo*                   pCallInfo;
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
     IMSList<ConfUser*>          lstConfUsers;
 };
 
@@ -1534,7 +1534,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionConfExpandedParam[%" PFLS_u "][%" PFLS_x "]",
                 sizeof(IUUCSessionConfExpandedParam), this, 0);
@@ -1573,7 +1573,7 @@ private:
 public:
     CallInfo*                    pCallInfo;
     MediaInfo*                   pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>        objSuppServices;
+    IMSMap<SuppType, SuppService*>        objSuppServices;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1605,7 +1605,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
         , nReplaceKey(0)
     {
         IMS_TRACE_MEM("uc", "uc_M : IUUCSessionConfExpandedByParam[%" PFLS_u "][%" PFLS_x "]",
@@ -1645,7 +1645,7 @@ private:
 public:
     CallInfo*                   pCallInfo;
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
 
     IMS_SINTP                   nReplaceKey;
 };
@@ -1875,7 +1875,7 @@ public:
         : IUUCSessionBaseParam()
         , pCallInfo(IMS_NULL)
         , pMediaInfo(IMS_NULL)
-        , objSuppServices(IMSMap<IMS_UINT32, SuppService*>())
+        , objSuppServices(IMSMap<SuppType, SuppService*>())
         , nReplaceKey(0)
         , nType(0)
     {
@@ -1914,7 +1914,7 @@ private:
 public:
     CallInfo*                   pCallInfo;
     MediaInfo*                  pMediaInfo;
-    IMSMap<IMS_UINT32, SuppService*>       objSuppServices;
+    IMSMap<SuppType, SuppService*>       objSuppServices;
     IMS_SINTP                   nReplaceKey;
     IMS_UINTP                   nType;
 

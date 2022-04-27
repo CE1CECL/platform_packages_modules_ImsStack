@@ -268,7 +268,7 @@ public class ImsCallUtils {
                 Integer.toString(getReasonFromMTC(incomingCall.rejectedReason)));
 
         updateCallProfileForEmergency(profile, incomingCall.callInfo);
-        updateCallProfileFromSessInfo(context, profile, incomingCall.callInfo);
+        updateCallProfileFromCallInfo(context, profile, incomingCall.callInfo);
         updateCallProfileFromSuppInfo(context, profile, incomingCall.suppInfo);
 
         if (isCallOnNativeAppsAndCountryKR(context)) {
@@ -354,7 +354,7 @@ public class ImsCallUtils {
         }
 
         if ((flags & FLAG_REASON_INFO_EXTRA_CODE) != 0) {
-            convertedExtraCode = getExtraCodeFromUC(code, extraCode);
+            convertedExtraCode = getExtraCodeFromMtc(code, extraCode);
         }
 
         return new ImsReasonInfo(convertedCode, convertedExtraCode, message);
@@ -522,7 +522,7 @@ public class ImsCallUtils {
         }
     }
 
-    public static int getExtraCodeFromUC(int reason, int extraCode) {
+    public static int getExtraCodeFromMtc(int reason, int extraCode) {
         if (MtcCallUtils.isCallTerminatedByCSRetry(reason)) {
             if (extraCode == IUMtcCall.Fail_Reason.CODE_1XRETRY_SILENT_REDIAL) {
                 return ImsReasonInfo.EXTRA_CODE_CALL_RETRY_SILENT_REDIAL;
@@ -794,7 +794,7 @@ public class ImsCallUtils {
                     true : false);
     }
 
-    public static void updateCallProfileFromSessInfo(ICallContext context,
+    public static void updateCallProfileFromCallInfo(ICallContext context,
             ImsCallProfile profile, final CallInfo ci) {
         profile.setCallExtraBoolean(ImsCallProfile.EXTRA_CONFERENCE,
                 MtcCallInfo.isConference(ci));

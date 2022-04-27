@@ -15,14 +15,14 @@ public:
     static CallType ReadCallType(IN const android::Parcel& objParcel);
     static CallInfo ReadCallInfo(IN const android::Parcel& objParcel);
     static MediaInfo* ReadMediaInfo(IN const android::Parcel& objParcel);
-    static IMSMap<IMS_UINT32, SuppService*> ReadSupplementaryService(
+    static IMSMap<SuppType, SuppService*> ReadSupplementaryService(
             IN const android::Parcel& objParcel);
     static IMSList<ConfUser*> ReadConferenceParticipants(IN const android::Parcel& objParcel);
 
     static void WriteCallInfoToParcel(IN CallInfo* pCallInfo, IN_OUT android::Parcel& objParcel);
     static void WriteMediaInfoToParcel(IN MediaInfo* pMediaInfo, IN_OUT android::Parcel& objParcel);
     static void WriteSuppServicesToParcel(
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN_OUT android::Parcel& objParcel);
     static void WriteConfUsersToParcel(IN const IMSList<ConfUser*>& objUsers,
             IN_OUT android::Parcel& objParcel);

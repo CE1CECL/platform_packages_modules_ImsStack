@@ -3,6 +3,7 @@
 
 #include "AString.h"
 #include "IMSList.h"
+#include "MtcDef.h"
 #include "IMSMap.h"
 #include "IMSTypeDef.h"
 #include "CallInfo.h"
@@ -52,13 +53,13 @@ public:
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices) = 0;
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices) = 0;
 
     virtual void StartConference(
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN const IMSList<ConfUser*> objUsers) = 0;
 
     virtual void StartConference(

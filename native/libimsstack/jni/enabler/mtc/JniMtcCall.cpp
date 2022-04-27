@@ -230,7 +230,7 @@ void JniMtcCall::Start(IN const android::Parcel& objParcel)
     AString strTarget;
     JniMtcUtils::ConvertString(objParcel.readString16(), strTarget);
     MediaInfo* pMediaInfo = JniMtcUtils::ReadMediaInfo(objParcel);
-    IMSMap<IMS_UINT32, SuppService*> objSuppService = JniMtcUtils::ReadSupplementaryService(
+    IMSMap<SuppType, SuppService*> objSuppService = JniMtcUtils::ReadSupplementaryService(
             objParcel);
 
     m_objCallController.Start(m_nCallKey, eCallType, strTarget,
@@ -322,7 +322,7 @@ void JniMtcCall::StartGroupCall(IN const android::Parcel& /*objParcel*/)
     AString strTarget;
     JniMtcUtils::ConvertString(objParcel.readString16(), strTarget);
     MediaInfo* pMediaInfo = JniMtcUtils::ReadMediaInfo(objParcel);
-    IMSMap<IMS_UINT32, SuppService*> objSuppService = JniMtcUtils::ReadSupplementaryService(
+    IMSMap<SuppType, SuppService*> objSuppService = JniMtcUtils::ReadSupplementaryService(
             objParcel);
 
     m_objCallController.StartGroupCall(m_nCallKey, eCallType, strTarget,

@@ -1277,7 +1277,7 @@ IMS_UINT32 UCECTMngr::GetOldState()
 
 //         CallInfo* pCallInfo = new CallInfo(*pTransferredSession->GetSessInfo());
 
-//         IMSMap<IMS_UINT32, SuppService*> lstSuppServices;
+//         IMSMap<SuppType, SuppService*> lstSuppServices;
 //         pTransferredSession->GetSuppService()->GetList(lstSuppServices);
 
 //         // TODO, MTC BUILD
@@ -1321,7 +1321,7 @@ IMS_UINT32 UCECTMngr::GetOldState()
 //     CallInfo* pCallInfo = new CallInfo(*pTransferredSession->GetSessInfo());
 //     MediaInfo* pMediaInfo = new MediaInfo(*pTransferredSession->GetMediaMngr()->GetMediaInfo());
 
-//     IMSMap<IMS_UINT32, SuppService*> lstSuppServices;
+//     IMSMap<SuppType, SuppService*> lstSuppServices;
 //     pTransferredSession->GetSuppService()->GetList(lstSuppServices);
 
 //     // TODO, MTC BUILD

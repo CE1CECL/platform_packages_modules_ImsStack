@@ -20,7 +20,7 @@ public:
 
     void OnServiceChanged(IN IMS_SINT32 eStatus, IN IMS_SINT32 eReason); // enum class
     void OnIncomingCallReceived(IN IMS_UINTP nCallKey, IN CallInfo* pCallInfo,
-            IN MediaInfo* pMediaInfo, IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN MediaInfo* pMediaInfo, IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN ParticipantInfo* pParticipantInfo);
 
 private:

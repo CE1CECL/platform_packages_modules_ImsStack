@@ -44,7 +44,7 @@ CallStateName UpdatingState::AcceptConvert(IN CallType /* eCallType */, IN Media
         MediaInfo objMediaInfo;
         m_objContext.GetMediaManager().GetMediaInfo(objMediaInfo);
         m_objContext.GetUiNotifier().SendUpdated(&(m_objContext.GetCallInfo()), &objMediaInfo,
-                m_objContext.GetSupplementaryService().GetAll());
+                m_objContext.GetSupplementaryService().GetServices());
         return CallStateName::ESTABLISHED;
     }
 
@@ -70,7 +70,7 @@ CallStateName UpdatingState::AcceptConvert(IN CallType /* eCallType */, IN Media
     {
         m_objContext.GetUiNotifier().SendUpdated(&(m_objContext.GetCallInfo()),
                 &m_objContext.GetUpdatingInfo().GetModifiedInfo(),
-                m_objContext.GetSupplementaryService().GetAll());
+                m_objContext.GetSupplementaryService().GetServices());
         return CallStateName::ESTABLISHED;
     }
 
@@ -293,7 +293,7 @@ CallStateName UpdatingState::HandleRequestedModificationSucceeded()
     MediaInfo objMediaInfo;
     m_objContext.GetMediaManager().GetMediaInfo(objMediaInfo);
     m_objContext.GetUiNotifier().SendUpdated(&(m_objContext.GetCallInfo()), &objMediaInfo,
-            m_objContext.GetSupplementaryService().GetAll());
+            m_objContext.GetSupplementaryService().GetServices());
 
     return CallStateName::ESTABLISHED;
 }
@@ -309,7 +309,7 @@ CallStateName UpdatingState::HandleReceivedModificationSucceeded()
     if (m_objContext.GetUpdatingInfo().IsAlerted())
     {
         m_objContext.GetUiNotifier().SendUpdated(&(m_objContext.GetCallInfo()),
-                &objMediaInfo, m_objContext.GetSupplementaryService().GetAll());
+                &objMediaInfo, m_objContext.GetSupplementaryService().GetServices());
 
         return CallStateName::ESTABLISHED;
     }
@@ -326,7 +326,7 @@ CallStateName UpdatingState::HandleReceivedModificationSucceeded()
     }
 
     m_objContext.GetUiNotifier().SendUpdatedBy(&m_objContext.GetCallInfo(),
-            &objMediaInfo, m_objContext.GetSupplementaryService().GetAll());
+            &objMediaInfo, m_objContext.GetSupplementaryService().GetServices());
 
     return CallStateName::ESTABLISHED;
 }
@@ -365,5 +365,5 @@ void UpdatingState::NotifyIncomingUpdate()
 
     m_objContext.GetUiNotifier().SendIncomingUpdate(&objInfo,
             &m_objContext.GetUpdatingInfo().GetAlertingInfo(),
-            m_objContext.GetSupplementaryService().GetAll());
+            m_objContext.GetSupplementaryService().GetServices());
 }

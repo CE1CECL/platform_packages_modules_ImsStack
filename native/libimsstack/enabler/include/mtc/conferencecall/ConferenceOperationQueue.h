@@ -16,7 +16,7 @@ public:
     // if copy and delete every time an operation is deleted, then too many copy.
     CallStartOperationParams(IN IMS_UINT32 _nType, IN CallInfo& _objCallInfo,
             IN MediaInfo& _objMediaInfo, IN IMSList<ConfUser*>& _objUsers,
-            IN IMSMap<IMS_UINT32, SuppService*>& _objSuppServices) :
+            IN IMSMap<SuppType, SuppService*>& _objSuppServices) :
             nType(_nType),
             objCallInfo(_objCallInfo),
             objMediaInfo(_objMediaInfo),
@@ -29,7 +29,7 @@ public:
     CallInfo& objCallInfo;
     MediaInfo& objMediaInfo;
     IMSList<ConfUser*>& objUsers;
-    IMSMap<IMS_UINT32, SuppService*>& objSuppServices;
+    IMSMap<SuppType, SuppService*>& objSuppServices;
 };
 
 class ConferenceOperationQueue final :

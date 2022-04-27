@@ -114,7 +114,7 @@ void MtcCall::Start(
         IN CallType eCallType,
         IN const AString& strTarget,
         IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_I("Start : key[%" PFLS_x "]", m_nKey, 0, 0);
 
@@ -320,7 +320,7 @@ void MtcCall::StartConference(
         IN CallType eCallType,
         IN const AString& strTarget,
         IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMSList<ConfUser*> lstUsers)
 {
     IMS_TRACE_I("StartConference : key[%" PFLS_x "]", m_nKey, 0, 0);

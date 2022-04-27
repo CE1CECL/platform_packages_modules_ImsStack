@@ -48,12 +48,12 @@ public:
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     virtual CallStateName StartConference(
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN IMSList<ConfUser*> lstUsers);
     virtual CallStateName StartConference(
             IN CallType eCallType,

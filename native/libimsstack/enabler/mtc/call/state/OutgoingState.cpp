@@ -159,7 +159,7 @@ CallStateName OutgoingState::SessionStarted(IN ISession* piSession)
     m_objContext.GetTimer().StopAll();
     m_objContext.GetCallInfo().bRttCapable = IsRttCapable(piMessage);
     UpdateCallType(piSession, piMessage, IMS_FALSE);
-    HandleTip(piMessage);
+    m_objContext.GetSupplementaryService().UpdateTip(piMessage);
     NegotiateExtension(m_objSessions.GetValue(piSession), piMessage, IMessage::SESSION_START);
 
     if (MessageUtil::IsFocusConf(piMessage))
@@ -423,7 +423,7 @@ CallStateName OutgoingState::SessionProvisionalResponseReceived(
         return TransitToTerminating(objReason);
     }
 
-    HandleTip(piMessage);
+    m_objContext.GetSupplementaryService().UpdateTip(piMessage);
 
     IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(
             piSession, IMessage::SESSION_START, nIndex);
@@ -482,7 +482,7 @@ CallStateName OutgoingState::SessionRPRReceived(IN ISession* piSession, IN IMS_U
         return TransitToTerminating(objReason);
     }
 
-    HandleTip(piMessage);
+    m_objContext.GetSupplementaryService().UpdateTip(piMessage);
 
     IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(
             piSession, IMessage::SESSION_START, nIndex);
@@ -615,38 +615,6 @@ void OutgoingState::UpdateCallType(
 }
 
 PRIVATE
-void OutgoingState::HandleTip(IN IMessage* piMessage)
-{
-    AString strPrivacy;
-    MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy);
-    IMS_BOOL bHasPAssertedIdentity =
-            MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY);
-
-    SuppService* pSuppService = new SuppService();
-    pSuppService->nType = SUPP_TYPE_TIP;
-    if (!bHasPAssertedIdentity && strPrivacy.EqualsIgnoreCase("id"))
-    {
-        pSuppService->nValue = TIP_TYPE_RESTRICTED;
-    }
-    else if (!bHasPAssertedIdentity && !(strPrivacy.EqualsIgnoreCase("id")))
-    {
-        pSuppService->nValue = TIP_TYPE_NONE;
-    }
-    else
-    {
-        pSuppService->nValue = TIP_TYPE_IDENTITY;
-        AString strNumber;
-        AString strName;
-        MessageUtil::GetUserPart(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strNumber);
-        MessageUtil::GetDisplayName(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strName);
-        pSuppService->aStrValue.Append(strNumber);
-        pSuppService->aStrValue.Append(',');
-        pSuppService->aStrValue.Append(strName);
-    }
-    m_objContext.GetSupplementaryService().Add(pSuppService);
-}
-
-PRIVATE
 void OutgoingState::HandleCountrySpecificServiceUrn(IN IMessage* piMessage)
 {
     // If there is an alternative service URN in the Contact header of the 380 response,
@@ -676,7 +644,7 @@ void OutgoingState::SendProgressing()
     m_objContext.GetUiNotifier().SendProgressing(
             &m_objContext.GetCallInfo(),
             &objMediaInfo,
-            m_objContext.GetSupplementaryService().GetAll(),
+            m_objContext.GetSupplementaryService().GetServices(),
             m_bRemoteAlerted);
 }
 

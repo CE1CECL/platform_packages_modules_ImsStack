@@ -23,34 +23,34 @@ public:
     inline void SetSlotId(IN IMS_SINT32 nSlotId) { m_nSlotId = nSlotId; }
 
     void OnStarted(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnStartFailed(IN const FailReason& objReason);
     void OnProgressing(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN IMS_BOOL bAlerted = IMS_FALSE);
     void OnHeld(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnHoldFailed(IN const FailReason& objReason);
     void OnResumed(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnResumeFailed(IN const FailReason& objReason);
     void OnHeldBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnResumedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnTerminated(IN const FailReason& objReason);
     void OnIncomingResume(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnIncomingUpdate(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnUpdated(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
     void OnUpdateFailed(IN const FailReason& objReason);
     void OnUpdatedBy(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices);
 
     void OnMerged(IN CallInfo* pCallInfo, IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN const IMSList<ConfUser*>& objUsers);
     void OnMergeFailed(IN const FailReason& objReason);
     void OnConferenceParticipantAdded();
@@ -64,7 +64,7 @@ public:
 
 private:
     void SetCallDetails(IN_OUT android::Parcel& objParcel, IN CallInfo* pCallInfo,
-            IN MediaInfo* pMediaInfo, IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices);
+            IN MediaInfo* pMediaInfo, IN const IMSMap<SuppType, SuppService*>& objSuppServices);
 
 private:
     IMS_SINT32 m_nSlotId;

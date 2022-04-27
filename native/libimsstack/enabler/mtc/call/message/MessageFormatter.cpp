@@ -459,7 +459,7 @@ PRIVATE
 void MessageFormatter::SetCallerIdHeader()
 {
     const SuppService* pSuppService =
-            m_objContext.GetSupplementaryService().Get(SUPP_TYPE_CALLERID);
+            m_objContext.GetSupplementaryService().Get(SuppType::CALLER_ID);
 
     if (pSuppService == IMS_NULL)
     {

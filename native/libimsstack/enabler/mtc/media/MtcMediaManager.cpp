@@ -396,7 +396,8 @@ void MtcMediaManager::HandleDynamicNetworkTone(IN ISession* piSession, IN IMS_BO
         if (m_pMediaInfo->eADir != DIRECTION_RECEIVE)
         {
             nDuration = 0;
-            m_objContext.GetSupplementaryService().Delete(SUPP_TYPE_ENFORCE_LT);
+            // TODO: detach ENFORCE_LT from the MtcSupplementaryService
+            m_objContext.GetSupplementaryService().Delete(SuppType::ENFORCE_LT);
         }
     }
     else // Early Dialog State

@@ -63,12 +63,13 @@ public:
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices) override;
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices) override;
+
     void StartConference(
             IN CallType eCallType,
             IN const AString& strTarget,
             IN MediaInfo* pMediaInfo,
-            IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+            IN const IMSMap<SuppType, SuppService*>& objSuppServices,
             IN IMSList<ConfUser*> lstUsers) override;
     void StartConference(
             IN CallType eCallType,

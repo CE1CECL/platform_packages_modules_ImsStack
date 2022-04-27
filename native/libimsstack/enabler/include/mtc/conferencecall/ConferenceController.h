@@ -65,7 +65,7 @@ public:
     // IConferenceController interfaces implementation
     void ProcessCommand(IN IMS_UINT32 nCmd, IN IMSList<ConfUser*>& objUsers,
             IN CallInfo& objCallInfo, IN MediaInfo& objMediaInfo,
-            IN IMSMap<IMS_UINT32, SuppService*>& objSuppServices) override;
+            IN IMSMap<SuppType, SuppService*>& objSuppServices) override;
     void ProcessCommand(IN IMS_UINT32 nCmd, IN IMSList<ConfUser*>& objUsers) override;
     IMS_SINT32 GetState() const override;
     IndividualCallState GetCallStatusInConference(IN CallKey nKey) const override;
@@ -76,7 +76,7 @@ public:
 protected:
     // basic operation set
     inline virtual void ProcessGroupCall(IN IMSList<ConfUser*>&, IN CallInfo&, IN MediaInfo&,
-            IN IMSMap<IMS_UINT32, SuppService*>&) {}
+            IN IMSMap<SuppType, SuppService*>&) {}
     inline virtual void ProcessExpand(IN IMSList<ConfUser*>&) {}
     inline virtual void ProcessMerge(IN IMSList<ConfUser*>&) {}
     virtual void ProcessJoin(IN IMSList<ConfUser*>& objUsers);

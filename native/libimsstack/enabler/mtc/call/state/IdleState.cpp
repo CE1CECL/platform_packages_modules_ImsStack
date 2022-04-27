@@ -54,7 +54,7 @@ CallStateName IdleState::Start(
         IN CallType eCallType,
         IN const AString& strTarget,
         IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices)
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices)
 {
     IMS_TRACE_D("Start", 0, 0, 0);
     m_eConferenceStartType = ConferenceType::NOT_CONFERENCE;
@@ -69,7 +69,7 @@ CallStateName IdleState::Start(
 
     m_objContext.GetParticipantInfo().SetRemoteNumber(strTarget);
 
-    m_objContext.GetSupplementaryService().UpdateService(objSuppServices);
+    m_objContext.GetSupplementaryService().UpdateOutgoingServices(objSuppServices);
 
     m_objOperationAfterBlockCheck = [&]()
     {
@@ -85,7 +85,7 @@ CallStateName IdleState::StartConference(
         IN CallType eCallType,
         IN const AString& strTarget,
         IN MediaInfo* pMediaInfo,
-        IN const IMSMap<IMS_UINT32, SuppService*>& objSuppServices,
+        IN const IMSMap<SuppType, SuppService*>& objSuppServices,
         IN IMSList<ConfUser*> lstUsers)
 {
     IMS_TRACE_D("StartConference", 0, 0, 0);
@@ -97,7 +97,7 @@ CallStateName IdleState::StartConference(
     objCallInfo.bConference = IMS_TRUE;
     m_objContext.GetParticipantInfo().SetRemoteNumber(strTarget); // TODO:
 
-    m_objContext.GetSupplementaryService().UpdateService(objSuppServices);
+    m_objContext.GetSupplementaryService().UpdateOutgoingServices(objSuppServices);
 
     m_objOperationAfterBlockCheck = [&]()
     {
@@ -122,8 +122,6 @@ CallStateName IdleState::StartConference(
     objCallInfo.eCallType = eCallType;
     objCallInfo.bConference = IMS_TRUE;
     m_objContext.GetParticipantInfo().SetRemoteNumber(strTarget);
-
-    m_objContext.GetSupplementaryService().UpdateService(IMSMap<IMS_UINT32, SuppService*>());
 
     m_objOperationAfterBlockCheck = [&]()
     {
@@ -408,16 +406,10 @@ void IdleState::UpdateIncomingInformation(IN ISession* piSession)
 
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_START);
 
-    m_objContext.GetSupplementaryService().UpdateService(piSession, piMessage);
-    if (!IsSupportCallingNumberVerification())
-    {
-        m_objContext.GetSupplementaryService().Delete(SUPP_TYPE_CALLING_NUM_VERIFICATION);
-    }
-
+    m_objContext.GetSupplementaryService().UpdateIncomingServices(piMessage);
     AString strRemoteUri;
     MessageUtil::GetRemoteUri(piSession, PeerType::MT, strRemoteUri);
     m_objContext.GetParticipantInfo().SetRemoteUri(strRemoteUri);
-    m_objContext.GetParticipantInfo().HandleRequest(IMessage::SESSION_START, *piMessage);
 
     AString strSessionId;
     MessageUtil::GetHeader(piMessage, ISIPHeader::UNKNOWN, strSessionId, "Session-ID");
@@ -433,24 +425,6 @@ void IdleState::UpdateIncomingInformation(IN ISession* piSession)
     AString strContact;
     MessageUtil::GetHeader(piMessage, ISIPHeader::CONTACT_NORMAL, strContact);
     m_objContext.GetCallInfo().bRttCapable = MessageUtil::ContainsTag(strContact, "text");
-}
-
-PRIVATE
-IMS_BOOL IdleState::IsSupportCallingNumberVerification()
-{
-    /* TODO:
-    IMS_UINT32 nSupported = AoSSupportability::NOT_SUPPORTED;
-
-    if (m_objContext.GetService().GetIImsAosApp()->GetDetailedState(
-            AoSAppRequest::STATE_SUPPORT_CALLING_NUMBER_VERIFICATION, nSupported))
-    {
-        if (nSupported == AoSSupportability::SUPPORTED)
-        {
-            return IMS_TRUE;
-        }
-    }
-    */
-    return IMS_FALSE;
 }
 
 PRIVATE

@@ -264,7 +264,7 @@ void EstablishedState::NotifyIncomingUpdate(IN CallType eCallType)
 
     m_objContext.GetUiNotifier().SendIncomingUpdate(&objInfo,
             &m_objContext.GetUpdatingInfo().GetAlertingInfo(),
-            m_objContext.GetSupplementaryService().GetAll());
+            m_objContext.GetSupplementaryService().GetServices());
 }
 
 PRIVATE
