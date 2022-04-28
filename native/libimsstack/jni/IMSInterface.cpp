@@ -32,7 +32,7 @@
 #include "JniSystem.h"
 
 #include "CoreInterfaceFactory.h"
-#include "IMSCore.h"
+#include "ImsMain.h"
 
 using namespace android;
 
@@ -348,13 +348,13 @@ void JNI_DetachNativeThread(void)
 static void JNI_Construct(JNIEnv* /* env */, jobject /* object */)
 {
     // Memory and basic platform's initialization
-    IMSCore_Initialize();
+    ImsMain::Initialize();
 
     // Configure the system configuration on boot-up
     {
         int nCount = 0;
         __SystemConfig* pstConfig = GetSystemConfigOnBootup(nCount);
-        IMSCore_SetConfiguration(SystemConfig::EVENT_ON_BOOT, nCount, pstConfig);
+        ImsMain::SetConfiguration(SystemConfig::EVENT_ON_BOOT, nCount, pstConfig);
         SetSystemConfigOnBootup(IMS_NULL);
 
         if (pstConfig != IMS_NULL)
@@ -363,19 +363,16 @@ static void JNI_Construct(JNIEnv* /* env */, jobject /* object */)
         }
     }
 
-    // Initialize IMS configurations
-    IMSCore_InitConfiguration();
-
-    IMSCore_Start();
+    ImsMain::Start();
 }
 
 static void JNI_Destruct(JNIEnv* /* env */, jobject /* object */)
 {
     IMS_TRACE_I("JNI_Destruct", 0, 0, 0);
 
-    IMSCore_Stop();
+    ImsMain::Stop();
 
-    IMSCore_Uninitialize();
+    ImsMain::Uninitialize();
 }
 
 static int JNI_SetConfiguration(JNIEnv *env, jobject /* object */,
@@ -383,7 +380,7 @@ static int JNI_SetConfiguration(JNIEnv *env, jobject /* object */,
 {
     if (event == SystemConfig::EVENT_FEATURE_PERMISSIONS_CHANGED)
     {
-        IMSCore_SetConfiguration(event, 0, IMS_NULL);
+        ImsMain::SetConfiguration(event, 0, IMS_NULL);
         return 1;
     }
 
@@ -421,7 +418,7 @@ static int JNI_SetConfiguration(JNIEnv *env, jobject /* object */,
             return 0;
         }
 
-        IMSCore_SetConfiguration(event, nCount, pstSystemConfig);
+        ImsMain::SetConfiguration(event, nCount, pstSystemConfig);
 
         DestroySystemConfig(pstSystemConfig);
     }

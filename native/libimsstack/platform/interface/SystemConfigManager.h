@@ -71,8 +71,7 @@ private:
             IN const __SystemConfig* pSysConfig);
 
 private:
-    // IMSCore.cpp
-    friend class __SystemConfigWrapper;
+    friend class ImsMain;
     friend class IMSFramework;
 
     enum
