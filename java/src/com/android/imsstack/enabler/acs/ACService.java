@@ -19,6 +19,7 @@ package com.android.imsstack.enabler.acs;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.telephony.SubscriptionManager;
+import android.util.SparseArray;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -112,24 +113,38 @@ public class ACService {
     }
 
     private static final String TAG = "ACServiceImplBase";
-    private int mSubId;
+    private static final SparseArray<ACService> INSTANCES = new SparseArray<ACService>();
 
-    private ACService(int subId) {
-        mSubId = subId;
+    //private ACServiceImpl mACServiceImpl;
+    private int mPhoneId;
+
+    private ACService(int phoneId) {
+        mPhoneId = phoneId;
+
+        //mAcServiceImpl = new ACServiceImpl(phoneId);
     }
 
     /**
-     * Create a new ACService for the subscription specified and IllegalArgumentException will be
-     * thrown if the subscription is not valid.
-     * @param subId The ID of the subscription that this ACService will use.
+     * Returns a ACService for phoneId specified and IllegalArgumentException will be
+     * thrown if the phoneId is not valid.
+     * @param phoneId The ID of the Phone or SIM Slot that this ACService will use.
      * @return Instance of the ACService
      */
-    public static ACService createForSubscriptionId(int subId) {
-        if (!SubscriptionManager.isValidSubscriptionId(subId)) {
-            throw new IllegalArgumentException("Invalid subscription ID");
+    public static ACService getInstance(int phoneId) {
+        if (!SubscriptionManager.isValidPhoneId(phoneId)) {
+            throw new IllegalArgumentException("Invalid PhoneId");
         }
 
-        return new ACService(subId);
+        ACService acService;
+        synchronized (INSTANCES) {
+            acService = INSTANCES.get(phoneId);
+            if (acService == null) {
+                acService = new ACService(phoneId);
+                INSTANCES.put(phoneId, acService);
+            }
+        }
+
+        return acService;
     }
 
     /**
@@ -141,7 +156,7 @@ public class ACService {
     public boolean setCallback(@NonNull Executor executor,
             @NonNull ACServiceCallback serviceCallback) {
         serviceCallback.setExecutor(executor);
-        //ACServiceImpl.setCallback(mSubId, serviceCallback.getCallback());
+        //mACServiceImpl.setCallback(mSubId, serviceCallback.getCallback());
         return true;
     }
 
@@ -151,7 +166,7 @@ public class ACService {
      * @param serviceCallback The callback to be removed.
      */
     public void removeCallback(@NonNull ACServiceCallback serviceCallback) {
-        //ACServiceImpl.removeCallBack(mSubId, serviceCallback.getCallback());
+        //mACServiceImpl.removeCallBack(mSubId, serviceCallback.getCallback());
     }
 
     /**
@@ -161,7 +176,7 @@ public class ACService {
      * @return true if the operation is success, or false otherwise.
      */
     public boolean setClientInfo(@NonNull ACServiceClientInfo clientInfo) {
-        //ACServiceImpl.setClientInfo(mSubId, clientInfo);
+        //mACServiceImpl.setClientInfo(mSubId, clientInfo);
         return true;
     }
 
@@ -171,7 +186,7 @@ public class ACService {
      * notified by callback, or false otherwise.
      */
     public boolean start() {
-        // return ACServiceImpl.start();
+        // return mACServiceImpl.start();
         return false;
     }
 
@@ -180,7 +195,7 @@ public class ACService {
      * running. (before called the registered callback)
      */
     public void stop() {
-        // ACServiceImpl.stop();
+        // mACServiceImpl.stop();
     }
 
     /**
@@ -189,14 +204,14 @@ public class ACService {
      * @param isCompressed The xml file is compressed in gzip format
      */
     public void notifyProvisioningReceived(byte[] data, boolean isCompressed) {
-        // ACServiceImpl.notifyConfigDataReceived(data, isCompressed);
+        // mACServiceImpl.notifyConfigDataReceived(data, isCompressed);
     }
 
     /**
      * The provisioning xml through notifyConfigDataReceived() is not available anymore.
      */
     public void notifyProvisioningRemoved() {
-        // ACServiceImpl.notifyConfigDataRemoved();
+        // mACServiceImpl.notifyConfigDataRemoved();
     }
 
     /**
@@ -204,7 +219,7 @@ public class ACService {
      * @return The state is defined in ACServiceSateFlag
      */
     public @ACServiceStateFlag int getState() {
-        // return ACServiceImpl.getState()
+        // return mACServiceImpl.getState()
         return STATE_TYPE_NONE;
     }
 }
