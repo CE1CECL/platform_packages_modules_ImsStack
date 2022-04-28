@@ -25,8 +25,6 @@
 #include "MediaResourceMngr.h"
 #include "MediaManager.h"
 
-#include "operator/VZWProperty.h"
-
 #define MODESET_MAX_AMR     7
 #define MODESET_MAX_AMRWB   8
 #define EVS_NEGO_RETRY_COUNT  2

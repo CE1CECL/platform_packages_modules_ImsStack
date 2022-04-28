@@ -27,7 +27,6 @@
 #include "interface/IAosRegistration.h"
 #include "interface/IAosService.h"
 #include "interface/IAosSubscriber.h"
-#include "operator/VZWProperty.h"
 #include "provider/AosLog.h"
 #include "provider/AosProvider.h"
 #include "condition/AosBlock.h"

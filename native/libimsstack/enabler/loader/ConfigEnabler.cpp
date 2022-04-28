@@ -29,7 +29,6 @@
 #include "ConfigAppFactory.h"
 #include "ConfigEnabler.h"
 #include "GeolocationHelper.h"
-#include "operator/VZWProperty.h"
 
 PUBLIC
 ConfigEnabler::ConfigEnabler(IN IMS_SINT32 nSlotId)
@@ -135,14 +134,11 @@ void ConfigEnabler::Start()
     }
 
     SdpProfile::GetInstance()->InitFeatures(GetSlotId(), nSdpFeatures);
-    VZWProperty::GetInstance()->Initialize();
 }
 
 PRIVATE VIRTUAL
 void ConfigEnabler::Stop()
 {
-    VZWProperty::GetInstance()->Uninitialize();
-
     GeolocationPidfCreator* pPidfCreator
             = GeolocationHelper::GetInstance()->GetPidfCreator(GetSlotId());
 
