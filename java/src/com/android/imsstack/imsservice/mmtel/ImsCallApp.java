@@ -14,23 +14,17 @@ package com.android.imsstack.imsservice.mmtel;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.telephony.ims.ImsCallProfile;
-import android.telephony.ims.ImsReasonInfo;
 import android.telephony.ims.ImsStreamMediaProfile;
 
 import com.android.imsstack.core.agents.dcmif.IDCNetWatcher;
-import com.android.imsstack.core.config.ECallConfigUtil;
-import com.android.imsstack.core.config.IECallConfig;
-import com.android.imsstack.enabler.mtc.CallFeature;
 import com.android.imsstack.enabler.mtc.MtcStateUtils;
 import com.android.imsstack.imsservice.mmtel.base.IMmTelCallListener;
 import com.android.imsstack.imsservice.mmtel.base.IMmTelFeatureCapabilityListener;
 import com.android.imsstack.imsservice.mmtel.base.ImsApp;
 import com.android.imsstack.imsservice.mmtel.base.TtyModeTracker;
-import com.android.imsstack.imsservice.mmtel.internal.WfcSettingTracker;
 import com.android.imsstack.internal.imsservice.GImsInterfaceRegistry;
 import com.android.imsstack.internal.imsservice.GImsInterfaceServiceRegistry;
 import com.android.imsstack.test.IImsTestMode;
-import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.MSimUtils;
 
 import java.util.concurrent.Executor;
@@ -366,9 +360,6 @@ public class ImsCallApp extends ImsApp {
             if (mCallContext.hasAccessBearerCapabilitiesForHDCall() || isAccessBearerUnknown()) {
                 audioQuality = mCallContext.getAudioHDQuality();
                 videoQuality = mCallContext.getVideoHDQuality();
-            } else if (CallFeature.isVideoResolutionQcifSupported(mCallContext.getSlotId())) {
-                audioQuality = ImsStreamMediaProfile.AUDIO_QUALITY_AMR;
-                videoQuality = ImsStreamMediaProfile.VIDEO_QUALITY_QCIF;
             } else {
                 audioQuality = mCallContext.getAudioHDQuality();
                 videoQuality = ImsStreamMediaProfile.VIDEO_QUALITY_QVGA_PORTRAIT;

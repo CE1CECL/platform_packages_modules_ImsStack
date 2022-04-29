@@ -215,13 +215,14 @@ public final class ImsVideoCallSession implements IVideoCallSession {
         boolean callTypeChanged = false;
 
         if (modificationType == MODIFICATION_CALL_TYPE) {
-            callTypeChanged = ImsCallUtils.isCallTypeChanged(callProfile.getCallType(), callType);
-
-            if (callTypeChanged
-                    || CallFeature.isAcceptRequiredOnRejectingCallTypeChange(
-                        mCallContext.getSlotId())) {
+            callTypeChanged = ImsCallUtils.isCallTypeChanged(callProfile.mCallType, callType);
+            int statusCode = CallFeature.getStatusCodeforCallTypeChangeReject(
+                        mCallContext.getSlotId());
+            if (callTypeChanged || statusCode == 200) {
                 acceptSessionModification(callType, mediaProfile);
             } else {
+                // need to map statusCode with ImsReasonInfo.CODE_USER_DECLINE for operator specific
+                // reject code rejectSessionModification(statusCode);
                 rejectSessionModification(ImsReasonInfo.CODE_USER_DECLINE);
             }
         } else if (modificationType == MODIFICATION_VIDEO_PROFILE) {

@@ -1136,8 +1136,6 @@ public class MtcCall extends Call implements ConferenceTracker {
         // It removes the call extra parameters which are related to SuppInfo.
         removeCallExtra(EXTRA_MMC);
         removeCallExtra(EXTRA_GTT);
-        // It needs to be kept always.
-        //removeCallExtra(EXTRA_HD_VOICE);
         removeCallExtra(EXTRA_VMS);
         removeCallExtra(EXTRA_CDIV_CAUSE);
         removeCallExtra(EXTRA_CNA);
@@ -1350,20 +1348,6 @@ public class MtcCall extends Call implements ConferenceTracker {
         setCallExtraBoolean(EXTRA_CALL_MODE_CHANGEABLE, isVideoCapable(callInfo));
         setCallExtraBoolean(EXTRA_CONFERENCE_EVENT, mCallInfo.isConferenceEventSupported());
         setCallExtraBoolean(EXTRA_RTT_AVAIL, mCallInfo.isRttCapable());
-
-        if (CallFeature.isHDVoiceDeterminedByAudioQuality(mContext.getSlotId())) {
-            if (MtcCallUtils.isAudioHDQuality(mediaInfo.AQuality)) {
-                setCallExtraBoolean(EXTRA_HD_VOICE, true);
-            } else {
-                setCallExtraBoolean(EXTRA_HD_VOICE, false);
-            }
-
-            if (MtcCallUtils.isAudioUHDQuality(mediaInfo.AQuality)) {
-                setCallExtraBoolean(EXTRA_UHD_VOICE, true);
-            } else {
-                setCallExtraBoolean(EXTRA_UHD_VOICE, false);
-            }
-        }
 
         updateCallExtraFromSuppInfo(suppInfo);
     }
@@ -2220,8 +2204,6 @@ public class MtcCall extends Call implements ConferenceTracker {
         SuppInfoUtils.addValueType(SuppInfo.TYPE_MMC, SuppInfoUtils.TYPE_BOOLEAN);
         SuppInfoUtils.addKey(SuppInfo.TYPE_GTT, EXTRA_GTT);
         SuppInfoUtils.addValueType(SuppInfo.TYPE_GTT, SuppInfoUtils.TYPE_BOOLEAN);
-        SuppInfoUtils.addKey(SuppInfo.TYPE_HD, EXTRA_HD_VOICE);
-        SuppInfoUtils.addValueType(SuppInfo.TYPE_HD, SuppInfoUtils.TYPE_BOOLEAN);
         SuppInfoUtils.addKey(SuppInfo.TYPE_VM, EXTRA_VMS);
         SuppInfoUtils.addValueType(SuppInfo.TYPE_VM, SuppInfoUtils.TYPE_BOOLEAN);
 

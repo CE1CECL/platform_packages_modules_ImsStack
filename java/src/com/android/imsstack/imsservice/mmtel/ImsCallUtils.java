@@ -178,18 +178,13 @@ public class ImsCallUtils {
         profile.setCallExtraBoolean(ImsCallProfileEx.EXTRA_CONFERENCE_EVENT,
                 MtcCallInfo.isConferenceEventSupported(ci));
 
-        if (CallFeature.isHDVoiceDeterminedByAudioQuality(context.getSlotId())) {
-            if (MtcCallUtils.isAudioHDQuality(mi.AQuality)) {
-                profile.setCallExtraBoolean(ImsCallProfileEx.EXTRA_HD_VOICE, true);
-            } else {
-                profile.setCallExtraBoolean(ImsCallProfileEx.EXTRA_HD_VOICE, false);
-            }
+        boolean isAudioHD = MtcCallUtils.isAudioHDQuality(mi.AQuality);
+        boolean isAudioUHD = MtcCallUtils.isAudioUHDQuality(mi.AQuality);
 
-            if (MtcCallUtils.isAudioUHDQuality(mi.AQuality)) {
-                profile.setCallExtraBoolean(ImsCallProfileEx.EXTRA_UHD_VOICE, true);
-            } else {
-                profile.setCallExtraBoolean(ImsCallProfileEx.EXTRA_UHD_VOICE, false);
-            }
+        if (isAudioHD || isAudioUHD) {
+            profile.setCallRestrictCause(ImsCallProfile.CALL_RESTRICT_CAUSE_NONE);
+        } else {
+            profile.setCallRestrictCause(ImsCallProfile.CALL_RESTRICT_CAUSE_HD);
         }
 
         if (CallFeature.isRttSupported(context.getSlotId())) {
@@ -203,11 +198,6 @@ public class ImsCallUtils {
             ICallContext context, IncomingMtcCall incomingCall) {
         if (incomingCall == null) {
             return new ImsCallProfile();
-        }
-
-        // NEGOTIATED_PROPOSAL_HANDLING
-        if (!CallFeature.isLocalMediaProfileRequiredOnRemoteRequest(context.getSlotId())) {
-            MtcCallUtils.reverseMediaDirection(incomingCall.mediaInfo);
         }
 
         ImsCallProfile profile = createCallProfileFromCallInfo(

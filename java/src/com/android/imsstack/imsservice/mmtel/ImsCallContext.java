@@ -69,8 +69,6 @@ public class ImsCallContext implements ICallContext {
         mExecutor = executor;
         mApp = app;
 
-        CallFeature.init(getSlotId());
-
         mWfcSettingTracker = new WfcSettingTracker(this);
         mFdnTracker = new ImsFDNTracker(this);
 
@@ -81,15 +79,6 @@ public class ImsCallContext implements ICallContext {
     }
 
     public void init() {
-        int oldFeatures = CallFeature.getFeatures(getSlotId());
-
-        CallFeature.init(getSlotId());
-
-        int newFeatures = CallFeature.getFeatures(getSlotId());
-
-        log("init :: oldFeatures=0x" + Integer.toHexString(oldFeatures)
-                + ", newFeatures=0x" + Integer.toHexString(newFeatures));
-
         mMtcApp.init();
         mMtcApp.setServiceStateListener(mServiceStateTracker);
 
@@ -402,8 +391,6 @@ public class ImsCallContext implements ICallContext {
     private int getVideoCapabilities(int callType) {
         if (hasAccessBearerCapabilitiesForHDCall()) {
             return getVideoHDQuality();
-        } else if (CallFeature.isVideoResolutionQcifSupported(getSlotId())) {
-            return ImsStreamMediaProfile.VIDEO_QUALITY_QCIF;
         }
 
         return ImsStreamMediaProfile.VIDEO_QUALITY_QVGA_PORTRAIT;
