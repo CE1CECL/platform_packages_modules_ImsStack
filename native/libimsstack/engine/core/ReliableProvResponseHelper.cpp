@@ -45,7 +45,7 @@ IMS_SINT32 ReliableProvResponseHelper::GetState() const
 }
 
 PUBLIC
-void ReliableProvResponseHelper::Initialize(IN ISIPMessage *piSIPMsg)
+void ReliableProvResponseHelper::Initialize(IN ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ void ReliableProvResponseHelper::Initialize(IN ISIPMessage *piSIPMsg)
     {
         // When the first RPR is received ...
 
-        AString strRSeq = piSIPMsg->GetHeader(ISIPHeader::RSEQ);
+        AString strRSeq = piSIPMsg->GetHeader(ISipHeader::RSEQ);
 
         nNumber = strRSeq.ToInt32(&bOK);
 
@@ -77,7 +77,7 @@ void ReliableProvResponseHelper::Initialize(IN ISIPMessage *piSIPMsg)
         nRSeqNumber = 1;
     }
 
-    AString strCSeq = piSIPMsg->GetHeader(ISIPHeader::CSEQ);
+    AString strCSeq = piSIPMsg->GetHeader(ISipHeader::CSEQ);
     IMS_SINT32 nIndex = strCSeq.GetIndexOf(' ');
 
     strCSeq.Truncate(nIndex);
@@ -93,7 +93,7 @@ void ReliableProvResponseHelper::Initialize(IN ISIPMessage *piSIPMsg)
 }
 
 PUBLIC
-IMS_BOOL ReliableProvResponseHelper::SetRAckHeader(IN_OUT ISIPMessage *&piSIPMsg) const
+IMS_BOOL ReliableProvResponseHelper::SetRAckHeader(IN_OUT ISipMessage *&piSIPMsg) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -107,7 +107,7 @@ IMS_BOOL ReliableProvResponseHelper::SetRAckHeader(IN_OUT ISIPMessage *&piSIPMsg
 
     strRAck.Sprintf("%u %u %s", nRSeqNumber, nCSeqNumber, objMethod.ToString().GetStr());
 
-    if (piSIPMsg->SetHeader(ISIPHeader::RACK, strRAck) != IMS_SUCCESS)
+    if (piSIPMsg->SetHeader(ISipHeader::RACK, strRAck) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Setting RAck header failed", 0, 0, 0);
         return IMS_FALSE;
@@ -117,7 +117,7 @@ IMS_BOOL ReliableProvResponseHelper::SetRAckHeader(IN_OUT ISIPMessage *&piSIPMsg
 }
 
 PUBLIC
-IMS_BOOL ReliableProvResponseHelper::SetRSeqHeader(IN_OUT ISIPMessage *&piSIPMsg) const
+IMS_BOOL ReliableProvResponseHelper::SetRSeqHeader(IN_OUT ISipMessage *&piSIPMsg) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ IMS_BOOL ReliableProvResponseHelper::SetRSeqHeader(IN_OUT ISIPMessage *&piSIPMsg
     AString strRSeq;
     strRSeq.SetNumber(nRSeqNumber);
 
-    if (piSIPMsg->SetHeader(ISIPHeader::RSEQ, strRSeq) != IMS_SUCCESS)
+    if (piSIPMsg->SetHeader(ISipHeader::RSEQ, strRSeq) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Setting RSeq header failed", 0, 0, 0);
         return IMS_FALSE;
@@ -139,7 +139,7 @@ IMS_BOOL ReliableProvResponseHelper::SetRSeqHeader(IN_OUT ISIPMessage *&piSIPMsg
 }
 
 PUBLIC
-IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageReceived(IN ISIPMessage *piSIPMsg)
+IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageReceived(IN ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -148,11 +148,11 @@ IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageReceived(IN ISIPMessage *piS
         return IMS_FALSE;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (objMethod.Equals(SIPMethod::PRACK))
+    if (objMethod.Equals(SipMethod::PRACK))
     {
-        if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+        if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
         {
             SetState(STATE_IDLE);
         }
@@ -163,9 +163,9 @@ IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageReceived(IN ISIPMessage *piS
     }
     else
     {
-        if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+        if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
         {
-            AString strRSeq = piSIPMsg->GetHeader(ISIPHeader::RSEQ);
+            AString strRSeq = piSIPMsg->GetHeader(ISipHeader::RSEQ);
             IMS_BOOL bOK = IMS_FALSE;
             IMS_SINT32 nNumber = strRSeq.ToInt32(&bOK);
 
@@ -184,7 +184,7 @@ IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageReceived(IN ISIPMessage *piS
 }
 
 PUBLIC
-IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageSent(IN ISIPMessage *piSIPMsg)
+IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageSent(IN ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -193,11 +193,11 @@ IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageSent(IN ISIPMessage *piSIPMs
         return IMS_FALSE;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (objMethod.Equals(SIPMethod::PRACK))
+    if (objMethod.Equals(SipMethod::PRACK))
     {
-        if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+        if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
         {
             SetState(STATE_IDLE);
         }
@@ -208,7 +208,7 @@ IMS_BOOL ReliableProvResponseHelper::UpdateOnMessageSent(IN ISIPMessage *piSIPMs
     }
     else
     {
-        if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+        if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
         {
             // Increment the response sequence number for the following RPRs
             ++nRSeqNumber;

@@ -54,7 +54,7 @@ IMS_BOOL UceOptions::SendOptionsRequest(IN AString strRemoteURI, IN IMS_UINT32 o
         OptionsTerminated();
         return IMS_FALSE;
     }
-    AString strFrom = m_piCoreService->GetUserIdentity(SIP::URI_SCHEME_TEL);
+    AString strFrom = m_piCoreService->GetUserIdentity(Sip::URI_SCHEME_TEL);
     DestroyCapabilities();
     m_piCapabilities = m_piCoreService->CreateCapabilities(strFrom, strRemoteURI);
 
@@ -74,11 +74,11 @@ IMS_BOOL UceOptions::SendOptionsRequest(IN AString strRemoteURI, IN IMS_UINT32 o
         return IMS_FALSE;
     }
 
-    ISIPMessage* piSIPMessage = piMessage->GetMessage();
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
     if (piSIPMessage == IMS_NULL) {
         SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
         OptionsTerminated();
-        IMS_TRACE_I("SendOptionsRequest:ISIPMessage is null", 0, 0, 0 );
+        IMS_TRACE_I("SendOptionsRequest:ISipMessage is null", 0, 0, 0 );
         return IMS_FALSE;
     }
 
@@ -109,9 +109,9 @@ IMS_BOOL UceOptions::SendOptionsResponse(IN IMS_UINT32 nResponse, IN AString rea
             return IMS_FALSE;
         }
 
-        ISIPMessage* piSIPMessage = piMessage->GetMessage();
+        ISipMessage* piSIPMessage = piMessage->GetMessage();
         if (piSIPMessage == IMS_NULL) {
-            IMS_TRACE_I("SendOptionsResponse:ISIPMessage is null", 0, 0, 0 );
+            IMS_TRACE_I("SendOptionsResponse:ISipMessage is null", 0, 0, 0 );
             return IMS_FALSE;
         }
         SetContactHeader(ownCapabilities, piSIPMessage);
@@ -244,7 +244,7 @@ void UceOptions::CapabilityQueryDelivered(IN ICapabilities* piCapabilities_)
         return;
     }
 
-    ISIPMessage* piSIPMessage = piMessage->GetMessage();
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
     if (piSIPMessage == IMS_NULL) {
         IMS_TRACE_I("CapabilityQueryDelivered:piSIPMessage is null", 0, 0, 0);
         SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
@@ -252,7 +252,7 @@ void UceOptions::CapabilityQueryDelivered(IN ICapabilities* piCapabilities_)
         return;
     }
 
-    IMSList<AString> objContactList = piSIPMessage->GetHeaders(ISIPHeader::CONTACT_NORMAL);
+    IMSList<AString> objContactList = piSIPMessage->GetHeaders(ISipHeader::CONTACT_NORMAL);
     IMS_UINT32 capabilities = GetCapability(objContactList);
     SendOptionsResponseInd(piMessage->GetStatusCode(), piMessage->GetReasonPhrase(), capabilities);
     OptionsTerminated();
@@ -264,7 +264,7 @@ void UceOptions::CapabilityQueryDeliveryFailed(IN ICapabilities *piCapabilities_
     // received failure response to options request
     if (piCapabilities_ == IMS_NULL || (m_piCapabilities != piCapabilities_)) {
         IMS_TRACE_I("CapabilityQueryDeliveryFailed:piCapabilities_ is null", 0, 0, 0);
-        SendOptionsResponseInd(SIPStatusCode::SC_408, "Request Timeout", 0);
+        SendOptionsResponseInd(SipStatusCode::SC_408, "Request Timeout", 0);
         OptionsTerminated();
         return;
     }
@@ -272,15 +272,15 @@ void UceOptions::CapabilityQueryDeliveryFailed(IN ICapabilities *piCapabilities_
     IMessage* piMessage = m_piCapabilities->GetPreviousResponse(IMessage::CAPABILITIES_QUERY);
     if (piMessage == IMS_NULL) {
         IMS_TRACE_I("CapabilityQueryDeliveryFailed:piMessage is null", 0, 0, 0);
-        SendOptionsResponseInd(SIPStatusCode::SC_408, "Request Timeout", 0);
+        SendOptionsResponseInd(SipStatusCode::SC_408, "Request Timeout", 0);
         OptionsTerminated();
         return;
     }
 
-    ISIPMessage* piSIPMessage = piMessage->GetMessage();
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
     if (piSIPMessage == IMS_NULL) {
         IMS_TRACE_I("CapabilityQueryDeliveryFailed:piSIPMessage is null", 0, 0, 0);
-        SendOptionsResponseInd(SIPStatusCode::SC_408, "Request Timeout", 0);
+        SendOptionsResponseInd(SipStatusCode::SC_408, "Request Timeout", 0);
         OptionsTerminated();
         return;
     }
@@ -290,7 +290,7 @@ void UceOptions::CapabilityQueryDeliveryFailed(IN ICapabilities *piCapabilities_
 
 
 PRIVATE
-void UceOptions::SetContactHeader(IN IMS_UINT32 capabilities, ISIPMessage* piSIPMessage)
+void UceOptions::SetContactHeader(IN IMS_UINT32 capabilities, ISipMessage* piSIPMessage)
 {
     IService *piService = (IService*)m_piCoreService;
     AString strMyContact = AString::ConstEmpty();
@@ -299,7 +299,7 @@ void UceOptions::SetContactHeader(IN IMS_UINT32 capabilities, ISIPMessage* piSIP
         strMyContact.Append(piService->GetContactAddress().ToString());
     } else {
         strMyContact.Append(piService->GetPublicGRUU()->ToString());
-        piSIPMessage->AddHeader(ISIPHeader::SUPPORTED, "gruu");
+        piSIPMessage->AddHeader(ISipHeader::SUPPORTED, "gruu");
     }
 
     if (!strMyContact.Contains(TextParser::CHAR_LAQUOT)) {
@@ -335,7 +335,7 @@ void UceOptions::SetContactHeader(IN IMS_UINT32 capabilities, ISIPMessage* piSIP
         strMyContact.Append(strNoType);
     }
 
-    piSIPMessage->SetHeader(ISIPHeader::CONTACT_NORMAL, strMyContact);
+    piSIPMessage->SetHeader(ISipHeader::CONTACT_NORMAL, strMyContact);
 }
 
 void UceOptions::SendOptionsResponseInd(IN IMS_SINT32 nResponseCode, IN AString reason,

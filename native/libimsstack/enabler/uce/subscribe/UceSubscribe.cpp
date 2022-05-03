@@ -106,7 +106,7 @@ UceSubscribe::~UceSubscribe()
     Methods
 ------------------------------------------------------------------------------------------------- */
 PUBLIC
-IMS_RESULT UceSubscribe::MessageMediator_AdjustMessage(IN_OUT ISIPMessage *piSIPMsg,
+IMS_RESULT UceSubscribe::MessageMediator_AdjustMessage(IN_OUT ISipMessage *piSIPMsg,
         IN IMS_SINT32 nMessage)
 {
     IMS_TRACE_D("MessageMediator_AdjustMessage:nMessage [%d]", nMessage, 0,0);
@@ -114,11 +114,11 @@ IMS_RESULT UceSubscribe::MessageMediator_AdjustMessage(IN_OUT ISIPMessage *piSIP
         IMS_TRACE_I("MessageMediator_AdjustMessage:piSIPMsg is null", 0, 0,0);
         return IMS_SUCCESS;
     }
-    if (piSIPMsg->GetMethod().Equals(SIPMethod::SUBSCRIBE) == IMS_FALSE) {
+    if (piSIPMsg->GetMethod().Equals(SipMethod::SUBSCRIBE) == IMS_FALSE) {
         IMS_TRACE_I("MessageMediator_AdjustMessage:it is not subscribe method.", 0, 0, 0);
         return IMS_SUCCESS;
     }
-    AString strContactHeader = piSIPMsg->GetHeader(ISIPHeader::CONTACT_NORMAL);
+    AString strContactHeader = piSIPMsg->GetHeader(ISipHeader::CONTACT_NORMAL);
     if (UceConfig::GetInstance()->GetBoolValue(
         UceConfig::KEY_USE_CONTACT_HEADER_IN_SUBSCRIBE, m_nSimSlot) == IMS_FALSE) {
         IMS_TRACE_I("MessageMediator_AdjustMessage:m_bUseContactHeader is false", 0, 0, 0);
@@ -330,10 +330,10 @@ IMS_RESULT UceSubscribe::MessageMediator_AdjustMessage(IN_OUT ISIPMessage *piSIP
     }
 
     if (strContactHeader.IsEmpty() == IMS_TRUE) {
-        piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeaderValue);
+        piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeaderValue);
     } else {
         strContactHeader = strContactHeader + ";" + strContactHeaderValue;
-        piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeader);
+        piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeader);
     }
     return IMS_SUCCESS;
 }
@@ -460,7 +460,7 @@ void UceSubscribe::SubscriptionStartFailed(IN ISubscription* piSubscription)
     }
 
     if (piMessage == IMS_NULL || piMessage->GetMessage() == IMS_NULL) {
-        IMS_TRACE_I( "SubscriptionStartFailed:IMessage or ISIPMessage is null", 0, 0, 0 );
+        IMS_TRACE_I( "SubscriptionStartFailed:IMessage or ISipMessage is null", 0, 0, 0 );
         SendSubscribeCommandErrorInd(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
         SubscribeTerminated();
         return;
@@ -469,7 +469,7 @@ void UceSubscribe::SubscriptionStartFailed(IN ISubscription* piSubscription)
     IMS_SINT32 nErrorResponse = 0;
     nErrorResponse = piMessage->GetMessage()->GetStatusCode();
     if (nErrorResponse < 0) {
-        nErrorResponse = SIPStatusCode::SC_408;
+        nErrorResponse = SipStatusCode::SC_408;
     }
     IMS_TRACE_I( "SubscriptionStartFailed:received response[%d]", nErrorResponse, 0, 0 );
     IMSMSG objMSG(SUBSCRIBE_FAILED, nErrorResponse, 0);
@@ -550,9 +550,9 @@ IMS_BOOL UceSubscribe::StateON_ListSubscribeRequested(IN IMSMSG &objMsg)
         return IMS_TRUE;
     }
 
-    ISIPMessage* piSIPMessage = GetISIPMessage();
+    ISipMessage* piSIPMessage = GetISIPMessage();
     if (piSIPMessage == IMS_NULL) {
-        IMS_TRACE_I("ISIPMessage is null", 0, 0, 0 );
+        IMS_TRACE_I("ISipMessage is null", 0, 0, 0 );
         SendSubscribeCommandErrorInd(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
         SubscribeTerminated();
         return IMS_TRUE;
@@ -603,12 +603,12 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBING_Subscribed(IN IMSMSG &objMsg)
         piMessage = m_piSubscription->GetPreviousResponse(IMessage::SUBSCRIPTION_POLL);
     }
 
-    ISIPMessage* piSIPMessage = IMS_NULL;
+    ISipMessage* piSIPMessage = IMS_NULL;
     if (piMessage != IMS_NULL) {
         /* get sip message */
         piSIPMessage = piMessage->GetMessage();
         if(piSIPMessage != IMS_NULL) {
-            AString strExpireHeader = piSIPMessage->GetHeader(ISIPHeader::EXPIRES_ANY);
+            AString strExpireHeader = piSIPMessage->GetHeader(ISipHeader::EXPIRES_ANY);
             if (strExpireHeader.IsNULL() != IMS_TRUE) {
                 IMS_TRACE_I("StateSUBSCRIBING_Subscribed:expire value is [%s]",
                         strExpireHeader.GetStr(), 0, 0);
@@ -624,7 +624,7 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBING_Subscribed(IN IMSMSG &objMsg)
                 pResponseData->m_nReasonCause, pResponseData->m_strReasonText);
         delete pResponseData;
     } else {
-        SendSubscribeResponseInd(SIPStatusCode::SC_200, "OK", 0, "");
+        SendSubscribeResponseInd(SipStatusCode::SC_200, "OK", 0, "");
     }
     StartWaitingNotifyMessageTimer(m_nWaitNotiTimerValue);
     SetState(SUBSCRIBED);
@@ -651,9 +651,9 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBING_SubscribeFailed(IN IMSMSG &objMsg)
         SetState(ON);
         return IMS_TRUE;
     }
-    ISIPMessage* piSIPMessage = piMessage->GetMessage();
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
     if (piSIPMessage == IMS_NULL) {
-        IMS_TRACE_I("StateSUBSCRIBING_SubscribeFailed:ISIPMessage is null", 0, 0, 0);
+        IMS_TRACE_I("StateSUBSCRIBING_SubscribeFailed:ISipMessage is null", 0, 0, 0);
         SendSubscribeResponseInd(nErrorResponse, "Request Timeout", 0, "");
         SubscribeTerminated();
         SetState(ON);
@@ -661,28 +661,28 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBING_SubscribeFailed(IN IMSMSG &objMsg)
     }
 
     switch (nErrorResponse) {
-        case SIPStatusCode::SC_404: // FALL-THROUGH //rfc3261 20.33 Retry-After
-        case SIPStatusCode::SC_413: // FALL-THROUGH
-        case SIPStatusCode::SC_480: // FALL-THROUGH
-        case SIPStatusCode::SC_486: // FALL-THROUGH
-        case SIPStatusCode::SC_500: // FALL-THROUGH
-        case SIPStatusCode::SC_503: // FALL-THROUGH
-        case SIPStatusCode::SC_600: // FALL-THROUGH
-        case SIPStatusCode::SC_603: // FALL-THROUGH
+        case SipStatusCode::SC_404: // FALL-THROUGH //rfc3261 20.33 Retry-After
+        case SipStatusCode::SC_413: // FALL-THROUGH
+        case SipStatusCode::SC_480: // FALL-THROUGH
+        case SipStatusCode::SC_486: // FALL-THROUGH
+        case SipStatusCode::SC_500: // FALL-THROUGH
+        case SipStatusCode::SC_503: // FALL-THROUGH
+        case SipStatusCode::SC_600: // FALL-THROUGH
+        case SipStatusCode::SC_603: // FALL-THROUGH
         {
             if (HandleRetryAfterHeader(piSIPMessage) == IMS_TRUE) {
                 return IMS_TRUE;
             }
         }
         break;
-        case SIPStatusCode::SC_423://min_expire
+        case SipStatusCode::SC_423://min_expire
         {
             if (Handle423FailureResponse(piSIPMessage) == IMS_TRUE) {
                 return IMS_TRUE;
             }
         }
         break;
-        case SIPStatusCode::SC_403:// forbidden
+        case SipStatusCode::SC_403:// forbidden
         {
             if (Handle403FailureResponse(piSIPMessage) == IMS_TRUE) {
                 return IMS_TRUE;
@@ -712,7 +712,7 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBING_SubscribeTerminated(IN IMSMSG &objMsg)
     IMS_TRACE_I( "StateSUBSCRIBING_SubscribeTerminated", 0, 0, 0 );
     StopRetryAfterTimer();
     if (m_nThreadRunningCompleted == 0) {
-        SendSubscribeResponseInd(SIPStatusCode::SC_408, "Request Timeout", 0, "");
+        SendSubscribeResponseInd(SipStatusCode::SC_408, "Request Timeout", 0, "");
         SubscribeTerminated();
         SetState(ON);
     } else {
@@ -732,13 +732,13 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBING_NotifyReceived(IN IMSMSG &objMsg)
         return IMS_TRUE;
     }
 
-    ISIPMessage* piSIPMessage = piNotify->GetMessage();
+    ISipMessage* piSIPMessage = piNotify->GetMessage();
     if (piSIPMessage == IMS_NULL) {
         IMS_TRACE_I("StateSUBSCRIBING_NotifyReceived:piSIPMessage is null", 0, 0, 0);
         return IMS_TRUE;
     }
     if (HandleNotifyInd(piSIPMessage) == IMS_FALSE && m_nThreadRunningCompleted == 0) {
-        SendSubscribeResponseInd(SIPStatusCode::SC_408, "Request Timeout", 0, "");
+        SendSubscribeResponseInd(SipStatusCode::SC_408, "Request Timeout", 0, "");
         SubscribeTerminated();
         SetState(ON);
         return IMS_TRUE;
@@ -792,7 +792,7 @@ IMS_BOOL UceSubscribe::StateSUBSCRIBED_NotifyReceived(IN IMSMSG &objMsg)
         return IMS_TRUE;
     }
 
-    ISIPMessage* piSIPMessage = piNotify->GetMessage();
+    ISipMessage* piSIPMessage = piNotify->GetMessage();
     if (piSIPMessage == IMS_NULL) {
         IMS_TRACE_I("StateSUBSCRIBED_NotifyReceived:piSIPMessage is null", 0, 0, 0);
         return IMS_TRUE;
@@ -1017,7 +1017,7 @@ void UceSubscribe::SendSubscribeTerminatedInd()
     m_nKey = 0;
 }
 
-IMS_BOOL UceSubscribe::SetHeaderForSingleSubscription(IN_OUT ISIPMessage* piSIPMessage)
+IMS_BOOL UceSubscribe::SetHeaderForSingleSubscription(IN_OUT ISipMessage* piSIPMessage)
 {
     IMS_TRACE_D("SetHeaderForSingleSubscription", 0, 0, 0);
     if (piSIPMessage == IMS_NULL) {
@@ -1026,17 +1026,17 @@ IMS_BOOL UceSubscribe::SetHeaderForSingleSubscription(IN_OUT ISIPMessage* piSIPM
     }
 
     if (m_nAnonymousMethod == 0) { // set only privacy header
-        piSIPMessage->SetHeader(ISIPHeader::PRIVACY, "id");
+        piSIPMessage->SetHeader(ISipHeader::PRIVACY, "id");
     } else if (m_nAnonymousMethod == 1) { // set only anonymous from header
-        piSIPMessage->SetHeader(ISIPHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
+        piSIPMessage->SetHeader(ISipHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
     } else { // set privacy and anonymous from header
-        piSIPMessage->SetHeader(ISIPHeader::PRIVACY, "id");
-        piSIPMessage->SetHeader(ISIPHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
+        piSIPMessage->SetHeader(ISipHeader::PRIVACY, "id");
+        piSIPMessage->SetHeader(ISipHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
     }
-    piSIPMessage->AddHeader( ISIPHeader::UNKNOWN, "gzip" , "Accept-Encoding");
-    piSIPMessage->AddHeader( ISIPHeader::EXPIRES_ANY, "0" );
+    piSIPMessage->AddHeader( ISipHeader::UNKNOWN, "gzip" , "Accept-Encoding");
+    piSIPMessage->AddHeader( ISipHeader::EXPIRES_ANY, "0" );
     // Accept
-    piSIPMessage->AddHeader( ISIPHeader::ACCEPT, "application/pidf+xml" );
+    piSIPMessage->AddHeader( ISipHeader::ACCEPT, "application/pidf+xml" );
     return IMS_TRUE;
 }
 
@@ -1049,7 +1049,7 @@ AString UceSubscribe::GetListSubscribeUri()
     return szRequestUri;
 }
 
-IMS_BOOL UceSubscribe::SetHeaderForListSubscription(IN_OUT ISIPMessage* piSIPMessage,
+IMS_BOOL UceSubscribe::SetHeaderForListSubscription(IN_OUT ISipMessage* piSIPMessage,
         IN CONST AString &strListSubscriptionRequestUri)
 {
     IMS_TRACE_D("SetHeaderForListSubscription", 0, 0, 0);
@@ -1060,30 +1060,30 @@ IMS_BOOL UceSubscribe::SetHeaderForListSubscription(IN_OUT ISIPMessage* piSIPMes
     }
 
     if (m_nAnonymousMethod == 0) { // set only privacy header
-        piSIPMessage->SetHeader(ISIPHeader::PRIVACY, "id");
+        piSIPMessage->SetHeader(ISipHeader::PRIVACY, "id");
     } else if (m_nAnonymousMethod == 1) { // set only anonymous from header
-        piSIPMessage->SetHeader(ISIPHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
+        piSIPMessage->SetHeader(ISipHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
     } else { // set privacy and anonymous from header
-        piSIPMessage->SetHeader(ISIPHeader::PRIVACY, "id");
-        piSIPMessage->SetHeader(ISIPHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
+        piSIPMessage->SetHeader(ISipHeader::PRIVACY, "id");
+        piSIPMessage->SetHeader(ISipHeader::FROM, "Anonymous <sip:anonymous@anonymous.invalid>");
     }
-    piSIPMessage->AddHeader( ISIPHeader::UNKNOWN, "gzip" , "Accept-Encoding");
+    piSIPMessage->AddHeader( ISipHeader::UNKNOWN, "gzip" , "Accept-Encoding");
     AString strToHeaderRequestUri    = "<" + strListSubscriptionRequestUri + ">";
-    piSIPMessage->SetHeader( ISIPHeader::TO, strToHeaderRequestUri);
-    piSIPMessage->AddHeader( ISIPHeader::REQUIRE, "recipient-list-subscribe");
-    piSIPMessage->AddHeader( ISIPHeader::ACCEPT, "multipart/related");
-    piSIPMessage->AddHeader( ISIPHeader::ACCEPT, "application/rlmi+xml");
-    piSIPMessage->AddHeader( ISIPHeader::CONTENT_TYPE, "application/resource-lists+xml");
-    piSIPMessage->AddHeader( ISIPHeader::CONTENT_DISPOSITION, "recipient-list");
+    piSIPMessage->SetHeader( ISipHeader::TO, strToHeaderRequestUri);
+    piSIPMessage->AddHeader( ISipHeader::REQUIRE, "recipient-list-subscribe");
+    piSIPMessage->AddHeader( ISipHeader::ACCEPT, "multipart/related");
+    piSIPMessage->AddHeader( ISipHeader::ACCEPT, "application/rlmi+xml");
+    piSIPMessage->AddHeader( ISipHeader::CONTENT_TYPE, "application/resource-lists+xml");
+    piSIPMessage->AddHeader( ISipHeader::CONTENT_DISPOSITION, "recipient-list");
     IMS_TRACE_D("SetHeaderForSingleSubscription:Expire value[%s]",
             m_strExpireValueInListSub.GetStr(), 0, 0);
-    piSIPMessage->AddHeader(ISIPHeader::EXPIRES_ANY, m_strExpireValueInListSub);
-    piSIPMessage->AddHeader( ISIPHeader::SUPPORTED, "eventlist" );
-    piSIPMessage->AddHeader( ISIPHeader::ACCEPT, "application/pidf+xml" );
+    piSIPMessage->AddHeader(ISipHeader::EXPIRES_ANY, m_strExpireValueInListSub);
+    piSIPMessage->AddHeader( ISipHeader::SUPPORTED, "eventlist" );
+    piSIPMessage->AddHeader( ISipHeader::ACCEPT, "application/pidf+xml" );
     return IMS_TRUE;
 }
 
-IMS_BOOL UceSubscribe::SetContentBody(IN_OUT ISIPMessage* piSIPMessage,
+IMS_BOOL UceSubscribe::SetContentBody(IN_OUT ISipMessage* piSIPMessage,
         IN CONST AString &strXMLBody)
 {
     IMS_TRACE_D("SetContentBody", 0, 0, 0);
@@ -1092,9 +1092,9 @@ IMS_BOOL UceSubscribe::SetContentBody(IN_OUT ISIPMessage* piSIPMessage,
         return IMS_FALSE;
     }
 
-    ISIPMessageBodyPart* piBodyPart = piSIPMessage->CreateBodyPart();
+    ISipMessageBodyPart* piBodyPart = piSIPMessage->CreateBodyPart();
     if (piBodyPart == IMS_NULL) {
-        IMS_TRACE_I("SetContentBody:ISIPMessageBodyPart is null", 0, 0, 0 );
+        IMS_TRACE_I("SetContentBody:ISipMessageBodyPart is null", 0, 0, 0 );
         return IMS_FALSE;
     }
 
@@ -1112,7 +1112,7 @@ IMS_BOOL UceSubscribe::SetContentBody(IN_OUT ISIPMessage* piSIPMessage,
         if (IMS_UTIL_ZLIB_Compress(objContent, objCompressedContent) == IMS_TRUE) {
             IMS_TRACE_I("SetSubscribeXMLBody - compressing a body part", 0, 0, 0);
             piBodyPart->SetContent(objCompressedContent);
-            piSIPMessage->AddHeader( ISIPHeader::CONTENT_ENCODING, "gzip");
+            piSIPMessage->AddHeader( ISipHeader::CONTENT_ENCODING, "gzip");
             return IMS_TRUE;
         }
     }
@@ -1120,7 +1120,7 @@ IMS_BOOL UceSubscribe::SetContentBody(IN_OUT ISIPMessage* piSIPMessage,
     return IMS_TRUE;
 }
 
-ISIPMessage* UceSubscribe::GetISIPMessage()
+ISipMessage* UceSubscribe::GetISIPMessage()
 {
     if (m_piSubscription == IMS_NULL) {
         IMS_TRACE_I("GetISIPMessage:m_piSubscription is null", 0, 0, 0 );
@@ -1134,9 +1134,9 @@ ISIPMessage* UceSubscribe::GetISIPMessage()
     }
 
     /* get sip message */
-    ISIPMessage* piSIPMessage = piMessage->GetMessage();
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
     if (piSIPMessage == IMS_NULL) {
-        IMS_TRACE_I("GetISIPMessage:Getting a ISIPMessage failed", 0, 0, 0 );
+        IMS_TRACE_I("GetISIPMessage:Getting a ISipMessage failed", 0, 0, 0 );
         return IMS_NULL;
     }
     return piSIPMessage;
@@ -1174,7 +1174,7 @@ IMS_BOOL UceSubscribe::SendListSubscribe()
     return IMS_TRUE;
 }
 
-ISubscribeResponseData* UceSubscribe::GetSubscribeResponseData(ISIPMessage* piMessage)
+ISubscribeResponseData* UceSubscribe::GetSubscribeResponseData(ISipMessage* piMessage)
 {
     ISubscribeResponseData* pSubscribeResponseData = IMS_NULL;
 
@@ -1188,12 +1188,12 @@ ISubscribeResponseData* UceSubscribe::GetSubscribeResponseData(ISIPMessage* piMe
         pSubscribeResponseData->m_nResponseCode = piMessage->GetStatusCode();
         pSubscribeResponseData->m_strReason = piMessage->GetReasonPhrase();
 
-        IMSList<AString> objReasonHeaders = piMessage->GetHeaders(ISIPHeader::UNKNOWN, "Reason");
+        IMSList<AString> objReasonHeaders = piMessage->GetHeaders(ISipHeader::UNKNOWN, "Reason");
         if (objReasonHeaders.IsEmpty()) {
             return pSubscribeResponseData;
         }
-        AString strReasonHdr = SIPParsingHelper::GetSIPReasonHeader(objReasonHeaders);
-        SIPParsingHelper::ParseReasonHeader(strReasonHdr, nReasonCause, strReasonText);
+        AString strReasonHdr = SipParsingHelper::GetSipReasonHeader(objReasonHeaders);
+        SipParsingHelper::ParseReasonHeader(strReasonHdr, nReasonCause, strReasonText);
         IMS_TRACE_D("GetSubscribeResponseData:cause[%d], text[%s]", nReasonCause,
                 strReasonText.GetStr(), 0);
 
@@ -1203,20 +1203,20 @@ ISubscribeResponseData* UceSubscribe::GetSubscribeResponseData(ISIPMessage* piMe
     return pSubscribeResponseData;
 }
 
-IMS_BOOL UceSubscribe::HandleRetryAfterHeader(ISIPMessage* piSIPMessage)
+IMS_BOOL UceSubscribe::HandleRetryAfterHeader(ISipMessage* piSIPMessage)
 {
     IMS_TRACE_D("HandleRetryAfterHeader", 0, 0, 0);
     if (piSIPMessage == IMS_NULL) {
-        IMS_TRACE_I("HandleRetryAfterHeader:ISIPMessage is null", 0, 0, 0);
+        IMS_TRACE_I("HandleRetryAfterHeader:ISipMessage is null", 0, 0, 0);
         return IMS_FALSE;
     }
-    AString strHeader = piSIPMessage->GetHeader(ISIPHeader::RETRY_AFTER_SEC);
+    AString strHeader = piSIPMessage->GetHeader(ISipHeader::RETRY_AFTER_SEC);
     if (strHeader.GetLength() <= 0) {
         IMS_TRACE_I("HandleRetryAfterHeader:strHeader less than 0", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::RETRY_AFTER_SEC, strHeader);
+    ISipHeader *piHeader = SipParsingHelper::CreateHeader(ISipHeader::RETRY_AFTER_SEC, strHeader);
     if (piHeader == IMS_NULL) {
         IMS_TRACE_I("HandleRetryAfterHeader:piHeader is null.", 0, 0, 0 );
         return IMS_FALSE;
@@ -1228,7 +1228,7 @@ IMS_BOOL UceSubscribe::HandleRetryAfterHeader(ISIPMessage* piSIPMessage)
     return StartRetryAfterTimer(nValue);
 }
 
-IMS_BOOL UceSubscribe::Handle403FailureResponse(ISIPMessage* piSIPMessage)
+IMS_BOOL UceSubscribe::Handle403FailureResponse(ISipMessage* piSIPMessage)
 {
 #define NOT_AUTHORIZED_FOR_PRESENCE     "NOT AUTHORIZED FOR PRESENCE"
 
@@ -1244,7 +1244,7 @@ IMS_BOOL UceSubscribe::Handle403FailureResponse(ISIPMessage* piSIPMessage)
         IMS_TRACE_I("ReasonPhrase:Not Authorized for presence", 0, 0, 0);
         return IMS_FALSE;
     }
-    IMSList<AString> objReasonList = piSIPMessage->GetHeaders(ISIPHeader::UNKNOWN, "Reason");
+    IMSList<AString> objReasonList = piSIPMessage->GetHeaders(ISipHeader::UNKNOWN, "Reason");
     if (objReasonList.IsEmpty() == IMS_TRUE) {
         IMS_TRACE_D("No Reason header present", 0, 0, 0);
         IMSMSG objMsg(AoSAppRequest::COMMAND_REGISTER_RECOVERY, 0,
@@ -1265,7 +1265,7 @@ IMS_BOOL UceSubscribe::Handle403FailureResponse(ISIPMessage* piSIPMessage)
     return IMS_FALSE;
 }
 
-IMS_BOOL UceSubscribe::Handle423FailureResponse(ISIPMessage* piSIPMessage)
+IMS_BOOL UceSubscribe::Handle423FailureResponse(ISipMessage* piSIPMessage)
 {
     IMS_TRACE_D("Handle423FailureResponse", 0, 0, 0);
     if (piSIPMessage == IMS_NULL) {
@@ -1273,12 +1273,12 @@ IMS_BOOL UceSubscribe::Handle423FailureResponse(ISIPMessage* piSIPMessage)
         return IMS_FALSE;
     }
 
-    AString strMinExpireHeader = piSIPMessage->GetHeader(ISIPHeader::MIN_EXPIRES);
+    AString strMinExpireHeader = piSIPMessage->GetHeader(ISipHeader::MIN_EXPIRES);
     if (strMinExpireHeader.GetLength() == 0) {
         IMS_TRACE_I("Handle423FailureResponse:strMinExpireHeader is empty", 0, 0, 0);
         return IMS_FALSE;
     }
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::MIN_EXPIRES,
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::MIN_EXPIRES,
             strMinExpireHeader);
     if (piHeader == IMS_NULL) {
         IMS_TRACE_I("Handle423FailureResponse:piHeader is null", 0, 0, 0);
@@ -1299,22 +1299,22 @@ IMS_BOOL UceSubscribe::Handle423FailureResponse(ISIPMessage* piSIPMessage)
     }
 }
 
-IMS_BOOL UceSubscribe::HandleNotifyInd(IN ISIPMessage* piSIPMessage)
+IMS_BOOL UceSubscribe::HandleNotifyInd(IN ISipMessage* piSIPMessage)
 {
     IMS_TRACE_D( "HandleNotifyInd:m_nThreadRunningCompleted [%d]", m_nThreadRunningCompleted, 0, 0);
     if (piSIPMessage == IMS_NULL) {
         IMS_TRACE_I("HandleNotifyInd:piSIPMessage is null", 0, 0, 0 );
         return IMS_FALSE;
     }
-    AString strSIPSubState = piSIPMessage->GetHeader(ISIPHeader::SUBSCRIPTION_STATE);
-    IMSList<ISIPMessageBodyPart*> objBodyParts = piSIPMessage->GetBodyParts();
+    AString strSIPSubState = piSIPMessage->GetHeader(ISipHeader::SUBSCRIPTION_STATE);
+    IMSList<ISipMessageBodyPart*> objBodyParts = piSIPMessage->GetBodyParts();
     IMS_TRACE_D( "HandleNotifyInd:Subscription-State [%s]", strSIPSubState.GetStr(), 0, 0 );
 
-    AString strContentType = piSIPMessage->GetHeader(ISIPHeader::CONTENT_TYPE);
+    AString strContentType = piSIPMessage->GetHeader(ISipHeader::CONTENT_TYPE);
     if (strContentType.Contains("application/pidf+xml")) {
         IMSList<AString> pidfXmls = IMSList<AString>();
         for (IMS_UINT32 i = 0; i < objBodyParts.GetSize(); i++) {
-            ISIPMessageBodyPart *piBodyPart = objBodyParts.GetAt(i);
+            ISipMessageBodyPart *piBodyPart = objBodyParts.GetAt(i);
             pidfXmls.Append(piBodyPart->GetContent().ToString());
         }
         if (pidfXmls.IsEmpty()) {
@@ -1330,11 +1330,11 @@ IMS_BOOL UceSubscribe::HandleNotifyInd(IN ISIPMessage* piSIPMessage)
 
     IMS_TRACE_D( "HandleNotifyInd:objBodyParts.GetSize() [%d]", objBodyParts.GetSize(), 0, 0);
     for (IMS_UINT32 i = 0; i < objBodyParts.GetSize(); i++) {
-        ISIPMessageBodyPart* piBodyPart = objBodyParts.GetAt(i);
+        ISipMessageBodyPart* piBodyPart = objBodyParts.GetAt(i);
         ByteArray objContent = piBodyPart->GetContent();
         IMS_TRACE_D("HandleNotifyInd:XML data [%s]", objContent.ToString().GetStr(), 0, 0);
-        AString strContentId = piBodyPart->GetHeader(ISIPMessageBodyPart::CONTENT_ID);
-        AString strContentTypeOfBody = piBodyPart->GetHeader(ISIPMessageBodyPart::CONTENT_TYPE);
+        AString strContentId = piBodyPart->GetHeader(ISipMessageBodyPart::CONTENT_ID);
+        AString strContentTypeOfBody = piBodyPart->GetHeader(ISipMessageBodyPart::CONTENT_TYPE);
         UceNotifyBodyPartData* pBodyData = new UceNotifyBodyPartData(strContentId,
                 strContentTypeOfBody, objContent);
         pUceNotifyMessageBody->SetNotifyBodyPartData(pBodyData);
@@ -1385,7 +1385,7 @@ void UceSubscribe::HandleWaitingNotifyMessageTimer()
     IMS_TRACE_I("HandleWaitingNotifyMessageTimer", 0, 0, 0);
     StopWaitingNotifyMessageTimer();
     if (GetState() == SUBSCRIBING) {
-        SendSubscribeResponseInd(SIPStatusCode::SC_200, "OK", 0, "");
+        SendSubscribeResponseInd(SipStatusCode::SC_200, "OK", 0, "");
         SendSubscribeTerminatedInd();
         SubscribeTerminated();
         SetState(ON);

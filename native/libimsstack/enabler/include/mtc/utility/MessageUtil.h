@@ -12,11 +12,11 @@ class IMessage;
 class IMessageBodyPart;
 class Ims3gpp;
 class ISession;
-class ISIPHeader;
-class ISIPMessage;
+class ISipHeader;
+class ISipMessage;
 class IMtcCall;
-class SIPAddress;
-class SIPParameter;
+class SipAddress;
+class SipParameter;
 
 class MessageUtil
 {
@@ -59,11 +59,11 @@ public:
     // Changed :: GetUserPartFromXXXX -> GetUserPart
     static IMS_RESULT GetUserPart(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
             OUT AString& strUserPart, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserIDsFromHdr -> GetUserIds(piMessage, ISIPHeader::FROM)
+    // Changed :: GetUserIDsFromHdr -> GetUserIds(piMessage, ISipHeader::FROM)
     static IMS_RESULT GetUserIds(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
             OUT IMSList<AString>& lstUserIds,
             IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserIDFromHdr -> GetUserId(piMessage, ISIPHeader::FROM)
+    // Changed :: GetUserIDFromHdr -> GetUserId(piMessage, ISipHeader::FROM)
     static IMS_RESULT GetUserId(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
             OUT AString& strUserId, IN const AString& strHeaderName = AString::ConstNull());
     // Changed :: GetUserDisplaynamesFromXXX -> GetDisplayNames
@@ -73,23 +73,23 @@ public:
     // Changed :: GetUserDisplaynameFromXXX -> GetDisplayName
     static IMS_RESULT GetDisplayName(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
             OUT AString& strDisplayName, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetHosts -> GetHosts(piMessage, ISIPHeader::CONTACT_NORMAL)
+    // Changed :: GetHosts -> GetHosts(piMessage, ISipHeader::CONTACT_NORMAL)
     static IMS_RESULT GetHosts(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
             OUT IMSList<AString>& lstHosts, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetHost -> GetHost(piMessage, ISIPHeader::CONTACT_NORMAL)
+    // Changed :: GetHost -> GetHost(piMessage, ISipHeader::CONTACT_NORMAL)
     static IMS_RESULT GetHost(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
             OUT AString& strHost, IN const AString& strHeaderName = AString::ConstNull());
     // Changed :: GetURIParameters -> GetParameterValueFromUri
     static IMS_RESULT GetParameterValueFromUri(IN IMessage* piMessage,
             IN const AString& strParameterName, IN IMS_SINT32 eHeaderType, OUT AString& strValue,
             IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetContactURIs -> GetUris(piMessage, bWithParameters, ISIPHeader::CONTACT_NORMAL)
-    // Changed :: GetRemoteURIsFromHdr -> GetUris(piMessage, IMS_FALSE, ISIPHeader::FROM)
+    // Changed :: GetContactURIs -> GetUris(piMessage, bWithParameters, ISipHeader::CONTACT_NORMAL)
+    // Changed :: GetRemoteURIsFromHdr -> GetUris(piMessage, IMS_FALSE, ISipHeader::FROM)
     static IMS_RESULT GetUris(IN IMessage* piMessage, IN IMS_BOOL bWithParameters,
             IN IMS_SINT32 eHeaderType, OUT IMSList<AString>& lstUris,
             IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetContactURI -> GetUri(piMessage, bWithParameters, ISIPHeader::CONTACT_NORMAL)
-    // Changed :: GetRemoteURIFromHdr -> GetUri(piMessage, IMS_FALSE, ISIPHeader::FROM)
+    // Changed :: GetContactURI -> GetUri(piMessage, bWithParameters, ISipHeader::CONTACT_NORMAL)
+    // Changed :: GetRemoteURIFromHdr -> GetUri(piMessage, IMS_FALSE, ISipHeader::FROM)
     static IMS_RESULT GetUri(IN IMessage* piMessage, IN IMS_BOOL bWithParameters,
             IN IMS_SINT32 eHeaderType, OUT AString& strUri,
             IN const AString& strHeaderName = AString::ConstNull());
@@ -109,9 +109,9 @@ public:
             IN const AString& strProtocol = AString::ConstNull());
     static IMS_SINT32 GetSupportedFeatures(IN IMessage* piMessage);
     static IMS_SINT32 GetRequireFeatures(IN IMessage* piMessage);
-    // Removed :: GetIDFromEvent -> GetParameterValue(piMessage, STR_ID, ISIPHeader::EVENT, strId)
+    // Removed :: GetIDFromEvent -> GetParameterValue(piMessage, STR_ID, ISipHeader::EVENT, strId)
     // Removed :: GetSubscriptionState ->
-    //            GetHeaderValue(piMessage, ISIPHeader::SUBSCRIPTION_STATE, strSubscriptionState)
+    //            GetHeaderValue(piMessage, ISipHeader::SUBSCRIPTION_STATE, strSubscriptionState)
     // Changed :: GetIms3gppFromMsgBody -> GetIms3gppFromBody
     static IMS_RESULT GetIms3gppFromBody(IN const IMessage* piMessage, OUT Ims3gpp& objIms3gpp);
     static IMS_SINT32 GetStatusCodeInNotify(IN IMessage* piMessage);
@@ -152,9 +152,9 @@ public:
     static IMS_BOOL IsVideoFeatureIncluded(IN IMessage* piMessage);
 
 private:
-    static ISIPMessage* GetSipMessage(IN const IMessage* piMessage);
+    static ISipMessage* GetSipMessage(IN const IMessage* piMessage);
     static IMS_RESULT GetAddresses(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT IMSList<SIPAddress>& lstAddresses,
+            OUT IMSList<SipAddress>& lstAddresses,
             IN const AString& strHeaderName = AString::ConstNull());
     static void GetParameterValueFromUnknownHeaderBody(IN const AString& strBody,
             IN const AString& strParameterName, OUT AString& strValue);

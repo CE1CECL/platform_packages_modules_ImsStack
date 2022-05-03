@@ -9,7 +9,7 @@
  * A MessageBodyPart can contain different kinds of content,
  * for example text, an image or an audio clip.
  *
- * @see IMessage, ISIPMessageBodyPart
+ * @see IMessage, ISipMessageBodyPart
  */
 class IMessageBodyPart
 {

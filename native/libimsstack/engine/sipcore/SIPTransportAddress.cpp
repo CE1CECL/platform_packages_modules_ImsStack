@@ -20,7 +20,7 @@
 PUBLIC
 SIPTransportAddress::SIPTransportAddress()
     : nProtocol(PROTOCOL_UDP)
-    , nPort(SIP::PORT_UNSPECIFIED)
+    , nPort(Sip::PORT_UNSPECIFIED)
     , objIPAddress(IPAddress::NONE)
 {
 }

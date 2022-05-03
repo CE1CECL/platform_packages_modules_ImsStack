@@ -18,7 +18,7 @@
 #include "SipAddress.h"
 
 class CallerCapability;
-class SIPProfile;
+class SipProfile;
 class IRegBindingListener;
 class IRegInfo;
 
@@ -72,11 +72,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPAddress              Registered public user identity
+    SipAddress              Registered public user identity
     </table>
 
     */
-    virtual const SIPAddress& GetAuthorizedAOR() const = 0;
+    virtual const SipAddress& GetAuthorizedAOR() const = 0;
 
     /*
      Returns the preferred contact address with the highest 'q' value of this registration.
@@ -93,11 +93,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPAddress              Preferred contact address
+    SipAddress              Preferred contact address
     </table>
 
     */
-    virtual const SIPAddress& GetContactAddress() const = 0;
+    virtual const SipAddress& GetContactAddress() const = 0;
 
     /*
      Returns the preferred contact address for all the outgoing SIP message.
@@ -114,11 +114,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPAddress              Preferred contact address
+    SipAddress              Preferred contact address
     </table>
 
     */
-    virtual const SIPAddress* GetContactAddressForOutgoingMessage() const = 0;
+    virtual const SipAddress* GetContactAddressForOutgoingMessage() const = 0;
 
     /*
      Returns the IP address of the preferred contact address.
@@ -326,11 +326,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPProfile              Instance of SIPProfile
+    SipProfile              Instance of SipProfile
     </table>
 
     */
-    virtual SIPProfile* GetSIPProfile() const = 0;
+    virtual SipProfile* GetSIPProfile() const = 0;
 
     /*
      Returns the state of registration binding.
@@ -391,7 +391,7 @@ public:
     <table>
     return                  description
     ----------              ----------
-    IMS_SINT32              Transport extension (SIP::TRANSPORT_EXT_XXX in Sip.h)
+    IMS_SINT32              Transport extension (Sip::TRANSPORT_EXT_XXX in Sip.h)
     </table>
 
     */
@@ -410,11 +410,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPParameter*           Pointer to SIP header parameter for "+sip.instance"
+    SipParameter*           Pointer to SIP header parameter for "+sip.instance"
     </table>
 
     */
-    virtual const SIPParameter* GetInstanceParameter() const = 0;
+    virtual const SipParameter* GetInstanceParameter() const = 0;
 
     /*
      Returns the public GRUU.
@@ -429,11 +429,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPAddress*             Pointer to public GRUU
+    SipAddress*             Pointer to public GRUU
     </table>
 
     */
-    virtual const SIPAddress* GetPublicGRUU() const = 0;
+    virtual const SipAddress* GetPublicGRUU() const = 0;
 
     /*
      Returns the valid (the latest) temporary GRUU.
@@ -448,11 +448,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    SIPAddress*             Pointer to temporary GRUU
+    SipAddress*             Pointer to temporary GRUU
     </table>
 
     */
-    virtual const SIPAddress* GetTemporaryGRUU() const = 0;
+    virtual const SipAddress* GetTemporaryGRUU() const = 0;
 
     /*
 
@@ -468,11 +468,11 @@ public:
     <table>
     return                  description
     ----------              ----------
-    IMSList<SIPAddress*>    List of temporary GRUU
+    IMSList<SipAddress*>    List of temporary GRUU
     </table>
 
     */
-    virtual const IMSList<SIPAddress*>& GetTemporaryGRUUs() const = 0;
+    virtual const IMSList<SipAddress*>& GetTemporaryGRUUs() const = 0;
 
     /*
      Checks if the UA is located behind a NAT or not.

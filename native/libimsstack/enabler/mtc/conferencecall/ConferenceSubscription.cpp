@@ -108,19 +108,19 @@ void ConferenceSubscription::SubscriptionStartFailed(IN ISubscription* piSubscri
 
     switch (piMessage->GetStatusCode())
     {
-        case SIPStatusCode::SC_403:
+        case SipStatusCode::SC_403:
             if (OnReceiving403(piSubscription))
             {
                 return;
             }
             break;
-        case SIPStatusCode::SC_423:
+        case SipStatusCode::SC_423:
             if (OnReceiving423(piSubscription))
             {
                 return;
             }
             break;
-        case SIPStatusCode::SC_INVALID:
+        case SipStatusCode::SC_INVALID:
             break;
         default:
             // TODO: Other responses
@@ -266,13 +266,13 @@ void ConferenceSubscription::SetHeaders()
         return;
     }
 
-    ISIPMessage* piSipMessage = piMessage->GetMessage();
+    ISipMessage* piSipMessage = piMessage->GetMessage();
     if(!piSipMessage)
     {
         return;
     }
 
-    piSipMessage->AddHeader(ISIPHeader::ACCEPT, ConferenceConst::APPLICATION_CONFERENCEINFO);
+    piSipMessage->AddHeader(ISipHeader::ACCEPT, ConferenceConst::APPLICATION_CONFERENCEINFO);
 
     // TODO: messageformatter.
     // TODO: null check?
@@ -281,7 +281,7 @@ void ConferenceSubscription::SetHeaders()
     if (piFeatureCaps != IMS_NULL)
     {
         piFeatureCaps->AddFeature("+g.3gpp.mid-call", AString::ConstEmpty(),
-                SIPMethod::SUBSCRIBE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::SUBSCRIBE, ISipMessage::TYPE_REQUEST);
     }
 
     IMS_TRACE_I("SetHeaders : [%d]", m_nExpires, 0, 0);
@@ -289,7 +289,7 @@ void ConferenceSubscription::SetHeaders()
     {
         AString strExpires;
         strExpires.SetNumber(m_nExpires);
-        piSipMessage->SetHeader(ISIPHeader::EXPIRES_SEC, strExpires);
+        piSipMessage->SetHeader(ISipHeader::EXPIRES_SEC, strExpires);
     }
 }
 
@@ -298,7 +298,7 @@ void ConferenceSubscription::UpdateConferenceInfo(IN IMessage* piNotify)
 {
     IMS_TRACE_I("UpdateConferenceInfo", 0, 0, 0);
     AString strSubState;
-    MessageUtil::GetHeaderValue(piNotify, ISIPHeader::SUBSCRIPTION_STATE, strSubState);
+    MessageUtil::GetHeaderValue(piNotify, ISipHeader::SUBSCRIPTION_STATE, strSubState);
     if (strSubState.Equals("terminated"))
     {
         // TODO: needed? static final const value.
@@ -406,7 +406,7 @@ IMS_BOOL ConferenceSubscription::OnReceiving423(IN ISubscription* piSubscription
 
     nExpires = MessageUtil::GetHeaderValueInt(
             piSubscription->GetPreviousResponse(IMessage::SUBSCRIPTION_SUBSCRIBE),
-            ISIPHeader::MIN_EXPIRES);
+            ISipHeader::MIN_EXPIRES);
 
     IMS_TRACE_I("OnReceiving423 : [%d]", nExpires, 0, 0);
 

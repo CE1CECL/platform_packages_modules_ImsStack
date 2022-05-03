@@ -41,7 +41,7 @@ public:
      *                  - INVITE, OPTIONS, MESSAGE, REFER
      * @param bCalleePreference flag to indicate that the callee preference is supported or not
      */
-    virtual void SetCalleePreference(IN CONST SIPMethod &objMethod,
+    virtual void SetCalleePreference(IN CONST SipMethod &objMethod,
             IN IMS_BOOL bCalleePreference = IMS_TRUE) = 0;
 };
 

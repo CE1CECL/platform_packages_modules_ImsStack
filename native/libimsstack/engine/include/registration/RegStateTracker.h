@@ -36,11 +36,11 @@ private:
     RegStateTracker& operator=(IN const RegStateTracker& objRHS);
 
 public:
-    const SIPAddress& GetAOR() const;
+    const SipAddress& GetAOR() const;
     const AStringArray& GetAssociatedURIs() const;
-    const SIPAddress& GetAuthorizedAOR() const;
-    const SIPAddress& GetContactAddress() const;
-    const SIPAddress* GetContactAddressForOutgoingMessage() const;
+    const SipAddress& GetAuthorizedAOR() const;
+    const SipAddress& GetContactAddress() const;
+    const SipAddress* GetContactAddressForOutgoingMessage() const;
     const IPAddress& GetIPAddress() const;
     const AStringArray& GetPathHeaders() const;
     IMS_SINT32 GetPortFlowControl() const;
@@ -53,7 +53,7 @@ public:
     const AStringArray& GetSecurityVerifys() const;
     const AStringArray& GetServiceRoutes() const;
     // MULTI_REG_SIP_PROFILE
-    SIPProfile* GetSIPProfile() const;
+    SipProfile* GetSIPProfile() const;
     // MULTI_SUBS
     const AString& GetSubscriberId() const;
     // MULTI_REG_TRANSPORT
@@ -62,7 +62,7 @@ public:
     IMS_BOOL IsWithinTrustDomain(IN IMS_SINT32 nSlotId) const;
 
 private:
-    void SetAOR(IN CONST SIPAddress &objAOR);
+    void SetAOR(IN CONST SipAddress &objAOR);
     void SetAssociatedURIs(IN CONST AStringArray &objAssociatedURIs);
     void SetPathHeaders(IN CONST AStringArray &objPaths);
     void SetPortFlowControl(IN IMS_SINT32 nPort);
@@ -71,11 +71,11 @@ private:
     void SetPreferredContact(IN RegContact *pContact);
     // NAT_REQ_UE_PUBLIC_IP
     void SetPublicIPAddress(IN CONST IPAddress &objIP);
-    void SetSecurityClients(IN CONST IMSList<SIPSecurityHeader> &objClients);
-    void SetSecurityVerifys(IN CONST IMSList<SIPSecurityHeader> &objVerifys);
+    void SetSecurityClients(IN CONST IMSList<SipSecurityHeader> &objClients);
+    void SetSecurityVerifys(IN CONST IMSList<SipSecurityHeader> &objVerifys);
     void SetServiceRoutes(IN CONST AStringArray &objServiceRoutes);
     // MULTI_REG_SIP_PROFILE
-    void SetSIPProfile(IN SIPProfile *pProfile);
+    void SetSIPProfile(IN SipProfile *pProfile);
     // MULTI_SUBS
     void SetSubscriberId(IN CONST AString &strSubsId);
     // MULTI_REG_TRANSPORT
@@ -89,16 +89,16 @@ private:
     // MULTI_SUBS : Identifier of the subscriber
     AString strSubsId;
     // IMPU : Public User Identity
-    SIPAddress objAOR;
+    SipAddress objAOR;
     // IMPU : Network authorized Public User Identity (Topmost one in P-Associated-URI)
-    SIPAddress *pAuthorizedAOR;
+    SipAddress *pAuthorizedAOR;
 
     // Preferred Contact address
     IPAddress objIPAddress;
     // NAT_REQ_UE_PUBLIC_IP
     IPAddress objPublicIPAddress;
-    SIPAddress objPreferredContactAddress;
-    SIPAddress *pContactAddressForOutgoingMessage;
+    SipAddress objPreferredContactAddress;
+    SipAddress *pContactAddressForOutgoingMessage;
     RegContact *pPreferredContact;
 
     // MULTI_REG_TRANSPORT
@@ -119,7 +119,7 @@ private:
     AStringArray objSecurityVerifys;
 
     // MULTI_REG_SIP_PROFILE
-    RCPtr<SIPProfile> pSIPProfile;
+    RCPtr<SipProfile> pSIPProfile;
 };
 
 #endif // _REG_STATE_TRACKER_H_

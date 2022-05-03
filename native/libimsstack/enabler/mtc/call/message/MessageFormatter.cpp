@@ -268,7 +268,7 @@ IMS_RESULT MessageFormatter::FormTerminateMessage(IN const FailReason& objReason
 PROTECTED VIRTUAL
 void MessageFormatter::SetLocation()
 {
-    ISIPMessage* piSipMessage = m_piNextMessage->GetMessage();
+    ISipMessage* piSipMessage = m_piNextMessage->GetMessage();
     if (piSipMessage == IMS_NULL)
     {
         return;
@@ -277,7 +277,7 @@ void MessageFormatter::SetLocation()
     IMtcCall* piUcSession = IMS_NULL; // TODO
 
     UCLocationObject objLocation;
-    // TODO, avoid to use ISIPMessage as parameter
+    // TODO, avoid to use ISipMessage as parameter
     objLocation.SetLocation(piUcSession, piSipMessage);
 }
 
@@ -308,8 +308,8 @@ IFeatureCaps* MessageFormatter::GetIFeatureCaps()
 PRIVATE
 void MessageFormatter::SetPPreferredServiceHeader()
 {
-    MessageUtil::SetHeader(m_piNextMessage, Const3GPP::ICSI_MMTEL, ISIPHeader::UNKNOWN,
-            SIPHeaderName::P_PREFERRED_SERVICE);
+    MessageUtil::SetHeader(m_piNextMessage, Const3GPP::ICSI_MMTEL, ISipHeader::UNKNOWN,
+            SipHeaderName::P_PREFERRED_SERVICE);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -333,7 +333,7 @@ void MessageFormatter::SetAcceptContactHeader()
         strAcceptContact.Append(MessageUtil::STR_VIDEO);
     }
 
-    MessageUtil::SetHeader(m_piNextMessage, strAcceptContact, ISIPHeader::ACCEPT_CONTACT);
+    MessageUtil::SetHeader(m_piNextMessage, strAcceptContact, ISipHeader::ACCEPT_CONTACT);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -342,9 +342,9 @@ PRIVATE
 void MessageFormatter::SetAcceptHeader()
 {
     MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_ACCEPT_TYPE_APPLICATION_SDP,
-            ISIPHeader::ACCEPT);
+            ISipHeader::ACCEPT);
     MessageUtil::AddValueIfNotExists(m_piNextMessage,
-            MessageUtil::STR_ACCEPT_TYPE_APPLICATION_3GPP_IMS_XML, ISIPHeader::ACCEPT);
+            MessageUtil::STR_ACCEPT_TYPE_APPLICATION_3GPP_IMS_XML, ISipHeader::ACCEPT);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -361,11 +361,11 @@ void MessageFormatter::AddSrvccFeature()
     if (m_eFormType == FormType::START)
     {
         piFeatureCaps->AddFeature(MessageUtil::STR_SRVCC_FEATURE_A, AString::ConstEmpty(),
-                SIPMethod::INVITE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::INVITE, ISipMessage::TYPE_REQUEST);
         piFeatureCaps->AddFeature(MessageUtil::STR_SRVCC_FEATURE_B, AString::ConstEmpty(),
-                SIPMethod::INVITE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::INVITE, ISipMessage::TYPE_REQUEST);
         piFeatureCaps->AddFeature(MessageUtil::STR_SRVCC_FEATURE_M, AString::ConstEmpty(),
-                SIPMethod::INVITE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::INVITE, ISipMessage::TYPE_REQUEST);
 
         return;
     }
@@ -377,24 +377,24 @@ void MessageFormatter::AddSrvccFeature()
     }
 
     if (MessageUtil::ContainsValue(piPreviousMessage, MessageUtil::STR_SRVCC_FEATURE_A,
-            ISIPHeader::UNKNOWN, SIPHeaderName::FEATURE_CAPS))
+            ISipHeader::UNKNOWN, SipHeaderName::FEATURE_CAPS))
     {
         piFeatureCaps->AddFeature(MessageUtil::STR_SRVCC_FEATURE_A, AString::ConstEmpty(),
-                SIPMethod::INVITE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::INVITE, ISipMessage::TYPE_REQUEST);
     }
 
     if (MessageUtil::ContainsValue(piPreviousMessage, MessageUtil::STR_SRVCC_FEATURE_B,
-            ISIPHeader::UNKNOWN, SIPHeaderName::FEATURE_CAPS))
+            ISipHeader::UNKNOWN, SipHeaderName::FEATURE_CAPS))
     {
         piFeatureCaps->AddFeature(MessageUtil::STR_SRVCC_FEATURE_B, AString::ConstEmpty(),
-                SIPMethod::INVITE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::INVITE, ISipMessage::TYPE_REQUEST);
     }
 
     if (MessageUtil::ContainsValue(piPreviousMessage, MessageUtil::STR_SRVCC_FEATURE_M,
-            ISIPHeader::UNKNOWN, SIPHeaderName::FEATURE_CAPS))
+            ISipHeader::UNKNOWN, SipHeaderName::FEATURE_CAPS))
     {
         piFeatureCaps->AddFeature(MessageUtil::STR_SRVCC_FEATURE_M, AString::ConstEmpty(),
-                SIPMethod::INVITE, ISIPMessage::TYPE_REQUEST);
+                SipMethod::INVITE, ISipMessage::TYPE_REQUEST);
     }
 }
 
@@ -410,19 +410,19 @@ void MessageFormatter::SetSrvccContactParameter()
     }
 
     if (MessageUtil::ContainsValue(piPreviousMessage, MessageUtil::STR_SRVCC_FEATURE_A,
-            ISIPHeader::UNKNOWN, SIPHeaderName::FEATURE_CAPS))
+            ISipHeader::UNKNOWN, SipHeaderName::FEATURE_CAPS))
     {
         m_objSession.SetContactParameter(MessageUtil::STR_SRVCC_FEATURE_A, 0);
     }
 
     if (MessageUtil::ContainsValue(piPreviousMessage, MessageUtil::STR_SRVCC_FEATURE_B,
-            ISIPHeader::UNKNOWN, SIPHeaderName::FEATURE_CAPS))
+            ISipHeader::UNKNOWN, SipHeaderName::FEATURE_CAPS))
     {
         m_objSession.SetContactParameter(MessageUtil::STR_SRVCC_FEATURE_B, 0);
     }
 
     if (MessageUtil::ContainsValue(piPreviousMessage, MessageUtil::STR_SRVCC_FEATURE_M,
-            ISIPHeader::UNKNOWN, SIPHeaderName::FEATURE_CAPS))
+            ISipHeader::UNKNOWN, SipHeaderName::FEATURE_CAPS))
     {
         m_objSession.SetContactParameter(MessageUtil::STR_SRVCC_FEATURE_M, 0);
     }
@@ -447,9 +447,9 @@ void MessageFormatter::SetKeepAliveProfile()
     }
 
     IMS_UINT32 eSipFeatures = ISipConfig::SIP_FEATURE_CAPS_KEEP;
-    RCPtr<SIPProfile> pProfile = new SIPProfile();
+    RCPtr<SipProfile> pProfile = new SipProfile();
 
-    pProfile->SetSIPFeatures(eSipFeatures);
+    pProfile->SetSipFeatures(eSipFeatures);
     piCoreService->SetSIPProfile(pProfile.Get());
 }
 
@@ -468,9 +468,9 @@ void MessageFormatter::SetCallerIdHeader()
 
     if (pSuppService->nValue == CALLERID_RESTRICTED)
     {
-        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_ID, ISIPHeader::PRIVACY);
+        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_ID, ISipHeader::PRIVACY);
 
-        SIPAddress objSIPAddress(ImsIdentity::GetAnonymousUserId());
+        SipAddress objSIPAddress(ImsIdentity::GetAnonymousUserId());
         objSIPAddress.SetDisplayName(MessageUtil::STR_ANONYMOUS);
 
         AString strSipAddress = objSIPAddress.ToString();
@@ -479,11 +479,11 @@ void MessageFormatter::SetCallerIdHeader()
             return;
         }
 
-        MessageUtil::SetHeader(m_piNextMessage, strSipAddress, ISIPHeader::FROM);
+        MessageUtil::SetHeader(m_piNextMessage, strSipAddress, ISipHeader::FROM);
     }
     else if (pSuppService->nValue == CALLERID_IDENTITY)
     {
-        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_NONE, ISIPHeader::PRIVACY);
+        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_NONE, ISipHeader::PRIVACY);
     }
 }
 
@@ -506,7 +506,7 @@ void MessageFormatter::SetTipHeader()
     else if ((m_eFormType == FormType::PROVISIONAL_RESPONSE) || (m_eFormType == FormType::ACCEPT))
     {
         IMessage* piPreviousMessage = m_objSession.GetPreviousRequest(IMessage::SESSION_START);
-        if (MessageUtil::HasValue(piPreviousMessage, SIP::STR_FROM_CHANGE, ISIPHeader::SUPPORTED))
+        if (MessageUtil::HasValue(piPreviousMessage, Sip::STR_FROM_CHANGE, ISipHeader::SUPPORTED))
         {
             bAddTagToSupported = IMS_TRUE;
         }
@@ -514,8 +514,8 @@ void MessageFormatter::SetTipHeader()
 
     if (bAddTagToSupported)
     {
-        MessageUtil::AddValueIfNotExists(m_piNextMessage, SIP::STR_FROM_CHANGE,
-                ISIPHeader::SUPPORTED);
+        MessageUtil::AddValueIfNotExists(m_piNextMessage, Sip::STR_FROM_CHANGE,
+                ISipHeader::SUPPORTED);
     }
 
     if (m_eFormType != FormType::PROVISIONAL_RESPONSE)
@@ -532,11 +532,11 @@ void MessageFormatter::SetTipHeader()
     IMS_SINT32 eTipType = TIP_TYPE_IDENTITY; // TODO, from user settings
     if (eTipType == TIP_TYPE_RESTRICTED)
     {
-        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_ID, ISIPHeader::PRIVACY);
+        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_ID, ISipHeader::PRIVACY);
     }
     else if (eTipType == TIP_TYPE_IDENTITY)
     {
-        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_NONE, ISIPHeader::PRIVACY);
+        MessageUtil::SetHeader(m_piNextMessage, MessageUtil::STR_NONE, ISipHeader::PRIVACY);
     }
 }
 
@@ -545,26 +545,26 @@ void MessageFormatter::SetTipHeader()
 PRIVATE
 void MessageFormatter::SetSupportedHeader()
 {
-    MessageUtil::AddValueIfNotExists(m_piNextMessage, SIP::STR_100REL, ISIPHeader::SUPPORTED);
+    MessageUtil::AddValueIfNotExists(m_piNextMessage, Sip::STR_100REL, ISipHeader::SUPPORTED);
 
     if (m_eFormType != FormType::START)
     {
         return;
     }
 
-    MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_199, ISIPHeader::SUPPORTED);
+    MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_199, ISipHeader::SUPPORTED);
 
     IMS_BOOL bHistoryInfo = IMS_FALSE; // TODO
     if (bHistoryInfo)
     {
         MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_HISTINFO,
-                ISIPHeader::SUPPORTED);
+                ISipHeader::SUPPORTED);
     }
 
     if (m_objContext.IsEct())
     {
         MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_REPLACES,
-                ISIPHeader::SUPPORTED);
+                ISipHeader::SUPPORTED);
     }
 }
 
@@ -581,7 +581,7 @@ void MessageFormatter::SetPreconditionHeader()
     }
 
     IMS_BOOL bInclude = IMS_FALSE;
-    IMS_SINT32 eHeaderType = ISIPHeader::SUPPORTED;
+    IMS_SINT32 eHeaderType = ISipHeader::SUPPORTED;
 
     switch (m_eFormType)
     {
@@ -593,7 +593,7 @@ void MessageFormatter::SetPreconditionHeader()
         case FormType::EARLY_UPDATE:
         {
             bInclude = IMS_TRUE;
-            eHeaderType = ISIPHeader::REQUIRE; // TODO, B_SEND_UPDATE_WITH_REQUIRE_PRECONDITION
+            eHeaderType = ISipHeader::REQUIRE; // TODO, B_SEND_UPDATE_WITH_REQUIRE_PRECONDITION
         }
             break;
         case FormType::UPDATE:
@@ -607,13 +607,13 @@ void MessageFormatter::SetPreconditionHeader()
         case FormType::ACCEPT:
         {
             bInclude = IMS_TRUE;
-            eHeaderType = ISIPHeader::REQUIRE;
+            eHeaderType = ISipHeader::REQUIRE;
         }
             break;
         case FormType::ACCEPT_UPDATE:
         {
             bInclude = IMS_TRUE; // TODO, check condition
-            eHeaderType = ISIPHeader::REQUIRE;
+            eHeaderType = ISipHeader::REQUIRE;
         }
             break;
         default:
@@ -636,7 +636,7 @@ void MessageFormatter::SetPEarlyMediaHeader()
     // TODO : check condition
 
     MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_SUPPORTED,
-            ISIPHeader::P_EARLY_MEDIA);
+            ISipHeader::P_EARLY_MEDIA);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -650,7 +650,7 @@ void MessageFormatter::SetAlertInfoHeader(IN IMS_BOOL bIncludeAlertInfo)
     }
 
     MessageUtil::AddValueIfNotExists(m_piNextMessage, MessageUtil::STR_ALERT_URN_CALL_WAITING,
-            ISIPHeader::UNKNOWN, SIPHeaderName::ALERT_INFO);
+            ISipHeader::UNKNOWN, SipHeaderName::ALERT_INFO);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -663,8 +663,8 @@ void MessageFormatter::SetReasonHeader(IN CONST AString& strReason)
         return;
     }
 
-    MessageUtil::AddValueIfNotExists(m_piNextMessage, strReason, ISIPHeader::UNKNOWN,
-            SIPHeaderName::REASON);
+    MessageUtil::AddValueIfNotExists(m_piNextMessage, strReason, ISipHeader::UNKNOWN,
+            SipHeaderName::REASON);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -672,144 +672,144 @@ void MessageFormatter::SetReasonHeader(IN CONST AString& strReason)
 PRIVATE
 IMS_SINT32 MessageFormatter::GetRejectStatusCode(IN const FailReason& objReason)
 {
-    IMS_SINT32 eStatusCode = SIPStatusCode::SC_INVALID;
+    IMS_SINT32 eStatusCode = SipStatusCode::SC_INVALID;
 
     switch (objReason.nReason)
     {
         case REJECT_REASON_UNKNOWN:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_DECLINE_USER:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_DECLINE_NOANSWER:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_DECLINE_NOBATTERY:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_DECLINE_NORMAL:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_DECLINE_CW:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_DECLINE_UPDATE:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
 
         case REJECT_REASON_SERVICE_UNAVAILABLE:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_SERVICE_TTY:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
 
         case REJECT_REASON_BUSY_ISCSCALL:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_ISEMERGENCY:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_ISWIFICALL:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_ISOTHERSCALL:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_ESTABLISHING:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_ALERTING:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_MAXCALL:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_NORMAL:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_IGNORE:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
         case REJECT_REASON_BUSY_HIDE:
-            eStatusCode = SIPStatusCode::SC_486;
+            eStatusCode = SipStatusCode::SC_486;
             break;
 
         case REJECT_REASON_SESSION_NOTSUPPORT:
-            eStatusCode = SIPStatusCode::SC_420;
+            eStatusCode = SipStatusCode::SC_420;
             break;
         case REJECT_REASON_SESSION_NOTACCEPTABLE:
-            eStatusCode = SIPStatusCode::SC_406;
+            eStatusCode = SipStatusCode::SC_406;
             break;
         case REJECT_REASON_SESSION_NOTACCEPTABLEHERE:
-            eStatusCode = SIPStatusCode::SC_488;
+            eStatusCode = SipStatusCode::SC_488;
             break;
         case REJECT_REASON_SESSION_UPDATE:
-            eStatusCode = SIPStatusCode::SC_491;
+            eStatusCode = SipStatusCode::SC_491;
             break;
         case REJECT_REASON_SESSION_BAD:
-            eStatusCode = SIPStatusCode::SC_400;
+            eStatusCode = SipStatusCode::SC_400;
             break;
         case REJECT_REASON_SESSION_FAIL:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_SESSION_FAIL_PRECONDITION:
-            eStatusCode = SIPStatusCode::SC_580;
+            eStatusCode = SipStatusCode::SC_580;
             break;
         case REJECT_REASON_SESSION_INVALID_REFERRER_IDENTITY:
-            eStatusCode = SIPStatusCode::SC_429;
+            eStatusCode = SipStatusCode::SC_429;
             break;
         case REJECT_REASON_CONF_JOINED:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
 
         case REJECT_REASON_MEDIA_INITFAIL:
-            eStatusCode = SIPStatusCode::SC_415;
+            eStatusCode = SipStatusCode::SC_415;
             break;
         case REJECT_REASON_MEDIA_CODEC:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_MEDIA_LOWEST_BIT_RATE:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_MEDIA_CHECK_RADIO_CONNECTION:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_MEDIA_NEGOFAIL:
-            eStatusCode = SIPStatusCode::SC_415;
+            eStatusCode = SipStatusCode::SC_415;
             break;
         case REJECT_REASON_MEDIA_FORMFAIL:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_MEDIA_NODATA:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_MEDIA_FAIL:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
 
         case REJECT_REASON_TO_MO_PROGRESSING:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_TO_MO_STARTED:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_TO_MO_UPDATE:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_TO_MT_NOANSWER:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_TO_MT_UPDATE:
-            eStatusCode = SIPStatusCode::SC_603;
+            eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_TO_MT_PRACK:
-            eStatusCode = SIPStatusCode::SC_500;
+            eStatusCode = SipStatusCode::SC_500;
             break;
 
         default:
-            eStatusCode = SIPStatusCode::SC_480;
+            eStatusCode = SipStatusCode::SC_480;
             break;
     }
 

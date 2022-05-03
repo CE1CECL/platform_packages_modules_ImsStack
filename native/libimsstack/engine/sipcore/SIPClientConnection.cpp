@@ -110,9 +110,9 @@ SIPClientConnection::~SIPClientConnection()
     }
 
     // FORKED_RESPONSE
-    const SIPMethod &objMethod = SIPConnection::GetMethod();
+    const SipMethod &objMethod = SIPConnection::GetMethod();
 
-    if (objMethod.Equals(SIPMethod::INVITE) || objMethod.Equals(SIPMethod::ACK))
+    if (objMethod.Equals(SipMethod::INVITE) || objMethod.Equals(SipMethod::ACK))
     {
         pCTState->RemoveForkedTransaction();
     }
@@ -166,9 +166,9 @@ void SIPClientConnection::Close()
     }
 
     // FORKED_RESPONSE
-    const SIPMethod &objMethod = SIPConnection::GetMethod();
+    const SipMethod &objMethod = SIPConnection::GetMethod();
 
-    if (objMethod.Equals(SIPMethod::INVITE) || objMethod.Equals(SIPMethod::ACK))
+    if (objMethod.Equals(SipMethod::INVITE) || objMethod.Equals(SipMethod::ACK))
     {
         pCTState->RemoveForkedTransaction();
     }
@@ -190,7 +190,7 @@ IMS_RESULT SIPClientConnection::AddHeader(IN CONST AString &strName, IN CONST AS
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -211,7 +211,7 @@ AString SIPClientConnection::GetHeader(IN CONST AString &strName, IN IMS_SINT32 
     if ((nState == STATE_CREATED)
             || (nState == STATE_TERMINATED))
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return AString::ConstNull();
     }
 
@@ -232,7 +232,7 @@ IMSList<AString> SIPClientConnection::GetHeaders(IN CONST AString &strName)
     if ((nState == STATE_CREATED)
             || (nState == STATE_TERMINATED))
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return IMSList<AString>();
     }
 
@@ -245,7 +245,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPMethod& SIPClientConnection::GetMethod() const
+const SipMethod& SIPClientConnection::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -253,7 +253,7 @@ const SIPMethod& SIPClientConnection::GetMethod() const
     if ((nState == STATE_CREATED)
             || (nState == STATE_TERMINATED))
     {
-        return SIPMethod::INVALID_METHOD;
+        return SipMethod::INVALID_METHOD;
     }
 
     return SIPConnection::GetMethod();
@@ -333,7 +333,7 @@ IMS_RESULT SIPClientConnection::RemoveHeader(IN CONST AString &strName)
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -353,7 +353,7 @@ IMS_RESULT SIPClientConnection::Send()
     if ((nState != STATE_INITIALIZED)
             && (nState != STATE_UNAUTHORIZED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -372,14 +372,14 @@ IMS_RESULT SIPClientConnection::Send()
         // Throw exception - INVALID_MESSAGE if the message format was invalid
         if (!pMessage->FormMessage())
         {
-            SIPPrivate::SetLastError(SIPError::INVALID_MESSAGE);
+            SIPPrivate::SetLastError(SipError::INVALID_MESSAGE);
             return IMS_FAILURE;
         }
 
         // Update the Routing information (Determining the target destination)
         if (!pCTState->UpdateRouteDetails(GetMethod()))
         {
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -390,7 +390,7 @@ IMS_RESULT SIPClientConnection::Send()
 
             if (!pAuHelper->FormCredentials(pstMessage))
             {
-                SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+                SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
                 return IMS_FAILURE;
             }
 
@@ -421,7 +421,7 @@ IMS_RESULT SIPClientConnection::Send()
         }
 
         // Update the state
-        if (pMessage->GetMethod().Equals(SIPMethod::ACK))
+        if (pMessage->GetMethod().Equals(SipMethod::ACK))
         {
             bACKSent = IMS_TRUE;
         }
@@ -440,7 +440,7 @@ IMS_RESULT SIPClientConnection::Send()
     }
 
     // Update the state
-    if (SIPConnection::GetMethod().Equals(SIPMethod::ACK))
+    if (SIPConnection::GetMethod().Equals(SipMethod::ACK))
     {
         SetState(STATE_COMPLETED);
     }
@@ -449,13 +449,13 @@ IMS_RESULT SIPClientConnection::Send()
         SetState(STATE_PROCEEDING);
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     //// DEBUG
-    if (!SIPConnection::GetMethod().Equals(SIPMethod::REGISTER))
+    if (!SIPConnection::GetMethod().Equals(SipMethod::REGISTER))
     {
-        SIPDebug::Send(GetSlotId(), SIPDebug::MSG_REQ,
-                SIPDebug::DIR_OUT, SIPConnection::GetMethod().ToInt());
+        SipDebug::Send(GetSlotId(), SipDebug::MSG_REQ,
+                SipDebug::DIR_OUT, SIPConnection::GetMethod().ToInt());
     }
 
     return IMS_SUCCESS;
@@ -473,7 +473,7 @@ IMS_RESULT SIPClientConnection::SetHeader(IN CONST AString &strName, IN CONST AS
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -493,7 +493,7 @@ const ByteArray& SIPClientConnection::GetContent() const
     if ((nState != STATE_PROCEEDING)
             && (nState != STATE_COMPLETED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return ByteArray::ConstNull();
     }
 
@@ -512,7 +512,7 @@ IMS_RESULT SIPClientConnection::SetContent(IN CONST ByteArray &objContent)
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -546,7 +546,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC VIRTUAL
-void SIPClientConnection::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPClientConnection::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -568,30 +568,30 @@ IMS_RESULT SIPClientConnection::InitAck()
 
     if (nState != STATE_COMPLETED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
     // If ACK request is already sent, throw INVALID_OPERATION
     if (bACKSent)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
     // If the method of this transaction is not INVITE, throw INVALID_OPERATION
-    if (!SIPConnection::GetMethod().Equals(SIPMethod::INVITE))
+    if (!SIPConnection::GetMethod().Equals(SipMethod::INVITE))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
     IMS_SINT32 nStatusCode = GetStatusCode();
 
-    if ((nStatusCode < SIPStatusCode::SC_200)
-            || (nStatusCode >= SIPStatusCode::SC_300))
+    if ((nStatusCode < SipStatusCode::SC_200)
+            || (nStatusCode >= SipStatusCode::SC_300))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -600,11 +600,11 @@ IMS_RESULT SIPClientConnection::InitAck()
     pCTState->UpdateMessage(pMessage->GetMessage());
 
     // Method
-    pMessage->SetMethod(SIPMethod(SIPMethod::ACK));
+    pMessage->SetMethod(SipMethod(SipMethod::ACK));
 
     if (!pCTState->InitRequest(GetMethod(), IMS_NULL))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
@@ -614,7 +614,7 @@ IMS_RESULT SIPClientConnection::InitAck()
 
     SetState(STATE_INITIALIZED);
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -631,13 +631,13 @@ SIPClientConnection* SIPClientConnection::InitCancel()
 
     if (nState != STATE_PROCEEDING)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_NULL;
     }
 
-    if (!SIPConnection::GetMethod().Equals(SIPMethod::INVITE))
+    if (!SIPConnection::GetMethod().Equals(SipMethod::INVITE))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_NULL;
     }
 
@@ -645,7 +645,7 @@ SIPClientConnection* SIPClientConnection::InitCancel()
 
     if (pCANCEL == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::CONNECTION_NOT_FOUND);
+        SIPPrivate::SetLastError(SipError::CONNECTION_NOT_FOUND);
         return IMS_NULL;
     }
 
@@ -657,11 +657,11 @@ SIPClientConnection* SIPClientConnection::InitCancel()
     {
         pCANCEL->Close();
 
-        SIPPrivate::SetLastError(SIPError::CONNECTION_NOT_FOUND);
+        SIPPrivate::SetLastError(SipError::CONNECTION_NOT_FOUND);
         return IMS_NULL;
     }
 
-    pCANCEL->pMessage->SetMethod(SIPMethod(SIPMethod::CANCEL));
+    pCANCEL->pMessage->SetMethod(SipMethod(SipMethod::CANCEL));
 
     // Update the Request-URI if there are any changes
     //if (pCANCEL->pCTState->IsTargetUpdated())
@@ -669,7 +669,7 @@ SIPClientConnection* SIPClientConnection::InitCancel()
 
     pCANCEL->SetState(STATE_INITIALIZED);
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return pCANCEL;
 }
@@ -687,25 +687,25 @@ IMS_RESULT SIPClientConnection::InitRequest(IN CONST AString &strMethod,
 
     if (nState != STATE_CREATED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
-    SIPMethod objMethod(strMethod);
+    SipMethod objMethod(strMethod);
 
-    if (objMethod.Equals(SIPMethod::ACK)
-            || objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::ACK)
+            || objMethod.Equals(SipMethod::CANCEL))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
-    if ((objMethod.Equals(SIPMethod::BYE))
-            || (objMethod.Equals(SIPMethod::NOTIFY))
-            || (objMethod.Equals(SIPMethod::PRACK))
-            || (objMethod.Equals(SIPMethod::UPDATE)))
+    if ((objMethod.Equals(SipMethod::BYE))
+            || (objMethod.Equals(SipMethod::NOTIFY))
+            || (objMethod.Equals(SipMethod::PRACK))
+            || (objMethod.Equals(SipMethod::UPDATE)))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -726,7 +726,7 @@ IMS_RESULT SIPClientConnection::InitRequest(IN CONST AString &strMethod,
 
     if (!pCTState->InitRequest(objMethod))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
@@ -740,23 +740,23 @@ IMS_RESULT SIPClientConnection::InitRequest(IN CONST AString &strMethod,
     // If SCN is not shared, From & Contact will be set by the application (J180 Engine)
     // From header
     if (pSCN != IMS_NULL)
-        pMessage->SetHeader(ISIPHeader::FROM, pSCN->GetUserIdentity());
+        pMessage->SetHeader(ISipHeader::FROM, pSCN->GetUserIdentity());
     else
-        pMessage->SetHeader(ISIPHeader::FROM, ANONYMOUS_URI);
+        pMessage->SetHeader(ISipHeader::FROM, ANONYMOUS_URI);
 
     // To header
-    pMessage->SetHeader(ISIPHeader::TO, strTargetURI);
+    pMessage->SetHeader(ISipHeader::TO, strTargetURI);
 
     // Call-ID : after setting PD connection ??? ---> It will be set in the transport layer
 
     // Contact header if SCN exists
-    if (objMethod.Equals(SIPMethod::REGISTER)
-            || objMethod.Equals(SIPMethod::INVITE)
-            || objMethod.Equals(SIPMethod::SUBSCRIBE)
-            || objMethod.Equals(SIPMethod::REFER))
+    if (objMethod.Equals(SipMethod::REGISTER)
+            || objMethod.Equals(SipMethod::INVITE)
+            || objMethod.Equals(SipMethod::SUBSCRIBE)
+            || objMethod.Equals(SipMethod::REFER))
     {
         if (pSCN != IMS_NULL)
-            pMessage->SetHeader(ISIPHeader::CONTACT_NORMAL, pSCN->GetContactAddress());
+            pMessage->SetHeader(ISipHeader::CONTACT_NORMAL, pSCN->GetContactAddress());
     }
 
     // Create a dialog if the dialog can be created
@@ -767,7 +767,7 @@ IMS_RESULT SIPClientConnection::InitRequest(IN CONST AString &strMethod,
 
     SetState(STATE_INITIALIZED);
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -785,13 +785,13 @@ IMS_RESULT SIPClientConnection::Receive(IN IMS_SLONG /* nTimeout = 0 */)
     if ((nState != STATE_PROCEEDING)
             && (nState != STATE_COMPLETED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
     if (objResponseMessages.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::NO_MESSAGE);
+        SIPPrivate::SetLastError(SipError::NO_MESSAGE);
         return IMS_FAILURE;
     }
 
@@ -799,7 +799,7 @@ IMS_RESULT SIPClientConnection::Receive(IN IMS_SLONG /* nTimeout = 0 */)
 
     if (pSIPMsg == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MESSAGE);
+        SIPPrivate::SetLastError(SipError::NO_MESSAGE);
         return IMS_FAILURE;
     }
 
@@ -811,13 +811,13 @@ IMS_RESULT SIPClientConnection::Receive(IN IMS_SLONG /* nTimeout = 0 */)
 
     IMS_SINT32 nStatusCode = SIPConnection::GetStatusCode();
 
-    if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         SetState(STATE_UNAUTHORIZED);
     }
-    else if ((nStatusCode >= SIPStatusCode::SC_100)
-            && (nStatusCode < SIPStatusCode::SC_200))
+    else if ((nStatusCode >= SipStatusCode::SC_100)
+            && (nStatusCode < SipStatusCode::SC_200))
     {
         SetState(STATE_PROCEEDING);
     }
@@ -826,7 +826,7 @@ IMS_RESULT SIPClientConnection::Receive(IN IMS_SLONG /* nTimeout = 0 */)
         SetState(STATE_COMPLETED);
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -844,13 +844,13 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN IMSList<Credential> &objCreden
     if ((nState != STATE_INITIALIZED)
             && (nState != STATE_UNAUTHORIZED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
     if (objCredentials.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -861,7 +861,7 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN IMSList<Credential> &objCreden
 
     if (pAuHelper == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
@@ -869,12 +869,12 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN IMSList<Credential> &objCreden
     {
         if (!pAuHelper->AddCredential(objCredentials.GetAt(i)))
         {
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -892,7 +892,7 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN CONST Credential &objCredentia
     if ((nState != STATE_INITIALIZED)
             && (nState != STATE_UNAUTHORIZED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -910,9 +910,9 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN CONST Credential &objCredentia
 
     // LOG_EXCLUDING_SERVER_INFO
     IMS_TRACE_D("Credential :: UserName (%s), Password (%s), Realm (%s)",
-            SIPDebug::GetCharA1(objCredential.GetUsername().GetStr(), 6),
+            SipDebug::GetCharA1(objCredential.GetUsername().GetStr(), 6),
             bPasswordLogging ? objCredential.GetPassword().GetStr() : "xxx",
-            SIPDebug::GetCharA2(objCredential.GetRealm().GetStr(), 4));
+            SipDebug::GetCharA2(objCredential.GetRealm().GetStr(), 4));
 
     if ((objCredential.GetType() == Credential::TYPE_AKAv1_MD5)
             || (objCredential.GetType() == Credential::TYPE_AKAv2_MD5))
@@ -921,7 +921,7 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN CONST Credential &objCredentia
         if ((objCredential.GetUsername().GetLength() == 0)
                 || (objCredential.GetRealm().GetLength() == 0))
         {
-            SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+            SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
             return IMS_FAILURE;
         }
     }
@@ -931,7 +931,7 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN CONST Credential &objCredentia
                 || (objCredential.GetPassword().GetLength() == 0)
                 || (objCredential.GetRealm().GetLength() == 0))
         {
-            SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+            SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
             return IMS_FAILURE;
         }
     }
@@ -943,17 +943,17 @@ IMS_RESULT SIPClientConnection::SetCredentials(IN CONST Credential &objCredentia
 
     if (pAuHelper == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
     if (!pAuHelper->AddCredential(objCredential))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -983,7 +983,7 @@ IMS_RESULT SIPClientConnection::SetRequestURI(IN CONST AString &strURI)
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -998,7 +998,7 @@ Remarks
 
 */
 PUBLIC
-ISIPGenericChallenge* SIPClientConnection::GetAuthenticationChallenge(
+ISipGenericChallenge* SIPClientConnection::GetAuthenticationChallenge(
         IN IMS_SINT32 nIndex /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
@@ -1017,7 +1017,7 @@ Remarks
 
 */
 PUBLIC
-ISIPAckPackage* SIPClientConnection::GrabAck()
+ISipAckPackage* SIPClientConnection::GrabAck()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1032,11 +1032,11 @@ ISIPAckPackage* SIPClientConnection::GrabAck()
     {
         IMS_BOOL bSipConfigRequired = IMS_TRUE;
         IMS_SINT32 nAliveInterval = 2000 * 64;
-        SIPTimerValues *pTVs = GetTransactionTimerValues();
+        SipTimerValues *pTVs = GetTransactionTimerValues();
 
         if (pTVs != IMS_NULL)
         {
-            IMS_SINT32 nTempTV = pTVs->GetValue(SIPTimerValues::TV_TIMER_H);
+            IMS_SINT32 nTempTV = pTVs->GetValue(SipTimerValues::TV_TIMER_H);
 
             if (nTempTV > 0)
             {
@@ -1045,7 +1045,7 @@ ISIPAckPackage* SIPClientConnection::GrabAck()
             }
             else
             {
-                nTempTV = pTVs->GetValue(SIPTimerValues::TIMER_T1);
+                nTempTV = pTVs->GetValue(SipTimerValues::TIMER_T1);
 
                 if (nTempTV > 0)
                 {
@@ -1057,7 +1057,7 @@ ISIPAckPackage* SIPClientConnection::GrabAck()
 
         if (bSipConfigRequired)
         {
-            IMS_SINT32 nTV_T1 = SIPConfigProxy::GetTimerValueT1(
+            IMS_SINT32 nTV_T1 = SipConfigProxy::GetTimerValueT1(
                     GetSlotId(), pCTState->GetSIPProfile());
 
             if (nTV_T1 > 0)
@@ -1090,7 +1090,7 @@ IMS_RESULT SIPClientConnection::InitResubmissionRequest()
 
     if (nState != STATE_UNAUTHORIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -1103,7 +1103,7 @@ IMS_RESULT SIPClientConnection::InitResubmissionRequest()
 
     bResubmissionRequestInitialized = IMS_TRUE;
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -1146,19 +1146,19 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT SIPClientConnection::SetAuthenticationChallenge(IN ISIPGenericChallenge *piChallenge)
+IMS_RESULT SIPClientConnection::SetAuthenticationChallenge(IN ISipGenericChallenge *piChallenge)
 {
     //---------------------------------------------------------------------------------------------
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
     if (piChallenge == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -1229,14 +1229,14 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT SIPClientConnection::InitDialogRequest(IN CONST SIPMethod &objMethod,
+IMS_RESULT SIPClientConnection::InitDialogRequest(IN CONST SipMethod &objMethod,
         IN SIPDialogEx *pDialogEx)
 {
     //---------------------------------------------------------------------------------------------
 
     if (nState != STATE_CREATED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -1255,13 +1255,13 @@ IMS_RESULT SIPClientConnection::InitDialogRequest(IN CONST SIPMethod &objMethod,
 
     if (pDialog == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_FAILURE;
     }
 
     SetState(STATE_INITIALIZED);
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -1278,7 +1278,7 @@ IMS_RESULT SIPClientConnection::SendWithCredentials()
 
     if (pAuHelper == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -1286,7 +1286,7 @@ IMS_RESULT SIPClientConnection::SendWithCredentials()
     // it needs to be sent with "anonymous" & empty password.
     if (!pAuHelper->IsCredentialPresent())
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -1294,7 +1294,7 @@ IMS_RESULT SIPClientConnection::SendWithCredentials()
     {
         if (InitResubmissionRequest() != IMS_SUCCESS)
         {
-            SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+            SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
             return IMS_FAILURE;
         }
     }
@@ -1303,19 +1303,19 @@ IMS_RESULT SIPClientConnection::SendWithCredentials()
 
     if (!pAuHelper->FormCredentials(pstMessage))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
     if (!pMessage->FormMessageOnChallenge())
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
     if (!pCTState->FormMessageForResubmissionRequest())
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
@@ -1323,7 +1323,7 @@ IMS_RESULT SIPClientConnection::SendWithCredentials()
 
     if (nResult == SIPClientTransmissionProxy::RESULT_NOK)
     {
-        SIPPrivate::SetLastError(SIPError::TRANSPORT_ERROR);
+        SIPPrivate::SetLastError(SipError::TRANSPORT_ERROR);
         return IMS_FAILURE;
     }
 
@@ -1341,7 +1341,7 @@ IMS_RESULT SIPClientConnection::SendWithCredentials()
 
     bResubmissionRequestInitialized = IMS_FALSE;
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -1373,7 +1373,7 @@ void SIPClientConnection::ClientTransactionState_ForkedResponseReceived(
     }
 
     // Copy the transaction timer values
-    SIPTimerValues *pTVs = GetTransactionTimerValues();
+    SipTimerValues *pTVs = GetTransactionTimerValues();
 
     if (pTVs != IMS_NULL)
     {
@@ -1383,7 +1383,7 @@ void SIPClientConnection::ClientTransactionState_ForkedResponseReceived(
     pSCC->strTargetURI = strTargetURI;
 
     SipMessage *pstMessage = pCTState->GetMessage();
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
     if (SIPDialogBase::IsDialogCreatable(objMethod))
     {
@@ -1420,9 +1420,9 @@ void SIPClientConnection::ClientTransactionState_ForkedResponseReceived(
     pSCC->SetState(STATE_PROCEEDING);
 
     //// DEBUG
-    if (!SIPConnection::GetMethod().Equals(SIPMethod::REGISTER))
+    if (!SIPConnection::GetMethod().Equals(SipMethod::REGISTER))
     {
-        SIPDebug::Send(GetSlotId(), SIPDebug::MSG_RSP, SIPDebug::DIR_IN,
+        SipDebug::Send(GetSlotId(), SipDebug::MSG_RSP, SipDebug::DIR_IN,
                 SIPConnection::GetMethod().ToInt(), pSIPMsg->GetStatusCode());
     }
 
@@ -1443,13 +1443,13 @@ void SIPClientConnection::ClientTransactionState_ResponseReceived(IN SipMessage 
     //---------------------------------------------------------------------------------------------
 
     //// DEBUG
-    if (!SIPConnection::GetMethod().Equals(SIPMethod::REGISTER))
+    if (!SIPConnection::GetMethod().Equals(SipMethod::REGISTER))
     {
-        SIPDebug::Send(GetSlotId(), SIPDebug::MSG_RSP,
-                SIPDebug::DIR_IN, SIPConnection::GetMethod().ToInt(), nStatusCode);
+        SipDebug::Send(GetSlotId(), SipDebug::MSG_RSP,
+                SipDebug::DIR_IN, SIPConnection::GetMethod().ToInt(), nStatusCode);
     }
 
-    if ((nStatusCode == SIPStatusCode::SC_401) || (nStatusCode == SIPStatusCode::SC_407))
+    if ((nStatusCode == SipStatusCode::SC_401) || (nStatusCode == SipStatusCode::SC_407))
     {
         if (pAuHelper != IMS_NULL)
         {
@@ -1463,7 +1463,7 @@ void SIPClientConnection::ClientTransactionState_ResponseReceived(IN SipMessage 
 
                 if (Send() != IMS_SUCCESS)
                 {
-                    NotifyError(SIPError::AUTHENTICATION_FAILED, AString("Authentication failed"));
+                    NotifyError(SipError::AUTHENTICATION_FAILED, AString("Authentication failed"));
                 }
                 return;
             }
@@ -1476,7 +1476,7 @@ void SIPClientConnection::ClientTransactionState_ResponseReceived(IN SipMessage 
 
             if (pAuHelper == IMS_NULL)
             {
-                NotifyError(SIPError::AUTHENTICATION_FAILED, AString("Authentication failed"));
+                NotifyError(SipError::AUTHENTICATION_FAILED, AString("Authentication failed"));
                 return;
             }
 
@@ -1515,17 +1515,17 @@ IMS_BOOL SIPClientConnection::IsTransportErrorReportRequired(IN IMS_SINT32 nCode
 {
     //---------------------------------------------------------------------------------------------
 
-    if (nCode == SIPError::TRANSPORT_ERROR)
+    if (nCode == SipError::TRANSPORT_ERROR)
     {
         AString strTECode;
 
-        strTECode.Sprintf("%d", SIPError::TRANSPORT_E_CODE_104);
+        strTECode.Sprintf("%d", SipError::TRANSPORT_E_CODE_104);
 
-        // SIPError::TRANSPORT_E_CODE_104
+        // SipError::TRANSPORT_E_CODE_104
         if (strMessage.StartsWith(strTECode))
         {
             if ((nState == STATE_PROCEEDING)
-                    && SIPConfigProxy::IsTransportErrorReportOnTxnRequired(
+                    && SipConfigProxy::IsTransportErrorReportOnTxnRequired(
                             GetSlotId(), pCTState->GetSIPProfile()))
             {
                 // Notifies "Socket is closed by peer"(104) error

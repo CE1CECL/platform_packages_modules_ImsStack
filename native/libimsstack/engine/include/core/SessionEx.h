@@ -50,20 +50,20 @@ protected:
     virtual IMS_BOOL DispatchMessage(IN IMSMSG &objMSG);
 
     // Method class
-    virtual IMS_BOOL NotifySIPRequest(IN ISIPServerConnection *piSSC);
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC);
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual IMS_BOOL NotifySIPRequest(IN ISipServerConnection *piSSC);
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC);
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // IDialogMethod interface
-    virtual IMS_BOOL Dialog_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL Dialog_NotifyRequest(IN ISipServerConnection *piSSC);
 
     // Session class
     virtual Session* CreateSession();
-    virtual IMS_RESULT HandleProvisionalResponse(IN ISIPClientConnection *piSCC);
-    virtual IMS_RESULT HandleRequestToUPDATE(IN ISIPServerConnection *piSSC);
-    virtual IMS_RESULT HandleResponseToUPDATE(IN ISIPClientConnection *piSCC);
+    virtual IMS_RESULT HandleProvisionalResponse(IN ISipClientConnection *piSCC);
+    virtual IMS_RESULT HandleRequestToUPDATE(IN ISipServerConnection *piSSC);
+    virtual IMS_RESULT HandleResponseToUPDATE(IN ISipClientConnection *piSCC);
     virtual IMS_BOOL HasPendingPRAck() const;
     virtual IMS_BOOL IsEarlyUpdateInProgress() const;
 
@@ -73,11 +73,11 @@ protected:
 private:
     AString AdjustSessionExpiresHeader(
             IN CONST AString &strRequestSE, IN CONST AString &strResponseSE);
-    IMS_BOOL CheckNCreateRPRHelper(IN ISIPMessage *piSIPMsg);
+    IMS_BOOL CheckNCreateRPRHelper(IN ISipMessage *piSIPMsg);
     void DestroyRPRHelper();
 
-    void HandleRequestToPRACK(IN ISIPServerConnection *piSSC);
-    void HandleResponseToPRACK(IN ISIPClientConnection *piSCC);
+    void HandleRequestToPRACK(IN ISipServerConnection *piSSC);
+    void HandleResponseToPRACK(IN ISipClientConnection *piSCC);
 
     IMS_BOOL IsEarlyUpdateNotificationInProgress() const;
     void SetEarlyUpdateNotificationState(IN IMS_BOOL bInProgress);
@@ -122,7 +122,7 @@ private:
 
     // RACE_CONDITION: 200 OK to UPDATE and incoming UPDATE
     IMS_BOOL bFlag_EarlyUpdateNotificationInProgress;
-    ISIPServerConnection *piSSC_PendingUpdate;
+    ISipServerConnection *piSSC_PendingUpdate;
     ITimer *piTimer_PendingUpdate;
     IMS_UINT32 nLastEarlyUpdateCompletedTimeSec;
     IMS_UINT32 nLastEarlyUpdateCompletedTimeMicroSec;

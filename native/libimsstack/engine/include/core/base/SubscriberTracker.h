@@ -34,7 +34,7 @@ public:
 
 public:
     const AString& GetSubscriberId(IN IMS_SINT32 nSlotId, IN const AString &strAOR) const;
-    const AString& GetSubscriberId(IN IMS_SINT32 nSlotId, IN const SIPAddress *pAOR) const;
+    const AString& GetSubscriberId(IN IMS_SINT32 nSlotId, IN const SipAddress *pAOR) const;
 
     static SubscriberTracker* GetInstance();
 
@@ -45,7 +45,7 @@ protected:
             IN const AString &strOld, IN const AString &strNew);
 
 private:
-    IMSMap< AString, IMSList<SIPAddress*> >* GetSubscribers(IN IMS_SINT32 nSlotId) const;
+    IMSMap< AString, IMSList<SipAddress*> >* GetSubscribers(IN IMS_SINT32 nSlotId) const;
     void Initialize();
     void InitForSlot(IN IMS_SINT32 nSlotId);
 
@@ -55,7 +55,7 @@ private:
     IMutex* piLock;
     // < SubscriberConfig id, IMPUs >
     // DEFAULT_ID : "default"
-    IMSMap< AString, IMSList<SIPAddress*> >* pSubscriberMaps;
+    IMSMap< AString, IMSList<SipAddress*> >* pSubscriberMaps;
 };
 
 #endif // _SUBSCRIBER_TRACKER_H_

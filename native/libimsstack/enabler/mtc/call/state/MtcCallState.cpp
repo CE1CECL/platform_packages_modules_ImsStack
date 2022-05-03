@@ -310,14 +310,14 @@ CallStateName MtcCallState::SessionRPRReceived(
 
 PUBLIC VIRTUAL
 CallStateName MtcCallState::SessionTransactionReceived(
-        IN ISession* /* piSession */, IN ISIPServerConnection* /* piSipServerConnection */)
+        IN ISession* /* piSession */, IN ISipServerConnection* /* piSipServerConnection */)
 {
     return GetStateName();
 }
 
 PUBLIC VIRTUAL
 CallStateName MtcCallState::MessageMediator_AdjustMessage(
-            IN_OUT ISIPMessage* /*piSipMessage*/,
+            IN_OUT ISipMessage* /*piSipMessage*/,
             IN IMS_SINT32 /*nMessage = IMessageMediator::MESSAGE_NORMAL*/)
 {
     return GetStateName();
@@ -579,9 +579,9 @@ ResultSetSdp MtcCallState::SetSdpToSend(IN IMS_BOOL bAllowReOffer,
 PROTECTED
 void MtcCallState::RunMedia(IN ISession* piSession, IN IMessage* piMessage)
 {
-    IMS_BOOL bEarly = !MessageUtil::IsResponseExist(piSession, SIPStatusCode::SC_200);
+    IMS_BOOL bEarly = !MessageUtil::IsResponseExist(piSession, SipStatusCode::SC_200);
     IMS_BOOL b180Received = m_objContext.GetCallInfo().ePeerType == PeerType::MO &&
-            MessageUtil::IsResponseExist(piSession, SIPStatusCode::SC_180);
+            MessageUtil::IsResponseExist(piSession, SipStatusCode::SC_180);
 
     m_objContext.GetMediaManager().Run(piSession, piMessage, bEarly, b180Received);
 }
@@ -596,7 +596,7 @@ IMS_RESULT MtcCallState::SendProvisionalResponse(IN IMS_BOOL bUserAlert)
     }
 
     // TODO: determine the response code based on the configuration for KR carriers?
-    IMS_SINT32 nStatusCode = bUserAlert ? SIPStatusCode::SC_180 : SIPStatusCode::SC_183;
+    IMS_SINT32 nStatusCode = bUserAlert ? SipStatusCode::SC_180 : SipStatusCode::SC_183;
 
     return m_objContext.GetSession()->GetMessageSender().SendProvisionalResponse(
             nStatusCode, IsRprSupported(), eSetSdpResult == ResultSetSdp::SUCCESS, IsCallWaiting());
@@ -623,7 +623,7 @@ IMS_RESULT MtcCallState::SendResponseToEarlyUpdate(IN IMS_SINT32 eStatusCode,
     IMS_TRACE_D("SendResponseToEarlyUpdate", 0, 0, 0);
 
     // TODO: check status code in SetSdpToSend()?
-    if (SIPStatusCode::IsFinalSuccess(eStatusCode) &&
+    if (SipStatusCode::IsFinalSuccess(eStatusCode) &&
             SetSdpToSend(IMS_FALSE, &pMtcSession->GetISession()) == ResultSetSdp::FAILURE)
     {
         return IMS_FAILURE;
@@ -715,9 +715,9 @@ void MtcCallState::UpdatePreconditionCapability(IN ISession* piSession, IN IMess
 
     IMS_BOOL bRemoteCapability = IMS_FALSE;
     IMS_BOOL bHasSupportedHeader =
-            MessageUtil::HasValue(piMessage, MessageUtil::STR_PRECONDITION, ISIPHeader::SUPPORTED);
+            MessageUtil::HasValue(piMessage, MessageUtil::STR_PRECONDITION, ISipHeader::SUPPORTED);
     IMS_BOOL bHasRequireHeader =
-            MessageUtil::HasValue(piMessage, MessageUtil::STR_PRECONDITION, ISIPHeader::REQUIRE);
+            MessageUtil::HasValue(piMessage, MessageUtil::STR_PRECONDITION, ISipHeader::REQUIRE);
 
     if ((!bCheckeSdp || SdpPreconditionHelper::IsPreconditionIncludedInSdp(piSession)) &&
             (bHasSupportedHeader || bHasRequireHeader))
@@ -756,7 +756,7 @@ IMS_RESULT MtcCallState::NegotiateExtension(IN MtcSession* pMtcSession, IN IMess
         return IMS_FAILURE;
     }
 
-    if (piMessage->GetMessage()->GetType() == ISIPMessage::TYPE_RESPONSE)
+    if (piMessage->GetMessage()->GetType() == ISipMessage::TYPE_RESPONSE)
     {
         pMtcSession->GetExtensionSet().HandleResponse(eMethod, *piMessage);
     }
@@ -793,9 +793,9 @@ IMS_BOOL MtcCallState::IsNeedToIgnore(IN ISession* piSession, IN const IMessage*
         return IMS_FALSE;
     }
 
-    if (piMessage->GetMethod().Equals(SIPMethod::INVITE))
+    if (piMessage->GetMethod().Equals(SipMethod::INVITE))
     {
-        if (piMessage->GetMessage()->GetType() == ISIPMessage::TYPE_RESPONSE)
+        if (piMessage->GetMessage()->GetType() == ISipMessage::TYPE_RESPONSE)
         {
             IMS_SINT32 nConfig = piSession->GetConfiguration();
             if ((nConfig & ISession::CONFIG_IGNORE_SDP_IN_SUBSEQUENT_RESPONSE) !=
@@ -810,7 +810,7 @@ IMS_BOOL MtcCallState::IsNeedToIgnore(IN ISession* piSession, IN const IMessage*
         }
     }
 
-    if (piMessage->GetMethod().Equals(SIPMethod::ACK))
+    if (piMessage->GetMethod().Equals(SipMethod::ACK))
     {
         // TODO: isn't this invalid so need to terminate the call drop?
         IMS_TRACE_I("IsOfferToIgnore - Offer is included in ACK", 0, 0, 0);
@@ -835,9 +835,9 @@ IMS_BOOL MtcCallState::IsInvalidOfferAnswer(IN ISession* piSession,
 
     if (eState == NegotiationState::STATE_NEGOTIATED)
     {
-        if (piMessage->GetMethod().Equals(SIPMethod::INVITE) == IMS_FALSE)
+        if (piMessage->GetMethod().Equals(SipMethod::INVITE) == IMS_FALSE)
         {
-            if (piMessage->GetMessage()->GetType() == ISIPMessage::TYPE_RESPONSE)
+            if (piMessage->GetMessage()->GetType() == ISipMessage::TYPE_RESPONSE)
             {
                 IMS_TRACE_E(0, "invalid Offer is received.", 0, 0, 0);
                 return IMS_TRUE;
@@ -856,17 +856,17 @@ IMS_BOOL MtcCallState::IsPreviewOfAnswer(IN ISession* piSession, IN const IMessa
         return IMS_FALSE;
     }
 
-    if (piMessage->GetMethod().Equals(SIPMethod::INVITE) == IMS_FALSE)
+    if (piMessage->GetMethod().Equals(SipMethod::INVITE) == IMS_FALSE)
     {
         return IMS_FALSE;
     }
 
-    if (SIPStatusCode::IsProvisional(piMessage->GetStatusCode()) == IMS_FALSE)
+    if (SipStatusCode::IsProvisional(piMessage->GetStatusCode()) == IMS_FALSE)
     {
         return IMS_FALSE;
     }
 
-    if (piMessage->GetMessage()->IsMessageRPR())
+    if (piMessage->GetMessage()->IsMessageRpr())
     {
         return IMS_FALSE;
     }

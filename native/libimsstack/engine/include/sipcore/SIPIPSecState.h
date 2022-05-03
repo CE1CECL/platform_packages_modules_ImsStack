@@ -23,7 +23,7 @@
 
 class SIPIPSecState
     : public EngineActivity
-    , public ISIPIPSecState
+    , public ISipIpSecState
 {
 private:
     class SA
@@ -111,14 +111,14 @@ private:
     // EngineActivity class
     virtual IMS_BOOL DispatchMessage(IN IMSMSG &objMSG);
 
-    // ISIPIPSecState class
-    virtual void ClearIPSecSA(IN IMS_SINT32 nSAType);
+    // ISipIpSecState class
+    virtual void ClearIpSecSa(IN IMS_SINT32 nSAType);
     virtual IMS_SINT32 GetState(IN IMS_SINT32 nSAType) const;
     virtual IMS_BOOL HasPendingTransaction(IN IMS_SINT32 nSAType) const;
-    virtual void SetIPSecSA(IN IMS_SINT32 nSAType,
+    virtual void SetIpSecSa(IN IMS_SINT32 nSAType,
             IN CONST IPAddress &objIP_U, IN IMS_SINT32 nPort_UC, IN IMS_SINT32 nPort_US,
             IN CONST IPAddress &objIP_P, IN IMS_SINT32 nPort_PC, IN IMS_SINT32 nPort_PS);
-    virtual void SetListener(IN ISIPIPSecStateListener *piListener);
+    virtual void SetListener(IN ISipIpSecStateListener *piListener);
 
     void NotifyMessageReceivedInternal(IN CONST SIPTransportAddress &objNearEnd,
             IN CONST SIPTransportAddress &objFarEnd, IN SIPTxnKey *pTxnKey);
@@ -136,7 +136,7 @@ private:
     SA *pNewSA;
     SA *pOldSA;
 
-    ISIPIPSecStateListener *piListener;
+    ISipIpSecStateListener *piListener;
 };
 
 #endif // _SIP_IPSEC_STATE_H_

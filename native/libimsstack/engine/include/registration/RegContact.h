@@ -18,7 +18,7 @@
 #include "IRegContact.h"
 #include "util/CallerCapability.h"
 
-class SIPProfile;
+class SipProfile;
 class IRegCapabilityChangeListener;
 
 
@@ -31,7 +31,7 @@ public:
     RegContact(IN IMS_SINT32 nSlotId,
             IN CONST IPAddress &objIPA_, IN IMS_SINT32 nPort_,
             IN IRegCapabilityChangeListener *piListener_, IN IMS_SINT32 nRegId_ = (-1),
-            IN CONST SIPProfile *pSIPProfile = IMS_NULL);
+            IN CONST SipProfile *pSIPProfile = IMS_NULL);
     virtual ~RegContact();
 
 private:
@@ -40,17 +40,17 @@ private:
 
 public:
     // IRegContact interface
-    virtual const SIPAddress& GetContactAddress() const;
+    virtual const SipAddress& GetContactAddress() const;
     virtual IMS_UINT32 GetExpires() const;
     virtual const IPAddress& GetIPAddress() const;
     virtual IMS_SINT32 GetPort() const;
-    virtual const IMSList<SIPParameter*>& GetHeaderParameters() const;
-    virtual const SIPParameter* GetInstanceParameter() const;
-    virtual const SIPParameter* GetRegIdParameter() const;
+    virtual const IMSList<SipParameter*>& GetHeaderParameters() const;
+    virtual const SipParameter* GetInstanceParameter() const;
+    virtual const SipParameter* GetRegIdParameter() const;
 
-    virtual const SIPAddress* GetPublicGRUU() const;
-    virtual const SIPAddress* GetTemporaryGRUU() const;
-    virtual const IMSList<SIPAddress*>& GetTemporaryGRUUs() const;
+    virtual const SipAddress* GetPublicGRUU() const;
+    virtual const SipAddress* GetTemporaryGRUU() const;
+    virtual const IMSList<SipAddress*>& GetTemporaryGRUUs() const;
 
     virtual IMS_BOOL IsActiveBinding() const;
     virtual IMS_BOOL IsEmpty() const;
@@ -63,7 +63,7 @@ public:
     IMS_BOOL IsBindingsUpdated() const;
     IMS_BOOL IsExpirationValueSpecified() const;
     void Restore();
-    void SetAOR(IN CONST SIPAddress &objAOR);
+    void SetAOR(IN CONST SipAddress &objAOR);
     void SetExpires(IN IMS_UINT32 nExpiresValue);
     // IMS_IPSEC_UDP_ENC
     void SetHostInfo(IN CONST IPAddress &objIP);
@@ -72,7 +72,7 @@ public:
     AString ToStringWithExpires() const;
     // For fake registration
     IMS_SINT32 UpdateParameter(IN IMS_SINT32 nExpiresValue);
-    IMS_SINT32 UpdateParameter(IN CONST IMSList<ISIPHeader*> &objContactHeaders,
+    IMS_SINT32 UpdateParameter(IN CONST IMSList<ISipHeader*> &objContactHeaders,
             IN IMS_SINT32 nExpiresValue);
 
 private:
@@ -110,8 +110,8 @@ private:
     IMS_BOOL RegisterServiceCapability(IN CONST CallerCapability *pCC);
     void UnregisterServiceCapability(IN CONST CallerCapability *pCC);
     void SetState(IN IMS_SINT32 nState);
-    void UpdateGRUU(IN CONST ISIPHeader *piHeader);
-    void UpdateRegisteredCapabilities(IN const ISIPHeader* piHeader);
+    void UpdateGRUU(IN CONST ISipHeader *piHeader);
+    void UpdateRegisteredCapabilities(IN const ISipHeader* piHeader);
 
     static const IMS_CHAR* StateToString(IN IMS_SINT32 nState);
 
@@ -136,20 +136,20 @@ public:
 private:
     // State of the contact
     IMS_SINT32 nState;
-    SIPAddress *pAOR;
+    SipAddress *pAOR;
     // URI for Contact header
     IPAddress objIPA;
     IMS_SINT32 nPolicyUserInfo;
-    SIPAddress objContactAddress;
+    SipAddress objContactAddress;
 
     // Header parameter: +sip.instance
-    SIPParameter *pInstanceParameter;
+    SipParameter *pInstanceParameter;
     // Header parameter: reg-id
-    SIPParameter *pRegIdParameter;
+    SipParameter *pRegIdParameter;
 
-    SIPAddress *pPubGRUU;
-    SIPAddress *pTempGRUU;
-    IMSList<SIPAddress*> objTempGRUUs;
+    SipAddress *pPubGRUU;
+    SipAddress *pTempGRUU;
+    IMSList<SipAddress*> objTempGRUUs;
 
     // All the caller capabilities for this contact
     IMS_BOOL bFlag_BindingsUpdateTracker;
@@ -169,7 +169,7 @@ private:
     IMS_UINT32 nNetworkProvisionedExpires;
 
     // Header parameters
-    IMSList<SIPParameter*> objHeaderParams;
+    IMSList<SipParameter*> objHeaderParams;
 };
 
 #endif // _REG_CONTACT_H_

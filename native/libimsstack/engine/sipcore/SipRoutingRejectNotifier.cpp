@@ -15,12 +15,12 @@
 #include "SipRoutingRejectNotifier.h"
 
 PUBLIC
-SIPRoutingRejectNotifier::SIPRoutingRejectNotifier()
+SipRoutingRejectNotifier::SipRoutingRejectNotifier()
 {
 }
 
 PUBLIC VIRTUAL
-SIPRoutingRejectNotifier::~SIPRoutingRejectNotifier()
+SipRoutingRejectNotifier::~SipRoutingRejectNotifier()
 {
 }
 
@@ -30,7 +30,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPRoutingRejectNotifier::IsNotificationRequired() const
+IMS_BOOL SipRoutingRejectNotifier::IsNotificationRequired() const
 {
     return !objListeners.IsEmpty();
 }
@@ -41,12 +41,12 @@ Remarks
 
 */
 PUBLIC
-void SIPRoutingRejectNotifier::NotifyRequestReject(IN ISIPMessage *piSIPMsg,
-        IN_OUT SIPStatusCode &objStatusCode)
+void SipRoutingRejectNotifier::NotifyRequestReject(IN ISipMessage *piSIPMsg,
+        IN_OUT SipStatusCode &objStatusCode)
 {
     for (IMS_UINT32 i = 0; i < objListeners.GetSize(); ++i)
     {
-        ISIPRoutingRejectListener *piListener = objListeners.GetAt(i);
+        ISipRoutingRejectListener *piListener = objListeners.GetAt(i);
 
         if (piListener->RoutingReject_NotifyRequest(piSIPMsg, objStatusCode))
         {
@@ -61,12 +61,12 @@ Remarks
 
 */
 PUBLIC
-void SIPRoutingRejectNotifier::NotifyRequestReject(IN ISIPServerConnection *piSSC,
-        IN_OUT SIPStatusCode &objStatusCode)
+void SipRoutingRejectNotifier::NotifyRequestReject(IN ISipServerConnection *piSSC,
+        IN_OUT SipStatusCode &objStatusCode)
 {
     for (IMS_UINT32 i = 0; i < objListeners.GetSize(); ++i)
     {
-        ISIPRoutingRejectListener *piListener = objListeners.GetAt(i);
+        ISipRoutingRejectListener *piListener = objListeners.GetAt(i);
 
         if (piListener->RoutingReject_NotifyRequest(piSSC, objStatusCode))
         {
@@ -81,7 +81,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPRoutingRejectNotifier::AddListener(IN ISIPRoutingRejectListener *piListener)
+void SipRoutingRejectNotifier::AddListener(IN ISipRoutingRejectListener *piListener)
 {
     if (piListener == IMS_NULL)
     {
@@ -90,7 +90,7 @@ void SIPRoutingRejectNotifier::AddListener(IN ISIPRoutingRejectListener *piListe
 
     for (IMS_UINT32 i = 0; i < objListeners.GetSize(); ++i)
     {
-        ISIPRoutingRejectListener *piTmpListener = objListeners.GetAt(i);
+        ISipRoutingRejectListener *piTmpListener = objListeners.GetAt(i);
 
         if (piTmpListener == piListener)
         {
@@ -107,7 +107,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPRoutingRejectNotifier::RemoveListener(IN ISIPRoutingRejectListener *piListener)
+void SipRoutingRejectNotifier::RemoveListener(IN ISipRoutingRejectListener *piListener)
 {
     if (piListener == IMS_NULL)
     {
@@ -116,7 +116,7 @@ void SIPRoutingRejectNotifier::RemoveListener(IN ISIPRoutingRejectListener *piLi
 
     for (IMS_UINT32 i = 0; i < objListeners.GetSize(); ++i)
     {
-        ISIPRoutingRejectListener *piTmpListener = objListeners.GetAt(i);
+        ISipRoutingRejectListener *piTmpListener = objListeners.GetAt(i);
 
         if (piTmpListener == piListener)
         {

@@ -17,19 +17,19 @@
 #include "SipStatusCode.h"
 #include "ISipRoutingRejectNotifier.h"
 
-class ISIPMessage;
-class ISIPServerConnection;
+class ISipMessage;
+class ISipServerConnection;
 
-class SIPRoutingRejectNotifier
-    : public ISIPRoutingRejectNotifier
+class SipRoutingRejectNotifier
+    : public ISipRoutingRejectNotifier
 {
 public:
-    SIPRoutingRejectNotifier();
-    virtual ~SIPRoutingRejectNotifier();
+    SipRoutingRejectNotifier();
+    virtual ~SipRoutingRejectNotifier();
 
 private:
-    SIPRoutingRejectNotifier(IN const SIPRoutingRejectNotifier& objRHS);
-    SIPRoutingRejectNotifier& operator=(IN const SIPRoutingRejectNotifier& objRHS);
+    SipRoutingRejectNotifier(IN const SipRoutingRejectNotifier& objRHS);
+    SipRoutingRejectNotifier& operator=(IN const SipRoutingRejectNotifier& objRHS);
 
 public:
     /*
@@ -69,8 +69,8 @@ public:
     </table>
 
     */
-    void NotifyRequestReject(IN ISIPMessage *piSIPMsg,
-            IN_OUT SIPStatusCode &objStatusCode);
+    void NotifyRequestReject(IN ISipMessage *piSIPMsg,
+            IN_OUT SipStatusCode &objStatusCode);
 
     /*
      Notifies the applications that the incoming SIP request will be rejected by the engine.
@@ -90,15 +90,15 @@ public:
     </table>
 
     */
-    void NotifyRequestReject(IN ISIPServerConnection *piSSC,
-            IN_OUT SIPStatusCode &objStatusCode);
+    void NotifyRequestReject(IN ISipServerConnection *piSSC,
+            IN_OUT SipStatusCode &objStatusCode);
 private:
-    // ISIPRoutingRejectNotifier class
-    virtual void AddListener(IN ISIPRoutingRejectListener *piListener);
-    virtual void RemoveListener(IN ISIPRoutingRejectListener *piListener);
+    // ISipRoutingRejectNotifier class
+    virtual void AddListener(IN ISipRoutingRejectListener *piListener);
+    virtual void RemoveListener(IN ISipRoutingRejectListener *piListener);
 
 private:
-    IMSList<ISIPRoutingRejectListener*> objListeners;
+    IMSList<ISipRoutingRejectListener*> objListeners;
 };
 
 #endif // _SIP_ROUTING_REJECT_NOTIFIER_H_

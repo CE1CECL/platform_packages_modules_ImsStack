@@ -72,9 +72,9 @@ void UceService::AoSConnected(IMS_UINT32 conectedService)
         IMS_BOOL bAddVideoTagInPublish = UceConfig::GetInstance()->GetBoolValue(
                 UceConfig::KEY_ADD_VIDEO_TAG_CONTACT_HEADER_IN_PUBLISH, m_nSlotId);
         if (bAddVideoTagInPublish) {
-            piFCaps->RemoveFeature("video", AString::ConstEmpty(), SIPMethod::PUBLISH);
+            piFCaps->RemoveFeature("video", AString::ConstEmpty(), SipMethod::PUBLISH);
             if (conectedService & CONNECTED_SERVICE_VIDEO) {
-                piFCaps->AddFeature("video", AString::ConstEmpty(), SIPMethod::PUBLISH);
+                piFCaps->AddFeature("video", AString::ConstEmpty(), SipMethod::PUBLISH);
             }
         } else {
             piFCaps->RemoveFeature("video", AString::ConstEmpty());
@@ -267,7 +267,7 @@ void UceService::EnableCoreService()
     if (m_piCoreService != IMS_NULL) {
         IServiceFilterCriteria *piSFC = m_piCoreService->GetFilterCriteria();
         if (piSFC != IMS_NULL) {
-            SIPMethod objMethod(SIPMethod::OPTIONS);
+            SipMethod objMethod(SipMethod::OPTIONS);
             TriggerPoint objTP(objMethod);
 
             // Sets the trigger point

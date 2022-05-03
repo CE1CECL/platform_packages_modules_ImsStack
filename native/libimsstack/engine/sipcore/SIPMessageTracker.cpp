@@ -44,7 +44,7 @@ Remarks
 
 */
 PUBLIC
-void SIPMessageTracker::NotifyMessageReceived(IN CONST SIPMethod &objMethod,
+void SIPMessageTracker::NotifyMessageReceived(IN CONST SipMethod &objMethod,
         IN IMS_SINT32 nStatusCode, IN CONST AString &strCallId)
 {
     if (piListener == IMS_NULL)
@@ -81,7 +81,7 @@ Remarks
 
 */
 PUBLIC
-void SIPMessageTracker::NotifyMessageSent(IN CONST SIPMethod &objMethod, IN IMS_SINT32 nStatusCode,
+void SIPMessageTracker::NotifyMessageSent(IN CONST SipMethod &objMethod, IN IMS_SINT32 nStatusCode,
         IN CONST AString &strCallId, IN IMS_SINT32 nErrorCode /* = 0 */)
 {
     if (piListener == IMS_NULL)
@@ -133,7 +133,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_BOOL SIPMessageTracker::AddFilter(IN CONST SIPMethod &objMethod, IN IMS_SINT32 nStatusCode,
+IMS_BOOL SIPMessageTracker::AddFilter(IN CONST SipMethod &objMethod, IN IMS_SINT32 nStatusCode,
         IN IMS_BOOL bOutgoing)
 {
     MessageFilter *pFilter = new MessageFilter(objMethod, nStatusCode);
@@ -169,7 +169,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPMessageTracker::RemoveFilter(IN CONST SIPMethod &objMethod)
+void SIPMessageTracker::RemoveFilter(IN CONST SipMethod &objMethod)
 {
     for (IMS_UINT32 i = 0; i < objOutgoingFilters.GetSize(); )
     {
@@ -220,7 +220,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPMessageTracker::RemoveFilter(IN CONST SIPMethod &objMethod, IN IMS_SINT32 nStatusCode,
+void SIPMessageTracker::RemoveFilter(IN CONST SipMethod &objMethod, IN IMS_SINT32 nStatusCode,
         IN IMS_BOOL bOutgoing)
 {
     if (bOutgoing)
@@ -310,7 +310,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPMessageTracker::SetListener(IN ISIPMessageTrackerListener *piListener)
+void SIPMessageTracker::SetListener(IN ISipMessageTrackerListener *piListener)
 {
     this->piListener = piListener;
 }

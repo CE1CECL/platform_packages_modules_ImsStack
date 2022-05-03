@@ -95,7 +95,7 @@ void ConferenceReference::ReferenceDelivered(IN IReference* piReference)
 
     IMS_SINT32 nStatusCode = piReferMessage->GetStatusCode();
 
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         return m_objListener.OnReferenceStarted(this);
     }
@@ -122,7 +122,7 @@ void ConferenceReference::ReferenceNotify(IN IReference* piReference,
     (void) piReference;
 
     AString strSubState;
-    MessageUtil::GetHeaderValue(piNotify, ISIPHeader::SUBSCRIPTION_STATE, strSubState);
+    MessageUtil::GetHeaderValue(piNotify, ISipHeader::SUBSCRIPTION_STATE, strSubState);
     IMS_SINT32 nStatusCode = MessageUtil::GetStatusCodeInNotify(piNotify);
     IMS_TRACE_I("ReferenceNotify : state[%s] status-code[%d]",
             strSubState.GetStr(), nStatusCode, 0);
@@ -146,7 +146,7 @@ void ConferenceReference::ReferenceTerminated(IN IReference* piReference)
     IMS_TRACE_I("ReferenceTerminated", 0, 0, 0);
 
     (void) piReference;
-    m_objListener.OnReferenceUpdated(this, SIPStatusCode::SC_INVALID,
+    m_objListener.OnReferenceUpdated(this, SipStatusCode::SC_INVALID,
             ReferSubscriptionState::TERMINATED);
     // do not add logic here. instance will be destroyed before here.
 }
@@ -196,7 +196,7 @@ IMS_RESULT ConferenceReference::SendInvite(OUT AString& strReferToUri,
         // UriFormatter??
 
         AString strContentDisposition= "recipient-list";
-        piReferMessage->AddHeader(SIPHeaderName::CONTENT_DISPOSITION, strContentDisposition);
+        piReferMessage->AddHeader(SipHeaderName::CONTENT_DISPOSITION, strContentDisposition);
 
         MessageUtil::SetResourceListByConfUser(
                 piReferMessage, strReferToUri, m_objConfUsers, IMS_FALSE, IMS_TRUE);
@@ -263,7 +263,7 @@ IMS_UINT32 ConferenceReference::GetResponseCode() const
 
     if (piReferMessage == IMS_NULL)
     {
-        return SIPStatusCode::SC_INVALID;
+        return SipStatusCode::SC_INVALID;
     }
 
     return piReferMessage->GetStatusCode();
@@ -321,8 +321,8 @@ void ConferenceReference::SetReferredByHeader()
         return;
     }
 
-    ISIPMessage* piSipMessage = piMessage->GetMessage();
-    piSipMessage->AddHeader(ISIPHeader::REFERRED_BY, strLocalUri);
+    ISipMessage* piSipMessage = piMessage->GetMessage();
+    piSipMessage->AddHeader(ISipHeader::REFERRED_BY, strLocalUri);
 }
 
 PRIVATE

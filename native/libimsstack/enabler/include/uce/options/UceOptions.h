@@ -9,7 +9,7 @@
 #include "ICapabilitiesListener.h"
 
 class ICoreService;
-class ISIPMessage;
+class ISipMessage;
 class ICapabilities;
 
 class UceOptions
@@ -33,7 +33,7 @@ protected:
     virtual void CapabilityQueryDeliveryFailed(IN ICapabilities* piCapabilities);
 
 private:
-    void SetContactHeader(IN IMS_UINT32 capabilities, ISIPMessage* piSIPMessage);
+    void SetContactHeader(IN IMS_UINT32 capabilities, ISipMessage* piSIPMessage);
     void SendOptionsResponseInd(IN IMS_SINT32 nResponseCode, IN AString reason,
             IN IMS_UINT32 capabilities);
     void SendOptionsCommandError(IN IMS_UINT32 code);

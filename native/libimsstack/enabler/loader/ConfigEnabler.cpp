@@ -51,15 +51,15 @@ PRIVATE VIRTUAL
 void ConfigEnabler::Start()
 {
     ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(GetSlotId());
-    ISIPRTConfigHelper* piRTConfigHelper = SIPFactory::GetRTConfigHelper(GetSlotId());
+    ISipRtConfigHelper* piRTConfigHelper = SipFactory::GetRtConfigHelper(GetSlotId());
 
     if (piRTConfigHelper != IMS_NULL)
     {
         // Set a socket option (TCP socket address reuse)
-        SIPRTConfig::SocketOption objSocketOption;
+        SipRtConfig::SocketOption objSocketOption;
         objSocketOption.nValue = 1;
 
-        piRTConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_REUSEADDR, &objSocketOption);
+        piRTConfigHelper->SetConfig(SipRtConfig::CONFIG_I_REUSEADDR, &objSocketOption);
 
         Configuration* pConfiguration = Configuration::GetInstance();
 
@@ -68,11 +68,11 @@ void ConfigEnabler::Start()
                 || IMS_UTIL_SYS_PROP_IS_SERVER_INFO_HIDDEN_IN_LOG())
         {
             // LOG_EXCLUDING_SERVER_INFO
-            SIPRTConfig::LogMask objLogMask;
-            objLogMask.nValue |= SIPRTConfig::LogMask::I_MESSAGE_HIDDEN;
-            objLogMask.nValue |= SIPRTConfig::LogMask::I_ROUTING_INFO_HIDDEN;
+            SipRtConfig::LogMask objLogMask;
+            objLogMask.nValue |= SipRtConfig::LogMask::I_MESSAGE_HIDDEN;
+            objLogMask.nValue |= SipRtConfig::LogMask::I_ROUTING_INFO_HIDDEN;
 
-            piRTConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_LOG_MASK, &objLogMask);
+            piRTConfigHelper->SetConfig(SipRtConfig::CONFIG_I_LOG_MASK, &objLogMask);
         }
 
         if (piCc->GetBoolean(
@@ -80,15 +80,15 @@ void ConfigEnabler::Start()
         {
             m_bUseResetWhenClosingSipTcpConnection = IMS_TRUE;
             objSocketOption.nValue = 0;
-            piRTConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_LINGER, &objSocketOption);
+            piRTConfigHelper->SetConfig(SipRtConfig::CONFIG_I_LINGER, &objSocketOption);
         }
 
         // It's based on the Verizon's requirement, but it will be applied for all the carriers.
-        SIPRTConfig::TCPPortRange objTCPPortRange;
+        SipRtConfig::TcpPortRange objTCPPortRange;
 
         objTCPPortRange.nPortStart = 40000;
         objTCPPortRange.nPortEnd = 50000;
-        piRTConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_TCP_PORT_RANGE, &objTCPPortRange);
+        piRTConfigHelper->SetConfig(SipRtConfig::CONFIG_I_TCP_PORT_RANGE, &objTCPPortRange);
     }
 
     if (m_pConfigApp != IMS_NULL)
@@ -153,22 +153,22 @@ void ConfigEnabler::Stop()
         ConfigAppFactory::Destroy(m_pConfigApp);
     }
 
-    ISIPRTConfigHelper* piRTConfigHelper = SIPFactory::GetRTConfigHelper(GetSlotId());
+    ISipRtConfigHelper* piRTConfigHelper = SipFactory::GetRtConfigHelper(GetSlotId());
 
     if (piRTConfigHelper != IMS_NULL)
     {
-        SIPRTConfig::SocketOption objSocketOption;
+        SipRtConfig::SocketOption objSocketOption;
 
         objSocketOption.nValue = 1;
-        piRTConfigHelper->RemoveConfig(SIPRTConfig::CONFIG_I_REUSEADDR, &objSocketOption);
-        piRTConfigHelper->RemoveConfig(SIPRTConfig::CONFIG_I_LOG_MASK, IMS_NULL);
+        piRTConfigHelper->RemoveConfig(SipRtConfig::CONFIG_I_REUSEADDR, &objSocketOption);
+        piRTConfigHelper->RemoveConfig(SipRtConfig::CONFIG_I_LOG_MASK, IMS_NULL);
 
         if (m_bUseResetWhenClosingSipTcpConnection)
         {
             objSocketOption.nValue = 0;
-            piRTConfigHelper->RemoveConfig(SIPRTConfig::CONFIG_I_LINGER, &objSocketOption);
+            piRTConfigHelper->RemoveConfig(SipRtConfig::CONFIG_I_LINGER, &objSocketOption);
         }
 
-        piRTConfigHelper->RemoveConfig(SIPRTConfig::CONFIG_I_TCP_PORT_RANGE, IMS_NULL);
+        piRTConfigHelper->RemoveConfig(SipRtConfig::CONFIG_I_TCP_PORT_RANGE, IMS_NULL);
     }
 }

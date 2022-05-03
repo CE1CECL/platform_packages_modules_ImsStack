@@ -420,7 +420,7 @@ void MtsMessageController::SendMtsMessage(
                 {
                     // this logic should be applied only RP-ERROR case of response for RP-ACK
                     IMS_TRACE_E(0, "MtsMessage is null; MTI=%d, but report success", nGsmMti, 0, 0);
-                    pMtsClient->ReportTransmissionResult(SIPStatusCode::SC_200,
+                    pMtsClient->ReportTransmissionResult(SipStatusCode::SC_200,
                             pSendParam->m_nSmsType, pSendParam->m_nSeqId, m_nSlotId);
                     return;
                 }
@@ -465,7 +465,7 @@ void MtsMessageController::SendMtsMessage(
      * we can not send a message when there is a sending message
      * of which the destination address is the same.
      */
-    AString strImpu = pMtsICoreService->GetAuthorizedUserId().GetURI();
+    AString strImpu = pMtsICoreService->GetAuthorizedUserId().GetUri();
 
     if (strImpu.GetLength() == 0)
     {
@@ -532,7 +532,7 @@ void MtsMessageController::ReceiveMtsMessage(
     if (m_pMtsDynamicLoader == IMS_NULL)
     {
         IMS_TRACE_E(0, "m_pMtsDynamicLoader is null", 0, 0, 0);
-        piPageMessage->Reject(SIPStatusCode::SC_480, 0);
+        piPageMessage->Reject(SipStatusCode::SC_480, 0);
         piPageMessage->Destroy();
         return;
     }
@@ -546,7 +546,7 @@ void MtsMessageController::ReceiveMtsMessage(
         IMS_TRACE_E(0, "Mts is NOTREADY STATE", 0, 0, 0);
 
         // 480 Temporarily Unavailable.
-        piPageMessage->Reject(SIPStatusCode::SC_480, 0);
+        piPageMessage->Reject(SipStatusCode::SC_480, 0);
         piPageMessage->Destroy();
         return;
     }
@@ -556,13 +556,13 @@ void MtsMessageController::ReceiveMtsMessage(
 
     if (pMtsICoreService != IMS_NULL)
     {
-        strImpu = pMtsICoreService->GetAuthorizedUserId().GetURI();
+        strImpu = pMtsICoreService->GetAuthorizedUserId().GetUri();
     }
     else
     {
         IMS_TRACE_E(0, "Failed to Get Mts CoreService!!", 0, 0, 0);
 
-        piPageMessage->Reject(SIPStatusCode::SC_480, 0);
+        piPageMessage->Reject(SipStatusCode::SC_480, 0);
         piPageMessage->Destroy();
         return;
     }
@@ -576,7 +576,7 @@ void MtsMessageController::ReceiveMtsMessage(
         IMS_TRACE_E(0, "Failed to create an object of MtsMessage.", 0, 0, 0);
 
         // 480 Temporarily Unavailable.
-        piPageMessage->Reject(SIPStatusCode::SC_480, 0);
+        piPageMessage->Reject(SipStatusCode::SC_480, 0);
         piPageMessage->Destroy();
         return;
     }
@@ -765,10 +765,10 @@ void MtsMessageController::UpdateRPAckMap(IN IPageMessage* pIPageMessage)
     // received page message
     IMessage* pICurrentMessage = pIPageMessage != IMS_NULL ?
             pIPageMessage->GetPreviousRequest(IMessage::PAGEMESSAGE_SEND) : IMS_NULL;
-    ISIPMessage* pICurrentSIPMessage = pICurrentMessage != IMS_NULL ?
+    ISipMessage* pICurrentSIPMessage = pICurrentMessage != IMS_NULL ?
             pICurrentMessage->GetMessage() : IMS_NULL;
     AString strInReplyTo = pICurrentSIPMessage != IMS_NULL ?
-            pICurrentSIPMessage->GetHeader(ISIPHeader::UNKNOWN, 0,SIPHeaderName::IN_REPLY_TO) :
+            pICurrentSIPMessage->GetHeader(ISipHeader::UNKNOWN, 0,SipHeaderName::IN_REPLY_TO) :
             AString::ConstEmpty();
 
     if (strInReplyTo.GetLength() <= 0)
@@ -787,10 +787,10 @@ void MtsMessageController::UpdateRPAckMap(IN IPageMessage* pIPageMessage)
         IPageMessage* piTargetPageMessage = m_objMsgList.GetAt(i)->GetPageMessage();
         IMessage* pITargetMessage
                 = piTargetPageMessage->GetPreviousRequest(IMessage::PAGEMESSAGE_SEND);
-        ISIPMessage* pITargetSIPMessage = pITargetMessage != IMS_NULL ?
+        ISipMessage* pITargetSIPMessage = pITargetMessage != IMS_NULL ?
                 pITargetMessage->GetMessage() : IMS_NULL;
         AString strCallId = pITargetSIPMessage != IMS_NULL ?
-                pITargetSIPMessage->GetHeader(ISIPHeader::CALL_ID) : AString::ConstEmpty();
+                pITargetSIPMessage->GetHeader(ISipHeader::CALL_ID) : AString::ConstEmpty();
 
         if (strCallId.GetLength() <= 0)
         {

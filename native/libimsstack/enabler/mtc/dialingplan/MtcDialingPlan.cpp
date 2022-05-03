@@ -82,12 +82,12 @@ void MtcDialingPlan::OnCountrySpecificServiceUrnReceived(IN const AString& strNu
 PRIVATE
 IMS_BOOL MtcDialingPlan::IsUriForm(IN const AString& strNumber)
 {
-    SIPAddress objSipAddress;
+    SipAddress objSipAddress;
     objSipAddress.Create(strNumber);
 
-    if (objSipAddress.GetScheme().EqualsIgnoreCase(SIP::STR_SIP) ||
-            objSipAddress.GetScheme().EqualsIgnoreCase(SIP::STR_SIPS) ||
-            objSipAddress.GetScheme().EqualsIgnoreCase(SIP::STR_TEL))
+    if (objSipAddress.GetScheme().EqualsIgnoreCase(Sip::STR_SIP) ||
+            objSipAddress.GetScheme().EqualsIgnoreCase(Sip::STR_SIPS) ||
+            objSipAddress.GetScheme().EqualsIgnoreCase(Sip::STR_TEL))
     {
         return IMS_TRUE;
     }

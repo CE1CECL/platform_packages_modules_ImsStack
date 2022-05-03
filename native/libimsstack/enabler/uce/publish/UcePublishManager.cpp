@@ -134,7 +134,7 @@ UcePublishManager::~UcePublishManager()
     Methods
 ------------------------------------------------------------------------------------*/
 PUBLIC
-IMS_RESULT UcePublishManager::MessageMediator_AdjustMessage(IN_OUT ISIPMessage *piSIPMsg,
+IMS_RESULT UcePublishManager::MessageMediator_AdjustMessage(IN_OUT ISipMessage *piSIPMsg,
         IN IMS_SINT32 nMessage)
 {
     IMS_TRACE_D("MessageMediator_AdjustMessage:nMessage [%d]", nMessage, 0,0);
@@ -142,11 +142,11 @@ IMS_RESULT UcePublishManager::MessageMediator_AdjustMessage(IN_OUT ISIPMessage *
         IMS_TRACE_I("MessageMediator_AdjustMessage:piSIPMsg is null", 0, 0,0);
         return IMS_SUCCESS;
     }
-    if (piSIPMsg->GetMethod().Equals(SIPMethod::PUBLISH) == IMS_FALSE) {
+    if (piSIPMsg->GetMethod().Equals(SipMethod::PUBLISH) == IMS_FALSE) {
         IMS_TRACE_I("MessageMediator_AdjustMessage:it is not publish method.", 0, 0, 0);
         return IMS_SUCCESS;
     }
-    AString strContactHeader = piSIPMsg->GetHeader(ISIPHeader::CONTACT_NORMAL);
+    AString strContactHeader = piSIPMsg->GetHeader(ISipHeader::CONTACT_NORMAL);
     if (UceConfig::GetInstance()->GetBoolValue(
             UceConfig::KEY_USE_CONTACT_HEADER_IN_PUBLISH, m_nSimSlot) == IMS_FALSE) {
         IMS_TRACE_I("MessageMediator_AdjustMessage:m_bUseContactHeader is false", 0, 0, 0);
@@ -357,10 +357,10 @@ IMS_RESULT UcePublishManager::MessageMediator_AdjustMessage(IN_OUT ISIPMessage *
     }
 
     if (strContactHeader.IsEmpty() == IMS_TRUE) {
-        piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeaderValue);
+        piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeaderValue);
     } else {
         strContactHeader = strContactHeader + ";" + strContactHeaderValue;
-        piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeader);
+        piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeader);
     }
     return IMS_SUCCESS;
 }
@@ -478,14 +478,14 @@ void UcePublishManager::PublicationRefreshCompleted(IN IPublication *piPublicati
         return;
     }
     IMS_SINT32 nResponseCode = 0;
-    ISIPMessage* piSIPMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piSIPMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     if (piSIPMessage != IMS_NULL) {
         nResponseCode = piSIPMessage->GetStatusCode();
         IMS_TRACE_D("PublicationRefreshCompleted:StatusCode[%d], reason[%s]", nResponseCode,
                     piSIPMessage->GetReasonPhrase().GetStr(), 0);
     }
 
-    if (SIPStatusCode::IsFinalSuccess(nResponseCode)) {
+    if (SipStatusCode::IsFinalSuccess(nResponseCode)) {
         IMS_TRACE_I("PublicationRefreshCompleted:success refresh PUBLISH.", 0, 0, 0);
         IMSMSG objMsg(PUBLISH_REFRESHED, 0, 0);
         OnStateMessage( objMsg );
@@ -622,10 +622,10 @@ IMS_BOOL UcePublishManager::StatePUBLISHING_Published(IN IMSMSG &objMsg)
 {
     (void)objMsg;
     IMS_TRACE_I("StatePUBLISHING_Published", 0, 0, 0 );
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_I("StatePUBLISHING_Published:ISIPMessage is null", 0, 0, 0 );
-        SendPublishResponseInd(m_nKey, SIPStatusCode::SC_200, "OK", 0, "", "");
+        IMS_TRACE_I("StatePUBLISHING_Published:ISipMessage is null", 0, 0, 0 );
+        SendPublishResponseInd(m_nKey, SipStatusCode::SC_200, "OK", 0, "", "");
     } else {
         GetEtagAndExpireValue(piMessage);
         IPublishResponseData* pResponseData = GetPublishResponseData(piMessage);
@@ -634,7 +634,7 @@ IMS_BOOL UcePublishManager::StatePUBLISHING_Published(IN IMSMSG &objMsg)
                     pResponseData->m_strReason, pResponseData->m_nReasonCause,
                     pResponseData->m_strReasonText, m_strEtag);
         } else {
-            SendPublishResponseInd(m_nKey, SIPStatusCode::SC_200, "OK", 0, "", m_strEtag);
+            SendPublishResponseInd(m_nKey, SipStatusCode::SC_200, "OK", 0, "", m_strEtag);
         }
     }
     m_nKey = 0;
@@ -667,9 +667,9 @@ IMS_BOOL UcePublishManager::StatePUBLISHING_Failed(IN IMSMSG &objMsg)
 {
     (void)objMsg;
     IMS_TRACE_I("StatePUBLISHING_Failed", 0, 0, 0 );
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_I("StatePUBLISHING_Failed:ISIPMessage is null", 0, 0, 0 );
+        IMS_TRACE_I("StatePUBLISHING_Failed:ISipMessage is null", 0, 0, 0 );
         SendPublishCommandErrorInd(m_nKey, IUUceService::COMMAND_CODE_GENERIC_FAILURE);
         return IMS_TRUE;
     }
@@ -864,10 +864,10 @@ IMS_BOOL UcePublishManager::StateREFRESHING_RefreshFailed(IN IMSMSG &objMsg)
 
     StopTimer(TIMER_ALL);
 
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     IMS_SINT32 nResponseCode = 0;
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_I("StateREFRESHING_RefreshFailed:ISIPMessage is null", 0, 0, 0 );
+        IMS_TRACE_I("StateREFRESHING_RefreshFailed:ISipMessage is null", 0, 0, 0 );
     } else {
         IPublishResponseData* pResponseData = GetPublishResponseData(piMessage);
         if (pResponseData != IMS_NULL) {
@@ -962,10 +962,10 @@ IMS_BOOL UcePublishManager::StateALL_Terminated(IN IMSMSG &objMsg)
             SendPublishCommandErrorInd(m_nKey, IUUceService::COMMAND_CODE_GENERIC_FAILURE);
             break;
         case REFRESHING:
-            SendPublishResponseInd(m_nKey, SIPStatusCode::SC_504, "Server Time-out", 0, "", "");
+            SendPublishResponseInd(m_nKey, SipStatusCode::SC_504, "Server Time-out", 0, "", "");
             break;
         case TERMINATING:
-            SendPublishResponseInd(m_nKey, SIPStatusCode::SC_504, "Server Time-out", 0, "", "");
+            SendPublishResponseInd(m_nKey, SipStatusCode::SC_504, "Server Time-out", 0, "", "");
         break;
         default:
         break;
@@ -986,7 +986,7 @@ void UcePublishManager::LoadConfigValue()
         UceConfig::GetInstance()->GetExponentialRetryPublishRespTimeArray(m_nSimSlot);
 }
 
-IPublishResponseData* UcePublishManager::GetPublishResponseData(ISIPMessage* piMessage)
+IPublishResponseData* UcePublishManager::GetPublishResponseData(ISipMessage* piMessage)
 {
     IPublishResponseData* pPublishResponseData = IMS_NULL;
 
@@ -1000,12 +1000,12 @@ IPublishResponseData* UcePublishManager::GetPublishResponseData(ISIPMessage* piM
         pPublishResponseData->m_nResponseCode = piMessage->GetStatusCode();
         pPublishResponseData->m_strReason = piMessage->GetReasonPhrase();
 
-        IMSList<AString> objReasonHeaders = piMessage->GetHeaders(ISIPHeader::UNKNOWN, "Reason");
+        IMSList<AString> objReasonHeaders = piMessage->GetHeaders(ISipHeader::UNKNOWN, "Reason");
         if (objReasonHeaders.IsEmpty()) {
             return pPublishResponseData;
         }
-        AString strReasonHdr = SIPParsingHelper::GetSIPReasonHeader(objReasonHeaders);
-        SIPParsingHelper::ParseReasonHeader(strReasonHdr, nReasonCause, strReasonText);
+        AString strReasonHdr = SipParsingHelper::GetSipReasonHeader(objReasonHeaders);
+        SipParsingHelper::ParseReasonHeader(strReasonHdr, nReasonCause, strReasonText);
         IMS_TRACE_D("GetPublishResponseData:cause[%d], text[%s]", nReasonCause,
                 strReasonText.GetStr(), 0);
 
@@ -1015,7 +1015,7 @@ IPublishResponseData* UcePublishManager::GetPublishResponseData(ISIPMessage* piM
     return pPublishResponseData;
 }
 
-ISIPMessage* UcePublishManager::GetISIPMessage(IMS_BOOL bRequireResponseMessage)
+ISipMessage* UcePublishManager::GetISIPMessage(IMS_BOOL bRequireResponseMessage)
 {
     if(m_piPublication != IMS_NULL) {
         IMessage *piMessage = IMS_NULL;
@@ -1063,7 +1063,7 @@ void UcePublishManager::SendPublishResponseInd(IMS_UINT32 nKey, IMS_SINT32 nResp
     if (nKey == 0) {
         IUcePubUpdatedIndPrm* pParam = new IUcePubUpdatedIndPrm();
         if (pParam != IMS_NULL) {
-            if (nResponseCode != SIPStatusCode::SC_200) {
+            if (nResponseCode != SipStatusCode::SC_200) {
                 m_nCapability = 0;
             }
             pParam->m_nCapability = m_nCapability;
@@ -1084,7 +1084,7 @@ void UcePublishManager::SendPublishResponseInd(IMS_UINT32 nKey, IMS_SINT32 nResp
         IUcePubResponseIndPrm* pParam = new IUcePubResponseIndPrm();
         if (pParam != IMS_NULL) {
             pParam->m_nKey = nKey;
-            if (nResponseCode != SIPStatusCode::SC_200) {
+            if (nResponseCode != SipStatusCode::SC_200) {
                 m_nCapability = 0;
             }
             pParam->m_nCapability = m_nCapability;
@@ -1154,29 +1154,29 @@ IMS_BOOL UcePublishManager::SetPublish(IN IMS_BOOL bIsRefresh, AString strMinExp
     IMS_TRACE_I("SetPublish:value[%d]-(0)initial, (1)refresh, MinExpiryValue[%s]", bIsRefresh,
                  strMinExpiryValue.GetStr(), 0 );
     //set header
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FOR_REQUEST);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FOR_REQUEST);
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_E(0,"InitPublish:ISIPMessage is NULL", 0, 0, 0);
+        IMS_TRACE_E(0,"InitPublish:ISipMessage is NULL", 0, 0, 0);
         return IMS_FALSE;
     }
 
     if (m_strEtag != IMS_NULL && m_strEtag.IsEmpty() == IMS_FALSE) {
-        piMessage->AddHeader(ISIPHeader::SIP_IF_MATCH, m_strEtag);
+        piMessage->AddHeader(ISipHeader::SIP_IF_MATCH, m_strEtag);
         IMS_TRACE_I("InitPublish:add SIP IF MATCH header with [%s]", m_strEtag.GetStr(), 0, 0);
     }
     SetRefreshPolicy(piMessage, strMinExpiryValue);
     //check ATT/TMUS live network and equipment test
-    piMessage->AddHeader( ISIPHeader::ACCEPT_CONTACT, "*;+g.oma.sip-im;explicit;require");
+    piMessage->AddHeader( ISipHeader::ACCEPT_CONTACT, "*;+g.oma.sip-im;explicit;require");
     if (bIsRefresh == INITIAL) {
         return SetPidfXmlBody(piMessage);
     }
     return IMS_TRUE;
 }
 
-void UcePublishManager::SetRefreshPolicy(ISIPMessage *piMessage, AString strMinExpiryValue)
+void UcePublishManager::SetRefreshPolicy(ISipMessage *piMessage, AString strMinExpiryValue)
 {
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_E(0,"SetRefreshPolicy:ISIPMessage is NULL", 0, 0, 0);
+        IMS_TRACE_E(0,"SetRefreshPolicy:ISipMessage is NULL", 0, 0, 0);
         return;
     }
     AString strExpireValue;
@@ -1189,11 +1189,11 @@ void UcePublishManager::SetRefreshPolicy(ISIPMessage *piMessage, AString strMinE
     }
 
     if (strMinExpiryValue.IsEmpty() != IMS_TRUE) {
-        piMessage->AddHeader(ISIPHeader::EXPIRES_ANY, strMinExpiryValue, AString::ConstNull());
+        piMessage->AddHeader(ISipHeader::EXPIRES_ANY, strMinExpiryValue, AString::ConstNull());
         IMS_TRACE_I("Min Expire value [ %s ]", strMinExpiryValue.GetStr(), 0, 0);
     } else {
         if (!strExpireValue.EqualsIgnoreCase("0")) {
-            piMessage->AddHeader(ISIPHeader::EXPIRES_ANY, strExpireValue, AString::ConstNull());
+            piMessage->AddHeader(ISipHeader::EXPIRES_ANY, strExpireValue, AString::ConstNull());
             IMS_TRACE_I("Expire value [ %s ]", strExpireValue.GetStr(), 0, 0);
         } else {
             strExpireValue = "3600";
@@ -1227,14 +1227,14 @@ IMS_BOOL UcePublishManager::Publish()
 
 IMS_BOOL UcePublishManager::Unpublish()
 {
-    ISIPMessage* piSIPMessage = GetISIPMessage(GET_MESSAGE_FOR_REQUEST);
+    ISipMessage* piSIPMessage = GetISIPMessage(GET_MESSAGE_FOR_REQUEST);
     if (IMS_NULL == piSIPMessage) {
         DestroyPublication();
-        IMS_TRACE_I("Unpublish:Getting a ISIPMessage failed", 0, 0, 0 );
+        IMS_TRACE_I("Unpublish:Getting a ISipMessage failed", 0, 0, 0 );
         return IMS_FALSE;
     }
     /* add header */
-    piSIPMessage->AddHeader( ISIPHeader::EXPIRES_ANY, "0" );
+    piSIPMessage->AddHeader( ISipHeader::EXPIRES_ANY, "0" );
 
     if (m_piPublication->Unpublish() != IMS_SUCCESS) {
         DestroyPublication();
@@ -1244,16 +1244,16 @@ IMS_BOOL UcePublishManager::Unpublish()
     return IMS_TRUE;
 }
 
-IMS_BOOL UcePublishManager::SetPidfXmlBody(ISIPMessage* piMessage)
+IMS_BOOL UcePublishManager::SetPidfXmlBody(ISipMessage* piMessage)
 {
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_E( 0,"[ERROR]SetPidfXmlBody:ISIPMessage is null.",0,0,0);
+        IMS_TRACE_E( 0,"[ERROR]SetPidfXmlBody:ISipMessage is null.",0,0,0);
         return IMS_FALSE;
     }
 
     ByteArray objContent;
-    ISIPMessageBodyPart *piBodyPart = piMessage->CreateBodyPart();
-    piMessage->AddHeader( ISIPHeader::CONTENT_TYPE, "application/pidf+xml" );
+    ISipMessageBodyPart *piBodyPart = piMessage->CreateBodyPart();
+    piMessage->AddHeader( ISipHeader::CONTENT_TYPE, "application/pidf+xml" );
 
     if (m_strPidfXml != IMS_NULL && !m_strPidfXml.IsEmpty()) {
         const IMS_BYTE* pszXML = reinterpret_cast<const IMS_BYTE*>(m_strPidfXml.GetStr());
@@ -1268,7 +1268,7 @@ IMS_BOOL UcePublishManager::SetPidfXmlBody(ISIPMessage* piMessage)
         ByteArray objCompressedContent;
         if (IMS_UTIL_ZLIB_Compress(objContent, objCompressedContent)) {
             piBodyPart->SetContent( objCompressedContent );
-            piMessage->AddHeader(ISIPHeader::CONTENT_ENCODING, "gzip");
+            piMessage->AddHeader(ISipHeader::CONTENT_ENCODING, "gzip");
         } else {
             return IMS_FALSE;
         }
@@ -1278,15 +1278,15 @@ IMS_BOOL UcePublishManager::SetPidfXmlBody(ISIPMessage* piMessage)
     return IMS_TRUE;
 }
 
-void UcePublishManager::GetEtagAndExpireValue(ISIPMessage *piMessage)
+void UcePublishManager::GetEtagAndExpireValue(ISipMessage *piMessage)
 {
     m_strEtag = AString::ConstEmpty();
     if (piMessage == IMS_NULL) {
         return;
     }
-    AString szETagHeader = piMessage->GetHeader(ISIPHeader::SIP_ETAG);
+    AString szETagHeader = piMessage->GetHeader(ISipHeader::SIP_ETAG);
     if (szETagHeader.IsNULL() != IMS_TRUE) {
-        ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::SIP_ETAG, szETagHeader);
+        ISipHeader *piHeader = SipParsingHelper::CreateHeader(ISipHeader::SIP_ETAG, szETagHeader);
         if (piHeader != IMS_NULL) {
             m_strEtag = piHeader->GetValue();
             piHeader->Destroy();
@@ -1298,21 +1298,21 @@ IMS_BOOL UcePublishManager::HandleFailResponse(IMS_SINT32 nResponseCode)
 {
     IMS_TRACE_I( "HandleFailResponse:response Code [%d]", nResponseCode, 0, 0);
     switch (nResponseCode) {
-        case SIPStatusCode::SC_404: // FALL-THROUGH //rfc3261 20.33 Retry-After
-        case SIPStatusCode::SC_413: // FALL-THROUGH
-        case SIPStatusCode::SC_480: // FALL-THROUGH
-        case SIPStatusCode::SC_486: // FALL-THROUGH
-        case SIPStatusCode::SC_500: // FALL-THROUGH
-        case SIPStatusCode::SC_503: // FALL-THROUGH
-        case SIPStatusCode::SC_600: // FALL-THROUGH
-        case SIPStatusCode::SC_603: // FALL-THROUGH
+        case SipStatusCode::SC_404: // FALL-THROUGH //rfc3261 20.33 Retry-After
+        case SipStatusCode::SC_413: // FALL-THROUGH
+        case SipStatusCode::SC_480: // FALL-THROUGH
+        case SipStatusCode::SC_486: // FALL-THROUGH
+        case SipStatusCode::SC_500: // FALL-THROUGH
+        case SipStatusCode::SC_503: // FALL-THROUGH
+        case SipStatusCode::SC_600: // FALL-THROUGH
+        case SipStatusCode::SC_603: // FALL-THROUGH
         {
             if (ProcessRetryAfterHeader() == IMS_TRUE) {
                 return IMS_TRUE;
             }
         }
         break;
-        case SIPStatusCode::SC_412: //conditianal request failed - initial full publish request
+        case SipStatusCode::SC_412: //conditianal request failed - initial full publish request
         {
             SetState( ON );
             if (Process412Scenario() == IMS_TRUE) {
@@ -1320,7 +1320,7 @@ IMS_BOOL UcePublishManager::HandleFailResponse(IMS_SINT32 nResponseCode)
             }
         }
         break;
-        case SIPStatusCode::SC_423:
+        case SipStatusCode::SC_423:
         {
             //Interval Too Short :re attempt changing the expiration interval in the expires header
             IMS_BOOL bIsRefresh = INITIAL;
@@ -1378,19 +1378,19 @@ IMS_BOOL UcePublishManager::ProcessRetryAfterHeader()
         IMS_TRACE_I("ProcessRetryAfterHeader:m_piPublication is null.", 0, 0, 0);
         return IMS_FALSE;
     }
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_I("ProcessRetryAfterHeader:ISIPMessage is null.", 0, 0, 0);
+        IMS_TRACE_I("ProcessRetryAfterHeader:ISipMessage is null.", 0, 0, 0);
         return IMS_FALSE;
     }
-    AString strHeader = piMessage->GetHeader(ISIPHeader::RETRY_AFTER_SEC);
+    AString strHeader = piMessage->GetHeader(ISipHeader::RETRY_AFTER_SEC);
     if (strHeader.GetLength() <= 0) {
         IMS_TRACE_I("ProcessRetryAfterHeader:RETRY_AFTER_SEC value less than 0.", 0, 0, 0);
         return IMS_FALSE;
     }
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::RETRY_AFTER_SEC, strHeader);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::RETRY_AFTER_SEC, strHeader);
     if (piHeader == IMS_NULL ) {
-        IMS_TRACE_I("ProcessRetryAfterHeader:ISIPHeader is null.", 0, 0, 0);
+        IMS_TRACE_I("ProcessRetryAfterHeader:ISipHeader is null.", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -1408,9 +1408,9 @@ IMS_BOOL UcePublishManager::Process403Scenario()
     StopTimer(TIMER_ALL);
     m_strEtag =  AString::ConstNull();
 
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_I("Process403Scenario: ISIPMessage is null", 0, 0, 0);
+        IMS_TRACE_I("Process403Scenario: ISipMessage is null", 0, 0, 0);
         return IMS_FALSE;
     }
     AString strReasonPhrs = piMessage->GetReasonPhrase().MakeUpper();
@@ -1421,7 +1421,7 @@ IMS_BOOL UcePublishManager::Process403Scenario()
         return IMS_TRUE;
     }
 
-    IMSList<AString> objReasonList = piMessage->GetHeaders(ISIPHeader::UNKNOWN, "Reason");
+    IMSList<AString> objReasonList = piMessage->GetHeaders(ISipHeader::UNKNOWN, "Reason");
     if (objReasonList.IsEmpty() == IMS_TRUE) {
         IMS_TRACE_D("No Reason header present", 0, 0, 0);
         IMSMSG objMsg(AoSAppRequest::COMMAND_REGISTER_RECOVERY, 0,
@@ -1456,19 +1456,19 @@ IMS_BOOL UcePublishManager::Process423Scenario(IMS_BOOL bIsRefresh)
     IMS_TRACE_I("Process423Scenario", 0, 0, 0);
     StopTimer(TIMER_ALL);
 
-    ISIPMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
+    ISipMessage* piMessage = GetISIPMessage(GET_MESSAGE_FROM_RESPONSE);
     if (piMessage == IMS_NULL) {
-        IMS_TRACE_I("Process423Scenario: ISIPMessage is null", 0, 0, 0);
+        IMS_TRACE_I("Process423Scenario: ISipMessage is null", 0, 0, 0);
         return IMS_FALSE;
     }
-    AString szMinExpire = piMessage->GetHeader(ISIPHeader::MIN_EXPIRES);
+    AString szMinExpire = piMessage->GetHeader(ISipHeader::MIN_EXPIRES);
     if (szMinExpire.GetLength() == 0) {
         IMS_TRACE_I("Process423Scenario:NO Min Expire header", 0, 0, 0);
         return IMS_FALSE;
     }
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::MIN_EXPIRES, szMinExpire);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::MIN_EXPIRES, szMinExpire);
     if (piHeader == IMS_NULL) {
-        IMS_TRACE_I("Process423Scenario:ISIPHeader is null", 0, 0, 0);
+        IMS_TRACE_I("Process423Scenario:ISipHeader is null", 0, 0, 0);
         return IMS_FALSE;
     }
     szMinExpire = piHeader->GetValue();

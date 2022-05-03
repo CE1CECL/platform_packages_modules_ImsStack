@@ -25,7 +25,7 @@ FailReason EarlyUpdateErrorHandler::Handle(IN const IMessage* piMessage) const
     }
 
     IMS_SINT32 nStatusCode = piMessage->GetStatusCode();
-    IMS_ASSERT(nStatusCode >= SIPStatusCode::SC_300);
+    IMS_ASSERT(nStatusCode >= SipStatusCode::SC_300);
 
     return FailReason(FAIL_REASON_SESSION_SETUPFAILED, nStatusCode);
 }
@@ -38,5 +38,5 @@ IMS_BOOL EarlyUpdateErrorHandler::IsTransactionTimeout(IN const IMessage* piMess
         return IMS_TRUE;
     }
 
-    return piMessage->GetStatusCode() == SIPStatusCode::SC_INVALID;
+    return piMessage->GetStatusCode() == SipStatusCode::SC_INVALID;
 }

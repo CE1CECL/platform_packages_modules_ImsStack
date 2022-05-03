@@ -23,7 +23,7 @@ public:
      * @param strAOR the public user identity to be retrieved
      * @return Pointer to IRegInfoRegistration or null
      */
-    virtual IRegInfoRegistration* GetRegistration(IN CONST SIPAddress &objAOR) const = 0;
+    virtual IRegInfoRegistration* GetRegistration(IN CONST SipAddress &objAOR) const = 0;
 
     /**
      * @brief Returns all the registration elements of reginfo.

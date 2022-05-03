@@ -34,7 +34,7 @@ PUBLIC
 RegContact::RegContact(IN IMS_SINT32 nSlotId,
         IN CONST IPAddress &objIPA_, IN IMS_SINT32 nPort_,
         IN IRegCapabilityChangeListener *piListener_, IN IMS_SINT32 nRegId_ /* = (-1) */,
-        IN CONST SIPProfile *pSIPProfile/* = IMS_NULL*/)
+        IN CONST SipProfile *pSIPProfile/* = IMS_NULL*/)
     : ImsSlot(nSlotId)
     , nState(STATE_CREATED)
     , pAOR(IMS_NULL)
@@ -44,7 +44,7 @@ RegContact::RegContact(IN IMS_SINT32 nSlotId,
     , pRegIdParameter(IMS_NULL)
     , pPubGRUU(IMS_NULL)
     , pTempGRUU(IMS_NULL)
-    , objTempGRUUs(IMSList<SIPAddress*>())
+    , objTempGRUUs(IMSList<SipAddress*>())
     , bFlag_BindingsUpdateTracker(IMS_TRUE)
     , bFlag_AllCapabilitiesByConfig(IMS_TRUE)
     , pAllCapabilities(new CallerCapability(0xFFFFFFFF))
@@ -55,18 +55,18 @@ RegContact::RegContact(IN IMS_SINT32 nSlotId,
     , nInitialExpires(EXPIRES_NOT_SPECIFIED)
     , nNetworkProvisionedExpires(EXPIRES_NOT_SPECIFIED)
 {
-    objContactAddress.SetScheme(SIP::STR_SIP);
+    objContactAddress.SetScheme(Sip::STR_SIP);
     objContactAddress.SetHost(objIPA_.ToString());
     objContactAddress.SetPort(nPort_);
 
     if (nRegId_ > 0)
     {
-        if (SIPConfigProxy::IsMultipleRegConfigured(GetSlotId(), pSIPProfile))
+        if (SipConfigProxy::IsMultipleRegConfigured(GetSlotId(), pSIPProfile))
         {
             AString strRegId;
             strRegId.SetNumber(nRegId_);
 
-            pRegIdParameter = new SIPParameter(SIP::STR_REG_ID, strRegId);
+            pRegIdParameter = new SipParameter(Sip::STR_REG_ID, strRegId);
         }
         else
         {
@@ -119,7 +119,7 @@ RegContact::~RegContact()
     RemoveAllHeaderParameters();
 
     IMS_TRACE_D("Destructor :: RegContact (%s, %d)",
-            SIPDebug::GetIP(objIPA), objContactAddress.GetPort(), 0);
+            SipDebug::GetIp(objIPA), objContactAddress.GetPort(), 0);
 }
 
 /*
@@ -128,7 +128,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPAddress& RegContact::GetContactAddress() const
+const SipAddress& RegContact::GetContactAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const IMSList<SIPParameter*>& RegContact::GetHeaderParameters() const
+const IMSList<SipParameter*>& RegContact::GetHeaderParameters() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPParameter* RegContact::GetInstanceParameter() const
+const SipParameter* RegContact::GetInstanceParameter() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -211,7 +211,7 @@ Remarks
  MULTIPLE_REGISTRATION
 */
 PUBLIC VIRTUAL
-const SIPParameter* RegContact::GetRegIdParameter() const
+const SipParameter* RegContact::GetRegIdParameter() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPAddress* RegContact::GetPublicGRUU() const
+const SipAddress* RegContact::GetPublicGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -237,7 +237,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPAddress* RegContact::GetTemporaryGRUU() const
+const SipAddress* RegContact::GetTemporaryGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const IMSList<SIPAddress*>& RegContact::GetTemporaryGRUUs() const
+const IMSList<SipAddress*>& RegContact::GetTemporaryGRUUs() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -312,7 +312,7 @@ void RegContact::DestroyGRUU()
     {
         for (IMS_UINT32 i = 0; i < objTempGRUUs.GetSize(); ++i)
         {
-            SIPAddress *pAddress = objTempGRUUs.GetAt(i);
+            SipAddress *pAddress = objTempGRUUs.GetAt(i);
 
             if (pAddress != IMS_NULL)
             {
@@ -349,7 +349,7 @@ const AString& RegContact::GetPreference() const
 
     for (IMS_UINT32 i = 0; i < objHeaderParams.GetSize(); ++i)
     {
-        const SIPParameter *pParameter = objHeaderParams.GetAt(i);
+        const SipParameter *pParameter = objHeaderParams.GetAt(i);
 
         if (pParameter->GetName().EqualsIgnoreCase('q'))
         {
@@ -422,7 +422,7 @@ Remarks
 
 */
 PUBLIC
-void RegContact::SetAOR(IN CONST SIPAddress &objAOR)
+void RegContact::SetAOR(IN CONST SipAddress &objAOR)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -432,11 +432,11 @@ void RegContact::SetAOR(IN CONST SIPAddress &objAOR)
         pAOR = IMS_NULL;
     }
 
-    pAOR = new SIPAddress(objAOR);
+    pAOR = new SipAddress(objAOR);
 
     if ((nPolicyUserInfo == POLICY_USER_INFO_IMPU) && (pAOR != IMS_NULL))
     {
-        const SIPAddress::UserInfoPart *pUIPart = pAOR->GetUserInfoPart();
+        const SipAddress::UserInfoPart *pUIPart = pAOR->GetUserInfoPart();
 
         if (pUIPart == IMS_NULL)
         {
@@ -557,7 +557,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 RegContact::UpdateParameter(IN CONST IMSList<ISIPHeader*> &objContactHeaders,
+IMS_SINT32 RegContact::UpdateParameter(IN CONST IMSList<ISipHeader*> &objContactHeaders,
         IN IMS_SINT32 nExpiresValue)
 {
     //---------------------------------------------------------------------------------------------
@@ -566,8 +566,8 @@ IMS_SINT32 RegContact::UpdateParameter(IN CONST IMSList<ISIPHeader*> &objContact
 
     for (IMS_UINT32 i = 0; i < objContactHeaders.GetSize(); ++i)
     {
-        const ISIPHeader *piHeader = objContactHeaders.GetAt(i);
-        const SIPAddress *pAddress = piHeader->GetSIPAddress();
+        const ISipHeader *piHeader = objContactHeaders.GetAt(i);
+        const SipAddress *pAddress = piHeader->GetSipAddress();
 
         if (pAddress == IMS_NULL)
             continue;
@@ -578,14 +578,14 @@ IMS_SINT32 RegContact::UpdateParameter(IN CONST IMSList<ISIPHeader*> &objContact
         // If "transport" parameter is included in Contact header and it needs to be
         // ignored when comparing reg-binding, URI comparison should be done
         // without "transport" parameter.
-        if (!bSameContact && SIPFeatures::IsTransportParameterIgnoredForRegBinding(GetSlotId()))
+        if (!bSameContact && SipFeatures::IsTransportParameterIgnoredForRegBinding(GetSlotId()))
         {
             const AString strTransport("transport");
 
             if ((pAddress->GetParameter(strTransport) != IMS_NULL)
                     && (objContactAddress.GetParameter(strTransport) == IMS_NULL))
             {
-                SIPAddress objAddress(*pAddress);
+                SipAddress objAddress(*pAddress);
                 objAddress.RemoveParameter(strTransport);
 
                 bSameContact = objAddress.Equals(objContactAddress);
@@ -603,7 +603,7 @@ IMS_SINT32 RegContact::UpdateParameter(IN CONST IMSList<ISIPHeader*> &objContact
             UpdateGRUU(piHeader);
 
             // Extract 'expires' parameter
-            const SIPParameter *pParameter = piHeader->GetParameter(SIP::STR_EXPIRES);
+            const SipParameter *pParameter = piHeader->GetParameter(Sip::STR_EXPIRES);
 
             if (pParameter != IMS_NULL)
             {
@@ -661,8 +661,8 @@ IMS_SINT32 RegContact::UpdateParameter(IN CONST IMSList<ISIPHeader*> &objContact
         else
         {
             IMS_TRACE_D("Not matched contact (%s, %s)",
-                    SIPDebug::GetUri1(pAddress->GetURI()).GetStr(),
-                    SIPDebug::GetUri2(objContactAddress.GetURI()).GetStr(), 0);
+                    SipDebug::GetUri1(pAddress->GetUri()).GetStr(),
+                    SipDebug::GetUri2(objContactAddress.GetUri()).GetStr(), 0);
         }
     }
 
@@ -683,7 +683,7 @@ IMS_BOOL RegContact::AddHeaderParameter(IN CONST AString &strName,
 {
     //---------------------------------------------------------------------------------------------
 
-    if (strName.StartsWith('+') && strName.EqualsIgnoreCase(SIP::STR_SIP_INSTANCE))
+    if (strName.StartsWith('+') && strName.EqualsIgnoreCase(Sip::STR_SIP_INSTANCE))
     {
         if (pInstanceParameter != IMS_NULL)
         {
@@ -691,7 +691,7 @@ IMS_BOOL RegContact::AddHeaderParameter(IN CONST AString &strName,
         }
         else
         {
-            pInstanceParameter = new SIPParameter(strName, strValue);
+            pInstanceParameter = new SipParameter(strName, strValue);
 
             if (pInstanceParameter == IMS_NULL)
             {
@@ -702,7 +702,7 @@ IMS_BOOL RegContact::AddHeaderParameter(IN CONST AString &strName,
         return IMS_TRUE;
     }
 
-    if (strName.EqualsIgnoreCase(SIP::STR_REG_ID))
+    if (strName.EqualsIgnoreCase(Sip::STR_REG_ID))
     {
         if (pRegIdParameter != IMS_NULL)
         {
@@ -710,7 +710,7 @@ IMS_BOOL RegContact::AddHeaderParameter(IN CONST AString &strName,
         }
         else
         {
-            pRegIdParameter = new SIPParameter(strName, strValue);
+            pRegIdParameter = new SipParameter(strName, strValue);
 
             if (pRegIdParameter == IMS_NULL)
             {
@@ -723,7 +723,7 @@ IMS_BOOL RegContact::AddHeaderParameter(IN CONST AString &strName,
 
     for (IMS_UINT32 i = 0; i < objHeaderParams.GetSize(); ++i)
     {
-        SIPParameter *pParameter = objHeaderParams.GetAt(i);
+        SipParameter *pParameter = objHeaderParams.GetAt(i);
 
         if (strName.EqualsIgnoreCase(pParameter->GetName()))
         {
@@ -736,7 +736,7 @@ IMS_BOOL RegContact::AddHeaderParameter(IN CONST AString &strName,
         }
     }
 
-    SIPParameter *pParameter = new SIPParameter(strName, strValue);
+    SipParameter *pParameter = new SipParameter(strName, strValue);
 
     if (pParameter == IMS_NULL)
     {
@@ -766,7 +766,7 @@ IMS_BOOL RegContact::AddUriParameter(IN CONST AString &strName,
     if (objContactAddress.AddParameter(strName, strValue) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Adding uri parameter in Contact (%s)",
-                SIPDebug::GetUri1(objContactAddress.ToString()).GetStr(), 0, 0);
+                SipDebug::GetUri1(objContactAddress.ToString()).GetStr(), 0, 0);
         return IMS_FALSE;
     }
 
@@ -787,7 +787,7 @@ void RegContact::RemoveAllHeaderParameters()
     {
         for (IMS_UINT32 i = 0; i < objHeaderParams.GetSize(); ++i)
         {
-            SIPParameter *pParameter = objHeaderParams.GetAt(i);
+            SipParameter *pParameter = objHeaderParams.GetAt(i);
 
             if (pParameter != IMS_NULL)
             {
@@ -810,7 +810,7 @@ void RegContact::RemoveHeaderParameter(IN CONST AString &strName,
 {
     //---------------------------------------------------------------------------------------------
 
-    if (strName.StartsWith('+') && strName.EqualsIgnoreCase(SIP::STR_SIP_INSTANCE))
+    if (strName.StartsWith('+') && strName.EqualsIgnoreCase(Sip::STR_SIP_INSTANCE))
     {
         if (pInstanceParameter != IMS_NULL)
         {
@@ -821,7 +821,7 @@ void RegContact::RemoveHeaderParameter(IN CONST AString &strName,
         return;
     }
 
-    if (strName.EqualsIgnoreCase(SIP::STR_REG_ID))
+    if (strName.EqualsIgnoreCase(Sip::STR_REG_ID))
     {
         if (pRegIdParameter != IMS_NULL)
         {
@@ -834,7 +834,7 @@ void RegContact::RemoveHeaderParameter(IN CONST AString &strName,
 
     for (IMS_UINT32 i = 0; i < objHeaderParams.GetSize(); ++i)
     {
-        SIPParameter *pParameter = objHeaderParams.GetAt(i);
+        SipParameter *pParameter = objHeaderParams.GetAt(i);
 
         if (strName.EqualsIgnoreCase(pParameter->GetName()))
         {
@@ -1300,7 +1300,7 @@ void RegContact::FormContact(IN IMS_BOOL bExpiresRequired, OUT AStringBuffer &ob
             strExpires.Sprintf("%lu", nInitialExpires);
 
             objSB.Append(TextParser::CHAR_SEMICOLON);
-            objSB.Append(SIP::STR_EXPIRES);
+            objSB.Append(Sip::STR_EXPIRES);
             objSB.Append(TextParser::CHAR_EQUAL);
             objSB.Append(strExpires);
         }
@@ -1310,7 +1310,7 @@ void RegContact::FormContact(IN IMS_BOOL bExpiresRequired, OUT AStringBuffer &ob
     {
         for (IMS_UINT32 i = 0; i < objHeaderParams.GetSize(); ++i)
         {
-            const SIPParameter *pParameter = objHeaderParams.GetAt(i);
+            const SipParameter *pParameter = objHeaderParams.GetAt(i);
 
             if (pParameter == IMS_NULL)
                 continue;
@@ -1448,7 +1448,7 @@ void RegContact::SetState(IN IMS_SINT32 nState)
     //---------------------------------------------------------------------------------------------
 
     IMS_TRACE_I("RegContact (%s) :: %s to %s",
-            SIPDebug::GetUri1(objContactAddress.GetURI()).GetStr(),
+            SipDebug::GetUri1(objContactAddress.GetUri()).GetStr(),
             StateToString(this->nState), StateToString(nState));
 
     this->nState = nState;
@@ -1460,7 +1460,7 @@ Remarks
 
 */
 PRIVATE
-void RegContact::UpdateGRUU(IN CONST ISIPHeader *piHeader)
+void RegContact::UpdateGRUU(IN CONST ISipHeader *piHeader)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1473,7 +1473,7 @@ void RegContact::UpdateGRUU(IN CONST ISIPHeader *piHeader)
     // DestroyGRUU();
 
     // 'pub-gruu' parameter
-    const SIPParameter *pParameter = piHeader->GetParameter("pub-gruu");
+    const SipParameter *pParameter = piHeader->GetParameter("pub-gruu");
 
     if (pParameter != IMS_NULL)
     {
@@ -1486,21 +1486,21 @@ void RegContact::UpdateGRUU(IN CONST ISIPHeader *piHeader)
 
         const AString &strValue = pParameter->GetValue();
 
-        IMS_TRACE_D("pub-gruu (%s)", SIPDebug::GetUri1(strValue).GetStr(), 0, 0);
+        IMS_TRACE_D("pub-gruu (%s)", SipDebug::GetUri1(strValue).GetStr(), 0, 0);
 
         if (strValue.StartsWith(TextParser::CHAR_DQUOT))
         {
-            pPubGRUU = new SIPAddress(strValue.GetSubStr(1, strValue.GetLength() - 2));
+            pPubGRUU = new SipAddress(strValue.GetSubStr(1, strValue.GetLength() - 2));
         }
         else
         {
-            pPubGRUU = new SIPAddress(strValue);
+            pPubGRUU = new SipAddress(strValue);
         }
 
         if (pPubGRUU == IMS_NULL)
         {
             IMS_TRACE_E(0, "Creating a pub-gruu (%s) failed",
-                    SIPDebug::GetUri1(strValue).GetStr(), 0, 0);
+                    SipDebug::GetUri1(strValue).GetStr(), 0, 0);
         }
     }
 
@@ -1520,7 +1520,7 @@ void RegContact::UpdateGRUU(IN CONST ISIPHeader *piHeader)
         {
             for (IMS_UINT32 i = 0; i < objTempGRUUs.GetSize(); ++i)
             {
-                SIPAddress *pAddress = objTempGRUUs.GetAt(i);
+                SipAddress *pAddress = objTempGRUUs.GetAt(i);
 
                 if (pAddress != IMS_NULL)
                 {
@@ -1533,25 +1533,25 @@ void RegContact::UpdateGRUU(IN CONST ISIPHeader *piHeader)
 
         const AString &strValue = pParameter->GetValue();
 
-        IMS_TRACE_D("temp-gruu (%s)", SIPDebug::GetUri1(strValue).GetStr(), 0, 0);
+        IMS_TRACE_D("temp-gruu (%s)", SipDebug::GetUri1(strValue).GetStr(), 0, 0);
 
         if (strValue.StartsWith(TextParser::CHAR_DQUOT))
         {
-            pTempGRUU = new SIPAddress(strValue.GetSubStr(1, strValue.GetLength() - 2));
+            pTempGRUU = new SipAddress(strValue.GetSubStr(1, strValue.GetLength() - 2));
         }
         else
         {
-            pTempGRUU = new SIPAddress(strValue);
+            pTempGRUU = new SipAddress(strValue);
         }
 
         if (pTempGRUU == IMS_NULL)
         {
             IMS_TRACE_E(0, "Creating a temp-gruu (%s) failed",
-                    SIPDebug::GetUri1(strValue).GetStr(), 0, 0);
+                    SipDebug::GetUri1(strValue).GetStr(), 0, 0);
         }
         else
         {
-            objTempGRUUs.Append(new SIPAddress(*pTempGRUU));
+            objTempGRUUs.Append(new SipAddress(*pTempGRUU));
         }
     }
 }
@@ -1562,7 +1562,7 @@ Remarks
 
 */
 PRIVATE
-void RegContact::UpdateRegisteredCapabilities(IN const ISIPHeader* piHeader)
+void RegContact::UpdateRegisteredCapabilities(IN const ISipHeader* piHeader)
 {
     if (pRegisteredCapabilities != IMS_NULL)
     {
@@ -1570,7 +1570,7 @@ void RegContact::UpdateRegisteredCapabilities(IN const ISIPHeader* piHeader)
         pRegisteredCapabilities = IMS_NULL;
     }
 
-    const IMSList<SIPParameter*>& objParameters = piHeader->GetParameters();
+    const IMSList<SipParameter*>& objParameters = piHeader->GetParameters();
 
     if (objParameters.IsEmpty())
     {
@@ -1581,7 +1581,7 @@ void RegContact::UpdateRegisteredCapabilities(IN const ISIPHeader* piHeader)
 
     for (IMS_UINT32 i = 0; i < objParameters.GetSize(); i++)
     {
-        const SIPParameter* pParameter = objParameters.GetAt(i);
+        const SipParameter* pParameter = objParameters.GetAt(i);
 
         if (pParameter == IMS_NULL)
         {
@@ -1591,7 +1591,7 @@ void RegContact::UpdateRegisteredCapabilities(IN const ISIPHeader* piHeader)
         const AString& strName = pParameter->GetName();
 
         if (!Feature::IsFeatureTag(strName)
-                || strName.EqualsIgnoreCase(SIP::STR_SIP_INSTANCE))
+                || strName.EqualsIgnoreCase(Sip::STR_SIP_INSTANCE))
         {
             continue;
         }

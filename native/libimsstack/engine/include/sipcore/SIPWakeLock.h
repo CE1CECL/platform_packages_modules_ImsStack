@@ -26,7 +26,7 @@ private:
     SIPWakeLock& operator=(IN CONST SIPWakeLock &objRHS);
 
 public:
-    static void Acquire(IN CONST SIPMethod &objMethod, IN IMS_UINT32 nTimeout = 0);
+    static void Acquire(IN CONST SipMethod &objMethod, IN IMS_UINT32 nTimeout = 0);
     static IMS_BOOL IsSupported();
     static void Release();
 };

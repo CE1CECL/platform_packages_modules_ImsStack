@@ -4,14 +4,14 @@
 #include "AString.h"
 #include "ISipObject.h"
 
-class SIPAddress;
-class SIPParameter;
+class SipAddress;
+class SipParameter;
 
 /**
  * @brief This class provides an interface to handle SIP headers.
  */
-class ISIPHeader
-    : public ISIPObject
+class ISipHeader
+    : public ISipObject
 {
 public:
     /**
@@ -19,22 +19,22 @@ public:
      *
      * @return Pointer to new SIPHeader.
      */
-    virtual ISIPHeader* Clone() const = 0;
+    virtual ISipHeader* Clone() const = 0;
 
     /**
      * @brief Checks if the given SIPHeader is the same.
      *
-     * @param piHeader Pointer to ISIPHeader which is compared
+     * @param piHeader Pointer to ISipHeader which is compared
      * @return If both SIP headers matched, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL Equals(IN CONST ISIPHeader *piHeader) const = 0;
+    virtual IMS_BOOL Equals(IN CONST ISipHeader *piHeader) const = 0;
 
     /**
-     * @brief Returns the pointer to SIPAddress if this header is a format of SIP address.
+     * @brief Returns the pointer to SipAddress if this header is a format of SIP address.
      *
-     * @return Pointer to SIPAddress if the header is a format of SIP address, or null
+     * @return Pointer to SipAddress if the header is a format of SIP address, or null
      */
-    virtual const SIPAddress* GetSIPAddress() const = 0;
+    virtual const SipAddress* GetSipAddress() const = 0;
 
     /**
      * @brief Returns the full header value including the header parameters.
@@ -55,12 +55,12 @@ public:
     virtual const AString& GetName() const = 0;
 
     /**
-     * @brief Returns the pointer to SIPParameter of one header parameter.
+     * @brief Returns the pointer to SipParameter of one header parameter.
      *
      * @param strName The parameter name to be returned
-     * @return Pointer to SIPParameter; Parameter to the specified parameter name.
+     * @return Pointer to SipParameter; Parameter to the specified parameter name.
      */
-    virtual const SIPParameter* GetParameter(IN CONST AString &strName) const = 0;
+    virtual const SipParameter* GetParameter(IN CONST AString &strName) const = 0;
 
     /**
      * @brief Returns the names of all the header parameters.
@@ -75,9 +75,9 @@ public:
     /**
      * @brief Returns the list of all the header parameters in this SIPHeader.
      *
-     * @return The list of SIPParameter for this SIPHeader.
+     * @return The list of SipParameter for this SIPHeader.
      */
-    virtual const IMSList<SIPParameter*>& GetParameters() const = 0;
+    virtual const IMSList<SipParameter*>& GetParameters() const = 0;
 
     /**
      * @brief Returns the enumeration type of this SIPHeader which corresponds to the header name.

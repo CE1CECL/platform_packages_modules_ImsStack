@@ -101,7 +101,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPDialog* SIPServerConnectionImpl::GetDialog() const
+ISipDialog* SIPServerConnectionImpl::GetDialog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPMethod& SIPServerConnectionImpl::GetMethod() const
+const SipMethod& SIPServerConnectionImpl::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const AString& SIPServerConnectionImpl::GetRequestURI() const
+const AString& SIPServerConnectionImpl::GetRequestUri() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -218,7 +218,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPServerConnectionImpl::SetErrorListener(IN ISIPErrorListener *piListener)
+void SIPServerConnectionImpl::SetErrorListener(IN ISipErrorListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -283,7 +283,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPMessage* SIPServerConnectionImpl::GetMessage() const
+ISipMessage* SIPServerConnectionImpl::GetMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -309,7 +309,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-void SIPServerConnectionImpl::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPServerConnectionImpl::SetSipProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -322,7 +322,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPServerConnectionImpl::SetTransactionTimerValues(IN CONST SIPTimerValues &objTV)
+void SIPServerConnectionImpl::SetTransactionTimerValues(IN CONST SipTimerValues &objTV)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -362,7 +362,7 @@ Remarks
 */
 PRIVATE VIRTUAL
 IMS_BOOL SIPServerConnectionImpl::IsSameTransaction(
-        IN CONST ISIPServerConnection *piOngoingSSC) const
+        IN CONST ISipServerConnection *piOngoingSSC) const
 {
     const SIPServerConnectionImpl *pSSCImpl
             = DYNAMIC_CAST(const SIPServerConnectionImpl*, piOngoingSSC);
@@ -371,7 +371,7 @@ IMS_BOOL SIPServerConnectionImpl::IsSameTransaction(
 
     if (pSSCImpl == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FALSE;
     }
 

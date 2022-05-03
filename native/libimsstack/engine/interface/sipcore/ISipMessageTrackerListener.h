@@ -7,9 +7,9 @@
  * @brief This class provides a listener interface to notify SIP messages
  *        when the SIP messages are sent or received.
  *
- * @see ISIPMessageTracker
+ * @see ISipMessageTracker
  */
-class ISIPMessageTrackerListener
+class ISipMessageTrackerListener
 {
 public:
     /**
@@ -19,7 +19,7 @@ public:
      * @param nStatusCode SIP status code
      * @param strCallId Call-ID header field of SIP message
      */
-    virtual void MessageTracker_NotifyMessageReceived(IN CONST SIPMethod &objMethod,
+    virtual void MessageTracker_NotifyMessageReceived(IN CONST SipMethod &objMethod,
             IN IMS_SINT32 nStatusCode, IN CONST AString &strCallId) = 0;
 
     /**
@@ -29,7 +29,7 @@ public:
      * @param nStatusCode SIP status code
      * @param strCallId Call-ID header field of SIP message
      */
-    virtual void MessageTracker_NotifyMessageSent(IN CONST SIPMethod &objMethod,
+    virtual void MessageTracker_NotifyMessageSent(IN CONST SipMethod &objMethod,
             IN IMS_SINT32 nStatusCode, IN CONST AString &strCallId) = 0;
 
     /**
@@ -39,7 +39,7 @@ public:
      * @param nStatusCode SIP status code
      * @param strCallId Call-ID header field of SIP message
      */
-    virtual void MessageTracker_NotifyMessageSentFailed(IN CONST SIPMethod &objMethod,
+    virtual void MessageTracker_NotifyMessageSentFailed(IN CONST SipMethod &objMethod,
             IN IMS_SINT32 nStatusCode, IN CONST AString &strCallId) = 0;
 };
 

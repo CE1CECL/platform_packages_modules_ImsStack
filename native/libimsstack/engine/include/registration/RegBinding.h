@@ -18,7 +18,7 @@
 
 class IRegistrationEx;
 class IRegContact;
-class ISIPConnectionNotifier;
+class ISipConnectionNotifier;
 
 
 
@@ -47,9 +47,9 @@ protected:
 
     // IRegBinding class
     virtual const AStringArray& GetAssociatedURIs() const;
-    virtual const SIPAddress& GetAuthorizedAOR() const;
-    virtual const SIPAddress& GetContactAddress() const;
-    virtual const SIPAddress* GetContactAddressForOutgoingMessage() const;
+    virtual const SipAddress& GetAuthorizedAOR() const;
+    virtual const SipAddress& GetContactAddress() const;
+    virtual const SipAddress* GetContactAddressForOutgoingMessage() const;
     virtual const IPAddress& GetIPAddress() const;
     virtual const AStringArray& GetPathHeaders() const;
     virtual IMS_SINT32 GetPortFlowControl() const;
@@ -60,17 +60,17 @@ protected:
     virtual const AStringArray& GetSecurityVerifys() const;
     virtual const AStringArray& GetServiceRoutes() const;
     // MULTI_REG_SIP_PROFILE
-    virtual SIPProfile* GetSIPProfile() const;
+    virtual SipProfile* GetSIPProfile() const;
     virtual IMS_SINT32 GetState() const;
     // MULTI_SUBS
     virtual const AString& GetSubscriberId() const;
     // MULTI_REG_TRANSPORT
     virtual IMS_SINT32 GetTransportExt() const;
-    virtual const SIPParameter* GetInstanceParameter() const;
+    virtual const SipParameter* GetInstanceParameter() const;
 
-    virtual const SIPAddress* GetPublicGRUU() const;
-    virtual const SIPAddress* GetTemporaryGRUU() const;
-    virtual const IMSList<SIPAddress*>& GetTemporaryGRUUs() const;
+    virtual const SipAddress* GetPublicGRUU() const;
+    virtual const SipAddress* GetTemporaryGRUU() const;
+    virtual const IMSList<SipAddress*>& GetTemporaryGRUUs() const;
 
     virtual IMS_BOOL IsBehindNAT() const;
     virtual IMS_BOOL IsWithinTrustDomain() const;
@@ -93,7 +93,7 @@ private:
     IRegContact *piContact;
 
     IMS_SINT32 nState;
-    ISIPConnectionNotifier *piSCN;
+    ISipConnectionNotifier *piSCN;
 
     IRegBindingListener *piListener;
 

@@ -78,7 +78,7 @@ CancellableMethodManager* CancellableMethodManager::GetInstance()
 }
 
 PRIVATE
-IMS_BOOL CancellableMethodManager::HandleCancelRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL CancellableMethodManager::HandleCancelRequest(IN ISipServerConnection *piSSC)
 {
     LockGuard objLock(piLock);
 

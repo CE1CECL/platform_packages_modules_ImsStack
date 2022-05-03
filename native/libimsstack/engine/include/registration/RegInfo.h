@@ -33,7 +33,7 @@ public:
 public:
     // IRegInfo interface
     virtual IRegInfoRegistration* GetRegistration(IN CONST AString &strAOR) const;
-    virtual IRegInfoRegistration* GetRegistration(IN CONST SIPAddress &objAOR) const;
+    virtual IRegInfoRegistration* GetRegistration(IN CONST SipAddress &objAOR) const;
     virtual IMSList<IRegInfoRegistration*> GetRegistrations() const;
 
     void AddListener(IN IRegInfoListener *piListener);

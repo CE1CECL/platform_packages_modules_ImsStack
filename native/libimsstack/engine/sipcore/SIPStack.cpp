@@ -262,7 +262,7 @@ Remarks
 GLOBAL void Initialize()
 {
     IMS_SINT32 nSlotId = SystemConfigManager::GetInstance()->GetActiveSlotId();
-    const ISipConfigV *piSipConfigV = SIPConfigProxy::GetSipConfigV(nSlotId);
+    const ISipConfigV *piSipConfigV = SipConfigProxy::GetSipConfigV(nSlotId);
 
     //---------------------------------------------------------------------------------------------
 
@@ -295,11 +295,11 @@ GLOBAL void Initialize()
 
         //TODO - Verify and modify implementation for dualsim hot swap scenarios.
         //SetCompactForm Encoding
-        SIP_BOOL bCompact = (SIP_BOOL)SIPConfigProxy::IsCompactFormConfigured(IMS_SLOT_0, NULL);
+        SIP_BOOL bCompact = (SIP_BOOL)SipConfigProxy::IsCompactFormConfigured(IMS_SLOT_0, NULL);
         pSipConfig->SetShortFormEncoding(bCompact);
 
         //PANI header for failure response INVITE-ACK
-        if (SIPFeatures::IsPANIHeaderForAckRequired(nSlotId))
+        if (SipFeatures::IsPaniHeaderForAckRequired(nSlotId))
         {
             pSipConfig->EnablePANIHeaderForACK(SIP_TRUE);
         }
@@ -325,30 +325,30 @@ Remarks
 
 */
 GLOBAL void SetTransactionTimerValues(
-        IN CONST SIPProfile *pSIPProfile, IN CONST ISipConfigV *piSipConfigV)
+        IN CONST SipProfile *pSIPProfile, IN CONST ISipConfigV *piSipConfigV)
 {
     SipConfiguration* pSipConfig = SipConfiguration::GetInstance();
     if (pSipConfig != IMS_NULL)
     {
         pSipConfig->SetT1((IMS_UINT32)
-            SIPConfigProxy::GetTimerValueT1(IMS_SLOT_0, pSIPProfile, piSipConfigV));
+            SipConfigProxy::GetTimerValueT1(IMS_SLOT_0, pSIPProfile, piSipConfigV));
         pSipConfig->SetT2((IMS_UINT32)
-            SIPConfigProxy::GetTimerValueT2(IMS_SLOT_0, pSIPProfile, piSipConfigV));
+            SipConfigProxy::GetTimerValueT2(IMS_SLOT_0, pSIPProfile, piSipConfigV));
         pSipConfig->SetT4((IMS_UINT32)
-            SIPConfigProxy::GetTimerValueT4(IMS_SLOT_0, pSIPProfile, piSipConfigV));
-        pSipConfig->SetTimerB(SIPConfigProxy::GetTimerValueTB(IMS_SLOT_0, pSIPProfile,
+            SipConfigProxy::GetTimerValueT4(IMS_SLOT_0, pSIPProfile, piSipConfigV));
+        pSipConfig->SetTimerB(SipConfigProxy::GetTimerValueB(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
-        pSipConfig->SetTimerD(SIPConfigProxy::GetTimerValueTD(IMS_SLOT_0, pSIPProfile,
+        pSipConfig->SetTimerD(SipConfigProxy::GetTimerValueD(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
-        pSipConfig->SetTimerF(SIPConfigProxy::GetTimerValueTF(IMS_SLOT_0, pSIPProfile,
+        pSipConfig->SetTimerF(SipConfigProxy::GetTimerValueF(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
-        pSipConfig->SetTimerH(SIPConfigProxy::GetTimerValueTH(IMS_SLOT_0, pSIPProfile,
+        pSipConfig->SetTimerH(SipConfigProxy::GetTimerValueH(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
-        pSipConfig->SetTimerI(SIPConfigProxy::GetTimerValueTI(IMS_SLOT_0, pSIPProfile,
+        pSipConfig->SetTimerI(SipConfigProxy::GetTimerValueI(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
-        pSipConfig->SetTimerJ(SIPConfigProxy::GetTimerValueTJ(IMS_SLOT_0, pSIPProfile,
+        pSipConfig->SetTimerJ(SipConfigProxy::GetTimerValueJ(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
-        pSipConfig->SetTimerK(SIPConfigProxy::GetTimerValueTK(IMS_SLOT_0, pSIPProfile,
+        pSipConfig->SetTimerK(SipConfigProxy::GetTimerValueK(IMS_SLOT_0, pSIPProfile,
             piSipConfigV));
     }
 }
@@ -623,14 +623,14 @@ GLOBAL IMS_BOOL CorrectMessageBody(IN_OUT SipMessage *&pstMessage)
         if (pstHeader == IMS_NULL)
         {
             SipHeaderBase *pstMultiHeader
-                           = DecodeHeader(ESIPHDR_CONTENTTYPE, SIP::STR_MULTIPART_MIXED);
+                           = DecodeHeader(ESIPHDR_CONTENTTYPE, Sip::STR_MULTIPART_MIXED);
 
             if (pstMultiHeader == IMS_NULL)
             {
                 return IMS_NULL;
             }
 
-            AString strName(SIP::STR_BOUNDARY);
+            AString strName(Sip::STR_BOUNDARY);
             AString strBoundary = SIPUtil::GenerateBoundary();
 
             if (!SetParameter(pstMultiHeader,strName,strBoundary))
@@ -649,7 +649,7 @@ GLOBAL IMS_BOOL CorrectMessageBody(IN_OUT SipMessage *&pstMessage)
             return IMS_TRUE;
         }
 
-        AString strName(SIP::STR_BOUNDARY);
+        AString strName(Sip::STR_BOUNDARY);
         SipNameValue *pstParam = IMS_NULL;
 
         if (!GetParameter(pstHeader, strName, pstParam))
@@ -744,7 +744,7 @@ GLOBAL SipMessage* CreateMessage(IN IMS_SINT32 nType)
             return IMS_NULL;
         }
 
-        pReq->SetSipVersion(SIP::STR_SIP_VERSION);
+        pReq->SetSipVersion(Sip::STR_SIP_VERSION);
         pstMessage->SetRequestline(pReq);
     }
     else
@@ -757,7 +757,7 @@ GLOBAL SipMessage* CreateMessage(IN IMS_SINT32 nType)
             return IMS_NULL;
         }
 
-        pStatus->SetSipVersion(SIP::STR_SIP_VERSION);
+        pStatus->SetSipVersion(Sip::STR_SIP_VERSION);
         pstMessage->SetStatusLine(pStatus);
     }
 
@@ -812,7 +812,7 @@ GLOBAL SipHeaderBase* CreateViaHeader(IN CONST AString &strSentProtocol,
         return IMS_NULL;
     }
 
-    if (pVia->SetProtocolVer(SIP::STR_SIP_VERSION_ONLY) == SIP_FALSE)
+    if (pVia->SetProtocolVer(Sip::STR_SIP_VERSION_ONLY) == SIP_FALSE)
     {
         delete pVia;
         return IMS_NULL;
@@ -1494,7 +1494,7 @@ GLOBAL IMS_BOOL IsUnknownHeader(IN_OUT IMS_SINT32 &nType, IN CONST AString &strN
         nType = sipGetHdrType(strName.GetStr());
     }
 
-    return (nType == ISIPHeader::UNKNOWN);
+    return (nType == ISipHeader::UNKNOWN);
 }
 
 /*
@@ -1541,9 +1541,9 @@ IMS_BOOL hasParamList(SipEn_HdrType eType)
             return IMS_FALSE;
     }
 }
-GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipHeaderBase *pstHeader)
+GLOBAL IMSList<SipParameter*> ExtractParameters(IN SipHeaderBase *pstHeader)
 {
-    IMSList<SIPParameter*> objParams;
+    IMSList<SipParameter*> objParams;
     SipParameters* pstParam = GetParameters(pstHeader, IMS_FALSE);
 
     if (pstParam != IMS_NULL)
@@ -1568,7 +1568,7 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipHeaderBase *pstHeader)
                 continue;
             }
 
-            SIPParameter* pParameter = new SIPParameter(pNameVal->m_pszName);
+            SipParameter* pParameter = new SipParameter(pNameVal->m_pszName);
 
             // now get the list of params for the name
             IMS_UINT32 usValSize = pNameVal->m_valueList.GetSize();
@@ -1596,9 +1596,9 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipHeaderBase *pstHeader)
 Remarks
 
 */
-GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec)
+GLOBAL IMSList<SipParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec)
 {
-    IMSList<SIPParameter*> objParams;
+    IMSList<SipParameter*> objParams;
 
     if (pstAddrSpec == IMS_NULL)
     {
@@ -1609,7 +1609,7 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec)
 
     if (pSipUri == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::PARSING_ERROR);
+        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
         return objParams;
     }
 
@@ -1628,13 +1628,13 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec)
                 continue;
             }
 
-            SIPParameter* pParameter = new SIPParameter(pNmVl->m_pszName);
+            SipParameter* pParameter = new SipParameter(pNmVl->m_pszName);
 
             if (pParameter == IMS_NULL)
             {
                 pSipUri->SipDelete();
                 pUriParamList->SipDelete();
-                SIPPrivate::SetLastError(SIPError::PARSING_ERROR);
+                SIPPrivate::SetLastError(SipError::PARSING_ERROR);
                 return objParams;
             }
 
@@ -1673,9 +1673,9 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec)
 Remarks
 
 */
-GLOBAL IMSList<SIPParameter*> ExtractParameters(IN CONST AString &strParams, IN IMS_CHAR cSep)
+GLOBAL IMSList<SipParameter*> ExtractParameters(IN CONST AString &strParams, IN IMS_CHAR cSep)
 {
-    IMSList<SIPParameter*> objParams;
+    IMSList<SipParameter*> objParams;
     AString strTmp = strParams.Trim();
 
     //---------------------------------------------------------------------------------------------
@@ -1696,12 +1696,12 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN CONST AString &strParams, IN 
         const AString &strToken = objTokens.GetElementAt(i);
 
         IMS_SINT32 nPos = strToken.GetIndexOf(TextParser::CHAR_EQUAL);
-        SIPParameter* pParameter = IMS_NULL;
+        SipParameter* pParameter = IMS_NULL;
 
         // name only parameter
         if (nPos == AString::NPOS)
         {
-            pParameter = new SIPParameter(strToken);
+            pParameter = new SipParameter(strToken);
         }
         // name - value pair parameter
         else
@@ -1710,7 +1710,7 @@ GLOBAL IMSList<SIPParameter*> ExtractParameters(IN CONST AString &strParams, IN 
             AString strValue = strToken.GetSubStr(nPos + 1, strToken.GetLength() - nPos);
             AStringArray objValues = strValue.Split(TextParser::CHAR_COMMA);
 
-            pParameter = new SIPParameter(strName, objValues);
+            pParameter = new SipParameter(strName, objValues);
         }
 
         objParams.Append(pParameter);
@@ -1827,47 +1827,47 @@ GLOBAL IMS_CHAR GetCompactHeaderName(IN IMS_SINT32 nType,
     switch (nType)
     {
     case ESIPHDR_CALLID:
-        return SIPHeaderName::CF_CALL_ID;
+        return SipHeaderName::CF_CALL_ID;
     case ESIPHDR_CONTACT: // FALL-THROUGH
     case ESIPHDR_CONTACTWILD: // FALL-THROUGH
     case ESIPHDR_CONTACTANY:
-        return SIPHeaderName::CF_CONTACT;
+        return SipHeaderName::CF_CONTACT;
     case ESIPHDR_CONTENTENCODING:
-        return SIPHeaderName::CF_CONTENT_ENCODING;
+        return SipHeaderName::CF_CONTENT_ENCODING;
     case ESIPHDR_CONTENTLENGTH:
-        return SIPHeaderName::CF_CONTENT_LENGTH;
+        return SipHeaderName::CF_CONTENT_LENGTH;
     case ESIPHDR_CONTENTTYPE:
-        return SIPHeaderName::CF_CONTENT_TYPE;
+        return SipHeaderName::CF_CONTENT_TYPE;
     case ESIPHDR_FROM:
-        return SIPHeaderName::CF_FROM;
+        return SipHeaderName::CF_FROM;
     case ESIPHDR_SUPPORTED:
-        return SIPHeaderName::CF_SUPPORTED;
+        return SipHeaderName::CF_SUPPORTED;
     case ESIPHDR_TO:
-        return SIPHeaderName::CF_TO;
+        return SipHeaderName::CF_TO;
     case ESIPHDR_VIA:
-        return SIPHeaderName::CF_VIA;
+        return SipHeaderName::CF_VIA;
     case ESIPHDR_EVENT:
-        return SIPHeaderName::CF_EVENT;
+        return SipHeaderName::CF_EVENT;
     case ESIPHDR_ALLOWEVENTS:
-        return SIPHeaderName::CF_ALLOW_EVENTS;
+        return SipHeaderName::CF_ALLOW_EVENTS;
      case ESIPHDR_REFERTO:
-        return SIPHeaderName::CF_REFER_TO;
+        return SipHeaderName::CF_REFER_TO;
     case ESIPHDR_REFERREDBY:
-        return SIPHeaderName::CF_REFERRED_BY;
+        return SipHeaderName::CF_REFERRED_BY;
     case ESIPHDR_REQUESTDISPOSITION:
-        return SIPHeaderName::CF_REQUEST_DISPOSITION;
+        return SipHeaderName::CF_REQUEST_DISPOSITION;
     case ESIPHDR_ACCEPTCONTACT:
-        return SIPHeaderName::CF_ACCEPT_CONTACT;
+        return SipHeaderName::CF_ACCEPT_CONTACT;
     case ESIPHDR_REJECTCONTACT:
-        return SIPHeaderName::CF_REJECT_CONTACT;
+        return SipHeaderName::CF_REJECT_CONTACT;
     case ESIPHDR_SESSIONEXPIRES:
-        return SIPHeaderName::CF_SESSION_EXPIRES;
+        return SipHeaderName::CF_SESSION_EXPIRES;
     case ESIPHDR_SUBJECT:
-        return SIPHeaderName::CF_SUBJECT;
+        return SipHeaderName::CF_SUBJECT;
     case ESIPHDR_IDENTITYINFO:
-        return SIPHeaderName::CF_IDENTITY_INFO;
+        return SipHeaderName::CF_IDENTITY_INFO;
     case ESIPHDR_IDENTITY:
-        return SIPHeaderName::CF_IDENTITY;
+        return SipHeaderName::CF_IDENTITY;
 
     default:
         break;
@@ -1886,7 +1886,7 @@ GLOBAL const IMS_CHAR* GetHeaderName(IN IMS_SINT32 nType,
 {
     //---------------------------------------------------------------------------------------------
 
-    if ((nType <= ISIPHeader::INVALID) || (nType >= ISIPHeader::ANY))
+    if ((nType <= ISipHeader::INVALID) || (nType >= ISipHeader::ANY))
     {
         return IMS_NULL;
     }
@@ -1894,12 +1894,12 @@ GLOBAL const IMS_CHAR* GetHeaderName(IN IMS_SINT32 nType,
     switch (nType)
     {
     case ESIPHDR_UNKNOWN:
-        if (strName.EqualsIgnoreCase(SIPHeaderName::CF_SUBJECT))
-            return SIPHeaderName::SUBJECT;
-        else if (strName.EqualsIgnoreCase(SIPHeaderName::CF_IDENTITY))
-            return SIPHeaderName::IDENTITY;
-        else if (strName.EqualsIgnoreCase(SIPHeaderName::CF_IDENTITY_INFO))
-            return SIPHeaderName::IDENTITY_INFO;
+        if (strName.EqualsIgnoreCase(SipHeaderName::CF_SUBJECT))
+            return SipHeaderName::SUBJECT;
+        else if (strName.EqualsIgnoreCase(SipHeaderName::CF_IDENTITY))
+            return SipHeaderName::IDENTITY;
+        else if (strName.EqualsIgnoreCase(SipHeaderName::CF_IDENTITY_INFO))
+            return SipHeaderName::IDENTITY_INFO;
         else
             return strName.GetStr();
 
@@ -1956,55 +1956,55 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'a':
     case 'A':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_ACCEPT_CONTACT))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_ACCEPT_CONTACT))
             {
                 nType = ESIPHDR_ACCEPTCONTACT;
             }
 
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ALLOW))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ALLOW))
             {
                 nType = ESIPHDR_ALLOW;
             }
 
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ALLOW_EVENTS))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ALLOW_EVENTS))
             {
                 nType = ESIPHDR_ALLOWEVENTS;
             }
 
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ACCEPT_CONTACT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ACCEPT_CONTACT))
             {
                 nType = ESIPHDR_ACCEPTCONTACT;
             }
 
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ACCEPT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ACCEPT))
             {
                 nType = ESIPHDR_ACCEPT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::AUTHORIZATION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::AUTHORIZATION))
             {
                 nType = ESIPHDR_AUTHORIZATION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ACCEPT_RESOURCE_PRIORITY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ACCEPT_RESOURCE_PRIORITY))
             {
                 nType = ESIPHDR_ACCEPTRESOURCEPRIORITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ACCEPT_ENCODING))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ACCEPT_ENCODING))
             {
                 nType = ESIPHDR_ACCEPTENCODING;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ACCEPT_LANGUAGE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ACCEPT_LANGUAGE))
             {
                 nType =  ESIPHDR_ACCEPTLANGUAGE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ALERT_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ALERT_INFO))
             {
                 nType =  ESIPHDR_ALERTINFO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ANSWER_MODE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ANSWER_MODE))
             {
                 nType =  ESIPHDR_ANSWERMODE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::AUTHENTICATION_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::AUTHENTICATION_INFO))
             {
                 nType =  ESIPHDR_AUTHENTICATIONINFO;
             }
@@ -2014,7 +2014,7 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'b':
     case 'B':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_REFERRED_BY))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_REFERRED_BY))
             {
                 nType = ESIPHDR_REFERREDBY;
             }
@@ -2024,43 +2024,43 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'c':
     case 'C':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_CONTENT_TYPE))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_CONTENT_TYPE))
             {
                 nType = ESIPHDR_CONTENTTYPE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CALL_ID))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CALL_ID))
             {
                 nType = ESIPHDR_CALLID;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTACT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CONTACT))
             {
                 nType = ESIPHDR_CONTACT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_TYPE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_TYPE))
             {
                 nType = ESIPHDR_CONTENTTYPE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_LENGTH))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_LENGTH))
             {
                 nType = ESIPHDR_CONTENTLENGTH;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_DISPOSITION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_DISPOSITION))
             {
                 nType = ESIPHDR_CONTENTDISPOSITION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_ENCODING))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_ENCODING))
             {
                 nType = ESIPHDR_CONTENTENCODING;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CSEQ))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CSEQ))
             {
                 nType = ESIPHDR_CSEQ;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CALL_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CALL_INFO))
             {
                 nType = ESIPHDR_CALLINFO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_LANGUAGE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_LANGUAGE))
             {
                 nType = ESIPHDR_CONTENTLANGUAGE;
             }
@@ -2070,11 +2070,11 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'd':
     case 'D':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_REQUEST_DISPOSITION))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_REQUEST_DISPOSITION))
             {
                 nType = ESIPHDR_REQUESTDISPOSITION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::DATE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::DATE))
             {
                 nType = ESIPHDR_DATE;
             }
@@ -2084,21 +2084,21 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'e':
     case 'E':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_CONTENT_ENCODING))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_CONTENT_ENCODING))
             {
                 nType = ESIPHDR_CONTENTENCODING;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::EVENT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::EVENT))
             {
                 nType = ESIPHDR_EVENT;
             }
 
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::EXPIRES))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::EXPIRES))
             {
                 nType = ESIPHDR_EXPIRESANY;
 
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ERROR_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ERROR_INFO))
             {
                 nType = ESIPHDR_ERRORINFO;
             }
@@ -2108,15 +2108,15 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'f':
     case 'F':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_FROM))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_FROM))
             {
                 nType = ESIPHDR_FROM;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::FROM))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::FROM))
             {
                 nType = ESIPHDR_FROM;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::FLOW_TIMER))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::FLOW_TIMER))
             {
                 nType = ESIPHDR_FLOWTIMER;
             }
@@ -2126,7 +2126,7 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'h':
     case 'H':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::HISTORY_INFO))
+            if (strName.EqualsIgnoreCase(SipHeaderName::HISTORY_INFO))
             {
                 nType = ESIPHDR_HISTORYINFO;
             }
@@ -2136,23 +2136,23 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'i':
     case 'I':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_CALL_ID))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_CALL_ID))
             {
                 nType = ESIPHDR_CALLID;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::IDENTITY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::IDENTITY))
             {
                 nType = ESIPHDR_IDENTITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::IDENTITY_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::IDENTITY_INFO))
             {
                 nType = ESIPHDR_IDENTITYINFO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::IN_REPLY_TO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::IN_REPLY_TO))
             {
                 nType = ESIPHDR_INREPLYTO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::INFO_PACKAGE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::INFO_PACKAGE))
             {
                 nType = ESIPHDR_INFOPACKAGE;
             }
@@ -2162,11 +2162,11 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'j':
     case 'J':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_REJECT_CONTACT))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_REJECT_CONTACT))
             {
                 nType = ESIPHDR_REJECTCONTACT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::JOIN))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::JOIN))
             {
                 nType = ESIPHDR_JOIN;
             }
@@ -2176,7 +2176,7 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'k':
     case 'K':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_SUPPORTED))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_SUPPORTED))
             {
                 nType = ESIPHDR_SUPPORTED;
             }
@@ -2186,7 +2186,7 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'l':
     case 'L':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_CONTENT_LENGTH))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_CONTENT_LENGTH))
             {
                 nType = ESIPHDR_CONTENTLENGTH;
             }
@@ -2196,23 +2196,23 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'm':
     case 'M':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_CONTACT))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_CONTACT))
             {
                 nType = ESIPHDR_CONTACT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::MAX_FORWARDS))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::MAX_FORWARDS))
             {
                 nType = ESIPHDR_MAXFORWARDS;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::MIME_VERSION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::MIME_VERSION))
             {
                 nType = ESIPHDR_MIMEVERSION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::MIN_SE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::MIN_SE))
             {
                 nType = ESIPHDR_MINSE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::MIN_EXPIRES))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::MIN_EXPIRES))
             {
                 nType = ESIPHDR_MINEXPIRES;
             }
@@ -2222,11 +2222,11 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'o':
     case 'O':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_EVENT))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_EVENT))
             {
                 nType = ESIPHDR_EVENT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ORGANIZATION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ORGANIZATION))
             {
                 nType = ESIPHDR_ORGANIZATION;
             }
@@ -2236,95 +2236,95 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'p':
     case 'P':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::PATH))
+            if (strName.EqualsIgnoreCase(SipHeaderName::PATH))
             {
                 nType = ESIPHDR_PATH;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_ASSOCIATED_URI))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_ASSOCIATED_URI))
             {
                 nType = ESIPHDR_PASSOCIATEDURI;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_CALLED_PARTY_ID))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_CALLED_PARTY_ID))
             {
                 nType = ESIPHDR_PCALLEDPARTYID;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_VISITED_NETWORK_ID))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_VISITED_NETWORK_ID))
             {
                 nType = ESIPHDR_PVISITEDNETWORKID;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_CHARGING_FUNCTION_ADDRESSES))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_CHARGING_FUNCTION_ADDRESSES))
             {
                 nType = ESIPHDR_PCHRGFUNADDR;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_ACCESS_NETWORK_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_ACCESS_NETWORK_INFO))
             {
                 nType = ESIPHDR_PACCESSNETWORKINFO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_CHARGING_VECTOR))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_CHARGING_VECTOR))
             {
                 nType = ESIPHDR_PCHARGINGVECTOR;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PROXY_AUTHENTICATE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PROXY_AUTHENTICATE))
             {
                 nType = ESIPHDR_PROXYAUTHENTICATE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PROXY_AUTHORIZATION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PROXY_AUTHORIZATION))
             {
                 nType = ESIPHDR_PROXYAUTHORIZATION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PRIVACY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PRIVACY))
             {
                 nType = ESIPHDR_PRIVACY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_PREFERRED_IDENTITY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_PREFERRED_IDENTITY))
             {
                 nType = ESIPHDR_PPREFERREDIDENTITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_ASSERTED_IDENTITY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_ASSERTED_IDENTITY))
             {
                 nType = ESIPHDR_PASSERTEDIDENTITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_EARLY_MEDIA))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_EARLY_MEDIA))
             {
                 nType = ESIPHDR_PEARLYMEDIA;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_ANSWER_STATE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_ANSWER_STATE))
             {
                 nType = ESIPHDR_PANSWERSTATE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_MEDIA_AUTHORIZATION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_MEDIA_AUTHORIZATION))
             {
                 nType = ESIPHDR_PMEDIAAUTHORIZATION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_PROFILE_KEY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_PROFILE_KEY))
             {
                 nType = ESIPHDR_PPROFILEKEY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_REFUSED_URI_LIST))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_REFUSED_URI_LIST))
             {
                 nType = ESIPHDR_PREFUSEDURILIST;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_SERVED_USER))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_SERVED_USER))
             {
                 nType = ESIPHDR_PSERVEDUSER;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::P_USER_DATABASE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::P_USER_DATABASE))
             {
                 nType = ESIPHDR_PUSERDATABASE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PERMISSION_MISSING))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PERMISSION_MISSING))
             {
                 nType = ESIPHDR_PERMISSIONMISSING;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PRIORITY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PRIORITY))
             {
                 nType = ESIPHDR_PRIORITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PRIV_ANSWER_MODE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PRIV_ANSWER_MODE))
             {
                 nType = ESIPHDR_PRIVANSWERMODE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::PROXY_REQUIRE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::PROXY_REQUIRE))
             {
                 nType = ESIPHDR_PROXYREQUIRE;
             }
@@ -2334,71 +2334,71 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'r':
     case 'R':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::REQUIRE))
+            if (strName.EqualsIgnoreCase(SipHeaderName::REQUIRE))
             {
                 nType = ESIPHDR_REQUIRE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REFERRED_BY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REFERRED_BY))
             {
                 nType = ESIPHDR_REFERREDBY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::CF_REFER_TO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::CF_REFER_TO))
             {
                 nType = ESIPHDR_REFERTO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REFER_TO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REFER_TO))
             {
                 nType = ESIPHDR_REFERTO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REQUEST_DISPOSITION))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REQUEST_DISPOSITION))
             {
                 nType = ESIPHDR_REQUESTDISPOSITION;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REJECT_CONTACT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REJECT_CONTACT))
             {
                 nType = ESIPHDR_REJECTCONTACT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REPLACES))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REPLACES))
             {
                 nType = ESIPHDR_REPLACES;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RACK))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RACK))
             {
                 nType = ESIPHDR_RACK;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RECORD_ROUTE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RECORD_ROUTE))
             {
                 nType = ESIPHDR_RECORDROUTE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RECV_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RECV_INFO))
             {
                 nType = ESIPHDR_RECVINFO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::ROUTE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::ROUTE))
             {
                 nType = ESIPHDR_ROUTE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RSEQ))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RSEQ))
             {
                 nType = ESIPHDR_RSEQ;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RETRY_AFTER))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RETRY_AFTER))
             {
                 nType = ESIPHDR_RETRYAFTERSEC;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RESOURCE_PRIORITY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RESOURCE_PRIORITY))
             {
                 nType = ESIPHDR_RESOURCEPRIORITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::RESPONSE_KEY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::RESPONSE_KEY))
             {
                 nType = ESIPHDR_RESPONSEKEY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REASON))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REASON))
             {
                 nType = ESIPHDR_REASON;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::REPLY_TO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::REPLY_TO))
             {
                 nType = ESIPHDR_REPLYTO;
             }
@@ -2408,55 +2408,55 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 's':
     case 'S':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_SUBJECT))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_SUBJECT))
             {
                 nType = ESIPHDR_SUBJECT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SUPPORTED))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SUPPORTED))
             {
                 nType = ESIPHDR_SUPPORTED;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SIP_IF_MATCH))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SIP_IF_MATCH))
             {
                 nType = ESIPHDR_SIPIFMATCH;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SIP_ETAG))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SIP_ETAG))
             {
                 nType = ESIPHDR_SIPETAG;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SERVICE_ROUTE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SERVICE_ROUTE))
             {
                 nType = ESIPHDR_SERVICEROUTE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SESSION_EXPIRES))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SESSION_EXPIRES))
             {
                 nType = ESIPHDR_SESSIONEXPIRES;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SUBSCRIPTION_STATE))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SUBSCRIPTION_STATE))
             {
                 nType = ESIPHDR_SUBSCRIPTIONSTATE;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SUBJECT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SUBJECT))
             {
                 nType = ESIPHDR_SUBJECT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SECURITY_CLIENT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SECURITY_CLIENT))
             {
                 nType = ESIPHDR_SECURITYCLIENT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SECURITY_VERIFY))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SECURITY_VERIFY))
             {
                 nType = ESIPHDR_SECURITYVERIFY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SECURITY_SERVER))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SECURITY_SERVER))
             {
                 nType = ESIPHDR_SECURITYSERVER;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SERVER))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SERVER))
             {
                 nType = ESIPHDR_SERVER;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::SUPPRESS_IF_MATCH))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::SUPPRESS_IF_MATCH))
             {
                 nType = ESIPHDR_SUPPRESSIFMATCH;
             }
@@ -2466,23 +2466,23 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 't':
     case 'T':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_TO))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_TO))
             {
                 nType = ESIPHDR_TO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::TO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::TO))
             {
                 nType = ESIPHDR_TO;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::TIMESTAMP))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::TIMESTAMP))
             {
                 nType = ESIPHDR_TIMESTAMP;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::TRIGGER_CONSENT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::TRIGGER_CONSENT))
             {
                 nType = ESIPHDR_TRIGGERCONSENT;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::TARGET_DIALOG))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::TARGET_DIALOG))
             {
                 nType = ESIPHDR_TARGETDIALOG;
             }
@@ -2492,15 +2492,15 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'u':
     case 'U':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_ALLOW_EVENTS))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_ALLOW_EVENTS))
             {
                 nType = ESIPHDR_ALLOWEVENTS;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::UNSUPPORTED))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::UNSUPPORTED))
             {
                 nType = ESIPHDR_UNSUPPORTED;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::USER_AGENT))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::USER_AGENT))
             {
                 nType = ESIPHDR_USERAGENT;
             }
@@ -2511,11 +2511,11 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'v':
     case 'V':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_VIA))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_VIA))
             {
                 nType = ESIPHDR_VIA;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::VIA))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::VIA))
             {
                 nType = ESIPHDR_VIA;
             }
@@ -2525,11 +2525,11 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'w':
     case 'W':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::WARNING))
+            if (strName.EqualsIgnoreCase(SipHeaderName::WARNING))
             {
                 nType = ESIPHDR_WARNING;
             }
-            if (strName.EqualsIgnoreCase(SIPHeaderName::WWW_AUTHENTICATE))
+            if (strName.EqualsIgnoreCase(SipHeaderName::WWW_AUTHENTICATE))
             {
                 nType = ESIPHDR_WWWAUTHENTICATE;
             }
@@ -2539,7 +2539,7 @@ GLOBAL IMS_SINT32 GetHeaderTypeFromName(IN CONST AString &strName)
     case 'x':
     case 'X':
         {
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CF_SESSION_EXPIRES))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CF_SESSION_EXPIRES))
             {
                 nType = ESIPHDR_SESSIONEXPIRES;
             }
@@ -2742,7 +2742,7 @@ Remarks
 
 */
 GLOBAL IMS_BOOL GetRAckHeader(IN SipMessage *pstMessage, OUT IMS_UINT32 &nResponseNum,
-        OUT IMS_UINT32 &nCSeqNum, OUT SIPMethod &objMethod)
+        OUT IMS_UINT32 &nCSeqNum, OUT SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -2791,10 +2791,10 @@ GLOBAL IMS_SINT32 GetDestinationTransport(IN SipMessage *pstMessage)
     if (pstAddrSpec != IMS_NULL)
     {
         if ((pstAddrSpec->GetUriScheme() == SipUri::SCHEME_SIPS)
-                && HasParameter(pstAddrSpec, AString(SIP::STR_LR)))
+                && HasParameter(pstAddrSpec, AString(Sip::STR_LR)))
         {
             FreeAddrSpec(pstAddrSpec);
-            return SIP::TRANSPORT_TLS;
+            return Sip::TRANSPORT_TLS;
         }
 
         FreeAddrSpec(pstAddrSpec);
@@ -2808,13 +2808,13 @@ GLOBAL IMS_SINT32 GetDestinationTransport(IN SipMessage *pstMessage)
         if (pstAddrSpec->GetUriScheme() == SipUri::SCHEME_SIPS)
         {
             FreeAddrSpec(pstAddrSpec);
-            return SIP::TRANSPORT_TLS;
+            return Sip::TRANSPORT_TLS;
         }
 
         FreeAddrSpec(pstAddrSpec);
     }
 
-    return SIP::TRANSPORT_ANY;
+    return Sip::TRANSPORT_ANY;
 }
 
 /*
@@ -2945,7 +2945,7 @@ GLOBAL IMS_BOOL GetHostAndPort(IN SipAddrSpec *pstAddrSpec, OUT AString &strHost
 
     SIPStackError(EERR_NOERR);
 
-    nPort = SIP::PORT_UNSPECIFIED;
+    nPort = Sip::PORT_UNSPECIFIED;
 
     if ((pstAddrSpec->GetUriScheme() == SipUri::SCHEME_SIP)
             || (pstAddrSpec->GetUriScheme() == SipUri::SCHEME_SIPS))
@@ -2984,7 +2984,7 @@ GLOBAL IMS_BOOL GetHostNPortFromViaHeader(IN SipMessage *pstMessage,
     //---------------------------------------------------------------------------------------------
 
     strHost = AString::ConstNull();
-    nPort = SIP::PORT_UNSPECIFIED;
+    nPort = Sip::PORT_UNSPECIFIED;
 
     // Get the topmost Via header from the message
     SipViaHeader *pViaHeader = DYNAMIC_CAST(SipViaHeader*, GetHeader(pstMessage, ESIPHDR_VIA));
@@ -3012,13 +3012,13 @@ GLOBAL IMS_BOOL GetHostNPortFromViaHeader(IN SipMessage *pstMessage,
     {
         const IMS_CHAR *pszTransport = pViaHeader->GetTransport();
 
-        if (IMS_StrICmp(pszTransport, SIP::STR_TLS_CAPS) == 0)
+        if (IMS_StrICmp(pszTransport, Sip::STR_TLS_CAPS) == 0)
         {
-            nPort = SIP::PORT_5061;
+            nPort = Sip::PORT_5061;
         }
         else
         {
-            nPort = SIP::PORT_5060;
+            nPort = Sip::PORT_5060;
         }
     }
 
@@ -3033,7 +3033,7 @@ GLOBAL IMS_BOOL GetHostNPortFromViaHeader(IN SipMessage *pstMessage,
 Remarks
 
 */
-GLOBAL SIPMethod GetMethod(IN SipMessage *pstMessage)
+GLOBAL SipMethod GetMethod(IN SipMessage *pstMessage)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -3042,10 +3042,10 @@ GLOBAL SIPMethod GetMethod(IN SipMessage *pstMessage)
     if (pstMessage == IMS_NULL)
     {
         SIPStackError(EERR_INVALIDPARAM);
-        return SIPMethod();
+        return SipMethod();
     }
 
-    SIPMethod objSIPMethod(pstMessage->GetMethod());
+    SipMethod objSIPMethod(pstMessage->GetMethod());
 
     return objSIPMethod;
 }
@@ -3121,7 +3121,7 @@ GLOBAL AString GetMIMEHeader(IN SipMsgBody *pstMsgBody, IN IMS_SINT32 nType,
             pstHeader = pstMsgBody->GetMimeHdr(ESIPHDR_UNKNOWN, i);
             AString strName = GetUnknownHeaderName(pstHeader);
 
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_ID))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_ID))
             {
                 break;
             }
@@ -3141,7 +3141,7 @@ GLOBAL AString GetMIMEHeader(IN SipMsgBody *pstMsgBody, IN IMS_SINT32 nType,
             pstHeader = pstMsgBody->GetMimeHdr(ESIPHDR_UNKNOWN, i);
             AString strName = GetUnknownHeaderName(pstHeader);
 
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_DESCRIPTION))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_DESCRIPTION))
             {
                 break;
             }
@@ -3211,7 +3211,7 @@ GLOBAL IMS_SINT32 GetMIMEHeaderCount(IN SipMsgBody *pstMsgBody, IN IMS_SINT32 nT
             pstHeader = pstMsgBody->GetMimeHdr(ESIPHDR_UNKNOWN, i);
             AString strName = GetUnknownHeaderName(pstHeader);
 
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_ID))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_ID))
             {
                 break;
             }
@@ -3231,7 +3231,7 @@ GLOBAL IMS_SINT32 GetMIMEHeaderCount(IN SipMsgBody *pstMsgBody, IN IMS_SINT32 nT
             pstHeader = pstMsgBody->GetMimeHdr(ESIPHDR_UNKNOWN, i);
             AString strName = GetUnknownHeaderName(pstHeader);
 
-            if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_DESCRIPTION))
+            if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_DESCRIPTION))
             {
                 break;
             }
@@ -3536,7 +3536,7 @@ GLOBAL AString GetSentProtocolFromVia(IN SipHeaderBase *pstHeader)
 
     strSentProtocol.Sprintf("%s/%s/%s",
             (pszProtocolName != SIP_NULL) ? pszProtocolName : "SIP",
-            (pszProtocolVersion != SIP_NULL) ? pszProtocolVersion : SIP::STR_SIP_VERSION_ONLY,
+            (pszProtocolVersion != SIP_NULL) ? pszProtocolVersion : Sip::STR_SIP_VERSION_ONLY,
             (pszTransport != SIP_NULL) ? pszTransport : "UDP");
 
     return strSentProtocol;
@@ -3603,23 +3603,23 @@ GLOBAL IMS_SINT32 GetStatusCode(IN SipMessage *pstMessage)
     if (pstMessage == IMS_NULL)
     {
         SIPStackError(EERR_INVALIDPARAM);
-        return SIPStatusCode::SC_INVALID;
+        return SipStatusCode::SC_INVALID;
     }
 
     if (pstMessage->GetMsgType() != ESIP_RESPTYPE)
     {
         SIPStackError(EERR_INVALIDPARAM);
-        return SIPStatusCode::SC_INVALID;
+        return SipStatusCode::SC_INVALID;
     }
 
     SipStatusLine* pstStatusLine = pstMessage->GetStatusLine();
 
     if (pstStatusLine == IMS_NULL)
     {
-        return SIPStatusCode::SC_INVALID;
+        return SipStatusCode::SC_INVALID;
     }
 
-    IMS_SINT16 nStatusCode = SIPStatusCode::SC_INVALID;
+    IMS_SINT16 nStatusCode = SipStatusCode::SC_INVALID;
 
     pstStatusLine->GetStatusCode(&nStatusCode);
 
@@ -3633,7 +3633,7 @@ GLOBAL IMS_SINT32 GetStatusCode(IN SipMessage *pstMessage)
 Remarks
 
 */
-GLOBAL SIPStatusCode GetStatusCodeEx(IN SipMessage *pstMessage)
+GLOBAL SipStatusCode GetStatusCodeEx(IN SipMessage *pstMessage)
 {
     //---------------------------------------------------------------------------------------------
     SIPStackError(EERR_NOERR);
@@ -3641,7 +3641,7 @@ GLOBAL SIPStatusCode GetStatusCodeEx(IN SipMessage *pstMessage)
     if (pstMessage == IMS_NULL)
     {
         SIPStackError(EERR_INVALIDPARAM);
-        return SIPStatusCode();
+        return SipStatusCode();
     }
 
     SipStatusLine* pStatusLine = pstMessage->GetStatusLine();
@@ -3649,10 +3649,10 @@ GLOBAL SIPStatusCode GetStatusCodeEx(IN SipMessage *pstMessage)
     if (pStatusLine == IMS_NULL)
     {
         SIPStackError(EERR_INVALIDPARAM);
-        return SIPStatusCode();
+        return SipStatusCode();
     }
 
-    IMS_SINT32 nStatusCode = SIPStatusCode::SC_INVALID;
+    IMS_SINT32 nStatusCode = SipStatusCode::SC_INVALID;
     const IMS_CHAR* pszReasonPhrase = pStatusLine->GetRsnPhrase();
     const IMS_CHAR* pszStatusCode = pStatusLine->GetStatusCode();
 
@@ -3661,7 +3661,7 @@ GLOBAL SIPStatusCode GetStatusCodeEx(IN SipMessage *pstMessage)
         nStatusCode = IMS_Atoi(pszStatusCode);
     }
 
-    SIPStatusCode objStatusCode(nStatusCode, pszReasonPhrase);
+    SipStatusCode objStatusCode(nStatusCode, pszReasonPhrase);
 
     pStatusLine->SipDelete();
     return objStatusCode;
@@ -3703,7 +3703,7 @@ GLOBAL IMS_BOOL GetSubscriptionStateHeader(IN SipMessage *pstMessage,
     // Set the expires parameter
     if (pnExpires != IMS_NULL)
     {
-        AString strExpires = GetParameter(pSubState, SIP::STR_EXPIRES);
+        AString strExpires = GetParameter(pSubState, Sip::STR_EXPIRES);
 
         if (strExpires.GetLength() == 0)
         {
@@ -3834,7 +3834,7 @@ GLOBAL AString GetViaBranchParameter(IN SipMessage *pstMessage)
         return AString::ConstNull();
     }
 
-    AString strViaBranch = GetParameter(pstHeader, SIP::STR_BRANCH);
+    AString strViaBranch = GetParameter(pstHeader, Sip::STR_BRANCH);
 
     FreeHeader(pstHeader);
 
@@ -4139,8 +4139,8 @@ GLOBAL IMS_BOOL IsMessageRPR(IN SipMessage *pstMessage)
     IMS_SINT32 nStatusCode = GetStatusCode(pstMessage);
 
     // The message has a status code greater than 199; It is a final response.
-    if ((nStatusCode <= SIPStatusCode::SC_100)
-            || (nStatusCode >= SIPStatusCode::SC_200))
+    if ((nStatusCode <= SipStatusCode::SC_100)
+            || (nStatusCode >= SipStatusCode::SC_200))
     {
         return IMS_FALSE;
     }
@@ -4165,7 +4165,7 @@ GLOBAL IMS_BOOL IsMessageRPR(IN SipMessage *pstMessage)
 
         if (pszOptionTag != IMS_NULL)
         {
-            if (AString::CompareIgnoreCase(pszOptionTag, SIP::STR_100REL) == 0)
+            if (AString::CompareIgnoreCase(pszOptionTag, Sip::STR_100REL) == 0)
             {
                 bOptionTag100rel = IMS_TRUE;
                 FreeHeader(pstReqHdr);
@@ -4316,7 +4316,7 @@ GLOBAL IMS_BOOL IsAddressFormatHeader(IN IMS_SINT32 nType, IN CONST AString &str
         return IMS_TRUE;
 
     case ESIPHDR_UNKNOWN:
-        if (strName.EqualsIgnoreCase(SIPHeaderName::DIVERSION))
+        if (strName.EqualsIgnoreCase(SipHeaderName::DIVERSION))
         {
             return IMS_TRUE;
         }
@@ -4416,7 +4416,7 @@ GLOBAL IMS_BOOL IsUriSchemeSupported(IN SipHeaderBase *pstHeader)
 
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (sip_getAddrSpecFromCommonHdr(pstHeader, &pstAddrSpec, SIPStackError()) == SIP_FALSE)
     {
@@ -4448,7 +4448,7 @@ GLOBAL IMS_BOOL IsUriSchemeSupported(IN SipHeaderBase *pstHeader)
         {
             FreeAddrSpec(pstAddrSpec);
 
-            SIPPrivate::SetLastError(SIPError::URI_SCHEME_NOT_SUPPORTED);
+            SIPPrivate::SetLastError(SipError::URI_SCHEME_NOT_SUPPORTED);
             return IMS_FALSE;
         }
     }
@@ -4489,7 +4489,7 @@ GLOBAL void ParseHostNPort(IN CONST AString &strHostNPort, OUT AString &strHost,
 
     //---------------------------------------------------------------------------------------------
 
-    nPort = SIP::PORT_UNSPECIFIED;
+    nPort = Sip::PORT_UNSPECIFIED;
 
     // We need to take care of '[', ']' while extracting the host from IPv6 reference
     if ((nPos = strHostNPort.GetIndexOf(TextParser::CHAR_LSBRACKET)) != AString::NPOS)
@@ -4777,7 +4777,7 @@ GLOBAL IMS_BOOL SetHeader(IN SipHeaderBase*pstHeader, IN_OUT SipMessage *&pstMes
 Remarks
 
 */
-GLOBAL IMS_BOOL SetMethod(IN CONST SIPMethod &objMethod, IN_OUT SipMessage *&pstMessage)
+GLOBAL IMS_BOOL SetMethod(IN CONST SipMethod &objMethod, IN_OUT SipMessage *&pstMessage)
 {
     if (pstMessage == IMS_NULL)
     {
@@ -4860,30 +4860,30 @@ GLOBAL IMS_BOOL SetMIMEHeader(IN IMS_SINT32 nType, IN CONST AString &strName,
     AString strHdrName(strName);
     switch (nType)
     {
-        case ISIPMessageBodyPart::CONTENT_TYPE:
+        case ISipMessageBodyPart::CONTENT_TYPE:
         {
             nType = ESIPHDR_CONTENTTYPE;
             break;
         }
-        case ISIPMessageBodyPart::CONTENT_DISPOSITION:
+        case ISipMessageBodyPart::CONTENT_DISPOSITION:
         {
             nType = ESIPHDR_CONTENTDISPOSITION;
             break;
         }
-        case ISIPMessageBodyPart::CONTENT_TRANSFER_ENCODING:
+        case ISipMessageBodyPart::CONTENT_TRANSFER_ENCODING:
         {
             nType = ESIPHDR_CONTENTENCODING;
             break;
         }
-        case ISIPMessageBodyPart::CONTENT_ID:
+        case ISipMessageBodyPart::CONTENT_ID:
         {
-            strHdrName = SIPHeaderName::CONTENT_ID;
+            strHdrName = SipHeaderName::CONTENT_ID;
             nType = ESIPHDR_UNKNOWN;
             break;
         }
-        case ISIPMessageBodyPart::CONTENT_DESCRIPTION:
+        case ISipMessageBodyPart::CONTENT_DESCRIPTION:
         {
-            strHdrName = SIPHeaderName::CONTENT_DESCRIPTION;
+            strHdrName = SipHeaderName::CONTENT_DESCRIPTION;
             nType = ESIPHDR_UNKNOWN;
             break;
         }
@@ -4898,14 +4898,14 @@ GLOBAL IMS_BOOL SetMIMEHeader(IN IMS_SINT32 nType, IN CONST AString &strName,
 
     if (pstHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::PARSING_ERROR);
+        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
         return IMS_FALSE;
     }
 
     if (pstMsgBody->SetMimeHdr(pstHeader) == SIP_FALSE)
     {
         FreeHeader(pstHeader);
-        SIPPrivate::SetLastError(SIPError::PARSING_ERROR);
+        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
         return IMS_FALSE;
     }
 
@@ -5184,7 +5184,7 @@ GLOBAL IMS_BOOL UpdateSentProtocol(IN SipMessage *pstMessage, IN CONST AString &
     const SIP_CHAR *pszProtocol = strSentProtocol.GetStr();
     IMS_UINT32 nStartIndex = 0;
 
-    if (strSentProtocol.StartsWith(SIP::STR_SIP_VERSION))
+    if (strSentProtocol.StartsWith(Sip::STR_SIP_VERSION))
     {
         // "SIP/2.0/" : 8 characters
         nStartIndex = 8;
@@ -5353,7 +5353,7 @@ GLOBAL SIPTxnKey* CreateTxnKey(IN SipMessage *pstMessage)
         return IMS_NULL;
     }
 
-    AString strViaBranch = GetParameter(pViaHeader, SIP::STR_BRANCH);
+    AString strViaBranch = GetParameter(pViaHeader, Sip::STR_BRANCH);
 
     FreeHeader(pViaHeader);
 
@@ -5363,7 +5363,7 @@ GLOBAL SIPTxnKey* CreateTxnKey(IN SipMessage *pstMessage)
         return IMS_NULL;
     }
 
-    SIPMethod objMethod = GetMethod(pstMessage);
+    SipMethod objMethod = GetMethod(pstMessage);
     IMS_SINT32 nStatusCode = 0;
     IMS_UINT32 nCSeq = GetCSeqNumber(pstMessage);
 
@@ -5411,7 +5411,7 @@ GLOBAL SIPTxnKey* CreateTxnKeyFromKey(IN SipTxnKey *pstTxnKey)
         return IMS_NULL;
     }
 
-    SIPMethod objMethod(static_cast<const IMS_CHAR*>(pstTxnKey->GetMethod()));
+    SipMethod objMethod(static_cast<const IMS_CHAR*>(pstTxnKey->GetMethod()));
     AString strViaBranch(TxnKey_GetViaBranch(pstTxnKey));
 
     return new SIPTxnKey(objMethod,
@@ -5486,7 +5486,7 @@ GLOBAL IMS_BOOL CompareTxnKeysForCancel(IN SipTxnKey *pstCancelKey, IN SipTxnKey
     }
 
     // Check Via branch parameter first.
-    if (IMS_StrStr(pstCancelKey->m_pszViaBranchParam, SIP::STR_BRANCH_MAGIC_COOKIE) != IMS_NULL)
+    if (IMS_StrStr(pstCancelKey->m_pszViaBranchParam, Sip::STR_BRANCH_MAGIC_COOKIE) != IMS_NULL)
     {
         IMS_TRACE_D("Transaction Matching -----> Compliant to RFC 3261", 0, 0, 0);
 
@@ -5793,7 +5793,7 @@ GLOBAL void InvokeTimerCallback(IN SipTimerCallback pfnCallback,
 Remarks
 
 */
-GLOBAL void SetTimerValues(IN SIPTimerValues *pTV, IN_OUT SipTxnContext *&pstTxnContext)
+GLOBAL void SetTimerValues(IN SipTimerValues *pTV, IN_OUT SipTxnContext *&pstTxnContext)
 {
     if ((pTV == IMS_NULL) || (pstTxnContext->pSipTimerContext == IMS_NULL))
     {
@@ -5807,65 +5807,65 @@ GLOBAL void SetTimerValues(IN SIPTimerValues *pTV, IN_OUT SipTxnContext *&pstTxn
         return;
     }
 
-    if (!pTV->IsSet(SIPTimerValues::TV_ALL))
+    if (!pTV->IsSet(SipTimerValues::TV_ALL))
     {
         return;
     }
 
     IMS_UINT32 nTxnTimerOptions = 0;
 
-    if (pTV->IsSet(SIPTimerValues::TIMER_T1))
+    if (pTV->IsSet(SipTimerValues::TIMER_T1))
     {
-        nTxnTimerOptions |= SIPTimerValues::TIMER_T1;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMER1, pTV->GetValue(SIPTimerValues::TIMER_T1));
+        nTxnTimerOptions |= SipTimerValues::TIMER_T1;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMER1, pTV->GetValue(SipTimerValues::TIMER_T1));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TIMER_T2))
+    if (pTV->IsSet(SipTimerValues::TIMER_T2))
     {
-        nTxnTimerOptions |= SIPTimerValues::TIMER_T2;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMER2, pTV->GetValue(SIPTimerValues::TIMER_T2));
+        nTxnTimerOptions |= SipTimerValues::TIMER_T2;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMER2, pTV->GetValue(SipTimerValues::TIMER_T2));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_B))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_B))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_B;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERB, pTV->GetValue(SIPTimerValues::TV_TIMER_B));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_B;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERB, pTV->GetValue(SipTimerValues::TV_TIMER_B));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_D))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_D))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_D;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERD, pTV->GetValue(SIPTimerValues::TV_TIMER_D));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_D;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERD, pTV->GetValue(SipTimerValues::TV_TIMER_D));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_F))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_F))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_F;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERF, pTV->GetValue(SIPTimerValues::TV_TIMER_F));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_F;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERF, pTV->GetValue(SipTimerValues::TV_TIMER_F));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_H))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_H))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_H;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERH, pTV->GetValue(SIPTimerValues::TV_TIMER_H));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_H;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERH, pTV->GetValue(SipTimerValues::TV_TIMER_H));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_I))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_I))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_I;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERI, pTV->GetValue(SIPTimerValues::TV_TIMER_I));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_I;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERI, pTV->GetValue(SipTimerValues::TV_TIMER_I));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_J))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_J))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_J;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERJ, pTV->GetValue(SIPTimerValues::TV_TIMER_J));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_J;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERJ, pTV->GetValue(SipTimerValues::TV_TIMER_J));
     }
 
-    if (pTV->IsSet(SIPTimerValues::TV_TIMER_K))
+    if (pTV->IsSet(SipTimerValues::TV_TIMER_K))
     {
-        nTxnTimerOptions |= SIPTimerValues::TV_TIMER_K;
-        pTxnTimerValues->SetTimerValue(ETXN_TIMERK, pTV->GetValue(SIPTimerValues::TV_TIMER_K));
+        nTxnTimerOptions |= SipTimerValues::TV_TIMER_K;
+        pTxnTimerValues->SetTimerValue(ETXN_TIMERK, pTV->GetValue(SipTimerValues::TV_TIMER_K));
     }
 
     pstTxnContext->pSipTimerContext->nTimerOptions = nTxnTimerOptions;

@@ -6,18 +6,18 @@
 /**
  * @brief This class provides an interface for SIP parameters (URI / header parameters).
  */
-class SIPParameter
+class SipParameter
 {
 public:
-    SIPParameter();
-    explicit SIPParameter(IN CONST AString &strName_);
-    SIPParameter(IN CONST AString &strName_, IN CONST AString &strValue_);
-    SIPParameter(IN CONST AString &strName_, IN CONST AStringArray &objValues_);
-    SIPParameter(IN CONST SIPParameter &objRHS);
-    ~SIPParameter();
+    SipParameter();
+    explicit SipParameter(IN CONST AString &strName_);
+    SipParameter(IN CONST AString &strName_, IN CONST AString &strValue_);
+    SipParameter(IN CONST AString &strName_, IN CONST AStringArray &objValues_);
+    SipParameter(IN CONST SipParameter &objRHS);
+    ~SipParameter();
 
 public:
-    SIPParameter& operator=(IN CONST SIPParameter &objRHS);
+    SipParameter& operator=(IN CONST SipParameter &objRHS);
 
 public:
     /**
@@ -45,7 +45,7 @@ public:
      * @param pParameter The SIP parameter to be compared
      * @return If both SIP parameter is matched, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    IMS_BOOL Equals(IN CONST SIPParameter *pParameter) const;
+    IMS_BOOL Equals(IN CONST SipParameter *pParameter) const;
     /**
      * @brief Gets the name of SIP parameter.
      *

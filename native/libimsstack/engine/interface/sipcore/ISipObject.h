@@ -4,7 +4,7 @@
 /**
  * @brief This class provides a base interface for the major classes of J180 layer.
  */
-class ISIPObject
+class ISipObject
 {
 public:
     /**

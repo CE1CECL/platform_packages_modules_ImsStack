@@ -6,20 +6,20 @@
 /**
  * @brief This class provides an interface for SIP methods.
  */
-class SIPMethod
+class SipMethod
 {
 public:
-    SIPMethod(IN IMS_SINT32 nMethod_ = SIPMethod::INVALID);
-    SIPMethod(IN CONST IMS_CHAR *pszMethod_);
-    SIPMethod(IN CONST AString &strMethod_);
-    SIPMethod(IN CONST SIPMethod &objRHS);
-    ~SIPMethod();
+    SipMethod(IN IMS_SINT32 nMethod_ = SipMethod::INVALID);
+    SipMethod(IN CONST IMS_CHAR *pszMethod_);
+    SipMethod(IN CONST AString &strMethod_);
+    SipMethod(IN CONST SipMethod &objRHS);
+    ~SipMethod();
 
 public:
-    SIPMethod& operator=(IN CONST SIPMethod &objRHS);
-    SIPMethod& operator=(IN IMS_SINT32 nMethod_);
-    SIPMethod& operator=(IN CONST IMS_CHAR *pszMethod_);
-    SIPMethod& operator=(IN CONST AString &strMethod_);
+    SipMethod& operator=(IN CONST SipMethod &objRHS);
+    SipMethod& operator=(IN IMS_SINT32 nMethod_);
+    SipMethod& operator=(IN CONST IMS_CHAR *pszMethod_);
+    SipMethod& operator=(IN CONST AString &strMethod_);
 
 public:
     /**
@@ -67,7 +67,7 @@ public:
      * @param objMethod SIP method object
      * @return If it matches, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL Equals(IN CONST SIPMethod &objMethod) const
+    inline IMS_BOOL Equals(IN CONST SipMethod &objMethod) const
     {
         return ((this->nMethod == objMethod.nMethod)
                 && (this->strMethod.Equals(objMethod.strMethod)));
@@ -169,7 +169,7 @@ public:
     };
 
     static const IMS_CHAR* NAME[];
-    static const SIPMethod INVALID_METHOD;
+    static const SipMethod INVALID_METHOD;
 
 private:
     IMS_SINT32 nMethod;

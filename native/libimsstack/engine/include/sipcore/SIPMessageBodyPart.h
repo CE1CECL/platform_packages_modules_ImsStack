@@ -20,7 +20,7 @@
 
 
 class SIPMessageBodyPart
-    : public ISIPMessageBodyPart
+    : public ISipMessageBodyPart
 {
 public:
     SIPMessageBodyPart(IN IMS_BOOL bSDPBody_ = IMS_FALSE);
@@ -34,11 +34,11 @@ public:
     SIPMessageBodyPart& operator=(IN CONST SIPMessageBodyPart &objRHS);
 
 public:
-    // ISIPObject interface
+    // ISipObject interface
     virtual void Destroy();
-    // ISIPMessageBodyPart interface
-    virtual ISIPMessageBodyPart* Clone() const;
-    virtual void CopyFrom(IN CONST ISIPMessageBodyPart *piBodyPart);
+    // ISipMessageBodyPart interface
+    virtual ISipMessageBodyPart* Clone() const;
+    virtual void CopyFrom(IN CONST ISipMessageBodyPart *piBodyPart);
     virtual AString GetHeader(IN IMS_SINT32 nType,
             IN CONST AString &strName = AString::ConstNull()) const;
     virtual void SetHeader(IN IMS_SINT32 nType, IN CONST AString &strValue,
@@ -49,7 +49,7 @@ public:
 
     IMS_BOOL FormMessageBody();
     void SetHeader(IN SipHeaderBase *pstHeader,
-            IN IMS_SINT32 nType = ISIPMessageBodyPart::CONTENT_UNKNOWN);
+            IN IMS_SINT32 nType = ISipMessageBodyPart::CONTENT_UNKNOWN);
     inline SipMsgBody* GetMessageBody() const
     { return pstMsgBody; }
     inline IMS_BOOL IsSDPBodyPart() const

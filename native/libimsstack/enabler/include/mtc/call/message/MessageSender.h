@@ -29,7 +29,7 @@ public:
     IMS_RESULT Reject(IN const FailReason& objReason);
     IMS_RESULT SendAck();
     IMS_RESULT Update(IN UpdateType eUpdateType, IN IMS_BOOL bIncludeAlertInfo,
-            IN IMS_SINT32 eMethod = SIPMethod::INVITE, IN IMS_BOOL bSessionRefresh = IMS_FALSE);
+            IN IMS_SINT32 eMethod = SipMethod::INVITE, IN IMS_BOOL bSessionRefresh = IMS_FALSE);
     IMS_RESULT AcceptUpdate();
     IMS_RESULT CancelUpdate(IN const FailReason& objReason);
     IMS_RESULT Terminate(IN IMS_BOOL bUseBye, IN const FailReason& objReason);

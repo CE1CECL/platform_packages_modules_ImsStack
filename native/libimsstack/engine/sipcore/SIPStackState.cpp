@@ -70,7 +70,7 @@ void SIPStackState::CleanUp()
                 SIPStack::TerminateTransaction(pKey);
 
                 IMS_TRACE_D("StackState (Transaction) - Call ID (%s), Via Branch (%s)",
-                        SIPDebug::GetCharA1(SIPStack::TxnKey_GetCallId(pKey), 8, '@'),
+                        SipDebug::GetCharA1(SIPStack::TxnKey_GetCallId(pKey), 8, '@'),
                         SIPStack::TxnKey_GetViaBranch(pKey), 0);
 
                 delete pTransaction;
@@ -207,10 +207,10 @@ Remarks
 */
 PUBLIC
 void SIPStackState::SetTransactionTimerValues(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pSIPProfile)
+        IN CONST SipProfile *pSIPProfile)
 {
     const SipConfigV *pSipConfigV
-            = DYNAMIC_CAST(const SipConfigV*, SIPConfigProxy::GetSipConfigV(nSlotId));
+            = DYNAMIC_CAST(const SipConfigV*, SipConfigProxy::GetSipConfigV(nSlotId));
 
     //---------------------------------------------------------------------------------------------
 

@@ -34,11 +34,11 @@ public:
     // IConnection interface
     virtual void Close();
 
-    // ISIPConnection interface
+    // ISipConnection interface
     virtual IMS_RESULT AddHeader(IN CONST AString &strName, IN CONST AString &strValue);
     virtual AString GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex = 0);
     virtual IMSList<AString> GetHeaders(IN CONST AString &strName);
-    virtual const SIPMethod& GetMethod() const;
+    virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
     virtual const AString& GetRequestURI() const;
     virtual IMS_SINT32 GetStatusCode() const;
@@ -50,7 +50,7 @@ public:
     // IMS extensions
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString &strName) const;
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
+    virtual void SetSIPProfile(IN SipProfile *pProfile);
 
     // ISIPServerTransaction interface
     IMS_RESULT InitResponse(IN IMS_SINT32 nStatusCode);

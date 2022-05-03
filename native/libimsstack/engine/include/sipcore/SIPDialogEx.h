@@ -36,7 +36,7 @@ public:
 
 public:
     // For an initial requests
-    IMS_BOOL InitDialog(IN CONST SIPMethod &objMethod);
+    IMS_BOOL InitDialog(IN CONST SipMethod &objMethod);
     // For a dialog request or incoming requests
     IMS_BOOL InitDialog(IN CONST SIPMessageInfo &objMInfo);
     IMS_BOOL InitDialogWithDelay(IN CONST SIPMessageInfo &objMInfo);
@@ -47,8 +47,8 @@ public:
     void TerminateDialogUsage();
     IMS_SINT32 UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo);
 
-    static SIPDialogEx* CreateDialog(IN CONST SIPMethod &objMethod);
-    static SIPDialogEx* CreateDialog(IN SIPDialogState *pDState, IN CONST SIPMethod &objMethod);
+    static SIPDialogEx* CreateDialog(IN CONST SipMethod &objMethod);
+    static SIPDialogEx* CreateDialog(IN SIPDialogState *pDState, IN CONST SipMethod &objMethod);
     static SIPDialogEx* CreateDialog(IN SIPDialogState *pDState,
             IN CONST SIPMessageInfo &objMInfo);
 

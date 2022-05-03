@@ -52,7 +52,7 @@ public:
     virtual AString ToString() const;
     virtual IMS_SINT32 UpdateUsageDetails(IN CONST SIPMessageInfo &objMInfo);
 
-    IMS_BOOL InitDialogUsage(IN CONST SIPMethod &objMethod);
+    IMS_BOOL InitDialogUsage(IN CONST SipMethod &objMethod);
 
     static IMS_SINT32 GetNextState(IN IMS_SINT32 nState, IN IMS_SINT32 nTrigger);
 

@@ -138,7 +138,7 @@ AString ParticipantInfo::GetLocalUriForEmergencyCall() const
     if (nAosRegistrationMode == IImsAosInfo::REG_MODE_NOUICC ||
             nAosRegistrationMode == IImsAosInfo::REG_MODE_ADMIN)
     {
-        SIPAddress objSipAddress;
+        SipAddress objSipAddress;
         if (objSipAddress.Create(ANONYMOUS_ADDRESS) == IMS_FALSE)
         {
             IMS_TRACE_E(0, "GetLocalUriForEmergencyCall : Failed to create SIP address", 0, 0, 0);

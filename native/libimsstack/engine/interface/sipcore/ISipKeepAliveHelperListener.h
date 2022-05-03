@@ -5,7 +5,7 @@
  * @brief This class provides a listener interface to receive the response
  *        of SIP keep-alive packet.
  */
-class ISIPKeepAliveHelperListener
+class ISipKeepAliveHelperListener
 {
 public:
     /**

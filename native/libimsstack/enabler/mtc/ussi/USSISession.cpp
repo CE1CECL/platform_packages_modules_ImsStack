@@ -367,7 +367,7 @@ USSISession::~USSISession()
 
 //     if (nCmdType == CMD_CHECK_INCOMING_USSI_DATA)
 //     {
-//         ISIPMessage* pISIPMessage = reinterpret_cast<ISIPMessage*>(nInParam);
+//         ISipMessage* pISIPMessage = reinterpret_cast<ISipMessage*>(nInParam);
 //         if (pISIPMessage == IMS_NULL)
 //         {
 //             IMS_TRACE_E(0, "SIPMessage is null", 0, 0, 0);
@@ -410,10 +410,10 @@ USSISession::~USSISession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PROTECTED VIRTUAL
-// IMS_BOOL USSISession::SetUSSIBody(IN ISIPMessage* pISIPMessage, IN const AString& strUSSDStr,
+// IMS_BOOL USSISession::SetUSSIBody(IN ISipMessage* pISIPMessage, IN const AString& strUSSDStr,
 //         IN IMS_BOOL bMultiPart/* = IMS_TRUE*/)
 // {
-//     ISIPMessageBodyPart *piBodyPart = pISIPMessage->CreateBodyPart();
+//     ISipMessageBodyPart *piBodyPart = pISIPMessage->CreateBodyPart();
 //     if (piBodyPart == IMS_NULL)
 //     {
 //         IMS_TRACE_E(0, "piBodyPart is NULL", 0, 0, 0);
@@ -424,9 +424,9 @@ USSISession::~USSISession()
 
 //     if (bMultiPart)
 //     {
-//         piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE,
+//         piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE,
 //                 USSDConstants::HEADER_APPLICATION_USSDXML);
-//         piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_DISPOSITION,
+//         piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_DISPOSITION,
 //                 USSDConstants::HEADER_RENDER_HANDLING);
 //     }
 
@@ -442,9 +442,9 @@ USSISession::~USSISession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PRIVATE
-// USSDDataParser* USSISession::GetParsedUSSIData(IN ISIPMessage* pISIPMessage)
+// USSDDataParser* USSISession::GetParsedUSSIData(IN ISipMessage* pISIPMessage)
 // {
-//     IMSList<ISIPMessageBodyPart*> objBodyParts = pISIPMessage->GetBodyParts();
+//     IMSList<ISipMessageBodyPart*> objBodyParts = pISIPMessage->GetBodyParts();
 
 //     if (objBodyParts.IsEmpty())
 //     {
@@ -458,7 +458,7 @@ USSISession::~USSISession()
 
 //     for (IMS_UINT32 nIndex = 0; nIndex < objBodyParts.GetSize(); nIndex++)
 //     {
-//         ISIPMessageBodyPart *piBodyPart = objBodyParts.GetAt(nIndex);
+//         ISipMessageBodyPart *piBodyPart = objBodyParts.GetAt(nIndex);
 //         if (piBodyPart != IMS_NULL)
 //         {
 //             const ByteArray &objUSSDBody = piBodyPart->GetContent();
@@ -569,7 +569,7 @@ USSISession::~USSISession()
 // {
 //     IMessage* pIMessage = m_pISession->GetPreviousRequest(IMessage::SESSION_TERMINATE);
 
-//     if (pIMessage != IMS_NULL && pIMessage->GetMethod().Equals(SIPMethod::BYE))
+//     if (pIMessage != IMS_NULL && pIMessage->GetMethod().Equals(SipMethod::BYE))
 //     {
 //         return IMS_TRUE;
 //     }

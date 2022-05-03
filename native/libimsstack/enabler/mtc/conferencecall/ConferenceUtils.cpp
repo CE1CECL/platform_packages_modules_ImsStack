@@ -15,7 +15,7 @@ const AString& ConferenceUtils::GetUserPart(IN const AString& strUri, OUT AStrin
 {
     if (strUri.Contains("sip") || strUri.Contains("tel"))
     {
-        SIPAddress objSIPAddress(strUri);
+        SipAddress objSIPAddress(strUri);
 
         if (objSIPAddress.GetUserInfoPart() != IMS_NULL)
         {

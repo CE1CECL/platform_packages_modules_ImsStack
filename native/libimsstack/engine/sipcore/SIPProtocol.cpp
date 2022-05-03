@@ -95,12 +95,12 @@ IConnection* SIPProtocol::OpenPrim(IN CONST AString &strScheme, IN CONST AString
 
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
-    if (strScheme.EqualsIgnoreCase(SIP::STR_SIP))
-        nScheme = SIP::URI_SCHEME_SIP;
+    if (strScheme.EqualsIgnoreCase(Sip::STR_SIP))
+        nScheme = Sip::URI_SCHEME_SIP;
     else
-        nScheme = SIP::URI_SCHEME_SIPS;
+        nScheme = Sip::URI_SCHEME_SIPS;
 
     // Check if it is SIP connection notifier or not
     if (strTarget.IsEmpty())
@@ -141,7 +141,7 @@ IConnection* SIPProtocol::OpenPrim(IN CONST AString &strScheme, IN CONST AString
 
             if (pSCC == IMS_NULL)
             {
-                SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+                SIPPrivate::SetLastError(SipError::NO_MEMORY);
 
                 IMS_TRACE_E(0, "Allocating SCC failed", 0, 0, 0);
                 return IMS_NULL;
@@ -152,7 +152,7 @@ IConnection* SIPProtocol::OpenPrim(IN CONST AString &strScheme, IN CONST AString
             if (pSCCImpl == IMS_NULL)
             {
                 delete pSCC;
-                SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+                SIPPrivate::SetLastError(SipError::NO_MEMORY);
 
                 IMS_TRACE_E(0, "Allocating SCCImpl failed", 0, 0, 0);
                 return IMS_NULL;
@@ -174,13 +174,13 @@ IConnection* SIPProtocol::CreateConnectionNotifier(IN IMS_SINT32 nScheme, IN IMS
 
     if (pSCN == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
 
         IMS_TRACE_E(0, "Allocating SCN failed", 0, 0, 0);
         return IMS_NULL;
     }
 
-    if (SIPPrivate::GetLastError() != SIPError::NO_ERROR)
+    if (SIPPrivate::GetLastError() != SipError::NO_ERROR)
     {
         delete pSCN;
 
@@ -193,7 +193,7 @@ IConnection* SIPProtocol::CreateConnectionNotifier(IN IMS_SINT32 nScheme, IN IMS
     if (pSCNImpl == IMS_NULL)
     {
         delete pSCN;
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
 
         IMS_TRACE_E(0, "Allocating SCNImpl failed", 0, 0, 0);
         return IMS_NULL;

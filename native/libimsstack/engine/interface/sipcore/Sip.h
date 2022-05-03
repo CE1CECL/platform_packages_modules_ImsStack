@@ -7,7 +7,7 @@
 /**
  * @brief This class defines a constant values for SIP handling.
  */
-class SIP
+class Sip
 {
 public:
     /// Types of SIP URI scheme supported by SIP stack

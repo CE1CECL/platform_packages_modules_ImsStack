@@ -33,7 +33,7 @@ public:
     </table>
 
     */
-    virtual IMS_BOOL Cancellable_Compare(IN ISIPServerConnection *piSSC_CANCEL) const = 0;
+    virtual IMS_BOOL Cancellable_Compare(IN ISipServerConnection *piSSC_CANCEL) const = 0;
 
     /*
 
@@ -50,7 +50,7 @@ public:
     </table>
 
     */
-    virtual IMS_BOOL Cancellable_NotifyRequest(IN ISIPServerConnection *piSSC_CANCEL) = 0;
+    virtual IMS_BOOL Cancellable_NotifyRequest(IN ISipServerConnection *piSSC_CANCEL) = 0;
 };
 
 #endif // _INTERFACE_CANCELLABLE_METHOD_H_

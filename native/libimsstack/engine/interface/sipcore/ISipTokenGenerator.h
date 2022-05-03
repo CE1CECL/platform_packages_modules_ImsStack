@@ -6,7 +6,7 @@
 /**
  * @brief This class provides an interface to generate SIP related tokens.
  */
-class ISIPTokenGenerator
+class ISipTokenGenerator
 {
 public:
     /**

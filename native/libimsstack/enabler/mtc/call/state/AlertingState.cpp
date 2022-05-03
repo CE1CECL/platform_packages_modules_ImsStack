@@ -155,7 +155,7 @@ CallStateName AlertingState::SessionTerminated(IN ISession* piSession)
     IMS_TRACE_D("SessionTerminated", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_TERMINATE);
 
-    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SIPMethod::CANCEL))
+    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SipMethod::CANCEL))
     {
         return TransitToTerminating(CancelHandler().Handle(*piMessage));
     }
@@ -209,7 +209,7 @@ CallStateName AlertingState::SessionEarlyMediaUpdateReceived(IN ISession* piSess
 
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
     {
-        if (SendResponseToEarlyUpdate(SIPStatusCode::SC_488, m_objContext.GetSession()) ==
+        if (SendResponseToEarlyUpdate(SipStatusCode::SC_488, m_objContext.GetSession()) ==
                 IMS_FAILURE)
         {
             return RejectAndToTerminating(REJECT_REASON_MEDIA_NEGOFAIL);
@@ -219,7 +219,7 @@ CallStateName AlertingState::SessionEarlyMediaUpdateReceived(IN ISession* piSess
 
     // TODO: RFC 6337 offer/answer check.
 
-    if (SendResponseToEarlyUpdate(SIPStatusCode::SC_200, m_objContext.GetSession()) == IMS_FAILURE)
+    if (SendResponseToEarlyUpdate(SipStatusCode::SC_200, m_objContext.GetSession()) == IMS_FAILURE)
     {
         return RejectAndToTerminating(REJECT_REASON_SESSION_FAIL);
     }
@@ -241,7 +241,7 @@ CallStateName AlertingState::SessionPRAckReceived(IN ISession* piSession)
 
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
     {
-        if (SendResponseToPrack(SIPStatusCode::SC_488) == IMS_FAILURE)
+        if (SendResponseToPrack(SipStatusCode::SC_488) == IMS_FAILURE)
         {
             return RejectAndToTerminating(REJECT_REASON_MEDIA_NEGOFAIL);
         }
@@ -250,7 +250,7 @@ CallStateName AlertingState::SessionPRAckReceived(IN ISession* piSession)
 
     // TODO: RFC 6337 offer/answer check.
 
-    if (SendResponseToPrack(SIPStatusCode::SC_200) == IMS_FAILURE)
+    if (SendResponseToPrack(SipStatusCode::SC_200) == IMS_FAILURE)
     {
         return RejectAndToTerminating(REJECT_REASON_SESSION_FAIL);
     }

@@ -71,7 +71,7 @@ CallStateName UpdatingState::AcceptConvert(IN CallType /* eCallType */, IN Media
     }
 
     IMessage* piMessage = objSession.GetPreviousRequest(IMessage::SESSION_UPDATE);
-    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SIPMethod::UPDATE))
+    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SipMethod::UPDATE))
     {
         m_objContext.GetUiNotifier().SendUpdated(&(m_objContext.GetCallInfo()),
                 &m_objContext.GetUpdatingInfo().GetModifiedInfo(),

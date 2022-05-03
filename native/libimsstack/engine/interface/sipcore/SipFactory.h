@@ -3,31 +3,31 @@
 
 #include "AString.h"
 
-class ISIPIPSecState;
-class ISIPKeepAliveHelper;
-class ISIPMessageTracker;
-class ISIPPacketTracker;
-class ISIPRoutingRejectNotifier;
-class ISIPRTConfigHelper;
-class ISIPTokenGenerator;
-class ISIPTransportHelper;
+class ISipIpSecState;
+class ISipKeepAliveHelper;
+class ISipMessageTracker;
+class ISipPacketTracker;
+class ISipRoutingRejectNotifier;
+class ISipRtConfigHelper;
+class ISipTokenGenerator;
+class ISipTransportHelper;
 
 /**
  * @brief This class provides an interface to create SIP helper interface to control SIP engine.
  */
-class SIPFactory
+class SipFactory
 {
 private:
-    SIPFactory();
+    SipFactory();
 
 public:
     /**
      * @brief Creates the keep-alive helper.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPKeepAliveHelper.
+     * @return Pointer to ISipKeepAliveHelper.
      */
-    static ISIPKeepAliveHelper* CreateKeepAliveHelper(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipKeepAliveHelper* CreateKeepAliveHelper(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Generates a string for Call-ID header field.
@@ -53,58 +53,58 @@ public:
      * @brief Returns the instance of SIP IPSec state.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPIPSecState.
+     * @return Pointer to ISipIpSecState.
      */
-    static ISIPIPSecState* GetIPSecState(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipIpSecState* GetIpSecState(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Returns the instance of SIP message tracker.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPMessageTracker.
+     * @return Pointer to ISipMessageTracker.
      */
-    static ISIPMessageTracker* GetMessageTracker(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipMessageTracker* GetMessageTracker(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Returns the instance of SIP packet tracker.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPPacketTracker.
+     * @return Pointer to ISipPacketTracker.
      */
-    static ISIPPacketTracker* GetPacketTracker(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipPacketTracker* GetPacketTracker(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Returns the instance of SIP routing reject notifier.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPRoutingRejectNotifier.
+     * @return Pointer to ISipRoutingRejectNotifier.
      */
-    static ISIPRoutingRejectNotifier* GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipRoutingRejectNotifier* GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Returns the instance of SIP run-time (or real-time) configuration helper.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPRTConfigHelper.
+     * @return Pointer to ISipRtConfigHelper.
      */
-    static ISIPRTConfigHelper* GetRTConfigHelper(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipRtConfigHelper* GetRtConfigHelper(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Returns the instance of SIP transport helper.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @return Pointer to ISIPTransportHelper.
+     * @return Pointer to ISipTransportHelper.
      */
-    static ISIPTransportHelper* GetTransportHelper(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static ISipTransportHelper* GetTransportHelper(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Sets the specific token generator.
      *
      * @param nSlotId Slot id to provision a proper configuration
-     * @param piTokenGenerator Pointer to ISIPTokenGenerator
+     * @param piTokenGenerator Pointer to ISipTokenGenerator
      * @deprecated NOT_USED.
      */
-    static void SetTokenGenerator(IN IMS_SINT32 nSlotId, IN ISIPTokenGenerator *piTokenGenerator);
+    static void SetTokenGenerator(IN IMS_SINT32 nSlotId, IN ISipTokenGenerator *piTokenGenerator);
 };
 
 #endif // _SIP_FACTORY_H_

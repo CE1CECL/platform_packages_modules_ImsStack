@@ -20,7 +20,7 @@
 
 class ITimer;
 class ITimerListener;
-class ISIPMessage;
+class ISipMessage;
 class IRegistration;
 
 /**
@@ -36,22 +36,22 @@ public:
     static AosUtil* GetInstance();
 
     // SIP Message
-    IMS_SINT32 GetResponseCode(IN const ISIPMessage* piSipMsg);
+    IMS_SINT32 GetResponseCode(IN const ISipMessage* piSipMsg);
     IMS_UINT32 GetRetryAfterValue(IN const IRegistration* piRegistration);
-    IMS_SINT32 GetRetryAfterValue(IN const ISIPMessage* piSipMsg);
-    IMS_SINT32 GetMinExpiresValue(IN const ISIPMessage* piSipMsg);
-    IMS_SINT32 GetKeepAliveValue(IN const ISIPMessage* piSipMsg);
-    IMS_BOOL GetProxyFromContact(IN const ISIPMessage* piSipMsg,
+    IMS_SINT32 GetRetryAfterValue(IN const ISipMessage* piSipMsg);
+    IMS_SINT32 GetMinExpiresValue(IN const ISipMessage* piSipMsg);
+    IMS_SINT32 GetKeepAliveValue(IN const ISipMessage* piSipMsg);
+    IMS_BOOL GetProxyFromContact(IN const ISipMessage* piSipMsg,
             OUT AString& strUseProxy, OUT IMS_UINT32& nUseProxyPort);
-    AString GetWarningHeader(IN const ISIPMessage* piSipMsg);
+    AString GetWarningHeader(IN const ISipMessage* piSipMsg);
 
-    IMS_BOOL IsReasonPhraseExist(IN const ISIPMessage* piSipMsg, IN AString strReason);
-    IMS_BOOL IsInitialRegistrationRequired(IN ISIPMessage* piSipMsg);
+    IMS_BOOL IsReasonPhraseExist(IN const ISipMessage* piSipMsg, IN AString strReason);
+    IMS_BOOL IsInitialRegistrationRequired(IN ISipMessage* piSipMsg);
     // Check whether some extension is unsupported (included in "Unsupported" header)
-    IMS_BOOL IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+    IMS_BOOL IsParameterIncluded(IN const ISipMessage* piSipMsg,
             IN IMS_SINT32 nHeaderType, IN const AString& strParameter);
     // Check whether parameter is included in specific header
-    IMS_BOOL IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+    IMS_BOOL IsParameterIncluded(IN const ISipMessage* piSipMsg,
             IN IMS_SINT32 nHeaderType, IN const AString& strName, IN const AString& strParameter);
 
     // Configuration

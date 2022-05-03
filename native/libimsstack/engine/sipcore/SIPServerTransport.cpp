@@ -52,11 +52,11 @@ Remarks
 */
 PUBLIC VIRTUAL
 IMS_BOOL SIPServerTransport::FormViaHeader(IN_OUT SipMessage *&pstMessage,
-        IN CONST SIPProfile */*pSIPProfile = IMS_NULL*/)
+        IN CONST SipProfile */*pSIPProfile = IMS_NULL*/)
 {
     // Get the topmost Via header from the message
-    SipHeaderBase *pstViaHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::VIA);
-    AString strRPort(SIP::STR_RPORT);
+    SipHeaderBase *pstViaHeader = SIPStack::GetHeader(pstMessage, ISipHeader::VIA);
+    AString strRPort(Sip::STR_RPORT);
     const SIPTransportAddress &objFarEnd = GetAddress(TA_FAR);
 
     //---------------------------------------------------------------------------------------------
@@ -69,9 +69,9 @@ IMS_BOOL SIPServerTransport::FormViaHeader(IN_OUT SipMessage *&pstMessage,
         IMS_SINT32 nPortC = GetPortC();
         AString strSentProtocol = SIPStack::GetSentProtocolFromVia(pstViaHeader);
 
-        if (strSentProtocol.Contains(SIP::STR_UDP_CAPS)
+        if (strSentProtocol.Contains(Sip::STR_UDP_CAPS)
                 && ((nPortC == 0)
-                    || (nPortC == SIP::PORT_UNSPECIFIED)
+                    || (nPortC == Sip::PORT_UNSPECIFIED)
                     || (GetPort(TA_NEAR) == nPortC)))
         {
             AString strPort;
@@ -92,7 +92,7 @@ IMS_BOOL SIPServerTransport::FormViaHeader(IN_OUT SipMessage *&pstMessage,
     // the server MUST add a "received" parameter to that Via header field value.
     AString strHost;
     AString strSentBy = SIPStack::GetSentByFromVia(pstViaHeader);
-    IMS_SINT32 nPort = SIP::PORT_UNSPECIFIED;
+    IMS_SINT32 nPort = Sip::PORT_UNSPECIFIED;
 
     // Parse the host & port information from "sent-by" field
     SIPTransport::ParseHostNPort(strSentBy, strHost, nPort);
@@ -106,7 +106,7 @@ IMS_BOOL SIPServerTransport::FormViaHeader(IN_OUT SipMessage *&pstMessage,
         // The address returned by recvfrom is not same as address put in the Via header.
         // Add the "received" parameter in Via header.
         if (!SIPStack::SetParameter(pstViaHeader,
-                AString(SIP::STR_RECEIVED), objFarEnd.GetIPAddress().ToString()))
+                AString(Sip::STR_RECEIVED), objFarEnd.GetIPAddress().ToString()))
         {
             SIPStack::FreeHeaderEx(pstViaHeader);
             return IMS_FALSE;
@@ -137,7 +137,7 @@ IMS_BOOL SIPServerTransport::UpdateDestinationInfo(IN SipMessage *pstMessage,
     //   Via header (if none given, then a default port is 5060).
     // 3. If neither "maddr" nor "received" parameter are present, the destination info. is set
     //   to the address / port of the topmost Via header.
-    SipHeaderBase *pstViaHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::VIA);
+    SipHeaderBase *pstViaHeader = SIPStack::GetHeader(pstMessage, ISipHeader::VIA);
     AString strSentBy = SIPStack::GetSentByFromVia(pstViaHeader);
     AString strViaHost;
     IMS_SINT32 nViaPort;
@@ -151,7 +151,7 @@ IMS_BOOL SIPServerTransport::UpdateDestinationInfo(IN SipMessage *pstMessage,
     SetPort(nViaPort, TA_FAR);
 
     // Now, check if "maddr" & "received" parameter are present
-    AString strTemp = SIPStack::GetParameter(pstViaHeader, AString(SIPAddress::PARAM_MADDR));
+    AString strTemp = SIPStack::GetParameter(pstViaHeader, AString(SipAddress::PARAM_MADDR));
 
     if (strTemp.GetLength() > 0)
     {
@@ -162,7 +162,7 @@ IMS_BOOL SIPServerTransport::UpdateDestinationInfo(IN SipMessage *pstMessage,
     else
     {
         // Find the "received" parameter
-        strTemp = SIPStack::GetParameter(pstViaHeader, AString(SIP::STR_RECEIVED));
+        strTemp = SIPStack::GetParameter(pstViaHeader, AString(Sip::STR_RECEIVED));
 
         if (strTemp.GetLength() > 0)
         {
@@ -171,7 +171,7 @@ IMS_BOOL SIPServerTransport::UpdateDestinationInfo(IN SipMessage *pstMessage,
     }
 
     // Check if "rport" parameter is present or not
-    strTemp = SIPStack::GetParameter(pstViaHeader, AString(SIP::STR_RPORT));
+    strTemp = SIPStack::GetParameter(pstViaHeader, AString(Sip::STR_RPORT));
 
     if (strTemp.GetLength() > 0)
     {
@@ -185,23 +185,23 @@ IMS_BOOL SIPServerTransport::UpdateDestinationInfo(IN SipMessage *pstMessage,
     strTemp = SIPStack::GetSentProtocolFromVia(pstViaHeader);
 
     // "SIP/2.0/" : TCP / UDP / TLS / SCTP
-    if (strTemp.EndsWith(SIP::STR_TLS_CAPS))
+    if (strTemp.EndsWith(Sip::STR_TLS_CAPS))
     {
         SetProtocol(SIPTransportAddress::PROTOCOL_TLS, TA_FAR);
 
         // If the port number does not set explicitly,
         // then check the transport protocol & set the port.
-        if (GetPort(TA_FAR) == SIP::PORT_UNSPECIFIED)
-            SetPort(SIP::PORT_5061, TA_FAR);
+        if (GetPort(TA_FAR) == Sip::PORT_UNSPECIFIED)
+            SetPort(Sip::PORT_5061, TA_FAR);
     }
-    else if (strTemp.EndsWith(SIP::STR_TCP_CAPS))
+    else if (strTemp.EndsWith(Sip::STR_TCP_CAPS))
     {
         SetProtocol(SIPTransportAddress::PROTOCOL_TCP, TA_FAR);
 
         // If the port number does not set explicitly,
         // then check the transport protocol & set the port.
-        if (GetPort(TA_FAR) == SIP::PORT_UNSPECIFIED)
-            SetPort(SIP::PORT_5060, TA_FAR);
+        if (GetPort(TA_FAR) == Sip::PORT_UNSPECIFIED)
+            SetPort(Sip::PORT_5060, TA_FAR);
     }
     else
     {
@@ -209,8 +209,8 @@ IMS_BOOL SIPServerTransport::UpdateDestinationInfo(IN SipMessage *pstMessage,
 
         // If the port number does not set explicitly,
         // then check the transport protocol & set the port.
-        if (GetPort(TA_FAR) == SIP::PORT_UNSPECIFIED)
-            SetPort(SIP::PORT_5060, TA_FAR);
+        if (GetPort(TA_FAR) == Sip::PORT_UNSPECIFIED)
+            SetPort(Sip::PORT_5060, TA_FAR);
     }
 
     SIPStack::FreeHeaderEx(pstViaHeader);
@@ -227,7 +227,7 @@ PUBLIC VIRTUAL
 IMS_SINT32 SIPServerTransport::ValidateViaHeader(IN SipMessage *pstMessage)
 {
     // Get the topmost Via header from the message
-    SipHeaderBase *pstViaHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::VIA);
+    SipHeaderBase *pstViaHeader = SIPStack::GetHeader(pstMessage, ISipHeader::VIA);
 
     //---------------------------------------------------------------------------------------------
 
@@ -242,11 +242,11 @@ IMS_SINT32 SIPServerTransport::ValidateViaHeader(IN SipMessage *pstMessage)
     // "SIP/2.0/" : 8 characters
     strSentProtocol = strSentProtocol.Mid(8);
 
-    if ((strSentProtocol.EqualsIgnoreCase(SIP::STR_TCP_CAPS)
+    if ((strSentProtocol.EqualsIgnoreCase(Sip::STR_TCP_CAPS)
             && (objNearEnd.GetProtocol() != SIPTransportAddress::PROTOCOL_TCP))
-            || (strSentProtocol.EqualsIgnoreCase(SIP::STR_TLS_CAPS)
+            || (strSentProtocol.EqualsIgnoreCase(Sip::STR_TLS_CAPS)
                 && (objNearEnd.GetProtocol() != SIPTransportAddress::PROTOCOL_TLS))
-            || (strSentProtocol.EqualsIgnoreCase(SIP::STR_UDP_CAPS)
+            || (strSentProtocol.EqualsIgnoreCase(Sip::STR_UDP_CAPS)
                 && (objNearEnd.GetProtocol() != SIPTransportAddress::PROTOCOL_UDP)))
     {
         // Correct the sent-protocol in Via header
@@ -256,18 +256,18 @@ IMS_SINT32 SIPServerTransport::ValidateViaHeader(IN SipMessage *pstMessage)
         strSentProtocol = strSentProtocol.Left(8);
 
         if (objNearEnd.GetProtocol() == SIPTransportAddress::PROTOCOL_TCP)
-            strSentProtocol += SIP::STR_TCP_CAPS;
+            strSentProtocol += Sip::STR_TCP_CAPS;
         else if (objNearEnd.GetProtocol() == SIPTransportAddress::PROTOCOL_TLS)
-            strSentProtocol += SIP::STR_TLS_CAPS;
+            strSentProtocol += Sip::STR_TLS_CAPS;
         else
-            strSentProtocol += SIP::STR_UDP_CAPS;
+            strSentProtocol += Sip::STR_UDP_CAPS;
 
         SIPStack::UpdateSentProtocol(pstMessage, strSentProtocol);
         SIPStack::FreeHeaderEx(pstViaHeader);
 
         IMS_TRACE_E(0, "Transport protocol is mismatched in Via header", 0, 0, 0);
 
-        SIPPrivate::SetLastError(SIPError::VIA_PROTOCOL_MISMATCH);
+        SIPPrivate::SetLastError(SipError::VIA_PROTOCOL_MISMATCH);
 
         return SIPPrivate::MESSAGE_INVALID_400;
     }

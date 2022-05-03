@@ -1039,7 +1039,7 @@ IMS_RESULT SessionDescriptor::SetConnectionAddress(IN CONST AString &strAddress)
         IMS::SetLastError(IMSError::ILLEGAL_ARGUMENT);
 
         IMS_TRACE_E(0, "Setting a connection address (%s) in c-line of session-level",
-                SIPDebug::GetIP(strAddress), 0, 0);
+                SipDebug::GetIp(strAddress), 0, 0);
         return IMS_FAILURE;
     }
 
@@ -1101,7 +1101,7 @@ IMS_RESULT SessionDescriptor::SetOriginAddress(IN CONST AString &strAddress)
         IMS::SetLastError(IMSError::ILLEGAL_STATE);
 
         IMS_TRACE_E(0, "Trying to set the address (%s) in the state (%d)",
-                SIPDebug::GetIP(strAddress), nState, 0);
+                SipDebug::GetIp(strAddress), nState, 0);
         return IMS_FAILURE;
     }
 
@@ -1122,7 +1122,7 @@ IMS_RESULT SessionDescriptor::SetOriginAddress(IN CONST AString &strAddress)
         IMS::SetLastError(IMSError::ILLEGAL_ARGUMENT);
 
         IMS_TRACE_E(0, "Setting an unicast address (%s) in o-line of session-level",
-                SIPDebug::GetIP(strAddress), 0, 0);
+                SipDebug::GetIp(strAddress), 0, 0);
         return IMS_FAILURE;
     }
 

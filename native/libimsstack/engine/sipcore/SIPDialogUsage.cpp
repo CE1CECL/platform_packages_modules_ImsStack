@@ -174,9 +174,9 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
         switch (nStatusCode)
         {
         // Impacts on a dialog usage (-> destroys a dialog usage)
-        case SIPStatusCode::SC_481:
+        case SipStatusCode::SC_481:
             if (objMInfo.IsOutgoingMessage()
-                    && objMInfo.GetMethod().Equals(SIPMethod::PRACK))
+                    && objMInfo.GetMethod().Equals(SipMethod::PRACK))
             {
                 IMS_TRACE_D("481-PRACK is ignored on dialog transition", 0, 0, 0);
                 return SIPDState::ACTION_IGNORE;
@@ -184,33 +184,33 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
 
             return SIPDState::ACTION_DESTROY_USAGE;
 
-        case SIPStatusCode::SC_405:
-        case SIPStatusCode::SC_501:
+        case SipStatusCode::SC_405:
+        case SipStatusCode::SC_501:
             if (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED)
             {
-                const SIPMethod &objMethod = objMInfo.GetMethod();
+                const SipMethod &objMethod = objMInfo.GetMethod();
 
                 if (nType == TYPE_INVITE)
                 {
-                    if (!objMethod.Equals(SIPMethod::INVITE)
-                            && !objMethod.Equals(SIPMethod::UPDATE)
-                            && !objMethod.Equals(SIPMethod::PRACK)
-                            && !objMethod.Equals(SIPMethod::BYE))
+                    if (!objMethod.Equals(SipMethod::INVITE)
+                            && !objMethod.Equals(SipMethod::UPDATE)
+                            && !objMethod.Equals(SipMethod::PRACK)
+                            && !objMethod.Equals(SipMethod::BYE))
                     {
                         return SIPDState::ACTION_IGNORE;
                     }
                 }
                 else if (nType == TYPE_SUBSCRIBE)
                 {
-                    if (!objMethod.Equals(SIPMethod::SUBSCRIBE)
-                            && !objMethod.Equals(SIPMethod::NOTIFY))
+                    if (!objMethod.Equals(SipMethod::SUBSCRIBE)
+                            && !objMethod.Equals(SipMethod::NOTIFY))
                     {
                         return SIPDState::ACTION_IGNORE;
                     }
                 }
             }
 
-            if (SIPFeatures::IsMultipleDialogUsagesRequiredForNonSharedDialog(objMInfo.GetSlotId())
+            if (SipFeatures::IsMultipleDialogUsagesRequiredForNonSharedDialog(objMInfo.GetSlotId())
                     || ((pDialogState != IMS_NULL) && pDialogState->HasMultipleDialogUsages()))
             {
                 return SIPDState::ACTION_DESTROY_USAGE;
@@ -222,7 +222,7 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
             }
             break;
 
-        case SIPStatusCode::SC_489:
+        case SipStatusCode::SC_489:
             if ((nType != TYPE_SUBSCRIBE)
                     && (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED))
             {
@@ -231,16 +231,16 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
 
             return SIPDState::ACTION_DESTROY_USAGE;
 
-        case SIPStatusCode::SC_480:
+        case SipStatusCode::SC_480:
             if (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED)
             {
-                if (SIPStack::IsHeaderPresent(pstMessage, ISIPHeader::RETRY_AFTER_ANY))
+                if (SIPStack::IsHeaderPresent(pstMessage, ISipHeader::RETRY_AFTER_ANY))
                 {
                     return SIPDState::ACTION_IGNORE;
                 }
             }
 
-            if (SIPFeatures::IsMultipleDialogUsagesRequiredForNonSharedDialog(objMInfo.GetSlotId())
+            if (SipFeatures::IsMultipleDialogUsagesRequiredForNonSharedDialog(objMInfo.GetSlotId())
                     || ((pDialogState != IMS_NULL) && pDialogState->HasMultipleDialogUsages()))
             {
                 return SIPDState::ACTION_DESTROY_USAGE;
@@ -253,17 +253,17 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
             break;
 
             // Impacts on a dialog (-> destroys a dialog)
-        case SIPStatusCode::SC_404:
-        case SIPStatusCode::SC_410:
-        case SIPStatusCode::SC_416:
-        case SIPStatusCode::SC_482:
-        case SIPStatusCode::SC_483:
-        case SIPStatusCode::SC_484:
-        case SIPStatusCode::SC_485:
-        case SIPStatusCode::SC_502:
-        case SIPStatusCode::SC_604:
+        case SipStatusCode::SC_404:
+        case SipStatusCode::SC_410:
+        case SipStatusCode::SC_416:
+        case SipStatusCode::SC_482:
+        case SipStatusCode::SC_483:
+        case SipStatusCode::SC_484:
+        case SipStatusCode::SC_485:
+        case SipStatusCode::SC_502:
+        case SipStatusCode::SC_604:
             // FIXME: Should 502 be excluded if the dialog usage is for subscription? (RFC 6665)
-            if (SIPFeatures::IsMultipleDialogUsagesRequiredForNonSharedDialog(objMInfo.GetSlotId())
+            if (SipFeatures::IsMultipleDialogUsagesRequiredForNonSharedDialog(objMInfo.GetSlotId())
                     || ((pDialogState != IMS_NULL) && pDialogState->HasMultipleDialogUsages()))
             {
                 return SIPDState::ACTION_DESTROY_DIALOG;
@@ -280,7 +280,7 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
             // In this case, the state will not be changed ...
             if (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED)
             {
-                if (nStatusCode == SIPStatusCode::SC_408)
+                if (nStatusCode == SipStatusCode::SC_408)
                 {
                     if (nType == TYPE_INVITE)
                     {
@@ -291,7 +291,7 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo &objMInf
                     {
                         // If re-SUBSCRIBE is timed out (Timer F),
                         // it does not terminate the dialog usage.
-                        //if (objMInfo.GetMethod().Equals(SIPMethod::NOTIFY))
+                        //if (objMInfo.GetMethod().Equals(SipMethod::NOTIFY))
                         //{
                         //    return SIPDState::ACTION_DESTROY_USAGE;
                         //}

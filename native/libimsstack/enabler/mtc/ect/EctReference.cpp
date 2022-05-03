@@ -167,7 +167,7 @@ void UCECTReference::ReferenceDelivered(IN IReference *piReference)
             IMS_TRACE_I("ReferenceDelivered[%s] : Response[%d]", PrintState(m_eOldState),
                     nStatusCode, 0);
 
-            if (SIPStatusCode::IsFinalSuccess( nStatusCode ))
+            if (SipStatusCode::IsFinalSuccess( nStatusCode ))
             {
             }
             else
@@ -230,10 +230,10 @@ PUBLIC VIRTUAL
 void UCECTReference::ReferenceNotify(IN IReference * /*piReference*/, IN IMessage *piNotify)
 {
     AString aStrSubState;
-    MessageUtil::GetHeaderValue(piNotify, ISIPHeader::SUBSCRIPTION_STATE, aStrSubState);
+    MessageUtil::GetHeaderValue(piNotify, ISipHeader::SUBSCRIPTION_STATE, aStrSubState);
     IMS_SINT32 nStatusCode = MessageUtil::GetStatusCodeInNotify(piNotify);
     AString aStrID;
-    MessageUtil::GetParameterValue(piNotify, MessageUtil::STR_ID, ISIPHeader::EVENT, aStrID);
+    MessageUtil::GetParameterValue(piNotify, MessageUtil::STR_ID, ISipHeader::EVENT, aStrID);
 
     IMS_TRACE_I("ReferenceNotify[%s]", PrintState(), 0, 0 );
 
@@ -583,7 +583,7 @@ void UCECTReference::SetReferredByH(IN IMessage* pIMessage)
         return;
     }
 
-    ISIPMessage* pISIPMessage = pIMessage->GetMessage();
+    ISipMessage* pISIPMessage = pIMessage->GetMessage();
     if (pISIPMessage == IMS_NULL)
     {
         IMS_TRACE_E(0, "pSIPMsg is Null", 0, 0, 0);
@@ -591,7 +591,7 @@ void UCECTReference::SetReferredByH(IN IMessage* pIMessage)
     }
 
     IMS_TRACE_D("SetReferredByH : [%s]", aStrReferBy.GetStr(), 0, 0);
-    pISIPMessage->AddHeader(ISIPHeader::REFERRED_BY, aStrReferBy);
+    pISIPMessage->AddHeader(ISipHeader::REFERRED_BY, aStrReferBy);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -666,13 +666,13 @@ IMS_BOOL UCECTReference::HandleNotify(IN IMessage* /*pNotify*/, IN AString aStrS
 
     m_pTimer->Stop(TIMER_WAIT_NOTIFY);
 
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         m_pTimer->Stop(TIMER_MO_1XX_WAIT);
         m_pTimer->Start(TIMER_MO_NOANSWER, m_nFinalWaitTime);
     }
 
-    if (aStrSubState.Equals("terminated") || SIPStatusCode::IsFinal(nStatusCode))
+    if (aStrSubState.Equals("terminated") || SipStatusCode::IsFinal(nStatusCode))
     {
         // TODO, MTC BUILD
         // m_pTimer->AllStop();

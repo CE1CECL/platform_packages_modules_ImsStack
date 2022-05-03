@@ -8,18 +8,18 @@
 /**
  * @brief This class provides an interface to handle SIP message.
  *
- * @see ISIPMessageBodyPart
+ * @see ISipMessageBodyPart
  */
-class ISIPMessage
-    : public ISIPObject
+class ISipMessage
+    : public ISipObject
 {
 public:
     /**
      * @brief Clones the SIP message.
      *
-     * @return Pointer to the cloned ISIPMessage.
+     * @return Pointer to the cloned ISipMessage.
      */
-    virtual ISIPMessage* Clone() const = 0;
+    virtual ISipMessage* Clone() const = 0;
 
     /**
      * @brief Adds a SIP header to the SIP message.
@@ -27,7 +27,7 @@ public:
      * The method always adds the header in the last position of the specified header type.
      *
      * @param nType The defined SIP header type\n
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param strValue The header value; null or empty string means a header with no value
      * @param strName The header name, either in full or compact form
@@ -47,7 +47,7 @@ public:
      * @brief Gets the header field value of the specified header type.
      *
      * @param nType The defined SIP header type\n
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param nIndex The header position in the multiple headers
      * @param strName The header name, either in full or compact form
@@ -62,7 +62,7 @@ public:
      * @brief Gets the number of the header field value of the specified header type.
      *
      * @param nType The defined SIP header type\n
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param strName The header name, either in full or compact form
      * @return The number of header field will be returned.
@@ -74,7 +74,7 @@ public:
      * @brief Gets the header field value(s) of the specified header type.
      *
      * @param nType The defined SIP header type\n
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param strName The header name, either in full or compact form
      * @return It returns the list of header field values (topmost first).\n
@@ -86,9 +86,9 @@ public:
     /**
      * @brief Gets the SIP method.
      *
-     * @return The reference to SIPMethod.
+     * @return The reference to SipMethod.
      */
-    virtual const SIPMethod& GetMethod() const = 0;
+    virtual const SipMethod& GetMethod() const = 0;
 
     /**
      * @brief Gets the reason phrase of the SIP message.
@@ -105,7 +105,7 @@ public:
      * @return The Request-URI of SIP message.\n
      *         It returns null string if the Request-URI is not available.
      */
-    virtual const AString& GetRequestURI() const = 0;
+    virtual const AString& GetRequestUri() const = 0;
 
     /**
      * @brief Gets SIP response status code.
@@ -130,7 +130,7 @@ public:
      * The method always adds the header in the first position of the specified header type.
      *
      * @param nType The defined SIP header type\n
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param strValue The header value; null or empty string means a header with no value
      * @param strName The header name, either in full or compact form
@@ -146,7 +146,7 @@ public:
      * If the specified header is not found, this method does nothing.
      *
      * @param nType The defined SIP header type
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param strName The header name, either in full or compact form
      */
@@ -161,7 +161,7 @@ public:
      * If the multiple header field values exist, the topmost is overwritten.
      *
      * @param nType The defined SIP header type\n
-     *              If this value is ISIPHeader::UNKNOWN, strName MUST be
+     *              If this value is ISipHeader::UNKNOWN, strName MUST be
      *              a valid header name.
      * @param strValue The header value; null or empty string means a header with no value
      * @param strName The header name, either in full or compact form
@@ -175,43 +175,43 @@ public:
      *
      * This method is only used to set non-SDP content types.
      *
-     * @return Pointer to new ISIPMessageBodyPart.
+     * @return Pointer to new ISipMessageBodyPart.
      */
-    virtual ISIPMessageBodyPart* CreateBodyPart() = 0;
+    virtual ISipMessageBodyPart* CreateBodyPart() = 0;
 
     /**
      * @brief Creates a new SIP message body part and adds it to the SIP message.
      *
      * This method is only used to set SDP content type.
      *
-     * @return Pointer to new ISIPMessageBodyPart.
+     * @return Pointer to new ISipMessageBodyPart.
      */
-    virtual ISIPMessageBodyPart* CreateSDPBodyPart() = 0;
+    virtual ISipMessageBodyPart* CreateSdpBodyPart() = 0;
 
     /**
      * @brief Returns all message body parts that are added to the SIP message.
      *
      * This method returns all message body parts excepting SDP message body.
      *
-     * @return List of pointer to ISIPMessageBodyPart.
+     * @return List of pointer to ISipMessageBodyPart.
      */
-    virtual IMSList<ISIPMessageBodyPart*> GetBodyParts() const = 0;
+    virtual IMSList<ISipMessageBodyPart*> GetBodyParts() const = 0;
 
     /**
      * @brief Returns a SDP message body if present.
      *
-     * @return Pointer to ISIPMessageBodyPart.\n
+     * @return Pointer to ISipMessageBodyPart.\n
      *         It returns null pointer if SDP message body does not exist.
      */
-    virtual ISIPMessageBodyPart* GetSDPBodyPart() const = 0;
+    virtual ISipMessageBodyPart* GetSdpBodyPart() const = 0;
 
     /**
      * @brief Returns the list of SDP message body if present.
      *
-     * @return List of pointer to ISIPMessageBodyPart.\n
+     * @return List of pointer to ISipMessageBodyPart.\n
      *         The list will be empty if SDP message body does not exist.
      */
-    virtual IMSList<ISIPMessageBodyPart*> GetSDPBodyParts() const = 0;
+    virtual IMSList<ISipMessageBodyPart*> GetSdpBodyParts() const = 0;
 
     /**
      * @brief Updates the SIP headers & message body parts with the specified SIP message.
@@ -219,7 +219,7 @@ public:
      * @param piSIPMsg Pointer to the SIP message
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
      */
-    virtual IMS_RESULT CopyHeadersAndBodyParts(IN CONST ISIPMessage *piSIPMsg) = 0;
+    virtual IMS_RESULT CopyHeadersAndBodyParts(IN CONST ISipMessage *piSIPMsg) = 0;
 
     /**
      * @brief Checks if the specified header field is present.
@@ -238,7 +238,7 @@ public:
      * @return If this is a reliable provisional response message, returns IMS_TRUE.
      *         Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL IsMessageRPR() const = 0;
+    virtual IMS_BOOL IsMessageRpr() const = 0;
 
     /**
      * @brief Checks if the specified option tag is required in the remote endpoint.

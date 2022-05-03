@@ -16,7 +16,7 @@
 #include "IMessage.h"
 #include "MessageBodyPart.h"
 
-class ISIPMessage;
+class ISipMessage;
 class AppConfig;
 
 
@@ -34,14 +34,14 @@ private:
     Message& operator=(IN CONST Message &objRHS);
 
 public:
-    virtual ISIPMessage* GetMessage() const;
+    virtual ISipMessage* GetMessage() const;
 
-    ISIPMessageBodyPart* CreateBodyPartEx();
-    void UpdateSentMessage(IN ISIPMessage *piSIPMsg);
+    ISipMessageBodyPart* CreateBodyPartEx();
+    void UpdateSentMessage(IN ISipMessage *piSIPMsg);
 
     static Message* CreateMessage(IN Message *pMessage);
     static Message* CreateUnsentMessage(IN AppConfig *pAppConfig, IN IMS_BOOL bRequest);
-    static Message* CreateReceivedMessage(IN AppConfig *pAppConfig, IN ISIPMessage *piSIPMsg);
+    static Message* CreateReceivedMessage(IN AppConfig *pAppConfig, IN ISipMessage *piSIPMsg);
     static const IMS_CHAR* GetMessageType(IN IMS_SINT32 nServiceMethod);
 
 private:
@@ -50,7 +50,7 @@ private:
     virtual IMSList<IMessageBodyPart*> GetBodyParts() const;
     virtual IMS_RESULT AddHeader(IN CONST AString &strName, IN CONST AString &strValue);
     virtual IMSList<AString> GetHeaders(IN CONST AString &strName) const;
-    virtual const SIPMethod& GetMethod() const;
+    virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
     virtual IMS_SINT32 GetState() const;
     virtual IMS_SINT32 GetStatusCode() const;
@@ -64,7 +64,7 @@ private:
     AppConfig *pAppConfig;
 
     IMS_SINT32 nState;
-    ISIPMessage *piSIPMessage;
+    ISipMessage *piSIPMessage;
     IMSList<MessageBodyPart*> objBodyParts;
 };
 

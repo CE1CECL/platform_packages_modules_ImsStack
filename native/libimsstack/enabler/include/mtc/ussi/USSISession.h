@@ -43,14 +43,14 @@ public:
 //     virtual IMS_BOOL StateCONVERSATION_SendTransaction(IN IMSMSG &objMsg);
 //     virtual IMS_BOOL StateXXX_SS_UpdateReceived(IN IMSMSG &objMsg);
 
-//     virtual IMS_BOOL SetUSSIBody(IN ISIPMessage* pISIPMessage, IN const AString& strUSSDStr,
+//     virtual IMS_BOOL SetUSSIBody(IN ISipMessage* pISIPMessage, IN const AString& strUSSDStr,
 //             IN IMS_BOOL bMultiPart = IMS_TRUE);
 //     virtual IMS_BOOL SendUSSIResultToUI(IN USSDDataParser* pUSSDData);
 
 //     virtual void LoadConfig();
 
 // private:
-//     USSDDataParser* GetParsedUSSIData(IN ISIPMessage* pISIPMessage);
+//     USSDDataParser* GetParsedUSSIData(IN ISipMessage* pISIPMessage);
 //     IMS_BOOL IsUEInitiated();
 //     IMS_BOOL IsPreviousRequestByeMessage();
 

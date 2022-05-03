@@ -42,7 +42,7 @@ class IRegParameter;
 class IRegSubscription;
 
 class RegistrationManager;
-class SIPProfile;
+class SipProfile;
 
 class IAosAppContext;
 class IAosHandle;
@@ -359,10 +359,10 @@ protected:
     /// IAosTrmListener
     virtual void Trm_PriorityChanged();
 
-    virtual IMS_RESULT MessageMediator_AdjustMessage(IN_OUT ISIPMessage* piSipMsg,
+    virtual IMS_RESULT MessageMediator_AdjustMessage(IN_OUT ISipMessage* piSipMsg,
             IN IMS_SINT32 nMessage = MESSAGE_NORMAL);
 
-    virtual IMS_BOOL AddLocationHeaderBody(IN_OUT ISIPMessage* piSipMsg,
+    virtual IMS_BOOL AddLocationHeaderBody(IN_OUT ISipMessage* piSipMsg,
             IN IMS_SINT32 nMessage = MESSAGE_NORMAL);
 
 private:
@@ -545,7 +545,7 @@ protected:
     IMS_UINT32 m_nImsRegFeatures;
 
     /// this is used to set SIP Profile on run-time
-    RCPtr<SIPProfile> m_pSipProfile;
+    RCPtr<SipProfile> m_pSipProfile;
 
     AString m_strTag;
 

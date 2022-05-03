@@ -4,8 +4,8 @@
 #include "AStringArray.h"
 #include "SipMethod.h"
 
-class ISIPMessage;
-class ISIPHeader;
+class ISipMessage;
+class ISipHeader;
 
 /**
  * @brief This class defines a trigger point which can be used for an initial filter criteria.
@@ -15,7 +15,7 @@ class ISIPHeader;
 class TriggerPoint
 {
 public:
-    explicit TriggerPoint(IN CONST SIPMethod &objMethod_,
+    explicit TriggerPoint(IN CONST SipMethod &objMethod_,
             IN IMS_BOOL bMethodNegated_ = IMS_FALSE);
     TriggerPoint(IN CONST TriggerPoint &objRHS);
     ~TriggerPoint();
@@ -68,21 +68,21 @@ public:
     void SetEvaluationRule(IN IMS_SINT32 nRule);
 
 protected:
-    IMS_BOOL Evaluate(IN CONST ISIPMessage *piSIPMsg) const;
+    IMS_BOOL Evaluate(IN CONST ISipMessage *piSIPMsg) const;
     IMS_UINT32 GetCount() const;
 
-    static IMS_SINT32 CompareHeader(IN CONST ISIPHeader *piHeader,
-            IN CONST ISIPHeader *piOtherHeader, IN IMS_SINT32 nEvaluationRule,
+    static IMS_SINT32 CompareHeader(IN CONST ISipHeader *piHeader,
+            IN CONST ISipHeader *piOtherHeader, IN IMS_SINT32 nEvaluationRule,
             IN IMS_BOOL bConditionNegated = IMS_FALSE);
-    static IMS_SINT32 CompareHeaderInMessage(IN CONST ISIPHeader *piHeader,
-            IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nEvaluationRule,
+    static IMS_SINT32 CompareHeaderInMessage(IN CONST ISipHeader *piHeader,
+            IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nEvaluationRule,
             IN IMS_BOOL bConditionNegated = IMS_FALSE);
     static IMS_SINT32 CompareSDPInfo(IN CONST IMSList<AString>& objMLines,
-            IN CONST IMSList<AString>& objALines, IN CONST ISIPMessage *piSIPMsg,
+            IN CONST IMSList<AString>& objALines, IN CONST ISipMessage *piSIPMsg,
             IN IMS_SINT32 nEvaluationRule, IN IMS_BOOL bConditionNegated = IMS_FALSE);
     static IMS_SINT32 GetIndexOf(IN CONST AStringArray &objSDPLines, IN CONST AString &strToken,
             IN IMS_BOOL bContain = IMS_TRUE);
-    static IMS_BOOL IsParameterComparisonRequired(IN CONST ISIPHeader *piHeader);
+    static IMS_BOOL IsParameterComparisonRequired(IN CONST ISipHeader *piHeader);
     static void SplitLines(IN CONST AString &strSDP, OUT AStringArray &objSDPLines);
 
 public:
@@ -119,11 +119,11 @@ private:
 
     // SPT : SIP method
     IMS_BOOL bMethodNegated;
-    SIPMethod objMethod;
+    SipMethod objMethod;
 
     // SPT : Header field
-    IMSList<ISIPHeader*> objHeaders;
-    IMSList<ISIPHeader*> objNegatedHeaders;
+    IMSList<ISipHeader*> objHeaders;
+    IMSList<ISipHeader*> objNegatedHeaders;
 
     // Additional field : SDP, ...
     IMSList<AString> objSDPMLines;

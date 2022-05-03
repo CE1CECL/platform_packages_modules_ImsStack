@@ -22,7 +22,7 @@
 
 class SIPKeepAliveHelper
     : public ImsSlot
-    , public ISIPKeepAliveHelper
+    , public ISipKeepAliveHelper
     , public ISIPKeepAliveListener
 {
 public:
@@ -30,21 +30,21 @@ public:
     virtual ~SIPKeepAliveHelper();
 
 private:
-    // ISIPObject class
+    // ISipObject class
     virtual void Destroy();
 
-    // ISIPKeepAliveHelper class
+    // ISipKeepAliveHelper class
     virtual IMS_RESULT SendPacket(IN CONST ByteArray &objPacket);
-    virtual void SetListener(IN ISIPKeepAliveHelperListener *piListener);
+    virtual void SetListener(IN ISipKeepAliveHelperListener *piListener);
     virtual void SetTransportTupleD(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort);
     virtual void SetTransportTupleS(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort,
-            IN IMS_SINT32 nProtocol = SIP::TRANSPORT_UDP);
+            IN IMS_SINT32 nProtocol = Sip::TRANSPORT_UDP);
 
     // ISIPKeepAliveListener class
     virtual void KeepAlive_PongReceived();
 
 private:
-    ISIPKeepAliveHelperListener *piListener;
+    ISipKeepAliveHelperListener *piListener;
     SIPSocketAddress objSA_NearEnd;
     SIPSocketAddress objSA_FarEnd;
 };

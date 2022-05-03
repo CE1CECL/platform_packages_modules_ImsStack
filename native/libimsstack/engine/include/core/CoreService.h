@@ -27,7 +27,7 @@ class CoreService
 {
 public:
     CoreService(IN CONST AString& strAppId_, IN CONST AString &strServiceId_,
-            IN CONST SIPAddress *pIMPU_ = IMS_NULL);
+            IN CONST SipAddress *pIMPU_ = IMS_NULL);
     virtual ~CoreService();
 
 private:
@@ -63,9 +63,9 @@ public:
 
 private:
     virtual void Exception_NotifyError(IN IMS_SINT32 nErrorCode);
-    virtual IMS_BOOL ServerConnection_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL ServerConnection_NotifyRequest(IN ISipServerConnection *piSSC);
 
-    IMS_SINT32 CheckAndHandleDirectSIPRequest(IN ISIPServerConnection *piSSC);
+    IMS_SINT32 CheckAndHandleDirectSIPRequest(IN ISipServerConnection *piSSC);
 
 private:
     // Refer to ICoreService class

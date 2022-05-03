@@ -85,7 +85,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen()
+ISipServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPConnectionNotifierImpl::SetListener(IN ISIPServerConnectionListener *piListener)
+void SIPConnectionNotifierImpl::SetListener(IN ISipServerConnectionListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen(OUT ISIPDialog *&piOrigDialog)
+ISipServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen(OUT ISipDialog *&piOrigDialog)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -163,7 +163,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-SIPProfile* SIPConnectionNotifierImpl::GetSIPProfile() const
+SipProfile* SIPConnectionNotifierImpl::GetSipProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -258,7 +258,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-void SIPConnectionNotifierImpl::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPConnectionNotifierImpl::SetSipProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -284,7 +284,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPConnectionNotifierImpl::UpdatePortUC(IN IMS_SINT32 nPort)
+void SIPConnectionNotifierImpl::UpdatePortUc(IN IMS_SINT32 nPort)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -297,7 +297,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPConnectionNotifierImpl::AddErrorListener(IN ISIPConnectionNotifierErrorListener *piListener)
+void SIPConnectionNotifierImpl::AddErrorListener(IN ISipConnectionNotifierErrorListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -308,7 +308,7 @@ void SIPConnectionNotifierImpl::AddErrorListener(IN ISIPConnectionNotifierErrorL
 
     for (IMS_UINT32 i = 0; i < objErrorListeners.GetSize(); ++i)
     {
-        ISIPConnectionNotifierErrorListener *piErrorListener = objErrorListeners.GetAt(i);
+        ISipConnectionNotifierErrorListener *piErrorListener = objErrorListeners.GetAt(i);
 
         if (piErrorListener == piListener)
         {
@@ -326,7 +326,8 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPConnectionNotifierImpl::RemoveErrorListener(IN ISIPConnectionNotifierErrorListener *piListener)
+void SIPConnectionNotifierImpl::RemoveErrorListener(
+        IN ISipConnectionNotifierErrorListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -337,7 +338,7 @@ void SIPConnectionNotifierImpl::RemoveErrorListener(IN ISIPConnectionNotifierErr
 
     for (IMS_UINT32 i = 0; i < objErrorListeners.GetSize(); ++i)
     {
-        ISIPConnectionNotifierErrorListener *piErrorListener = objErrorListeners.GetAt(i);
+        ISipConnectionNotifierErrorListener *piErrorListener = objErrorListeners.GetAt(i);
 
         if (piErrorListener == piListener)
         {
@@ -426,11 +427,11 @@ void SIPConnectionNotifierImpl::OnConnectionNotifierError_NotifyError(
         return;
     }
 
-    IMSList<ISIPConnectionNotifierErrorListener*> objTempListeners = objErrorListeners;
+    IMSList<ISipConnectionNotifierErrorListener*> objTempListeners = objErrorListeners;
 
     for (IMS_UINT32 i = 0; i < objTempListeners.GetSize(); ++i)
     {
-        ISIPConnectionNotifierErrorListener *piErrorListener = objTempListeners.GetAt(i);
+        ISipConnectionNotifierErrorListener *piErrorListener = objTempListeners.GetAt(i);
 
         if (piErrorListener != IMS_NULL)
         {

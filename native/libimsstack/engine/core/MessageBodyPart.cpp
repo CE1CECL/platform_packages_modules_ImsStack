@@ -20,7 +20,7 @@
 
 
 PUBLIC
-MessageBodyPart::MessageBodyPart(IN IMessage *piMessage_, IN ISIPMessageBodyPart *piBodyPart_)
+MessageBodyPart::MessageBodyPart(IN IMessage *piMessage_, IN ISipMessageBodyPart *piBodyPart_)
     : piMessage(piMessage_)
     , piBodyPart(piBodyPart_)
 {
@@ -32,7 +32,7 @@ MessageBodyPart::~MessageBodyPart()
 }
 
 PUBLIC
-ISIPMessageBodyPart* MessageBodyPart::GetBodyPart() const
+ISipMessageBodyPart* MessageBodyPart::GetBodyPart() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ ISIPMessageBodyPart* MessageBodyPart::GetBodyPart() const
 }
 
 PUBLIC
-void MessageBodyPart::SetBodyPart(IN ISIPMessageBodyPart *piNewBodyPart)
+void MessageBodyPart::SetBodyPart(IN ISipMessageBodyPart *piNewBodyPart)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -128,16 +128,16 @@ IMS_SINT32 MessageBodyPart::GetHeaderType(IN CONST AString &strName)
 {
     //---------------------------------------------------------------------------------------------
 
-    if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_TYPE))
-        return ISIPMessageBodyPart::CONTENT_TYPE;
-    else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_DISPOSITION))
-        return ISIPMessageBodyPart::CONTENT_DISPOSITION;
-    else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_TRANSFER_ENCODING))
-        return ISIPMessageBodyPart::CONTENT_TRANSFER_ENCODING;
-    else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_ID))
-        return ISIPMessageBodyPart::CONTENT_ID;
-    else if (strName.EqualsIgnoreCase(SIPHeaderName::CONTENT_DESCRIPTION))
-        return ISIPMessageBodyPart::CONTENT_DESCRIPTION;
+    if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_TYPE))
+        return ISipMessageBodyPart::CONTENT_TYPE;
+    else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_DISPOSITION))
+        return ISipMessageBodyPart::CONTENT_DISPOSITION;
+    else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_TRANSFER_ENCODING))
+        return ISipMessageBodyPart::CONTENT_TRANSFER_ENCODING;
+    else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_ID))
+        return ISipMessageBodyPart::CONTENT_ID;
+    else if (strName.EqualsIgnoreCase(SipHeaderName::CONTENT_DESCRIPTION))
+        return ISipMessageBodyPart::CONTENT_DESCRIPTION;
     else
-        return ISIPMessageBodyPart::CONTENT_UNKNOWN;
+        return ISipMessageBodyPart::CONTENT_UNKNOWN;
 }

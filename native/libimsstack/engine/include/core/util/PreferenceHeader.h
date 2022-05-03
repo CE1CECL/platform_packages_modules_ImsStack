@@ -16,7 +16,7 @@
 #include "AStringArray.h"
 
 class FeatureSet;
-class ISIPHeader;
+class ISipHeader;
 
 
 
@@ -24,7 +24,7 @@ class PreferenceHeader
 {
 public:
     explicit PreferenceHeader(IN CONST AString &strHeader);
-    explicit PreferenceHeader(IN CONST ISIPHeader *piHeader);
+    explicit PreferenceHeader(IN CONST ISipHeader *piHeader);
     PreferenceHeader(IN IMS_BOOL bExplicit_, IN IMS_BOOL bRequire_);
     ~PreferenceHeader();
 

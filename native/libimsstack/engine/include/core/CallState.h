@@ -23,13 +23,13 @@ public:
 
 public:
     IMS_SINT32 GetState() const;
-    IMS_BOOL UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nMode);
+    IMS_BOOL UpdateState(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nMode);
 
 private:
     static void InitializeStateTable();
-    static void PrintStateChanged(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nState,
+    static void PrintStateChanged(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nState,
             IN IMS_SINT32 nNextState);
-    static IMS_SINT32 TranslateMessage(IN CONST ISIPMessage *piSIPMsg);
+    static IMS_SINT32 TranslateMessage(IN CONST ISipMessage *piSIPMsg);
 
 public:
     // Internal states for tracking the session state

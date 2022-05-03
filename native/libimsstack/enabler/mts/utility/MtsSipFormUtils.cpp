@@ -239,7 +239,7 @@ AString MtsSipFormUtils::ValidateAndUpdatePsi()
     else if (strSheme == SCHEME_SIP || strSheme == SCHEME_SIPS)
     {
         //General form - sip:user:password@host:port;uri-parameters
-        SIPAddress* pTempDest = new SIPAddress(m_strPsi);
+        SipAddress* pTempDest = new SipAddress(m_strPsi);
 
         if (pTempDest == IMS_NULL)
         {
@@ -255,7 +255,7 @@ AString MtsSipFormUtils::ValidateAndUpdatePsi()
             //Host which is number format means that user info is empty, so try to re-form
             const ISubscriberConfig* piSubsConfig = Configuration::GetInstance()
                     ->GetSubscriberConfig(m_nSlotId);
-            IMSList<SIPParameter*> objParameters = pTempDest->GetParameters();
+            IMSList<SipParameter*> objParameters = pTempDest->GetParameters();
 
             if (piSubsConfig != IMS_NULL)
             {
@@ -273,7 +273,7 @@ AString MtsSipFormUtils::ValidateAndUpdatePsi()
 
                     for (IMS_UINT32 i = 0; i < objParameters.GetSize(); ++i)
                     {
-                        SIPParameter* pParameter = objParameters.GetAt(i);
+                        SipParameter* pParameter = objParameters.GetAt(i);
 
                         if (pParameter == IMS_NULL)
                             continue;

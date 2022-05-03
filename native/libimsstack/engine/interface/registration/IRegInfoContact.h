@@ -115,7 +115,7 @@ public:
      *
      * @return URI of contact.
      */
-    virtual const SIPAddress& GetURI() const = 0;
+    virtual const SipAddress& GetURI() const = 0;
 
 public:
     /// State of Contact

@@ -70,7 +70,7 @@ AosUtil* AosUtil::GetInstance()
 }
 
 PUBLIC
-IMS_SINT32 AosUtil::GetResponseCode(IN const ISIPMessage* piSipMsg)
+IMS_SINT32 AosUtil::GetResponseCode(IN const ISipMessage* piSipMsg)
 {
     if (piSipMsg == IMS_NULL)
     {
@@ -99,21 +99,21 @@ IMS_UINT32 AosUtil::GetRetryAfterValue(IN const IRegistration* piRegistration)
 }
 
 PUBLIC
-IMS_SINT32 AosUtil::GetRetryAfterValue(IN const ISIPMessage* piSipMsg)
+IMS_SINT32 AosUtil::GetRetryAfterValue(IN const ISipMessage* piSipMsg)
 {
     if (piSipMsg == IMS_NULL)
     {
         return -1;
     }
 
-    AString strHeader = piSipMsg->GetHeader(ISIPHeader::RETRY_AFTER_SEC);
+    AString strHeader = piSipMsg->GetHeader(ISipHeader::RETRY_AFTER_SEC);
 
     if (strHeader.GetLength() == 0)
     {
         return -1;
     }
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::RETRY_AFTER_SEC, strHeader);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::RETRY_AFTER_SEC, strHeader);
 
     if (piHeader == IMS_NULL)
     {
@@ -130,21 +130,21 @@ IMS_SINT32 AosUtil::GetRetryAfterValue(IN const ISIPMessage* piSipMsg)
 }
 
 PUBLIC
-IMS_SINT32 AosUtil::GetMinExpiresValue(IN const ISIPMessage* piSipMsg)
+IMS_SINT32 AosUtil::GetMinExpiresValue(IN const ISipMessage* piSipMsg)
 {
     if (piSipMsg == IMS_NULL)
     {
         return -1;
     }
 
-    AString strHeader = piSipMsg->GetHeader(ISIPHeader::MIN_EXPIRES);
+    AString strHeader = piSipMsg->GetHeader(ISipHeader::MIN_EXPIRES);
 
     if (strHeader.GetLength() == 0)
     {
         return -1;
     }
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::MIN_EXPIRES, strHeader);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::MIN_EXPIRES, strHeader);
 
     if (piHeader == IMS_NULL)
     {
@@ -161,7 +161,7 @@ IMS_SINT32 AosUtil::GetMinExpiresValue(IN const ISIPMessage* piSipMsg)
 }
 
 PUBLIC
-IMS_SINT32 AosUtil::GetKeepAliveValue(IN const ISIPMessage* piSipMsg)
+IMS_SINT32 AosUtil::GetKeepAliveValue(IN const ISipMessage* piSipMsg)
 {
     IMS_SINT32 nKeepValue = -1;
 
@@ -170,20 +170,20 @@ IMS_SINT32 AosUtil::GetKeepAliveValue(IN const ISIPMessage* piSipMsg)
         return nKeepValue;
     }
 
-    AString strViaHeader = piSipMsg->GetHeader(ISIPHeader::VIA);
+    AString strViaHeader = piSipMsg->GetHeader(ISipHeader::VIA);
 
     if (strViaHeader.GetLength() == 0)
     {
         return nKeepValue;
     }
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::VIA, strViaHeader);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::VIA, strViaHeader);
     if (piHeader == IMS_NULL)
     {
         return nKeepValue;
     }
 
-    const SIPParameter* pKeep = piHeader->GetParameter("keep");
+    const SipParameter* pKeep = piHeader->GetParameter("keep");
     if (pKeep == IMS_NULL)
     {
         piHeader->Destroy();
@@ -207,7 +207,7 @@ IMS_SINT32 AosUtil::GetKeepAliveValue(IN const ISIPMessage* piSipMsg)
 }
 
 PUBLIC
-IMS_BOOL AosUtil::GetProxyFromContact(IN const ISIPMessage* piSipMsg,
+IMS_BOOL AosUtil::GetProxyFromContact(IN const ISipMessage* piSipMsg,
         OUT AString& strUseProxy, OUT IMS_UINT32& nUseProxyPort)
 {
     if (piSipMsg == IMS_NULL)
@@ -215,19 +215,19 @@ IMS_BOOL AosUtil::GetProxyFromContact(IN const ISIPMessage* piSipMsg,
         return IMS_FALSE;
     }
 
-    AString strHeader = piSipMsg->GetHeader(ISIPHeader::CONTACT_NORMAL);
+    AString strHeader = piSipMsg->GetHeader(ISipHeader::CONTACT_NORMAL);
     if (strHeader.GetLength() == 0)
     {
         return IMS_FALSE;
     }
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::CONTACT_NORMAL, strHeader);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::CONTACT_NORMAL, strHeader);
     if (piHeader == IMS_NULL)
     {
         return IMS_FALSE;
     }
 
-    const SIPAddress* pSip = piHeader->GetSIPAddress();
+    const SipAddress* pSip = piHeader->GetSipAddress();
     if (pSip == IMS_NULL)
     {
         piHeader->Destroy();
@@ -245,9 +245,9 @@ IMS_BOOL AosUtil::GetProxyFromContact(IN const ISIPMessage* piSipMsg,
 
     strUseProxy = strProxy;
 
-    if ((nProxyPort == 0) || (nProxyPort == SIP::PORT_UNSPECIFIED))
+    if ((nProxyPort == 0) || (nProxyPort == Sip::PORT_UNSPECIFIED))
     {
-        nProxyPort = SIP::PORT_5060;
+        nProxyPort = Sip::PORT_5060;
     }
 
     nUseProxyPort = nProxyPort;
@@ -260,20 +260,20 @@ IMS_BOOL AosUtil::GetProxyFromContact(IN const ISIPMessage* piSipMsg,
 }
 
 PUBLIC
-AString AosUtil::GetWarningHeader(IN const ISIPMessage* piSipMsg)
+AString AosUtil::GetWarningHeader(IN const ISipMessage* piSipMsg)
 {
     if (piSipMsg == IMS_NULL)
     {
         return AString::ConstEmpty();
     }
 
-    AString strValue = piSipMsg->GetHeader(ISIPHeader::WARNING);
+    AString strValue = piSipMsg->GetHeader(ISipHeader::WARNING);
     IMS_TRACE_D("Warning (%s)", strValue.GetStr(), 0, 0);
     return strValue;
 }
 
 PUBLIC
-IMS_BOOL AosUtil::IsReasonPhraseExist(IN const ISIPMessage* piSipMsg, IN AString strReason)
+IMS_BOOL AosUtil::IsReasonPhraseExist(IN const ISipMessage* piSipMsg, IN AString strReason)
 {
     AString strPhrase = piSipMsg->GetReasonPhrase();
 
@@ -291,20 +291,20 @@ IMS_BOOL AosUtil::IsReasonPhraseExist(IN const ISIPMessage* piSipMsg, IN AString
 }
 
 PUBLIC
-IMS_BOOL AosUtil::IsInitialRegistrationRequired(IN ISIPMessage* piSipMsg)
+IMS_BOOL AosUtil::IsInitialRegistrationRequired(IN ISipMessage* piSipMsg)
 {
     IMS_BOOL bInitialRegistration = IMS_FALSE;
 
     if (piSipMsg != IMS_NULL)
     {
-        IMSList<ISIPMessageBodyPart*> objBodyParts = piSipMsg->GetBodyParts();
+        IMSList<ISipMessageBodyPart*> objBodyParts = piSipMsg->GetBodyParts();
         if (!objBodyParts.IsEmpty())
         {
-            ISIPMessageBodyPart* piBodyPart = objBodyParts.GetAt(0);
+            ISipMessageBodyPart* piBodyPart = objBodyParts.GetAt(0);
             if (piBodyPart != IMS_NULL)
             {
                 AString strContentTypeHdr =
-                        piBodyPart->GetHeader(ISIPMessageBodyPart::CONTENT_TYPE);
+                        piBodyPart->GetHeader(ISipMessageBodyPart::CONTENT_TYPE);
 
                 AString strType,strSubType;
                 TextParser::ParseMediaType(strContentTypeHdr, strType, strSubType);
@@ -331,7 +331,7 @@ IMS_BOOL AosUtil::IsInitialRegistrationRequired(IN ISIPMessage* piSipMsg)
 }
 
 PUBLIC
-IMS_BOOL AosUtil::IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+IMS_BOOL AosUtil::IsParameterIncluded(IN const ISipMessage* piSipMsg,
         IN IMS_SINT32 nHeaderType, IN const AString& strParameter)
 {
     if (piSipMsg == IMS_NULL)
@@ -361,7 +361,7 @@ IMS_BOOL AosUtil::IsParameterIncluded(IN const ISIPMessage* piSipMsg,
 }
 
 PUBLIC
-IMS_BOOL AosUtil::IsParameterIncluded(IN const ISIPMessage* piSipMsg,
+IMS_BOOL AosUtil::IsParameterIncluded(IN const ISipMessage* piSipMsg,
         IN IMS_SINT32 nHeaderType, IN const AString& strName, IN const AString& strParameter)
 {
     if (piSipMsg == IMS_NULL)
@@ -806,7 +806,7 @@ void AosUtil::GetUserInfoFromSipAddress(IN const AString& strSipAddress,
         return;
     }
 
-    SIPAddress objSipAddress;
+    SipAddress objSipAddress;
 
     if (objSipAddress.Create(strSipAddress) == IMS_FALSE)
     {
@@ -814,11 +814,11 @@ void AosUtil::GetUserInfoFromSipAddress(IN const AString& strSipAddress,
         return;
     }
 
-    if (objSipAddress.IsSchemeSIP() || objSipAddress.IsSchemeSIPS())
+    if (objSipAddress.IsSchemeSip() || objSipAddress.IsSchemeSips())
     {
         strUserInfo = objSipAddress.GetUser();
     }
-    else if (objSipAddress.IsSchemeTEL())
+    else if (objSipAddress.IsSchemeTel())
     {
         strUserInfo = objSipAddress.GetHost();
     }
@@ -832,8 +832,8 @@ void AosUtil::SetSocketOption(IN IMS_UINT32 nOption, IN IMS_UINT32 nValue,
 {
     IMS_TRACE_I("SocketOption: %d, value=%d", nOption, nValue, 0);
 
-    ISIPRTConfigHelper* piRunTimeConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
-    SIPRTConfig::SocketOption objSO;
+    ISipRtConfigHelper* piRunTimeConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
+    SipRtConfig::SocketOption objSO;
 
     objSO.nValue = nValue;
     piRunTimeConfigHelper->SetConfig(nOption, &objSO);
@@ -842,25 +842,25 @@ void AosUtil::SetSocketOption(IN IMS_UINT32 nOption, IN IMS_UINT32 nValue,
 PUBLIC
 void AosUtil::SetSocketOptionLinger(IN IMS_UINT32 nOption, IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
 {
-    ISIPRTConfigHelper* piRunTimeConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
-    SIPRTConfig::SocketOption objSO;
+    ISipRtConfigHelper* piRunTimeConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
+    SipRtConfig::SocketOption objSO;
 
     objSO.nValue = nOption;
 
-    piRunTimeConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_LINGER, &objSO);
+    piRunTimeConfigHelper->SetConfig(SipRtConfig::CONFIG_I_LINGER, &objSO);
 }
 
 PUBLIC
 void AosUtil::SetSocketOptionShutDown(IN IMS_UINT32 nOption,
         IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
 {
-    ISIPRTConfigHelper* piRunTimeConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
-    SIPRTConfig::SocketOption objSO;
+    ISipRtConfigHelper* piRunTimeConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
+    SipRtConfig::SocketOption objSO;
 
     // 0 (RX) / 1 (TX) / 2 (RX & TX) / 3 (No Shutdown)
     objSO.nValue = nOption;
 
-    piRunTimeConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_SHUTDOWN, &objSO);
+    piRunTimeConfigHelper->SetConfig(SipRtConfig::CONFIG_I_SHUTDOWN, &objSO);
 }
 
 PUBLIC

@@ -93,8 +93,8 @@ struct ProtocolBinder
 static const ProtocolBinder PROTOCOL_BINDER[] =
 {
     { IMSCore::CONNECTION_SCHEME, IMSCoreProtocol::GetInstance() },
-    { SIP::CONNECTION_SCHEME_SIP, SIPProtocol::GetInstance() }
-    //    { SIP::CONNECTION_SCHEME_SIPS, SIPProtocol::GetInstance() }
+    { Sip::CONNECTION_SCHEME_SIP, SIPProtocol::GetInstance() }
+    //    { Sip::CONNECTION_SCHEME_SIPS, SIPProtocol::GetInstance() }
 };
 #endif // ___IMS_DYNAMIC_BINDER___
 

@@ -246,7 +246,7 @@ void AosIpsec::SetSecurityAlgorithm(IN IMS_UINT32 nSecuAlog, IN IMS_UINT32 nAuth
     this->m_nAuthAlgo = nAuthAlgo;
     this->m_nEncrAlgo = nEncrAlgo;
 
-    if (nEncrAlgo == SIPSecurityHeader::EALG_UNSPECIFIED)
+    if (nEncrAlgo == SipSecurityHeader::EALG_UNSPECIFIED)
     {
         this->m_nEncrAlgo = IpSecType::ENCRYPTION_ALGORITHM_NO;
     }
@@ -277,7 +277,7 @@ void AosIpsec::SetPcscfPortsAndSpis(IN IMS_UINT32 nPortC, IN IMS_UINT32 nPortS,
 }
 
 PUBLIC
-void AosIpsec::MakeSecurityClientH(IN SIPSecurityHeader& objSecuH,
+void AosIpsec::MakeSecurityClientH(IN SipSecurityHeader& objSecuH,
         IN IMS_BOOL bSpi3gpp /* = IMS_TRUE */)
 {
     // 1. Set Algorithm
@@ -290,7 +290,7 @@ void AosIpsec::MakeSecurityClientH(IN SIPSecurityHeader& objSecuH,
     objSecuH.SetPort(m_pUeInfo->nPortC, m_pUeInfo->nPortS);
 
     // 3. Set SPIs
-    objSecuH.SetSPI(m_pUeInfo->nSpiC, m_pUeInfo->nSpiS, bSpi3gpp);
+    objSecuH.SetSpi(m_pUeInfo->nSpiC, m_pUeInfo->nSpiS, bSpi3gpp);
 }
 
 PUBLIC

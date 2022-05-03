@@ -410,11 +410,11 @@ IMS_UINT32 AosRegistration::GetProperty(IN IMS_UINT32 nType, OUT IMS_UINT32& nVa
         case PROPERTY_PATH:
             if (m_piRegistration != IMS_NULL)
             {
-                ISIPMessage* piMessage = m_piRegistration->GetPreviousResponse();
+                ISipMessage* piMessage = m_piRegistration->GetPreviousResponse();
 
                 if (piMessage != IMS_NULL)
                 {
-                    strValue = piMessage->GetHeader(ISIPHeader::PATH);
+                    strValue = piMessage->GetHeader(ISipHeader::PATH);
                 }
             }
             break;
@@ -422,10 +422,10 @@ IMS_UINT32 AosRegistration::GetProperty(IN IMS_UINT32 nType, OUT IMS_UINT32& nVa
         case PROPERTY_LAST_PATH:
             if (m_piRegistration != IMS_NULL)
             {
-                ISIPMessage* piMessage = m_piRegistration->GetPreviousResponse();
+                ISipMessage* piMessage = m_piRegistration->GetPreviousResponse();
                 if (piMessage != IMS_NULL)
                 {
-                    strList = piMessage->GetHeaders(ISIPHeader::PATH);
+                    strList = piMessage->GetHeaders(ISipHeader::PATH);
                     if(strList.IsEmpty() == IMS_FALSE)
                     {
                         strValue = strList.GetAt(strList.GetSize()-1);
@@ -437,11 +437,11 @@ IMS_UINT32 AosRegistration::GetProperty(IN IMS_UINT32 nType, OUT IMS_UINT32& nVa
         case PROPERTY_SUPPORTED:
             if (m_piRegistration != IMS_NULL)
             {
-                ISIPMessage* piMessage = m_piRegistration->GetPreviousRequest();
+                ISipMessage* piMessage = m_piRegistration->GetPreviousRequest();
 
                 if (piMessage != IMS_NULL)
                 {
-                    strValue = piMessage->GetHeader(ISIPHeader::SUPPORTED);
+                    strValue = piMessage->GetHeader(ISipHeader::SUPPORTED);
                 }
             }
             break;
@@ -449,11 +449,11 @@ IMS_UINT32 AosRegistration::GetProperty(IN IMS_UINT32 nType, OUT IMS_UINT32& nVa
         case PROPERTY_SERVICE_ROUTE:
             if (m_piRegistration != IMS_NULL)
             {
-                ISIPMessage* piMessage = m_piRegistration->GetPreviousResponse();
+                ISipMessage* piMessage = m_piRegistration->GetPreviousResponse();
 
                 if (piMessage != IMS_NULL)
                 {
-                    strValue = piMessage->GetHeader(ISIPHeader::SERVICE_ROUTE);
+                    strValue = piMessage->GetHeader(ISipHeader::SERVICE_ROUTE);
                 }
             }
             break;
@@ -2216,7 +2216,7 @@ void AosRegistration::SetTcpCriterionLength()
 
     if (m_pSipProfile.IsNull())
     {
-        m_pSipProfile = new SIPProfile();
+        m_pSipProfile = new SipProfile();
     }
 
     m_pSipProfile->SetTcpCriterionLength(nLength);
@@ -2259,19 +2259,19 @@ void AosRegistration::SetStaticIpQos()
         }
     }
 
-    ISIPRTConfigHelper* piRtConfigHelper = SIPFactory::GetRTConfigHelper(m_nSlotId);
+    ISipRtConfigHelper* piRtConfigHelper = SipFactory::GetRtConfigHelper(m_nSlotId);
     if (piRtConfigHelper != IMS_NULL)
     {
-        piRtConfigHelper->RemoveConfig(SIPRTConfig::CONFIG_I_IP_QOS, IMS_NULL);
+        piRtConfigHelper->RemoveConfig(SipRtConfig::CONFIG_I_IP_QOS, IMS_NULL);
 
-        SIPRTConfig::IPQoS objIpQos;
+        SipRtConfig::IpQos objIpQos;
         A_IMS_TRACE_I(REGID, "SetStaticIpQos : Set DSCP to %d", nDscp, 0, 0);
 
         objIpQos.nValue = nDscp << 2;
         objIpQos.objIP = m_objIpa;
         objIpQos.nPort = 0;
 
-        piRtConfigHelper->SetConfig(SIPRTConfig::CONFIG_I_IP_QOS, &objIpQos);
+        piRtConfigHelper->SetConfig(SipRtConfig::CONFIG_I_IP_QOS, &objIpQos);
     }
 }
 
@@ -2308,10 +2308,10 @@ void AosRegistration::SetDynamicIpQos()
         }
     }
 
-    ISIPTransportHelper* piHelper = SIPFactory::GetTransportHelper(m_nSlotId);
+    ISipTransportHelper* piHelper = SipFactory::GetTransportHelper(m_nSlotId);
     if (piHelper != IMS_NULL)
     {
-        SIPRTConfig::IPQoS objIpQos;
+        SipRtConfig::IpQos objIpQos;
         if (bSetDscp)
         {
             A_IMS_TRACE_I(REGID, "SetDynamicIpQos : Set DSCP to %d", nDscp, 0, 0);
@@ -2326,7 +2326,7 @@ void AosRegistration::SetDynamicIpQos()
         objIpQos.objIP = m_objIpa;
         objIpQos.nPort = 0;
 
-        piHelper->SetIPQoS(&objIpQos);
+        piHelper->SetIpQos(&objIpQos);
     }
 }
 
@@ -3146,7 +3146,7 @@ IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT32 nStatusCode)
                 A_IMS_TRACE_D(REGID, "ProcessSubscriberFailed", 0, 0, 0);
 
                 m_strPuid = objPuids.GetElementAt(1);
-                const SIPAddress objAor(m_strPuid);
+                const SipAddress objAor(m_strPuid);
 
                 m_piRegistration->SetAOR(objAor);
                 m_piContext->GetPcscf()->SetAllPcscfValid();
@@ -3397,7 +3397,7 @@ void AosRegistration::ProcessDefaultFlowRecovery_Update(IN IMS_SINT32 nStatusCod
     }
     else if (nAwtPolicy == CarrierConfig::Ims::AWT_POLICY_SPECIFIED_INTERVAL)
     {
-        if (nStatusCode == SIPStatusCode::SC_481)
+        if (nStatusCode == SipStatusCode::SC_481)
         {
             ProcessReinitiate(IMS_FALSE);
             return;
@@ -3523,7 +3523,7 @@ void AosRegistration::ProcessStartFailed_420()
 {
     IMS_BOOL bIsExtensionUnsupported =
             m_pUtil->IsParameterIncluded(m_piRegistration->GetPreviousResponse(),
-            ISIPHeader::UNSUPPORTED, AosString::STR_SEC_AGREE);
+            ISipHeader::UNSUPPORTED, AosString::STR_SEC_AGREE);
 
     if (bIsExtensionUnsupported)
     {
@@ -3539,7 +3539,7 @@ PROTECTED VIRTUAL
 void AosRegistration::ProcessStartFailed_421()
 {
     IMS_BOOL bIsExtensionRequired = m_pUtil->IsParameterIncluded(
-            m_piRegistration->GetPreviousResponse(), ISIPHeader::REQUIRE, AosString::STR_SEC_AGREE);
+            m_piRegistration->GetPreviousResponse(), ISipHeader::REQUIRE, AosString::STR_SEC_AGREE);
 
     if (m_pUtil->IsFeatureOn(FEATURE_IPSEC, m_nFeature) && bIsExtensionRequired)
     {
@@ -3578,7 +3578,7 @@ void AosRegistration::ProcessStartFailed_503()
     /* legacy impl
     if (!m_piContext->GetConfig()->IsStandardSpecificationSupported())
     {
-        ProcessDefaultFlowRecovery_Start(SIPStatusCode::SC_503);
+        ProcessDefaultFlowRecovery_Start(SipStatusCode::SC_503);
         return;
     }
     */
@@ -3593,7 +3593,7 @@ void AosRegistration::ProcessStartFailed_503()
     }
     else
     {
-        IMS_SINT32 nTimerF = SIPConfigProxy::GetTimerValueTF(m_nSlotId, IMS_NULL,
+        IMS_SINT32 nTimerF = SipConfigProxy::GetTimerValueF(m_nSlotId, IMS_NULL,
                 Configuration::GetInstance()->GetSipConfig(m_nSlotId)->GetSipConfigV(), IMS_TRUE);
 
         A_IMS_TRACE_I(REGID, "ProcessStartFailed_503 :: TF (%d), RA (%d)",
@@ -3616,7 +3616,7 @@ void AosRegistration::ProcessStartFailed_503()
         }
         else
         {
-            ProcessDefaultFlowRecovery_Start(SIPStatusCode::SC_503);
+            ProcessDefaultFlowRecovery_Start(SipStatusCode::SC_503);
         }
     }
 }
@@ -3628,7 +3628,7 @@ IMS_BOOL AosRegistration::ProcessUpdateFailed_305()
 
     if (nPolicy == CarrierConfig::Assets::SIP_305_CODE_POLICY_3GPP)
     {
-        ProcessDefaultFlowRecovery_Update(SIPStatusCode::SC_305);
+        ProcessDefaultFlowRecovery_Update(SipStatusCode::SC_305);
         return IMS_TRUE;
     }
     else if (nPolicy == CarrierConfig::Assets::SIP_305_CODE_POLICY_3GPP_USING_TOP_PCSCF)
@@ -3704,7 +3704,7 @@ void AosRegistration::ProcessStartFailed_StatusCode(IN IMS_SINT32 nStatusCode)
         return;
     }
 
-    if (nStatusCode == SIPStatusCode::SC_305)
+    if (nStatusCode == SipStatusCode::SC_305)
     {
         if (ProcessStartFailed_305())
         {
@@ -3714,7 +3714,7 @@ void AosRegistration::ProcessStartFailed_StatusCode(IN IMS_SINT32 nStatusCode)
 
     if (GET_N_CONFIG(m_nSlotId)->GetRegistrationRetrySip503CodePolicy() ==
             CarrierConfig::Assets::SIP_503_CODE_POLICY_3GPP &&
-            nStatusCode == SIPStatusCode::SC_503)
+            nStatusCode == SipStatusCode::SC_503)
     {
         ProcessStartFailed_503();
         return;
@@ -3723,7 +3723,7 @@ void AosRegistration::ProcessStartFailed_StatusCode(IN IMS_SINT32 nStatusCode)
     if (GET_N_CONFIG(m_nSlotId)->GetSpecificRegistrationErrorPolicy() ==
             CarrierConfig::Assets::ERROR_POLICY_PDN_REACTIVATED)
     {
-        if (SIPStatusCode::IsFinalFailure(nStatusCode))
+        if (SipStatusCode::IsFinalFailure(nStatusCode))
         {
             if (IsErrorCodeExistedForSpecificRegistration(nStatusCode) ||
                     IsErrorCodeExistedForSpecificRegistration(nStatusCode / 100))
@@ -3739,16 +3739,16 @@ void AosRegistration::ProcessStartFailed_StatusCode(IN IMS_SINT32 nStatusCode)
     switch (nStatusCode)
     {
         // 420
-        case SIPStatusCode::SC_420:
+        case SipStatusCode::SC_420:
             ProcessStartFailed_420();
             break;
         // 421
-        case SIPStatusCode::SC_421:
+        case SipStatusCode::SC_421:
             ProcessStartFailed_421();
             break;
             break;
         // 423
-        case SIPStatusCode::SC_423:
+        case SipStatusCode::SC_423:
             ProcessStartFailed_423();
             break;
 
@@ -3845,7 +3845,7 @@ void AosRegistration::ProcessUpdateFailed_StatusCode(IN IMS_SINT32 nStatusCode)
         return;
     }
 
-    if (nStatusCode == SIPStatusCode::SC_305)
+    if (nStatusCode == SipStatusCode::SC_305)
     {
         if (ProcessUpdateFailed_305())
         {
@@ -3875,10 +3875,10 @@ void AosRegistration::ProcessUpdateFailed_StatusCode(IN IMS_SINT32 nStatusCode)
 
     switch (nStatusCode)
     {
-        case SIPStatusCode::SC_403: // FALL-THROUGH
-        case SIPStatusCode::SC_408: // FALL-THROUGH
-        case SIPStatusCode::SC_500: // FALL-THROUGH
-        case SIPStatusCode::SC_504:
+        case SipStatusCode::SC_403: // FALL-THROUGH
+        case SipStatusCode::SC_408: // FALL-THROUGH
+        case SipStatusCode::SC_500: // FALL-THROUGH
+        case SipStatusCode::SC_504:
             ProcessReinitiate(IMS_FALSE);
             return;
 
@@ -3889,7 +3889,7 @@ void AosRegistration::ProcessUpdateFailed_StatusCode(IN IMS_SINT32 nStatusCode)
     switch (nStatusCode)
     {
         // 423
-        case SIPStatusCode::SC_423:
+        case SipStatusCode::SC_423:
             ProcessUpdateFailed_423();
             break;
 
@@ -3986,9 +3986,9 @@ void AosRegistration::RecordImpu()
         IMS_CHAR strKey[4];
         IMS_Itoa(strKey, i, 10);
 
-        SIPAddress objAssociatedUri(objAssociatedUris.GetElementAt(i));
+        SipAddress objAssociatedUri(objAssociatedUris.GetElementAt(i));
 
-        AString strAor = objAssociatedUri.GetURI();
+        AString strAor = objAssociatedUri.GetUri();
 
         if (strAor == AString::ConstNull() || strAor.IsEmpty())
         {
@@ -4984,7 +4984,7 @@ void AosRegistration::StartKeepAlive()
 
         IPAddress objPcscf(m_strPcscf);
         m_pKeepAlive->SetTransport(m_objIpa, m_pUtil->GetLocalPort(m_nSlotId),
-                objPcscf, m_nPcscfPort, SIP::TRANSPORT_TCP);
+                objPcscf, m_nPcscfPort, Sip::TRANSPORT_TCP);
         m_pKeepAlive->Start(nKeepAliveTime);
         m_pKeepAlive->SetListener(this);
     }
@@ -5098,7 +5098,7 @@ void AosRegistration::Trm_PriorityChanged()
 }
 
 PROTECTED VIRTUAL
-IMS_RESULT AosRegistration::MessageMediator_AdjustMessage(IN_OUT ISIPMessage* piSipMsg,
+IMS_RESULT AosRegistration::MessageMediator_AdjustMessage(IN_OUT ISipMessage* piSipMsg,
         IN IMS_SINT32 nMessage /* = MESSAGE_NORMAL */)
 {
     if (piSipMsg == IMS_NULL)
@@ -5115,7 +5115,7 @@ IMS_RESULT AosRegistration::MessageMediator_AdjustMessage(IN_OUT ISIPMessage* pi
 }
 
 PROTECTED VIRTUAL
-IMS_BOOL AosRegistration::AddLocationHeaderBody(IN_OUT ISIPMessage* piSipMsg,
+IMS_BOOL AosRegistration::AddLocationHeaderBody(IN_OUT ISipMessage* piSipMsg,
         IN IMS_SINT32 nMessage /* = MESSAGE_NORMAL*/)
 {
     if (!IsGeolocationInfoRequired())
@@ -5140,39 +5140,39 @@ IMS_BOOL AosRegistration::AddLocationHeaderBody(IN_OUT ISIPMessage* piSipMsg,
 
     if (nMessage == IMessageMediator::MESSAGE_RESUBMIT)
     {
-        piSipMsg->RemoveHeader(ISIPHeader::UNKNOWN, SIPHeaderName::CONTENT_ID);
-        piSipMsg->RemoveHeader(ISIPHeader::CONTENT_TYPE);
-        piSipMsg->RemoveHeader(ISIPHeader::CONTENT_LENGTH);
+        piSipMsg->RemoveHeader(ISipHeader::UNKNOWN, SipHeaderName::CONTENT_ID);
+        piSipMsg->RemoveHeader(ISipHeader::CONTENT_TYPE);
+        piSipMsg->RemoveHeader(ISipHeader::CONTENT_LENGTH);
 
         // Removes the previous message body
         piSipMsg->RemoveBodyParts();
     }
 
-    ISIPMessageBodyPart* piBodyPart = piSipMsg->CreateBodyPart();
+    ISipMessageBodyPart* piBodyPart = piSipMsg->CreateBodyPart();
 
     // Set a Location
     piBodyPart->SetContent(objContent);
 
     // Set a Location Content-Type
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, "application/pidf+xml");
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, "application/pidf+xml");
 
     AString strNewContentId = GeolocationHelper::CreateContentId(m_nSlotId);
 
     // Set a Location Content-ID
     AString strContentId;
     strContentId.Sprintf("<%s>", strNewContentId.GetStr());
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_ID, strContentId);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_ID, strContentId);
 
     // Set the Content-Length header
     AString strClen;
     strClen.SetNumber(objContent.GetLength());
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_UNKNOWN,
-            strClen, SIPHeaderName::CONTENT_LENGTH);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_UNKNOWN,
+            strClen, SipHeaderName::CONTENT_LENGTH);
 
     // Set Geolocation header
     AString strGeolocation;
     strGeolocation.Sprintf("<cid:%s>", strNewContentId.GetStr());
-    piSipMsg->SetHeader(ISIPHeader::UNKNOWN, strGeolocation, "Geolocation");
+    piSipMsg->SetHeader(ISipHeader::UNKNOWN, strGeolocation, "Geolocation");
 
     return IMS_TRUE;
 }
@@ -5236,7 +5236,7 @@ void AosRegistration::SetPlaniHeader()
         }
     }
 
-    ISIPRTConfigHelper* piConfHelper = SIPFactory::GetRTConfigHelper(m_nSlotId);
+    ISipRtConfigHelper* piConfHelper = SipFactory::GetRtConfigHelper(m_nSlotId);
 
     if (bSet)
     {
@@ -5246,7 +5246,7 @@ void AosRegistration::SetPlaniHeader()
         }
     }
 
-    SIPRTConfig::Header* pPlaniHeader = new SIPRTConfig::Header();
+    SipRtConfig::Header* pPlaniHeader = new SipRtConfig::Header();
     pPlaniHeader->strName = AosString::STR_P_LAST_ACCESS_NETWORK_INFO;
 
     if (bSet)
@@ -5257,11 +5257,11 @@ void AosRegistration::SetPlaniHeader()
         pPlaniHeader->strParameter.Prepend('\"');
         pPlaniHeader->strParameter.Append('\"');
 
-        piConfHelper->SetConfig(SIPRTConfig::CONFIG_I_SIP_HEADER, pPlaniHeader);
+        piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, pPlaniHeader);
     }
     else
     {
-        piConfHelper->RemoveConfig(SIPRTConfig::CONFIG_I_SIP_HEADER, pPlaniHeader);
+        piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, pPlaniHeader);
     }
 
     delete pPlaniHeader;
@@ -5351,7 +5351,7 @@ void AosRegistration::UpdateCallingNumberVerification()
     }
 
     IMS_BOOL bIsFeatureIncluded = m_pUtil->IsParameterIncluded(
-            m_piRegistration->GetPreviousResponse(), ISIPHeader::UNKNOWN,
+            m_piRegistration->GetPreviousResponse(), ISipHeader::UNKNOWN,
             AosString::STR_FEATURE_CAPS, AosString::STR_VERSTAT_FEATURE);
 
     if (bIsFeatureIncluded)

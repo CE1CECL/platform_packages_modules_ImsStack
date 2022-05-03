@@ -49,7 +49,7 @@ IMS_BOOL SIPDialogSharedState::AddDialog(IN SIPDialogEx *pDialogEx)
     if (nSharedState == SHARED_STATE_TERMINATED)
     {
         IMS_TRACE_D("INVALID STATE : adding a dialog usage for dialog (%s)",
-                SIPDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'),
+                SipDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'),
                 0, 0);
         return IMS_FALSE;
     }
@@ -57,7 +57,7 @@ IMS_BOOL SIPDialogSharedState::AddDialog(IN SIPDialogEx *pDialogEx)
     if (!objDialogExs.Append(pDialogEx))
     {
         IMS_TRACE_E(0, "Adding a dialog usage for dialog (%s) failed",
-                SIPDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'),
+                SipDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'),
                 0, 0);
         return IMS_FALSE;
     }
@@ -86,7 +86,7 @@ void SIPDialogSharedState::RemoveDialog(IN SIPDialogEx *pDialogEx)
     if (nSharedState != SHARED_STATE_ACTIVE)
     {
         IMS_TRACE_D("INVALID STATE : removing a dialog usage for dialog (%s)",
-                SIPDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'),
+                SipDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'),
                 0, 0);
         return;
     }

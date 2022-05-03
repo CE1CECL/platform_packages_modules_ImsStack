@@ -7,7 +7,7 @@
  * @brief This class provides a listener interface for the local DNS query for a test purpose
  *        or obtaining a real host address by the service enabler.
  */
-class ISIPLocalDnsQueryListener
+class ISipLocalDnsQueryListener
 {
 public:
     /**

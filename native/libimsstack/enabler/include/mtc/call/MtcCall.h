@@ -166,10 +166,10 @@ public:
     void SessionRPRDeliveryFailed(IN ISession* piSession) override;
     void SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
     void SessionTransactionReceived(
-            IN ISession* piSession, IN ISIPServerConnection* piSipServerConnection) override;
+            IN ISession* piSession, IN ISipServerConnection* piSipServerConnection) override;
 
     IMS_RESULT MessageMediator_AdjustMessage(
-            IN_OUT ISIPMessage* piSipMessage, IN IMS_SINT32 nMessage) override;
+            IN_OUT ISipMessage* piSipMessage, IN IMS_SINT32 nMessage) override;
 
     void OnTimerExpired(IN IMS_SINT32 nType) override;
 

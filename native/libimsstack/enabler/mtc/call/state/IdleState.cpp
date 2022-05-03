@@ -391,7 +391,7 @@ void IdleState::SetResourceListForConference(
     {
         return;
     }
-    objMessage.AddHeader(SIPHeaderName::CONTENT_TYPE, "multipart/mixed");
+    objMessage.AddHeader(SipHeaderName::CONTENT_TYPE, "multipart/mixed");
     // messageSender->SetResourceListsBody(pIMessage, AString::ConstNull(), lstEntryUris, IMS_TRUE);
 }
 
@@ -412,7 +412,7 @@ void IdleState::UpdateIncomingInformation(IN ISession* piSession)
     m_objContext.GetParticipantInfo().SetRemoteUri(strRemoteUri);
 
     AString strSessionId;
-    MessageUtil::GetHeader(piMessage, ISIPHeader::UNKNOWN, strSessionId, "Session-ID");
+    MessageUtil::GetHeader(piMessage, ISipHeader::UNKNOWN, strSessionId, "Session-ID");
     m_objContext.GetCallInfo().strSessionIdHeader = strSessionId;
 
     if (MessageUtil::IsFocusConf(piMessage))
@@ -423,7 +423,7 @@ void IdleState::UpdateIncomingInformation(IN ISession* piSession)
     }
 
     AString strContact;
-    MessageUtil::GetHeader(piMessage, ISIPHeader::CONTACT_NORMAL, strContact);
+    MessageUtil::GetHeader(piMessage, ISipHeader::CONTACT_NORMAL, strContact);
     m_objContext.GetCallInfo().bRttCapable = MessageUtil::ContainsTag(strContact, "text");
 }
 

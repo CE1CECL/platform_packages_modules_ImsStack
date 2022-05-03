@@ -108,11 +108,11 @@ IMS_BOOL SIPServerTransactionState::FormMessage()
     // Update the transport information
     if (!UpdateTransportDetails())
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FALSE;
     }
 
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
     SetFlowControlOption(objMethod);
 
@@ -125,7 +125,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPServerTransactionState::Send(IN SIPTimerValues *pTV /* = IMS_NULL */)
+IMS_BOOL SIPServerTransactionState::Send(IN SipTimerValues *pTV /* = IMS_NULL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -237,7 +237,7 @@ IMS_SINT32 SIPServerTransactionState::MatchTransaction(IN SipMessage *pSipMsg)
 
     /* Prepare User data */
     /* BSP_TODO: make sure stack store the pTxnContextData otherwise there is memory leak */
-    SIPMethod objMethod = SIPStack::GetMethod(pSipMsg);
+    SipMethod objMethod = SIPStack::GetMethod(pSipMsg);
 
     SipTxnContext *pstTxnContext = SIPStack::CreateTxnContext();
     if (pstTxnContext == IMS_NULL)
@@ -371,13 +371,13 @@ IMS_SINT32 SIPServerTransactionState::MatchTransaction(IN SipMessage *pSipMsg)
     then stack drop the message by returning ignore request */
     if ((pstTxnKey != IMS_NULL) && (pstTxnKey->GetTxnType()== ETXN_INVSERTXN))
     {
-        SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+        SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
-        if (objMethod.Equals(SIPMethod::ACK)
-            && (pstTxnKey->GetRespCode() >= SIPStatusCode::SC_300))
+        if (objMethod.Equals(SipMethod::ACK)
+            && (pstTxnKey->GetRespCode() >= SipStatusCode::SC_300))
         {
             IMS_TRACE_I("__UAS__ :: ___ ACK (%s) TO UNSUCCESSFUL FINAL RESPONSE ___",
-               SIPDebug::GetCharA1(pstTxnKey->GetCallId(), 8, '@'), 0, 0);
+               SipDebug::GetCharA1(pstTxnKey->GetCallId(), 8, '@'), 0, 0);
 
             // SIP_MESSAGE_TRACKER
             if (pFactoryProxy->IsMessageTrackerEnabled(GetSlotId()))
@@ -419,11 +419,11 @@ PUBLIC
 void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
         IN CONST AString &strReason /* = AString::ConstNull() */)
 {
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.ToInt() == SIPMethod::ACK)
+    if (objMethod.ToInt() == SipMethod::ACK)
     {
         // Do not anything ...
         return;
@@ -446,7 +446,7 @@ void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
     if (strReason.IsNULL())
     {
         if (!SIPStack::SetStatusLine(nStatusCode,
-                SIPStatusCode::GetReasonPhrase(nStatusCode), pstMessage))
+                SipStatusCode::GetReasonPhrase(nStatusCode), pstMessage))
         {
             IMS_TRACE_E(0, "Setting a status-line failed", 0, 0, 0);
             return;
@@ -473,15 +473,15 @@ void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
     //  In case of a second INVITE received before it sends the final response
     //  to a first INVITE with a lower
     //  CSeq sequence number on the same dialog.
-    if (objMethod.Equals(SIPMethod::INVITE)
-            && (nStatusCode == SIPStatusCode::SC_500)
+    if (objMethod.Equals(SipMethod::INVITE)
+            && (nStatusCode == SipStatusCode::SC_500)
             && (pDialogEx->GetState() != SIPDState::STATE_CONFIRMED))
     {
         // Sets randomly chosen value of between 1 and 10 seconds.
         AString strRA_Value;
-        strRA_Value.SetNumber(SIPHeaderUtil::GenerateRetryAfterSeconds(10));
+        strRA_Value.SetNumber(SipHeaderUtils::GenerateRetryAfterSeconds(10));
 
-        SipHeaderBase *pstHeader = SIPStack::DecodeHeader(ISIPHeader::RETRY_AFTER_SEC, strRA_Value);
+        SipHeaderBase *pstHeader = SIPStack::DecodeHeader(ISipHeader::RETRY_AFTER_SEC, strRA_Value);
 
         if (pstHeader != IMS_NULL)
         {
@@ -510,20 +510,20 @@ void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
 
     // Retry-After
     if ((!bIsRetryAfterPresent)
-            && ((nStatusCode == SIPStatusCode::SC_404)
-                || (nStatusCode == SIPStatusCode::SC_413)
-                || (nStatusCode == SIPStatusCode::SC_480)
-                || (nStatusCode == SIPStatusCode::SC_486)
-                || (nStatusCode == SIPStatusCode::SC_500)
-                || (nStatusCode == SIPStatusCode::SC_503)
-                || (nStatusCode == SIPStatusCode::SC_600)
-                || (nStatusCode == SIPStatusCode::SC_603)))
+            && ((nStatusCode == SipStatusCode::SC_404)
+                || (nStatusCode == SipStatusCode::SC_413)
+                || (nStatusCode == SipStatusCode::SC_480)
+                || (nStatusCode == SipStatusCode::SC_486)
+                || (nStatusCode == SipStatusCode::SC_500)
+                || (nStatusCode == SipStatusCode::SC_503)
+                || (nStatusCode == SipStatusCode::SC_600)
+                || (nStatusCode == SipStatusCode::SC_603)))
     {
         // Sets randomly chosen value of between 1 and 10 seconds.
         AString strRA_Value;
-        strRA_Value.SetNumber(SIPHeaderUtil::GenerateRetryAfterSeconds(10));
+        strRA_Value.SetNumber(SipHeaderUtils::GenerateRetryAfterSeconds(10));
 
-        SipHeaderBase *pstHeader = SIPStack::DecodeHeader(ISIPHeader::RETRY_AFTER_SEC, strRA_Value);
+        SipHeaderBase *pstHeader = SIPStack::DecodeHeader(ISipHeader::RETRY_AFTER_SEC, strRA_Value);
 
         if (pstHeader != IMS_NULL)
         {
@@ -539,20 +539,20 @@ void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
         }
     }
 
-    if (nStatusCode == SIPStatusCode::SC_405)
+    if (nStatusCode == SipStatusCode::SC_405)
     {
         // Sets the Allow header fields with all the supported methods
-        for (IMS_SINT32 i = 0; i < SIPMethod::MAX; ++i)
+        for (IMS_SINT32 i = 0; i < SipMethod::MAX; ++i)
         {
-            if ((i == SIPMethod::REGISTER)
-                    || (i == SIPMethod::PUBLISH)
-                    || (i == SIPMethod::UNKNOWN))
+            if ((i == SipMethod::REGISTER)
+                    || (i == SipMethod::PUBLISH)
+                    || (i == SipMethod::UNKNOWN))
             {
                 continue;
             }
 
             SipHeaderBase *pstHeader = SIPStack::DecodeHeader(
-                    ISIPHeader::ALLOW, SIPMethod::ToName(i));
+                    ISipHeader::ALLOW, SipMethod::ToName(i));
 
             if (pstHeader != IMS_NULL)
             {
@@ -570,25 +570,25 @@ void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
     }
 
     // Set a default User-Agent or Server header field
-    if (SIPConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
+    if (SipConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
     {
-        AString strUAString = SIPConfigProxy::GetUaString(GetSlotId(), GetSIPProfile());
+        AString strUAString = SipConfigProxy::GetUaString(GetSlotId(), GetSIPProfile());
 
         if (strUAString.GetLength() > 0)
         {
             AString strHName;
 
-            if (SIPConfigProxy::IsUserAgentSetByContext(GetSlotId(), GetSIPProfile()))
+            if (SipConfigProxy::IsUserAgentSetByContext(GetSlotId(), GetSIPProfile()))
             {
-                strHName = SIPHeaderName::SERVER;
+                strHName = SipHeaderName::SERVER;
             }
             else
             {
-                strHName = SIPHeaderName::USER_AGENT;
+                strHName = SipHeaderName::USER_AGENT;
             }
 
             SipHeaderBase *pstUserAgent = SIPStack::DecodeHeader(
-                    ISIPHeader::UNKNOWN, strHName, strUAString);
+                    ISipHeader::UNKNOWN, strHName, strUAString);
 
             if (pstUserAgent != IMS_NULL)
             {
@@ -609,14 +609,14 @@ void SIPServerTransactionState::RejectRequest(IN IMS_SINT32 nStatusCode,
     // Update the transaction timer values if the timer values need to be updated on runtime
     SIPStackState::GetInstance()->SetTransactionTimerValues(GetSlotId(), GetSIPProfile());
 
-    IMS_SINT32 nTxnType = SIPTimerValuesHelper::NON_INVITE_SERVER;
+    IMS_SINT32 nTxnType = SipTimerValuesHelper::NON_INVITE_SERVER;
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
-        nTxnType = SIPTimerValuesHelper::INVITE_SERVER;
+        nTxnType = SipTimerValuesHelper::INVITE_SERVER;
     }
 
-    SIPTimerValues objTVs = SIPTimerValuesHelper::GetValues(GetSlotId(),
+    SipTimerValues objTVs = SipTimerValuesHelper::GetValues(GetSlotId(),
             GetSIPProfile(), nTxnType);
 
     Send(&objTVs);
@@ -662,7 +662,7 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
 
     IMS_BOOL bIsForked = IMS_FALSE;
     SIPManager *pSIPMngr = SIPManager::GetInstance();
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
     SIPMessageInfo objMInfo(GetSlotId(),
             objMethod, pstMessage, SIPMessageInfo::DIRECTION_INCOMING);
 
@@ -672,7 +672,7 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
 
     // Checking for the case where the 2xx to SUBSCRIBE is received after NOTIFY
     // to the subscription, each of them being from different users i.e. SUBSCRIBE was forked.
-    if ((pOrigDState.IsNull()) && objMethod.Equals(SIPMethod::NOTIFY))
+    if ((pOrigDState.IsNull()) && objMethod.Equals(SipMethod::NOTIFY))
     {
         pOrigDState = pSIPMngr->LookupDialogState(
                         pTempDState.Get(), pstMessage, IMS_TRUE, &bIsForked);
@@ -710,21 +710,21 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
         // 2) The below requests are received after an INVITE dialog is destroyed.
         //   BYE, INFO, UPDATE, PRACK
         // 3) NOTIFY request is received after its SUBSCRIBE dialog is destroyed.
-        if (objMethod.Equals(SIPMethod::ACK))
+        if (objMethod.Equals(SipMethod::ACK))
         {
             //4 Send it to application ??? : 2xx is handled by UA Core
             // TRACE :: ACK request is received - DISCARD or JUST BYPASS ???
             return SIPPrivate::MESSAGE_DISCARDED;
         }
-        else if (objMethod.Equals(SIPMethod::NOTIFY)
-                || objMethod.Equals(SIPMethod::BYE)
-                || objMethod.Equals(SIPMethod::CANCEL)
-                || objMethod.Equals(SIPMethod::INFO)
-                || objMethod.Equals(SIPMethod::UPDATE)
-                || objMethod.Equals(SIPMethod::PRACK))
+        else if (objMethod.Equals(SipMethod::NOTIFY)
+                || objMethod.Equals(SipMethod::BYE)
+                || objMethod.Equals(SipMethod::CANCEL)
+                || objMethod.Equals(SipMethod::INFO)
+                || objMethod.Equals(SipMethod::UPDATE)
+                || objMethod.Equals(SipMethod::PRACK))
         {
-            RejectRequest(SIPStatusCode::SC_481);
-            SIPPrivate::SetLastError(SIPError::DIALOG_NOT_EXIST);
+            RejectRequest(SipStatusCode::SC_481);
+            SIPPrivate::SetLastError(SipError::DIALOG_NOT_EXIST);
 
             return SIPPrivate::MESSAGE_DISCARDED;
         }
@@ -737,8 +737,8 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
             if (strToTag.GetLength() > 0)
             {
                 IMS_TRACE_E(0, "To-tag is already present, but no existing dialog.", 0, 0, 0);
-                RejectRequest(SIPStatusCode::SC_481);
-                SIPPrivate::SetLastError(SIPError::DIALOG_NOT_EXIST);
+                RejectRequest(SipStatusCode::SC_481);
+                SIPPrivate::SetLastError(SipError::DIALOG_NOT_EXIST);
 
                 return SIPPrivate::MESSAGE_DISCARDED;
             }
@@ -751,8 +751,8 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
         {
             IMS_TRACE_E(0, "CSeq number is exceeded", 0, 0, 0);
 
-            RejectRequest(SIPStatusCode::SC_400);
-            SIPPrivate::SetLastError(SIPError::CSEQ_VALUE_EXCEEDED);
+            RejectRequest(SipStatusCode::SC_400);
+            SIPPrivate::SetLastError(SipError::CSEQ_VALUE_EXCEEDED);
 
             return SIPPrivate::MESSAGE_DISCARDED;
         }
@@ -762,14 +762,14 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
     {
         // The dialog is in EARLY state and this CANCEL is not related to the dialog,
         // so, the dialog for CANCEL is created with a default information...
-        if (objMethod.Equals(SIPMethod::CANCEL))
+        if (objMethod.Equals(SipMethod::CANCEL))
         {
             // Update the dialog details from INVITE-created dialog...
             pTempDState->InitDialogDetails(SIPDialogState::DIALOG_CANCELLED, pOrigDState.Get());
 
             pDialogEx = SIPDialogEx::CreateDialog(pTempDState.Get(), objMInfo);
         }
-        else if (bIsForked && objMethod.Equals(SIPMethod::NOTIFY))
+        else if (bIsForked && objMethod.Equals(SipMethod::NOTIFY))
         {
             // Update the dialog details from NOTIFY-created dialog...
             pTempDState->InitDialogDetails(
@@ -780,7 +780,7 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
             pOrigDialogEx = pOrigDState->GetDialogUsage(objMInfo);
         }
         // For abnormal case, BYE request received before receiving 1xx response to INVITE request
-        else if (objMethod.Equals(SIPMethod::BYE)
+        else if (objMethod.Equals(SipMethod::BYE)
                 && pOrigDState->IsCaller()
                 && (pOrigDState->GetState() == SIPDState::STATE_INIT))
         {
@@ -801,17 +801,17 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
             {
                 // If the subscribe dialog usage is not found for this NOTIFY request,
                 // then reject the request with 481 ...
-                if (objMethod.Equals(SIPMethod::NOTIFY))
+                if (objMethod.Equals(SipMethod::NOTIFY))
                 {
                     // Create a new dialog usage from this server transaction...
                     pDialogEx = SIPDialogEx::CreateDialog(pTempDState.Get(), objMInfo);
 
                     if (!pDialogEx.IsNull())
                     {
-                        RejectRequest(SIPStatusCode::SC_481);
+                        RejectRequest(SipStatusCode::SC_481);
                     }
 
-                    SIPPrivate::SetLastError(SIPError::DIALOG_NOT_EXIST);
+                    SIPPrivate::SetLastError(SipError::DIALOG_NOT_EXIST);
 
                     return SIPPrivate::MESSAGE_DISCARDED;
                 }
@@ -831,7 +831,7 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
 
         // Request-URI VALIDATION
 #ifdef __IMS_SIP_REQUEST_URI_VALIDATION__
-        if (!objMethod.Equals(SIPMethod::CANCEL))
+        if (!objMethod.Equals(SipMethod::CANCEL))
         {
             SipAddrSpec *pstAddrSpec = SIPStack::GetRequestUri(pstMessage);
             SipAddrSpec *pstLocalAddrSpec
@@ -845,8 +845,8 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
                 SIPStack::EncodeAddrSpec(pstAddrSpec, IMS_TRUE, strAddrSpec);
                 SIPStack::EncodeAddrSpec(pstLocalAddrSpec, IMS_TRUE, strLocalAddrSpec);
 
-                SIPAddress objAddress(strAddrSpec);
-                SIPAddress objLocalAddress(strLocalAddrSpec);
+                SipAddress objAddress(strAddrSpec);
+                SipAddress objLocalAddress(strLocalAddrSpec);
 
                 if (!objAddress.Equals(objLocalAddress))
                 {
@@ -854,12 +854,12 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
                     SIPStack::FreeAddrSpec(pstLocalAddrSpec);
 
                     IMS_TRACE_D("Request-URI (%s, %s) is not matched",
-                            SIPDebug::GetUri1(strLocalAddrSpec).GetStr(),
-                            SIPDebug::GetUri2(strAddrSpec).GetStr(), 0);
+                            SipDebug::GetUri1(strLocalAddrSpec).GetStr(),
+                            SipDebug::GetUri2(strAddrSpec).GetStr(), 0);
 
-                    if (!objMethod.Equals(SIPMethod::ACK))
+                    if (!objMethod.Equals(SipMethod::ACK))
                     {
-                        RejectRequest(SIPStatusCode::SC_404);
+                        RejectRequest(SipStatusCode::SC_404);
                     }
 
                     return SIPPrivate::MESSAGE_INVALID;
@@ -872,9 +872,9 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
 
                 IMS_TRACE_D("Request-URI is not matched", 0, 0, 0);
 
-                if (!objMethod.Equals(SIPMethod::ACK))
+                if (!objMethod.Equals(SipMethod::ACK))
                 {
-                    RejectRequest(SIPStatusCode::SC_404);
+                    RejectRequest(SipStatusCode::SC_404);
                 }
 
                 return SIPPrivate::MESSAGE_INVALID;
@@ -896,11 +896,11 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
             switch (nValidity)
             {
             case SIPPrivate::MESSAGE_INVALID_400:
-                RejectRequest(SIPStatusCode::SC_400);
+                RejectRequest(SipStatusCode::SC_400);
                 break;
 
             case SIPPrivate::MESSAGE_INVALID_500:
-                RejectRequest(SIPStatusCode::SC_500);
+                RejectRequest(SipStatusCode::SC_500);
                 break;
 
             default:
@@ -914,9 +914,9 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
     // METHOD INSPECTION
     //  In case of REGISTER & PUBLISH, it is not allowed in our device.
     //  So, if the method is REGISTER & PUBLISH, it will be rejected by the UA core.
-    if (objMethod.Equals(SIPMethod::REGISTER) || objMethod.Equals(SIPMethod::PUBLISH))
+    if (objMethod.Equals(SipMethod::REGISTER) || objMethod.Equals(SipMethod::PUBLISH))
     {
-        RejectRequest(SIPStatusCode::SC_405);
+        RejectRequest(SipStatusCode::SC_405);
         return SIPPrivate::MESSAGE_INVALID;
     }
 
@@ -932,15 +932,15 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
         switch (nValidity)
         {
         case SIPPrivate::MESSAGE_INVALID_400:
-            RejectRequest(SIPStatusCode::SC_400);
+            RejectRequest(SipStatusCode::SC_400);
             break;
 
         case SIPPrivate::MESSAGE_INVALID_481:
-            RejectRequest(SIPStatusCode::SC_481);
+            RejectRequest(SipStatusCode::SC_481);
             break;
 
         case SIPPrivate::MESSAGE_INVALID_500:
-            RejectRequest(SIPStatusCode::SC_500);
+            RejectRequest(SipStatusCode::SC_500);
             break;
 
         default:
@@ -952,7 +952,7 @@ IMS_SINT32 SIPServerTransactionState::HandleRequest(OUT RCPtr<SIPDialogEx> &pOri
 
     if (Is100TryingResponseRequired(objMethod))
     {
-        IMS_SINT32 nTV_100Trying = SIPConfigProxy::GetTimerValue100Trying(GetSlotId());
+        IMS_SINT32 nTV_100Trying = SipConfigProxy::GetTimerValue100Trying(GetSlotId());
 
         if (nTV_100Trying > 0)
         {
@@ -1011,12 +1011,12 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     SipHeaderBase *pstGetHdr;
     SipHeaderBase *pstHeader;
 
-    SIPMethod objMethod = SIPStack::GetMethod(pstLastMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstLastMessage);
 
     //---------------------------------------------------------------------------------------------
 
     // CSeq
-    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::CSEQ);
+    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::CSEQ);
 
     pstHeader = SIPStack::CloneHeader(pstGetHdr);
     SIPStack::FreeHeaderEx(pstGetHdr);
@@ -1033,7 +1033,7 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     }
 
     // From
-    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::FROM);
+    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::FROM);
 
     pstHeader = SIPStack::CloneHeader(pstGetHdr);
     SIPStack::FreeHeaderEx(pstGetHdr);
@@ -1050,7 +1050,7 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     }
 
     // To
-    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::TO);
+    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::TO);
 
     pstHeader = SIPStack::CloneHeader(pstGetHdr);
     SIPStack::FreeHeaderEx(pstGetHdr);
@@ -1058,18 +1058,18 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     if (pstHeader != IMS_NULL)
     {
         // Check if the tag is present, and if not present, insert a new tag value
-        if ((nStatusCode != SIPStatusCode::SC_100)
-                && !SIPStack::HasParameter(pstHeader, SIP::STR_TAG))
+        if ((nStatusCode != SipStatusCode::SC_100)
+                && !SIPStack::HasParameter(pstHeader, Sip::STR_TAG))
         {
             AString strTagVal = pDialogEx->GetDialogState()->GetLocalTag();
 
             if (strTagVal.IsNULL())
             {
                 strTagVal = SIPUtil::GenerateTag(
-                        SIPConfigProxy::GetTagPrefix(GetSlotId(), GetSIPProfile()));
+                        SipConfigProxy::GetTagPrefix(GetSlotId(), GetSIPProfile()));
             }
 
-            if (!SIPStack::SetParameter(pstHeader, SIP::STR_TAG, strTagVal))
+            if (!SIPStack::SetParameter(pstHeader, Sip::STR_TAG, strTagVal))
             {
                 SIPStack::FreeHeaderEx(pstHeader);
                 return IMS_FALSE;
@@ -1086,7 +1086,7 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     }
 
     // Call-ID
-    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::CALL_ID);
+    pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::CALL_ID);
 
     pstHeader = SIPStack::CloneHeader(pstGetHdr);
     SIPStack::FreeHeaderEx(pstGetHdr);
@@ -1103,11 +1103,11 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     }
 
     // Via headers with the same order
-    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstLastMessage, ISIPHeader::VIA);
+    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstLastMessage, ISipHeader::VIA);
 
     for (IMS_SINT32 i = 0; i < nHCount; ++i)
     {
-        pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::VIA, i);
+        pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::VIA, i);
 
         if (SIPStack::IsValidHeader(pstGetHdr))
         {
@@ -1122,13 +1122,13 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     }
 
     // Record-Route headers with the same order
-    if (SIPStatusCode::IsProvisional(nStatusCode) || SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsProvisional(nStatusCode) || SipStatusCode::IsFinalSuccess(nStatusCode))
     {
-        nHCount = SIPStack::GetHeaderCount(pstLastMessage, ISIPHeader::RECORD_ROUTE);
+        nHCount = SIPStack::GetHeaderCount(pstLastMessage, ISipHeader::RECORD_ROUTE);
 
         for (IMS_SINT32 i = 0; i < nHCount; ++i)
         {
-            pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::RECORD_ROUTE, i);
+            pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::RECORD_ROUTE, i);
 
             if (SIPStack::IsValidHeader(pstGetHdr))
             {
@@ -1145,7 +1145,7 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
 
     // Contact
     IMS_BOOL bContactInAll1xxRequired
-            = SIPConfigProxy::IsContactInAll1xxRequired(GetSlotId(), GetSIPProfile());
+            = SipConfigProxy::IsContactInAll1xxRequired(GetSlotId(), GetSIPProfile());
 
     if (SIPDialogState::IsContactMandatory(SIPMessage::TYPE_RESPONSE,
             objMethod, nStatusCode, bContactInAll1xxRequired))
@@ -1175,10 +1175,10 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
 
         // If Contact header is not inserted, sets the Contact header to a default contact.
         if (!bContactHeaderInserted
-                && !objMethod.Equals(SIPMethod::MESSAGE)
+                && !objMethod.Equals(SipMethod::MESSAGE)
                 && (strDefaultContact.GetLength() > 0))
         {
-            pstHeader = SIPStack::DecodeHeader(ISIPHeader::CONTACT_NORMAL, strDefaultContact);
+            pstHeader = SIPStack::DecodeHeader(ISipHeader::CONTACT_NORMAL, strDefaultContact);
 
             if (pstHeader != IMS_NULL)
             {
@@ -1194,9 +1194,9 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
     }
 
     // Timestamp header field, RFC 3261
-    if (nStatusCode == SIPStatusCode::SC_100)
+    if (nStatusCode == SipStatusCode::SC_100)
     {
-        pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISIPHeader::TIMESTAMP);
+        pstGetHdr = SIPStack::GetHeader(pstLastMessage, ISipHeader::TIMESTAMP);
 
         if (SIPStack::IsValidHeader(pstGetHdr))
         {
@@ -1210,7 +1210,7 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
         SIPStack::FreeHeaderEx(pstGetHdr);
     }
     // HEADER_REQ_SESSION-ID
-    else if (SIPFeatures::IsHeaderSessionIdRequired(GetSlotId()))
+    else if (SipFeatures::IsHeaderSessionIdRequired(GetSlotId()))
     {
         SIPDialogState *pDState = pDialogEx->GetDialogState();
         AString strSessionId = pDState->GetSessionId();
@@ -1222,9 +1222,9 @@ IMS_BOOL SIPServerTransactionState::InitResponse(IN IMS_SINT32 nStatusCode,
 
         if (strSessionId.GetLength() > 0)
         {
-            const AString SESSION_ID(SIPHeaderName::SESSION_ID);
+            const AString SESSION_ID(SipHeaderName::SESSION_ID);
             SipHeaderBase *pstSessionId = SIPStack::DecodeHeader(
-                    ISIPHeader::UNKNOWN, SESSION_ID, strSessionId);
+                    ISipHeader::UNKNOWN, SESSION_ID, strSessionId);
 
             if (pstSessionId != IMS_NULL)
             {
@@ -1245,7 +1245,7 @@ Remarks
 PRIVATE
 IMS_BOOL SIPServerTransactionState::UpdateTxnDetails()
 {
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
     SIPMessageInfo objMInfo(GetSlotId(),
             objMethod, pstMessage, SIPMessageInfo::DIRECTION_OUTGOING);
 
@@ -1267,14 +1267,14 @@ Remarks
 
 */
 PRIVATE GLOBAL
-IMS_BOOL SIPServerTransactionState::Is100TryingResponseRequired(IN CONST SIPMethod &objMethod)
+IMS_BOOL SIPServerTransactionState::Is100TryingResponseRequired(IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
     // The INVITE server transaction MUST generate a 100 (Trying) response unless it knows
     // that the TU will generate a provisional or final response within 200 ms, in which case
     // it MAY generate a 100 (Trying) response.
-    return objMethod.Equals(SIPMethod::INVITE);
+    return objMethod.Equals(SipMethod::INVITE);
 }
 
 /*
@@ -1297,9 +1297,9 @@ IMS_RESULT SIPServerTransactionState::SendResponse100Trying(
     }
 
     // Set the status code
-    AString strPhrase = SIPStatusCode::GetReasonPhrase(SIPStatusCode::SC_100);
+    AString strPhrase = SipStatusCode::GetReasonPhrase(SipStatusCode::SC_100);
 
-    if (!SIPStack::SetStatusLine(SIPStatusCode::SC_100, strPhrase, pstMessage100Trying))
+    if (!SIPStack::SetStatusLine(SipStatusCode::SC_100, strPhrase, pstMessage100Trying))
     {
         SIPStack::FreeMessage(pstMessage100Trying);
 
@@ -1308,7 +1308,7 @@ IMS_RESULT SIPServerTransactionState::SendResponse100Trying(
     }
 
     // Initialize a default header field from the previous request message
-    if (!pSTState->InitResponse(SIPStatusCode::SC_100, pstMessage100Trying))
+    if (!pSTState->InitResponse(SipStatusCode::SC_100, pstMessage100Trying))
     {
         SIPStack::FreeMessage(pstMessage100Trying);
 

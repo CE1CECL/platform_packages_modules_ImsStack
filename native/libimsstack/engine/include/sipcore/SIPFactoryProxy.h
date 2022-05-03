@@ -15,11 +15,11 @@
 
 #include "IMSTypeDef.h"
 
-class ISIPTokenGenerator;
+class ISipTokenGenerator;
 class SIPIPSecState;
 class SIPMessageTracker;
 class SIPPacketTracker;
-class SIPRoutingRejectNotifier;
+class SipRoutingRejectNotifier;
 class SIPRTConfigHelper;
 class SIPTransportHelper;
 class SIPFactoryProxyPrivate;
@@ -37,11 +37,11 @@ public:
     SIPIPSecState* GetIPSecState(IN IMS_SINT32 nSlotId);
     SIPMessageTracker* GetMessageTracker(IN IMS_SINT32 nSlotId);
     SIPPacketTracker* GetPacketTracker(IN IMS_SINT32 nSlotId);
-    SIPRoutingRejectNotifier* GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId);
-    SIPRTConfigHelper* GetRTConfigHelper(IN IMS_SINT32 nSlotId);
+    SipRoutingRejectNotifier* GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId);
+    SIPRTConfigHelper* GetRtConfigHelper(IN IMS_SINT32 nSlotId);
     SIPTransportHelper* GetTransportHelper(IN IMS_SINT32 nSlotId);
     void SetTokenGenerator(IN IMS_SINT32 nSlotId,
-            IN ISIPTokenGenerator* piTokenGenerator);
+            IN ISipTokenGenerator* piTokenGenerator);
 
     IMS_BOOL IsIPSecStateEnabled(IN IMS_SINT32 nSlotId) const;
     IMS_BOOL IsMessageTrackerEnabled(IN IMS_SINT32 nSlotId) const;

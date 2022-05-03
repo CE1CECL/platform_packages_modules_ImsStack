@@ -1204,7 +1204,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 SDPOAState::HandleOfferAnswer(IN CONST ISIPMessage *piSIPMsg)
+IMS_SINT32 SDPOAState::HandleOfferAnswer(IN CONST ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1216,7 +1216,7 @@ IMS_SINT32 SDPOAState::HandleOfferAnswer(IN CONST ISIPMessage *piSIPMsg)
 
     // In case of any pending SDP answer, the message may not include the SDP message body.
     // So, in here, checks the message if it includes the body or not
-    ISIPMessageBodyPart *piBodyPart = piSIPMsg->GetSDPBodyPart();
+    ISipMessageBodyPart *piBodyPart = piSIPMsg->GetSdpBodyPart();
 
     if (piBodyPart == IMS_NULL)
     {
@@ -1233,7 +1233,7 @@ IMS_SINT32 SDPOAState::HandleOfferAnswer(IN CONST ISIPMessage *piSIPMsg)
     if (!objParser.Decode(strSDP))
     {
         IMS_TRACE_E(0, "Decoding SDP message failed\r\n-----> SDP\r\n%s",
-                SIPDebug::GetCharA1(strSDP.GetStr(), 32, '\n'), 0, 0);
+                SipDebug::GetCharA1(strSDP.GetStr(), 32, '\n'), 0, 0);
 
         // OA_STATE_ROLLBACK_FOR_MALFORMED_SDP
         if ((nState == STATE_ESTABLISHED)
@@ -1432,12 +1432,12 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow,
+IMS_BOOL SDPOAState::UpdateState(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow,
         IN IMS_BOOL bIsCallEstablished, IN IMS_BOOL bAllowOAForNonRPR /* = IMS_FALSE */)
 {
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
     IMS_SINT32 nTrigger = TRIGGER_NONE;
-    IMS_BOOL bMessageWithSDP = (piSIPMsg->GetSDPBodyPart() != IMS_NULL) ? IMS_TRUE : IMS_FALSE;
+    IMS_BOOL bMessageWithSDP = (piSIPMsg->GetSdpBodyPart() != IMS_NULL) ? IMS_TRUE : IMS_FALSE;
 
     //---------------------------------------------------------------------------------------------
 
@@ -1451,16 +1451,16 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
 
     switch (objMethod.ToInt())
     {
-    case SIPMethod::INVITE:
+    case SipMethod::INVITE:
         nTrigger = TRIGGER_INVITE;
         break;
-    case SIPMethod::ACK:
+    case SipMethod::ACK:
         nTrigger = TRIGGER_ACK;
         break;
-    case SIPMethod::PRACK:
+    case SipMethod::PRACK:
         nTrigger = TRIGGER_PRACK;
         break;
-    case SIPMethod::UPDATE:
+    case SipMethod::UPDATE:
         nTrigger = TRIGGER_UPDATE;
         break;
 
@@ -1474,19 +1474,19 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
     IMS_SINT32 nOldState = GetState();
     IMS_SINT32 nType = piSIPMsg->GetType();
 
-    if (nType == ISIPMessage::TYPE_RESPONSE)
+    if (nType == ISipMessage::TYPE_RESPONSE)
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if (nStatusCode == SIPStatusCode::SC_100)
+        if (nStatusCode == SipStatusCode::SC_100)
         {
             // No Offer/Answer state transition.
             IMS_TRACE_D("SDP Offer/Answer :: No state transition (100 Trying)", 0, 0, 0);
             return IMS_TRUE;
         }
-        else if (SIPStatusCode::IsProvisional(nStatusCode))
+        else if (SipStatusCode::IsProvisional(nStatusCode))
         {
-            IMS_BOOL bIsRPR = piSIPMsg->IsMessageRPR();
+            IMS_BOOL bIsRPR = piSIPMsg->IsMessageRpr();
 
             // We check if the media state is established.
             // If so, we also check if an answer was already received before.
@@ -1513,7 +1513,7 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
             else
                 nTrigger = TRIGGER_PROVISIONAL_RESP;
         }
-        else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        else if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             // Special case:
             //    1. When a 200 to INVITE goes after the provisional response
@@ -1526,7 +1526,7 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
             if (nOldState == STATE_ESTABLISHED)
             {
                 if ((bProvisionalRespWithSdp == IMS_TRUE)
-                        && (objMethod.Equals(SIPMethod::INVITE)))
+                        && (objMethod.Equals(SipMethod::INVITE)))
                 {
                     // We revert back the flag now.
                     // This is because the transaction is complete now.
@@ -1547,7 +1547,7 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
         else
         {
             if ((bProvisionalRespWithSdp == IMS_TRUE)
-                    && (objMethod.Equals(SIPMethod::INVITE)))
+                    && (objMethod.Equals(SipMethod::INVITE)))
             {
                 // We revert back the flag now.
                 // This is because the transaction is complete now.
@@ -1586,15 +1586,15 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
 
     // 401/407 response to non-INVITE will be ignored when transiting the SDP Offer/Answer state
     if ((nMessageFlow == MESSAGE_RECEIVED)
-            && (nTrigger == TRIGGER_FAILURE_RESP) && (!objMethod.Equals(SIPMethod::INVITE)))
+            && (nTrigger == TRIGGER_FAILURE_RESP) && (!objMethod.Equals(SipMethod::INVITE)))
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if ((nStatusCode == SIPStatusCode::SC_401) || (nStatusCode == SIPStatusCode::SC_407))
+        if ((nStatusCode == SipStatusCode::SC_401) || (nStatusCode == SipStatusCode::SC_407))
         {
             IMS_TRACE_D("SDP Offer/Answer :: Ignored; It will be resubmitted ...", 0, 0, 0);
 
-            if (bIsCallEstablished && objMethod.Equals(SIPMethod::UPDATE))
+            if (bIsCallEstablished && objMethod.Equals(SipMethod::UPDATE))
             {
                 // Do not ignore the message in case of non-Early UPDATE
             }
@@ -1649,7 +1649,7 @@ IMS_BOOL SDPOAState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 n
             return IMS_FALSE;
         }
 
-        if (objMethod.Equals(SIPMethod::UPDATE)
+        if (objMethod.Equals(SipMethod::UPDATE)
                 && (nTrigger == TRIGGER_SUCCESS_RESP)
                 && (nUpdateState == STATE_OFFER_CHANGE_RECEIVED))
         {
@@ -1704,14 +1704,14 @@ Remarks
 */
 PUBLIC
 void SDPOAState::UpdateStateOnTransactionCompleted(
-        IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow)
+        IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow)
 {
     //---------------------------------------------------------------------------------------------
 
     (void) nMessageFlow;
 
-    if (piSIPMsg->GetMethod().Equals(SIPMethod::INVITE)
-            && SIPStatusCode::IsFinal(piSIPMsg->GetStatusCode()))
+    if (piSIPMsg->GetMethod().Equals(SipMethod::INVITE)
+            && SipStatusCode::IsFinal(piSIPMsg->GetStatusCode()))
     {
         if (bProvisionalRespWithSdp)
         {

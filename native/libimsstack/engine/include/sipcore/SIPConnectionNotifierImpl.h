@@ -17,13 +17,13 @@
 #include "IOnSIPServerConnectionListener.h"
 #include "IOnSIPConnectionNotifierErrorListener.h"
 
-class ISIPServerConnectionListener;
+class ISipServerConnectionListener;
 class SIPConnectionNotifier;
 
 
 
 class SIPConnectionNotifierImpl
-    : public ISIPConnectionNotifier
+    : public ISipConnectionNotifier
     , public IOnSIPServerConnectionListener
     , public IOnSIPConnectionNotifierErrorListener
 {
@@ -42,16 +42,16 @@ private:
     // IConnection interface
     virtual void Close();
 
-    // ISIPConnectionNotifier interface
-    virtual ISIPServerConnection* AcceptAndOpen();
+    // ISipConnectionNotifier interface
+    virtual ISipServerConnection* AcceptAndOpen();
     virtual const IPAddress& GetLocalAddress() const;
     virtual IMS_SINT32 GetLocalPort() const;
-    virtual void SetListener(IN ISIPServerConnectionListener *piListener);
+    virtual void SetListener(IN ISipServerConnectionListener *piListener);
     //// IMS extensions
-    virtual ISIPServerConnection* AcceptAndOpen(OUT ISIPDialog *&piOrigDialog);
+    virtual ISipServerConnection* AcceptAndOpen(OUT ISipDialog *&piOrigDialog);
     virtual AString GetContactAddress() const;
     // MULTI_REG_SIP_PROFILE
-    virtual SIPProfile* GetSIPProfile() const;
+    virtual SipProfile* GetSipProfile() const;
     virtual IMS_SINT32 GetSlotId() const;
     virtual IMS_BOOL IsTransportResourceReserved(
             IN IMS_SINT32 nType = TRANSPORT_ALL) const;
@@ -63,11 +63,11 @@ private:
     virtual void SetFromAndContact(IN CONST AString &strFrom,
             IN CONST AString &strDisplayName, IN CONST AString &strUserInfo);
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
+    virtual void SetSipProfile(IN SipProfile *pProfile);
     virtual void UpdatePortFlowControl(IN IMS_SINT32 nPort);
-    virtual void UpdatePortUC(IN IMS_SINT32 nPort);
-    virtual void AddErrorListener(IN ISIPConnectionNotifierErrorListener *piListener);
-    virtual void RemoveErrorListener(IN ISIPConnectionNotifierErrorListener *piListener);
+    virtual void UpdatePortUc(IN IMS_SINT32 nPort);
+    virtual void AddErrorListener(IN ISipConnectionNotifierErrorListener *piListener);
+    virtual void RemoveErrorListener(IN ISipConnectionNotifierErrorListener *piListener);
 
     // IOnSIPServerConnectionListener interface
     virtual void OnServerConnection_NotifyRequest(IN SIPConnectionNotifier *pSCN);
@@ -78,8 +78,8 @@ private:
             IN IMS_SINT32 nCode, IN CONST AString &strMessage);
 
 private:
-    ISIPServerConnectionListener *piListener;
-    IMSList<ISIPConnectionNotifierErrorListener*> objErrorListeners;
+    ISipServerConnectionListener *piListener;
+    IMSList<ISipConnectionNotifierErrorListener*> objErrorListeners;
 
     SIPConnectionNotifier *pSCN;
 };

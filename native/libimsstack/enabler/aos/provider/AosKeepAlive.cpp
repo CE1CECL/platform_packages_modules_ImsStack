@@ -48,7 +48,7 @@ AosKeepAlive::AosKeepAlive(IN IMS_SINT32 nSlotId_)
     IMS_TRACE_MEM("AOS_MEM", "AOS_M : [SLOT%d] AosKeepAlive = %" PFLS_u "/%" PFLS_x, nSlotId,
         sizeof(AosKeepAlive), this);
 
-    piKAHelper = SIPFactory::CreateKeepAliveHelper(nSlotId) ;
+    piKAHelper = SipFactory::CreateKeepAliveHelper(nSlotId) ;
 
     strTag.Sprintf("%d", nSlotId);
 }

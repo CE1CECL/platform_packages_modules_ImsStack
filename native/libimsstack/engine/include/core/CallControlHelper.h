@@ -41,7 +41,7 @@ public:
     Replaces* GetReplacesFromSessionId(IN CONST AString &strSessionId);
     const AString& GetSessionIdFromReplaces(IN CONST Replaces *pReplaces);
 
-    static Replaces* CreateReplaces(IN IMS_BOOL bMO, IN ISIPDialog *piDialog);
+    static Replaces* CreateReplaces(IN IMS_BOOL bMO, IN ISipDialog *piDialog);
     static const AString CreateSessionId();
     static CallControlHelper* GetInstance();
 

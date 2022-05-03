@@ -7,12 +7,12 @@
 /**
  * @brief This class defines the classes for the SIP runtime configurations.
  *
- * @see ISIPRTConfigHelper
+ * @see ISipRtConfigHelper
  */
-class SIPRTConfig
+class SipRtConfig
 {
 private:
-    SIPRTConfig();
+    SipRtConfig();
 
 public:
     /// Configuration items which are configured on the runtime
@@ -38,16 +38,16 @@ public:
         CONFIG_I_TCP_KEEP_INTERVAL,
         // TCP_OPTIONS }
 
-        /// Parameter : IPQoS class
+        /// Parameter : IpQos class
         CONFIG_I_IP_QOS,
 
         /// Parameter : Header class
         CONFIG_I_SIP_HEADER,
 
-        /// Parameter : IPSecSA class
+        /// Parameter : IpSecSa class
         CONFIG_I_IPSEC_SA,
 
-        /// Parameter : TCPPortRange class
+        /// Parameter : TcpPortRange class
         CONFIG_I_TCP_PORT_RANGE,
 
         /// Parameter : RegContactAddress class
@@ -148,21 +148,21 @@ public:
         IMS_SINT32 nPort;
     };
 
-    /// IPQoS class for IP-level QoS configuration
-    class IPQoS
+    /// IpQos class for IP-level QoS configuration
+    class IpQos
         : public Base
     {
     public:
-        IPQoS();
-        IPQoS(IN CONST IPQoS &objRHS);
-        virtual ~IPQoS();
+        IpQos();
+        IpQos(IN CONST IpQos &objRHS);
+        virtual ~IpQos();
 
     public:
-        IPQoS& operator=(IN CONST IPQoS &objRHS);
+        IpQos& operator=(IN CONST IpQos &objRHS);
 
     public:
         /**
-         * @brief Checks if both IPQoS are the same or not.
+         * @brief Checks if both IpQos are the same or not.
          *
          * @return If both are the same, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
          */
@@ -206,21 +206,21 @@ public:
         AString strParameter;
     };
 
-    /// IPSec SA (security association)
-    class IPSecSA
+    /// IpSec SA (security association)
+    class IpSecSa
         : public Base
     {
     public:
-        IPSecSA();
-        IPSecSA(IN CONST IPSecSA &objRHS);
-        virtual ~IPSecSA();
+        IpSecSa();
+        IpSecSa(IN CONST IpSecSa &objRHS);
+        virtual ~IpSecSa();
 
     public:
-        IPSecSA& operator=(IN CONST IPSecSA &objRHS);
+        IpSecSa& operator=(IN CONST IpSecSa &objRHS);
 
     public:
         /**
-         * @brief Checks if both IPSecSA are the same or not.
+         * @brief Checks if both IpSecSa are the same or not.
          *
          * @return If both are the same, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
          */
@@ -230,45 +230,45 @@ public:
          *
          * @return The port number.
          */
-        inline IMS_SINT32 GetPortPC() const
+        inline IMS_SINT32 GetPortPc() const
         { return nPortPC; }
         /**
          * @brief Gets the port-s for P-CSCF.
          *
          * @return The port number.
          */
-        inline IMS_SINT32 GetPortPS() const
+        inline IMS_SINT32 GetPortPs() const
         { return nPortPS; }
         /**
          * @brief Gets the IP address for P-CSCF.
          *
          * @return The IP address.
          */
-        inline const IPAddress& GetIPP() const
+        inline const IPAddress& GetIpAddrP() const
         { return objIPP; }
         /**
          * @brief Gets the port-c for UE.
          *
          * @return The port number.
          */
-        inline IMS_SINT32 GetPortUC() const
+        inline IMS_SINT32 GetPortUc() const
         { return nPortUC; }
         /**
          * @brief Gets the port-s for UE.
          *
          * @return The port number.
          */
-        inline IMS_SINT32 GetPortUS() const
+        inline IMS_SINT32 GetPortUs() const
         { return nPortUS; }
         /**
          * @brief Gets the IP address for UE.
          *
          * @return The IP address.
          */
-        inline const IPAddress& GetIPU() const
+        inline const IPAddress& GetIpAddrU() const
         { return objIPU; }
         /**
-         * @brief Checks if it's empty IPSec SA or not.
+         * @brief Checks if it's empty IpSec SA or not.
          *
          * @return If all the port numbers are zero, returns IMS_TRUE.
          *         Otherwise, returns IMS_FALSE.
@@ -292,20 +292,20 @@ public:
     };
 
     /// The configuration for port range of TCP client connection
-    class TCPPortRange
+    class TcpPortRange
         : public Base
     {
     public:
-        TCPPortRange();
-        TCPPortRange(IN CONST TCPPortRange &objRHS);
-        virtual ~TCPPortRange();
+        TcpPortRange();
+        TcpPortRange(IN CONST TcpPortRange &objRHS);
+        virtual ~TcpPortRange();
 
     public:
-        TCPPortRange& operator=(IN CONST TCPPortRange &objRHS);
+        TcpPortRange& operator=(IN CONST TcpPortRange &objRHS);
 
     public:
         /**
-         * @brief Checks if both TCPPortRange are the same or not.
+         * @brief Checks if both TcpPortRange are the same or not.
          *
          * @return If both are the same, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
          */
@@ -363,14 +363,14 @@ public:
          *
          * @return The Contact address.
          */
-        inline const SIPAddress& GetUri() const
+        inline const SipAddress& GetUri() const
         { return objUri; }
 
     public:
         /// M (SET/REMOVE) : Call-ID to identify the current IMS registration
         AString strCallId;
         /// M (SET) : Contact address for the current IMS registration
-        SIPAddress objUri;
+        SipAddress objUri;
     };
 };
 

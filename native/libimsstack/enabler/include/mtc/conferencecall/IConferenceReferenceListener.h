@@ -10,7 +10,7 @@ public:
     virtual void OnReferenceStarted(IN IConferenceReference* piConfRef) = 0;
     virtual void OnReferenceStartFailed(IN IConferenceReference* pConfRef) = 0;
     virtual void OnReferenceUpdated(IN IConferenceReference* piConfRef,
-            IN SIPStatusCode nSipFragCode, IN ReferSubscriptionState eState) = 0;
+            IN SipStatusCode nSipFragCode, IN ReferSubscriptionState eState) = 0;
 };
 
 #endif

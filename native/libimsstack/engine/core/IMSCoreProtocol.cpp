@@ -76,7 +76,7 @@ IService* IMSCoreProtocol::CreateService(IN const AString &strAppId,
 
     if (strUserId.GetLength() > 0)
     {
-        IMS_TRACE_D("CoreService - userId=%s", SIPDebug::GetUri1(strUserId).GetStr(), 0, 0);
+        IMS_TRACE_D("CoreService - userId=%s", SipDebug::GetUri1(strUserId).GetStr(), 0, 0);
     }
 
     ConfigurationManager* pConfigMngr = ConfigurationManager::GetInstance();
@@ -128,12 +128,12 @@ IService* IMSCoreProtocol::CreateService(IN const AString &strAppId,
 
     if (!strUserId.IsNULL() && !strUserId.IsEmpty())
     {
-        SIPAddress objUserId;
+        SipAddress objUserId;
 
         if (!objUserId.Create(strUserId))
         {
-            IMS_TRACE_E(0, "The userId (%s) parameter is invalid :: SIPError (%d)",
-                    SIPDebug::GetUri1(strUserId).GetStr(), SIPError::GetLastError(), 0);
+            IMS_TRACE_E(0, "The userId (%s) parameter is invalid :: SipError (%d)",
+                    SipDebug::GetUri1(strUserId).GetStr(), SipError::GetLastError(), 0);
             return IMS_NULL;
         }
 

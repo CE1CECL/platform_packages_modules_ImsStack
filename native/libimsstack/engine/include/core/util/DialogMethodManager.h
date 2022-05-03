@@ -17,7 +17,7 @@
 #include "IMSMap.h"
 
 class IMutex;
-class ISIPServerConnection;
+class ISipServerConnection;
 class IDialogMethod;
 
 
@@ -39,10 +39,10 @@ public:
     static DialogMethodManager* GetInstance();
 
 private:
-    IMS_BOOL HandleRequestWithinDialog(IN ISIPServerConnection *piSSC);
+    IMS_BOOL HandleRequestWithinDialog(IN ISipServerConnection *piSSC);
     // In case of receiving a forked request ...
-    IMS_BOOL HandleRequestWithinDialog(IN ISIPServerConnection *piSSC,
-            IN ISIPDialog *piOrigDialog);
+    IMS_BOOL HandleRequestWithinDialog(IN ISipServerConnection *piSSC,
+            IN ISipDialog *piOrigDialog);
 
 private:
     friend class SIPConnectionNotifierManagerPrivate;

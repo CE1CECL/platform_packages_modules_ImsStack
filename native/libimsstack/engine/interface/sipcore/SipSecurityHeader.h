@@ -4,24 +4,24 @@
 #include "IMSMap.h"
 #include "AString.h"
 
-class ISIPHeader;
+class ISipHeader;
 
 /**
  * @brief This class provides an interface to access/control SIP security headers.
  *
- * @see ISIPHeader
+ * @see ISipHeader
  */
-class SIPSecurityHeader
+class SipSecurityHeader
 {
 public:
-    explicit SIPSecurityHeader(IN IMS_SINT32 nMechanism_ = MECHANISM_IPSEC_3GPP,
+    explicit SipSecurityHeader(IN IMS_SINT32 nMechanism_ = MECHANISM_IPSEC_3GPP,
             IN CONST AString &strMechanism_ = AString::ConstNull(),
             IN IMS_BOOL bParameterRequired_ = IMS_TRUE);
-    SIPSecurityHeader(IN CONST SIPSecurityHeader &objRHS);
-    ~SIPSecurityHeader();
+    SipSecurityHeader(IN CONST SipSecurityHeader &objRHS);
+    ~SipSecurityHeader();
 
 public:
-    SIPSecurityHeader& operator=(IN CONST SIPSecurityHeader &objRHS);
+    SipSecurityHeader& operator=(IN CONST SipSecurityHeader &objRHS);
 
 public:
     /**
@@ -94,13 +94,13 @@ public:
      *
      * @return A security parameter index.
      */
-    IMS_UINT32 GetSPIC() const;
+    IMS_UINT32 GetSpiC() const;
     /**
      * @brief Gets the security parameter index for server side.
      *
      * @return A security parameter index.
      */
-    IMS_UINT32 GetSPIS() const;
+    IMS_UINT32 GetSpiS() const;
     /**
      * @brief Gets the extension parameters.
      *
@@ -189,14 +189,14 @@ public:
      * @param bSPI_3GPP Flag to indicate that the SPI value is compliant with 3GPP or not
      *                  If it's IMS_TRUE, it's compliant with 3GPP specification.
      */
-    void SetSPI(IN IMS_UINT32 nSPIC, IN IMS_UINT32 nSPIS, IN IMS_BOOL bSPI_3GPP = IMS_TRUE);
+    void SetSpi(IN IMS_UINT32 nSPIC, IN IMS_UINT32 nSPIS, IN IMS_BOOL bSPI_3GPP = IMS_TRUE);
     /**
      * @brief Sets the option of the security parameter index.
      *
      * @param bSPI_3GPP Flag to indicate that the SPI value is compliant with 3GPP or not
      *                  If it's IMS_TRUE, it's compliant with 3GPP specification.
      */
-    void SetSPIOption(IN IMS_BOOL bSPI_3GPP);
+    void SetSpiOption(IN IMS_BOOL bSPI_3GPP);
     /**
      * @brief Sets the extension parameter.
      *
@@ -229,11 +229,11 @@ public:
     AString ToString() const;
 
     /**
-     * @brief Creates SIPSecurityHeader object from SIP security header.
+     * @brief Creates SipSecurityHeader object from SIP security header.
      *
-     * @return The newly created SIPSecurityHeader.
+     * @return The newly created SipSecurityHeader.
      */
-    static SIPSecurityHeader* FromSIPHeader(IN ISIPHeader *piHeader);
+    static SipSecurityHeader* FromSipHeader(IN ISipHeader *piHeader);
 
 public:
     /// Pre-defined parameters\n

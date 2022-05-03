@@ -56,7 +56,7 @@ __IMS_TRACE_TAG_IMS__;
 
 PUBLIC
 Service::Service(IN CONST AString &strScheme_, IN CONST AString& strAppId_,
-        IN CONST AString &strServiceId_, IN CONST SIPAddress *pIMPU_ /* = IMS_NULL */)
+        IN CONST AString &strServiceId_, IN CONST SipAddress *pIMPU_ /* = IMS_NULL */)
     : Connection()
     , strScheme(strScheme_)
     , strAppId(strAppId_)
@@ -68,7 +68,7 @@ Service::Service(IN CONST AString &strScheme_, IN CONST AString& strAppId_,
     // MULTI_REG_SIP_PROFILE
     , pSIPProfile(IMS_NULL)
     , bFlag_ProvisionedUserId(IMS_FALSE)
-    , objAuthorizedUserIds(IMSList<ISIPHeader*>())
+    , objAuthorizedUserIds(IMSList<ISipHeader*>())
     , nFeatureTags(ISipConfigV::FEATURE_TAG_DEFAULT)
     , objAcceptContacts(IMSList<PreferenceHeader*>())
     , pCallerCapability(IMS_NULL)
@@ -123,7 +123,7 @@ Service::~Service()
 
     for (IMS_UINT32 i = 0; i < objAuthorizedUserIds.GetSize(); ++i)
     {
-        ISIPHeader *piHeader = objAuthorizedUserIds.GetAt(i);
+        ISipHeader *piHeader = objAuthorizedUserIds.GetAt(i);
 
         if (piHeader != IMS_NULL)
         {
@@ -287,11 +287,11 @@ Remarks
 
 */
 PUBLIC
-ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
-        IN CONST SIPAddress *pTo, IN CONST SIPMethod &objMethod,
+ISipClientConnection* Service::CreateConnection(IN CONST SipAddress *pFrom,
+        IN CONST SipAddress *pTo, IN CONST SipMethod &objMethod,
         IN IMS_BOOL bPrivacy /* = IMS_FALSE */)
 {
-    ISIPClientConnection *piSCC;
+    ISipClientConnection *piSCC;
 
     //---------------------------------------------------------------------------------------------
 
@@ -308,12 +308,12 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
     }
 
     // Checks if the method is allowed
-    if (objMethod.Equals(SIPMethod::ACK)
-            || objMethod.Equals(SIPMethod::CANCEL)
-            || objMethod.Equals(SIPMethod::BYE)
-            || objMethod.Equals(SIPMethod::INFO)
-            || objMethod.Equals(SIPMethod::UPDATE)
-            || objMethod.Equals(SIPMethod::PRACK))
+    if (objMethod.Equals(SipMethod::ACK)
+            || objMethod.Equals(SipMethod::CANCEL)
+            || objMethod.Equals(SipMethod::BYE)
+            || objMethod.Equals(SipMethod::INFO)
+            || objMethod.Equals(SipMethod::UPDATE)
+            || objMethod.Equals(SipMethod::PRACK))
     {
         IMS::SetLastError(IMSError::INVALID_OPERATION);
         return IMS_NULL;
@@ -323,16 +323,16 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
     AString strTarget = pTo->ToString();
 
     IMS_TRACE_D("Service::CreateConnection() - To (%s), Method (%s)",
-            SIPDebug::GetUri1(strTarget).GetStr(),
+            SipDebug::GetUri1(strTarget).GetStr(),
             objMethod.ToString().GetStr(), 0);
 
-    if (!pTo->IsSchemeSIP() && !pTo->IsSchemeSIPS())
+    if (!pTo->IsSchemeSip() && !pTo->IsSchemeSips())
     {
         bOverwriteTarget = IMS_TRUE;
         strTarget = ImsIdentity::GetAnonymousUserId();
     }
 
-    piSCC = DYNAMIC_CAST(ISIPClientConnection*, Connector::Open(strTarget));
+    piSCC = DYNAMIC_CAST(ISipClientConnection*, Connector::Open(strTarget));
 
     if (piSCC == IMS_NULL)
     {
@@ -343,7 +343,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
     }
 
     // MULTI_REG_SIP_PROFILE
-    piSCC->SetSIPProfile(GetSIPProfile());
+    piSCC->SetSipProfile(GetSIPProfile());
 
     IMS_SINT32 nPortS = piRegBinding->GetPortUS();
     IMS_SINT32 nPortC = piRegBinding->GetPortUC();
@@ -356,14 +356,14 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
             piRegBinding->GetTransportExt());
 
     // Sets the transaction timer values
-    IMS_SINT32 nTxnType = SIPTimerValuesHelper::NON_INVITE_CLIENT;
+    IMS_SINT32 nTxnType = SipTimerValuesHelper::NON_INVITE_CLIENT;
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
-        nTxnType = SIPTimerValuesHelper::INVITE_CLIENT;
+        nTxnType = SipTimerValuesHelper::INVITE_CLIENT;
     }
 
-    piSCC->SetTransactionTimerValues(SIPTimerValuesHelper::GetValues(
+    piSCC->SetTransactionTimerValues(SipTimerValuesHelper::GetValues(
             GetSlotId(), GetSIPProfile(), nTxnType));
 
     if (piSCC->InitRequest(objMethod.ToString(), IMS_NULL) != IMS_SUCCESS)
@@ -375,10 +375,10 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
         return IMS_NULL;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Sets From header field
-    if (piSIPMsg->SetHeader(ISIPHeader::FROM, pFrom->ToString()) != IMS_SUCCESS)
+    if (piSIPMsg->SetHeader(ISipHeader::FROM, pFrom->ToString()) != IMS_SUCCESS)
     {
         piSCC->Close();
         IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -391,7 +391,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
     {
         strTarget = pTo->ToString();
 
-        if (piSCC->SetRequestURI(strTarget) != IMS_SUCCESS)
+        if (piSCC->SetRequestUri(strTarget) != IMS_SUCCESS)
         {
             piSCC->Close();
             IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -401,7 +401,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
         }
 
         // Sets To header field
-        if (piSIPMsg->SetHeader(ISIPHeader::TO, strTarget) != IMS_SUCCESS)
+        if (piSIPMsg->SetHeader(ISipHeader::TO, strTarget) != IMS_SUCCESS)
         {
             piSCC->Close();
             IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -413,18 +413,18 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
 
     // Sets Contact header fields:
     // INVITE, NOTIFY, OPTIONS, SUBSCRIBE, UPDATE, REGISTER, REFER, PUBLISH
-    if (objMethod.Equals(SIPMethod::INVITE)
-            || objMethod.Equals(SIPMethod::OPTIONS)
-            || objMethod.Equals(SIPMethod::SUBSCRIBE)
-            || objMethod.Equals(SIPMethod::REFER)
-            || objMethod.Equals(SIPMethod::PUBLISH))
+    if (objMethod.Equals(SipMethod::INVITE)
+            || objMethod.Equals(SipMethod::OPTIONS)
+            || objMethod.Equals(SipMethod::SUBSCRIBE)
+            || objMethod.Equals(SipMethod::REFER)
+            || objMethod.Equals(SipMethod::PUBLISH))
     {
         AString strContact;
         IMS_BOOL bIsContactGRUU = IMS_FALSE;
 
         FormContactHeader(objMethod, bPrivacy, IMS_TRUE, strContact, bIsContactGRUU);
 
-        if (piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContact) != IMS_SUCCESS)
+        if (piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContact) != IMS_SUCCESS)
         {
             piSCC->Close();
             IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -435,7 +435,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
 
         if (bIsContactGRUU)
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, SIP::STR_GRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, Sip::STR_GRUU);
         }
     }
 
@@ -444,7 +444,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
     {
         const PreferenceHeader *pHeader = objAcceptContacts.GetAt(i);
 
-        if (piSIPMsg->AddHeader(ISIPHeader::ACCEPT_CONTACT, pHeader->ToString()) != IMS_SUCCESS)
+        if (piSIPMsg->AddHeader(ISipHeader::ACCEPT_CONTACT, pHeader->ToString()) != IMS_SUCCESS)
         {
             piSCC->Close();
             IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -461,7 +461,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
 
     for (j = 0; j < objServiceRoutes.GetCount(); ++j)
     {
-        if (piSIPMsg->AddHeader(ISIPHeader::ROUTE,
+        if (piSIPMsg->AddHeader(ISipHeader::ROUTE,
                 objServiceRoutes.GetElementAt(j)) != IMS_SUCCESS)
         {
             piSCC->Close();
@@ -481,7 +481,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
 
         for (j = 0; j < objMethods.GetCount(); ++j)
         {
-            if (piSIPMsg->AddHeader(ISIPHeader::ALLOW, objMethods.GetElementAt(j)) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::ALLOW, objMethods.GetElementAt(j)) != IMS_SUCCESS)
             {
                 piSCC->Close();
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -505,9 +505,9 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
     }
 
     // Sets User-Agent header field
-    if (SIPConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
+    if (SipConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
     {
-        UserAgentHeader::SetHeader(SIPHeaderName::USER_AGENT,
+        UserAgentHeader::SetHeader(SipHeaderName::USER_AGENT,
                 GetSIPProfile(), GetServiceId(), GetIPAddress(), GetSlotId(), piSIPMsg);
     }
 
@@ -526,7 +526,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
         {
             const AString &strHeader = objSecurityClients.GetElementAt(i);
 
-            if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_CLIENT, strHeader) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::SECURITY_CLIENT, strHeader) != IMS_SUCCESS)
             {
                 piSCC->Close();
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -543,7 +543,7 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
         {
             const AString &strHeader = objSecurityVerifys.GetElementAt(i);
 
-            if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_VERIFY, strHeader) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::SECURITY_VERIFY, strHeader) != IMS_SUCCESS)
             {
                 piSCC->Close();
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -555,9 +555,9 @@ ISIPClientConnection* Service::CreateConnection(IN CONST SIPAddress *pFrom,
 
         if (!objSecurityVerifys.IsEmpty())
         {
-            piSIPMsg->AddHeader(ISIPHeader::REQUIRE, SIP::STR_SEC_AGREE);
-            piSIPMsg->AddHeader(ISIPHeader::UNKNOWN,
-                    SIP::STR_SEC_AGREE, SIPHeaderName::PROXY_REQUIRE);
+            piSIPMsg->AddHeader(ISipHeader::REQUIRE, Sip::STR_SEC_AGREE);
+            piSIPMsg->AddHeader(ISipHeader::UNKNOWN,
+                    Sip::STR_SEC_AGREE, SipHeaderName::PROXY_REQUIRE);
         }
     }
     // }
@@ -573,10 +573,10 @@ Remarks
 
 */
 PUBLIC
-ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
-        IN CONST SIPMethod &objMethod, IN IMS_BOOL bPrivacy /* = IMS_FALSE */)
+ISipClientConnection* Service::CreateConnection(IN ISipDialog *piDialog,
+        IN CONST SipMethod &objMethod, IN IMS_BOOL bPrivacy /* = IMS_FALSE */)
 {
-    ISIPClientConnection *piSCC = IMS_NULL;
+    ISipClientConnection *piSCC = IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
@@ -598,18 +598,18 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
     }
 
     // Checks if the method is allowed
-    if (objMethod.Equals(SIPMethod::ACK)
-            || objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::ACK)
+            || objMethod.Equals(SipMethod::CANCEL))
     {
         IMS::SetLastError(IMSError::INVALID_OPERATION);
         return IMS_NULL;
     }
 
     // BYE_REQUEST_ON_DIALOG_TERMINATED
-    AString strDialogId = piDialog->GetDialogIDEx();
+    AString strDialogId = piDialog->GetDialogIdEx();
 
     IMS_TRACE_I("Service::CreateConnection() - Dialog (%s), Method (%s)",
-            SIPDebug::GetCharA1(strDialogId.GetStr(), 8, '@'),
+            SipDebug::GetCharA1(strDialogId.GetStr(), 8, '@'),
             objMethod.ToString().GetStr(), 0);
 
     piSCC = piDialog->GetNewClientConnection(objMethod.ToString());
@@ -618,13 +618,13 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
     {
         IMS::SetLastError(IMSError::NO_MEMORY);
 
-        IMS_TRACE_E(0, "Creating a new SIP connection failed - SIPError (%d)",
-                SIPError::GetLastError(), 0, 0);
+        IMS_TRACE_E(0, "Creating a new SIP connection failed - SipError (%d)",
+                SipError::GetLastError(), 0, 0);
         return IMS_NULL;
     }
 
     // MULTI_REG_SIP_PROFILE
-    piSCC->SetSIPProfile(GetSIPProfile());
+    piSCC->SetSipProfile(GetSIPProfile());
 
     IMS_SINT32 nPortS = IsRegBindingOnActive() ? \
             piRegBinding->GetPortUS() : objCachedRegBinding.GetPortUS();
@@ -650,22 +650,22 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
     }
 
     // Sets the transaction timer values
-    IMS_SINT32 nTxnType = SIPTimerValuesHelper::NON_INVITE_CLIENT;
+    IMS_SINT32 nTxnType = SipTimerValuesHelper::NON_INVITE_CLIENT;
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
-        nTxnType = SIPTimerValuesHelper::INVITE_CLIENT;
+        nTxnType = SipTimerValuesHelper::INVITE_CLIENT;
     }
 
-    piSCC->SetTransactionTimerValues(SIPTimerValuesHelper::GetValues(
+    piSCC->SetTransactionTimerValues(SipTimerValuesHelper::GetValues(
             GetSlotId(), GetSIPProfile(), nTxnType));
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // CALLER_PREFERENCE_MANAGER
     // Sets Accept-Contact header fields
-    if(!(SIPConfigProxy::IsNoAcceptContactHeaderInBYE(GetSlotId(), GetSIPProfile())
-            && piSIPMsg->GetMethod().Equals(SIPMethod::BYE)))
+    if(!(SipConfigProxy::IsNoAcceptContactHeaderInBye(GetSlotId(), GetSIPProfile())
+            && piSIPMsg->GetMethod().Equals(SipMethod::BYE)))
     {
         const IMSList<AString> &objAcceptContactsInDialog =
                 CallerPreferenceManager::GetInstance()->GetAcceptContacts(strDialogId);
@@ -676,7 +676,7 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
             {
                 const AString &strHeader = objAcceptContactsInDialog.GetAt(i);
 
-                if (piSIPMsg->AddHeader(ISIPHeader::ACCEPT_CONTACT, strHeader) != IMS_SUCCESS)
+                if (piSIPMsg->AddHeader(ISipHeader::ACCEPT_CONTACT, strHeader) != IMS_SUCCESS)
                 {
                     piSCC->Close();
                     IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -692,7 +692,7 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
             {
                 const PreferenceHeader *pHeader = objAcceptContacts.GetAt(i);
 
-                if (piSIPMsg->AddHeader(ISIPHeader::ACCEPT_CONTACT,
+                if (piSIPMsg->AddHeader(ISipHeader::ACCEPT_CONTACT,
                         pHeader->ToString()) != IMS_SUCCESS)
                 {
                     piSCC->Close();
@@ -714,7 +714,7 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
 
         for (IMS_SINT32 j = 0; j < objMethods.GetCount(); ++j)
         {
-            if (piSIPMsg->AddHeader(ISIPHeader::ALLOW, objMethods.GetElementAt(j)) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::ALLOW, objMethods.GetElementAt(j)) != IMS_SUCCESS)
             {
                 piSCC->Close();
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -738,9 +738,9 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
     }
 
     // Sets User-Agent header field
-    if (SIPConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
+    if (SipConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
     {
-        UserAgentHeader::SetHeader(SIPHeaderName::USER_AGENT,
+        UserAgentHeader::SetHeader(SipHeaderName::USER_AGENT,
                 GetSIPProfile(), GetServiceId(), GetIPAddress(), GetSlotId(), piSIPMsg);
     }
 
@@ -748,7 +748,7 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
     PAccessNetworkInfoHeader::SetHeader(GetSlotId(), GetIPAddress(), GetSIPProfile(), piSIPMsg);
 
     // In case of PRACK method, then do not contain the Security related headers.
-    if (objMethod.Equals(SIPMethod::PRACK))
+    if (objMethod.Equals(SipMethod::PRACK))
     {
         IMS::SetLastError(IMSError::NO_ERROR);
 
@@ -768,7 +768,7 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
         {
             const AString &strHeader = objSecurityClients.GetElementAt(i);
 
-            if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_CLIENT, strHeader) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::SECURITY_CLIENT, strHeader) != IMS_SUCCESS)
             {
                 piSCC->Close();
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -786,7 +786,7 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
         {
             const AString &strHeader = objSecurityVerifys.GetElementAt(i);
 
-            if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_VERIFY, strHeader) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::SECURITY_VERIFY, strHeader) != IMS_SUCCESS)
             {
                 piSCC->Close();
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -798,18 +798,18 @@ ISIPClientConnection* Service::CreateConnection(IN ISIPDialog *piDialog,
 
         if (!objSecurityVerifys.IsEmpty())
         {
-            piSIPMsg->AddHeader(ISIPHeader::REQUIRE, SIP::STR_SEC_AGREE);
-            piSIPMsg->AddHeader(ISIPHeader::UNKNOWN,
-                    SIP::STR_SEC_AGREE, SIPHeaderName::PROXY_REQUIRE);
+            piSIPMsg->AddHeader(ISipHeader::REQUIRE, Sip::STR_SEC_AGREE);
+            piSIPMsg->AddHeader(ISipHeader::UNKNOWN,
+                    Sip::STR_SEC_AGREE, SipHeaderName::PROXY_REQUIRE);
         }
     }
     // }
 
-    if (objMethod.Equals(SIPMethod::INVITE)
-            || objMethod.Equals(SIPMethod::REFER)
-            || objMethod.Equals(SIPMethod::SUBSCRIBE)
-            || objMethod.Equals(SIPMethod::UPDATE)
-            || objMethod.Equals(SIPMethod::NOTIFY))
+    if (objMethod.Equals(SipMethod::INVITE)
+            || objMethod.Equals(SipMethod::REFER)
+            || objMethod.Equals(SipMethod::SUBSCRIBE)
+            || objMethod.Equals(SipMethod::UPDATE)
+            || objMethod.Equals(SipMethod::NOTIFY))
     {
         SetGRUUOptionTagInMidDialog(piDialog, piSIPMsg);
     }
@@ -825,15 +825,15 @@ Remarks
 
 */
 PUBLIC
-ISIPClientConnection* Service::CreateCancelConnection(IN ISIPClientConnection* piSCC)
+ISipClientConnection* Service::CreateCancelConnection(IN ISipClientConnection* piSCC)
 {
     if (piSCC == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ISIPClientConnection is null", 0, 0, 0);
+        IMS_TRACE_E(0, "ISipClientConnection is null", 0, 0, 0);
         return IMS_NULL;
     }
 
-    ISIPClientConnection *piCancelSCC = piSCC->InitCancel();
+    ISipClientConnection *piCancelSCC = piSCC->InitCancel();
 
     if (piCancelSCC == IMS_NULL)
     {
@@ -867,7 +867,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
+IMS_BOOL Service::CreateResponse(IN_OUT ISipServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
         IN CONST AString &strPhrase /* = AString::ConstNull() */,
         IN IMS_BOOL bPrivacy /* = IMS_FALSE */)
 {
@@ -878,8 +878,8 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
 
     if (piSSC->InitResponse(nStatusCode) != IMS_SUCCESS)
     {
-        IMS_TRACE_E(0, "Initializing a SIP response failed - SIPError(%d)",
-                SIPError::GetLastError(), 0, 0);
+        IMS_TRACE_E(0, "Initializing a SIP response failed - SipError(%d)",
+                SipError::GetLastError(), 0, 0);
 
         IMS::SetLastError(IMSError::GENERAL_ERROR);
         return IMS_FALSE;
@@ -888,20 +888,20 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
     // MULTI_REG_SIP_PROFILE
     if (!pSIPProfile.IsNull())
     {
-        piSSC->SetSIPProfile(pSIPProfile.Get());
+        piSSC->SetSipProfile(pSIPProfile.Get());
     }
 
-    const SIPMethod &objMethod = piSSC->GetMethod();
+    const SipMethod &objMethod = piSSC->GetMethod();
 
     // Sets the transaction timer values
-    IMS_SINT32 nTxnType = SIPTimerValuesHelper::NON_INVITE_SERVER;
+    IMS_SINT32 nTxnType = SipTimerValuesHelper::NON_INVITE_SERVER;
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
-        nTxnType = SIPTimerValuesHelper::INVITE_SERVER;
+        nTxnType = SipTimerValuesHelper::INVITE_SERVER;
     }
 
-    piSSC->SetTransactionTimerValues(SIPTimerValuesHelper::GetValues(
+    piSSC->SetTransactionTimerValues(SipTimerValuesHelper::GetValues(
             GetSlotId(), GetSIPProfile(), nTxnType));
 
     // Sets the reason phrase if present
@@ -911,19 +911,19 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
     }
 
     // In case of CANCEL response, do not perform any more operations.
-    if (objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::CANCEL))
     {
         IMS::SetLastError(IMSError::NO_ERROR);
         return IMS_TRUE;
     }
 
-    ISIPMessage *piSIPMsg = piSSC->GetMessage();
+    ISipMessage *piSIPMsg = piSSC->GetMessage();
 
-    if ((nStatusCode > SIPStatusCode::SC_100)
-            && (nStatusCode < SIPStatusCode::SC_300))
+    if ((nStatusCode > SipStatusCode::SC_100)
+            && (nStatusCode < SipStatusCode::SC_300))
     {
-        IMS_SINT32 nDialogState = ISIPDialog::STATE_INIT;
-        ISIPDialog *piDialog = piSSC->GetDialog();
+        IMS_SINT32 nDialogState = ISipDialog::STATE_INIT;
+        ISipDialog *piDialog = piSSC->GetDialog();
 
         if (piDialog != IMS_NULL)
         {
@@ -934,19 +934,19 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
         // INVITE, NOTIFY, OPTIONS, SUBSCRIBE, UPDATE, REGISTER, REFER, PUBLISH
         // OPTIONS case: it will be handled in Capabilities class.
         // In the other situation, J180 will set the Contact header when initializing the response.
-        if ((nDialogState != ISIPDialog::STATE_EARLY)
-                && (nDialogState != ISIPDialog::STATE_CONFIRMED)
-                && (objMethod.Equals(SIPMethod::INVITE)
-                    || objMethod.Equals(SIPMethod::REFER)
-                    || objMethod.Equals(SIPMethod::SUBSCRIBE)
-                    || objMethod.Equals(SIPMethod::NOTIFY)))
+        if ((nDialogState != ISipDialog::STATE_EARLY)
+                && (nDialogState != ISipDialog::STATE_CONFIRMED)
+                && (objMethod.Equals(SipMethod::INVITE)
+                    || objMethod.Equals(SipMethod::REFER)
+                    || objMethod.Equals(SipMethod::SUBSCRIBE)
+                    || objMethod.Equals(SipMethod::NOTIFY)))
         {
             AString strContact;
             IMS_BOOL bIsContactGRUU = IMS_FALSE;
 
             FormContactHeader(objMethod, bPrivacy, IMS_FALSE, strContact, bIsContactGRUU);
 
-            if (piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContact) != IMS_SUCCESS)
+            if (piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContact) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Setting Contact header failed", 0, 0, 0);
                 IMS::SetLastError(IMSError::GENERAL_ERROR);
@@ -955,14 +955,14 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
 
             if (bIsContactGRUU)
             {
-                piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, SIP::STR_GRUU);
+                piSIPMsg->AddHeader(ISipHeader::SUPPORTED, Sip::STR_GRUU);
             }
         }
-        else if (objMethod.Equals(SIPMethod::INVITE)
-                || objMethod.Equals(SIPMethod::REFER)
-                || objMethod.Equals(SIPMethod::SUBSCRIBE)
-                || objMethod.Equals(SIPMethod::UPDATE)
-                || objMethod.Equals(SIPMethod::NOTIFY))
+        else if (objMethod.Equals(SipMethod::INVITE)
+                || objMethod.Equals(SipMethod::REFER)
+                || objMethod.Equals(SipMethod::SUBSCRIBE)
+                || objMethod.Equals(SipMethod::UPDATE)
+                || objMethod.Equals(SipMethod::NOTIFY))
         {
             SetGRUUOptionTagInMidDialog(piDialog, piSIPMsg);
         }
@@ -976,7 +976,7 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
 
             for (IMS_SINT32 j = 0; j < objMethods.GetCount(); ++j)
             {
-                if (piSIPMsg->AddHeader(ISIPHeader::ALLOW,
+                if (piSIPMsg->AddHeader(ISipHeader::ALLOW,
                         objMethods.GetElementAt(j)) != IMS_SUCCESS)
                 {
                     IMS_TRACE_E(0, "Adding Allow header failed", 0, 0, 0);
@@ -987,7 +987,7 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
 
             // Sets P-Preferred-Identity (except for REGISTER) header fields
             // This header will not be included in the response except for INVITE
-            if (objMethod.Equals(SIPMethod::INVITE))
+            if (objMethod.Equals(SipMethod::INVITE))
             {
                 if (!SetPPreferredIdentityHeader(pSipConfigV->GetPreferredId(), piSIPMsg))
                 {
@@ -1000,23 +1000,23 @@ IMS_BOOL Service::CreateResponse(IN_OUT ISIPServerConnection *piSSC, IN IMS_SINT
     }
 
     // Sets P-Access-Network-Info header field
-    if (!objMethod.Equals(SIPMethod::CANCEL) && (nStatusCode > SIPStatusCode::SC_100))
+    if (!objMethod.Equals(SipMethod::CANCEL) && (nStatusCode > SipStatusCode::SC_100))
     {
         PAccessNetworkInfoHeader::SetHeader(GetSlotId(),
                 GetIPAddress(), GetSIPProfile(), piSIPMsg);
     }
 
     // Sets Server header field - User-Agent ?
-    if (SIPConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
+    if (SipConfigProxy::IsUserAgentConfigured(GetSlotId(), GetSIPProfile()))
     {
-        if (SIPConfigProxy::IsUserAgentSetByContext(GetSlotId(), GetSIPProfile()))
+        if (SipConfigProxy::IsUserAgentSetByContext(GetSlotId(), GetSIPProfile()))
         {
-            UserAgentHeader::SetHeader(SIPHeaderName::SERVER,
+            UserAgentHeader::SetHeader(SipHeaderName::SERVER,
                     GetSIPProfile(), GetServiceId(), GetIPAddress(), GetSlotId(), piSIPMsg);
         }
         else
         {
-            UserAgentHeader::SetHeader(SIPHeaderName::USER_AGENT,
+            UserAgentHeader::SetHeader(SipHeaderName::USER_AGENT,
                     GetSIPProfile(), GetServiceId(), GetIPAddress(), GetSlotId(), piSIPMsg);
         }
     }
@@ -1032,7 +1032,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::InitAck(IN ISIPClientConnection* piSCC)
+IMS_BOOL Service::InitAck(IN ISipClientConnection* piSCC)
 {
     if (piSCC->InitAck() != IMS_SUCCESS)
     {
@@ -1089,7 +1089,7 @@ Remarks
 
 */
 PUBLIC
-IMS_UINT32 Service::EvaluateFilterCriteria(IN CONST ISIPMessage *piSIPMsg) const
+IMS_UINT32 Service::EvaluateFilterCriteria(IN CONST ISipMessage *piSIPMsg) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1203,21 +1203,21 @@ const AString& Service::GetAssociatedURI(IN IMS_SINT32 nScheme) const
         return AString::ConstNull();
     }
 
-    if (nScheme == SIP::URI_SCHEME_TEL)
+    if (nScheme == Sip::URI_SCHEME_TEL)
     {
         for (IMS_UINT32 i = 0; i < objAuthorizedUserIds.GetSize(); ++i)
         {
-            ISIPHeader *piHeader = objAuthorizedUserIds.GetAt(i);
+            ISipHeader *piHeader = objAuthorizedUserIds.GetAt(i);
 
             if (piHeader == IMS_NULL)
                 continue;
 
-            const SIPAddress *pAddress = piHeader->GetSIPAddress();
+            const SipAddress *pAddress = piHeader->GetSipAddress();
 
             if (pAddress == IMS_NULL)
                 continue;
 
-            if (pAddress->IsSchemeTEL())
+            if (pAddress->IsSchemeTel())
             {
                 if (static_cast<IMS_SINT32>(i) < objAssociatedURIs.GetCount())
                 {
@@ -1226,21 +1226,21 @@ const AString& Service::GetAssociatedURI(IN IMS_SINT32 nScheme) const
             }
         }
     }
-    else if (nScheme == SIP::URI_SCHEME_SIP)
+    else if (nScheme == Sip::URI_SCHEME_SIP)
     {
         for (IMS_UINT32 i = 0; i < objAuthorizedUserIds.GetSize(); ++i)
         {
-            ISIPHeader *piHeader = objAuthorizedUserIds.GetAt(i);
+            ISipHeader *piHeader = objAuthorizedUserIds.GetAt(i);
 
             if (piHeader == IMS_NULL)
                 continue;
 
-            const SIPAddress *pAddress = piHeader->GetSIPAddress();
+            const SipAddress *pAddress = piHeader->GetSipAddress();
 
             if (pAddress == IMS_NULL)
                 continue;
 
-            if (pAddress->IsSchemeSIP())
+            if (pAddress->IsSchemeSip())
             {
                 if (static_cast<IMS_SINT32>(i) < objAssociatedURIs.GetCount())
                 {
@@ -1277,7 +1277,7 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress& Service::GetAuthorizedUserId() const
+const SipAddress& Service::GetAuthorizedUserId() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1313,13 +1313,13 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress& Service::GetContactAddress() const
+const SipAddress& Service::GetContactAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (!IsImsConnected())
     {
-        return SIPAddress::ConstNull();
+        return SipAddress::ConstNull();
     }
 
     return piRegBinding->GetContactAddress();
@@ -1331,7 +1331,7 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress* Service::GetContactAddressForOutgoingMessage() const
+const SipAddress* Service::GetContactAddressForOutgoingMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1349,9 +1349,9 @@ Remarks
 
 */
 PUBLIC
-ISIPHeader* Service::GetContactHeader(
+ISipHeader* Service::GetContactHeader(
         IN IMS_BOOL bPrivacy /* = IMS_FALSE */, IN IMS_BOOL bRequest /* = IMS_TRUE */,
-        IN IMS_SINT32 nSIPMethod /* = (-1) SIPMethod::INVALID */) const
+        IN IMS_SINT32 nSIPMethod /* = (-1) SipMethod::INVALID */) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1361,20 +1361,20 @@ ISIPHeader* Service::GetContactHeader(
     }
 
     AString strContact;
-    SIPMethod objMethod;
+    SipMethod objMethod;
 
     switch (nSIPMethod)
     {
-    case SIPMethod::INVITE:
-    case SIPMethod::SUBSCRIBE:
-    case SIPMethod::REFER:
-    case SIPMethod::NOTIFY:
-    case SIPMethod::OPTIONS:
-    case SIPMethod::PUBLISH:
+    case SipMethod::INVITE:
+    case SipMethod::SUBSCRIBE:
+    case SipMethod::REFER:
+    case SipMethod::NOTIFY:
+    case SipMethod::OPTIONS:
+    case SipMethod::PUBLISH:
         objMethod = nSIPMethod;
         break;
     default:
-        objMethod = static_cast<IMS_SINT32>(SIPMethod::INVALID);
+        objMethod = static_cast<IMS_SINT32>(SipMethod::INVALID);
         break;
     }
 
@@ -1384,7 +1384,7 @@ ISIPHeader* Service::GetContactHeader(
 
     (void) bIsContactGRUU;
 
-    return SIPParsingHelper::CreateHeader(ISIPHeader::CONTACT_NORMAL, strContact);
+    return SipParsingHelper::CreateHeader(ISipHeader::CONTACT_NORMAL, strContact);
 }
 
 /*
@@ -1393,7 +1393,7 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress& Service::GetDefaultUserId() const
+const SipAddress& Service::GetDefaultUserId() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1432,7 +1432,7 @@ Remarks
 
 */
 PUBLIC
-const SIPParameter* Service::GetInstanceParameter() const
+const SipParameter* Service::GetInstanceParameter() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1506,7 +1506,7 @@ Remarks
 PROTECTED
 const ISipConfigV* Service::GetISipConfigV() const
 {
-    return SIPConfigProxy::GetSipConfigV(GetSlotId());
+    return SipConfigProxy::GetSipConfigV(GetSlotId());
 }
 
 /*
@@ -1515,7 +1515,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-SIPProfile* Service::GetSIPProfile() const
+SipProfile* Service::GetSIPProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1551,7 +1551,7 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress* Service::GetPublicGRUU() const
+const SipAddress* Service::GetPublicGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1569,7 +1569,7 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress* Service::GetTemporaryGRUU() const
+const SipAddress* Service::GetTemporaryGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1587,13 +1587,13 @@ Remarks
 
 */
 PUBLIC
-const IMSList<SIPAddress*>& Service::GetTemporaryGRUUs() const
+const IMSList<SipAddress*>& Service::GetTemporaryGRUUs() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (piRegBinding == IMS_NULL)
     {
-        return SIPAddress::ConstEmptyList();
+        return SipAddress::ConstEmptyList();
     }
 
     return piRegBinding->GetTemporaryGRUUs();
@@ -1805,7 +1805,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::NotifyRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL Service::NotifyRequest(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1818,7 +1818,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::SendResponse(IN ISIPServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
+IMS_BOOL Service::SendResponse(IN ISipServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
         IN CONST AString &strPhrase /* = AString::ConstNull() */)
 {
     //---------------------------------------------------------------------------------------------
@@ -1859,7 +1859,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-void Service::SetSIPProfile(IN SIPProfile *pProfile)
+void Service::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1898,12 +1898,12 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::ValidateMethod(IN CONST SIPMethod &objMethod)
+IMS_BOOL Service::ValidateMethod(IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
     // Handle a specific behavior for an incoming INVITE request
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
         // If the service does not support any media, it can't receive any incoming INVITE request
         if (!(pAppConfig->IsStreamMediaAudioSupported()
@@ -1935,8 +1935,8 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
-        IN ISIPDialog *piDialog /* = IMS_NULL */,
+IMS_BOOL Service::ValidateRequestURI(IN CONST SipAddress &objRequestURI,
+        IN ISipDialog *piDialog /* = IMS_NULL */,
         IN IMS_BOOL bIsMidDialogRequest /* = IMS_FALSE */)
 {
     //---------------------------------------------------------------------------------------------
@@ -1944,17 +1944,17 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
     if (bIsMidDialogRequest)
     {
         // Checks GRUU identities if it is supported
-        if (SIPConfigProxy::IsGRUUConfigured(GetSlotId(), GetSIPProfile()))
+        if (SipConfigProxy::IsGruuConfigured(GetSlotId(), GetSIPProfile()))
         {
             static const AString GR("gr");
-            const SIPParameter *pParamGR = objRequestURI.GetParameter(GR);
+            const SipParameter *pParamGR = objRequestURI.GetParameter(GR);
 
             if (pParamGR != IMS_NULL)
             {
                 if (pParamGR->GetValue().GetLength() > 0)
                 {
                     // If the pub-gruu is available, then compare it with the Request-URI
-                    const SIPAddress *pPubGRUU =
+                    const SipAddress *pPubGRUU =
                             IsRegBindingOnActive() ? \
                             GetPublicGRUU() : objCachedRegBinding.GetPublicGRUU();
 
@@ -1971,7 +1971,7 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
                 {
                     //4 List ?
                     // If the temp-gruu is available, then compare it with the Request-URI
-                    const SIPAddress *pTempGRUU =
+                    const SipAddress *pTempGRUU =
                             IsRegBindingOnActive() ? \
                             GetTemporaryGRUU() : objCachedRegBinding.GetTemporaryGRUU();
 
@@ -1993,15 +1993,15 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
         }
 
         // Checks if the contact address matches or not.
-        const SIPAddress *pContact = IMS_NULL;
+        const SipAddress *pContact = IMS_NULL;
 
         if (piDialog != IMS_NULL)
         {
-            const ISIPHeader *piContactHeader = piDialog->GetContactHeader();
+            const ISipHeader *piContactHeader = piDialog->GetContactHeader();
 
             if (piContactHeader != IMS_NULL)
             {
-                pContact = piContactHeader->GetSIPAddress();
+                pContact = piContactHeader->GetSipAddress();
             }
         }
 
@@ -2025,7 +2025,7 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
             return IMS_TRUE;
         }
 
-        const SIPAddress &objContact =
+        const SipAddress &objContact =
                 IsRegBindingOnActive() ? \
                 GetContactAddress() : objCachedRegBinding.GetContactAddress();
 
@@ -2037,17 +2037,17 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
     else
     {
         // Checks GRUU identities if it is supported
-        if (SIPConfigProxy::IsGRUUConfigured(GetSlotId(), GetSIPProfile()))
+        if (SipConfigProxy::IsGruuConfigured(GetSlotId(), GetSIPProfile()))
         {
             static const AString GR("gr");
-            const SIPParameter *pParamGR = objRequestURI.GetParameter(GR);
+            const SipParameter *pParamGR = objRequestURI.GetParameter(GR);
 
             if (pParamGR != IMS_NULL)
             {
                 if (pParamGR->GetValue().GetLength() > 0)
                 {
                     // If the pub-gruu is available, then compare it with the Request-URI
-                    const SIPAddress *pPubGRUU = GetPublicGRUU();
+                    const SipAddress *pPubGRUU = GetPublicGRUU();
 
                     if (pPubGRUU != IMS_NULL)
                     {
@@ -2062,7 +2062,7 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
                 {
                     //4 List ?
                     // If the temp-gruu is available, then compare it with the Request-URI
-                    const SIPAddress *pTempGRUU = GetTemporaryGRUU();
+                    const SipAddress *pTempGRUU = GetTemporaryGRUU();
 
                     if (pTempGRUU != IMS_NULL)
                     {
@@ -2082,7 +2082,7 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
         }
 
         // Checks if the contact address matches or not.
-        const SIPAddress &objContact = GetContactAddress();
+        const SipAddress &objContact = GetContactAddress();
 
         if (objContact.Equals(objRequestURI))
         {
@@ -2090,7 +2090,7 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
         }
 
         // Checks if the contact address for outgoing message matches or not.
-        const SIPAddress *pContact = GetContactAddressForOutgoingMessage();
+        const SipAddress *pContact = GetContactAddressForOutgoingMessage();
 
         if ((pContact != IMS_NULL) && pContact->Equals(objRequestURI))
         {
@@ -2102,12 +2102,12 @@ IMS_BOOL Service::ValidateRequestURI(IN CONST SIPAddress &objRequestURI,
     // Checks if the public user identity matches or not
     for (IMS_UINT32 i = 0; i < objAuthorizedUserIds.GetSize(); ++i)
     {
-        const ISIPHeader *piHeader = objAuthorizedUserIds.GetAt(i);
+        const ISipHeader *piHeader = objAuthorizedUserIds.GetAt(i);
 
         if (piHeader == IMS_NULL)
             continue;
 
-        const SIPAddress *pAddress = piHeader->GetSIPAddress();
+        const SipAddress *pAddress = piHeader->GetSipAddress();
 
         if (pAddress == IMS_NULL)
             continue;
@@ -2128,8 +2128,8 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Service::ValidateRequestURIForIPAndPort(IN CONST SIPAddress &objRequestURI,
-        IN ISIPDialog *piDialog/* = IMS_NULL */,
+IMS_BOOL Service::ValidateRequestURIForIPAndPort(IN CONST SipAddress &objRequestURI,
+        IN ISipDialog *piDialog/* = IMS_NULL */,
         IN IMS_BOOL bIsMidDialogRequest/* = IMS_FALSE*/)
 {
     IPAddress objIPForRURI(objRequestURI.GetHost());
@@ -2145,15 +2145,15 @@ IMS_BOOL Service::ValidateRequestURIForIPAndPort(IN CONST SIPAddress &objRequest
     if (bIsMidDialogRequest)
     {
         // Checks if the contact address matches or not.
-        const SIPAddress *pContact = IMS_NULL;
+        const SipAddress *pContact = IMS_NULL;
 
         if (piDialog != IMS_NULL)
         {
-            const ISIPHeader *piContactHeader = piDialog->GetContactHeader();
+            const ISipHeader *piContactHeader = piDialog->GetContactHeader();
 
             if (piContactHeader != IMS_NULL)
             {
-                pContact = piContactHeader->GetSIPAddress();
+                pContact = piContactHeader->GetSipAddress();
             }
         }
 
@@ -2184,7 +2184,7 @@ IMS_BOOL Service::ValidateRequestURIForIPAndPort(IN CONST SIPAddress &objRequest
             }
         }
 
-        const SIPAddress &objContact =
+        const SipAddress &objContact =
                 IsRegBindingOnActive() ? \
                 GetContactAddress() : objCachedRegBinding.GetContactAddress();
 
@@ -2200,7 +2200,7 @@ IMS_BOOL Service::ValidateRequestURIForIPAndPort(IN CONST SIPAddress &objRequest
     else
     {
         // Checks if the contact address matches or not.
-        const SIPAddress &objContact = GetContactAddress();
+        const SipAddress &objContact = GetContactAddress();
 
         IPAddress objIPForContact(objContact.GetHost());
 
@@ -2212,7 +2212,7 @@ IMS_BOOL Service::ValidateRequestURIForIPAndPort(IN CONST SIPAddress &objRequest
         }
 
         // Checks if the contact address for outgoing message matches or not.
-        const SIPAddress *pContact = GetContactAddressForOutgoingMessage();
+        const SipAddress *pContact = GetContactAddressForOutgoingMessage();
 
         if (pContact != IMS_NULL)
         {
@@ -2239,7 +2239,7 @@ PUBLIC GLOBAL
 IMS_BOOL Service::ValidateFromAndTo(IN CONST AString &strFrom, IN CONST AString &strTo,
         IN IMS_BOOL bToLenient)
 {
-    SIPAddress objAddress;
+    SipAddress objAddress;
 
     //---------------------------------------------------------------------------------------------
 
@@ -2249,7 +2249,7 @@ IMS_BOOL Service::ValidateFromAndTo(IN CONST AString &strFrom, IN CONST AString 
         if (!objAddress.Create(strFrom))
         {
             IMS_TRACE_E(0, "ILLEGAL ARGUMENT - From (%s)",
-                    SIPDebug::GetUri1(strFrom).GetStr(), 0, 0);
+                    SipDebug::GetUri1(strFrom).GetStr(), 0, 0);
             return IMS_FALSE;
         }
     }
@@ -2269,7 +2269,7 @@ IMS_BOOL Service::ValidateFromAndTo(IN CONST AString &strFrom, IN CONST AString 
     if (!objAddress.Create(strTo))
     {
         IMS_TRACE_E(0, "ILLEGAL ARGUMENT - To (%s)",
-                SIPDebug::GetUri1(strTo).GetStr(), 0, 0);
+                SipDebug::GetUri1(strTo).GetStr(), 0, 0);
         return IMS_FALSE;
     }
 
@@ -2286,14 +2286,14 @@ PUBLIC GLOBAL
 IMS_BOOL Service::ValidateReferTo(IN CONST AString &strURI, IN CONST AString &strMethod)
 {
     // Checks the body of Refer-To header
-    SIPAddress objURI;
+    SipAddress objURI;
 
     //---------------------------------------------------------------------------------------------
 
     if (!objURI.Create(strURI))
     {
         IMS_TRACE_E(0, "ILLEGAL ARGUMENT - Refer-To (%s)",
-                SIPDebug::GetUri1(strURI).GetStr(), 0, 0);
+                SipDebug::GetUri1(strURI).GetStr(), 0, 0);
         return IMS_FALSE;
     }
 
@@ -2458,7 +2458,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-void Service::RegBinding_OnInit(IN CONST SIPAddress *pAOR)
+void Service::RegBinding_OnInit(IN CONST SipAddress *pAOR)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -2553,7 +2553,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Service::ServerConnection_NotifyRequest(IN ISIPServerConnection * /* piSSC */)
+IMS_BOOL Service::ServerConnection_NotifyRequest(IN ISipServerConnection * /* piSSC */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -2568,7 +2568,7 @@ Remarks
 
 */
 PROTECTED
-void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPrivacy,
+void Service::FormContactHeader(IN CONST SipMethod &objMethod, IN IMS_BOOL bPrivacy,
         IN IMS_BOOL bRequest, OUT AString &strContact, OUT IMS_BOOL &bIsContactGRUU) const
 {
     IMS_BOOL bRegBindingOnActive = IsRegBindingOnActive();
@@ -2577,16 +2577,16 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
 
     bIsContactGRUU = IMS_FALSE;
 
-    if (SIPConfigProxy::IsGRUUConfigured(GetSlotId(), GetSIPProfile()))
+    if (SipConfigProxy::IsGruuConfigured(GetSlotId(), GetSIPProfile()))
     {
-        if (bRequest && SIPConfigProxy::IsMultipleRegConfigured(GetSlotId(), GetSIPProfile()))
+        if (bRequest && SipConfigProxy::IsMultipleRegConfigured(GetSlotId(), GetSIPProfile()))
         {
-            SIPAddress objContact;
+            SipAddress objContact;
 
             if (!bPrivacy)
             {
                 // If the pub-gruu is available, then add it to the Contact header
-                const SIPAddress *pPubGRUU = GetPublicGRUU();
+                const SipAddress *pPubGRUU = GetPublicGRUU();
 
                 if (pPubGRUU != IMS_NULL)
                 {
@@ -2595,7 +2595,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
                 }
                 else
                 {
-                    const SIPAddress *pContact = GetContactAddressForOutgoingMessage();
+                    const SipAddress *pContact = GetContactAddressForOutgoingMessage();
 
                     objContact = (pContact != IMS_NULL) ? *pContact : GetContactAddress();
                 }
@@ -2603,7 +2603,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
             else
             {
                 // If the temp-gruu is available, then add it to the Contact header
-                const SIPAddress *pTempGRUU = GetTemporaryGRUU();
+                const SipAddress *pTempGRUU = GetTemporaryGRUU();
 
                 if (pTempGRUU != IMS_NULL)
                 {
@@ -2612,13 +2612,13 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
                 }
                 else
                 {
-                    const SIPAddress *pContact = GetContactAddressForOutgoingMessage();
+                    const SipAddress *pContact = GetContactAddressForOutgoingMessage();
 
                     objContact = (pContact != IMS_NULL) ? *pContact : GetContactAddress();
                 }
             }
 
-            objContact.AddParameter(SIP::STR_OB, AString::ConstNull());
+            objContact.AddParameter(Sip::STR_OB, AString::ConstNull());
 
             strContact = objContact.ToString();
         }
@@ -2627,7 +2627,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
             if (!bPrivacy)
             {
                 // If the pub-gruu is available, then add it to the Contact header
-                const SIPAddress *pPubGRUU = bRegBindingOnActive ? \
+                const SipAddress *pPubGRUU = bRegBindingOnActive ? \
                         GetPublicGRUU() : objCachedRegBinding.GetPublicGRUU();
 
                 if (pPubGRUU != IMS_NULL)
@@ -2639,7 +2639,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
             else
             {
                 // If the temp-gruu is available, then add it to the Contact header
-                const SIPAddress *pTempGRUU = bRegBindingOnActive ? \
+                const SipAddress *pTempGRUU = bRegBindingOnActive ? \
                         GetTemporaryGRUU() : objCachedRegBinding.GetTemporaryGRUU();
 
                 if (pTempGRUU != IMS_NULL)
@@ -2651,7 +2651,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
 
             if (!bIsContactGRUU)
             {
-                const SIPAddress *pContact = bRegBindingOnActive ? \
+                const SipAddress *pContact = bRegBindingOnActive ? \
                         GetContactAddressForOutgoingMessage() : \
                         objCachedRegBinding.GetContactAddressForOutgoingMessage();
 
@@ -2670,18 +2670,18 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
     }
     else
     {
-        if (bRequest && SIPConfigProxy::IsMultipleRegConfigured(GetSlotId(), GetSIPProfile()))
+        if (bRequest && SipConfigProxy::IsMultipleRegConfigured(GetSlotId(), GetSIPProfile()))
         {
-            const SIPAddress *pContact = GetContactAddressForOutgoingMessage();
-            SIPAddress objContact = (pContact != IMS_NULL) ? *pContact : GetContactAddress();
+            const SipAddress *pContact = GetContactAddressForOutgoingMessage();
+            SipAddress objContact = (pContact != IMS_NULL) ? *pContact : GetContactAddress();
 
-            objContact.AddParameter(SIP::STR_OB, AString::ConstNull());
+            objContact.AddParameter(Sip::STR_OB, AString::ConstNull());
 
             strContact = objContact.ToString();
         }
         else
         {
-            const SIPAddress *pContact = bRegBindingOnActive ? \
+            const SipAddress *pContact = bRegBindingOnActive ? \
                     GetContactAddressForOutgoingMessage() : \
                     objCachedRegBinding.GetContactAddressForOutgoingMessage();
 
@@ -2707,7 +2707,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
     // CONTACT_FEATURE_CAPS
     AString strContactFeatures(AString::ConstNull());
 
-    if (!objMethod.Equals(SIPMethod::INVALID)
+    if (!objMethod.Equals(SipMethod::INVALID)
             && pFeatureCaps->FormContactFeatures(objMethod.ToInt(), bRequest, strContactFeatures))
     {
         strContact.Append(TextParser::CHAR_SEMICOLON);
@@ -2729,7 +2729,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
     }
 
     // CONTACT_FEATURE_CAPS
-    if (bDeviceIdRequired && strContact.Contains(SIP::STR_SIP_INSTANCE))
+    if (bDeviceIdRequired && strContact.Contains(Sip::STR_SIP_INSTANCE))
     {
         IMS_TRACE_D("FeatureCaps :: Device id is directly formed by the application; ignore it",
                 0, 0, 0);
@@ -2739,7 +2739,7 @@ void Service::FormContactHeader(IN CONST SIPMethod &objMethod, IN IMS_BOOL bPriv
     if (bDeviceIdRequired)
     {
         // Add the '+sip.instance' parameter
-        const SIPParameter *pParameter = GetInstanceParameter();
+        const SipParameter *pParameter = GetInstanceParameter();
 
         if (pParameter != IMS_NULL)
         {
@@ -2781,12 +2781,12 @@ Remarks
 
 */
 PROTECTED
-void Service::SetGRUUOptionTagInMidDialog(IN ISIPDialog *piDialog, IN_OUT ISIPMessage *&piSIPMsg)
+void Service::SetGRUUOptionTagInMidDialog(IN ISipDialog *piDialog, IN_OUT ISipMessage *&piSIPMsg)
 {
-    const ISIPHeader *piContactHeader = (piDialog != IMS_NULL) ? \
+    const ISipHeader *piContactHeader = (piDialog != IMS_NULL) ? \
             piDialog->GetContactHeader() : IMS_NULL;
-    const SIPAddress *pContact = (piContactHeader != IMS_NULL) ? \
-            piContactHeader->GetSIPAddress() : IMS_NULL;
+    const SipAddress *pContact = (piContactHeader != IMS_NULL) ? \
+            piContactHeader->GetSipAddress() : IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
@@ -2794,7 +2794,7 @@ void Service::SetGRUUOptionTagInMidDialog(IN ISIPDialog *piDialog, IN_OUT ISIPMe
     {
         if (pContact->GetParameter("gr") != IMS_NULL)
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, SIP::STR_GRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, Sip::STR_GRUU);
         }
     }
 }
@@ -2863,7 +2863,7 @@ Remarks
 */
 PRIVATE
 IMS_BOOL Service::SetPPreferredIdentityHeader(IN IMS_SINT32 nPreferredId,
-        IN_OUT ISIPMessage *&piSIPMsg)
+        IN_OUT ISipMessage *&piSIPMsg)
 {
     const AStringArray &objAssociatedURIs = IsRegBindingOnActive() ? \
             GetAssociatedURIs() : objCachedRegBinding.GetAssociatedURIs();
@@ -2877,7 +2877,7 @@ IMS_BOOL Service::SetPPreferredIdentityHeader(IN IMS_SINT32 nPreferredId,
 
     if (nPreferredId == SipConfigV::PREFERRED_ID_DEFAULT)
     {
-        if (piSIPMsg->AddHeader(ISIPHeader::P_PREFERRED_IDENTITY,
+        if (piSIPMsg->AddHeader(ISipHeader::P_PREFERRED_IDENTITY,
                 objAssociatedURIs.GetElementAt(0)) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Adding P-Preferred-Identity failed", 0, 0, 0);
@@ -2888,7 +2888,7 @@ IMS_BOOL Service::SetPPreferredIdentityHeader(IN IMS_SINT32 nPreferredId,
     {
         for (IMS_SINT32 i = 0; i < objAssociatedURIs.GetCount(); ++i)
         {
-            if (piSIPMsg->AddHeader(ISIPHeader::P_PREFERRED_IDENTITY,
+            if (piSIPMsg->AddHeader(ISipHeader::P_PREFERRED_IDENTITY,
                     objAssociatedURIs.GetElementAt(i)) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Adding P-Preferred-Identity failed", 0, 0, 0);
@@ -2921,7 +2921,7 @@ IMS_BOOL Service::SetPPreferredIdentityHeader(IN IMS_SINT32 nPreferredId,
             if ((bTopmostSIP && (strId.Contains("sip:") || strId.Contains("sips:")))
                     || (!bTopmostSIP && strId.Contains("tel:")))
             {
-                if (piSIPMsg->AddHeader(ISIPHeader::P_PREFERRED_IDENTITY, strId) != IMS_SUCCESS)
+                if (piSIPMsg->AddHeader(ISipHeader::P_PREFERRED_IDENTITY, strId) != IMS_SUCCESS)
                 {
                     IMS_TRACE_E(0, "Adding P-Preferred-Identity failed", 0, 0, 0);
                     return IMS_FALSE;
@@ -2944,7 +2944,7 @@ IMS_BOOL Service::SetPPreferredIdentityHeader(IN IMS_SINT32 nPreferredId,
                 if ((bTopmostSIP && strId.Contains("tel:"))
                         || (!bTopmostSIP && (strId.Contains("sip:") || strId.Contains("sips:"))))
                 {
-                    if (piSIPMsg->AddHeader(ISIPHeader::P_PREFERRED_IDENTITY,
+                    if (piSIPMsg->AddHeader(ISipHeader::P_PREFERRED_IDENTITY,
                             strId) != IMS_SUCCESS)
                     {
                         IMS_TRACE_E(0, "Adding P-Preferred-Identity failed", 0, 0, 0);
@@ -2965,7 +2965,7 @@ IMS_BOOL Service::SetPPreferredIdentityHeader(IN IMS_SINT32 nPreferredId,
 
                     if (strId.Contains("sip:") || strId.Contains("sips:"))
                     {
-                        if (piSIPMsg->AddHeader(ISIPHeader::P_PREFERRED_IDENTITY,
+                        if (piSIPMsg->AddHeader(ISipHeader::P_PREFERRED_IDENTITY,
                                 strId) != IMS_SUCCESS)
                         {
                             IMS_TRACE_E(0, "Adding P-Preferred-Identity failed", 0, 0, 0);
@@ -3017,7 +3017,7 @@ void Service::UpdateAuthorizedUserIds()
     // Clear the previous public user identities
     for (IMS_UINT32 i = 0; i < objAuthorizedUserIds.GetSize(); ++i)
     {
-        ISIPHeader *piHeader = objAuthorizedUserIds.GetAt(i);
+        ISipHeader *piHeader = objAuthorizedUserIds.GetAt(i);
 
         if (piHeader != IMS_NULL)
         {
@@ -3031,8 +3031,8 @@ void Service::UpdateAuthorizedUserIds()
 
     for (IMS_SINT32 i = 0; i < objAssociatedURIs.GetCount(); ++i)
     {
-        ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(
-                ISIPHeader::P_ASSOCIATED_URI, objAssociatedURIs.GetElementAt(i));
+        ISipHeader *piHeader = SipParsingHelper::CreateHeader(
+                ISipHeader::P_ASSOCIATED_URI, objAssociatedURIs.GetElementAt(i));
 
         if (piHeader != IMS_NULL)
         {
@@ -3098,14 +3098,14 @@ void Service::UpdateRegBindings()
 
     if (piRegBinding == IMS_NULL)
     {
-        objCachedRegBinding.SetPortUC(SIP::PORT_UNSPECIFIED);
-        objCachedRegBinding.SetPortUS(SIP::PORT_UNSPECIFIED);
+        objCachedRegBinding.SetPortUC(Sip::PORT_UNSPECIFIED);
+        objCachedRegBinding.SetPortUS(Sip::PORT_UNSPECIFIED);
         // RFC5626_FLOW_CONTROL
-        objCachedRegBinding.SetPortFlowControl(SIP::PORT_UNSPECIFIED);
+        objCachedRegBinding.SetPortFlowControl(Sip::PORT_UNSPECIFIED);
         // MULTI_REG_TRANSPORT
-        objCachedRegBinding.SetTransportExt(SIP::TRANSPORT_EXT_ANY);
+        objCachedRegBinding.SetTransportExt(Sip::TRANSPORT_EXT_ANY);
         objCachedRegBinding.SetIPAddress(IPAddress::NONE);
-        objCachedRegBinding.SetContactAddress(SIPAddress::ConstNull());
+        objCachedRegBinding.SetContactAddress(SipAddress::ConstNull());
         objCachedRegBinding.SetContactAddressForOutgoingMessage(IMS_NULL);
         // IPSEC {
         objCachedRegBinding.SetSecurityClients(AStringArray::ConstNull());

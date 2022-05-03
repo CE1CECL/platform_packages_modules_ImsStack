@@ -29,7 +29,7 @@
 
 class ICoreService;
 class IPublication;
-class ISIPMessage;
+class ISipMessage;
 
 class IPublicationData// internal Param
 {
@@ -101,7 +101,7 @@ public:
     Methods
 ------------------------------------------------------------------------------------------------- */
 public:
-    virtual IMS_RESULT MessageMediator_AdjustMessage(IN_OUT ISIPMessage *piSIPMsg,
+    virtual IMS_RESULT MessageMediator_AdjustMessage(IN_OUT ISipMessage *piSIPMsg,
         IN IMS_SINT32 nMessage = MESSAGE_NORMAL);
     IMS_BOOL SendPublishRequest(IN IMS_UINT32 key, IN AString pidfXml, IN AString eTag,
         IN IMS_UINT32 capability, IN IMS_UINT32 extended);
@@ -151,8 +151,8 @@ protected:
     virtual IMS_BOOL StateALL_Terminated(IN IMSMSG &objMsg);
 private:
     void LoadConfigValue();
-    IPublishResponseData* GetPublishResponseData(ISIPMessage* piMessage);
-    ISIPMessage* GetISIPMessage(IMS_BOOL bRequireResponseMessage = IMS_FALSE);
+    IPublishResponseData* GetPublishResponseData(ISipMessage* piMessage);
+    ISipMessage* GetISIPMessage(IMS_BOOL bRequireResponseMessage = IMS_FALSE);
     void SendPublishCommandErrorInd(IMS_UINT32 nKey, IMS_UINT32 nCommandError);
     void SendPublishResponseInd(IMS_UINT32 nKey, IMS_SINT32 nResponseCode, AString strReason,
         IMS_SINT32 nReasonHeaderCause, AString strReasonHeaderText, AString eTag,
@@ -162,12 +162,12 @@ private:
     void DestroyPublication();
 
     IMS_BOOL SetPublish(IN IMS_BOOL bIsRefresh, AString strMinExpiryValue = AString::ConstEmpty());
-    void SetRefreshPolicy(ISIPMessage* piMessage,
+    void SetRefreshPolicy(ISipMessage* piMessage,
         AString strMinExpiryValue = AString::ConstEmpty());
     IMS_BOOL Publish();
     IMS_BOOL Unpublish();
-    IMS_BOOL SetPidfXmlBody(ISIPMessage *piMessage);
-    void GetEtagAndExpireValue(ISIPMessage *piMessage);
+    IMS_BOOL SetPidfXmlBody(ISipMessage *piMessage);
+    void GetEtagAndExpireValue(ISipMessage *piMessage);
     IMS_BOOL HandleFailResponse(IMS_SINT32 nResponseCode);
     void    SetPublishStateToAoS(IN IMS_UINT32 nState);
     IMS_BOOL ProcessRetryAfterHeader();

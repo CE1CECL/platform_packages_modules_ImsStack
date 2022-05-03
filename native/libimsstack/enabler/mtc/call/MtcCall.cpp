@@ -772,7 +772,7 @@ void MtcCall::SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex)
 
 PUBLIC VIRTUAL
 void MtcCall::SessionTransactionReceived(
-        IN ISession* piSession, IN ISIPServerConnection* piSipServerConnection)
+        IN ISession* piSession, IN ISipServerConnection* piSipServerConnection)
 {
     IMS_TRACE_I("SessionTransactionReceived : key[%" PFLS_x "]", m_nKey, 0, 0);
 
@@ -790,7 +790,7 @@ void MtcCall::SessionTransactionReceived(
 
 PUBLIC VIRTUAL
 IMS_RESULT MtcCall::MessageMediator_AdjustMessage(
-        IN_OUT ISIPMessage* piSipMessage, IN IMS_SINT32 nMessage)
+        IN_OUT ISipMessage* piSipMessage, IN IMS_SINT32 nMessage)
 {
     IMS_TRACE_I("MessageMediator_AdjustMessage : key[%" PFLS_x "]", m_nKey, 0, 0);
 

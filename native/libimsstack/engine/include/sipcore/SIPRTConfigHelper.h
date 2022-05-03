@@ -19,40 +19,40 @@
 
 
 class SIPRTConfigHelper
-    : public ISIPRTConfigHelper
+    : public ISipRtConfigHelper
 {
 public:
     SIPRTConfigHelper();
     virtual ~SIPRTConfigHelper();
 
 public:
-    virtual const SIPRTConfig::Header* GetHeader(IN CONST AString &strName) const;
+    virtual const SipRtConfig::Header* GetHeader(IN CONST AString &strName) const;
 
-    const SIPRTConfig::LogMask* GetLogMask() const;
-    const SIPRTConfig::SocketOption* GetSocketOption(IN IMS_SINT32 nItem) const;
-    const SIPRTConfig::SocketOption* GetSocketOption(IN IMS_SINT32 nItem,
+    const SipRtConfig::LogMask* GetLogMask() const;
+    const SipRtConfig::SocketOption* GetSocketOption(IN IMS_SINT32 nItem) const;
+    const SipRtConfig::SocketOption* GetSocketOption(IN IMS_SINT32 nItem,
             IN CONST IPAddress &objIP, IN IMS_SINT32 nPort = 0) const;
-    const SIPRTConfig::IPQoS* GetIPQoS(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort = 0) const;
-    const IMSList<SIPRTConfig::IPSecSA>& GetIPSecSAs() const;
-    const SIPAddress* GetRegContactUri(IN CONST AString &strCallId) const;
+    const SipRtConfig::IpQos* GetIpQos(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort = 0) const;
+    const IMSList<SipRtConfig::IpSecSa>& GetIpSecSas() const;
+    const SipAddress* GetRegContactUri(IN CONST AString &strCallId) const;
     IMS_BOOL IsFeatureEnabled(IN IMS_SINT32 nFeature) const;
     IMS_BOOL IsItemConfigured(IN IMS_SINT32 nItem) const;
     IMS_BOOL IsMessageHiddenInLog() const;
     IMS_BOOL IsRoutingInfoHiddenInLog() const;
 
 private:
-    // ISIPRTConfigHelper class
+    // ISipRtConfigHelper class
     virtual void DisableFeature(IN IMS_SINT32 nFeature);
     virtual void EnableFeature(IN IMS_SINT32 nFeature);
     virtual IMS_SINT32 GetFeatures() const;
-    virtual void RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *pParam);
-    virtual IMS_RESULT SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *pParam);
+    virtual void RemoveConfig(IN IMS_SINT32 nItem, IN SipRtConfig::Base *pParam);
+    virtual IMS_RESULT SetConfig(IN IMS_SINT32 nItem, IN SipRtConfig::Base *pParam);
 
     IMS_UINT32 GetSocketOptionCount(IN IMS_SINT32 nItem) const;
     void RemoveSocketOption(IN IMS_SINT32 nItem,
-            IN CONST SIPRTConfig::SocketOption *pSO);
+            IN CONST SipRtConfig::SocketOption *pSO);
     IMS_RESULT SetSocketOption(IN IMS_SINT32 nItem,
-            IN CONST SIPRTConfig::SocketOption *pSO);
+            IN CONST SipRtConfig::SocketOption *pSO);
 
 private:
     IMSMap<IMS_SINT32, IMS_BOOL> objConfigSet;
@@ -61,22 +61,22 @@ private:
     IMS_SINT32 nFeatures;
 
     // Log mask
-    SIPRTConfig::LogMask objLogMask;
+    SipRtConfig::LogMask objLogMask;
 
     // Socket options: <Item, List of SO>
-    IMSMap<IMS_SINT32, IMSList<SIPRTConfig::SocketOption> > objSOMap;
+    IMSMap<IMS_SINT32, IMSList<SipRtConfig::SocketOption> > objSOMap;
 
     // IP-level QoS
-    IMSList<SIPRTConfig::IPQoS> objIPQoSs;
+    IMSList<SipRtConfig::IpQos> objIPQoSs;
 
     // SIP header control
-    IMSList<SIPRTConfig::Header> objHeaders;
+    IMSList<SipRtConfig::Header> objHeaders;
 
     // IPSec SA
-    IMSList<SIPRTConfig::IPSecSA> objIPSecSAs;
+    IMSList<SipRtConfig::IpSecSa> objIPSecSAs;
 
     // RegContactAddress
-    IMSList<SIPRTConfig::RegContactAddress> objRegContacts;
+    IMSList<SipRtConfig::RegContactAddress> objRegContacts;
 };
 
 #endif // _SIP_RT_CONFIG_HELPER_H_

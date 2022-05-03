@@ -28,13 +28,13 @@ private:
     SIPTxnContextData& operator=(IN CONST SIPTxnContextData &objRHS);
 
 public:
-    const SIPMethod& GetMethod() const;
+    const SipMethod& GetMethod() const;
     SIPTransactionState* GetTxnState() const;
-    void SetMethod(IN CONST SIPMethod &objMethod);
+    void SetMethod(IN CONST SipMethod &objMethod);
     void SetTxnState(IN SIPTransactionState *pTxnState);
 
 private:
-    SIPMethod objMethod;
+    SipMethod objMethod;
     RCPtr<SIPTransactionState> pTxnState;
 };
 

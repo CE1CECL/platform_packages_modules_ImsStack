@@ -6,20 +6,20 @@
 /**
  * @brief This class provides an interface to handle SIP server transaction.
  *
- * ISIPServerConnection is created by the ISIPConnectionNotifier when a new request is received.
+ * ISipServerConnection is created by the ISipConnectionNotifier when a new request is received.
  *
- * @see ISIPConnection
+ * @see ISipConnection
  */
-class ISIPServerConnection
-    : public ISIPConnection
+class ISipServerConnection
+    : public ISipConnection
 {
 public:
     /**
-     * @brief Initializes ISIPServerConnection with a specific SIP response
+     * @brief Initializes ISipServerConnection with a specific SIP response
      *        to the received request.
      *
      * The default headers and reason phrase will be initialized automatically.\n
-     * After this, the ISIPServerConnection is in INITIALIZED state and the response can be sent.
+     * After this, the ISipServerConnection is in INITIALIZED state and the response can be sent.
      *
      * The following headers will be set by the method:
      *     - From
@@ -60,7 +60,7 @@ public:
      * @return If the specified server connection equals to this, returns IMS_TRUE.
      *         Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL IsSameTransaction(IN CONST ISIPServerConnection *piOngoingSSC) const = 0;
+    virtual IMS_BOOL IsSameTransaction(IN CONST ISipServerConnection *piOngoingSSC) const = 0;
 };
 
 #endif // _INTERFACE_SIP_SERVER_CONNECTION_H_

@@ -75,7 +75,7 @@ IMS_SINT32 CallState::GetState() const
 }
 
 PUBLIC
-IMS_BOOL CallState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nMode)
+IMS_BOOL CallState::UpdateState(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nMode)
 {
     // MSG_MODE_CANCEL_RECEIVED, MSG_MODE_BYE_RECEIVED
     IMS_SINT32 nSIPMsg = TranslateMessage(piSIPMsg);
@@ -96,12 +96,12 @@ IMS_BOOL CallState::UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nM
      * then it means the BYE is sent to cancel the INVITE.
      * So, don't update the call state in those cases.
      */
-    if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+    if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
     {
-        const SIPMethod &objMethod = piSIPMsg->GetMethod();
+        const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-        if (objMethod.Equals(SIPMethod::CANCEL)
-                || (objMethod.Equals(SIPMethod::BYE)
+        if (objMethod.Equals(SipMethod::CANCEL)
+                || (objMethod.Equals(SipMethod::BYE)
                     && (nState != STATE_BYE_SENT)
                     && (nState != STATE_BYE_RECEIVED)))
         {
@@ -382,7 +382,7 @@ void CallState::InitializeStateTable()
 }
 
 PRIVATE GLOBAL
-void CallState::PrintStateChanged(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nState,
+void CallState::PrintStateChanged(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nState,
         IN IMS_SINT32 nNextState)
 {
     static const IMS_CHAR* STATE[] =
@@ -413,7 +413,7 @@ void CallState::PrintStateChanged(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 
         "STATE_TERMINATED"
     };
 
-    AString strCallId = piSIPMsg->GetHeader(ISIPHeader::CALL_ID);
+    AString strCallId = piSIPMsg->GetHeader(ISipHeader::CALL_ID);
 
     //-----------------------------------------------------------------------------------------
 
@@ -421,51 +421,51 @@ void CallState::PrintStateChanged(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 
             || !((nNextState > STATE_INVALID) && (nNextState < STATE_MAX)))
     {
         IMS_TRACE_I("CALL_STATE : %s - %d >> %d",
-                SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), nState, nNextState);
+                SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), nState, nNextState);
         return;
     }
 
     IMS_TRACE_I("CALL_STATE : %s - %s >> %s",
-            SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), STATE[nState], STATE[nNextState]);
+            SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), STATE[nState], STATE[nNextState]);
 }
 
 PRIVATE GLOBAL
-IMS_SINT32 CallState::TranslateMessage(IN CONST ISIPMessage *piSIPMsg)
+IMS_SINT32 CallState::TranslateMessage(IN CONST ISipMessage *piSIPMsg)
 {
     IMS_SINT32 nMsgType = piSIPMsg->GetType();
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
-    if (nMsgType == ISIPMessage::TYPE_REQUEST)
+    if (nMsgType == ISipMessage::TYPE_REQUEST)
     {
-        if (objMethod.Equals(SIPMethod::INVITE))
+        if (objMethod.Equals(SipMethod::INVITE))
             return MESSAGE_INVITE;
-        else if (objMethod.Equals(SIPMethod::CANCEL))
+        else if (objMethod.Equals(SipMethod::CANCEL))
             return MESSAGE_CANCEL;
-        else if (objMethod.Equals(SIPMethod::ACK))
+        else if (objMethod.Equals(SipMethod::ACK))
             return MESSAGE_ACK;
-        else if (objMethod.Equals(SIPMethod::BYE))
+        else if (objMethod.Equals(SipMethod::BYE))
             return MESSAGE_BYE;
         else
             return MESSAGE_INVALID;
     }
-    else if (nMsgType == ISIPMessage::TYPE_RESPONSE)
+    else if (nMsgType == ISipMessage::TYPE_RESPONSE)
     {
         // If the method is not INVITE/CANCEL/BYE/ACK, ignore the message for the call state
-        if (!objMethod.Equals(SIPMethod::INVITE)
-                && !objMethod.Equals(SIPMethod::CANCEL)
-                && !objMethod.Equals(SIPMethod::ACK)
-                && !objMethod.Equals(SIPMethod::BYE))
+        if (!objMethod.Equals(SipMethod::INVITE)
+                && !objMethod.Equals(SipMethod::CANCEL)
+                && !objMethod.Equals(SipMethod::ACK)
+                && !objMethod.Equals(SipMethod::BYE))
         {
             return MESSAGE_INVALID;
         }
 
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if (SIPStatusCode::Is1XX(nStatusCode))
+        if (SipStatusCode::Is1XX(nStatusCode))
             return MESSAGE_1XX;
-        else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        else if (SipStatusCode::IsFinalSuccess(nStatusCode))
             return MESSAGE_2XX;
         else
             return MESSAGE_NON2XX;

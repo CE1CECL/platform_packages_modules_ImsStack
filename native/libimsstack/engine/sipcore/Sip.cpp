@@ -16,97 +16,97 @@
 
 
 PUBLIC GLOBAL
-const IMS_CHAR SIP::CONNECTION_SCHEME_SIP[] = "sip";
+const IMS_CHAR Sip::CONNECTION_SCHEME_SIP[] = "sip";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::CONNECTION_SCHEME_SIPS[] = "sips";
+const IMS_CHAR Sip::CONNECTION_SCHEME_SIPS[] = "sips";
 
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_SIP_VERSION[] = "SIP/2.0";
+const IMS_CHAR Sip::STR_SIP_VERSION[] = "SIP/2.0";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_SIP_VERSION_ONLY[] = "2.0";
+const IMS_CHAR Sip::STR_SIP_VERSION_ONLY[] = "2.0";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_SIP[] = "sip";
+const IMS_CHAR Sip::STR_SIP[] = "sip";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_SIPS[] = "sips";
+const IMS_CHAR Sip::STR_SIPS[] = "sips";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TEL[] = "tel";
+const IMS_CHAR Sip::STR_TEL[] = "tel";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_IM[] = "im";
+const IMS_CHAR Sip::STR_IM[] = "im";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_PRES[] = "pres";
+const IMS_CHAR Sip::STR_PRES[] = "pres";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_UDP[] = "udp";
+const IMS_CHAR Sip::STR_UDP[] = "udp";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TCP[] = "tcp";
+const IMS_CHAR Sip::STR_TCP[] = "tcp";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TLS[] = "tls";
+const IMS_CHAR Sip::STR_TLS[] = "tls";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_UDP_CAPS[] = "UDP";
+const IMS_CHAR Sip::STR_UDP_CAPS[] = "UDP";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TCP_CAPS[] = "TCP";
+const IMS_CHAR Sip::STR_TCP_CAPS[] = "TCP";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TLS_CAPS[] = "TLS";
+const IMS_CHAR Sip::STR_TLS_CAPS[] = "TLS";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_BRANCH_MAGIC_COOKIE[] = "z9hG4bK";
+const IMS_CHAR Sip::STR_BRANCH_MAGIC_COOKIE[] = "z9hG4bK";
 #if 0
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TAG_MAGIC_COOKIE[] = "gims";
+const IMS_CHAR Sip::STR_TAG_MAGIC_COOKIE[] = "gims";
 #endif
 
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_100REL[] = "100rel";
+const IMS_CHAR Sip::STR_100REL[] = "100rel";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_ACTIVE[] = "active";
+const IMS_CHAR Sip::STR_ACTIVE[] = "active";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_APPLICATION_SDP[] = "application/sdp";
+const IMS_CHAR Sip::STR_APPLICATION_SDP[] = "application/sdp";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_EARLY_SESSION[] = "early-session";
+const IMS_CHAR Sip::STR_EARLY_SESSION[] = "early-session";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_FROM_CHANGE[] = "from-change";
+const IMS_CHAR Sip::STR_FROM_CHANGE[] = "from-change";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_GRUU[] = "gruu";
+const IMS_CHAR Sip::STR_GRUU[] = "gruu";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_MULTIPART[] = "multipart";
+const IMS_CHAR Sip::STR_MULTIPART[] = "multipart";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_MULTIPART_MIXED[] = "multipart/mixed";
+const IMS_CHAR Sip::STR_MULTIPART_MIXED[] = "multipart/mixed";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_REFER[] = "refer";
+const IMS_CHAR Sip::STR_REFER[] = "refer";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_SEC_AGREE[] = "sec-agree";
+const IMS_CHAR Sip::STR_SEC_AGREE[] = "sec-agree";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_PENDING[] = "pending";
+const IMS_CHAR Sip::STR_PENDING[] = "pending";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TERMINATED[] = "terminated";
+const IMS_CHAR Sip::STR_TERMINATED[] = "terminated";
 
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_BOUNDARY[] = "boundary";
+const IMS_CHAR Sip::STR_BOUNDARY[] = "boundary";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_BRANCH[] = "branch";
+const IMS_CHAR Sip::STR_BRANCH[] = "branch";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_EXPIRES[] = "expires";
+const IMS_CHAR Sip::STR_EXPIRES[] = "expires";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_KEEP[] = "keep";
+const IMS_CHAR Sip::STR_KEEP[] = "keep";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_LR[] = "lr";
+const IMS_CHAR Sip::STR_LR[] = "lr";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_METHOD[] = "method";
+const IMS_CHAR Sip::STR_METHOD[] = "method";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_OB[] = "ob";
+const IMS_CHAR Sip::STR_OB[] = "ob";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_RPORT[] = "rport";
+const IMS_CHAR Sip::STR_RPORT[] = "rport";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_RECEIVED[] = "received";
+const IMS_CHAR Sip::STR_RECEIVED[] = "received";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_REG_ID[] = "reg-id";
+const IMS_CHAR Sip::STR_REG_ID[] = "reg-id";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_SIP_INSTANCE[] = "+sip.instance";
+const IMS_CHAR Sip::STR_SIP_INSTANCE[] = "+sip.instance";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TYPE[] = "type";
+const IMS_CHAR Sip::STR_TYPE[] = "type";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TRANSPORT_EXT[] = "transport-ext";
+const IMS_CHAR Sip::STR_TRANSPORT_EXT[] = "transport-ext";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_FROM_TAG[] = "from-tag";
+const IMS_CHAR Sip::STR_FROM_TAG[] = "from-tag";
 PUBLIC GLOBAL
-const IMS_CHAR SIP::STR_TO_TAG[] = "to-tag";
+const IMS_CHAR Sip::STR_TO_TAG[] = "to-tag";
 PUBLIC GLOBAL
-const AString SIP::STR_TAG("tag");
+const AString Sip::STR_TAG("tag");

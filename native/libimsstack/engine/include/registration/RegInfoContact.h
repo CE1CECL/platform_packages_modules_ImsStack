@@ -41,7 +41,7 @@ public:
     virtual IMS_SINT32 GetState() const;
     virtual const AString& GetUnknownParameter(IN CONST AString &strName) const;
     virtual const IMSMap<AString, AString>& GetUnknownParameters() const;
-    virtual const SIPAddress& GetURI() const;
+    virtual const SipAddress& GetURI() const;
 
     IMS_BOOL Equals(IN INode *piNode) const;
     IMS_BOOL Update(IN INode *piNode);
@@ -114,7 +114,7 @@ private:
     // "probation" event
     IMS_UINT32 nRetryAfter;
     // URI associated with this contact
-    SIPAddress objURI;
+    SipAddress objURI;
     // Display name
     AString strDisplayName;
 

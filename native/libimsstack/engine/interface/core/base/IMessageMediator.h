@@ -8,7 +8,7 @@
  *
  * This class provides a chance to modify SIP message when it's sent by IMS engine.
  *
- * @see ISIPMessage
+ * @see ISipMessage
  */
 class IMessageMediator
 {
@@ -55,10 +55,10 @@ public:
      *                 #MESSAGE_INTERNAL_BYE
      * @return If the message is changed, it returns IMS_SUCCESS.\n
      *         Otherwise, it returns IMS_FAILURE or other negative value.
-     * @see ISIPMessage
+     * @see ISipMessage
      */
     virtual IMS_RESULT MessageMediator_AdjustMessage(
-            IN_OUT ISIPMessage *piSIPMsg, IN IMS_SINT32 nMessage = MESSAGE_NORMAL) = 0;
+            IN_OUT ISipMessage *piSIPMsg, IN IMS_SINT32 nMessage = MESSAGE_NORMAL) = 0;
 };
 
 #endif // _INTERFACE_MESSAGE_MEDIATOR_H_

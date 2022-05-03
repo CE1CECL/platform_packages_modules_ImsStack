@@ -80,15 +80,15 @@ const ByteArray& PageMessage::GetContent() const
 
     IMS::SetLastError(IMSError::NO_ERROR);
 
-    ISIPMessage *piSIPMsg = pMessage->GetMessage();
-    IMSList<ISIPMessageBodyPart*> objBodyParts = piSIPMsg->GetBodyParts();
+    ISipMessage *piSIPMsg = pMessage->GetMessage();
+    IMSList<ISipMessageBodyPart*> objBodyParts = piSIPMsg->GetBodyParts();
 
     if (objBodyParts.IsEmpty())
     {
         return ByteArray::ConstNull();
     }
 
-    ISIPMessageBodyPart *piBodyPart = objBodyParts.GetAt(0);
+    ISipMessageBodyPart *piBodyPart = objBodyParts.GetAt(0);
 
     if (piBodyPart == IMS_NULL)
     {
@@ -124,22 +124,22 @@ AString PageMessage::GetContentType() const
 
     IMS::SetLastError(IMSError::NO_ERROR);
 
-    ISIPMessage *piSIPMsg = pMessage->GetMessage();
-    IMSList<ISIPMessageBodyPart*> objBodyParts = piSIPMsg->GetBodyParts();
+    ISipMessage *piSIPMsg = pMessage->GetMessage();
+    IMSList<ISipMessageBodyPart*> objBodyParts = piSIPMsg->GetBodyParts();
 
     if (objBodyParts.IsEmpty())
     {
         return AString::ConstNull();
     }
 
-    ISIPMessageBodyPart *piBodyPart = objBodyParts.GetAt(0);
+    ISipMessageBodyPart *piBodyPart = objBodyParts.GetAt(0);
 
     if (piBodyPart == IMS_NULL)
     {
         return AString::ConstNull();
     }
 
-    return piBodyPart->GetHeader(ISIPMessageBodyPart::CONTENT_TYPE);
+    return piBodyPart->GetHeader(ISipMessageBodyPart::CONTENT_TYPE);
 }
 
 /*
@@ -192,8 +192,8 @@ IMS_RESULT PageMessage::Send(IN CONST ByteArray &objContent, IN CONST AString &s
         return IMS_FAILURE;
     }
 
-    // Create new connection and get SIPMessage
-    ISIPClientConnection *piSCC = CreateConnection(SIPMethod(SIPMethod::MESSAGE));
+    // Create new connection and get SipMessage
+    ISipClientConnection *piSCC = CreateConnection(SipMethod(SipMethod::MESSAGE));
 
     if (piSCC == IMS_NULL)
     {
@@ -201,12 +201,12 @@ IMS_RESULT PageMessage::Send(IN CONST ByteArray &objContent, IN CONST AString &s
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Set Content and Content-Type header
     if (!objContent.IsNULL() && !strContentType.IsNULL())
     {
-        ISIPMessageBodyPart *piBodyPart = piSIPMsg->CreateBodyPart();
+        ISipMessageBodyPart *piBodyPart = piSIPMsg->CreateBodyPart();
 
         if (piBodyPart == IMS_NULL)
         {
@@ -217,7 +217,7 @@ IMS_RESULT PageMessage::Send(IN CONST ByteArray &objContent, IN CONST AString &s
         }
 
         // Set headers
-        piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, strContentType);
+        piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, strContentType);
 
         // Set content
         piBodyPart->SetContent(objContent);
@@ -270,7 +270,7 @@ IMS_RESULT PageMessage::Accept(IN IMS_SINT32 nStatusCode /* = 200 */)
         return IMS_FAILURE;
     }
 
-    ISIPServerConnection *piSSC = GetServerConnection(IMessage::PAGEMESSAGE_SEND);
+    ISipServerConnection *piSSC = GetServerConnection(IMessage::PAGEMESSAGE_SEND);
 
     if (piSSC == IMS_NULL)
         return IMS_FAILURE;
@@ -317,7 +317,7 @@ IMS_RESULT PageMessage::Reject(IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nRetryAf
         return IMS_FAILURE;
     }
 
-    ISIPServerConnection *piSSC = GetServerConnection(IMessage::PAGEMESSAGE_SEND);
+    ISipServerConnection *piSSC = GetServerConnection(IMessage::PAGEMESSAGE_SEND);
 
     if (piSSC == IMS_NULL)
         return IMS_FAILURE;
@@ -332,12 +332,12 @@ IMS_RESULT PageMessage::Reject(IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nRetryAf
 
     if (nRetryAfter > 0)
     {
-        ISIPMessage *piSIPMsg = piSSC->GetMessage();
+        ISipMessage *piSIPMsg = piSSC->GetMessage();
         AString strRetryAfter;
 
         strRetryAfter.SetNumber(nRetryAfter);
 
-        piSIPMsg->AddHeader(ISIPHeader::RETRY_AFTER_SEC, strRetryAfter);
+        piSIPMsg->AddHeader(ISipHeader::RETRY_AFTER_SEC, strRetryAfter);
     }
 
     if (!SendNUpdateResponse(IMessage::PAGEMESSAGE_SEND, piSSC))
@@ -398,7 +398,7 @@ Remarks
 */
 // IMS_AUTH_SIP_DIGEST
 PRIVATE VIRTUAL
-IMS_BOOL PageMessage::SendRequestToChallenge(IN ISIPClientConnection *piSCC)
+IMS_BOOL PageMessage::SendRequestToChallenge(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -426,7 +426,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_BOOL PageMessage::NotifySIPRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL PageMessage::NotifySIPRequest(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -456,7 +456,7 @@ IMS_BOOL PageMessage::NotifySIPRequest(IN ISIPServerConnection *piSSC)
     }
 
     // Create a response and send it to the remote user.
-    if (piSSC->InitResponse(SIPStatusCode::SC_200) != IMS_SUCCESS)
+    if (piSSC->InitResponse(SipStatusCode::SC_200) != IMS_SUCCESS)
     {
         CloseConnection(IMessage::PAGEMESSAGE_SEND);
 
@@ -489,7 +489,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void PageMessage::NotifySIPResponse(IN ISIPClientConnection *piSCC)
+void PageMessage::NotifySIPResponse(IN ISipClientConnection *piSCC)
 {
     IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
@@ -499,13 +499,13 @@ void PageMessage::NotifySIPResponse(IN ISIPClientConnection *piSCC)
     UpdateResponseOnReceived(IMessage::PAGEMESSAGE_SEND, piSCC);
 
     // Handle the response to MESSAGE request ...
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         // Do nothing ...
         return;
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         // AUTH_SIP_DIGEST {
         // In case of other method except for REGISTER,
@@ -519,7 +519,7 @@ void PageMessage::NotifySIPResponse(IN ISIPClientConnection *piSCC)
 
     CloseConnection(IMessage::PAGEMESSAGE_SEND);
 
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         PostMessage(AMSG_PAGE_MESSAGE_DELIVERED, 0, 0);
     }
@@ -535,17 +535,17 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void PageMessage::NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void PageMessage::NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
-    const SIPMethod &objMethod = piSC->GetMethod();
+    const SipMethod &objMethod = piSC->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     (void) nCode;
     (void) strMessage;
 
-    if (!objMethod.Equals(SIPMethod::MESSAGE))
+    if (!objMethod.Equals(SipMethod::MESSAGE))
     {
         piSC->Close();
         return;

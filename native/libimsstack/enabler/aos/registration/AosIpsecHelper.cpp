@@ -149,7 +149,7 @@ IMS_BOOL AosIpsecHelper::SetPcscfPortnSpi()
     A_IMS_TRACE_I(REGID, "SetPcscfPortnSpi", 0, 0, 0);
 
     // get Security Server Header
-    const IMSList<SIPSecurityHeader>& objSecuServerH = m_piRegParameter->GetSecurityServers();
+    const IMSList<SipSecurityHeader>& objSecuServerH = m_piRegParameter->GetSecurityServers();
 
     if (objSecuServerH.IsEmpty() == IMS_TRUE)
     {
@@ -157,7 +157,7 @@ IMS_BOOL AosIpsecHelper::SetPcscfPortnSpi()
         return IMS_FALSE;
     }
 
-    const SIPSecurityHeader* pPreferredSSH = m_piRegParameter->GetPreferredSecurityServer();
+    const SipSecurityHeader* pPreferredSSH = m_piRegParameter->GetPreferredSecurityServer();
 
     if (pPreferredSSH == IMS_NULL)
     {
@@ -167,7 +167,7 @@ IMS_BOOL AosIpsecHelper::SetPcscfPortnSpi()
 
     // set Ports & SPIs
     m_pNewIpsec->SetPcscfPortsAndSpis(pPreferredSSH->GetPortC(), pPreferredSSH->GetPortS(),
-            pPreferredSSH->GetSPIC(), pPreferredSSH->GetSPIS());
+            pPreferredSSH->GetSpiC(), pPreferredSSH->GetSpiS());
 
     A_IMS_TRACE_D(REGID, "security-server, proto (%d), alg(%d) , size(%d)",
             pPreferredSSH->GetProtocol(), pPreferredSSH->GetAlgorithm(), objSecuServerH.GetSize());
@@ -498,7 +498,7 @@ IMS_BOOL AosIpsecHelper::SetSecurityClientHeader()
     {
         for (IMS_UINT32 nEAlgIdx = 0; nEAlgIdx < objEncryptionAlgs.GetSize(); nEAlgIdx++)
         {
-            SIPSecurityHeader objSecurityClientH;
+            SipSecurityHeader objSecurityClientH;
 
             m_pNewIpsec->MakeSecurityClientH(objSecurityClientH);
 
@@ -518,7 +518,7 @@ IMS_BOOL AosIpsecHelper::CheckSecurityServerHeader()
 {
     A_IMS_TRACE_I(REGID, "CheckSecurityServerHeader", 0, 0, 0);
 
-    const IMSList<SIPSecurityHeader>& objSecuServerH = m_piRegParameter->GetSecurityServers();
+    const IMSList<SipSecurityHeader>& objSecuServerH = m_piRegParameter->GetSecurityServers();
 
     if (!objSecuServerH.IsEmpty())
     {
@@ -612,7 +612,7 @@ void AosIpsecHelper::CloseUnsecureTCPSocket()
     IPAddress objIpaPcscf(objPcscf);
     IPAddress objIpaLocal = m_piContext->GetConnection()->GetLocalAddress(objIpaPcscf.GetVersion());
 
-    SIPFactory::GetTransportHelper(m_piContext->GetSlotId())->DestroyTCPSocket(
+    SipFactory::GetTransportHelper(m_piContext->GetSlotId())->DestroyTcpSocket(
             objIpaLocal, 0, objIpaPcscf, nPort);
 }
 
@@ -634,7 +634,7 @@ void AosIpsecHelper::CloseSecureTCPSocket(IN AosIpsec* pIpsec)
     IMS_TRACE_D("UE Port(%d), PCSCF (%s, %d)", nUeCPort,
             objPcscfIpAddr.ToString().GetStr(), nPcscfSPort);
 
-    SIPFactory::GetTransportHelper(m_piContext->GetSlotId())->DestroyTCPSocket(objUeIpa,
+    SipFactory::GetTransportHelper(m_piContext->GetSlotId())->DestroyTcpSocket(objUeIpa,
             nUeCPort, objPcscfIpAddr, nPcscfSPort);
 
     // Disconnect TCP server connection if being not used for other IPSec
@@ -671,7 +671,7 @@ void AosIpsecHelper::CloseSecureTCPSocket(IN AosIpsec* pIpsec)
 
     if (nRefCnt <= 1)
     {
-        SIPFactory::GetTransportHelper(m_piContext->GetSlotId())->DestroyTCPSocket(objUeIpa, 0,
+        SipFactory::GetTransportHelper(m_piContext->GetSlotId())->DestroyTcpSocket(objUeIpa, 0,
                 objPcscfIpAddr, nPcscfCPort, IMS_TRUE);
     }
 }

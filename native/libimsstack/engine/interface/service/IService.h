@@ -6,7 +6,7 @@
 #include "IConnection.h"
 #include "SipAddress.h"
 
-class SIPProfile;
+class SipProfile;
 class IRegInfo;
 class IFeatureCaps;
 class IServiceFilterCriteria;
@@ -47,7 +47,7 @@ public:
      * @return Default public user identity, possibly with a display name.
      * @note IMS EXTENSION METHOD
      */
-    virtual const SIPAddress& GetAuthorizedUserId() const = 0;
+    virtual const SipAddress& GetAuthorizedUserId() const = 0;
 
     /**
      * @brief Returns the SIP contact address for this service.
@@ -55,7 +55,7 @@ public:
      * @return Contact address for this service.
      * @note IMS EXTENSION METHOD
      */
-    virtual const SIPAddress& GetContactAddress() const = 0;
+    virtual const SipAddress& GetContactAddress() const = 0;
 
     /**
      * @brief Returns the preferred contact address for all the outgoing SIP message.
@@ -63,12 +63,12 @@ public:
      * @return Preferred contact address for this service.
      * @note IMS EXTENSION METHOD
      */
-    virtual const SIPAddress* GetContactAddressForOutgoingMessage() const = 0;
+    virtual const SipAddress* GetContactAddressForOutgoingMessage() const = 0;
 
     /**
      * @brief Returns the SIP Contact header for this service.
      *
-     * NOTE: The application MUST release the resource for the returned ISIPHeader instance.
+     * NOTE: The application MUST release the resource for the returned ISipHeader instance.
      *
      * @param bPrivacy flag to indicate if the privacy is required or not
      * @param bRequest flag to indicate if the contact header is for request or response
@@ -77,9 +77,9 @@ public:
      * @return Contact header for this service.
      * @note IMS EXTENSION METHOD
      */
-    virtual ISIPHeader* GetContactHeader(
+    virtual ISipHeader* GetContactHeader(
             IN IMS_BOOL bPrivacy = IMS_FALSE, IN IMS_BOOL bRequest = IMS_TRUE,
-            IN IMS_SINT32 nSIPMethod = (-1) /* SIPMethod::INVALID */) const = 0;
+            IN IMS_SINT32 nSIPMethod = (-1) /* SipMethod::INVALID */) const = 0;
 
     /**
      * @brief Returns the instance of feature capability (caller capability) for this service.
@@ -130,7 +130,7 @@ public:
      * @return Pointer to SIPProfiile.
      * @note IMS EXTENSION METHOD, MULTI_REG_SIP_PROFILE
      */
-    virtual SIPProfile* GetSIPProfile() const = 0;
+    virtual SipProfile* GetSIPProfile() const = 0;
 
     /**
      * @brief Returns network provisioned user identities. The first item is the network-chosen
@@ -164,7 +164,7 @@ public:
      * @return Pointer to SIP header parameter for "+sip.instance".
      * @note IMS EXTENSION METHOD
      */
-    virtual const SIPParameter* GetInstanceParameter() const = 0;
+    virtual const SipParameter* GetInstanceParameter() const = 0;
 
     /**
      * @brief Returns the public GRUU.
@@ -172,7 +172,7 @@ public:
      * @return Pointer to public GRUU.
      * @note IMS EXTENSION METHOD
      */
-    virtual const SIPAddress* GetPublicGRUU() const = 0;
+    virtual const SipAddress* GetPublicGRUU() const = 0;
 
     /**
      * @brief Returns the valid (the latest) temporary GRUU.
@@ -180,7 +180,7 @@ public:
      * @return Pointer to temporary GRUU.
      * @note IMS EXTENSION METHOD
      */
-    virtual const SIPAddress* GetTemporaryGRUU() const = 0;
+    virtual const SipAddress* GetTemporaryGRUU() const = 0;
 
     /**
      * @brief Returns the valid temporary GRUUs.
@@ -188,7 +188,7 @@ public:
      * @return List of temporary GRUU.
      * @note IMS EXTENSION METHOD
      */
-    virtual const IMSList<SIPAddress*>& GetTemporaryGRUUs() const = 0;
+    virtual const IMSList<SipAddress*>& GetTemporaryGRUUs() const = 0;
 
     /**
      * @brief Checks if the UA is located behind a NAT or not.
@@ -256,7 +256,7 @@ public:
      * @param pProfile SIP profile to be set
      * @note IMS EXTENSION METHOD, MULTI_REG_SIP_PROFILE
      */
-    virtual void SetSIPProfile(IN SIPProfile *pProfile) = 0;
+    virtual void SetSIPProfile(IN SipProfile *pProfile) = 0;
 };
 
 #endif // _INTERFACE_SERVICE_H_

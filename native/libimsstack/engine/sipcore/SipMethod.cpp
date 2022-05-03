@@ -16,7 +16,7 @@
 
 
 PUBLIC GLOBAL
-const IMS_CHAR* SIPMethod::NAME[] =
+const IMS_CHAR* SipMethod::NAME[] =
 {
     "ACK",
     "BYE",
@@ -36,12 +36,12 @@ const IMS_CHAR* SIPMethod::NAME[] =
 };
 
 PUBLIC GLOBAL
-const SIPMethod SIPMethod::INVALID_METHOD;
+const SipMethod SipMethod::INVALID_METHOD;
 
 
 
 PUBLIC
-SIPMethod::SIPMethod(IN CONST IMS_SINT32 nMethod_ /* = SIPMethod::INVALID */)
+SipMethod::SipMethod(IN CONST IMS_SINT32 nMethod_ /* = SipMethod::INVALID */)
     : nMethod(nMethod_)
 {
     //---------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ SIPMethod::SIPMethod(IN CONST IMS_SINT32 nMethod_ /* = SIPMethod::INVALID */)
 }
 
 PUBLIC
-SIPMethod::SIPMethod(IN CONST IMS_CHAR *pszMethod_)
+SipMethod::SipMethod(IN CONST IMS_CHAR *pszMethod_)
     : strMethod(pszMethod_)
 {
     //---------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ SIPMethod::SIPMethod(IN CONST IMS_CHAR *pszMethod_)
 }
 
 PUBLIC
-SIPMethod::SIPMethod(IN CONST AString &strMethod_)
+SipMethod::SipMethod(IN CONST AString &strMethod_)
     : strMethod(strMethod_)
 {
     //---------------------------------------------------------------------------------------------
@@ -68,19 +68,19 @@ SIPMethod::SIPMethod(IN CONST AString &strMethod_)
 }
 
 PUBLIC
-SIPMethod::SIPMethod(IN CONST SIPMethod &objRHS)
+SipMethod::SipMethod(IN CONST SipMethod &objRHS)
     : nMethod(objRHS.nMethod)
     , strMethod(objRHS.strMethod)
 {
 }
 
 PUBLIC
-SIPMethod::~SIPMethod()
+SipMethod::~SipMethod()
 {
 }
 
 PUBLIC
-SIPMethod& SIPMethod::operator=(IN CONST SIPMethod &objRHS)
+SipMethod& SipMethod::operator=(IN CONST SipMethod &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ SIPMethod& SIPMethod::operator=(IN CONST SIPMethod &objRHS)
 }
 
 PUBLIC
-SIPMethod& SIPMethod::operator=(IN IMS_SINT32 nMethod_)
+SipMethod& SipMethod::operator=(IN IMS_SINT32 nMethod_)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ SIPMethod& SIPMethod::operator=(IN IMS_SINT32 nMethod_)
 }
 
 PUBLIC
-SIPMethod& SIPMethod::operator=(IN CONST IMS_CHAR *pszMethod_)
+SipMethod& SipMethod::operator=(IN CONST IMS_CHAR *pszMethod_)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ SIPMethod& SIPMethod::operator=(IN CONST IMS_CHAR *pszMethod_)
 }
 
 PUBLIC
-SIPMethod& SIPMethod::operator=(IN CONST AString &strMethod_)
+SipMethod& SipMethod::operator=(IN CONST AString &strMethod_)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ SIPMethod& SIPMethod::operator=(IN CONST AString &strMethod_)
 }
 
 PUBLIC GLOBAL
-const IMS_CHAR* SIPMethod::ToName(IN IMS_SINT32 nMethod)
+const IMS_CHAR* SipMethod::ToName(IN IMS_SINT32 nMethod)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -144,32 +144,32 @@ const IMS_CHAR* SIPMethod::ToName(IN IMS_SINT32 nMethod)
 }
 
 PRIVATE GLOBAL
-IMS_SINT32 SIPMethod::ConvertStringToMethod(IN CONST AString &strMethod)
+IMS_SINT32 SipMethod::ConvertStringToMethod(IN CONST AString &strMethod)
 {
     //---------------------------------------------------------------------------------------------
 
     if (strMethod.IsNULL() || strMethod.IsEmpty())
-        return SIPMethod::INVALID;
+        return SipMethod::INVALID;
     else
     {
-        for (IMS_SINT32 i = (SIPMethod::INVALID + 1); i < SIPMethod::MAX; i++)
+        for (IMS_SINT32 i = (SipMethod::INVALID + 1); i < SipMethod::MAX; i++)
         {
-            if (strMethod.Equals(SIPMethod::NAME[i]))
+            if (strMethod.Equals(SipMethod::NAME[i]))
             {
                 return i;
             }
         }
     }
 
-    return SIPMethod::INVALID;
+    return SipMethod::INVALID;
 }
 
 PRIVATE GLOBAL
-AString SIPMethod::ConvertMethodToString(IN IMS_SINT32 nMethod)
+AString SipMethod::ConvertMethodToString(IN IMS_SINT32 nMethod)
 {
     //---------------------------------------------------------------------------------------------
 
-    if ((nMethod > SIPMethod::INVALID) && (nMethod < SIPMethod::MAX))
+    if ((nMethod > SipMethod::INVALID) && (nMethod < SipMethod::MAX))
         return AString(NAME[nMethod]);
 
     return AString::ConstNull();

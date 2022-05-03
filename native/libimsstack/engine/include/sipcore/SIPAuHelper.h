@@ -32,10 +32,10 @@ private:
     SIPAuHelper& operator=(IN CONST SIPAuHelper &objRHS);
 
 public:
-    IMS_BOOL AddChallenge(IN ISIPGenericChallenge *piChallenge);
+    IMS_BOOL AddChallenge(IN ISipGenericChallenge *piChallenge);
     IMS_BOOL AddCredential(IN CONST Credential &objCredential);
     IMS_BOOL FormCredentials(IN_OUT SipMessage *&pstMessage);
-    ISIPGenericChallenge* GetChallenge(IN IMS_SINT32 nIndex = 0) const;
+    ISipGenericChallenge* GetChallenge(IN IMS_SINT32 nIndex = 0) const;
     IMS_BOOL IsChallengePresent() const;
     IMS_BOOL IsCredentialPresent() const;
     void RemoveAllChallenges();

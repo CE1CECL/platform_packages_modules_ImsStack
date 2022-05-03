@@ -61,7 +61,7 @@ FakeRegistration::~FakeRegistration()
     RegBindingProxy::DestroyBinding(GetSlotId(), this);
 
     IMS_TRACE_D("Destructor :: Registration - %s",
-            (pRegFlow != IMS_NULL) ? SIPDebug::GetCharA1(
+            (pRegFlow != IMS_NULL) ? SipDebug::GetCharA1(
                     pRegFlow->GetCallId().GetStr(), 8, '@') : "__UNKNOWN__", 0, 0);
 
     if (pRegFlow != IMS_NULL)
@@ -150,9 +150,9 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-IMS_BOOL FakeRegistration::Create(IN IMS_UINT32 nFlowId, IN CONST SIPAddress &objAOR,
+IMS_BOOL FakeRegistration::Create(IN IMS_UINT32 nFlowId, IN CONST SipAddress &objAOR,
         IN CONST AString &strSubsId /* = AString::ConstNull() */,
-        IN SIPProfile *pSIPProfile/* = IMS_NULL*/)
+        IN SipProfile *pSIPProfile/* = IMS_NULL*/)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -338,7 +338,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPMessage* FakeRegistration::GetNextRequest()
+ISipMessage* FakeRegistration::GetNextRequest()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -351,7 +351,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPMessage* FakeRegistration::GetPreviousRequest() const
+ISipMessage* FakeRegistration::GetPreviousRequest() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -364,7 +364,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPMessage* FakeRegistration::GetPreviousResponse() const
+ISipMessage* FakeRegistration::GetPreviousResponse() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -430,12 +430,12 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
         if (objIPA.Equals(pTmpContact->GetIPAddress())
                 && (nPort == pTmpContact->GetPort()))
         {
-            IMS_TRACE_D("RegContact (%s, %d) already exists", SIPDebug::GetIP(objIPA), nPort, 0);
+            IMS_TRACE_D("RegContact (%s, %d) already exists", SipDebug::GetIp(objIPA), nPort, 0);
             return pTmpContact;
         }
     }
 
-    SIPProfile *pSIPProfile = pStateTracker->GetSIPProfile();
+    SipProfile *pSIPProfile = pStateTracker->GetSIPProfile();
 
     // If not present, add a new Contact information
     RegContact *pNewContact = new RegContact(GetSlotId(),
@@ -443,7 +443,7 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
 
     if (pNewContact == IMS_NULL)
     {
-        IMS_TRACE_E(0, "Creating a Contact (%s:%d) failed", SIPDebug::GetIP(objIPA), nPort, 0);
+        IMS_TRACE_E(0, "Creating a Contact (%s:%d) failed", SipDebug::GetIp(objIPA), nPort, 0);
         return IMS_NULL;
     }
 
@@ -451,7 +451,7 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
     pNewContact->SetAOR(pStateTracker->GetAOR());
 
     // Set "+sip.instance" parameter
-    IMS_SINT32 nDeviceId = SIPConfigProxy::GetDeviceId(GetSlotId(), pSIPProfile);
+    IMS_SINT32 nDeviceId = SipConfigProxy::GetDeviceId(GetSlotId(), pSIPProfile);
 
     if (nDeviceId != ISipConfig::DEVICE_ID_NONE)
     {
@@ -460,7 +460,7 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
 
         if (nDeviceId == ISipConfig::DEVICE_ID_PREDEFINED)
         {
-            strDeviceId = SIPConfigProxy::GetPredefinedDeviceId(GetSlotId(), pSIPProfile);
+            strDeviceId = SipConfigProxy::GetPredefinedDeviceId(GetSlotId(), pSIPProfile);
         }
         else
         {
@@ -474,7 +474,7 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
         strInstance.Append('"');
 
         static_cast<IRegContact*>(pNewContact)->AddHeaderParameter(
-                SIP::STR_SIP_INSTANCE, strInstance);
+                Sip::STR_SIP_INSTANCE, strInstance);
     }
 
     // Set the regiration expiration value
@@ -482,10 +482,10 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
     {
     case IRegistration::POLICY_EXPIRES_CONFIG:
         {
-            if (SIPConfigProxy::IsRegExpiresConfigured(GetSlotId(), pSIPProfile))
+            if (SipConfigProxy::IsRegExpiresConfigured(GetSlotId(), pSIPProfile))
             {
                 // Ignore the passed expiration (nExpiresValue)
-                pNewContact->SetExpires(SIPConfigProxy::GetRegExpires(GetSlotId(), pSIPProfile));
+                pNewContact->SetExpires(SipConfigProxy::GetRegExpires(GetSlotId(), pSIPProfile));
             }
         }
         break;
@@ -495,7 +495,7 @@ IRegContact* FakeRegistration::CreateContact(IN CONST IPAddress &objIPA, IN IMS_
         break;
     }
 
-    IMS_TRACE_D("RegContact (%s, %d) added", SIPDebug::GetIP(objIPA), nPort, 0);
+    IMS_TRACE_D("RegContact (%s, %d) added", SipDebug::GetIp(objIPA), nPort, 0);
 
     if (!objContacts.Append(pNewContact))
     {
@@ -608,7 +608,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress& FakeRegistration::GetAOR() const
+const SipAddress& FakeRegistration::GetAOR() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -634,7 +634,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress& FakeRegistration::GetAuthorizedAOR() const
+const SipAddress& FakeRegistration::GetAuthorizedAOR() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -745,7 +745,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-SIPProfile* FakeRegistration::GetSIPProfile() const
+SipProfile* FakeRegistration::GetSIPProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -889,7 +889,7 @@ IMS_RESULT FakeRegistration::Register(IN IMS_SINT32 nExpires /* = (-1) */)
     IMS::SetLastError(IMSError::NO_ERROR);
 
     //4 REG. OK
-    PostMessage(AMSG_REGISTRATION_RESPONSE_RECEIVED, SIPStatusCode::SC_200, 0);
+    PostMessage(AMSG_REGISTRATION_RESPONSE_RECEIVED, SipStatusCode::SC_200, 0);
 
     return IMS_SUCCESS;
 }
@@ -926,7 +926,7 @@ IMS_RESULT FakeRegistration::Deregister()
     IMS::SetLastError(IMSError::NO_ERROR);
 
     //4 de-REG. OK
-    PostMessage(AMSG_REGISTRATION_RESPONSE_RECEIVED, SIPStatusCode::SC_200, 0);
+    PostMessage(AMSG_REGISTRATION_RESPONSE_RECEIVED, SipStatusCode::SC_200, 0);
 
     return IMS_SUCCESS;
 }
@@ -1008,7 +1008,7 @@ Remarks
  MULTI_SUBS
 */
 PRIVATE VIRTUAL
-void FakeRegistration::SetAOR(IN CONST SIPAddress &objAOR,
+void FakeRegistration::SetAOR(IN CONST SipAddress &objAOR,
         IN CONST AString &strSubsId /* = AString::ConstNull() */)
 {
     //---------------------------------------------------------------------------------------------
@@ -1020,7 +1020,7 @@ void FakeRegistration::SetAOR(IN CONST SIPAddress &objAOR,
     pRegParam->UpdateProfile(objAOR, strSubsId);
 
     // Updates the user-info field in all Contacts
-    const SIPAddress &objTmpAOR = pStateTracker->GetAOR();
+    const SipAddress &objTmpAOR = pStateTracker->GetAOR();
 
     for (IMS_UINT32 i = 0; i < objContacts.GetSize(); ++i)
     {
@@ -1064,7 +1064,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-void FakeRegistration::SetSIPProfile(IN SIPProfile *pProfile)
+void FakeRegistration::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1153,7 +1153,7 @@ Remarks
 */
 PRIVATE VIRTUAL
 IRegSubscription* FakeRegistration::CreateSubscription(
-        IN SIPAddress * /* pResourceUri = IMS_NULL */)
+        IN SipAddress * /* pResourceUri = IMS_NULL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1166,7 +1166,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void FakeRegistration::ConnectionNotifierError_NotifyError(IN ISIPConnectionNotifier *piSCN,
+void FakeRegistration::ConnectionNotifierError_NotifyError(IN ISipConnectionNotifier *piSCN,
         IN IMS_SINT32 nCode, IN CONST AString &strMessage)
 {
     //---------------------------------------------------------------------------------------------
@@ -1188,15 +1188,15 @@ void FakeRegistration::ConnectionNotifierError_NotifyError(IN ISIPConnectionNoti
         return;
     }
 
-    if (nCode == ISIPConnectionNotifier::TRANSPORT_ERROR_TCP_CLIENT)
+    if (nCode == ISipConnectionNotifier::TRANSPORT_ERROR_TCP_CLIENT)
     {
         PostMessage(AMSG_REGISTRATION_TERMINATED, REASON_CLIENT_SOCKET_ERROR, 0);
     }
-    else if (nCode == ISIPConnectionNotifier::TRANSPORT_ERROR_TCP_SERVER)
+    else if (nCode == ISipConnectionNotifier::TRANSPORT_ERROR_TCP_SERVER)
     {
         PostMessage(AMSG_REGISTRATION_TERMINATED, REASON_SERVER_SOCKET_ERROR, 0);
     }
-    else if (nCode == ISIPConnectionNotifier::TRANSPORT_ERROR_UDP_SERVER)
+    else if (nCode == ISipConnectionNotifier::TRANSPORT_ERROR_UDP_SERVER)
     {
         PostMessage(AMSG_REGISTRATION_TERMINATED, REASON_SERVER_SOCKET_ERROR, 0);
     }
@@ -1462,13 +1462,13 @@ IMS_SINT32 FakeRegistration::GetPortUC() const
     //---------------------------------------------------------------------------------------------
 
     // Check if the UE supports the Security Association Agreement.
-    // If nPortUC returns SIP::PORT_UNSPECIFIED, then it does not support "sec-agree".
-    if (nPortUC == SIP::PORT_UNSPECIFIED)
+    // If nPortUC returns Sip::PORT_UNSPECIFIED, then it does not support "sec-agree".
+    if (nPortUC == Sip::PORT_UNSPECIFIED)
     {
         return GetPortUS();
     }
 
-    if (!SIPConfigProxy::IsIpSecConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
+    if (!SipConfigProxy::IsIpSecConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
     {
         if (nPortUC == 0)
         {
@@ -1498,7 +1498,7 @@ IMS_SINT32 FakeRegistration::GetPortUS() const
             return pRegParam->GetPort();
         }
 
-        return SIP::PORT_5060;
+        return Sip::PORT_5060;
     }
 
     return pContact->GetPort();
@@ -1529,7 +1529,7 @@ void FakeRegistration::NotifyResponse(IN IMS_SINT32 nStatusCode)
 
     IMS_TRACE_I("Registration - %d response to REGISTER received", nStatusCode, 0, 0);
 
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         return;
     }
@@ -1538,10 +1538,10 @@ void FakeRegistration::NotifyResponse(IN IMS_SINT32 nStatusCode)
     IMS_SINT32 nPrevSubState = GetSubState();
 
     // Authentication challenged by S-CSCF
-    if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
-        PostMessage(AMSG_REGISTRATION_RESPONSE_RECEIVED, SIPStatusCode::SC_200, 0);
+        PostMessage(AMSG_REGISTRATION_RESPONSE_RECEIVED, SipStatusCode::SC_200, 0);
         return;
     }
 
@@ -1549,7 +1549,7 @@ void FakeRegistration::NotifyResponse(IN IMS_SINT32 nStatusCode)
     SetSubState(SUB_STATE_IDLE);
 
     // Handle the response except for 401/407
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         // Update the sequence number
         UpdateCSeqNumber();
@@ -1619,7 +1619,7 @@ void FakeRegistration::SetState(IN IMS_SINT32 nState)
     //---------------------------------------------------------------------------------------------
 
     IMS_TRACE_I("Registration (%s) :: %s to %s",
-            SIPDebug::GetUri1(pStateTracker->GetAOR().GetURI()).GetStr(),
+            SipDebug::GetUri1(pStateTracker->GetAOR().GetUri()).GetStr(),
             StateToString(this->nState), StateToString(nState));
 
     this->nState = nState;
@@ -1675,7 +1675,7 @@ void FakeRegistration::StorePersistentHeaders()
         objTmpArray.AddElement(pStateTracker->GetAOR().ToString());
 
         IMS_TRACE_D("P-Associated-URI is not present; AOR (%s)",
-                SIPDebug::GetUri1(objTmpArray.GetElementAt(0)).GetStr(), 0, 0);
+                SipDebug::GetUri1(objTmpArray.GetElementAt(0)).GetStr(), 0, 0);
     }
 
     if (piUserIdNotifier != IMS_NULL)

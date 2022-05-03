@@ -85,20 +85,20 @@ void SIPUnknownHeaders::Header::SetName(IN CONST AString &strName)
 
     // Headers with a compact form : Subject (s), Identity (y), Identity-Info (n)
 
-    if (strName.EqualsIgnoreCase(SIPHeaderName::CF_SUBJECT))
+    if (strName.EqualsIgnoreCase(SipHeaderName::CF_SUBJECT))
     {
         this->strCompactName = strName;
-        this->strName = SIPHeaderName::SUBJECT;
+        this->strName = SipHeaderName::SUBJECT;
     }
-    else if (strName.EqualsIgnoreCase(SIPHeaderName::CF_IDENTITY))
+    else if (strName.EqualsIgnoreCase(SipHeaderName::CF_IDENTITY))
     {
         this->strCompactName = strName;
-        this->strName = SIPHeaderName::IDENTITY;
+        this->strName = SipHeaderName::IDENTITY;
     }
-    else if (strName.EqualsIgnoreCase(SIPHeaderName::CF_IDENTITY_INFO))
+    else if (strName.EqualsIgnoreCase(SipHeaderName::CF_IDENTITY_INFO))
     {
         this->strCompactName = strName;
-        this->strName = SIPHeaderName::IDENTITY_INFO;
+        this->strName = SipHeaderName::IDENTITY_INFO;
     }
     else
     {
@@ -106,9 +106,9 @@ void SIPUnknownHeaders::Header::SetName(IN CONST AString &strName)
         {
         case 's':
         case 'S':
-            if (strName.EqualsIgnoreCase(SIPHeaderName::SUBJECT))
+            if (strName.EqualsIgnoreCase(SipHeaderName::SUBJECT))
             {
-                this->strCompactName = SIPHeaderName::CF_SUBJECT;
+                this->strCompactName = SipHeaderName::CF_SUBJECT;
             }
 
             this->strName = strName;
@@ -116,13 +116,13 @@ void SIPUnknownHeaders::Header::SetName(IN CONST AString &strName)
 
         case 'i':
         case 'I':
-            if (strName.EqualsIgnoreCase(SIPHeaderName::IDENTITY))
+            if (strName.EqualsIgnoreCase(SipHeaderName::IDENTITY))
             {
-                this->strCompactName = SIPHeaderName::CF_IDENTITY;
+                this->strCompactName = SipHeaderName::CF_IDENTITY;
             }
-            else if (strName.EqualsIgnoreCase(SIPHeaderName::IDENTITY_INFO))
+            else if (strName.EqualsIgnoreCase(SipHeaderName::IDENTITY_INFO))
             {
-                this->strCompactName = SIPHeaderName::CF_IDENTITY_INFO;
+                this->strCompactName = SipHeaderName::CF_IDENTITY_INFO;
             }
 
             this->strName = strName;
@@ -216,7 +216,7 @@ IMS_RESULT SIPUnknownHeaders::AddHeader(IN CONST AString &strName, IN CONST AStr
 
         if (pHeader == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_FAILURE;
         }
 
@@ -224,7 +224,7 @@ IMS_RESULT SIPUnknownHeaders::AddHeader(IN CONST AString &strName, IN CONST AStr
         {
             delete pHeader;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
 
@@ -232,7 +232,7 @@ IMS_RESULT SIPUnknownHeaders::AddHeader(IN CONST AString &strName, IN CONST AStr
         {
             delete pHeader;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
@@ -240,7 +240,7 @@ IMS_RESULT SIPUnknownHeaders::AddHeader(IN CONST AString &strName, IN CONST AStr
     {
         if (!pHeader->objBodys.Append(strBody))
         {
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
@@ -492,7 +492,7 @@ IMS_RESULT SIPUnknownHeaders::PrependHeader(IN CONST AString &strName, IN CONST 
 
         if (pHeader == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_FAILURE;
         }
 
@@ -500,7 +500,7 @@ IMS_RESULT SIPUnknownHeaders::PrependHeader(IN CONST AString &strName, IN CONST 
         {
             delete pHeader;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
 
@@ -508,7 +508,7 @@ IMS_RESULT SIPUnknownHeaders::PrependHeader(IN CONST AString &strName, IN CONST 
         {
             delete pHeader;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
@@ -516,7 +516,7 @@ IMS_RESULT SIPUnknownHeaders::PrependHeader(IN CONST AString &strName, IN CONST 
     {
         if (!pHeader->objBodys.Prepend(strBody))
         {
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
@@ -563,7 +563,7 @@ IMS_RESULT SIPUnknownHeaders::SetHeader(IN CONST AString &strName, IN CONST AStr
 
         if (pHeader == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_FAILURE;
         }
 
@@ -573,7 +573,7 @@ IMS_RESULT SIPUnknownHeaders::SetHeader(IN CONST AString &strName, IN CONST AStr
             {
                 delete pHeader;
 
-                SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+                SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
                 return IMS_FAILURE;
             }
         }
@@ -583,7 +583,7 @@ IMS_RESULT SIPUnknownHeaders::SetHeader(IN CONST AString &strName, IN CONST AStr
             {
                 delete pHeader;
 
-                SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+                SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
                 return IMS_FAILURE;
             }
         }
@@ -592,7 +592,7 @@ IMS_RESULT SIPUnknownHeaders::SetHeader(IN CONST AString &strName, IN CONST AStr
         {
             delete pHeader;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
@@ -602,7 +602,7 @@ IMS_RESULT SIPUnknownHeaders::SetHeader(IN CONST AString &strName, IN CONST AStr
         {
             if (!pHeader->objBodys.InsertAt(strBody, 0))
             {
-                SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+                SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
                 return IMS_FAILURE;
             }
         }
@@ -610,7 +610,7 @@ IMS_RESULT SIPUnknownHeaders::SetHeader(IN CONST AString &strName, IN CONST AStr
         {
             if (!pHeader->objBodys.SetAt(strBody, 0))
             {
-                SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+                SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
                 return IMS_FAILURE;
             }
         }

@@ -17,9 +17,9 @@ public:
      * If the next message doesn't exist, this method will create the message and return it.
      *
      * @return Pointer to the next SIP request message.
-     * @see ISIPMessage
+     * @see ISipMessage
      */
-    virtual ISIPMessage* GetNextRequest() = 0;
+    virtual ISipMessage* GetNextRequest() = 0;
 
     /**
      * @brief Returns the previous SIP request message.
@@ -27,9 +27,9 @@ public:
      * If any operation does not execute, the NULL message will be returned.
      *
      * @return Pointer to the previous SIP request message.
-     * @see ISIPMessage
+     * @see ISipMessage
      */
-    virtual ISIPMessage* GetPreviousRequest() const = 0;
+    virtual ISipMessage* GetPreviousRequest() const = 0;
 
     /**
      * @brief Returns the previous SIP response message.
@@ -37,9 +37,9 @@ public:
      * If any SIP response did not receive, the NULL message will be returned.
      *
      * @return Pointer to the previous SIP response message.
-     * @see ISIPMessage
+     * @see ISipMessage
      */
-    virtual ISIPMessage* GetPreviousResponse() const = 0;
+    virtual ISipMessage* GetPreviousResponse() const = 0;
 
     /**
      * @brief Sets the SIP message mediator.

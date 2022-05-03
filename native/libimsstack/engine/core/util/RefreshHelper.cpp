@@ -73,7 +73,7 @@ void RefreshHelper::AbortConnection()
 }
 
 PUBLIC
-ISIPClientConnection* RefreshHelper::GetConnection() const
+ISipClientConnection* RefreshHelper::GetConnection() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -126,7 +126,7 @@ void RefreshHelper::SetPolicy(IN IMS_SINT32 nPolicy,
 }
 
 PROTECTED VIRTUAL
-IMS_RESULT RefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piSCC)
+IMS_RESULT RefreshHelper::SendRefreshRequest(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ IMS_SINT32 RefreshHelper::GetTimerInterval() const
 }
 
 PROTECTED
-void RefreshHelper::Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+void RefreshHelper::Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -367,8 +367,8 @@ void RefreshHelper::Timer_TimerExpired(IN ITimer *piTimer)
 }
 
 PRIVATE VIRTUAL
-void RefreshHelper::ClientConnection_NotifyResponse(IN ISIPClientConnection * piSCC,
-        IN ISIPClientConnection * /* piForkedSCC = IMS_NULL */)
+void RefreshHelper::ClientConnection_NotifyResponse(IN ISipClientConnection * piSCC,
+        IN ISipClientConnection * /* piForkedSCC = IMS_NULL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -379,12 +379,12 @@ void RefreshHelper::ClientConnection_NotifyResponse(IN ISIPClientConnection * pi
         return;
 
     // Parse the message body if it is a multipart body
-    if (!SIPParsingHelper::CreateMessageBodyParts(piSCC->GetMessage()))
+    if (!SipParsingHelper::CreateMessageBodyParts(piSCC->GetMessage()))
     {
         IMS_TRACE_E(0, "Parsing a message body part failed", 0, 0, 0);
 
         Error_NotifyError(piSCC,
-                SIPError::PARSING_ERROR, AString("Parsing Error :: message body part"));
+                SipError::PARSING_ERROR, AString("Parsing Error :: message body part"));
         return;
     }
 
@@ -392,9 +392,9 @@ void RefreshHelper::ClientConnection_NotifyResponse(IN ISIPClientConnection * pi
 
     RefreshCompleted(piSCC);
 
-    if ((nStatusCode >= SIPStatusCode::SC_200)
-            && (nStatusCode != SIPStatusCode::SC_401)
-            && (nStatusCode != SIPStatusCode::SC_407))
+    if ((nStatusCode >= SipStatusCode::SC_200)
+            && (nStatusCode != SipStatusCode::SC_401)
+            && (nStatusCode != SipStatusCode::SC_407))
     {
         IMS_SINT32 nMethod = piSCC->GetMethod().ToInt();
 
@@ -405,14 +405,14 @@ void RefreshHelper::ClientConnection_NotifyResponse(IN ISIPClientConnection * pi
         }
 
         // Re-submit the session refresh request with the new session interval (Session-Expires)
-        if ((nMethod == SIPMethod::INVITE) && (nStatusCode == SIPStatusCode::SC_422))
+        if ((nMethod == SipMethod::INVITE) && (nStatusCode == SipStatusCode::SC_422))
         {
             RefreshStarted();
         }
 
         if (!IsSessionTimerUpdateRequiredByReInvite())
         {
-            if ((nMethod == SIPMethod::UPDATE) && (nStatusCode == SIPStatusCode::SC_500))
+            if ((nMethod == SipMethod::UPDATE) && (nStatusCode == SipStatusCode::SC_500))
             {
                 // Out of sequence (race condition: re-INVITE & UPDATE)
                 // : re-send the session refresh request (UPDATE)
@@ -420,28 +420,28 @@ void RefreshHelper::ClientConnection_NotifyResponse(IN ISIPClientConnection * pi
             }
         }
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         // Do something when responding to the challenge is failed
     }
 }
 
 PRIVATE VIRTUAL
-void RefreshHelper::Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void RefreshHelper::Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
     //---------------------------------------------------------------------------------------------
 
     (void) strMessage;
 
-    if (nCode == SIPError::TRANSACTION_TIMER_EXPIRED)
+    if (nCode == SipError::TRANSACTION_TIMER_EXPIRED)
     {
-        RefreshCompleted(DYNAMIC_CAST(ISIPClientConnection*, piSC), TRANSACTION_TIMEOUT);
+        RefreshCompleted(DYNAMIC_CAST(ISipClientConnection*, piSC), TRANSACTION_TIMEOUT);
     }
     else
     {
-        RefreshCompleted(DYNAMIC_CAST(ISIPClientConnection*, piSC), nCode);
+        RefreshCompleted(DYNAMIC_CAST(ISipClientConnection*, piSC), nCode);
     }
 
     if (piRefreshSC != IMS_NULL)

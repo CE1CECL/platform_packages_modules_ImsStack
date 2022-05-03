@@ -6,7 +6,7 @@
 #include "SipTimerValues.h"
 #include "SipAddress.h"
 
-class ISIPMessageBodyPart;
+class ISipMessageBodyPart;
 
 /**
  * @brief This class provides an interface to access/control SIP header/parameters
@@ -26,10 +26,10 @@ public:
     /**
      * @brief Adds the message body to be set during the registration in active.
      *
-     * @param piBodyPart Pointer of ISIPMessageBodyPart
+     * @param piBodyPart Pointer of ISipMessageBodyPart
      * @return If it succeeds, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL AddMessageBodyPart(IN ISIPMessageBodyPart *piBodyPart) = 0;
+    virtual IMS_BOOL AddMessageBodyPart(IN ISipMessageBodyPart *piBodyPart) = 0;
 
     /**
      * @brief Adds the preloaded route header.
@@ -57,10 +57,10 @@ public:
     /**
      * @brief Adds the Security-Client header.
      *
-     * @param objSecurityHeader Object to SIPSecurityHeader (Security-Client)
+     * @param objSecurityHeader Object to SipSecurityHeader (Security-Client)
      * @return If it succeeds, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL AddSecurityClient(IN CONST SIPSecurityHeader &objSecurityHeader) = 0;
+    virtual IMS_BOOL AddSecurityClient(IN CONST SipSecurityHeader &objSecurityHeader) = 0;
 
     /**
      * @brief Returns the default SIP port for each registration.
@@ -77,7 +77,7 @@ public:
      *
      * @return Pointer to preferred Security-Client.
      */
-    virtual const SIPSecurityHeader* GetPreferredSecurityClient() const = 0;
+    virtual const SipSecurityHeader* GetPreferredSecurityClient() const = 0;
 
     /**
      * @brief Returns the preferred Security-Server header among the Security-Server list.
@@ -87,21 +87,21 @@ public:
      *
      * @return Pointer to preferred Security-Server.
      */
-    virtual const SIPSecurityHeader* GetPreferredSecurityServer() const = 0;
+    virtual const SipSecurityHeader* GetPreferredSecurityServer() const = 0;
 
     /**
      * @brief Returns the list of Security-Server header.
      *
      * @return List of Security-Server header.
      */
-    virtual const IMSList<SIPSecurityHeader>& GetSecurityServers() const = 0;
+    virtual const IMSList<SipSecurityHeader>& GetSecurityServers() const = 0;
 
     /**
      * @brief Returns the topmost Route header.
      *
      * @return Topmost Route address.
      */
-    virtual const SIPAddress& GetTopmostRouteAddress() const = 0;
+    virtual const SipAddress& GetTopmostRouteAddress() const = 0;
 
     /**
      * @brief Removes all the message body parts.
@@ -148,7 +148,7 @@ public:
      *     - "outbound" option tag in Require header in 200 OK (to REGISTER)
      *
      * If the condition is true, the provisioned flow control port is selected.
-     * Otherwise, SIP::PORT_UNSPECIFIED is selected.
+     * Otherwise, Sip::PORT_UNSPECIFIED is selected.
      *
      * @param nOption Option to select a port for the flow control
      * @note RFC5626_FLOW_CONTROL
@@ -166,7 +166,7 @@ public:
      * @brief Sets the port for the flow control of this registration.
      *
      * If the application wouldn't like to use the flow control scheme,
-     * it SHOULD set the port number to 0 or SIP::PORT_UNSPECIFIED.
+     * it SHOULD set the port number to 0 or Sip::PORT_UNSPECIFIED.
      *
      * @param nPort Port for the flow control
      * @note RFC5626_FLOW_CONTROL
@@ -178,26 +178,26 @@ public:
      *
      * @param objSecurityVerifys List of Security-Verify header
      */
-    virtual void SetSecurityVerifys(IN CONST IMSList<SIPSecurityHeader> &objSecurityVerifys) = 0;
+    virtual void SetSecurityVerifys(IN CONST IMSList<SipSecurityHeader> &objSecurityVerifys) = 0;
 
     /**
      * @brief Sets the timer values of SIP transaction layer for registration.
      *
-     * @param objTVs Object of SIPTimerValues
+     * @param objTVs Object of SipTimerValues
      */
-    virtual void SetSIPTimerValues(IN CONST SIPTimerValues &objTVs) = 0;
+    virtual void SetSIPTimerValues(IN CONST SipTimerValues &objTVs) = 0;
 
     /**
      * @brief Sets the transport extensions for this registration.
      *
-     * @param nTransportExt Transport extension (SIP::TRANSPORT_EXT_XXX in #SIP)
+     * @param nTransportExt Transport extension (Sip::TRANSPORT_EXT_XXX in #SIP)
      */
     virtual void SetTransportExt(IN IMS_SINT32 nTransportExt) = 0;
 
     /**
      * @brief Sets the transport extensions for registration only.
      *
-     * @param nTransportExt Transport extension (SIP::TRANSPORT_EXT_XXX in #SIP)
+     * @param nTransportExt Transport extension (Sip::TRANSPORT_EXT_XXX in #SIP)
      */
     virtual void SetTransportExtForRegOnly(IN IMS_SINT32 nTransportExt) = 0;
 

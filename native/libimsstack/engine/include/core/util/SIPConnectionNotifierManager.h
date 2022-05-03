@@ -16,7 +16,7 @@
 #include "IPAddress.h"
 #include "SipAddress.h"
 
-class ISIPConnectionNotifier;
+class ISipConnectionNotifier;
 class SIPConnectionNotifierManagerPrivate;
 
 
@@ -31,13 +31,13 @@ private:
     SIPConnectionNotifierManager& operator=(IN const SIPConnectionNotifierManager& objRHS);
 
 public:
-    ISIPConnectionNotifier* CreateConnectionNotifier(
+    ISipConnectionNotifier* CreateConnectionNotifier(
             IN CONST AString &strScheme, IN CONST IPAddress &objIPA, IN IMS_SINT32 nPortS,
             IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFlowControl,
-            IN CONST AString &strParams, IN CONST SIPAddress &objUserId);
-    ISIPConnectionNotifier* GetConnectionNotifier(IN CONST IPAddress &objIP,
+            IN CONST AString &strParams, IN CONST SipAddress &objUserId);
+    ISipConnectionNotifier* GetConnectionNotifier(IN CONST IPAddress &objIP,
             IN IMS_SINT32 nPort);
-    void ReleaseConnectionNotifier(IN ISIPConnectionNotifier *&piSCN);
+    void ReleaseConnectionNotifier(IN ISipConnectionNotifier *&piSCN);
 
     static SIPConnectionNotifierManager* GetInstance();
     static void Init(IN IMS_SINT32 nSlotId);

@@ -72,9 +72,9 @@ PRIVATE
 void MtcExtension::UpdateFromRequireAndSupportedHeader(IN const IMessage& objMessage)
 {
     m_bRequiredOnRemote =
-            MessageUtil::HasValue(&objMessage, GetOptionTag(), ISIPHeader::REQUIRE);
+            MessageUtil::HasValue(&objMessage, GetOptionTag(), ISipHeader::REQUIRE);
     m_bSupportedOnRemote =
-            MessageUtil::HasValue(&objMessage, GetOptionTag(), ISIPHeader::SUPPORTED);
+            MessageUtil::HasValue(&objMessage, GetOptionTag(), ISipHeader::SUPPORTED);
 
     IMS_TRACE_D("UpdateFromRequireAndSupportedHeader : Tag[%s] Require[%s] Supported[%s]",
             m_strOptionTag.GetStr(),

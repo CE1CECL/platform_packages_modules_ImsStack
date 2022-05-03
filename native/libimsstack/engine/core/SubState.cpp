@@ -124,7 +124,7 @@ EventPackage* SubState::GetEventPackage()
 }
 
 PUBLIC
-ISIPMessage* SubState::GetInitialMessage() const
+ISipMessage* SubState::GetInitialMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ IMS_BOOL SubState::IsTerminated() const
 
 #if 0
 PUBLIC
-IMS_BOOL SubState::SetHeadersAndBodyParts(IN_OUT ISIPMessage *&piSIPMsg)
+IMS_BOOL SubState::SetHeadersAndBodyParts(IN_OUT ISipMessage *&piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -220,7 +220,7 @@ void SubState::SetOperation(IN IMS_SINT32 nOperation)
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SubState::ExtractExpiresParameter(IN CONST ISIPHeader *piHeader)
+IMS_SINT32 SubState::ExtractExpiresParameter(IN CONST ISipHeader *piHeader)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -229,12 +229,12 @@ IMS_SINT32 SubState::ExtractExpiresParameter(IN CONST ISIPHeader *piHeader)
         return NO_EXPIRES;
     }
 
-    if (piHeader->GetType() != ISIPHeader::SUBSCRIPTION_STATE)
+    if (piHeader->GetType() != ISipHeader::SUBSCRIPTION_STATE)
     {
         return NO_EXPIRES;
     }
 
-    const SIPParameter *pParameter = piHeader->GetParameter(SIP::STR_EXPIRES);
+    const SipParameter *pParameter = piHeader->GetParameter(Sip::STR_EXPIRES);
 
     if (pParameter == IMS_NULL)
     {
@@ -264,7 +264,7 @@ IMS_SINT32 SubState::ExtractExpiresParameter(IN CONST ISIPHeader *piHeader)
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SubState::ExtractReasonParameter(IN CONST ISIPHeader *piHeader)
+IMS_SINT32 SubState::ExtractReasonParameter(IN CONST ISipHeader *piHeader)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -273,12 +273,12 @@ IMS_SINT32 SubState::ExtractReasonParameter(IN CONST ISIPHeader *piHeader)
         return REASON_NONE;
     }
 
-    if (piHeader->GetType() != ISIPHeader::SUBSCRIPTION_STATE)
+    if (piHeader->GetType() != ISipHeader::SUBSCRIPTION_STATE)
     {
         return REASON_NONE;
     }
 
-    const SIPParameter *pParameter = piHeader->GetParameter(STR_REASON);
+    const SipParameter *pParameter = piHeader->GetParameter(STR_REASON);
 
     if (pParameter == IMS_NULL)
     {
@@ -304,7 +304,7 @@ IMS_SINT32 SubState::ExtractReasonParameter(IN CONST ISIPHeader *piHeader)
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SubState::ExtractSubStateValue(IN CONST ISIPHeader *piHeader)
+IMS_SINT32 SubState::ExtractSubStateValue(IN CONST ISipHeader *piHeader)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -313,22 +313,22 @@ IMS_SINT32 SubState::ExtractSubStateValue(IN CONST ISIPHeader *piHeader)
         return SUB_STATE_INIT;
     }
 
-    if (piHeader->GetType() != ISIPHeader::SUBSCRIPTION_STATE)
+    if (piHeader->GetType() != ISipHeader::SUBSCRIPTION_STATE)
     {
         return SUB_STATE_INIT;
     }
 
     const AString &strSubState = piHeader->GetValue();
 
-    if (strSubState.EqualsIgnoreCase(SIP::STR_ACTIVE))
+    if (strSubState.EqualsIgnoreCase(Sip::STR_ACTIVE))
     {
         return SUB_STATE_ACTIVE;
     }
-    else if (strSubState.EqualsIgnoreCase(SIP::STR_PENDING))
+    else if (strSubState.EqualsIgnoreCase(Sip::STR_PENDING))
     {
         return SUB_STATE_PENDING;
     }
-    else if (strSubState.EqualsIgnoreCase(SIP::STR_TERMINATED))
+    else if (strSubState.EqualsIgnoreCase(Sip::STR_TERMINATED))
     {
         return SUB_STATE_TERMINATED;
     }
@@ -413,16 +413,16 @@ void SubState::SetInstantSubscription(IN IMS_BOOL bInstantSubscription)
 }
 
 PROTECTED
-void SubState::SetState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nState)
+void SubState::SetState(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nState)
 {
-    AString strCallId = piSIPMsg->GetHeader(ISIPHeader::CALL_ID);
+    AString strCallId = piSIPMsg->GetHeader(ISipHeader::CALL_ID);
 
     //-----------------------------------------------------------------------------------------
 
     (void) strCallId;
 
     IMS_TRACE_I("SUB_STATE : %s - %s >> %s",
-            SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'),
+            SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'),
             StateToString(this->nState), StateToString(nState));
 
     this->nState = nState;
@@ -437,7 +437,7 @@ void SubState::SetSubState(IN IMS_SINT32 nSubState)
 }
 
 PROTECTED
-void SubState::StoreMessage(IN CONST ISIPMessage *piSIPMsg)
+void SubState::StoreMessage(IN CONST ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -461,7 +461,7 @@ void SubState::StoreMessage(IN CONST ISIPMessage *piSIPMsg)
 
             if (pProperty->bSingleHeader)
             {
-                if (pProperty->nType != ISIPHeader::UNKNOWN)
+                if (pProperty->nType != ISipHeader::UNKNOWN)
                     this->piSIPMsg->RemoveHeader(pProperty->nType);
                 else
                     this->piSIPMsg->RemoveHeader(pProperty->nType, pProperty->pszName);
@@ -470,7 +470,7 @@ void SubState::StoreMessage(IN CONST ISIPMessage *piSIPMsg)
             {
                 IMS_SINT32 nHeaderCount;
 
-                if (pProperty->nType != ISIPHeader::UNKNOWN)
+                if (pProperty->nType != ISipHeader::UNKNOWN)
                 {
                     nHeaderCount = this->piSIPMsg->GetHeaderCount(pProperty->nType);
 

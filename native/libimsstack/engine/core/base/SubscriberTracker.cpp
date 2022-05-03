@@ -29,7 +29,7 @@ SubscriberTracker::SubscriberTracker()
     , pSubscriberMaps(IMS_NULL)
 {
     piLock = MutexService::GetMutexService()->CreateMutex();
-    pSubscriberMaps = new IMSMap< AString, IMSList<SIPAddress*> >[SystemConfig::GetMaxSimSlot()];
+    pSubscriberMaps = new IMSMap< AString, IMSList<SipAddress*> >[SystemConfig::GetMaxSimSlot()];
 }
 
 PUBLIC VIRTUAL
@@ -53,7 +53,7 @@ const AString& SubscriberTracker::GetSubscriberId(
         IN IMS_SINT32 nSlotId, IN const AString &strAOR) const
 {
     //// Supports a multiple subscriber configurations
-    SIPAddress objAOR;
+    SipAddress objAOR;
 
     if (!objAOR.Create(strAOR))
     {
@@ -70,7 +70,7 @@ Remarks
 */
 PUBLIC
 const AString& SubscriberTracker::GetSubscriberId(
-        IN IMS_SINT32 nSlotId, IN const SIPAddress *pAOR) const
+        IN IMS_SINT32 nSlotId, IN const SipAddress *pAOR) const
 {
     if (pAOR == IMS_NULL)
     {
@@ -79,7 +79,7 @@ const AString& SubscriberTracker::GetSubscriberId(
 
     LockGuard objLock(piLock);
 
-    IMSMap< AString, IMSList<SIPAddress*> >* pSubscribers = GetSubscribers(nSlotId);
+    IMSMap< AString, IMSList<SipAddress*> >* pSubscribers = GetSubscribers(nSlotId);
 
     if (pSubscribers == IMS_NULL)
     {
@@ -97,11 +97,11 @@ const AString& SubscriberTracker::GetSubscriberId(
     for (IMS_UINT32 i = 0; i < pSubscribers->GetSize(); ++i)
     {
         const AString &strId = pSubscribers->GetKeyAt(i);
-        const IMSList<SIPAddress*> &objIMPUs = pSubscribers->GetValueAt(i);
+        const IMSList<SipAddress*> &objIMPUs = pSubscribers->GetValueAt(i);
 
         for (IMS_UINT32 j = 0; j < objIMPUs.GetSize(); ++j)
         {
-            const SIPAddress *pIMPU = objIMPUs.GetAt(j);
+            const SipAddress *pIMPU = objIMPUs.GetAt(j);
 
             if (pIMPU->Equals(*pAOR))
             {
@@ -142,11 +142,11 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
         IN const AString &strOLD, IN const AString &strNEW)
 {
     IMS_TRACE_I("Subscriber :: ID (%s), OLD (%s), NEW (%s)", strId.GetStr(),
-            SIPDebug::GetUri1(strOLD).GetStr(), SIPDebug::GetUri2(strNEW).GetStr());
+            SipDebug::GetUri1(strOLD).GetStr(), SipDebug::GetUri2(strNEW).GetStr());
 
     LockGuard objLock(piLock);
 
-    IMSMap< AString, IMSList<SIPAddress*> >* pSubscribers = GetSubscribers(nSlotId);
+    IMSMap< AString, IMSList<SipAddress*> >* pSubscribers = GetSubscribers(nSlotId);
 
     if (pSubscribers == IMS_NULL)
     {
@@ -164,7 +164,7 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
         }
 
         // New subscriber configuration
-        SIPAddress *pIMPU = new SIPAddress();
+        SipAddress *pIMPU = new SipAddress();
 
         if (pIMPU == IMS_NULL)
         {
@@ -176,11 +176,11 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
             delete pIMPU;
 
             IMS_TRACE_E(0, "Creating SIP address (%s) failed",
-                    SIPDebug::GetUri1(strNEW).GetStr(), 0, 0);
+                    SipDebug::GetUri1(strNEW).GetStr(), 0, 0);
             return;
         }
 
-        IMSList<SIPAddress*> objIMPUs;
+        IMSList<SipAddress*> objIMPUs;
 
         objIMPUs.Append(pIMPU);
 
@@ -192,11 +192,11 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
     if ((strOLD.GetLength() == 0) && (strNEW.GetLength() == 0))
     {
         // Remove all the IMPUs
-        IMSList<SIPAddress*> &objIMPUs = pSubscribers->GetValueAt(nIndex);
+        IMSList<SipAddress*> &objIMPUs = pSubscribers->GetValueAt(nIndex);
 
         while (!objIMPUs.IsEmpty())
         {
-            SIPAddress *pIMPU = objIMPUs.GetAt(0);
+            SipAddress *pIMPU = objIMPUs.GetAt(0);
 
             if (pIMPU != IMS_NULL)
             {
@@ -215,7 +215,7 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
         return;
     }
 
-    IMSList<SIPAddress*> &objIMPUs = pSubscribers->GetValueAt(nIndex);
+    IMSList<SipAddress*> &objIMPUs = pSubscribers->GetValueAt(nIndex);
 
     // OLD : empty, NEW : not empty
     // OLD : not empty, NEW : empty
@@ -224,11 +224,11 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
     // First, check an old IMPU and remove it if present
     if ((strOLD.GetLength() != 0) && !objIMPUs.IsEmpty())
     {
-        SIPAddress objOLD(strOLD);
+        SipAddress objOLD(strOLD);
 
         for (IMS_UINT32 i = 0; i < objIMPUs.GetSize(); ++i)
         {
-            SIPAddress *pIMPU = objIMPUs.GetAt(i);
+            SipAddress *pIMPU = objIMPUs.GetAt(i);
 
             if (pIMPU == IMS_NULL)
             {
@@ -249,7 +249,7 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
     // Adds a new IMPU
     if (strNEW.GetLength() != 0)
     {
-        SIPAddress *pIMPU = new SIPAddress();
+        SipAddress *pIMPU = new SipAddress();
 
         if (pIMPU == IMS_NULL)
         {
@@ -261,7 +261,7 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
             delete pIMPU;
 
             IMS_TRACE_E(0, "Creating SIP address (%s) failed",
-                    SIPDebug::GetUri1(strNEW).GetStr(), 0, 0);
+                    SipDebug::GetUri1(strNEW).GetStr(), 0, 0);
             return;
         }
 
@@ -270,7 +270,7 @@ void SubscriberTracker::SubscriberInfo_UpdateIMPU(
 }
 
 PRIVATE
-IMSMap< AString, IMSList<SIPAddress*> >* SubscriberTracker::GetSubscribers(
+IMSMap< AString, IMSList<SipAddress*> >* SubscriberTracker::GetSubscribers(
         IN IMS_SINT32 nSlotId) const
 {
     if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))

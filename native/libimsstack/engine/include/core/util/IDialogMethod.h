@@ -33,7 +33,7 @@ public:
     </table>
 
     */
-    virtual IMS_BOOL Dialog_Compare(IN ISIPServerConnection *piSSC) const = 0;
+    virtual IMS_BOOL Dialog_Compare(IN ISipServerConnection *piSSC) const = 0;
 
     /*
 
@@ -50,7 +50,7 @@ public:
     </table>
 
     */
-    virtual IMS_BOOL Dialog_NotifyRequest(IN ISIPServerConnection *piSSC) = 0;
+    virtual IMS_BOOL Dialog_NotifyRequest(IN ISipServerConnection *piSSC) = 0;
 };
 
 #endif // _INTERFACE_DIALOG_METHOD_H_

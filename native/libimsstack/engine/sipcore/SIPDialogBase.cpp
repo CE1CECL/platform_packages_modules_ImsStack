@@ -80,18 +80,18 @@ Remarks
 
 */
 PUBLIC GLOBAL
-IMS_BOOL SIPDialogBase::IsDialogCreatable(IN CONST SIPMethod &objMethod)
+IMS_BOOL SIPDialogBase::IsDialogCreatable(IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.Equals(SIPMethod::INVALID))
+    if (objMethod.Equals(SipMethod::INVALID))
         return IMS_FALSE;
 
     // Check if the current method can create a dialog or not
-    if (!objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::SUBSCRIBE)
-            && !objMethod.Equals(SIPMethod::REFER)
-            /* && !objMethod.Equals(SIPMethod::NOTIFY) */)
+    if (!objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::SUBSCRIBE)
+            && !objMethod.Equals(SipMethod::REFER)
+            /* && !objMethod.Equals(SipMethod::NOTIFY) */)
     {
         return IMS_FALSE;
     }

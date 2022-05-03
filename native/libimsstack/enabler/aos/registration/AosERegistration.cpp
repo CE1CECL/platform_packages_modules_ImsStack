@@ -252,7 +252,7 @@ void AosERegistration::ProcessStartFailed_StatusCode(IN IMS_SINT32 nStatusCode)
     switch (nStatusCode)
     {
          // 423
-        case SIPStatusCode::SC_423:
+        case SipStatusCode::SC_423:
             ProcessStartFailed_423();
             break;
 
@@ -285,7 +285,7 @@ void AosERegistration::ProcessUpdateFailed_StatusCode(IN IMS_SINT32 nStatusCode)
     switch (nStatusCode)
     {
         //423
-        case SIPStatusCode::SC_423:
+        case SipStatusCode::SC_423:
             ProcessUpdateFailed_423();
             break;
 

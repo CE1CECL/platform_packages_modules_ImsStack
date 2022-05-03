@@ -15,7 +15,7 @@
 
 #include "AStringArray.h"
 
-class ISIPHeader;
+class ISipHeader;
 
 
 
@@ -29,13 +29,13 @@ public:
     IMS_UINT32 GetDefaultDuration() const;
 
     const AString& GetEvent() const;
-    const ISIPHeader* GetEventHeader() const;
+    const ISipHeader* GetEventHeader() const;
     IMS_SINT32 GetDuration() const;
     const AStringArray& GetMIMETypes() const;
 
     void SetDuration(IN IMS_SINT32 nDuration);
     void SetEvent(IN CONST AString &strEvent);
-    void SetEventHeader(IN ISIPHeader *piHeader);
+    void SetEventHeader(IN ISipHeader *piHeader);
     void SetMIMETypes(IN CONST AStringArray &objMIMETypes);
 
 private:
@@ -43,7 +43,7 @@ private:
 
     // Event header
     AString strEvent;
-    ISIPHeader *piEventHeader;
+    ISipHeader *piEventHeader;
 
     // In any case, MIN & MAX expiration value needs to be defined ...
 

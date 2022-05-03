@@ -20,11 +20,11 @@
 #include "ISipKeepAliveHelperListener.h"
 #include "IPAddress.h"
 
-class ISIPKeepAliveHelper;
+class ISipKeepAliveHelper;
 class IAosKeepAliveListener;
 
 class AosKeepAlive
-    : public ISIPKeepAliveHelperListener
+    : public ISipKeepAliveHelperListener
     , public ITimerListener
 {
 
@@ -64,7 +64,7 @@ private:
     void StopTimer(IN IMS_UINT32 nType);
     void ClearTimer();
 
-    // ISIPKeepAliveHelperListener
+    // ISipKeepAliveHelperListener
     virtual void KeepAliveHelper_PongReceived();
 
     // ITimerListener Interface
@@ -79,7 +79,7 @@ private:
     };
 
 private:
-    ISIPKeepAliveHelper *piKAHelper;
+    ISipKeepAliveHelper *piKAHelper;
     IAosKeepAliveListener *piListener;
     ITimer *piKeepAliveTimer;
     ITimer *piPongWATTimer;

@@ -66,27 +66,27 @@ protected:
 
     // Method class
     // IMS_AUTH_SIP_DIGEST
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // Handle the exceptions
     virtual void Exception_NotifyError(IN IMS_SINT32 nErrorCode);
     virtual IMS_BOOL InitInstance();
 
     // Handle to the outgoing request / incoming response message
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC);
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC);
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
     // IDialogMethod interface
-    virtual IMS_BOOL Dialog_Compare(IN ISIPServerConnection *piSSC) const;
-    virtual IMS_BOOL Dialog_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL Dialog_Compare(IN ISipServerConnection *piSSC) const;
+    virtual IMS_BOOL Dialog_NotifyRequest(IN ISipServerConnection *piSSC);
 
     // IForkedDialogMethod interface
-    virtual IMS_BOOL ForkedDialog_Compare(IN ISIPDialog *piOrigDialog) const;
-    virtual IMS_BOOL ForkedDialog_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL ForkedDialog_Compare(IN ISipDialog *piOrigDialog) const;
+    virtual IMS_BOOL ForkedDialog_NotifyRequest(IN ISipServerConnection *piSSC);
 
     // IRefreshable interface
-    virtual void Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+    virtual void Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
             IN IMS_SINT32 nCode = 0);
     virtual IMS_BOOL Refreshable_RefreshStarted();
     virtual void Refreshable_RefreshTerminated();
@@ -95,10 +95,10 @@ private:
     void CheckDialogNCallListener();
     void CleanupOnDestroy();
     void CloseConnection();
-    ISIPClientConnection* CreateConnectionL(IN ISIPDialog *piDialog,
-            IN CONST SIPMethod &objMethod);
+    ISipClientConnection* CreateConnectionL(IN ISipDialog *piDialog,
+            IN CONST SipMethod &objMethod);
     void SetState(IN IMS_SINT32 nState);
-    void UpdateResponse(IN ISIPClientConnection *piSCC);
+    void UpdateResponse(IN ISipClientConnection *piSCC);
 
     static const IMS_CHAR* StateToString(IN IMS_SINT32 nState);
 

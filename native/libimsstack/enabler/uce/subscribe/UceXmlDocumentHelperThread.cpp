@@ -340,9 +340,9 @@ IMS_BOOL UceXmlDocumentHelperThread::ReceivedRlmiNotifyMessageHandler(IMSMSG &ob
     AString strStart;
     IMS_TRACE_D("ReceivedRlmiNotifyMessageHandler:Content-Type[%s]", strContentType.GetStr(), 0, 0);
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::CONTENT_TYPE, strContentType);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::CONTENT_TYPE, strContentType);
     if (piHeader != IMS_NULL) {
-        const SIPParameter* pParameter = piHeader->GetParameter("start");
+        const SipParameter* pParameter = piHeader->GetParameter("start");
         if (pParameter != IMS_NULL) {
             strStart = pParameter->GetValue();
             if(strStart.StartsWith('\"') == IMS_TRUE && strStart.EndsWith('\"') == IMS_TRUE) {

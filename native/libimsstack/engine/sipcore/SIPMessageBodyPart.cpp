@@ -104,7 +104,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPMessageBodyPart* SIPMessageBodyPart::Clone() const
+ISipMessageBodyPart* SIPMessageBodyPart::Clone() const
 {
     SIPMessageBodyPart *pNewBodyPart = new SIPMessageBodyPart(bSDPBody);
 
@@ -112,7 +112,7 @@ ISIPMessageBodyPart* SIPMessageBodyPart::Clone() const
 
     if (pNewBodyPart == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -125,7 +125,7 @@ ISIPMessageBodyPart* SIPMessageBodyPart::Clone() const
         {
             delete pNewBodyPart;
 
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_NULL;
         }
     }
@@ -133,7 +133,7 @@ ISIPMessageBodyPart* SIPMessageBodyPart::Clone() const
     pNewBodyPart->objOtherMimeHeaders = objOtherMimeHeaders;
     pNewBodyPart->objContent = objContent;
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
     return pNewBodyPart;
 }
 
@@ -143,7 +143,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-void SIPMessageBodyPart::CopyFrom(IN CONST ISIPMessageBodyPart *piBodyPart)
+void SIPMessageBodyPart::CopyFrom(IN CONST ISipMessageBodyPart *piBodyPart)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -292,7 +292,7 @@ Remarks
 */
 PUBLIC
 void SIPMessageBodyPart::SetHeader(IN SipHeaderBase *pstHeader,
-        IN IMS_SINT32 nType /* = ISIPMessageBodyPart::CONTENT_UNKNOWN */)
+        IN IMS_SINT32 nType /* = ISipMessageBodyPart::CONTENT_UNKNOWN */)
 {
     //---------------------------------------------------------------------------------------------
 

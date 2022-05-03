@@ -17,14 +17,14 @@
 
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetDeviceId(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_SINT32 SipConfigProxy::GetDeviceId(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nDeviceId = pProfile->GetDeviceId();
 
-        if (nDeviceId != SIPProfile::NOT_PROVISIONED)
+        if (nDeviceId != SipProfile::NOT_PROVISIONED)
         {
             return nDeviceId;
         }
@@ -36,8 +36,8 @@ IMS_SINT32 SIPConfigProxy::GetDeviceId(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-const AString& SIPConfigProxy::GetPredefinedDeviceId(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+const AString& SipConfigProxy::GetPredefinedDeviceId(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
@@ -55,14 +55,14 @@ const AString& SIPConfigProxy::GetPredefinedDeviceId(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetPort(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_SINT32 SipConfigProxy::GetPort(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nPort = pProfile->GetPort();
 
-        if (nPort != SIPProfile::NOT_PROVISIONED)
+        if (nPort != SipProfile::NOT_PROVISIONED)
         {
             return nPort;
         }
@@ -74,14 +74,14 @@ IMS_SINT32 SIPConfigProxy::GetPort(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_UINT32 SIPConfigProxy::GetSipFeatureCaps(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_UINT32 SipConfigProxy::GetSipFeatureCaps(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nSIPFeatures = pProfile->GetSipFeatureCaps();
 
-        if (nSIPFeatures != SIPProfile::NOT_PROVISIONED)
+        if (nSIPFeatures != SipProfile::NOT_PROVISIONED)
         {
             return nSIPFeatures;
         }
@@ -93,8 +93,8 @@ IMS_UINT32 SIPConfigProxy::GetSipFeatureCaps(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-const AString& SIPConfigProxy::GetTagPrefix(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+const AString& SipConfigProxy::GetTagPrefix(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
@@ -112,14 +112,14 @@ const AString& SIPConfigProxy::GetTagPrefix(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTcpCriterionLength(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_SINT32 SipConfigProxy::GetTcpCriterionLength(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nTcpCriterionLength = pProfile->GetTcpCriterionLength();
 
-        if (nTcpCriterionLength != SIPProfile::NOT_PROVISIONED)
+        if (nTcpCriterionLength != SipProfile::NOT_PROVISIONED)
         {
             return nTcpCriterionLength;
         }
@@ -131,8 +131,8 @@ IMS_SINT32 SIPConfigProxy::GetTcpCriterionLength(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTransportType(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* /*pProfile = IMS_NULL*/)
+IMS_SINT32 SipConfigProxy::GetTransportType(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* /*pProfile = IMS_NULL*/)
 {
     const SipConfig* pSipConfig = ConfigurationManager::GetInstance()->GetSipConfig(nSlotId);
 
@@ -140,8 +140,8 @@ IMS_SINT32 SIPConfigProxy::GetTransportType(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-AString SIPConfigProxy::GetUaString(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+AString SipConfigProxy::GetUaString(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
@@ -160,8 +160,8 @@ AString SIPConfigProxy::GetUaString(IN IMS_SINT32 nSlotId,
 
 // "reg"
 PUBLIC GLOBAL
-const AStringArray& SIPConfigProxy::GetRegAllowMethods(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+const AStringArray& SipConfigProxy::GetRegAllowMethods(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
@@ -179,14 +179,14 @@ const AStringArray& SIPConfigProxy::GetRegAllowMethods(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetRegExpires(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_SINT32 SipConfigProxy::GetRegExpires(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nRegExpires = pProfile->GetRegExpires();
 
-        if (nRegExpires != SIPProfile::NOT_PROVISIONED)
+        if (nRegExpires != SipProfile::NOT_PROVISIONED)
         {
             return nRegExpires;
         }
@@ -198,14 +198,14 @@ IMS_SINT32 SIPConfigProxy::GetRegExpires(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetRegSubExpires(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_SINT32 SipConfigProxy::GetRegSubExpires(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nRegSubExpires = pProfile->GetRegSubExpires();
 
-        if (nRegSubExpires != SIPProfile::NOT_PROVISIONED)
+        if (nRegSubExpires != SipProfile::NOT_PROVISIONED)
         {
             return nRegSubExpires;
         }
@@ -217,8 +217,8 @@ IMS_SINT32 SIPConfigProxy::GetRegSubExpires(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-AString SIPConfigProxy::GetRegUaString(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile* pProfile/* = IMS_NULL*/)
+AString SipConfigProxy::GetRegUaString(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
@@ -236,12 +236,12 @@ AString SIPConfigProxy::GetRegUaString(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsRegExpiresConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsRegExpiresConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->GetRegExpires() != SIPProfile::NOT_PROVISIONED)
+        if (pProfile->GetRegExpires() != SipProfile::NOT_PROVISIONED)
         {
             return IMS_TRUE;
         }
@@ -253,12 +253,12 @@ IMS_BOOL SIPConfigProxy::IsRegExpiresConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsRegSubExpiresConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsRegSubExpiresConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->GetRegSubExpires() != SIPProfile::NOT_PROVISIONED)
+        if (pProfile->GetRegSubExpires() != SipProfile::NOT_PROVISIONED)
         {
             return IMS_TRUE;
         }
@@ -270,14 +270,14 @@ IMS_BOOL SIPConfigProxy::IsRegSubExpiresConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsRegSubscriptionConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsRegSubscriptionConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
         IMS_SINT32 nRegSubscription = pProfile->GetRegSubscription();
 
-        if (nRegSubscription != SIPProfile::NOT_PROVISIONED)
+        if (nRegSubscription != SipProfile::NOT_PROVISIONED)
         {
             return (nRegSubscription != 0);
         }
@@ -289,7 +289,7 @@ IMS_BOOL SIPConfigProxy::IsRegSubscriptionConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-const ISipConfigV* SIPConfigProxy::GetSipConfigV(IN IMS_SINT32 nSlotId)
+const ISipConfigV* SipConfigProxy::GetSipConfigV(IN IMS_SINT32 nSlotId)
 {
     const SipConfig* pSipConfig = ConfigurationManager::GetInstance()->GetSipConfig(nSlotId);
 
@@ -297,15 +297,15 @@ const ISipConfigV* SIPConfigProxy::GetSipConfigV(IN IMS_SINT32 nSlotId)
 }
 
 // SIP_FEATURES {
-// FIXME: If the SIP features in SIPProfile is zero, how to handle it?
+// FIXME: If the SIP features in SipProfile is zero, how to handle it?
 // Do we need to check the default configuration??
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsAuthenticationAlgorithmRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsAuthenticationAlgorithmRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsAuthenticationAlgorithmRequired();
         }
@@ -317,12 +317,12 @@ IMS_BOOL SIPConfigProxy::IsAuthenticationAlgorithmRequired(IN IMS_SINT32 nSlotId
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsCellularNetworkInfoHeaderRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsCellularNetworkInfoHeaderRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsCellularNetworkInfoHeaderRequired();
         }
@@ -333,8 +333,8 @@ IMS_BOOL SIPConfigProxy::IsCellularNetworkInfoHeaderRequired(IN IMS_SINT32 nSlot
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsCompactFormConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile */*pProfile = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsCompactFormConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile */*pProfile = IMS_NULL*/)
 {
     const SipConfig *pSipConfig = ConfigurationManager::GetInstance()->GetSipConfig(nSlotId);
 
@@ -347,12 +347,12 @@ IMS_BOOL SIPConfigProxy::IsCompactFormConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsContactInAll1xxRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsContactInAll1xxRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsContactInAll1xxRequired();
         }
@@ -364,14 +364,14 @@ IMS_BOOL SIPConfigProxy::IsContactInAll1xxRequired(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsCountryInfoRequiredInPANIHeader(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsCountryInfoRequiredInPaniHeader(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
-            return pProfile->IsCountryInfoRequiredInPANIHeader();
+            return pProfile->IsCountryInfoRequiredInPaniHeader();
         }
     }
 
@@ -380,14 +380,14 @@ IMS_BOOL SIPConfigProxy::IsCountryInfoRequiredInPANIHeader(IN IMS_SINT32 nSlotId
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsDisplayNameDQUOTRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsDisplayNameDquotRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
-            return pProfile->IsDisplayNameDQUOTRequired();
+            return pProfile->IsDisplayNameDquotRequired();
         }
     }
 
@@ -402,12 +402,12 @@ IMS_BOOL SIPConfigProxy::IsDisplayNameDQUOTRequired(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsExpiresHeaderInRegRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsExpiresHeaderInRegRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsExpiresHeaderInRegRequired();
         }
@@ -419,12 +419,12 @@ IMS_BOOL SIPConfigProxy::IsExpiresHeaderInRegRequired(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsIpSecConfigured(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsIpSecConfigured(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsIpSecConfigured();
         }
@@ -436,14 +436,14 @@ IMS_BOOL SIPConfigProxy::IsIpSecConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsGRUUConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsGruuConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
-            return pProfile->IsGRUUConfigured();
+            return pProfile->IsGruuConfigured();
         }
     }
 
@@ -453,12 +453,12 @@ IMS_BOOL SIPConfigProxy::IsGRUUConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsKeepAliveConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsKeepAliveConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsKeepAliveConfigured();
         }
@@ -470,12 +470,12 @@ IMS_BOOL SIPConfigProxy::IsKeepAliveConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsMultipleRegConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsMultipleRegConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsMultipleRegConfigured();
         }
@@ -487,14 +487,14 @@ IMS_BOOL SIPConfigProxy::IsMultipleRegConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsNoAcceptContactHeaderInBYE(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsNoAcceptContactHeaderInBye(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
-            return pProfile->IsNoAcceptContactHeaderInBYE();
+            return pProfile->IsNoAcceptContactHeaderInBye();
         }
     }
 
@@ -504,14 +504,14 @@ IMS_BOOL SIPConfigProxy::IsNoAcceptContactHeaderInBYE(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsPANInfoInInitialRegRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsPanInfoInInitialRegRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
-            return pProfile->IsPANInfoInInitialRegRequired();
+            return pProfile->IsPanInfoInInitialRegRequired();
         }
     }
 
@@ -521,12 +521,12 @@ IMS_BOOL SIPConfigProxy::IsPANInfoInInitialRegRequired(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsPPreferredIdInRegSubRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsPPreferredIdInRegSubRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsPPreferredIdInRegSubRequired();
         }
@@ -538,12 +538,12 @@ IMS_BOOL SIPConfigProxy::IsPPreferredIdInRegSubRequired(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsRouteHeaderInRegRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsRouteHeaderInRegRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsRouteHeaderInRegRequired();
         }
@@ -555,12 +555,12 @@ IMS_BOOL SIPConfigProxy::IsRouteHeaderInRegRequired(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsRportConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsRportConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsRportConfigured();
         }
@@ -572,12 +572,12 @@ IMS_BOOL SIPConfigProxy::IsRportConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsTransportErrorReportOnTxnRequired(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsTransportErrorReportOnTxnRequired(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsTransportErrorReportOnTxnRequired();
         }
@@ -589,12 +589,12 @@ IMS_BOOL SIPConfigProxy::IsTransportErrorReportOnTxnRequired(IN IMS_SINT32 nSlot
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsTrustDomainConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsTrustDomainConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsTrustDomainConfigured();
         }
@@ -606,12 +606,12 @@ IMS_BOOL SIPConfigProxy::IsTrustDomainConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsUdpFallbackConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsUdpFallbackConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsUdpFallbackConfigured();
         }
@@ -623,12 +623,12 @@ IMS_BOOL SIPConfigProxy::IsUdpFallbackConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsUserAgentConfigured(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsUserAgentConfigured(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsUserAgentConfigured();
         }
@@ -640,12 +640,12 @@ IMS_BOOL SIPConfigProxy::IsUserAgentConfigured(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsUserAgentSetByContext(IN IMS_SINT32 nSlotId,
-        IN CONST SIPProfile *pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsUserAgentSetByContext(IN IMS_SINT32 nSlotId,
+        IN CONST SipProfile *pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsUserAgentSetByContext();
         }
@@ -657,12 +657,12 @@ IMS_BOOL SIPConfigProxy::IsUserAgentSetByContext(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsSdpNegotiationRequiredForNonRpr(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsSdpNegotiationRequiredForNonRpr(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsSdpNegotiationRequiredForNonRpr();
         }
@@ -674,12 +674,12 @@ IMS_BOOL SIPConfigProxy::IsSdpNegotiationRequiredForNonRpr(IN IMS_SINT32 nSlotId
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsRequestUriValidationRequiredInMidDialog(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsRequestUriValidationRequiredInMidDialog(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsRequestUriValidationRequiredInMidDialog();
         }
@@ -691,12 +691,12 @@ IMS_BOOL SIPConfigProxy::IsRequestUriValidationRequiredInMidDialog(IN IMS_SINT32
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsSessionTimerUpdateRequiredByReInvite(
-        IN IMS_SINT32 nSlotId, IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsSessionTimerUpdateRequiredByReInvite(
+        IN IMS_SINT32 nSlotId, IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsSessionTimerUpdateRequiredByReInvite();
         }
@@ -708,12 +708,12 @@ IMS_BOOL SIPConfigProxy::IsSessionTimerUpdateRequiredByReInvite(
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsSipInstanceParamRequiredInContactForNonRegisterRequest(
-        IN IMS_SINT32 nSlotId, IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsSipInstanceParamRequiredInContactForNonRegisterRequest(
+        IN IMS_SINT32 nSlotId, IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsSipInstanceParamRequiredInContactForNonRegisterRequest();
         }
@@ -725,12 +725,12 @@ IMS_BOOL SIPConfigProxy::IsSipInstanceParamRequiredInContactForNonRegisterReques
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsSessionIdHeaderSupported(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsSessionIdHeaderSupported(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsSessionIdHeaderSupported();
         }
@@ -742,12 +742,12 @@ IMS_BOOL SIPConfigProxy::IsSessionIdHeaderSupported(IN IMS_SINT32 nSlotId,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsInvalidMacAddressRequiredInPaniHeader(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsInvalidMacAddressRequiredInPaniHeader(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsInvalidMacAddressRequiredInPaniHeader();
         }
@@ -759,12 +759,12 @@ IMS_BOOL SIPConfigProxy::IsInvalidMacAddressRequiredInPaniHeader(IN IMS_SINT32 n
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPConfigProxy::IsLocalTimeZoneRequiredInPaniHeader(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pProfile/* = IMS_NULL*/)
+IMS_BOOL SipConfigProxy::IsLocalTimeZoneRequiredInPaniHeader(IN IMS_SINT32 nSlotId,
+        IN const SipProfile* pProfile/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        if (pProfile->IsSIPFeatureProvisioned())
+        if (pProfile->IsSipFeatureProvisioned())
         {
             return pProfile->IsLocalTimeZoneRequiredInPaniHeader();
         }
@@ -778,7 +778,7 @@ IMS_BOOL SIPConfigProxy::IsLocalTimeZoneRequiredInPaniHeader(IN IMS_SINT32 nSlot
 
 // SIP_TIMERS {
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValue100Trying(IN IMS_SINT32 nSlotId)
+IMS_SINT32 SipConfigProxy::GetTimerValue100Trying(IN IMS_SINT32 nSlotId)
 {
     const SipConfig *pSipConfig = ConfigurationManager::GetInstance()->GetSipConfig(nSlotId);
 
@@ -786,7 +786,7 @@ IMS_SINT32 SIPConfigProxy::GetTimerValue100Trying(IN IMS_SINT32 nSlotId)
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueT1(IN IMS_SINT32 nSlotId)
+IMS_SINT32 SipConfigProxy::GetTimerValueT1(IN IMS_SINT32 nSlotId)
 {
     const SipConfig *pSipConfig = ConfigurationManager::GetInstance()->GetSipConfig(nSlotId);
 
@@ -794,7 +794,7 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueT1(IN IMS_SINT32 nSlotId)
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueT2(IN IMS_SINT32 nSlotId)
+IMS_SINT32 SipConfigProxy::GetTimerValueT2(IN IMS_SINT32 nSlotId)
 {
     const SipConfig *pSipConfig = ConfigurationManager::GetInstance()->GetSipConfig(nSlotId);
 
@@ -802,16 +802,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueT2(IN IMS_SINT32 nSlotId)
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueT1(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueT1(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TIMER_T1))
+        if (objTVs.IsSet(SipTimerValues::TIMER_T1))
         {
-            return objTVs.GetValue(SIPTimerValues::TIMER_T1);
+            return objTVs.GetValue(SipTimerValues::TIMER_T1);
         }
     }
 
@@ -829,16 +829,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueT1(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueT2(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueT2(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV/* = IMS_NULL*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TIMER_T2))
+        if (objTVs.IsSet(SipTimerValues::TIMER_T2))
         {
-            return objTVs.GetValue(SIPTimerValues::TIMER_T2);
+            return objTVs.GetValue(SipTimerValues::TIMER_T2);
         }
     }
 
@@ -856,17 +856,17 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueT2(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueT4(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueT4(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TIMER_T2))
+        if (objTVs.IsSet(SipTimerValues::TIMER_T2))
         {
             // T4 = T2 + 1s
-            return objTVs.GetValue(SIPTimerValues::TIMER_T2) + 1000;
+            return objTVs.GetValue(SipTimerValues::TIMER_T2) + 1000;
         }
     }
 
@@ -885,16 +885,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueT4(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTA(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueA(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TIMER_T1))
+        if (objTVs.IsSet(SipTimerValues::TIMER_T1))
         {
-            return objTVs.GetValue(SIPTimerValues::TIMER_T1);
+            return objTVs.GetValue(SipTimerValues::TIMER_T1);
         }
     }
 
@@ -912,16 +912,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTA(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTB(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueB(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_B))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_B))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_B);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_B);
         }
     }
 
@@ -939,16 +939,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTB(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTD(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueD(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_D))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_D))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_D);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_D);
         }
     }
 
@@ -966,16 +966,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTD(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTE(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueE(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TIMER_T1))
+        if (objTVs.IsSet(SipTimerValues::TIMER_T1))
         {
-            return objTVs.GetValue(SIPTimerValues::TIMER_T1);
+            return objTVs.GetValue(SipTimerValues::TIMER_T1);
         }
     }
 
@@ -993,16 +993,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTE(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTF(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueF(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_F))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_F))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_F);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_F);
         }
     }
 
@@ -1020,16 +1020,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTF(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTG(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueG(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TIMER_T1))
+        if (objTVs.IsSet(SipTimerValues::TIMER_T1))
         {
-            return objTVs.GetValue(SIPTimerValues::TIMER_T1);
+            return objTVs.GetValue(SipTimerValues::TIMER_T1);
         }
     }
 
@@ -1047,16 +1047,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTG(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTH(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueH(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_H))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_H))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_H);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_H);
         }
     }
 
@@ -1074,16 +1074,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTH(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTI(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueI(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_I))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_I))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_I);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_I);
         }
     }
 
@@ -1102,16 +1102,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTI(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTJ(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueJ(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_J))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_J))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_J);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_J);
         }
     }
 
@@ -1129,16 +1129,16 @@ IMS_SINT32 SIPConfigProxy::GetTimerValueTJ(IN IMS_SINT32 nSlotId, IN CONST SIPPr
 }
 
 PUBLIC GLOBAL
-IMS_SINT32 SIPConfigProxy::GetTimerValueTK(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pProfile,
+IMS_SINT32 SipConfigProxy::GetTimerValueK(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pProfile,
         IN CONST ISipConfigV *piSipConfigV, IN IMS_BOOL bDefaultRequired/* = IMS_TRUE*/)
 {
     if (pProfile != IMS_NULL)
     {
-        const SIPTimerValues& objTVs = pProfile->GetTimerValues();
+        const SipTimerValues& objTVs = pProfile->GetTimerValues();
 
-        if (objTVs.IsSet(SIPTimerValues::TV_TIMER_K))
+        if (objTVs.IsSet(SipTimerValues::TV_TIMER_K))
         {
-            return objTVs.GetValue(SIPTimerValues::TV_TIMER_K);
+            return objTVs.GetValue(SipTimerValues::TV_TIMER_K);
         }
     }
 

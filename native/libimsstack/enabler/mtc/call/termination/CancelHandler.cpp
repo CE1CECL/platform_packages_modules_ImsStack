@@ -39,17 +39,17 @@ FailReason CancelHandler::GetFailReasonFromReasonHeader(
 {
     AString strNormalizedText = strText.SimplifyWSP().MakeLower();
 
-    if (nCause == SIPStatusCode::SC_200 &&
+    if (nCause == SipStatusCode::SC_200 &&
             strNormalizedText.Contains(REASON_TEXT_CALL_COMPLETED))
     {
         return FailReason(FAIL_REASON_SESSION_MULTIDEVICE_ACCEPTED);
     }
-    else if (nCause == SIPStatusCode::SC_600 &&
+    else if (nCause == SipStatusCode::SC_600 &&
             strNormalizedText.Contains(REASON_TEXT_CALL_BUSY))
     {
         return FailReason(FAIL_REASON_SESSION_MULTIDEVICE_REJECTED);
     }
-    else if (nCause == SIPStatusCode::SC_603 &&
+    else if (nCause == SipStatusCode::SC_603 &&
             strNormalizedText.Contains(REASON_TEXT_CALL_DECLINED))
     {
         return FailReason(FAIL_REASON_SESSION_MULTIDEVICE_REJECTED);

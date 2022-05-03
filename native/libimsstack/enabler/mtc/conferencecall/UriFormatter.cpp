@@ -83,8 +83,8 @@ AString& UriFormatter::GetReferToForBye(OUT AString& strUri, IN const ConfUser* 
         return strUri;
     }
 
-    SIPAddress objAddr(strUserEntity);
-    if (objAddr.IsSchemeTEL())
+    SipAddress objAddr(strUserEntity);
+    if (objAddr.IsSchemeTel())
     {
         strUri = strInvitedUri;
         return strUri;
@@ -108,10 +108,10 @@ AString& UriFormatter::GetReferToForBye(OUT AString& strUri, IN const ConfUser* 
     // sip Uri from 'user entity' && no 'anonymous' case only.
     if (strUri.GetLength() > 0 && !strUri.Contains(STR_USER_PHONE))
     {
-        SIPAddress objSipAddress;
+        SipAddress objSipAddress;
         objSipAddress.Create(strUri);
 
-        if (objSipAddress.GetScheme().EqualsIgnoreCase(SIP::STR_SIP))
+        if (objSipAddress.GetScheme().EqualsIgnoreCase(Sip::STR_SIP))
         {
             strUri.Append(STR_USER_PHONE);
         }
@@ -127,12 +127,12 @@ void UriFormatter::ConvertToValidSipUri(IN_OUT AString& strUri, IN IMtcCallConte
         return;
     }
 
-    SIPAddress objSipAddress;
+    SipAddress objSipAddress;
     objSipAddress.Create(strUri);
     AString strScheme = objSipAddress.GetScheme();
 
     // converting TEL to SIP uri.
-    if (objSipAddress.IsSchemeTEL())
+    if (objSipAddress.IsSchemeTel())
     {
          AString strUserPart = objSipAddress.GetHost();
 
@@ -148,7 +148,7 @@ void UriFormatter::ConvertToValidSipUri(IN_OUT AString& strUri, IN IMtcCallConte
                 strUserPart, objContext.GetCallInfo(), Scheme::SIP);
     }
     // if objSipAddress has only numbers, create SIP URI via dialing plan
-    else if (!objSipAddress.IsSchemeSIP() && !objSipAddress.IsSchemeSIPS())
+    else if (!objSipAddress.IsSchemeSip() && !objSipAddress.IsSchemeSips())
     {
         if (strUri.GetLength() > 0)
         {

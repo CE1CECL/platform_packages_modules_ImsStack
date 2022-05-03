@@ -98,7 +98,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress& CoreServiceImpl::GetAuthorizedUserId() const
+const SipAddress& CoreServiceImpl::GetAuthorizedUserId() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress& CoreServiceImpl::GetContactAddress() const
+const SipAddress& CoreServiceImpl::GetContactAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress* CoreServiceImpl::GetContactAddressForOutgoingMessage() const
+const SipAddress* CoreServiceImpl::GetContactAddressForOutgoingMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -137,9 +137,9 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPHeader* CoreServiceImpl::GetContactHeader(
+ISipHeader* CoreServiceImpl::GetContactHeader(
         IN IMS_BOOL bPrivacy /* = IMS_FALSE */, IN IMS_BOOL bRequest /* = IMS_TRUE */,
-        IN IMS_SINT32 nSIPMethod /* = (-1) SIPMethod::INVALID */) const
+        IN IMS_SINT32 nSIPMethod /* = (-1) SipMethod::INVALID */) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -217,7 +217,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-SIPProfile* CoreServiceImpl::GetSIPProfile() const
+SipProfile* CoreServiceImpl::GetSIPProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -256,7 +256,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPParameter* CoreServiceImpl::GetInstanceParameter() const
+const SipParameter* CoreServiceImpl::GetInstanceParameter() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress* CoreServiceImpl::GetPublicGRUU() const
+const SipAddress* CoreServiceImpl::GetPublicGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -282,7 +282,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPAddress* CoreServiceImpl::GetTemporaryGRUU() const
+const SipAddress* CoreServiceImpl::GetTemporaryGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -295,7 +295,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const IMSList<SIPAddress*>& CoreServiceImpl::GetTemporaryGRUUs() const
+const IMSList<SipAddress*>& CoreServiceImpl::GetTemporaryGRUUs() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -375,7 +375,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-void CoreServiceImpl::SetSIPProfile(IN SIPProfile *pProfile)
+void CoreServiceImpl::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -835,7 +835,7 @@ void CoreServiceImpl::OnCoreService_CapabilityQueryReceived(IN CoreService *pSer
     {
         IMS_TRACE_E(0, "NO CORE SERVICE LISTENER", 0, 0, 0);
 
-        pCapabilities->Reject(SIPStatusCode::SC_480);
+        pCapabilities->Reject(SipStatusCode::SC_480);
         pCapabilities->Destroy();
         return;
     }
@@ -844,7 +844,7 @@ void CoreServiceImpl::OnCoreService_CapabilityQueryReceived(IN CoreService *pSer
 
     if (pCapabilitiesImpl == IMS_NULL)
     {
-        pCapabilities->Reject(SIPStatusCode::SC_480);
+        pCapabilities->Reject(SipStatusCode::SC_480);
         pCapabilities->Destroy();
 
         IMS::SetLastError(IMSError::NO_MEMORY);

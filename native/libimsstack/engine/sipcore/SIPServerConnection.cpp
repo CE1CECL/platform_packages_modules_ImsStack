@@ -66,8 +66,8 @@ void SIPServerConnection::Close()
     }
     else if ((nState == STATE_COMPLETED)
             && pMessage != IMS_NULL
-            && pMessage->GetMethod().Equals(SIPMethod::INVITE)
-            && SIPStatusCode::IsFinalSuccess(pMessage->GetStatusCode()))
+            && pMessage->GetMethod().Equals(SipMethod::INVITE)
+            && SipStatusCode::IsFinalSuccess(pMessage->GetStatusCode()))
     {
         // Terminate INVITE server transaction promptly
         pSTState->Terminate();
@@ -90,7 +90,7 @@ IMS_RESULT SIPServerConnection::AddHeader(IN CONST AString &strName, IN CONST AS
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -110,7 +110,7 @@ AString SIPServerConnection::GetHeader(IN CONST AString &strName, IN IMS_SINT32 
     // Message is not initialized or the connection is closed
     if (nState == STATE_TERMINATED)
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return AString::ConstNull();
     }
 
@@ -130,7 +130,7 @@ IMSList<AString> SIPServerConnection::GetHeaders(IN CONST AString &strName)
     // Message is not initialized or the connection is closed
     if (nState == STATE_TERMINATED)
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return IMSList<AString>();
     }
 
@@ -143,14 +143,14 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPMethod& SIPServerConnection::GetMethod() const
+const SipMethod& SIPServerConnection::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
     // Message is not initialized or the connection is closed
     if (nState == STATE_TERMINATED)
     {
-        return SIPMethod::INVALID_METHOD;
+        return SipMethod::INVALID_METHOD;
     }
 
     return SIPConnection::GetMethod();
@@ -231,7 +231,7 @@ IMS_RESULT SIPServerConnection::RemoveHeader(IN CONST AString &strName)
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -252,19 +252,19 @@ IMS_RESULT SIPServerConnection::Send()
             && (nState != STATE_PROVISIONAL_RESPONDED)
             && (nState != STATE_COMPLETED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
     IMS_SINT32 nStatusCode = SIPConnection::GetStatusCode();
 
     if ((nState != STATE_INITIALIZED)
-            && (SIPConnection::GetMethod().Equals(SIPMethod::INVITE)))
+            && (SIPConnection::GetMethod().Equals(SipMethod::INVITE)))
     {
-        if (!SIPStatusCode::IsFinalSuccess(nStatusCode)
-                && !(SIPStatusCode::IsProvisional(nStatusCode) && pMessage->IsMessageRPR()))
+        if (!SipStatusCode::IsFinalSuccess(nStatusCode)
+                && !(SipStatusCode::IsProvisional(nStatusCode) && pMessage->IsMessageRpr()))
         {
-            SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+            SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
             return IMS_FAILURE;
         }
 
@@ -273,7 +273,7 @@ IMS_RESULT SIPServerConnection::Send()
 
         if (!pMessage->FormMessageOnRetransmission())
         {
-            SIPPrivate::SetLastError(SIPError::INVALID_MESSAGE);
+            SIPPrivate::SetLastError(SipError::INVALID_MESSAGE);
             IMS_TRACE_E(0, "Forming SIP message for retransmission failed", 0, 0, 0);
             return IMS_FAILURE;
         }
@@ -290,11 +290,11 @@ IMS_RESULT SIPServerConnection::Send()
     // Throw exception - INVALID_MESSAGE if the message format was invalid
     if (!pMessage->FormMessage())
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_MESSAGE);
+        SIPPrivate::SetLastError(SipError::INVALID_MESSAGE);
         return IMS_FAILURE;
     }
 
-    if (nStatusCode == SIPStatusCode::SC_100)
+    if (nStatusCode == SipStatusCode::SC_100)
     {
         // Remove to-tag parameter
     }
@@ -305,7 +305,7 @@ IMS_RESULT SIPServerConnection::Send()
         return IMS_FAILURE;
     }
 
-    if (SIPFeatures::IsStandard2XXRetransmissionIntervalRequired(GetSlotId()))
+    if (SipFeatures::IsStandard2XXRetransmissionIntervalRequired(GetSlotId()))
     {
         AdjustTimerHFor2XX();
     }
@@ -314,7 +314,7 @@ IMS_RESULT SIPServerConnection::Send()
     {
         IMS_TRACE_E(0, "Send() failed", 0, 0, 0);
 
-        if (SIPStatusCode::IsProvisional(nStatusCode))
+        if (SipStatusCode::IsProvisional(nStatusCode))
         {
             // To send a final response, transit the state.
             SetState(STATE_PROVISIONAL_RESPONDED);
@@ -324,7 +324,7 @@ IMS_RESULT SIPServerConnection::Send()
     }
 
     // Update the state
-    if (SIPStatusCode::IsProvisional(nStatusCode))
+    if (SipStatusCode::IsProvisional(nStatusCode))
     {
         SetState(STATE_PROVISIONAL_RESPONDED);
     }
@@ -333,11 +333,11 @@ IMS_RESULT SIPServerConnection::Send()
         SetState(STATE_COMPLETED);
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     //// DEBUG
-    SIPDebug::Send(GetSlotId(), SIPDebug::MSG_RSP,
-            SIPDebug::DIR_OUT, SIPConnection::GetMethod().ToInt(), nStatusCode);
+    SipDebug::Send(GetSlotId(), SipDebug::MSG_RSP,
+            SipDebug::DIR_OUT, SIPConnection::GetMethod().ToInt(), nStatusCode);
 
     return IMS_SUCCESS;
 }
@@ -354,7 +354,7 @@ IMS_RESULT SIPServerConnection::SetHeader(IN CONST AString &strName, IN CONST AS
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -373,7 +373,7 @@ const ByteArray& SIPServerConnection::GetContent() const
 
     if (nState != STATE_REQUEST_RECEIVED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return ByteArray::ConstNull();
     }
 
@@ -392,7 +392,7 @@ IMS_RESULT SIPServerConnection::SetContent(IN CONST ByteArray &objContent)
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -425,7 +425,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC VIRTUAL
-void SIPServerConnection::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPServerConnection::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -448,18 +448,18 @@ IMS_RESULT SIPServerConnection::InitResponse(IN IMS_SINT32 nStatusCode)
     if ((nState != STATE_REQUEST_RECEIVED)
             && (nState != STATE_PROVISIONAL_RESPONDED))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
-    if ((nStatusCode < SIPStatusCode::SC_100)
-            || (nStatusCode > SIPStatusCode::SC_699))
+    if ((nStatusCode < SipStatusCode::SC_100)
+            || (nStatusCode > SipStatusCode::SC_699))
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
-    SIPMethod objMethod = SIPConnection::GetMethod();
+    SipMethod objMethod = SIPConnection::GetMethod();
 
     // If MESSAGE & 200 OK is sent by the SIP core, then throw ALREADY_RESPONDED
 
@@ -467,19 +467,19 @@ IMS_RESULT SIPServerConnection::InitResponse(IN IMS_SINT32 nStatusCode)
 
     pMessage->SetMethod(objMethod);
     pMessage->SetStatusCode(nStatusCode);
-    pMessage->SetReasonPhrase(SIPStatusCode::GetReasonPhrase(nStatusCode));
+    pMessage->SetReasonPhrase(SipStatusCode::GetReasonPhrase(nStatusCode));
 
     pSTState->UpdateMessage(pMessage->GetMessage());
 
     if (!pSTState->InitResponse(nStatusCode))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
     SetState(STATE_INITIALIZED);
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -496,7 +496,7 @@ IMS_RESULT SIPServerConnection::SetReasonPhrase(IN CONST AString &strReasonPhras
 
     if (nState != STATE_INITIALIZED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FAILURE;
     }
 
@@ -520,22 +520,22 @@ IMS_BOOL SIPServerConnection::IsSameTransaction(IN CONST SIPServerConnection *pO
 
     if (nState == STATE_TERMINATED)
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+        SIPPrivate::SetLastError(SipError::INVALID_STATE);
         return IMS_FALSE;
     }
 
-    const SIPMethod &objMethod = SIPConnection::GetMethod();
+    const SipMethod &objMethod = SIPConnection::GetMethod();
 
     // Check if the method is CANCEL
-    if (!objMethod.Equals(SIPMethod::CANCEL))
+    if (!objMethod.Equals(SipMethod::CANCEL))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FALSE;
     }
 
     if (pOngoingSSC == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FALSE;
     }
 
@@ -548,7 +548,7 @@ IMS_BOOL SIPServerConnection::IsSameTransaction(IN CONST SIPServerConnection *pO
 
         // CANCEL_HANDLING_AFTER_200_OK_TO_INVITE
         // When INVITE_TXN_HANDLING_CORRECTION is disabled,
-        // returns IMS_FALSE with SIPError#NO_ERROR.
+        // returns IMS_FALSE with SipError#NO_ERROR.
     }
 
     return pSTState->IsSameTransaction(pOngoingSSC->pSTState.Get());
@@ -568,7 +568,7 @@ IMS_RESULT SIPServerConnection::InitRequest()
 
     if (pMessage == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_FAILURE;
     }
 
@@ -582,18 +582,18 @@ IMS_RESULT SIPServerConnection::InitRequest()
     if ((nState != SIPDState::STATE_INIT)
             || ((nState == SIPDState::STATE_INIT)
                 && (SIPDialogBase::IsDialogCreatable(pMessage->GetMethod())
-                    || pMessage->GetMethod().Equals(SIPMethod::NOTIFY))))
+                    || pMessage->GetMethod().Equals(SipMethod::NOTIFY))))
     {
         pDialog = new SIPDialog(pDialogEx);
 
         if (pDialog == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_FAILURE;
         }
     }
 
-    if (SIPConnection::GetMethod().Equals(SIPMethod::ACK))
+    if (SIPConnection::GetMethod().Equals(SipMethod::ACK))
     {
         SetState(STATE_COMPLETED);
     }
@@ -602,11 +602,11 @@ IMS_RESULT SIPServerConnection::InitRequest()
         SetState(STATE_REQUEST_RECEIVED);
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     //// DEBUG
-    SIPDebug::Send(GetSlotId(), SIPDebug::MSG_REQ,
-            SIPDebug::DIR_IN, SIPConnection::GetMethod().ToInt());
+    SipDebug::Send(GetSlotId(), SipDebug::MSG_REQ,
+            SipDebug::DIR_IN, SIPConnection::GetMethod().ToInt());
 
     return IMS_SUCCESS;
 }
@@ -619,23 +619,23 @@ Remarks
 PRIVATE
 void SIPServerConnection::AdjustTimerHFor2XX()
 {
-    const SIPMethod &objMethod = SIPConnection::GetMethod();
+    const SipMethod &objMethod = SIPConnection::GetMethod();
     IMS_SINT32 nStatusCode = SIPConnection::GetStatusCode();
 
-    if (objMethod.Equals(SIPMethod::INVITE) && SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (objMethod.Equals(SipMethod::INVITE) && SipStatusCode::IsFinalSuccess(nStatusCode))
     {
-        SIPTimerValues *pTV = GetTransactionTimerValues();
+        SipTimerValues *pTV = GetTransactionTimerValues();
 
         if (pTV != IMS_NULL)
         {
-            IMS_SINT32 nT1 = pTV->GetValue(SIPTimerValues::TIMER_T1);
+            IMS_SINT32 nT1 = pTV->GetValue(SipTimerValues::TIMER_T1);
 
             if (nT1 == 0)
             {
                 const SipConfig *pSipConfig
                         = ConfigurationManager::GetInstance()->GetSipConfig(GetSlotId());
 
-                nT1 = SIPConfigProxy::GetTimerValueT1(GetSlotId(),
+                nT1 = SipConfigProxy::GetTimerValueT1(GetSlotId(),
                         pSTState->GetSIPProfile(), pSipConfig->GetSipConfigV());
 
                 if (nT1 == 0)
@@ -646,9 +646,9 @@ void SIPServerConnection::AdjustTimerHFor2XX()
             }
 
             IMS_TRACE_D("TimerH(2XX) is adjusted - %d >> %d",
-                    pTV->GetValue(SIPTimerValues::TV_TIMER_H), (nT1 * 64), 0);
+                    pTV->GetValue(SipTimerValues::TV_TIMER_H), (nT1 * 64), 0);
 
-            pTV->SetValue(SIPTimerValues::TV_TIMER_H, (nT1 * 64));
+            pTV->SetValue(SipTimerValues::TV_TIMER_H, (nT1 * 64));
         }
     }
 }

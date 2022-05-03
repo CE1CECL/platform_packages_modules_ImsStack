@@ -5,8 +5,8 @@
 #include "ImsAccessNetworkInfoType.h"
 
 class INetworkConnection;
-class ISIPMessage;
-class SIPProfile;
+class ISipMessage;
+class SipProfile;
 
 /**
  * @brief This class provides an interface to form P-Access-Network-Info header.
@@ -38,8 +38,8 @@ public:
      * @return If it succeeds, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
     static IMS_BOOL FormHeaderForOperatorSpecific(IN IMS_SINT32 nSlotId,
-            IN INetworkConnection* piConnection, IN const SIPMethod& objMethod,
-            IN const SIPProfile* pSIPProfile, OUT AString& strHeader);
+            IN INetworkConnection* piConnection, IN const SipMethod& objMethod,
+            IN const SipProfile* pSIPProfile, OUT AString& strHeader);
     /**
      * @brief Forms P-Access-Network-Info header field for a specific operator.
      *
@@ -51,8 +51,8 @@ public:
      * @return If it succeeds, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
     static IMS_BOOL FormHeaderForOperatorSpecific(IN IMS_SINT32 nSlotId,
-            IN const IPAddress &objIP, IN const SIPMethod& objMethod,
-            IN const SIPProfile* pSIPProfile, OUT AString& strHeader);
+            IN const IPAddress &objIP, IN const SipMethod& objMethod,
+            IN const SipProfile* pSIPProfile, OUT AString& strHeader);
 
     /**
      * @brief Forms P-Access-Network-Info header and sets it to SIP message.
@@ -63,7 +63,7 @@ public:
      * @param piSIPMsg SIP message object
      */
     static void SetHeader(IN IMS_SINT32 nSlotId, IN const IPAddress &objIP,
-            IN const SIPProfile* pSIPProfile, IN_OUT ISIPMessage *&piSIPMsg);
+            IN const SipProfile* pSIPProfile, IN_OUT ISipMessage *&piSIPMsg);
 
 private:
     static void ReformPANIHeaderForATT(
@@ -72,14 +72,14 @@ private:
     static void ReformPANIHeaderForCountryCode(IN IMS_SINT32 nSlotId,
             IN_OUT AString &strHeader, IN IMS_BOOL bUseUICC);
     static void SetPrivateHeaderForTMUS(IN IMS_SINT32 nSlotId,
-            IN INetworkConnection *piConnection, IN_OUT ISIPMessage *&piSIPMsg);
+            IN INetworkConnection *piConnection, IN_OUT ISipMessage *&piSIPMsg);
     static void SetPrivateHeaderForMTS(IN IMS_SINT32 nSlotId,
-            IN INetworkConnection *piConnection, IN_OUT ISIPMessage *&piSIPMsg);
+            IN INetworkConnection *piConnection, IN_OUT ISipMessage *&piSIPMsg);
     static void SetCNIHeader(IN IMS_SINT32 nSlotId, IN INetworkConnection *piConnection,
-            IN const SIPProfile* pSIPProfile, IN_OUT ISIPMessage *&piSIPMsg);
+            IN const SipProfile* pSIPProfile, IN_OUT ISipMessage *&piSIPMsg);
     static IMS_BOOL IsAccessNetworkTypeWiFi(IN CONST AccessNetworkInfo &objANInfo);
     static IMS_BOOL IsCountryInfoRequiredForVoWiFi(IN IMS_SINT32 nSlotId,
-            IN const SIPProfile* pSIPProfile);
+            IN const SipProfile* pSIPProfile);
 };
 
 #endif // _P_ACCESS_NETWORK_INFO_HEADER_H_

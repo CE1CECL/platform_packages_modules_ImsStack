@@ -172,7 +172,7 @@ IMS_RESULT Publication::Publish(IN CONST ByteArray &objState, IN CONST AString &
         //return IMS_FAILURE;
     }
 
-    ISIPClientConnection *piSCC = CreateConnection(SIPMethod(SIPMethod::PUBLISH));
+    ISipClientConnection *piSCC = CreateConnection(SipMethod(SipMethod::PUBLISH));
 
     if (piSCC == IMS_NULL)
     {
@@ -180,10 +180,10 @@ IMS_RESULT Publication::Publish(IN CONST ByteArray &objState, IN CONST AString &
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Event header
-    piSIPMsg->SetHeader(ISIPHeader::EVENT, GetEvent());
+    piSIPMsg->SetHeader(ISipHeader::EVENT, GetEvent());
 
     // Accept, Allow-Events, Expires
     IMS_BOOL bDefaultExpiresRequired = IMS_FALSE;
@@ -191,7 +191,7 @@ IMS_RESULT Publication::Publish(IN CONST ByteArray &objState, IN CONST AString &
     // Basically, Expires header will be automatically added according to the event package,
     // but IMS engine will not add the EXpires header even though it's not present and it will
     // be controlled by the enabler.
-    if (bDefaultExpiresRequired && !piSIPMsg->IsHeaderPresent(ISIPHeader::EXPIRES_ANY))
+    if (bDefaultExpiresRequired && !piSIPMsg->IsHeaderPresent(ISipHeader::EXPIRES_ANY))
     {
         // Expires header ?
         AString strExpires;
@@ -205,18 +205,18 @@ IMS_RESULT Publication::Publish(IN CONST ByteArray &objState, IN CONST AString &
             strExpires.Sprintf("%d", pPubState->GetEventPackage()->GetDefaultDuration());
         }
 
-        piSIPMsg->SetHeader(ISIPHeader::EXPIRES_ANY, strExpires);
+        piSIPMsg->SetHeader(ISipHeader::EXPIRES_ANY, strExpires);
     }
 
     // OPERATION_MODIFY
     if (nState == STATE_ACTIVE)
     {
         // SIP-If-Match header
-        if (!piSIPMsg->IsHeaderPresent(ISIPHeader::SIP_IF_MATCH))
+        if (!piSIPMsg->IsHeaderPresent(ISipHeader::SIP_IF_MATCH))
         {
             if (!pPubState->GetEntityTag().IsNULL())
             {
-                piSIPMsg->SetHeader(ISIPHeader::SIP_IF_MATCH, pPubState->GetEntityTag());
+                piSIPMsg->SetHeader(ISipHeader::SIP_IF_MATCH, pPubState->GetEntityTag());
             }
         }
     }
@@ -224,7 +224,7 @@ IMS_RESULT Publication::Publish(IN CONST ByteArray &objState, IN CONST AString &
     // Set an additional message body part at the last position
     if (!objState.IsNULL() && !strContentType.IsNULL())
     {
-        ISIPMessageBodyPart *piBodyPart = piSIPMsg->CreateBodyPart();
+        ISipMessageBodyPart *piBodyPart = piSIPMsg->CreateBodyPart();
 
         if (piBodyPart == IMS_NULL)
         {
@@ -234,7 +234,7 @@ IMS_RESULT Publication::Publish(IN CONST ByteArray &objState, IN CONST AString &
         }
 
         // Set headers
-        piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, strContentType);
+        piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, strContentType);
 
         // Set content
         piBodyPart->SetContent(objState);
@@ -315,7 +315,7 @@ IMS_RESULT Publication::Unpublish()
         //return IMS_FAILURE;
     }
 
-    ISIPClientConnection *piSCC = CreateConnection(SIPMethod(SIPMethod::PUBLISH));
+    ISipClientConnection *piSCC = CreateConnection(SipMethod(SipMethod::PUBLISH));
 
     if (piSCC == IMS_NULL)
     {
@@ -323,18 +323,18 @@ IMS_RESULT Publication::Unpublish()
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Event header
-    piSIPMsg->SetHeader(ISIPHeader::EVENT, GetEvent());
+    piSIPMsg->SetHeader(ISipHeader::EVENT, GetEvent());
 
     // Expires header (overwrites the header field if present)
-    piSIPMsg->SetHeader(ISIPHeader::EXPIRES_ANY, "0");
+    piSIPMsg->SetHeader(ISipHeader::EXPIRES_ANY, "0");
 
     // SIP-If-Match header
     if (!pPubState->GetEntityTag().IsNULL())
     {
-        piSIPMsg->SetHeader(ISIPHeader::SIP_IF_MATCH, pPubState->GetEntityTag());
+        piSIPMsg->SetHeader(ISipHeader::SIP_IF_MATCH, pPubState->GetEntityTag());
     }
 
     // Try to send a PUBLISH request to the network
@@ -487,7 +487,7 @@ Remarks
 */
 // IMS_AUTH_SIP_DIGEST
 PRIVATE VIRTUAL
-IMS_BOOL Publication::SendRequestToChallenge(IN ISIPClientConnection *piSCC)
+IMS_BOOL Publication::SendRequestToChallenge(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -598,16 +598,16 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Publication::NotifySIPResponse(IN ISIPClientConnection *piSCC)
+void Publication::NotifySIPResponse(IN ISipClientConnection *piSCC)
 {
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     IMS_TRACE_I("The response is received in the %s", StateToString(GetState()), 0, 0);
 
-    if (!objMethod.Equals(SIPMethod::PUBLISH))
+    if (!objMethod.Equals(SipMethod::PUBLISH))
     {
         piSCC->Close();
         return;
@@ -633,13 +633,13 @@ void Publication::NotifySIPResponse(IN ISIPClientConnection *piSCC)
     ReceiveResponse(piSCC);
 
     // Handle the response to PUBLISH request ...
-    if ( SIPStatusCode::Is1XX(nStatusCode) )
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         // Do nothing ...
         return;
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         // AUTH_SIP_DIGEST {
         // In case of other method except for REGISTER,
@@ -654,7 +654,7 @@ void Publication::NotifySIPResponse(IN ISIPClientConnection *piSCC)
     // Start or re-start a publication refresh timer
     pRefreshHelper->UpdateOnMessageReceived(piSCC);
 
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         if (pPubState->GetOperation() == PubState::OPERATION_REMOVE)
         {
@@ -704,17 +704,17 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Publication::NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void Publication::NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
-    const SIPMethod &objMethod = piSC->GetMethod();
+    const SipMethod &objMethod = piSC->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     (void) nCode;
     (void) strMessage;
 
-    if (!objMethod.Equals(SIPMethod::PUBLISH))
+    if (!objMethod.Equals(SipMethod::PUBLISH))
     {
         piSC->Close();
         return;
@@ -745,7 +745,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Publication::Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+void Publication::Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -780,8 +780,8 @@ void Publication::Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
         // AUTH_SIP_DIGEST {
         IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
-        if ((nStatusCode == SIPStatusCode::SC_401)
-                || (nStatusCode == SIPStatusCode::SC_407))
+        if ((nStatusCode == SipStatusCode::SC_401)
+                || (nStatusCode == SipStatusCode::SC_407))
         {
             // In case of other method except for REGISTER,
             // the UE only supports the authentication algorithm, MD5
@@ -840,7 +840,7 @@ IMS_BOOL Publication::Refreshable_RefreshStarted()
         pPubState->SetOperation(PubState::OPERATION_REFRESH);
 
         // Send a refresh request : PUBLISH
-        ISIPClientConnection *piSCC = CreateConnection(SIPMethod(SIPMethod::PUBLISH));
+        ISipClientConnection *piSCC = CreateConnection(SipMethod(SipMethod::PUBLISH));
 
         if (piSCC == IMS_NULL)
         {
@@ -851,7 +851,7 @@ IMS_BOOL Publication::Refreshable_RefreshStarted()
             return IMS_FALSE;
         }
 
-        ISIPMessage *piSIPMsg = piSCC->GetMessage();
+        ISipMessage *piSIPMsg = piSCC->GetMessage();
 
         if (!pPubState->SetHeaders(piSIPMsg))
         {
@@ -948,7 +948,7 @@ Remarks
 
 */
 PRIVATE
-void Publication::ReceiveResponse(IN ISIPClientConnection *piSCC)
+void Publication::ReceiveResponse(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 

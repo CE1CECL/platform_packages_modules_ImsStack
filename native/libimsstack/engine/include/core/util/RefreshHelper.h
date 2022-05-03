@@ -26,8 +26,8 @@ class IRefreshable;
 
 class RefreshHelper
     : public ITimerListener
-    , public ISIPClientConnectionListener
-    , public ISIPErrorListener
+    , public ISipClientConnectionListener
+    , public ISipErrorListener
 {
 public:
     RefreshHelper(IN IRefreshable *piRefreshable_, IN IMS_BOOL bRepeatable_);
@@ -35,7 +35,7 @@ public:
 
 public:
     void AbortConnection();
-    ISIPClientConnection* GetConnection() const;
+    ISipClientConnection* GetConnection() const;
     IMS_SINT32 GetDuration() const;
     IMS_BOOL IsRequestPending() const;
     IMS_BOOL IsTimerActive() const;
@@ -45,20 +45,20 @@ public:
             IN IMS_SINT32 nCriteriaInterval, IN IMS_SINT32 nValueEorLT, IN IMS_SINT32 nValueGT);
 
 protected:
-    virtual IMS_BOOL AddSpecificHeader(IN ISIPConnection *piSC) = 0;
-    virtual IMS_RESULT SendRefreshRequest(IN ISIPClientConnection *piSCC);
-    virtual IMS_RESULT UpdateOnMessageReceived(IN CONST ISIPConnection *piSC) = 0;
-    virtual IMS_RESULT UpdateOnMessageSent(IN CONST ISIPConnection *piSC) = 0;
+    virtual IMS_BOOL AddSpecificHeader(IN ISipConnection *piSC) = 0;
+    virtual IMS_RESULT SendRefreshRequest(IN ISipClientConnection *piSCC);
+    virtual IMS_RESULT UpdateOnMessageReceived(IN CONST ISipConnection *piSC) = 0;
+    virtual IMS_RESULT UpdateOnMessageSent(IN CONST ISipConnection *piSC) = 0;
 
     virtual IMS_SINT32 GetTimerInterval() const;
-    virtual void RefreshCompleted(IN ISIPClientConnection *piSCC, IN IMS_SINT32 nCode = 0) = 0;
+    virtual void RefreshCompleted(IN ISipClientConnection *piSCC, IN IMS_SINT32 nCode = 0) = 0;
     virtual void RefreshStarted() = 0;
     virtual void RefreshTerminated() = 0;
 
     inline virtual IMS_BOOL IsSessionTimerUpdateRequiredByReInvite() const
     { return IMS_TRUE; }
 
-    void Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC, IN IMS_SINT32 nCode = 0);
+    void Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC, IN IMS_SINT32 nCode = 0);
     IMS_BOOL Refreshable_RefreshStarted();
     void Refreshable_RefreshTerminated();
 
@@ -71,11 +71,11 @@ protected:
 private:
     // ITimerListener interface
     virtual void Timer_TimerExpired(IN ITimer *piTimer);
-    // ISIPClientConnectionListener interface
-    virtual void ClientConnection_NotifyResponse(IN ISIPClientConnection * piSCC,
-            IN ISIPClientConnection *piForkedSCC = IMS_NULL);
-    // ISIPErrorListener interface
-    virtual void Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    // ISipClientConnectionListener interface
+    virtual void ClientConnection_NotifyResponse(IN ISipClientConnection * piSCC,
+            IN ISipClientConnection *piForkedSCC = IMS_NULL);
+    // ISipErrorListener interface
+    virtual void Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
     IMS_BOOL SetTimer(IN IMS_SINT32 nTimerDuration);
 
@@ -139,7 +139,7 @@ private:
     IMS_SINT32 nRemainDuration;
     ITimer *piTimer;
 
-    ISIPClientConnection *piRefreshSC;
+    ISipClientConnection *piRefreshSC;
 
     // SIP_MESSAGE_MEDIATOR
     IMessageMediator *piMessageMediator;

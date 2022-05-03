@@ -3,21 +3,21 @@
 
 #include "SipStatusCode.h"
 
-class ISIPMessage;
-class ISIPServerConnection;
+class ISipMessage;
+class ISipServerConnection;
 
 /**
  * @brief This class provides a listener interface for receiving notifications about
  *        the reject to the incoming SIP request.
  *
- * @see ISIPRoutingRejectNotifier, ISIPMessage, ISIPServerConnection
+ * @see ISipRoutingRejectNotifier, ISipMessage, ISipServerConnection
  */
-class ISIPRoutingRejectListener
+class ISipRoutingRejectListener
 {
 public:
     /**
      * @brief Notifies the application that the incoming SIP request will be rejected
-     *        in the J180 layer.
+     *        in the sipcore layer.
      *
      * At this moment, the application can overwrite the status code of the rejected request.
      *
@@ -28,11 +28,11 @@ public:
      *         Otherwise, returns IMS_FALSE.
      */
     virtual IMS_BOOL RoutingReject_NotifyRequest(
-            IN ISIPMessage *piSIPMsg, IN_OUT SIPStatusCode &objStatusCode) = 0;
+            IN ISipMessage *piSIPMsg, IN_OUT SipStatusCode &objStatusCode) = 0;
 
     /**
      * @brief Notifies the application that the incoming SIP request will be rejected
-     *        in the J180 layer.
+     *        in the sipcore layer.
      *
      * At this moment, the application can overwrite the status code of the rejected request.
      *
@@ -43,7 +43,7 @@ public:
      *         Otherwise, returns IMS_FALSE.
      */
     virtual IMS_BOOL RoutingReject_NotifyRequest(
-            IN ISIPServerConnection *piSSC, IN_OUT SIPStatusCode &objStatusCode) = 0;
+            IN ISipServerConnection *piSSC, IN_OUT SipStatusCode &objStatusCode) = 0;
 };
 
 #endif // _INTERFACE_SIP_ROUTING_REJECT_LISTENER_H_

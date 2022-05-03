@@ -34,7 +34,7 @@ PUBLIC VIRTUAL
 SIPDatagramSocket::~SIPDatagramSocket()
 {
     IMS_TRACE_D("DatagramSocket(D) :: (%s, %d)",
-            SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort(), 0);
+            SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort(), 0);
 }
 
 /*
@@ -70,7 +70,7 @@ IMS_BOOL SIPDatagramSocket::Create(IN CONST IPAddress &objIPA, IN IMS_UINT32 nPo
 
     IMS_TRACE_I("DatagramSocket(C) ::(%s , %d)",
             SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ?\
-            "xxx" : SIPDebug::GetIP(objIPA), nPort, 0);
+            "xxx" : SipDebug::GetIp(objIPA), nPort, 0);
 
     ApplyIpSec();
 

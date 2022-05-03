@@ -42,7 +42,7 @@ public:
     inline void SessionProvisionalResponseReceived(IN ISession*, IN IMS_UINT32) override {}
     inline void SessionRPRDeliveryFailed(IN ISession*) override {}
     inline void SessionRPRReceived(IN ISession*, IN IMS_UINT32) override {}
-    inline void SessionTransactionReceived(IN ISession*, IN ISIPServerConnection*) override {}
+    inline void SessionTransactionReceived(IN ISession*, IN ISipServerConnection*) override {}
 
     // ITimerListener interface implementation.
     void Timer_TimerExpired(IN ITimer* piTimer) override ;

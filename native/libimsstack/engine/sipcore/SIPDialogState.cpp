@@ -123,7 +123,7 @@ SIPDialogState::~SIPDialogState()
 
     IMS_TRACE_D("Destructor :: SIPDialogState (%s : %s)",
             bIsCaller ? "__CALLER__" : "__CALLEE__",
-            SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0);
+            SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0);
 }
 
 /*
@@ -140,22 +140,22 @@ IMS_SINT32 SIPDialogState::CheckToTagValidity(IN CONST SIPMessageInfo &objMInfo)
 {
     SipMessage *pstMessage = objMInfo.GetMessage();
 
-    const SIPMethod &objMethod = objMInfo.GetMethod();
+    const SipMethod &objMethod = objMInfo.GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.Equals(SIPMethod::INVALID))
+    if (objMethod.Equals(SipMethod::INVALID))
         return SIPPrivate::MESSAGE_VALID;
 
     // For CANCEL & non-2xx responses to CANCEL, relax the To-Tag validation.
     // As these are hop-by-hop responses, they can have different To-Tags.
-    if (objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::CANCEL))
         return SIPPrivate::MESSAGE_VALID;
 
     if (!SIPStack::IsRequestMessage(pstMessage))
     {
-        if (objMethod.Equals(SIPMethod::INVITE)
-                && (SIPStack::GetStatusCode(pstMessage) >= SIPStatusCode::SC_300))
+        if (objMethod.Equals(SipMethod::INVITE)
+                && (SIPStack::GetStatusCode(pstMessage) >= SipStatusCode::SC_300))
         {
             return SIPPrivate::MESSAGE_VALID;
         }
@@ -165,8 +165,8 @@ IMS_SINT32 SIPDialogState::CheckToTagValidity(IN CONST SIPMessageInfo &objMInfo)
     IMS_BOOL bLocalTagMismatched = IMS_FALSE;
     IMS_BOOL bRemoteTagMismatched = IMS_FALSE;
 
-    AString strLocalTag = SIPStack::GetParameter(pstLocalURI, SIP::STR_TAG);
-    AString strRemoteTag = SIPStack::GetParameter(pstRemoteURI, SIP::STR_TAG);
+    AString strLocalTag = SIPStack::GetParameter(pstLocalURI, Sip::STR_TAG);
+    AString strRemoteTag = SIPStack::GetParameter(pstRemoteURI, Sip::STR_TAG);
     AString strNewLocalTag;
     AString strNewRemoteTag;
 
@@ -175,29 +175,29 @@ IMS_SINT32 SIPDialogState::CheckToTagValidity(IN CONST SIPMessageInfo &objMInfo)
     if (SIPStack::IsRequestMessage(pstMessage))
     {
         // Get local tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
-        strNewLocalTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewLocalTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
 
         // Get remote tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
 
-        strNewRemoteTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewRemoteTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
     }
     else
     {
         // Get local tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
 
-        strNewLocalTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewLocalTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
 
         // Get remote tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
-        strNewRemoteTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewRemoteTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
     }
 
@@ -235,19 +235,19 @@ IMS_SINT32 SIPDialogState::CheckToTagValidity(IN CONST SIPMessageInfo &objMInfo)
     {
         // Error : Tag Mismatch Error
         if (SIPStack::IsRequestMessage(pstMessage)
-                && !objMethod.Equals(SIPMethod::INVITE))
+                && !objMethod.Equals(SipMethod::INVITE))
         {
             // If the local tag is not matching,
             // then set the current local tag to this failed response.
             if (bLocalTagMismatched == IMS_TRUE)
             {
-                SIPPrivate::SetLastError(SIPError::LOCAL_TAG_MISMATCH);
+                SIPPrivate::SetLastError(SipError::LOCAL_TAG_MISMATCH);
             }
 
             return SIPPrivate::MESSAGE_INVALID_481;
         }
         else if (!SIPStack::IsRequestMessage(pstMessage)
-                && objMethod.Equals(SIPMethod::INVITE)
+                && objMethod.Equals(SipMethod::INVITE)
                 && (bRemoteTagMismatched == IMS_TRUE))
         {
             // Handle the forked response to INVITE request.
@@ -281,11 +281,11 @@ IMS_SINT32 SIPDialogState::CompareTo(IN SIPDialogState *pDState, IN SipMessage *
     IMS_SINT32 nComparisonResult = NOT_MATCHED;
     IMS_BOOL bToTagLenient = IMS_FALSE;
     IMS_SINT32 nForkedMessage = FORKED_ANY;
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
     if (pstMessage != IMS_NULL)
     {
-        IMS_SINT32 nStatusCode = SIPStatusCode::SC_INVALID;
+        IMS_SINT32 nStatusCode = SipStatusCode::SC_INVALID;
 
         if (!SIPStack::IsRequestMessage(pstMessage))
         {
@@ -298,20 +298,20 @@ IMS_SINT32 SIPDialogState::CompareTo(IN SIPDialogState *pDState, IN SipMessage *
         // Fix for CSR 1-1316815
         // The To-Tag leniency should be present for CANCEL request,
         // response for CANCEL, and failure responses for INVITE.
-        if (objMethod.Equals(SIPMethod::CANCEL))
+        if (objMethod.Equals(SipMethod::CANCEL))
             bToTagLenient = IMS_TRUE;
 
         else if (!SIPStack::IsRequestMessage(pstMessage)
-                && (objMethod.Equals(SIPMethod::INVITE))
-                && (nStatusCode >= SIPStatusCode::SC_300))
+                && (objMethod.Equals(SipMethod::INVITE))
+                && (nStatusCode >= SipStatusCode::SC_300))
         {
             bToTagLenient = IMS_TRUE;
         }
         else if ((bCheckForked)
                 && !SIPStack::IsRequestMessage(pstMessage)
-                && (objMethod.Equals(SIPMethod::INVITE))
-                && (nStatusCode >= SIPStatusCode::SC_100)
-                && (nStatusCode < SIPStatusCode::SC_300))
+                && (objMethod.Equals(SipMethod::INVITE))
+                && (nStatusCode >= SipStatusCode::SC_100)
+                && (nStatusCode < SipStatusCode::SC_300))
         {
             bToTagLenient = IMS_TRUE;
             nForkedMessage = FORKED_INVITE;
@@ -321,22 +321,22 @@ IMS_SINT32 SIPDialogState::CompareTo(IN SIPDialogState *pDState, IN SipMessage *
         // Also, reset the matching result since it is used only for detecting forked NOTIFYs.
         else if ((bCheckForked)
                 && !SIPStack::IsRequestMessage(pstMessage)
-                && (objMethod.Equals(SIPMethod::SUBSCRIBE))
-                && (nStatusCode >= SIPStatusCode::SC_100)
-                && (nStatusCode < SIPStatusCode::SC_300))
+                && (objMethod.Equals(SipMethod::SUBSCRIBE))
+                && (nStatusCode >= SipStatusCode::SC_100)
+                && (nStatusCode < SipStatusCode::SC_300))
         {
             bToTagLenient = IMS_TRUE;
         }
         else if ((bCheckForked)
                 && SIPStack::IsRequestMessage(pstMessage)
-                && (objMethod.Equals(SIPMethod::NOTIFY)))
+                && (objMethod.Equals(SipMethod::NOTIFY)))
         {
             nForkedMessage = FORKED_SUBSCRIBE;
         }
         // FIXME: Strict comparison - UPDATE request
         #if 0
         else if (SIPStack::IsRequestMessage(pstMessage)
-                && objMethod.Equals(SIPMethod::UPDATE))
+                && objMethod.Equals(SipMethod::UPDATE))
         {
             IMS_SINT32 nDState = GetState();
 
@@ -378,7 +378,7 @@ IMS_SINT32 SIPDialogState::CompareTo(IN SIPDialogState *pDState, IN SipMessage *
         {
             if (!SIPStack::IsRequestMessage(pstMessage)
                     || (SIPStack::IsRequestMessage(pstMessage)
-                        && !objMethod.Equals(SIPMethod::INVITE)))
+                        && !objMethod.Equals(SipMethod::INVITE)))
             {
                 nComparisonResult = NOT_MATCHED;
             }
@@ -389,7 +389,7 @@ IMS_SINT32 SIPDialogState::CompareTo(IN SIPDialogState *pDState, IN SipMessage *
             // If the request is CANCEL, then Equalss the Via branch parameter
             // also to have the exact match of dialog-state.
             if (SIPStack::IsRequestMessage(pstMessage)
-                    && objMethod.Equals(SIPMethod::CANCEL))
+                    && objMethod.Equals(SipMethod::CANCEL))
             {
                 if (!pDState->strRemoteViaBranch.IsNULL())
                 {
@@ -429,14 +429,14 @@ IMS_BOOL SIPDialogState::Equals(IN SIPDialogState *pDState)
     if (!strCallId.Equals(pDState->strCallId))
         return IMS_FALSE;
 
-    AString strTagVal = SIPStack::GetParameter(pstLocalURI, SIP::STR_TAG);
-    AString strOtherTagVal = SIPStack::GetParameter(pDState->pstLocalURI, SIP::STR_TAG);
+    AString strTagVal = SIPStack::GetParameter(pstLocalURI, Sip::STR_TAG);
+    AString strOtherTagVal = SIPStack::GetParameter(pDState->pstLocalURI, Sip::STR_TAG);
 
     if (!strTagVal.Equals(strOtherTagVal))
         return IMS_FALSE;
 
-    strTagVal = SIPStack::GetParameter(pstRemoteURI, SIP::STR_TAG);
-    strOtherTagVal = SIPStack::GetParameter(pDState->pstRemoteURI, SIP::STR_TAG);
+    strTagVal = SIPStack::GetParameter(pstRemoteURI, Sip::STR_TAG);
+    strOtherTagVal = SIPStack::GetParameter(pDState->pstRemoteURI, Sip::STR_TAG);
 
     if (!strTagVal.Equals(strOtherTagVal))
         return IMS_FALSE;
@@ -450,7 +450,7 @@ Remarks
 
 */
 PUBLIC
-const ISIPHeader* SIPDialogState::GetContactHeader() const
+const ISipHeader* SIPDialogState::GetContactHeader() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -467,7 +467,7 @@ AString SIPDialogState::GetLocalTag() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return SIPStack::GetParameter(pstLocalURI, SIP::STR_TAG);
+    return SIPStack::GetParameter(pstLocalURI, Sip::STR_TAG);
 }
 
 /*
@@ -480,7 +480,7 @@ AString SIPDialogState::GetRemoteTag() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return SIPStack::GetParameter(pstRemoteURI, SIP::STR_TAG);
+    return SIPStack::GetParameter(pstRemoteURI, Sip::STR_TAG);
 }
 
 /*
@@ -510,7 +510,7 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
     //---------------------------------------------------------------------------------------------
 
     // Call Id
-    pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::CALL_ID);
+    pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CALL_ID);
     SIPStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strCallId);
     SIPStack::FreeHeaderEx(pstHeader);
 
@@ -520,7 +520,7 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
         // Local URI & Tag
         SIPStack::FreeHeader(pstLocalURI);
 
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
 
 #ifdef __IMS_SIP_DIALOG_COMPONENT_BY_REFERENCE__
         pstTmpHeader = pstHeader;
@@ -540,7 +540,7 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
         // Remote URI & Tag
         SIPStack::FreeHeader(pstRemoteURI);
 
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
 #ifdef __IMS_SIP_DIALOG_COMPONENT_BY_REFERENCE__
         pstTmpHeader = pstHeader;
@@ -558,8 +558,8 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
         SIPStack::FreeHeaderEx(pstHeader);
 
         // Via branch parameter
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::VIA);
-        strLocalViaBranch = SIPStack::GetParameter(pstHeader, SIP::STR_BRANCH);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::VIA);
+        strLocalViaBranch = SIPStack::GetParameter(pstHeader, Sip::STR_BRANCH);
         SIPStack::FreeHeaderEx(pstHeader);
     }
     // The dialog state is created by the incoming dialog-creatable request
@@ -568,7 +568,7 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
         // Local URI & Tag
         SIPStack::FreeHeader(pstLocalURI);
 
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
 #ifdef __IMS_SIP_DIALOG_COMPONENT_BY_REFERENCE__
         pstTmpHeader = pstHeader;
@@ -588,7 +588,7 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
         // Remote URI & Tag
         SIPStack::FreeHeader(pstRemoteURI);
 
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
 
 #ifdef __IMS_SIP_DIALOG_COMPONENT_BY_REFERENCE__
         pstTmpHeader = pstHeader;
@@ -606,8 +606,8 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN SipMessage *pstMessage)
         SIPStack::FreeHeaderEx(pstHeader);
 
         // Via branch parameter
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::VIA);
-        strRemoteViaBranch = SIPStack::GetParameter(pstHeader, SIP::STR_BRANCH);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::VIA);
+        strRemoteViaBranch = SIPStack::GetParameter(pstHeader, Sip::STR_BRANCH);
         SIPStack::FreeHeaderEx(pstHeader);
     }
 
@@ -666,11 +666,11 @@ IMS_BOOL SIPDialogState::InitDialogDetails(IN IMS_SINT32 nTrigger, IN SIPDialogS
 
         // Remove the remote-tag because it is updated by the previous response
         // which is creating a dialog (early)
-        SIPStack::RemoveParameter(SIP::STR_TAG, pstRemoteURI);
+        SIPStack::RemoveParameter(Sip::STR_TAG, pstRemoteURI);
 #else
         // Remove the remote-tag because it is updated by the previous response
         // which is creating a dialog (early)
-        SIPStack::RemoveParameter(SIP::STR_TAG, pstRemoteURI);
+        SIPStack::RemoveParameter(Sip::STR_TAG, pstRemoteURI);
 #endif
     }
     else
@@ -695,7 +695,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPDialogState::InitRequest(IN CONST SIPMethod &objMethod,
+IMS_BOOL SIPDialogState::InitRequest(IN CONST SipMethod &objMethod,
         IN_OUT SipMessage *&pstMessage)
 {
     SipHeaderBase *pstHeader;
@@ -719,7 +719,7 @@ IMS_BOOL SIPDialogState::InitRequest(IN CONST SIPMethod &objMethod,
 
     // From
     pstHeader = SIPStack::CloneHeader(pstLocalURI);
-    SIPStack::SetHeaderType(ISIPHeader::FROM, pstHeader);
+    SIPStack::SetHeaderType(ISipHeader::FROM, pstHeader);
 
     if (!SIPStack::SetHeader(pstHeader, pstMessage))
     {
@@ -731,7 +731,7 @@ IMS_BOOL SIPDialogState::InitRequest(IN CONST SIPMethod &objMethod,
 
     // To
     pstHeader = SIPStack::CloneHeader(pstRemoteURI);
-    SIPStack::SetHeaderType(ISIPHeader::TO, pstHeader);
+    SIPStack::SetHeaderType(ISipHeader::TO, pstHeader);
 
     if (!SIPStack::SetHeader(pstHeader, pstMessage))
     {
@@ -742,7 +742,7 @@ IMS_BOOL SIPDialogState::InitRequest(IN CONST SIPMethod &objMethod,
     SIPStack::FreeHeaderEx(pstHeader);
 
     // Call-ID
-    pstHeader = SIPStack::DecodeHeader(ISIPHeader::CALL_ID, strCallId);
+    pstHeader = SIPStack::DecodeHeader(ISipHeader::CALL_ID, strCallId);
 
     if (!SIPStack::SetHeader(pstHeader, pstMessage))
     {
@@ -770,7 +770,7 @@ IMS_BOOL SIPDialogState::InitRequest(IN CONST SIPMethod &objMethod,
 
     // Contact
     if (IsContactMandatory(SIPMessage::TYPE_REQUEST,
-            objMethod, SIPStatusCode::SC_INVALID, IMS_FALSE))
+            objMethod, SipStatusCode::SC_INVALID, IMS_FALSE))
     {
         pstHeader = SIPStack::CloneHeader(pstLocalTargetURI);
 
@@ -786,10 +786,10 @@ IMS_BOOL SIPDialogState::InitRequest(IN CONST SIPMethod &objMethod,
     // HEADER_REQ_SESSION-ID
     if (strSessionId.GetLength() > 0)
     {
-        const AString SESSION_ID(SIPHeaderName::SESSION_ID);
+        const AString SESSION_ID(SipHeaderName::SESSION_ID);
 
         pstHeader = SIPStack::DecodeHeader(
-                ISIPHeader::UNKNOWN, SESSION_ID, strSessionId);
+                ISipHeader::UNKNOWN, SESSION_ID, strSessionId);
 
         (void) SIPStack::SetUnknownHeader(pstHeader, SESSION_ID, pstMessage);
         SIPStack::FreeHeaderEx(pstHeader);
@@ -871,7 +871,7 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
     if (nState == SIPDState::STATE_TERMINATED)
     {
         IMS_TRACE_D("INVALID STATE : Dialog (%s) is already in TERMINATED state",
-                SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+                SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
         return SIPPrivate::MESSAGE_VALID;
     }
 
@@ -890,7 +890,7 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
                 }
 
                 // HEADER_REQ_SESSION-ID
-                if (SIPFeatures::IsHeaderSessionIdRequired(objMInfo.GetSlotId()))
+                if (SipFeatures::IsHeaderSessionIdRequired(objMInfo.GetSlotId()))
                 {
                     UpdateSessionId(objMInfo);
                 }
@@ -904,7 +904,7 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
                 nLocalCSeq = SIPStack::GetCSeqNumber(pstMessage);
 
                 // HEADER_REQ_SESSION-ID
-                if (SIPFeatures::IsHeaderSessionIdRequired(objMInfo.GetSlotId()))
+                if (SipFeatures::IsHeaderSessionIdRequired(objMInfo.GetSlotId()))
                 {
                     UpdateSessionId(objMInfo);
                 }
@@ -931,23 +931,23 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
             // Only RPR's with a different tag cause formation of different call legs.
             // As we don't support multiple call legs, for now we will update the to-tag
             // for any incoming response.
-            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
-            AString strMsgTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
+            AString strMsgTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
             SIPStack::FreeHeaderEx(pstHeader);
 
-            AString strDialogTag = SIPStack::GetParameter(pstRemoteURI, SIP::STR_TAG);
+            AString strDialogTag = SIPStack::GetParameter(pstRemoteURI, Sip::STR_TAG);
 
             if ((strDialogTag.GetLength() == 0) && (strMsgTag.GetLength() > 0))
             {
-                if (!SIPStack::SetParameter(pstRemoteURI, SIP::STR_TAG, strMsgTag))
+                if (!SIPStack::SetParameter(pstRemoteURI, Sip::STR_TAG, strMsgTag))
                     return SIPPrivate::MESSAGE_FAILED;
             }
 
             // The route set for the dialog MUST be re-computed based on the 2xx response
             IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
-            if (objMInfo.GetMethod().Equals(SIPMethod::INVITE)
-                    && (SIPStatusCode::IsFinalSuccess(nStatusCode)))
+            if (objMInfo.GetMethod().Equals(SipMethod::INVITE)
+                    && (SipStatusCode::IsFinalSuccess(nStatusCode)))
             {
                 bIsINVITEConfirmed = IMS_TRUE;
             }
@@ -968,7 +968,7 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
 
             nRemoteCSeq = SIPStack::GetCSeqNumber(pstMessage);
 
-            if (objMInfo.GetMethod().Equals(SIPMethod::INVITE))
+            if (objMInfo.GetMethod().Equals(SipMethod::INVITE))
             {
                 nRemoteCSeqForINVITE = nRemoteCSeq;
             }
@@ -979,25 +979,25 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
             //  b) If the original call was from the other end,
             //    and the From tag in the dialog state is NULL,
             //    then we need to update it with the received tag.
-            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
-            AString strMsgTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
+            AString strMsgTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
             SIPStack::FreeHeaderEx(pstHeader);
 
             if (strMsgTag.GetLength() > 0)
             {
-                AString strDialogTag = SIPStack::GetParameter(pstRemoteURI, SIP::STR_TAG);
+                AString strDialogTag = SIPStack::GetParameter(pstRemoteURI, Sip::STR_TAG);
 
                 if (strDialogTag.GetLength() == 0)
                 {
-                    if (!SIPStack::SetParameter(pstRemoteURI, SIP::STR_TAG, strMsgTag))
+                    if (!SIPStack::SetParameter(pstRemoteURI, Sip::STR_TAG, strMsgTag))
                         return SIPPrivate::MESSAGE_FAILED;
                 }
             }
 
-            if (objMInfo.GetMethod().Equals(SIPMethod::INVITE))
+            if (objMInfo.GetMethod().Equals(SipMethod::INVITE))
             {
-                pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::VIA);
-                strRemoteViaBranch = SIPStack::GetParameter(pstHeader, AString(SIP::STR_BRANCH));
+                pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::VIA);
+                strRemoteViaBranch = SIPStack::GetParameter(pstHeader, AString(Sip::STR_BRANCH));
                 SIPStack::FreeHeaderEx(pstHeader);
             }
         }
@@ -1005,7 +1005,7 @@ IMS_SINT32 SIPDialogState::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo
         if (GetState() != SIPDState::STATE_CONFIRMED)
         {
             // HEADER_REQ_SESSION-ID
-            if (SIPFeatures::IsHeaderSessionIdRequired(objMInfo.GetSlotId()))
+            if (SipFeatures::IsHeaderSessionIdRequired(objMInfo.GetSlotId()))
             {
                 UpdateSessionId(objMInfo);
             }
@@ -1064,7 +1064,7 @@ void SIPDialogState::UpdateLocalCSeq(IN IMS_UINT32 nCSeq)
     //---------------------------------------------------------------------------------------------
 
     IMS_TRACE_I("Dialog (%s) - CSeq: %d >> %d",
-            SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), nLocalCSeq, nCSeq);
+            SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), nLocalCSeq, nCSeq);
 
     nLocalCSeq = nCSeq;
 }
@@ -1079,7 +1079,7 @@ IMS_SINT32 SIPDialogState::ValidateRemoteCSeq(IN SipMessage *pstMessage,
         IN IMS_SINT32 nPrevStatusCode/* = 0*/)
 {
     IMS_UINT32 nSeqNum;
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
     //---------------------------------------------------------------------------------------------
 
@@ -1097,13 +1097,13 @@ IMS_SINT32 SIPDialogState::ValidateRemoteCSeq(IN SipMessage *pstMessage,
     // For an ACK, if the CSeq is lower than the remote CSeq, it can be dropped.
     // This may happen if the ACK to a 401 appears after a fresh INVITE
     // with higher CSeq has been received by the F/W.
-    if (objMethod.Equals(SIPMethod::ACK))
+    if (objMethod.Equals(SipMethod::ACK))
     {
         if (nRemoteCSeqForINVITE != nSeqNum)
         {
             // ACK request of incoming re-INVITE can be received
             // after new re-INVITE request is received.
-            if (!SIPStatusCode::IsFinalSuccess(nPrevStatusCode))
+            if (!SipStatusCode::IsFinalSuccess(nPrevStatusCode))
             {
                 IMS_TRACE_E(0, "OUT OF SEQUENCE :: ACK (%d, %d)",
                         nRemoteCSeqForINVITE, nSeqNum, 0);
@@ -1116,7 +1116,7 @@ IMS_SINT32 SIPDialogState::ValidateRemoteCSeq(IN SipMessage *pstMessage,
 
     // Check if the CSeq is higher.
     // Note that for ACK and CANCEL, the CSeq will be same as that in initial INVITE.
-    if (objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::CANCEL))
     {
         if (nRemoteCSeqForINVITE == nSeqNum)
         {
@@ -1124,18 +1124,18 @@ IMS_SINT32 SIPDialogState::ValidateRemoteCSeq(IN SipMessage *pstMessage,
         }
         else if (nRemoteCSeqForINVITE < nSeqNum)
         {
-            SIPPrivate::SetLastError(SIPError::CSEQ_VALUE_MISMATCHED);
+            SIPPrivate::SetLastError(SipError::CSEQ_VALUE_MISMATCHED);
             return SIPPrivate::MESSAGE_INVALID_400;
         }
         else
         {
-            SIPPrivate::SetLastError(SIPError::REQUEST_OUT_OF_ORDER);
+            SIPPrivate::SetLastError(SipError::REQUEST_OUT_OF_ORDER);
             return SIPPrivate::MESSAGE_INVALID_500;
         }
     }
 
     // Checks for PRACK.
-    if (objMethod.Equals(SIPMethod::PRACK))
+    if (objMethod.Equals(SipMethod::PRACK))
     {
         // Application will handle the procedure for PRACK.
     }
@@ -1147,14 +1147,14 @@ IMS_SINT32 SIPDialogState::ValidateRemoteCSeq(IN SipMessage *pstMessage,
     // c) If CSeq is the lower, it should be responded with a 500 response.
     if (nRemoteCSeq > nSeqNum)
     {
-        SIPPrivate::SetLastError(SIPError::REQUEST_OUT_OF_ORDER);
+        SIPPrivate::SetLastError(SipError::REQUEST_OUT_OF_ORDER);
         return SIPPrivate::MESSAGE_INVALID_500;
     }
     else if (nRemoteCSeq == nSeqNum)
     {
         // It needs to be checked if the request is looped or not.
         // CheckRequestLoop(pstMessage);
-        SIPPrivate::SetLastError(SIPError::LOOP_DETECTED);
+        SIPPrivate::SetLastError(SipError::LOOP_DETECTED);
         return SIPPrivate::MESSAGE_INVALID_400;
     }
 
@@ -1233,67 +1233,67 @@ Remarks
 
 */
 PUBLIC GLOBAL
-IMS_BOOL SIPDialogState::IsContactMandatory(IN IMS_SINT32 nMsgType, IN CONST SIPMethod &objMethod,
+IMS_BOOL SIPDialogState::IsContactMandatory(IN IMS_SINT32 nMsgType, IN CONST SipMethod &objMethod,
         IN IMS_SINT32 nStatusCode, IN IMS_BOOL bContactInAll1xxRequired)
 {
     //---------------------------------------------------------------------------------------------
 
     if (nMsgType == SIPMessage::TYPE_REQUEST)
     {
-        if (objMethod.Equals(SIPMethod::INVITE)
-                || objMethod.Equals(SIPMethod::SUBSCRIBE)
-                || objMethod.Equals(SIPMethod::NOTIFY)
-                || objMethod.Equals(SIPMethod::REFER)
-                || objMethod.Equals(SIPMethod::UPDATE))
+        if (objMethod.Equals(SipMethod::INVITE)
+                || objMethod.Equals(SipMethod::SUBSCRIBE)
+                || objMethod.Equals(SipMethod::NOTIFY)
+                || objMethod.Equals(SipMethod::REFER)
+                || objMethod.Equals(SipMethod::UPDATE))
         {
             return IMS_TRUE;
         }
         // REGISTER, OPTIONS, and PUBLISH is added by the JSR 281 requirements.
-        else if (objMethod.Equals(SIPMethod::REGISTER)
-                || objMethod.Equals(SIPMethod::OPTIONS)
-                || objMethod.Equals(SIPMethod::PUBLISH))
+        else if (objMethod.Equals(SipMethod::REGISTER)
+                || objMethod.Equals(SipMethod::OPTIONS)
+                || objMethod.Equals(SipMethod::PUBLISH))
         {
             return IMS_TRUE;
         }
     }
     else
     {
-        if ((nStatusCode >= SIPStatusCode::SC_200)
-                && (nStatusCode < SIPStatusCode::SC_300))
+        if ((nStatusCode >= SipStatusCode::SC_200)
+                && (nStatusCode < SipStatusCode::SC_300))
         {
-            if (objMethod.Equals(SIPMethod::INVITE)
-                    || objMethod.Equals(SIPMethod::SUBSCRIBE)
-                    || objMethod.Equals(SIPMethod::REFER)
-                    || objMethod.Equals(SIPMethod::UPDATE))
+            if (objMethod.Equals(SipMethod::INVITE)
+                    || objMethod.Equals(SipMethod::SUBSCRIBE)
+                    || objMethod.Equals(SipMethod::REFER)
+                    || objMethod.Equals(SipMethod::UPDATE))
             {
                 return IMS_TRUE;
             }
             // OPTIONS & NOTIFY is added by the JSR 281 requirements.
-            else if (objMethod.Equals(SIPMethod::OPTIONS)
-                    || objMethod.Equals(SIPMethod::NOTIFY))
+            else if (objMethod.Equals(SipMethod::OPTIONS)
+                    || objMethod.Equals(SipMethod::NOTIFY))
             {
                 return IMS_TRUE;
             }
         }
-        else if ((nStatusCode >= SIPStatusCode::SC_300)
-                && (nStatusCode < SIPStatusCode::SC_400))
+        else if ((nStatusCode >= SipStatusCode::SC_300)
+                && (nStatusCode < SipStatusCode::SC_400))
         {
-            if (objMethod.Equals(SIPMethod::SUBSCRIBE)
-                    || objMethod.Equals(SIPMethod::NOTIFY))
+            if (objMethod.Equals(SipMethod::SUBSCRIBE)
+                    || objMethod.Equals(SipMethod::NOTIFY))
             {
                 return IMS_TRUE;
             }
         }
         // PATCH_FOR_CONTACT_HEADER_IN_ALL_1XX
-        else if (SIPStatusCode::IsProvisional(nStatusCode))
+        else if (SipStatusCode::IsProvisional(nStatusCode))
         {
-            if (objMethod.Equals(SIPMethod::INVITE))
+            if (objMethod.Equals(SipMethod::INVITE))
             {
                 if (bContactInAll1xxRequired)
                 {
                     return IMS_TRUE;
                 }
-                else if (nStatusCode >= SIPStatusCode::SC_180)
+                else if (nStatusCode >= SipStatusCode::SC_180)
                 {
                     // 3GPP Profile: 18x / 19x
                     return IMS_TRUE;
@@ -1342,7 +1342,7 @@ IMS_BOOL SIPDialogState::CreateRouteSet(IN CONST SIPMessageInfo &objMInfo)
 
     if (SIPDialogState::IsTargetRefreshMessage(pstMessage))
     {
-        IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::RECORD_ROUTE);
+        IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::RECORD_ROUTE);
 
         if (nHCount != 0)
         {
@@ -1359,16 +1359,16 @@ IMS_BOOL SIPDialogState::CreateRouteSet(IN CONST SIPMessageInfo &objMInfo)
                 IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
                 if (!SIPStack::IsMessageRPR(pstMessage)
-                        && SIPStatusCode::IsProvisional(nStatusCode))
+                        && SipStatusCode::IsProvisional(nStatusCode))
                 {
                     bPreloadedSet = IMS_TRUE;
                 }
 
                 for (nIndex = nHCount - 1; nIndex >= 0; nIndex--)
                 {
-                    pstRRHdr = SIPStack::GetHeader(pstMessage, ISIPHeader::RECORD_ROUTE, nIndex);
+                    pstRRHdr = SIPStack::GetHeader(pstMessage, ISipHeader::RECORD_ROUTE, nIndex);
 
-                    SIPStack::SetHeaderType(ISIPHeader::ROUTE, pstRRHdr);
+                    SIPStack::SetHeaderType(ISipHeader::ROUTE, pstRRHdr);
 
                     pstHeader = SIPStack::CloneHeader(pstRRHdr);
 
@@ -1385,9 +1385,9 @@ IMS_BOOL SIPDialogState::CreateRouteSet(IN CONST SIPMessageInfo &objMInfo)
             {
                 for (nIndex = 0; nIndex < nHCount; nIndex++)
                 {
-                    pstRRHdr = SIPStack::GetHeader(pstMessage, ISIPHeader::RECORD_ROUTE, nIndex);
+                    pstRRHdr = SIPStack::GetHeader(pstMessage, ISipHeader::RECORD_ROUTE, nIndex);
 
-                    SIPStack::SetHeaderType(ISIPHeader::ROUTE, pstRRHdr);
+                    SIPStack::SetHeaderType(ISipHeader::ROUTE, pstRRHdr);
 
                     pstHeader = SIPStack::CloneHeader(pstRRHdr);
 
@@ -1430,7 +1430,7 @@ IMS_BOOL SIPDialogState::UpdateComponents(IN CONST SIPMessageInfo &objMInfo)
     //---------------------------------------------------------------------------------------------
 
     // Call Id
-    pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::CALL_ID);
+    pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CALL_ID);
     SIPStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strTmpVal);
 
     if ((strCallId.GetLength() == 0) || (!strCallId.Equals(strTmpVal)))
@@ -1446,16 +1446,16 @@ IMS_BOOL SIPDialogState::UpdateComponents(IN CONST SIPMessageInfo &objMInfo)
     if (SIPStack::IsRequestMessage(pstMessage))
     {
         if (objMInfo.IsOutgoingMessage())
-            nHType = ISIPHeader::FROM;
+            nHType = ISipHeader::FROM;
         else
-            nHType = ISIPHeader::TO;
+            nHType = ISipHeader::TO;
     }
     else
     {
         if (objMInfo.IsOutgoingMessage())
-            nHType = ISIPHeader::TO;
+            nHType = ISipHeader::TO;
         else
-            nHType = ISIPHeader::FROM;
+            nHType = ISipHeader::FROM;
     }
 
     pstHeader = SIPStack::GetHeader(pstMessage, nHType);
@@ -1481,16 +1481,16 @@ IMS_BOOL SIPDialogState::UpdateComponents(IN CONST SIPMessageInfo &objMInfo)
     if (SIPStack::IsRequestMessage(pstMessage))
     {
         if (objMInfo.IsOutgoingMessage())
-            nHType = ISIPHeader::TO;
+            nHType = ISipHeader::TO;
         else
-            nHType = ISIPHeader::FROM;
+            nHType = ISipHeader::FROM;
     }
     else
     {
         if (objMInfo.IsOutgoingMessage())
-            nHType = ISIPHeader::FROM;
+            nHType = ISipHeader::FROM;
         else
-            nHType = ISIPHeader::TO;
+            nHType = ISipHeader::TO;
     }
 
     pstHeader = SIPStack::GetHeader(pstMessage, nHType);
@@ -1533,7 +1533,7 @@ IMS_BOOL SIPDialogState::UpdateContact(IN CONST SIPMessageInfo &objMInfo)
         {
             IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
-            if (nStatusCode != SIPStatusCode::SC_100)
+            if (nStatusCode != SipStatusCode::SC_100)
             {
                 RemovePendingRemoteTarget(objMInfo);
             }
@@ -1541,7 +1541,7 @@ IMS_BOOL SIPDialogState::UpdateContact(IN CONST SIPMessageInfo &objMInfo)
         return IMS_TRUE;
     }
 
-    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::CONTACT_NORMAL);
+    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::CONTACT_NORMAL);
 
     if (nHCount > 0)
     {
@@ -1549,7 +1549,7 @@ IMS_BOOL SIPDialogState::UpdateContact(IN CONST SIPMessageInfo &objMInfo)
         {
             SIPStack::FreeHeader(pstLocalTargetURI);
 
-            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::CONTACT_NORMAL);
+            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CONTACT_NORMAL);
 
             if (pstHeader != IMS_NULL)
             {
@@ -1587,7 +1587,7 @@ IMS_BOOL SIPDialogState::UpdateContact(IN CONST SIPMessageInfo &objMInfo)
                 SIPStack::FreeHeader(pstRemoteTargetURI);
 
                 SipHeaderBase *pstHeader = SIPStack::GetHeader(
-                        pstMessage, ISIPHeader::CONTACT_NORMAL);
+                        pstMessage, ISipHeader::CONTACT_NORMAL);
 
                 if (pstHeader != IMS_NULL)
                 {
@@ -1616,13 +1616,13 @@ IMS_BOOL SIPDialogState::UpdateRemoteURI(IN CONST SIPMessageInfo &objMInfo)
 
     if ((GetState() != SIPDState::STATE_INIT)
             && IsFromChangeCapable()
-            && (objMInfo.GetMethod().Equals(SIPMethod::INVITE)
-                || objMInfo.GetMethod().Equals(SIPMethod::UPDATE))
+            && (objMInfo.GetMethod().Equals(SipMethod::INVITE)
+                || objMInfo.GetMethod().Equals(SipMethod::UPDATE))
             && !SIPStack::IsRequestMessage(pstMessage))
     {
         IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             bFromChangeable = IMS_TRUE;
         }
@@ -1639,16 +1639,16 @@ IMS_BOOL SIPDialogState::UpdateRemoteURI(IN CONST SIPMessageInfo &objMInfo)
     if (SIPStack::IsRequestMessage(pstMessage))
     {
         if (objMInfo.IsOutgoingMessage())
-            nHType = ISIPHeader::TO;
+            nHType = ISipHeader::TO;
         else
-            nHType = ISIPHeader::FROM;
+            nHType = ISipHeader::FROM;
     }
     else
     {
         if (objMInfo.IsOutgoingMessage())
-            nHType = ISIPHeader::FROM;
+            nHType = ISipHeader::FROM;
         else
-            nHType = ISIPHeader::TO;
+            nHType = ISipHeader::TO;
     }
 
     // Remote URI & Tag
@@ -1730,7 +1730,7 @@ void SIPDialogState::UpdateSessionId(IN CONST SIPMessageInfo &objMInfo)
     }
 
     SipHeaderBase *pstHeader = SIPStack::GetUnknownHeader(
-                objMInfo.GetMessage(), SIPHeaderName::SESSION_ID);
+                objMInfo.GetMessage(), SipHeaderName::SESSION_ID);
 
     if (SIPStack::IsValidHeader(pstHeader))
     {
@@ -1837,14 +1837,14 @@ void SIPDialogState::AddPendingRemoteTarget(IN CONST SIPMessageInfo &objMInfo)
         if (strKey.Equals(pRemoteTarget->strKey))
         {
             IMS_TRACE_D("PendingRemoteTarget(add) :: key(dup)=%s, count=%d",
-                    SIPDebug::GetCharA1(strKey.GetStr(), 8, '@'),
+                    SipDebug::GetCharA1(strKey.GetStr(), 8, '@'),
                     objPendingRemoteTargets.GetSize(), 0);
             return;
         }
     }
 
     SipHeaderBase *pstContact = IMS_NULL;
-    SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::CONTACT_NORMAL);
+    SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CONTACT_NORMAL);
 
     if (SIPStack::IsValidHeader(pstHeader))
     {
@@ -1862,7 +1862,7 @@ void SIPDialogState::AddPendingRemoteTarget(IN CONST SIPMessageInfo &objMInfo)
     objPendingRemoteTargets.Append(new PendingRemoteTarget(strKey, pstContact));
 
     IMS_TRACE_D("PendingRemoteTarget(add) :: key=%s, count=%d",
-            SIPDebug::GetCharA1(strKey.GetStr(), 8, '@'),
+            SipDebug::GetCharA1(strKey.GetStr(), 8, '@'),
             objPendingRemoteTargets.GetSize(), 0);
 }
 
@@ -1931,7 +1931,7 @@ void SIPDialogState::RemovePendingRemoteTarget(IN CONST SIPMessageInfo &objMInfo
             delete pRemoteTarget;
 
             IMS_TRACE_D("PendingRemoteTarget(remove) :: key=%s, count=%d",
-                    SIPDebug::GetCharA1(strKey.GetStr(), 8, '@'),
+                    SipDebug::GetCharA1(strKey.GetStr(), 8, '@'),
                     objPendingRemoteTargets.GetSize(), 0);
             break;
         }
@@ -2014,7 +2014,7 @@ void SIPDialogState::UpdateAndRemovePendingRemoteTarget(IN CONST SIPMessageInfo 
         }
 
         IMS_TRACE_D("PendingRemoteTarget(update&remove) :: key=%s, index=%d, count=%d",
-                SIPDebug::GetCharA1(strKey.GetStr(), 8, '@'),
+                SipDebug::GetCharA1(strKey.GetStr(), 8, '@'),
                 nMatchedIndex, objPendingRemoteTargets.GetSize());
     }
 }
@@ -2073,11 +2073,11 @@ Remarks
 PRIVATE
 void SIPDialogState::UpdateFromChangeOption(IN CONST SIPMessageInfo &objMInfo)
 {
-    const SIPMethod &objMethod = objMInfo.GetMethod();
+    const SipMethod &objMethod = objMInfo.GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
-    if (!objMethod.Equals(SIPMethod::INVITE))
+    if (!objMethod.Equals(SipMethod::INVITE))
     {
         // no-op
         return;
@@ -2088,7 +2088,7 @@ void SIPDialogState::UpdateFromChangeOption(IN CONST SIPMessageInfo &objMInfo)
     if ((GetState() == SIPDState::STATE_INIT)
             && SIPStack::IsRequestMessage(pstMessage))
     {
-        if (SIPStack::IsOptionSupported(pstMessage, SIP::STR_FROM_CHANGE))
+        if (SIPStack::IsOptionSupported(pstMessage, Sip::STR_FROM_CHANGE))
         {
             SetFromChangeOption(FROM_CHANGE_ON_INVITE_REQUEST);
         }
@@ -2098,10 +2098,10 @@ void SIPDialogState::UpdateFromChangeOption(IN CONST SIPMessageInfo &objMInfo)
     {
         IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
-        if (SIPStatusCode::IsProvisional(nStatusCode)
-                || SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsProvisional(nStatusCode)
+                || SipStatusCode::IsFinalSuccess(nStatusCode))
         {
-            if (SIPStack::IsOptionSupported(pstMessage, SIP::STR_FROM_CHANGE))
+            if (SIPStack::IsOptionSupported(pstMessage, Sip::STR_FROM_CHANGE))
             {
                 SetFromChangeOption(FROM_CHANGE_ON_INVITE_RESPONSE);
             }
@@ -2127,11 +2127,11 @@ IMS_SINT32 SIPDialogState::CompareHeaders(IN SipHeaderBase *pstNewH, IN SipHeade
         return NOT_MATCHED;
 
     // Compare the tags which are sufficient for RFC 3261 compliant UAs
-    AString strNewTag = SIPStack::GetParameter(pstNewH, SIP::STR_TAG);
-    AString strExistingTag = SIPStack::GetParameter(pstExistingH, SIP::STR_TAG);
+    AString strNewTag = SIPStack::GetParameter(pstNewH, Sip::STR_TAG);
+    AString strExistingTag = SIPStack::GetParameter(pstExistingH, Sip::STR_TAG);
 
-    if ((SIPStack::GetHeaderType(pstNewH) == ISIPHeader::TO)
-            && (SIPStack::GetHeaderType(pstExistingH) == ISIPHeader::TO))
+    if ((SIPStack::GetHeaderType(pstNewH) == ISipHeader::TO)
+            && (SIPStack::GetHeaderType(pstExistingH) == ISipHeader::TO))
     {
         bToTagComparison = IMS_TRUE;
     }
@@ -2209,8 +2209,8 @@ IMS_SINT32 SIPDialogState::CompareHeaders(IN SipHeaderBase *pstNewH, IN SipHeade
     // "dIsCheckForkedSubs.
     if ((nComparisonResult == NOT_MATCHED)
             && ((nForkedMessage == FORKED_SUBSCRIBE)
-                || ((SIPStack::GetHeaderType(pstNewH) == ISIPHeader::FROM)
-                    && (SIPStack::GetHeaderType(pstExistingH) == ISIPHeader::TO))))
+                || ((SIPStack::GetHeaderType(pstNewH) == ISipHeader::FROM)
+                    && (SIPStack::GetHeaderType(pstExistingH) == ISipHeader::TO))))
     {
         if (!strNewTag.IsNULL())
         {
@@ -2224,8 +2224,8 @@ IMS_SINT32 SIPDialogState::CompareHeaders(IN SipHeaderBase *pstNewH, IN SipHeade
 
                 // Check the case,
                 //        Existing Header: From (local-tag), New Header: To (local-tag)
-                if ((SIPStack::GetHeaderType(pstNewH) == ISIPHeader::TO)
-                        && (SIPStack::GetHeaderType(pstExistingH) == ISIPHeader::FROM))
+                if ((SIPStack::GetHeaderType(pstNewH) == ISipHeader::TO)
+                        && (SIPStack::GetHeaderType(pstExistingH) == ISipHeader::FROM))
                 {
                     if (!strNewTag.Equals(strExistingTag))
                     {
@@ -2257,19 +2257,19 @@ Remarks
 PRIVATE GLOBAL
 IMS_BOOL SIPDialogState::IsTargetRefreshMessage(IN SipMessage *pstMessage)
 {
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
 
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.Equals(SIPMethod::INVALID))
+    if (objMethod.Equals(SipMethod::INVALID))
         return IMS_FALSE;
 
     // Check if the method is a remote target refreshable one or not
-    if (!objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::UPDATE)
-            && !objMethod.Equals(SIPMethod::SUBSCRIBE)
-            && !objMethod.Equals(SIPMethod::NOTIFY)
-            && !objMethod.Equals(SIPMethod::REFER))
+    if (!objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::UPDATE)
+            && !objMethod.Equals(SipMethod::SUBSCRIBE)
+            && !objMethod.Equals(SipMethod::NOTIFY)
+            && !objMethod.Equals(SipMethod::REFER))
     {
         return IMS_FALSE;
     }
@@ -2278,22 +2278,22 @@ IMS_BOOL SIPDialogState::IsTargetRefreshMessage(IN SipMessage *pstMessage)
     {
         IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
-        if (!SIPStatusCode::IsProvisional(nStatusCode)
-                && !SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (!SipStatusCode::IsProvisional(nStatusCode)
+                && !SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             return IMS_FALSE;
         }
 
-        if (SIPStatusCode::IsProvisional(nStatusCode))
+        if (SipStatusCode::IsProvisional(nStatusCode))
         {
             // Check if the message is a reliable provisional response or not
             if (SIPStack::IsMessageRPR(pstMessage) != IMS_TRUE)
             {
                 // Check if the message has a To-Tag or not
-                SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+                SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
                 // Get To-Tag parameter from To header
-                AString strToTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+                AString strToTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
                 SIPStack::FreeHeaderEx(pstHeader);
 
                 if (strToTag.GetLength() == 0)

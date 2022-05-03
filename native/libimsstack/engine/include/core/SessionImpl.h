@@ -82,9 +82,9 @@ private:
     virtual IMS_RESULT Update();
     //// IMS extensions
     virtual ISubscription* CreateSubscription(IN CONST AString &strEvent);
-    virtual ISIPClientConnection* CreateTransaction(IN CONST SIPMethod &objMethod);
+    virtual ISipClientConnection* CreateTransaction(IN CONST SipMethod &objMethod);
     virtual IMS_SINT32 GetConfiguration() const;
-    virtual const ISIPHeader* GetContactHeader() const;
+    virtual const ISipHeader* GetContactHeader() const;
     virtual const Replaces* GetReplaces() const;
     virtual const AString& GetSessionId() const;
     virtual IMS_SINT32 GetTerminationReason() const;
@@ -116,7 +116,7 @@ private:
             IN IMS_SINT32 nCriteriaInterval, IN IMS_SINT32 nValueEorLT, IN IMS_SINT32 nValueGT);
     virtual IMS_RESULT TerminateEx(IN IMS_BOOL bTerminateMethodBYE = IMS_FALSE);
     virtual IMS_RESULT UpdateEarlyMedia();
-    virtual IMS_RESULT UpdateEx(IN IMS_SINT32 nMethod = SIPMethod::INVALID,
+    virtual IMS_RESULT UpdateEx(IN IMS_SINT32 nMethod = SipMethod::INVALID,
             IN IMS_BOOL bSessionRefresh = IMS_FALSE);
 
     // REFUSE_SDP_OFFER_ANSWER_EXCHANGE {
@@ -147,7 +147,7 @@ private:
     virtual void OnSession_ProvisionalResponseReceived(IN Session *pSession,
             IN IMS_UINT32 nIndex = 0xFFFFFFFF);
     virtual IMS_BOOL OnSession_TransactionReceived(IN Session *pSession,
-            IN ISIPServerConnection *piSSC);
+            IN ISipServerConnection *piSSC);
 
     // IOnSessionExListener interface
     virtual void OnSessionEx_EarlyMediaUpdated(IN SessionEx *pSessionEx);

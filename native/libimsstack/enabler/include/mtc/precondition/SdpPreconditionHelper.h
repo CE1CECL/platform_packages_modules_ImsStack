@@ -36,7 +36,7 @@ private:
             IN QosStatusTable* pStatusTable, IN IMS_BOOL bUseConf);
 
     static IMediaDescriptor* GetMediaDescriptor(IN IMedia* piMedia);
-    static IMS_BOOL HasReservedResourceInSdp(IN ISIPMessage* piSipMessage,
+    static IMS_BOOL HasReservedResourceInSdp(IN ISipMessage* piSipMessage,
             IN IMS_SINT32 eSdpMediaType);
 };
 #endif

@@ -15,7 +15,7 @@
 
 #include "IMSTypeDef.h"
 
-class ISIPMessage;
+class ISipMessage;
 
 class OperatorFeatureResolver
 {
@@ -24,7 +24,7 @@ private:
     ~OperatorFeatureResolver();
 
 public:
-    static IMS_BOOL IsMessageForEarlySessionModel(IN const ISIPMessage* piSIPMsg);
+    static IMS_BOOL IsMessageForEarlySessionModel(IN const ISipMessage* piSIPMsg);
 };
 
 #endif // _OPERATOR_FEATURE_RESOLVER_H_

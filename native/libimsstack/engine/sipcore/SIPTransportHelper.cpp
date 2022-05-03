@@ -159,10 +159,10 @@ SIPSocket* SIPTransportHelper::Create(IN CONST SIPSocketAddress &objSA)
 
     if (pSocket != IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
 
         IMS_TRACE_D("TransportHelper :: Socket (%s, %d, %d) will be re-used",
-                SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort(), objSA.GetType());
+                SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort(), objSA.GetType());
 
         return pSocket;
     }
@@ -183,7 +183,7 @@ SIPSocket* SIPTransportHelper::Create(IN CONST SIPSocketAddress &objSA)
     }
     else
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
@@ -191,7 +191,7 @@ SIPSocket* SIPTransportHelper::Create(IN CONST SIPSocketAddress &objSA)
     {
         delete pSocket;
 
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_NULL;
     }
 
@@ -199,11 +199,11 @@ SIPSocket* SIPTransportHelper::Create(IN CONST SIPSocketAddress &objSA)
     {
         delete pSocket;
 
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_NULL;
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return pSocket;
 }
@@ -223,13 +223,13 @@ SIPSocket* SIPTransportHelper::CreateStreamSocket(IN CONST SIPSocketAddress &obj
 
     if (pSocket != IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return pSocket;
     }
 
     if (objSA.GetType() != SIPSocketAddress::SOCKET_TCP_CLIENT)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
@@ -237,7 +237,7 @@ SIPSocket* SIPTransportHelper::CreateStreamSocket(IN CONST SIPSocketAddress &obj
 
     if (pStreamSocket == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -248,7 +248,7 @@ SIPSocket* SIPTransportHelper::CreateStreamSocket(IN CONST SIPSocketAddress &obj
     {
         delete pStreamSocket;
 
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_NULL;
     }
 
@@ -256,11 +256,11 @@ SIPSocket* SIPTransportHelper::CreateStreamSocket(IN CONST SIPSocketAddress &obj
     {
         delete pStreamSocket;
 
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_NULL;
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return pStreamSocket;
 }
@@ -665,7 +665,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPTransportHelper::DestroyTCPSocket(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
+void SIPTransportHelper::DestroyTcpSocket(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
         IN CONST IPAddress &objDestIP, IN IMS_UINT32 nDestPort,
         IN IMS_BOOL bIsConnectionByPeer /* = IMS_FALSE */)
 {
@@ -674,7 +674,7 @@ void SIPTransportHelper::DestroyTCPSocket(IN CONST IPAddress &objSrcIP, IN IMS_U
 
     //---------------------------------------------------------------------------------------------
 
-    IMS_TRACE_D("DestroyTCPSocket (S) :: Sockets (%d)", objSockets.GetSize(), 0, 0);
+    IMS_TRACE_D("DestroyTcpSocket (S) :: Sockets (%d)", objSockets.GetSize(), 0, 0);
 
     if (!bIsConnectionByPeer)
     {
@@ -744,7 +744,7 @@ void SIPTransportHelper::DestroyTCPSocket(IN CONST IPAddress &objSrcIP, IN IMS_U
         }
     }
 
-    IMS_TRACE_D("DestroyTCPSocket (E) :: Sockets (%d)", objSockets.GetSize(), 0, 0);
+    IMS_TRACE_D("DestroyTcpSocket (E) :: Sockets (%d)", objSockets.GetSize(), 0, 0);
 
     if (objSockets.IsEmpty())
     {
@@ -758,7 +758,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPTransportHelper::SetIPQoS(IN SIPRTConfig::IPQoS *pIPQoS)
+void SIPTransportHelper::SetIpQos(IN SipRtConfig::IpQos *pIPQoS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -880,7 +880,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPTransportHelper::SetLocalDnsQueryListener(IN ISIPLocalDnsQueryListener *piListener)
+void SIPTransportHelper::SetLocalDnsQueryListener(IN ISipLocalDnsQueryListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1226,7 +1226,7 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
     //---------------------------------------------------------------------------------------------
 
     strNearEnd.Sprintf("Near End (%s, %d)",
-            SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort());
+            SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort());
 
     // Find a socket using the source address & port again
     for (IMS_UINT32 i = 0; i < objSockets.GetSize(); ++i)
@@ -1238,13 +1238,13 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
 
         pSocket->GetSockName(objIP, nPort);
 
-        IMS_TRACE_D("Lookup :: TCP client (%s, %d) at (%d)", SIPDebug::GetIP(objIP), nPort, i);
+        IMS_TRACE_D("Lookup :: TCP client (%s, %d) at (%d)", SipDebug::GetIp(objIP), nPort, i);
 
         if (objIP.Equals(objSA.GetIPAddress())
                 && (nPort == static_cast<IMS_UINT32>(objSA.GetPort())))
         {
             IMS_TRACE_D("Lookup :: TCP client (%s, %d), %s",
-                    SIPDebug::GetIP(objIP), nPort, strNearEnd.GetStr());
+                    SipDebug::GetIp(objIP), nPort, strNearEnd.GetStr());
             return pSocket;
         }
     }
@@ -1252,7 +1252,7 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
     if (pStreamSocket == IMS_NULL)
     {
         IMS_TRACE_D("Lookup :: TCP client (not found) (%s, %d), %s",
-                SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort(), strNearEnd.GetStr());
+                SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort(), strNearEnd.GetStr());
     }
 
     return pStreamSocket;
@@ -1275,7 +1275,7 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
     // LOG_EXCLUDING_SERVER_INFO
     strFarEnd.Sprintf("Far End (%s, %d)",
             SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ? \
-                "xxx" : SIPDebug::GetIP(objSA_FarEnd.GetIPAddress()),
+                "xxx" : SipDebug::GetIp(objSA_FarEnd.GetIPAddress()),
             objSA_FarEnd.GetPort());
 
     // Find a socket using the destination address & port
@@ -1306,13 +1306,13 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
 
         pSocket->GetSockName(objIP, nPort);
 
-        IMS_TRACE_D("Lookup :: TCP client (%s, %d) at (%d)", SIPDebug::GetIP(objIP), nPort, i);
+        IMS_TRACE_D("Lookup :: TCP client (%s, %d) at (%d)", SipDebug::GetIp(objIP), nPort, i);
 
         if (objIP.Equals(objSA.GetIPAddress())
                 && (nPort == static_cast<IMS_UINT32>(objSA.GetPort())))
         {
             IMS_TRACE_D("Lookup :: TCP client (%s, %d), %s",
-                    SIPDebug::GetIP(objIP), nPort, strFarEnd.GetStr());
+                    SipDebug::GetIp(objIP), nPort, strFarEnd.GetStr());
             return pSocket;
         }
 
@@ -1323,7 +1323,7 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
             {
                 pStreamSocket = pSocket;
                 IMS_TRACE_D("Lookup :: TCP client (%s, %d) w/o port, %s",
-                        SIPDebug::GetIP(objIP), nPort, strFarEnd.GetStr());
+                        SipDebug::GetIp(objIP), nPort, strFarEnd.GetStr());
             }
         }
     }
@@ -1331,7 +1331,7 @@ SIPSocket* SIPTransportHelper::LookupStreamSocket(IN CONST SIPSocketAddress &obj
     if (pStreamSocket == IMS_NULL)
     {
         IMS_TRACE_D("Lookup :: TCP client (not found) (%s, %d), %s",
-                SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort(), strFarEnd.GetStr());
+                SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort(), strFarEnd.GetStr());
     }
 
     if (objCandidates.GetSize() > 1)

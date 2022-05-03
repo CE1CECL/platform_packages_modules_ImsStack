@@ -19,32 +19,32 @@ Remarks
 
 */
 PUBLIC GLOBAL
-void SIPWakeLock::Acquire(IN CONST SIPMethod &objMethod, IN IMS_UINT32 /* nTimeout = 0 */)
+void SIPWakeLock::Acquire(IN CONST SipMethod &objMethod, IN IMS_UINT32 /* nTimeout = 0 */)
 {
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
         // 3 seconds
         IMS_EVENT_SendEventForSlotId(IMS_EVENT_WAKE_LOCK, 0, 3000, IMS_SLOT_0);
     }
-    else if (objMethod.Equals(SIPMethod::UPDATE))
+    else if (objMethod.Equals(SipMethod::UPDATE))
     {
         // 2 seconds
         IMS_EVENT_SendEventForSlotId(IMS_EVENT_WAKE_LOCK, 0, 2000, IMS_SLOT_0);
     }
-    else if (objMethod.Equals(SIPMethod::BYE))
+    else if (objMethod.Equals(SipMethod::BYE))
     {
         // 2 seconds
         IMS_EVENT_SendEventForSlotId(IMS_EVENT_WAKE_LOCK, 0, 2000, IMS_SLOT_0);
     }
-    else if (objMethod.Equals(SIPMethod::ACK)
-            || objMethod.Equals(SIPMethod::PRACK)
-            || objMethod.Equals(SIPMethod::OPTIONS)
-            || objMethod.Equals(SIPMethod::MESSAGE)
-            || objMethod.Equals(SIPMethod::REFER)
-            || objMethod.Equals(SIPMethod::NOTIFY)
-            || objMethod.Equals(SIPMethod::INFO))
+    else if (objMethod.Equals(SipMethod::ACK)
+            || objMethod.Equals(SipMethod::PRACK)
+            || objMethod.Equals(SipMethod::OPTIONS)
+            || objMethod.Equals(SipMethod::MESSAGE)
+            || objMethod.Equals(SipMethod::REFER)
+            || objMethod.Equals(SipMethod::NOTIFY)
+            || objMethod.Equals(SipMethod::INFO))
     {
         // 1 seconds
         IMS_EVENT_SendEventForSlotId(IMS_EVENT_WAKE_LOCK, 0, 1000, IMS_SLOT_0);

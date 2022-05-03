@@ -6,17 +6,17 @@
 /**
  * @brief This class provides an interface to configure the runtime configuration for SIP handling.
  *
- * @see SIPRTConfig
+ * @see SipRtConfig
  */
-class ISIPRTConfigHelper
+class ISipRtConfigHelper
 {
 public:
     /**
      * @brief Disables SIP run-time feature.
      *
      * @param nFeature Feature to be disable\n
-     *                 #SIPRTConfig#FEATURE_NONE\n
-     *                 #SIPRTConfig#FEATURE_SIP_TX_PACKET_BLOCKED
+     *                 #SipRtConfig#FEATURE_NONE\n
+     *                 #SipRtConfig#FEATURE_SIP_TX_PACKET_BLOCKED
      */
     virtual void DisableFeature(IN IMS_SINT32 nFeature) = 0;
 
@@ -24,8 +24,8 @@ public:
      * @brief Enables SIP run-time feature.
      *
      * @param nFeature Feature to be enable\n
-     *                 #SIPRTConfig#FEATURE_NONE\n
-     *                 #SIPRTConfig#FEATURE_SIP_TX_PACKET_BLOCKED
+     *                 #SipRtConfig#FEATURE_NONE\n
+     *                 #SipRtConfig#FEATURE_SIP_TX_PACKET_BLOCKED
      */
     virtual void EnableFeature(IN IMS_SINT32 nFeature) = 0;
 
@@ -33,8 +33,8 @@ public:
      * @brief Gets SIP run-time features.
      *
      * @return Enabled features (Bit-mask of followings).\n
-     *         #SIPRTConfig#FEATURE_NONE\n
-     *         #SIPRTConfig#FEATURE_SIP_TX_PACKET_BLOCKED
+     *         #SipRtConfig#FEATURE_NONE\n
+     *         #SipRtConfig#FEATURE_SIP_TX_PACKET_BLOCKED
      */
     virtual IMS_SINT32 GetFeatures() const = 0;
 
@@ -42,9 +42,9 @@ public:
      * @brief Gets the run-time SIP header configuration.
      *
      * @param strName SIP header name
-     * @return Pointer to SIP header configuration (SIPRTConfig::Header*).
+     * @return Pointer to SIP header configuration (SipRtConfig::Header*).
      */
-    virtual const SIPRTConfig::Header* GetHeader(IN CONST AString &strName) const = 0;
+    virtual const SipRtConfig::Header* GetHeader(IN CONST AString &strName) const = 0;
 
     /**
      * @brief Removes the SIP run-time (or real-time) configuration.
@@ -67,7 +67,7 @@ public:
      *              #CONFIG_I_REG_CONTACT_ADDRESS
      * @param pParam Related parameter of the specified configuration item
      */
-    virtual void RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *pParam) = 0;
+    virtual void RemoveConfig(IN IMS_SINT32 nItem, IN SipRtConfig::Base *pParam) = 0;
 
     /**
      * @brief Sets the SIP run-time (or real-time) configuration.
@@ -89,7 +89,7 @@ public:
      * @param pParam Related parameter of the specified configuration item
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
      */
-    virtual IMS_RESULT SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *pParam) = 0;
+    virtual IMS_RESULT SetConfig(IN IMS_SINT32 nItem, IN SipRtConfig::Base *pParam) = 0;
 };
 
 #endif // _INTERFACE_SIP_RT_CONFIG_HELPER_H_

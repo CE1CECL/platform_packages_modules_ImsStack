@@ -1,7 +1,7 @@
 #ifndef _INTERFACE_REFRESH_LISTENER_H_
 #define _INTERFACE_REFRESH_LISTENER_H_
 
-class ISIPClientConnection;
+class ISipClientConnection;
 
 /**
  * @brief This class defines a refresh listener for refreshable SIP methods.
@@ -13,9 +13,9 @@ public:
      * @brief Notifies the application that the refresh operation is completed.
      *
      * @param piSCC SIP client connection for the refresh transaction
-     * @see ISIPClientConnection
+     * @see ISipClientConnection
      */
-    virtual void Refresh_NotifyCompleted(IN ISIPClientConnection *piSCC) = 0;
+    virtual void Refresh_NotifyCompleted(IN ISipClientConnection *piSCC) = 0;
 
     /**
      * @brief Notifies the application that the refresh is terminated.

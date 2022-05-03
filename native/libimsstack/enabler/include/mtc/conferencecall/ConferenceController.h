@@ -52,7 +52,7 @@ public:
     // IConferenceReferenceListener interface implementations
     void OnReferenceStarted(IN IConferenceReference* piConfRef) override;
     void OnReferenceStartFailed(IN IConferenceReference* piConfRef) override;
-    void OnReferenceUpdated(IN IConferenceReference* piConfRef, IN SIPStatusCode nSipFragCode,
+    void OnReferenceUpdated(IN IConferenceReference* piConfRef, IN SipStatusCode nSipFragCode,
             IN ReferSubscriptionState eState) override;
 
     // ITimerListener interfaces implementation.
@@ -100,7 +100,7 @@ protected:
     void ClearOngoingReferences();
     virtual void UpdateUserStatusByReferResult(IN ConfUser* pUser,
             IN IConferenceReference* piConfRef,
-            IN SIPStatusCode nStatusCode = SIPStatusCode::SC_200);
+            IN SipStatusCode nStatusCode = SipStatusCode::SC_200);
 
     void NotifyConferenceInfo();
     void NotifyUsersInfo();

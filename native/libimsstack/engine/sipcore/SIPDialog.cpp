@@ -51,7 +51,7 @@ PUBLIC
 SIPDialog::~SIPDialog()
 {
     IMS_TRACE_D("Destructor :: SIPDialog (%s)",
-            SIPDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'), 0, 0);
+            SipDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'), 0, 0);
 }
 
 PUBLIC
@@ -93,35 +93,35 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString &strMeth
             && (nState != STATE_CONFIRMED))
     {
         // BYE_REQUEST_ON_DIALOG_TERMINATED
-        if (strMethod.Equals(SIPMethod::ToName(SIPMethod::BYE)))
+        if (strMethod.Equals(SipMethod::ToName(SipMethod::BYE)))
         {
             IMS_TRACE_D("BYE ignores the dialog state(TERMINATED)", 0, 0, 0);
         }
         else
         {
-            SIPPrivate::SetLastError(SIPError::INVALID_STATE);
+            SIPPrivate::SetLastError(SipError::INVALID_STATE);
             return IMS_NULL;
         }
     }
 
     if (strMethod.IsNULL())
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
     if (strMethod.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
-    SIPMethod objMethod(strMethod);
+    SipMethod objMethod(strMethod);
 
     // Check the method validity for the current dialog
     if (!CheckMethodValidity(objMethod))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_NULL;
     }
 
@@ -130,7 +130,7 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString &strMeth
 
     if (pNewDialogEx.IsNull())
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -138,7 +138,7 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString &strMeth
 
     if (pSCC == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -146,7 +146,7 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString &strMeth
     {
         delete pSCC;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -174,7 +174,7 @@ Remarks
 
 */
 PUBLIC
-const ISIPHeader* SIPDialog::GetContactHeader() const
+const ISipHeader* SIPDialog::GetContactHeader() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -324,17 +324,17 @@ Remarks
 
 */
 PRIVATE
-IMS_BOOL SIPDialog::CheckMethodValidity(IN CONST SIPMethod &objMethod) const
+IMS_BOOL SIPDialog::CheckMethodValidity(IN CONST SipMethod &objMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
     // Case 1)
     //    Condition - subscribe usage & method except for INVITE/SUBSCRIBE/REFER/NOTIFY
     if (!(pDialogEx->IsInviteUsage())
-            && !objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::SUBSCRIBE)
-            && !objMethod.Equals(SIPMethod::REFER)
-            && !objMethod.Equals(SIPMethod::NOTIFY))
+            && !objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::SUBSCRIBE)
+            && !objMethod.Equals(SipMethod::REFER)
+            && !objMethod.Equals(SipMethod::NOTIFY))
     {
         IMS_TRACE_D("%s is not allowed in the subscribe usage",
                 objMethod.ToString().GetStr(), 0, 0);
@@ -343,7 +343,7 @@ IMS_BOOL SIPDialog::CheckMethodValidity(IN CONST SIPMethod &objMethod) const
     // Case 2)
     //    Condition - invite usage & NOTIFY method
     else if (pDialogEx->IsInviteUsage()
-            && objMethod.Equals(SIPMethod::NOTIFY))
+            && objMethod.Equals(SipMethod::NOTIFY))
     {
         IMS_TRACE_D("%s is not allowed in the invite usage", objMethod.ToString().GetStr(), 0, 0);
         return IMS_FALSE;
@@ -358,7 +358,7 @@ Remarks
 
 */
 PRIVATE
-SIPDialogEx* SIPDialog::GetOptimumDialog(IN CONST SIPMethod &objMethod) const
+SIPDialogEx* SIPDialog::GetOptimumDialog(IN CONST SipMethod &objMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -366,8 +366,8 @@ SIPDialogEx* SIPDialog::GetOptimumDialog(IN CONST SIPMethod &objMethod) const
     //    Condition - invite usage & method except for REFER/SUBSCRIBE
     //    Action - Use an invite usage as it is
     if (pDialogEx->IsInviteUsage()
-            && !objMethod.Equals(SIPMethod::SUBSCRIBE)
-            && !objMethod.Equals(SIPMethod::REFER))
+            && !objMethod.Equals(SipMethod::SUBSCRIBE)
+            && !objMethod.Equals(SipMethod::REFER))
     {
         return pDialogEx.Get();
     }
@@ -375,7 +375,7 @@ SIPDialogEx* SIPDialog::GetOptimumDialog(IN CONST SIPMethod &objMethod) const
     //    Condition - subscribe usage & NOTIFY method
     //    Action - Use an subscribe usage as it is
     else if (!(pDialogEx->IsInviteUsage())
-            && objMethod.Equals(SIPMethod::NOTIFY))
+            && objMethod.Equals(SipMethod::NOTIFY))
     {
         return pDialogEx.Get();
     }

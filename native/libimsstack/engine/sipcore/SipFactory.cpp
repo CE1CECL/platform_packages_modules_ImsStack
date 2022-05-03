@@ -31,7 +31,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPKeepAliveHelper* SIPFactory::CreateKeepAliveHelper(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
+ISipKeepAliveHelper* SipFactory::CreateKeepAliveHelper(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
     return new SIPKeepAliveHelper(nSlotId);
 }
@@ -42,7 +42,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-void SIPFactory::GenerateCallId(IN const AString &strHost, OUT AString &strCallId)
+void SipFactory::GenerateCallId(IN const AString &strHost, OUT AString &strCallId)
 {
     strCallId = SIPUtil::GenerateCallId(strHost);
 }
@@ -53,10 +53,10 @@ Remarks
  HEADER_REQ_SESSION-ID
 */
 PUBLIC GLOBAL
-void SIPFactory::GenerateSessionId(IN IMS_SINT32 nSlotId,
+void SipFactory::GenerateSessionId(IN IMS_SINT32 nSlotId,
         IN const AString &strCallId, OUT AString &strSessionId)
 {
-    if (SIPFeatures::IsHeaderSessionIdRequired(nSlotId))
+    if (SipFeatures::IsHeaderSessionIdRequired(nSlotId))
     {
         strSessionId = SIPUtil::GenerateSessionId(nSlotId, strCallId);
         return;
@@ -71,7 +71,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPIPSecState* SIPFactory::GetIPSecState(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
+ISipIpSecState* SipFactory::GetIpSecState(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
     return SIPFactoryProxy::GetInstance()->GetIPSecState(nSlotId);
 }
@@ -82,7 +82,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPMessageTracker* SIPFactory::GetMessageTracker(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
+ISipMessageTracker* SipFactory::GetMessageTracker(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
     return SIPFactoryProxy::GetInstance()->GetMessageTracker(nSlotId);
 }
@@ -93,7 +93,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPRoutingRejectNotifier* SIPFactory::GetRoutingRejectNotifier(
+ISipRoutingRejectNotifier* SipFactory::GetRoutingRejectNotifier(
         IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
     return SIPFactoryProxy::GetInstance()->GetRoutingRejectNotifier(nSlotId);
@@ -105,9 +105,9 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPRTConfigHelper* SIPFactory::GetRTConfigHelper(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
+ISipRtConfigHelper* SipFactory::GetRtConfigHelper(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
-    return SIPFactoryProxy::GetInstance()->GetRTConfigHelper(nSlotId);
+    return SIPFactoryProxy::GetInstance()->GetRtConfigHelper(nSlotId);
 }
 
 /*
@@ -116,7 +116,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPTransportHelper* SIPFactory::GetTransportHelper(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
+ISipTransportHelper* SipFactory::GetTransportHelper(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
     return SIPFactoryProxy::GetInstance()->GetTransportHelper(nSlotId);
 }
@@ -127,7 +127,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-ISIPPacketTracker* SIPFactory::GetPacketTracker(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
+ISipPacketTracker* SipFactory::GetPacketTracker(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/)
 {
     return SIPFactoryProxy::GetInstance()->GetPacketTracker(nSlotId);
 }
@@ -138,8 +138,8 @@ Remarks
 
 */
 PUBLIC GLOBAL
-void SIPFactory::SetTokenGenerator(IN IMS_SINT32 nSlotId,
-        IN ISIPTokenGenerator *piTokenGenerator)
+void SipFactory::SetTokenGenerator(IN IMS_SINT32 nSlotId,
+        IN ISipTokenGenerator *piTokenGenerator)
 {
     SIPFactoryProxy::GetInstance()->SetTokenGenerator(nSlotId, piTokenGenerator);
 }

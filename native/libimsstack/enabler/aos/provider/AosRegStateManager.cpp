@@ -35,7 +35,7 @@ AosRegStateManager::AosRegStateManager()
     , m_nRegDetailState(IMS_REGISTRATION_INVALID)
     , m_nReportedRegDetailState(IMS_REGISTRATION_INVALID)
     , m_nRegReason(0)
-    , m_nRegRespCode(SIPStatusCode::SC_INVALID)
+    , m_nRegRespCode(SipStatusCode::SC_INVALID)
     , m_bLimitedMode(IMS_FALSE)
 {
     IMS_TRACE_MEM("AOS_MEM", "AOS_M : AosRegStateManager = %" PFLS_u "/%" PFLS_x,

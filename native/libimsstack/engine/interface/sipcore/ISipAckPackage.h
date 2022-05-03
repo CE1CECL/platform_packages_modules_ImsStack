@@ -6,8 +6,8 @@
 /**
  * @brief This class provides an interface to handle the stray ACK requests.
  */
-class ISIPAckPackage
-    : public ISIPObject
+class ISipAckPackage
+    : public ISipObject
 {
 public:
     /**

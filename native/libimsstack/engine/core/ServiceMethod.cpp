@@ -41,7 +41,7 @@ private:
 private:
     friend class ServiceMethod;
 
-    ISIPConnection *piSC;
+    ISipConnection *piSC;
     Message *pRequest;
     IMSList<Message*> objResponses;
 };
@@ -428,9 +428,9 @@ Remarks
 
 */
 PROTECTED
-ISIPClientConnection* ServiceMethod::CreateCancelConnection(IN ISIPClientConnection *piSCC)
+ISipClientConnection* ServiceMethod::CreateCancelConnection(IN ISipClientConnection *piSCC)
 {
-    ISIPClientConnection *piCancelSCC = pService->CreateCancelConnection(piSCC);
+    ISipClientConnection *piCancelSCC = pService->CreateCancelConnection(piSCC);
 
     if (piCancelSCC == IMS_NULL)
     {
@@ -440,7 +440,7 @@ ISIPClientConnection* ServiceMethod::CreateCancelConnection(IN ISIPClientConnect
 
     if (pNextRequest != IMS_NULL)
     {
-        ISIPMessage *piSIPMsg = piCancelSCC->GetMessage();
+        ISipMessage *piSIPMsg = piCancelSCC->GetMessage();
 
         // Set the headers and body parts if application already sets
         if (piSIPMsg->CopyHeadersAndBodyParts(pNextRequest->GetMessage()) != IMS_SUCCESS)
@@ -467,9 +467,9 @@ Remarks
 
 */
 PROTECTED
-ISIPClientConnection* ServiceMethod::CreateConnection(IN CONST SIPMethod &objMethod)
+ISipClientConnection* ServiceMethod::CreateConnection(IN CONST SipMethod &objMethod)
 {
-    ISIPClientConnection *piSCC = pService->CreateConnection(GetUserAOR(),
+    ISipClientConnection *piSCC = pService->CreateConnection(GetUserAOR(),
             GetRemoteUserAOR(), objMethod, IsPrivacyRequested());
 
     //---------------------------------------------------------------------------------------------
@@ -483,10 +483,10 @@ ISIPClientConnection* ServiceMethod::CreateConnection(IN CONST SIPMethod &objMet
 
     if (pNextRequest != IMS_NULL)
     {
-        ISIPMessage *piSIPMsg = piSCC->GetMessage();
-        const AString strSecAgree(SIP::STR_SEC_AGREE);
+        ISipMessage *piSIPMsg = piSCC->GetMessage();
+        const AString strSecAgree(Sip::STR_SEC_AGREE);
         IMS_BOOL bSecAgreeRequired = piSIPMsg->IsOptionRequired(strSecAgree);
-        const AString strGRUU(SIP::STR_GRUU);
+        const AString strGRUU(Sip::STR_GRUU);
         IMS_BOOL bGRUUSupported = piSIPMsg->IsOptionSupported(strGRUU);
 
         // Set the headers and body parts if application already sets
@@ -503,12 +503,12 @@ ISIPClientConnection* ServiceMethod::CreateConnection(IN CONST SIPMethod &objMet
 
         if (bSecAgreeRequired && !piSIPMsg->IsOptionRequired(strSecAgree))
         {
-            piSIPMsg->AddHeader(ISIPHeader::REQUIRE, strSecAgree);
+            piSIPMsg->AddHeader(ISipHeader::REQUIRE, strSecAgree);
         }
 
         if (bGRUUSupported && !piSIPMsg->IsOptionSupported(strGRUU))
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
         }
     }
 
@@ -524,10 +524,10 @@ Remarks
 
 */
 PROTECTED
-ISIPClientConnection* ServiceMethod::CreateConnection(IN ISIPDialog *piDialog,
-        IN CONST SIPMethod &objMethod)
+ISipClientConnection* ServiceMethod::CreateConnection(IN ISipDialog *piDialog,
+        IN CONST SipMethod &objMethod)
 {
-    ISIPClientConnection *piSCC = pService->CreateConnection(piDialog,
+    ISipClientConnection *piSCC = pService->CreateConnection(piDialog,
                                     objMethod, IsPrivacyRequested());
 
     //---------------------------------------------------------------------------------------------
@@ -541,10 +541,10 @@ ISIPClientConnection* ServiceMethod::CreateConnection(IN ISIPDialog *piDialog,
 
     if (pNextRequest != IMS_NULL)
     {
-        ISIPMessage *piSIPMsg = piSCC->GetMessage();
-        const AString strSecAgree(SIP::STR_SEC_AGREE);
+        ISipMessage *piSIPMsg = piSCC->GetMessage();
+        const AString strSecAgree(Sip::STR_SEC_AGREE);
         IMS_BOOL bSecAgreeRequired = piSIPMsg->IsOptionRequired(strSecAgree);
-        const AString strGRUU(SIP::STR_GRUU);
+        const AString strGRUU(Sip::STR_GRUU);
         IMS_BOOL bGRUUSupported = piSIPMsg->IsOptionSupported(strGRUU);
 
         // Set the headers and body parts if application already sets
@@ -561,12 +561,12 @@ ISIPClientConnection* ServiceMethod::CreateConnection(IN ISIPDialog *piDialog,
 
         if (bSecAgreeRequired && !piSIPMsg->IsOptionRequired(strSecAgree))
         {
-            piSIPMsg->AddHeader(ISIPHeader::REQUIRE, strSecAgree);
+            piSIPMsg->AddHeader(ISipHeader::REQUIRE, strSecAgree);
         }
 
         if (bGRUUSupported && !piSIPMsg->IsOptionSupported(strGRUU))
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
         }
     }
 
@@ -582,7 +582,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL ServiceMethod::CreateResponse(IN_OUT ISIPServerConnection *piSSC,
+IMS_BOOL ServiceMethod::CreateResponse(IN_OUT ISipServerConnection *piSSC,
         IN IMS_SINT32 nStatusCode, IN CONST AString &strPhrase /* = AString::ConstNull() */)
 {
     //---------------------------------------------------------------------------------------------
@@ -596,9 +596,9 @@ IMS_BOOL ServiceMethod::CreateResponse(IN_OUT ISIPServerConnection *piSSC,
 
     if (pNextResponse != IMS_NULL)
     {
-        ISIPMessage *piSIPMsg = piSSC->GetMessage();
+        ISipMessage *piSIPMsg = piSSC->GetMessage();
 
-        const AString strGRUU(SIP::STR_GRUU);
+        const AString strGRUU(Sip::STR_GRUU);
         IMS_BOOL bGRUUSupported = piSIPMsg->IsOptionSupported(strGRUU);
 
         // Set the headers and body parts if application already sets
@@ -612,7 +612,7 @@ IMS_BOOL ServiceMethod::CreateResponse(IN_OUT ISIPServerConnection *piSSC,
 
         if (bGRUUSupported && !piSIPMsg->IsOptionSupported(strGRUU))
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
         }
     }
 
@@ -625,11 +625,11 @@ Remarks
 
 */
 PROTECTED
-ISIPClientConnection* ServiceMethod::GetClientConnection(IN IMS_SINT32 nServiceMethod) const
+ISipClientConnection* ServiceMethod::GetClientConnection(IN IMS_SINT32 nServiceMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
-    return DYNAMIC_CAST(ISIPClientConnection*, GetConnection(nServiceMethod));
+    return DYNAMIC_CAST(ISipClientConnection*, GetConnection(nServiceMethod));
 }
 
 /*
@@ -638,11 +638,11 @@ Remarks
 
 */
 PROTECTED
-ISIPServerConnection* ServiceMethod::GetServerConnection(IN IMS_SINT32 nServiceMethod) const
+ISipServerConnection* ServiceMethod::GetServerConnection(IN IMS_SINT32 nServiceMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
-    return DYNAMIC_CAST(ISIPServerConnection*, GetConnection(nServiceMethod));
+    return DYNAMIC_CAST(ISipServerConnection*, GetConnection(nServiceMethod));
 }
 
 /*
@@ -666,9 +666,9 @@ Remarks
 PROTECTED
 IMS_BOOL ServiceMethod::IsPrivacyRequested(IN IMS_BOOL bRequest /* = IMS_TRUE */) const
 {
-    if (SIPConfigProxy::IsGRUUConfigured(GetSlotId(), pService->GetSIPProfile()))
+    if (SipConfigProxy::IsGruuConfigured(GetSlotId(), pService->GetSIPProfile()))
     {
-        ISIPMessage *piSIPMsg = IMS_NULL;
+        ISipMessage *piSIPMsg = IMS_NULL;
 
         // Outgoing request message
         if (bRequest)
@@ -696,22 +696,22 @@ IMS_BOOL ServiceMethod::IsPrivacyRequested(IN IMS_BOOL bRequest /* = IMS_TRUE */
             return IMS_FALSE;
         }
 
-        if (!piSIPMsg->IsHeaderPresent(ISIPHeader::PRIVACY))
+        if (!piSIPMsg->IsHeaderPresent(ISipHeader::PRIVACY))
         {
             return IMS_FALSE;
         }
 
-        IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISIPHeader::PRIVACY);
+        IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISipHeader::PRIVACY);
 
         for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
         {
-            ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::PRIVACY,
+            ISipHeader *piHeader = SipParsingHelper::CreateHeader(ISipHeader::PRIVACY,
                                         objHeaders.GetAt(i));
 
             if (piHeader == IMS_NULL)
                 continue;
 
-            const SIPParameter *pParameter = piHeader->GetParameter("id");
+            const SipParameter *pParameter = piHeader->GetParameter("id");
 
             if (pParameter != IMS_NULL)
             {
@@ -794,7 +794,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::SendNUpdateRequest(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -808,7 +808,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::SendNUpdateResponse(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -822,7 +822,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::SendNUpdateRequestEx(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC, IN IMS_SINT32 nMessageClass /* = MESSAGE_CLASS_NORMAL */)
+        IN ISipConnection *piSC, IN IMS_SINT32 nMessageClass /* = MESSAGE_CLASS_NORMAL */)
 {
     // SIP_MESSAGE_MEDIATOR
     (void) AdjustMessage(piSC->GetMessage(), nMessageClass);
@@ -830,7 +830,7 @@ IMS_BOOL ServiceMethod::SendNUpdateRequestEx(IN IMS_SINT32 nServiceMethod,
     if (piSC->Send() != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Sending a request message (%s) failed - Error (%d)",
-                Message::GetMessageType(nServiceMethod), SIPError::GetLastError(), 0);
+                Message::GetMessageType(nServiceMethod), SipError::GetLastError(), 0);
         return IMS_FALSE;
     }
 
@@ -844,7 +844,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::SendNUpdateResponseEx(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC, IN IMS_SINT32 nMessageClass /* = MESSAGE_CLASS_NORMAL */)
+        IN ISipConnection *piSC, IN IMS_SINT32 nMessageClass /* = MESSAGE_CLASS_NORMAL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -854,7 +854,7 @@ IMS_BOOL ServiceMethod::SendNUpdateResponseEx(IN IMS_SINT32 nServiceMethod,
     if (piSC->Send() != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Sending a response message failed - Error (%d)",
-                SIPError::GetLastError(), 0, 0);
+                SipError::GetLastError(), 0, 0);
         return IMS_FALSE;
     }
 
@@ -867,7 +867,7 @@ Remarks
 
 */
 PROTECTED
-void ServiceMethod::UpdateConnection(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC)
+void ServiceMethod::UpdateConnection(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC)
 {
     IMS_SLONG nIndex = objPreviousMessages.GetIndexOfKey(nServiceMethod);
 
@@ -901,7 +901,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::UpdateRequestOnReceived(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     Message *pMessage = Message::CreateReceivedMessage(pService->GetAppConfig(),
                                 piSC->GetMessage());
@@ -948,7 +948,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::UpdateRequestOnSent(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -982,10 +982,10 @@ IMS_BOOL ServiceMethod::UpdateRequestOnSent(IN IMS_SINT32 nServiceMethod,
         // When the SIP request is sent by the engine,
         // it will not be handled by the normal service method.
         // So, the listener of SCC will be set to SCCListener object.
-        ISIPClientConnection *piSCC = DYNAMIC_CAST(ISIPClientConnection*, piSC);
+        ISipClientConnection *piSCC = DYNAMIC_CAST(ISipClientConnection*, piSC);
 
         if ((piSCC != IMS_NULL)
-            && (!piSCC->GetMethod().Equals(SIPMethod::ACK)))
+            && (!piSCC->GetMethod().Equals(SipMethod::ACK)))
         {
             SCCListener *pListener = new SCCListener();
 
@@ -1008,7 +1008,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::UpdateResponseOnReceived(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     Message *pMessage = Message::CreateReceivedMessage(pService->GetAppConfig(),
                                 piSC->GetMessage());
@@ -1044,7 +1044,7 @@ Remarks
 */
 PROTECTED
 IMS_BOOL ServiceMethod::UpdateResponseOnSent(IN IMS_SINT32 nServiceMethod,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1104,7 +1104,7 @@ Remarks
 */
 PRIVATE
 IMS_BOOL ServiceMethod::SetPreviousRequest(IN IMS_SINT32 nServiceMethod, IN Message *pMessage,
-        IN ISIPConnection *piSC)
+        IN ISipConnection *piSC)
 {
     IMS_SLONG nIndex = objPreviousMessages.GetIndexOfKey(nServiceMethod);
 
@@ -1148,7 +1148,7 @@ Remarks
 
 */
 PRIVATE
-ISIPConnection* ServiceMethod::GetConnection(IN IMS_SINT32 nServiceMethod) const
+ISipConnection* ServiceMethod::GetConnection(IN IMS_SINT32 nServiceMethod) const
 {
     IMS_SLONG nIndex = objPreviousMessages.GetIndexOfKey(nServiceMethod);
 

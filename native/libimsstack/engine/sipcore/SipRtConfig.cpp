@@ -17,14 +17,14 @@
 
 // LogMask class for SIP run-time (or real-time) configuration
 PUBLIC
-SIPRTConfig::LogMask::LogMask()
+SipRtConfig::LogMask::LogMask()
     : Base()
     , nValue(LogMask::I_NONE)
 {
 }
 
 PUBLIC
-SIPRTConfig::LogMask::~LogMask()
+SipRtConfig::LogMask::~LogMask()
 {
 }
 
@@ -32,7 +32,7 @@ SIPRTConfig::LogMask::~LogMask()
 
 // SocketOption class for SIP run-time (or real-time) configuration
 PUBLIC
-SIPRTConfig::SocketOption::SocketOption()
+SipRtConfig::SocketOption::SocketOption()
     : Base()
     , nValue(0)
     , objIP(IPAddress::NONE)
@@ -41,7 +41,7 @@ SIPRTConfig::SocketOption::SocketOption()
 }
 
 PUBLIC
-SIPRTConfig::SocketOption::SocketOption(IN CONST SIPRTConfig::SocketOption &objRHS)
+SipRtConfig::SocketOption::SocketOption(IN CONST SipRtConfig::SocketOption &objRHS)
     : Base(objRHS)
     , nValue(objRHS.nValue)
     , objIP(objRHS.objIP)
@@ -50,7 +50,7 @@ SIPRTConfig::SocketOption::SocketOption(IN CONST SIPRTConfig::SocketOption &objR
 }
 
 PUBLIC VIRTUAL
-SIPRTConfig::SocketOption::~SocketOption()
+SipRtConfig::SocketOption::~SocketOption()
 {
 }
 
@@ -60,8 +60,8 @@ Remarks
 
 */
 PUBLIC
-SIPRTConfig::SocketOption& SIPRTConfig::SocketOption::operator=(
-        IN CONST SIPRTConfig::SocketOption &objRHS)
+SipRtConfig::SocketOption& SipRtConfig::SocketOption::operator=(
+        IN CONST SipRtConfig::SocketOption &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -81,10 +81,10 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPRTConfig::SocketOption::Equals(IN CONST SIPRTConfig::Base &objOther) const
+IMS_BOOL SipRtConfig::SocketOption::Equals(IN CONST SipRtConfig::Base &objOther) const
 {
-    const SIPRTConfig::SocketOption *pSO
-            = DYNAMIC_CAST(const SIPRTConfig::SocketOption*, &objOther);
+    const SipRtConfig::SocketOption *pSO
+            = DYNAMIC_CAST(const SipRtConfig::SocketOption*, &objOther);
 
     //---------------------------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPRTConfig::SocketOption::IsGlobalOption() const
+IMS_BOOL SipRtConfig::SocketOption::IsGlobalOption() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -106,9 +106,9 @@ IMS_BOOL SIPRTConfig::SocketOption::IsGlobalOption() const
 
 
 
-// IPQoS class for IP-level QoS configuration
+// IpQos class for IP-level QoS configuration
 PUBLIC
-SIPRTConfig::IPQoS::IPQoS()
+SipRtConfig::IpQos::IpQos()
     : Base()
     , nValue(0)
     , objIP(IPAddress::NONE)
@@ -117,7 +117,7 @@ SIPRTConfig::IPQoS::IPQoS()
 }
 
 PUBLIC
-SIPRTConfig::IPQoS::IPQoS(IN CONST SIPRTConfig::IPQoS &objRHS)
+SipRtConfig::IpQos::IpQos(IN CONST SipRtConfig::IpQos &objRHS)
     : Base(objRHS)
     , nValue(objRHS.nValue)
     , objIP(objRHS.objIP)
@@ -126,7 +126,7 @@ SIPRTConfig::IPQoS::IPQoS(IN CONST SIPRTConfig::IPQoS &objRHS)
 }
 
 PUBLIC VIRTUAL
-SIPRTConfig::IPQoS::~IPQoS()
+SipRtConfig::IpQos::~IpQos()
 {
 }
 
@@ -136,7 +136,7 @@ Remarks
 
 */
 PUBLIC
-SIPRTConfig::IPQoS& SIPRTConfig::IPQoS::operator=(IN CONST SIPRTConfig::IPQoS &objRHS)
+SipRtConfig::IpQos& SipRtConfig::IpQos::operator=(IN CONST SipRtConfig::IpQos &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -156,9 +156,9 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPRTConfig::IPQoS::Equals(IN CONST SIPRTConfig::Base &objOther) const
+IMS_BOOL SipRtConfig::IpQos::Equals(IN CONST SipRtConfig::Base &objOther) const
 {
-    const SIPRTConfig::IPQoS *pIPQoS = DYNAMIC_CAST(const SIPRTConfig::IPQoS*, &objOther);
+    const SipRtConfig::IpQos *pIPQoS = DYNAMIC_CAST(const SipRtConfig::IpQos*, &objOther);
 
     //---------------------------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ IMS_BOOL SIPRTConfig::IPQoS::Equals(IN CONST SIPRTConfig::Base &objOther) const
 
 // Header class for an additional SIP header control
 PUBLIC
-SIPRTConfig::Header::Header()
+SipRtConfig::Header::Header()
     : Base()
     , strName(AString::ConstNull())
     , strParameter(AString::ConstNull())
@@ -178,7 +178,7 @@ SIPRTConfig::Header::Header()
 }
 
 PUBLIC
-SIPRTConfig::Header::Header(IN CONST SIPRTConfig::Header &objRHS)
+SipRtConfig::Header::Header(IN CONST SipRtConfig::Header &objRHS)
     : Base(objRHS)
     , strName(objRHS.strName)
     , strParameter(objRHS.strParameter)
@@ -186,7 +186,7 @@ SIPRTConfig::Header::Header(IN CONST SIPRTConfig::Header &objRHS)
 }
 
 PUBLIC VIRTUAL
-SIPRTConfig::Header::~Header()
+SipRtConfig::Header::~Header()
 {
 }
 
@@ -196,7 +196,7 @@ Remarks
 
 */
 PUBLIC
-SIPRTConfig::Header& SIPRTConfig::Header::operator=(IN CONST SIPRTConfig::Header &objRHS)
+SipRtConfig::Header& SipRtConfig::Header::operator=(IN CONST SipRtConfig::Header &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -215,9 +215,9 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPRTConfig::Header::Equals(IN CONST SIPRTConfig::Base &objOther) const
+IMS_BOOL SipRtConfig::Header::Equals(IN CONST SipRtConfig::Base &objOther) const
 {
-    const SIPRTConfig::Header *pHeader = DYNAMIC_CAST(const SIPRTConfig::Header*, &objOther);
+    const SipRtConfig::Header *pHeader = DYNAMIC_CAST(const SipRtConfig::Header*, &objOther);
 
     //---------------------------------------------------------------------------------------------
 
@@ -229,9 +229,9 @@ IMS_BOOL SIPRTConfig::Header::Equals(IN CONST SIPRTConfig::Base &objOther) const
     return strName.EqualsIgnoreCase(pHeader->strName);
 }
 
-// IPSecSA class to do the SA's validity check
+// IpSecSa class to do the SA's validity check
 PUBLIC
-SIPRTConfig::IPSecSA::IPSecSA()
+SipRtConfig::IpSecSa::IpSecSa()
     : Base()
     , nPortPC(0)
     , nPortPS(0)
@@ -243,7 +243,7 @@ SIPRTConfig::IPSecSA::IPSecSA()
 }
 
 PUBLIC
-SIPRTConfig::IPSecSA::IPSecSA(IN CONST SIPRTConfig::IPSecSA &objRHS)
+SipRtConfig::IpSecSa::IpSecSa(IN CONST SipRtConfig::IpSecSa &objRHS)
     : Base(objRHS)
     , nPortPC(objRHS.nPortPC)
     , nPortPS(objRHS.nPortPS)
@@ -255,12 +255,12 @@ SIPRTConfig::IPSecSA::IPSecSA(IN CONST SIPRTConfig::IPSecSA &objRHS)
 }
 
 PUBLIC VIRTUAL
-SIPRTConfig::IPSecSA::~IPSecSA()
+SipRtConfig::IpSecSa::~IpSecSa()
 {
 }
 
 PUBLIC
-SIPRTConfig::IPSecSA& SIPRTConfig::IPSecSA::operator=(IN CONST SIPRTConfig::IPSecSA &objRHS)
+SipRtConfig::IpSecSa& SipRtConfig::IpSecSa::operator=(IN CONST SipRtConfig::IpSecSa &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -278,9 +278,9 @@ SIPRTConfig::IPSecSA& SIPRTConfig::IPSecSA::operator=(IN CONST SIPRTConfig::IPSe
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL SIPRTConfig::IPSecSA::Equals(IN CONST SIPRTConfig::Base &objOther) const
+IMS_BOOL SipRtConfig::IpSecSa::Equals(IN CONST SipRtConfig::Base &objOther) const
 {
-    const SIPRTConfig::IPSecSA *pIPSecSA = DYNAMIC_CAST(const SIPRTConfig::IPSecSA*, &objOther);
+    const SipRtConfig::IpSecSa *pIPSecSA = DYNAMIC_CAST(const SipRtConfig::IpSecSa*, &objOther);
 
     //---------------------------------------------------------------------------------------------
 
@@ -298,16 +298,16 @@ IMS_BOOL SIPRTConfig::IPSecSA::Equals(IN CONST SIPRTConfig::Base &objOther) cons
 }
 
 PUBLIC
-IMS_BOOL SIPRTConfig::IPSecSA::IsEmpty() const
+IMS_BOOL SipRtConfig::IpSecSa::IsEmpty() const
 {
     //---------------------------------------------------------------------------------------------
 
     return (nPortPC == 0) && (nPortPS == 0) && (nPortUC == 0) && (nPortUS == 0);
 }
 
-// TCPPortRange class to provision TCP port range
+// TcpPortRange class to provision TCP port range
 PUBLIC
-SIPRTConfig::TCPPortRange::TCPPortRange()
+SipRtConfig::TcpPortRange::TcpPortRange()
     : Base()
     , nPortStart(0)
     , nPortEnd(0)
@@ -315,7 +315,7 @@ SIPRTConfig::TCPPortRange::TCPPortRange()
 }
 
 PUBLIC
-SIPRTConfig::TCPPortRange::TCPPortRange(IN CONST SIPRTConfig::TCPPortRange &objRHS)
+SipRtConfig::TcpPortRange::TcpPortRange(IN CONST SipRtConfig::TcpPortRange &objRHS)
     : Base(objRHS)
     , nPortStart(objRHS.nPortStart)
     , nPortEnd(objRHS.nPortEnd)
@@ -323,13 +323,13 @@ SIPRTConfig::TCPPortRange::TCPPortRange(IN CONST SIPRTConfig::TCPPortRange &objR
 }
 
 PUBLIC VIRTUAL
-SIPRTConfig::TCPPortRange::~TCPPortRange()
+SipRtConfig::TcpPortRange::~TcpPortRange()
 {
 }
 
 PUBLIC
-SIPRTConfig::TCPPortRange& SIPRTConfig::TCPPortRange::operator=(
-        IN CONST SIPRTConfig::TCPPortRange &objRHS)
+SipRtConfig::TcpPortRange& SipRtConfig::TcpPortRange::operator=(
+        IN CONST SipRtConfig::TcpPortRange &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -343,10 +343,10 @@ SIPRTConfig::TCPPortRange& SIPRTConfig::TCPPortRange::operator=(
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL SIPRTConfig::TCPPortRange::Equals(IN CONST SIPRTConfig::Base &objOther) const
+IMS_BOOL SipRtConfig::TcpPortRange::Equals(IN CONST SipRtConfig::Base &objOther) const
 {
-    const SIPRTConfig::TCPPortRange *pPortRange
-            = DYNAMIC_CAST(const SIPRTConfig::TCPPortRange*, &objOther);
+    const SipRtConfig::TcpPortRange *pPortRange
+            = DYNAMIC_CAST(const SipRtConfig::TcpPortRange*, &objOther);
 
     //---------------------------------------------------------------------------------------------
 
@@ -361,15 +361,15 @@ IMS_BOOL SIPRTConfig::TCPPortRange::Equals(IN CONST SIPRTConfig::Base &objOther)
 
 // RegContactAddress class to provision RegContact's information
 PUBLIC
-SIPRTConfig::RegContactAddress::RegContactAddress()
+SipRtConfig::RegContactAddress::RegContactAddress()
     : Base()
     , strCallId(AString::ConstNull())
-    , objUri(SIPAddress::ConstNull())
+    , objUri(SipAddress::ConstNull())
 {
 }
 
 PUBLIC
-SIPRTConfig::RegContactAddress::RegContactAddress(IN CONST SIPRTConfig::RegContactAddress &objRHS)
+SipRtConfig::RegContactAddress::RegContactAddress(IN CONST SipRtConfig::RegContactAddress &objRHS)
     : Base(objRHS)
     , strCallId(objRHS.strCallId)
     , objUri(objRHS.objUri)
@@ -377,13 +377,13 @@ SIPRTConfig::RegContactAddress::RegContactAddress(IN CONST SIPRTConfig::RegConta
 }
 
 PUBLIC VIRTUAL
-SIPRTConfig::RegContactAddress::~RegContactAddress()
+SipRtConfig::RegContactAddress::~RegContactAddress()
 {
 }
 
 PUBLIC
-SIPRTConfig::RegContactAddress& SIPRTConfig::RegContactAddress::operator=(
-        IN CONST SIPRTConfig::RegContactAddress &objRHS)
+SipRtConfig::RegContactAddress& SipRtConfig::RegContactAddress::operator=(
+        IN CONST SipRtConfig::RegContactAddress &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -397,10 +397,10 @@ SIPRTConfig::RegContactAddress& SIPRTConfig::RegContactAddress::operator=(
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL SIPRTConfig::RegContactAddress::Equals(IN CONST SIPRTConfig::Base &objOther) const
+IMS_BOOL SipRtConfig::RegContactAddress::Equals(IN CONST SipRtConfig::Base &objOther) const
 {
-    const SIPRTConfig::RegContactAddress *pRegContactA
-            = DYNAMIC_CAST(const SIPRTConfig::RegContactAddress*, &objOther);
+    const SipRtConfig::RegContactAddress *pRegContactA
+            = DYNAMIC_CAST(const SipRtConfig::RegContactAddress*, &objOther);
 
     //---------------------------------------------------------------------------------------------
 

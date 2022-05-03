@@ -113,7 +113,7 @@ void UCLocationObject::SetLocation(IN IMtcCall *pSession, IN_OUT IMessage *piMes
 /* ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------ */
 PUBLIC
-void UCLocationObject::SetLocation(IN IMtcCall *pSession, IN_OUT ISIPMessage *piSIPMessage,
+void UCLocationObject::SetLocation(IN IMtcCall *pSession, IN_OUT ISipMessage *piSIPMessage,
         IN IMS_BOOL bGeolocationRouting /* = IMS_FALSE */)
 {
     // TODO, MTC BUILD
@@ -155,21 +155,21 @@ void UCLocationObject::SetLocation(IN IMtcCall *pSession, IN_OUT ISIPMessage *pi
     AString strCID;
     MessageUtil::GenerateContentId(pISubscriberConfig->GetHomeDomainName(), strCID);
 
-    ISIPMessageBodyPart *piBodyPart = piSIPMessage->CreateSDPBodyPart();
+    ISipMessageBodyPart *piBodyPart = piSIPMessage->CreateSdpBodyPart();
     piBodyPart->SetContent(objContent);
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_UNKNOWN, strContentLength,
-            SIPHeaderName::CONTENT_LENGTH);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_UNKNOWN, strContentLength,
+            SipHeaderName::CONTENT_LENGTH);
 
     AString strContentID;
     strContentID.Sprintf("<%s>", strCID.GetStr());
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_ID, strContentID);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_ID, strContentID);
 
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, STR_APPLICATION_PIDF_XML);
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_DISPOSITION, "render; handling=optional");
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, STR_APPLICATION_PIDF_XML);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_DISPOSITION, "render; handling=optional");
 
-    piSIPMessage->SetHeader(ISIPHeader::UNKNOWN, strCID.Sprintf("<cid:%s>", strCID.GetStr()),
+    piSIPMessage->SetHeader(ISipHeader::UNKNOWN, strCID.Sprintf("<cid:%s>", strCID.GetStr()),
             STR_GEOLOCATION);
-    piSIPMessage->SetHeader(ISIPHeader::UNKNOWN, bGeolocationRouting ? STR_YES : STR_NO,
+    piSIPMessage->SetHeader(ISipHeader::UNKNOWN, bGeolocationRouting ? STR_YES : STR_NO,
             STR_GEOLOCATION_ROUTING);
 
     IMS_TRACE_I("SetLocation : Done", 0, 0, 0);

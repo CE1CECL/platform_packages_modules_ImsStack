@@ -6,7 +6,7 @@ class ISIPConnectionFactory;
 /**
  * @brief This class provides a listener interface to monitor an incoming SIP transaction.
  *
- * @see ISIPServerConnection
+ * @see ISipServerConnection
  */
 class ISIPConnectionFactoryListener
 {
@@ -16,10 +16,10 @@ public:
      *        is received.
      *
      * @param piSCFactory Pointer to ISIPConnectionFactory
-     * @param piSSC Pointer to ISIPServerConnection; for incoming SIP request
+     * @param piSSC Pointer to ISipServerConnection; for incoming SIP request
      */
     virtual void ConnectionFactory_NotifyRequest(IN ISIPConnectionFactory *piSCFactory,
-            IN ISIPServerConnection *piSSC) = 0;
+            IN ISipServerConnection *piSSC) = 0;
 };
 
 #endif // _INTERFACE_SIP_CONNECTION_FACTORY_LISTENER_H_

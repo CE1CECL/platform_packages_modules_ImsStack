@@ -1,12 +1,12 @@
 #ifndef _SIP_ERROR_H_
 #define _SIP_ERROR_H_
 
-#include "IMSTypeDef.h"
+#include "ImsTypeDef.h"
 
 /**
  * @brief This class provides an interface for SIP error codes.
  */
-class SIPError
+class SipError
 {
 public:
     static IMS_SINT32 GetLastError();

@@ -84,7 +84,7 @@ IMS_BOOL RegBinding::Create(IN IRegistrationEx *piRegEx)
     {
         if (this->piRegEx != IMS_NULL)
         {
-            const SIPAddress &objAOR = this->piRegEx->GetStateTracker()->GetAOR();
+            const SipAddress &objAOR = this->piRegEx->GetStateTracker()->GetAOR();
 
             piListener->RegBinding_OnInit(&objAOR);
         }
@@ -245,7 +245,7 @@ void RegBinding::Update(IN IMS_SINT32 nWhat)
             {
                 // RFC5626_FLOW_CONTROL
                 piSCN->UpdatePortFlowControl(GetPortFlowControl());
-                piSCN->UpdatePortUC(GetPortUC());
+                piSCN->UpdatePortUc(GetPortUC());
             }
 
             if (piListener != IMS_NULL)
@@ -372,39 +372,39 @@ const AStringArray& RegBinding::GetAssociatedURIs() const
 }
 
 PROTECTED VIRTUAL
-const SIPAddress& RegBinding::GetAuthorizedAOR() const
+const SipAddress& RegBinding::GetAuthorizedAOR() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (!IsBindingActive())
     {
-        return SIPAddress::ConstNull();
+        return SipAddress::ConstNull();
     }
 
     return (piRegEx != IMS_NULL) ?
-            piRegEx->GetStateTracker()->GetAuthorizedAOR() : SIPAddress::ConstNull();
+            piRegEx->GetStateTracker()->GetAuthorizedAOR() : SipAddress::ConstNull();
 }
 
 PROTECTED VIRTUAL
-const SIPAddress& RegBinding::GetContactAddress() const
+const SipAddress& RegBinding::GetContactAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (piRegEx == IMS_NULL)
     {
-        return SIPAddress::ConstNull();
+        return SipAddress::ConstNull();
     }
 
     if (piContact == IMS_NULL)
     {
-        return SIPAddress::ConstNull();
+        return SipAddress::ConstNull();
     }
 
     return piContact->GetContactAddress();
 }
 
 PROTECTED VIRTUAL
-const SIPAddress* RegBinding::GetContactAddressForOutgoingMessage() const
+const SipAddress* RegBinding::GetContactAddressForOutgoingMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -461,7 +461,7 @@ IMS_SINT32 RegBinding::GetPortFlowControl() const
     //---------------------------------------------------------------------------------------------
 
     return (piRegEx != IMS_NULL) ?
-            piRegEx->GetStateTracker()->GetPortFlowControl() : SIP::PORT_UNSPECIFIED;
+            piRegEx->GetStateTracker()->GetPortFlowControl() : Sip::PORT_UNSPECIFIED;
 }
 
 PROTECTED VIRTUAL
@@ -470,7 +470,7 @@ IMS_SINT32 RegBinding::GetPortUC() const
     //---------------------------------------------------------------------------------------------
 
     return (piRegEx != IMS_NULL) ?
-            piRegEx->GetStateTracker()->GetPortUC() : SIPConfigProxy::GetPort(IMS_SLOT_0);
+            piRegEx->GetStateTracker()->GetPortUC() : SipConfigProxy::GetPort(IMS_SLOT_0);
 }
 
 PROTECTED VIRTUAL
@@ -479,7 +479,7 @@ IMS_SINT32 RegBinding::GetPortUS() const
     //---------------------------------------------------------------------------------------------
 
     return (piRegEx != IMS_NULL) ?
-            piRegEx->GetStateTracker()->GetPortUS() : SIPConfigProxy::GetPort(IMS_SLOT_0);
+            piRegEx->GetStateTracker()->GetPortUS() : SipConfigProxy::GetPort(IMS_SLOT_0);
 }
 
 PROTECTED VIRTUAL
@@ -533,7 +533,7 @@ const AStringArray& RegBinding::GetServiceRoutes() const
 }
 
 PROTECTED VIRTUAL
-SIPProfile* RegBinding::GetSIPProfile() const
+SipProfile* RegBinding::GetSIPProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -563,11 +563,11 @@ IMS_SINT32 RegBinding::GetTransportExt() const
     //---------------------------------------------------------------------------------------------
 
     return (piRegEx != IMS_NULL) ?
-            piRegEx->GetStateTracker()->GetTransportExt() : SIP::TRANSPORT_EXT_ANY;
+            piRegEx->GetStateTracker()->GetTransportExt() : Sip::TRANSPORT_EXT_ANY;
 }
 
 PROTECTED VIRTUAL
-const SIPParameter* RegBinding::GetInstanceParameter() const
+const SipParameter* RegBinding::GetInstanceParameter() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -585,7 +585,7 @@ const SIPParameter* RegBinding::GetInstanceParameter() const
 }
 
 PROTECTED VIRTUAL
-const SIPAddress* RegBinding::GetPublicGRUU() const
+const SipAddress* RegBinding::GetPublicGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -603,7 +603,7 @@ const SIPAddress* RegBinding::GetPublicGRUU() const
 }
 
 PROTECTED VIRTUAL
-const SIPAddress* RegBinding::GetTemporaryGRUU() const
+const SipAddress* RegBinding::GetTemporaryGRUU() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -621,18 +621,18 @@ const SIPAddress* RegBinding::GetTemporaryGRUU() const
 }
 
 PROTECTED VIRTUAL
-const IMSList<SIPAddress*>& RegBinding::GetTemporaryGRUUs() const
+const IMSList<SipAddress*>& RegBinding::GetTemporaryGRUUs() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (piRegEx == IMS_NULL)
     {
-        return SIPAddress::ConstEmptyList();
+        return SipAddress::ConstEmptyList();
     }
 
     if (piContact == IMS_NULL)
     {
-        return SIPAddress::ConstEmptyList();
+        return SipAddress::ConstEmptyList();
     }
 
     return piContact->GetTemporaryGRUUs();
@@ -693,15 +693,15 @@ void RegBinding::CreateSIPConnectionNotifier()
     }
 
     // RE_REG_BY_CAPABILITY_CHANGE
-    ISIPConnectionNotifier *piTempSCN = piSCN;
+    ISipConnectionNotifier *piTempSCN = piSCN;
 
     // MULTI_REG_TRANSPORT
     AString strParams = AString::ConstNull();
     IMS_SINT32 nTransportExt = piRegEx->GetStateTracker()->GetTransportExt();
 
-    if (nTransportExt != SIP::TRANSPORT_EXT_ANY)
+    if (nTransportExt != Sip::TRANSPORT_EXT_ANY)
     {
-        strParams.Sprintf("%s=%d", SIP::STR_TRANSPORT_EXT, nTransportExt);
+        strParams.Sprintf("%s=%d", Sip::STR_TRANSPORT_EXT, nTransportExt);
     }
 
     // RFC5626_FLOW_CONTROL : GetPortFlowControl()
@@ -721,7 +721,7 @@ void RegBinding::CreateSIPConnectionNotifier()
             piSCN->AddErrorListener(piRegEx);
 
             // RFC5626_FLOW_CONTROL
-            if (SIP::IsPortSpecified(GetPortFlowControl()))
+            if (Sip::IsPortSpecified(GetPortFlowControl()))
             {
                 RestoreTransportResourceForClientInitiatedConnection();
             }
@@ -731,13 +731,13 @@ void RegBinding::CreateSIPConnectionNotifier()
     // MULTI_REG_SIP_PROFILE
     if (piSCN != IMS_NULL)
     {
-        piSCN->SetSIPProfile(GetSIPProfile());
+        piSCN->SetSipProfile(GetSIPProfile());
     }
     else
     {
         piRegEx->ConnectionNotifierError_NotifyError(
                 piSCN,
-                ISIPConnectionNotifier::TRANSPORT_ERROR_UDP_SERVER,
+                ISipConnectionNotifier::TRANSPORT_ERROR_UDP_SERVER,
                 "SCN is not created");
     }
 
@@ -796,7 +796,7 @@ void RegBinding::RestoreTransportResourceForClientInitiatedConnection()
     }
 
     const IMS_SINT32 nTransportResource
-            = ISIPConnectionNotifier::TRANSPORT_CLIENT_INITIATED_CONNECTION;
+            = ISipConnectionNotifier::TRANSPORT_CLIENT_INITIATED_CONNECTION;
 
     if (piSCN->IsTransportResourceReserved(nTransportResource))
     {
@@ -809,12 +809,12 @@ void RegBinding::RestoreTransportResourceForClientInitiatedConnection()
     {
         piRegEx->ConnectionNotifierError_NotifyError(
                 piSCN,
-                ISIPConnectionNotifier::TRANSPORT_ERROR_TCP_CLIENT,
+                ISipConnectionNotifier::TRANSPORT_ERROR_TCP_CLIENT,
                 "Restoration of TCP client connection is failed");
         return;
     }
 
-    const SIPAddress& objRoute = piRegParam->GetTopmostRouteAddress();
+    const SipAddress& objRoute = piRegParam->GetTopmostRouteAddress();
     IPAddress objPeerIP(objRoute.GetHost());
 
     if (piSCN->RestoreTransportResource(
@@ -822,7 +822,7 @@ void RegBinding::RestoreTransportResourceForClientInitiatedConnection()
     {
         piRegEx->ConnectionNotifierError_NotifyError(
                 piSCN,
-                ISIPConnectionNotifier::TRANSPORT_ERROR_TCP_CLIENT,
+                ISipConnectionNotifier::TRANSPORT_ERROR_TCP_CLIENT,
                 "Restoration of TCP client connection is failed");
     }
 }
@@ -838,7 +838,7 @@ void RegBinding::RestoreTransportResourceForServerConnection()
     }
 
     const IMS_SINT32 nTransportResource
-            = ISIPConnectionNotifier::TRANSPORT_SERVER_CONNECTION;
+            = ISipConnectionNotifier::TRANSPORT_SERVER_CONNECTION;
 
     if (piSCN->IsTransportResourceReserved(nTransportResource))
     {
@@ -849,7 +849,7 @@ void RegBinding::RestoreTransportResourceForServerConnection()
     {
         piRegEx->ConnectionNotifierError_NotifyError(
                 piSCN,
-                ISIPConnectionNotifier::TRANSPORT_ERROR_UDP_SERVER,
+                ISipConnectionNotifier::TRANSPORT_ERROR_UDP_SERVER,
                 "Restoration of server connection is failed");
     }
 }
@@ -860,7 +860,7 @@ void RegBinding::SetState(IN IMS_SINT32 nState)
     //---------------------------------------------------------------------------------------------
 
     IMS_TRACE_I("RegBinding (%s) :: %s to %s",
-            SIPDebug::GetUri1(GetAuthorizedAOR().GetURI()).GetStr(),
+            SipDebug::GetUri1(GetAuthorizedAOR().GetUri()).GetStr(),
             StateToString(this->nState), StateToString(nState));
 
     this->nState = nState;

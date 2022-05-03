@@ -357,7 +357,7 @@ void MtsMessage::PageMessageDelivered(IN IPageMessage* piPageMessage)
          * even though it's internal operation fails,
          * it is sure that a successful response is received.
          */
-        CleanMtsMessagewithReportResponse(SIPStatusCode::SC_200);
+        CleanMtsMessagewithReportResponse(SipStatusCode::SC_200);
         return;
     }
 
@@ -371,7 +371,7 @@ void MtsMessage::PageMessageDelivered(IN IPageMessage* piPageMessage)
          * even though it's internal operation fails,
          * it is sure that a successful response is received.
          */
-        CleanMtsMessagewithReportResponse(SIPStatusCode::SC_200);
+        CleanMtsMessagewithReportResponse(SipStatusCode::SC_200);
         return;
     }
 
@@ -380,7 +380,7 @@ void MtsMessage::PageMessageDelivered(IN IPageMessage* piPageMessage)
     {
         IMS_TRACE_E(0, "No received responses at the last index (%d) in the page message",
                 objResponses.GetSize() - 1, 0, 0);
-        CleanMtsMessagewithReportResponse(SIPStatusCode::SC_200);
+        CleanMtsMessagewithReportResponse(SipStatusCode::SC_200);
         return;
     }
 
@@ -455,7 +455,7 @@ void MtsMessage::PageMessageDeliveryFailed(IN IPageMessage* piPageMessage)
 
 PUBLIC
 IMS_RESULT MtsMessage::MessageMediator_AdjustMessage(
-        IN_OUT ISIPMessage* piSIPMsg, IN IMS_SINT32 nMessage)
+        IN_OUT ISipMessage* piSIPMsg, IN IMS_SINT32 nMessage)
 {
     IMS_TRACE_D("MtsMessage::MessageMediator_AdjustMessage(), nMessage = %d", nMessage, 0, 0);
     if (piSIPMsg == IMS_NULL)
@@ -574,21 +574,21 @@ PUBLIC
 void MtsMessage::DeliveryFailed_PageMessageNull()
 {
     // Here is any failure response is good enough, 480 Temporarily Unavailable is sufficient.
-    CleanMtsMessagewithReportResponse(SIPStatusCode::SC_480);
+    CleanMtsMessagewithReportResponse(SipStatusCode::SC_480);
 }
 
 PUBLIC
 void MtsMessage::DeliveryFailed_TimerF()
 {
     // Here is any failure response is good enough, 480 Temporarily Unavailable is sufficient.
-    CleanMtsMessagewithReportResponse(SIPStatusCode::SC_480);
+    CleanMtsMessagewithReportResponse(SipStatusCode::SC_480);
 }
 
 PUBLIC
 void MtsMessage::DeliveryFailed_MessageNull()
 {
     // Here is any failure response is good enough, 480 Temporarily Unavailable is sufficient.
-    CleanMtsMessagewithReportResponse(SIPStatusCode::SC_480);
+    CleanMtsMessagewithReportResponse(SipStatusCode::SC_480);
 }
 
 PROTECTED
@@ -895,15 +895,15 @@ IMS_UINT32 MtsMessage::GetContentType() const
 PROTECTED
 void MtsMessage::GetUserPartFromUris(IN const AString& strUri, OUT AString& strUserPart) const
 {
-    SIPAddress objSIPAddress;
+    SipAddress objSIPAddress;
 
     if (!objSIPAddress.Create(strUri))
     {
-        IMS_TRACE_E(0, "Creating SIPAddress failed, strUri = %s ", strUri.GetStr(), 0, 0);
+        IMS_TRACE_E(0, "Creating SipAddress failed, strUri = %s ", strUri.GetStr(), 0, 0);
         return;
     }
 
-    const SIPAddress::UserInfoPart* pUserInfoPart = objSIPAddress.GetUserInfoPart();
+    const SipAddress::UserInfoPart* pUserInfoPart = objSIPAddress.GetUserInfoPart();
 
     if (pUserInfoPart != IMS_NULL)
     {
@@ -911,11 +911,11 @@ void MtsMessage::GetUserPartFromUris(IN const AString& strUri, OUT AString& strU
     }
     else
     {
-        if (objSIPAddress.IsSchemeSIP() || objSIPAddress.IsSchemeSIPS())
+        if (objSIPAddress.IsSchemeSip() || objSIPAddress.IsSchemeSips())
         {
             strUserPart = objSIPAddress.GetUser();
         }
-        else if (objSIPAddress.IsSchemeTEL())
+        else if (objSIPAddress.IsSchemeTel())
         {
             strUserPart = objSIPAddress.GetHost();
         }
@@ -957,7 +957,7 @@ IMS_BOOL MtsMessage::GetSmsgwFromReceivedMessage(
         return IMS_FALSE;
     }
 
-    IMSList<AString> objFromHdrList = piMessage->GetHeaders(SIPHeaderName::FROM);
+    IMSList<AString> objFromHdrList = piMessage->GetHeaders(SipHeaderName::FROM);
 
     if (objFromHdrList.IsEmpty())
     {
@@ -981,23 +981,23 @@ IMS_BOOL MtsMessage::GetSmsgwFromReceivedMessage(
 PROTECTED
 void MtsMessage::GetUriFromHeaders(IN const AString& strFromHdr, OUT AString& strUri) const
 {
-    SIPAddress objSIPAddress;
+    SipAddress objSIPAddress;
 
     if (!objSIPAddress.Create(strFromHdr))
     {
-        IMS_TRACE_E(0, "Creating SIPAddress(From:%s) failed", strFromHdr.GetStr(), 0, 0);
+        IMS_TRACE_E(0, "Creating SipAddress(From:%s) failed", strFromHdr.GetStr(), 0, 0);
         return;
     }
 
     strUri = objSIPAddress.ToString();
 
-    IMS_TRACE_I("SIPAddress :: uri=%s", strUri.GetStr(), 0, 0);
+    IMS_TRACE_I("SipAddress :: uri=%s", strUri.GetStr(), 0, 0);
 }
 
 PROTECTED
 IMS_SINT32 MtsMessage::GetRetryAfterValue(IN IMessage* piMessage)
 {
-    IMSList<AString> objHeaderList = piMessage->GetHeaders(SIPHeaderName::RETRY_AFTER);
+    IMSList<AString> objHeaderList = piMessage->GetHeaders(SipHeaderName::RETRY_AFTER);
 
     if (objHeaderList.IsEmpty())
     {
@@ -1012,7 +1012,7 @@ IMS_SINT32 MtsMessage::GetRetryAfterValue(IN IMessage* piMessage)
         return -1;
     }
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::RETRY_AFTER_SEC, strHeader);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(ISipHeader::RETRY_AFTER_SEC, strHeader);
 
     if (piHeader == IMS_NULL)
     {

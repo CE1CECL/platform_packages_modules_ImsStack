@@ -34,7 +34,7 @@ public:
     IMS_BOOL CreateRegistration(IN IMS_UINT32 nFlowId,
             IN CONST AString &strAOR, IN IMS_BOOL bFake = IMS_FALSE,
             IN CONST AString &strSubsId = AString::ConstNull(),
-            IN SIPProfile *pSIPProfile = IMS_NULL);
+            IN SipProfile *pSIPProfile = IMS_NULL);
 
     /**
      * @brief Creates Registration object for IMS registration.
@@ -48,9 +48,9 @@ public:
      * @note MULTI_SUBS, MULTI_REG_SIP_PROFILE
      */
     IMS_BOOL CreateRegistration(IN IMS_UINT32 nFlowId,
-            IN CONST SIPAddress &objAOR, IN IMS_BOOL bFake = IMS_FALSE,
+            IN CONST SipAddress &objAOR, IN IMS_BOOL bFake = IMS_FALSE,
             IN CONST AString &strSubsId = AString::ConstNull(),
-            IN SIPProfile *pSIPProfile = IMS_NULL);
+            IN SipProfile *pSIPProfile = IMS_NULL);
 
     /**
      * @brief Destroys the specified Registration object.
@@ -71,7 +71,7 @@ public:
      * @note MULTI_SUBS, MULTI_REG_SIP_PROFILE
      */
     IMS_BOOL IsRegSubscriptionSupported(IN IMS_SINT32 nSlotId = IMS_SLOT_0,
-            IN SIPProfile *pSIPProfile = IMS_NULL) const;
+            IN SipProfile *pSIPProfile = IMS_NULL) const;
 
     /**
      * @brief Gets the Registration object with the specified slot-id and flow id.

@@ -19,7 +19,7 @@
 
 
 PUBLIC GLOBAL
-ISIPHeader* SIPParsingHelper::CreateHeader(IN CONST AString &strName)
+ISipHeader* SipParsingHelper::CreateHeader(IN CONST AString &strName)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ ISIPHeader* SIPParsingHelper::CreateHeader(IN CONST AString &strName)
 }
 
 PUBLIC GLOBAL
-ISIPHeader* SIPParsingHelper::CreateHeader(IN CONST AString &strName, IN CONST AString &strValue)
+ISipHeader* SipParsingHelper::CreateHeader(IN CONST AString &strName, IN CONST AString &strValue)
 {
     SIPHeader *pHeader = new SIPHeader(strName);
 
@@ -35,7 +35,7 @@ ISIPHeader* SIPParsingHelper::CreateHeader(IN CONST AString &strName, IN CONST A
 
     if (pHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -50,13 +50,13 @@ ISIPHeader* SIPParsingHelper::CreateHeader(IN CONST AString &strName, IN CONST A
 }
 
 PUBLIC GLOBAL
-ISIPHeader* SIPParsingHelper::CreateHeader(IN IMS_SINT32 nType, IN CONST AString &strValue)
+ISipHeader* SipParsingHelper::CreateHeader(IN IMS_SINT32 nType, IN CONST AString &strValue)
 {
     //---------------------------------------------------------------------------------------------
 
     if (!SIPHeader::IsValidType(nType))
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
@@ -64,7 +64,7 @@ ISIPHeader* SIPParsingHelper::CreateHeader(IN IMS_SINT32 nType, IN CONST AString
 
     if (pHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -79,14 +79,14 @@ ISIPHeader* SIPParsingHelper::CreateHeader(IN IMS_SINT32 nType, IN CONST AString
 }
 
 PUBLIC GLOBAL
-ISIPMessage* SIPParsingHelper::CreateMessage(IN IMS_SINT32 nType)
+ISipMessage* SipParsingHelper::CreateMessage(IN IMS_SINT32 nType)
 {
     //---------------------------------------------------------------------------------------------
 
-    if ((nType != ISIPMessage::TYPE_REQUEST)
-            && (nType != ISIPMessage::TYPE_RESPONSE))
+    if ((nType != ISipMessage::TYPE_REQUEST)
+            && (nType != ISipMessage::TYPE_RESPONSE))
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
@@ -94,7 +94,7 @@ ISIPMessage* SIPParsingHelper::CreateMessage(IN IMS_SINT32 nType)
 }
 
 PUBLIC GLOBAL
-ISIPMessage* SIPParsingHelper::CreateMessage(IN CONST ByteArray &objMessage)
+ISipMessage* SipParsingHelper::CreateMessage(IN CONST ByteArray &objMessage)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ ISIPMessage* SIPParsingHelper::CreateMessage(IN CONST ByteArray &objMessage)
 }
 
 PUBLIC GLOBAL
-ISIPMessageBodyPart* SIPParsingHelper::CreateMessageBodyPart()
+ISipMessageBodyPart* SipParsingHelper::CreateMessageBodyPart()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ ISIPMessageBodyPart* SIPParsingHelper::CreateMessageBodyPart()
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPParsingHelper::CreateMessageBodyParts(IN_OUT ISIPMessage *piSIPMsg)
+IMS_BOOL SipParsingHelper::CreateMessageBodyParts(IN_OUT ISipMessage *piSIPMsg)
 {
     SIPMessage *pSIPMsg = DYNAMIC_CAST(SIPMessage*, piSIPMsg);
 
@@ -118,7 +118,7 @@ IMS_BOOL SIPParsingHelper::CreateMessageBodyParts(IN_OUT ISIPMessage *piSIPMsg)
 
     if (pSIPMsg == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FALSE;
     }
 
@@ -126,20 +126,20 @@ IMS_BOOL SIPParsingHelper::CreateMessageBodyParts(IN_OUT ISIPMessage *piSIPMsg)
 }
 
 PUBLIC GLOBAL
-const AString& SIPParsingHelper::GetSIPReasonHeader(IN CONST IMSList<AString> &objReasonHeaders)
+const AString& SipParsingHelper::GetSipReasonHeader(IN CONST IMSList<AString> &objReasonHeaders)
 {
     if (objReasonHeaders.IsEmpty())
     {
         return AString::ConstNull();
     }
 
-    const AString strREASON(SIPHeaderName::REASON);
+    const AString strREASON(SipHeaderName::REASON);
 
     for (IMS_UINT32 i = 0; i < objReasonHeaders.GetSize(); ++i)
     {
         const AString &strReasonHeader = objReasonHeaders.GetAt(i);
 
-        ISIPHeader *piHeader = CreateHeader(strREASON, strReasonHeader);
+        ISipHeader *piHeader = CreateHeader(strREASON, strReasonHeader);
 
         if (piHeader == IMS_NULL)
         {
@@ -159,7 +159,7 @@ const AString& SIPParsingHelper::GetSIPReasonHeader(IN CONST IMSList<AString> &o
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPParsingHelper::ParseReasonHeader(IN CONST AString &strHeaderValue,
+IMS_BOOL SipParsingHelper::ParseReasonHeader(IN CONST AString &strHeaderValue,
         OUT IMS_SINT32 &nCause, OUT AString &strText)
 {
     if (strHeaderValue.GetLength() == 0)
@@ -174,7 +174,7 @@ IMS_BOOL SIPParsingHelper::ParseReasonHeader(IN CONST AString &strHeaderValue,
 }
 
 PUBLIC GLOBAL
-IMS_BOOL SIPParsingHelper::ParseReasonHeader(IN CONST AString &strHeaderValue,
+IMS_BOOL SipParsingHelper::ParseReasonHeader(IN CONST AString &strHeaderValue,
         OUT AString &strProtocol, OUT IMS_SINT32 &nCause, OUT AString &strText)
 {
     if (strHeaderValue.GetLength() == 0)
@@ -182,15 +182,15 @@ IMS_BOOL SIPParsingHelper::ParseReasonHeader(IN CONST AString &strHeaderValue,
         return IMS_FALSE;
     }
 
-    ISIPHeader *piHeader = CreateHeader(SIPHeaderName::REASON, strHeaderValue);
+    ISipHeader *piHeader = CreateHeader(SipHeaderName::REASON, strHeaderValue);
 
     if (piHeader == IMS_NULL)
     {
         return IMS_FALSE;
     }
 
-    const SIPParameter *pCauseP = piHeader->GetParameter("cause");
-    const SIPParameter *pTextP = piHeader->GetParameter("text");
+    const SipParameter *pCauseP = piHeader->GetParameter("cause");
+    const SipParameter *pTextP = piHeader->GetParameter("text");
 
     strProtocol = piHeader->GetValue();
 

@@ -20,12 +20,12 @@
 #include "SIPTransportAddress.h"
 
 class SIPTransportHelper;
-class SIPParameter;
+class SipParameter;
 class SIPSocket;
 class SIPSocketAddress;
 class SIPServerTransactionState;
-class ISIPDialog;
-class ISIPServerConnection;
+class ISipDialog;
+class ISipServerConnection;
 class IOnSIPServerConnectionListener;
 class IOnSIPConnectionNotifierErrorListener;
 
@@ -49,17 +49,17 @@ public:
     // IConnection interface
     virtual void Close();
 
-    // ISIPConnectionNotifier interface
-    ISIPServerConnection* AcceptAndOpen();
+    // ISipConnectionNotifier interface
+    ISipServerConnection* AcceptAndOpen();
     const IPAddress& GetLocalAddress() const;
     IMS_SINT32 GetLocalPort() const;
     void SetListener(IN IOnSIPServerConnectionListener *piListener);
 
     //// IMS extensions
-    ISIPServerConnection* AcceptAndOpen(OUT ISIPDialog *&piOrigDialog);
+    ISipServerConnection* AcceptAndOpen(OUT ISipDialog *&piOrigDialog);
     AString GetContactAddress() const;
     // MULTI_REG_SIP_PROFILE
-    SIPProfile* GetSIPProfile() const;
+    SipProfile* GetSIPProfile() const;
     IMS_BOOL IsTransportResourceReserved(IN IMS_SINT32 nType = TRANSPORT_ALL) const;
     IMS_RESULT ReserveTransportResource(IN CONST IPAddress &objIPA,
             IN IMS_SINT32 nPortS, IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFlowControl);
@@ -70,7 +70,7 @@ public:
     void SetFromAndContact(IN CONST AString &strFrom, IN CONST AString &strDisplayName,
             IN CONST AString &strUserInfo);
     // MULTI_REG_SIP_PROFILE
-    void SetSIPProfile(IN SIPProfile *pProfile);
+    void SetSIPProfile(IN SipProfile *pProfile);
     void UpdatePortFlowControl(IN IMS_SINT32 nPort);
     void UpdatePortUC(IN IMS_SINT32 nPort);
 
@@ -183,7 +183,7 @@ private:
     IMS_SINT32 nTransportExt;
     AString strType;
     AString strFilter; // For PushRegistry
-    IMSList<SIPParameter*> objParameters;
+    IMSList<SipParameter*> objParameters;
 
 #ifdef __JSR180_ONLY__
     UserProfile stUserProfile;
@@ -208,7 +208,7 @@ private:
     SIPSocketAddress *pSA_FarEnd;
 
     // MULTI_REG_SIP_PROFILE
-    RCPtr<SIPProfile> pSIPProfile;
+    RCPtr<SipProfile> pSIPProfile;
     // Queue for incoming request messages
     IMSList< RCPtr<SIPServerTransactionState> > objTxnStates;
     IMSList<ForkedTxnState*> objForkedTxnStates;

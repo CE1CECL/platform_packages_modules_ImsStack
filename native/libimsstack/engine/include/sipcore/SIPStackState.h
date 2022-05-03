@@ -17,7 +17,7 @@
 #include "IMSList.h"
 
 class IMutex;
-class SIPProfile;
+class SipProfile;
 class SIPStackTransaction;
 class SIPTransactionState;
 
@@ -46,7 +46,7 @@ public:
             OUT SipTxnKey *&pOutKey, OUT SipTxn *&pTxn);
     IMS_BOOL ReleaseTransaction(IN SipTxnKey *pKey, IN IMS_SINT32 nOption,
             OUT SipTxnKey *&pOutKey, OUT SipTxn *&pTxn);
-    void SetTransactionTimerValues(IN IMS_SINT32 nSlotId, IN CONST SIPProfile *pSIPProfile);
+    void SetTransactionTimerValues(IN IMS_SINT32 nSlotId, IN CONST SipProfile *pSIPProfile);
 
     static SIPStackState* GetInstance();
 

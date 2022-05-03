@@ -41,7 +41,7 @@ Remarks
 */
 PUBLIC
 CoreService::CoreService(IN CONST AString& strAppId_, IN CONST AString &strServiceId_,
-        IN CONST SIPAddress *pIMPU_ /* = IMS_NULL */)
+        IN CONST SipAddress *pIMPU_ /* = IMS_NULL */)
     : Service(IMSCore::CONNECTION_SCHEME, strAppId_, strServiceId_, pIMPU_)
     , piCoreServiceListener(IMS_NULL)
     , piDirectCoreServiceListener(IMS_NULL)
@@ -627,7 +627,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -641,22 +641,22 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
             return IMS_TRUE;
         }
 
-        SendResponse(piSSC, SIPStatusCode::SC_480);
+        SendResponse(piSSC, SipStatusCode::SC_480);
         return IMS_FALSE;
     }
 
-    ISIPMessage *piSIPMsg = piSSC->GetMessage();
+    ISipMessage *piSIPMsg = piSSC->GetMessage();
     AString strRemoteUserId;
 
     // Gets the remote user identity;
     // If P-Asserted-Identity is present, then gets this header field value.
     // Otherwise, gets From header field value.
-    if (piSIPMsg->IsHeaderPresent(ISIPHeader::P_ASSERTED_IDENTITY))
-        strRemoteUserId = piSIPMsg->GetHeader(ISIPHeader::P_ASSERTED_IDENTITY);
+    if (piSIPMsg->IsHeaderPresent(ISipHeader::P_ASSERTED_IDENTITY))
+        strRemoteUserId = piSIPMsg->GetHeader(ISipHeader::P_ASSERTED_IDENTITY);
     else
-        strRemoteUserId = piSIPMsg->GetHeader(ISIPHeader::FROM);
+        strRemoteUserId = piSIPMsg->GetHeader(ISipHeader::FROM);
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
     Method *pMethod = IMS_NULL;
 
     IMS_TRACE_I("CoreService (%s) :: %s request received ...",
@@ -672,7 +672,7 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
 
     switch (objMethod.ToInt())
     {
-        case SIPMethod::INVITE:
+        case SipMethod::INVITE:
         {
             pMethod = new SessionEx(this);
 
@@ -684,7 +684,7 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
         }
         break;
 
-        case SIPMethod::CANCEL:
+        case SipMethod::CANCEL:
         {
             // Get a session information from the CANCEL transaction
             // NotifyCancelRequest(piSSC);
@@ -692,7 +692,7 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
         }
         break;
 
-        case SIPMethod::MESSAGE:
+        case SipMethod::MESSAGE:
         {
             pMethod = new PageMessage(this);
 
@@ -704,7 +704,7 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
         }
         break;
 
-        case SIPMethod::OPTIONS:
+        case SipMethod::OPTIONS:
         {
             pMethod = new Capabilities(this);
 
@@ -716,51 +716,51 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
         }
         break;
 
-        case SIPMethod::REFER:
+        case SipMethod::REFER:
         {
-            if (piSIPMsg->GetHeaderCount(ISIPHeader::REFER_TO) != 1)
+            if (piSIPMsg->GetHeaderCount(ISipHeader::REFER_TO) != 1)
             {
-                SendResponse(piSSC, SIPStatusCode::SC_400, AString("Mandatory Header Missing"));
+                SendResponse(piSSC, SipStatusCode::SC_400, AString("Mandatory Header Missing"));
                 return IMS_FALSE;
             }
 
-            AString strReferTo = piSIPMsg->GetHeader(ISIPHeader::REFER_TO);
+            AString strReferTo = piSIPMsg->GetHeader(ISipHeader::REFER_TO);
 
             if (strReferTo.IsNULL() || strReferTo.IsEmpty())
             {
-                SendResponse(piSSC, SIPStatusCode::SC_400, AString("Invalid Header Field"));
+                SendResponse(piSSC, SipStatusCode::SC_400, AString("Invalid Header Field"));
                 return IMS_FALSE;
             }
 
-            ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(
-                                        ISIPHeader::REFER_TO, strReferTo);
+            ISipHeader *piHeader = SipParsingHelper::CreateHeader(
+                                        ISipHeader::REFER_TO, strReferTo);
 
             if (piHeader == IMS_NULL)
             {
-                SendResponse(piSSC, SIPStatusCode::SC_400, AString("Invalid Header Field"));
+                SendResponse(piSSC, SipStatusCode::SC_400, AString("Invalid Header Field"));
                 return IMS_FALSE;
             }
 
-            const SIPAddress *pAddress = piHeader->GetSIPAddress();
+            const SipAddress *pAddress = piHeader->GetSipAddress();
 
             if (pAddress == IMS_NULL)
             {
                 piHeader->Destroy();
-                SendResponse(piSSC, SIPStatusCode::SC_400, AString("Invalid Header Field"));
+                SendResponse(piSSC, SipStatusCode::SC_400, AString("Invalid Header Field"));
                 return IMS_FALSE;
             }
 
-            const SIPParameter *pMethodP = pAddress->GetParameter(SIP::STR_METHOD);
+            const SipParameter *pMethodP = pAddress->GetParameter(Sip::STR_METHOD);
 
             if ((pMethodP != IMS_NULL)
                 && (pMethodP->GetValue().IsNULL() || pMethodP->GetValue().IsEmpty()))
             {
                 piHeader->Destroy();
-                SendResponse(piSSC, SIPStatusCode::SC_400, AString("Mandatory Parameter Missing"));
+                SendResponse(piSSC, SipStatusCode::SC_400, AString("Mandatory Parameter Missing"));
                 return IMS_FALSE;
             }
 
-            const ISIPHeader* piReplaces = pAddress->GetHeader(ISIPHeader::REPLACES);
+            const ISipHeader* piReplaces = pAddress->GetHeader(ISipHeader::REPLACES);
             Replaces objReplaces;
 
             if (piReplaces != IMS_NULL)
@@ -772,14 +772,14 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
             {
                 IMS_TRACE_D("Refer-To :: method parameter does not exist", 0, 0, 0);
 
-                SIPMethod objMethod(SIPMethod::INVITE);
+                SipMethod objMethod(SipMethod::INVITE);
                 pMethod = new Reference(this,
-                                pAddress->GetURI(), objMethod.ToString(), objReplaces);
+                                pAddress->GetUri(), objMethod.ToString(), objReplaces);
             }
             else
             {
                 pMethod = new Reference(this,
-                                pAddress->GetURI(), pMethodP->GetValue(), objReplaces);
+                                pAddress->GetUri(), pMethodP->GetValue(), objReplaces);
             }
 
             piHeader->Destroy();
@@ -797,21 +797,21 @@ IMS_BOOL CoreService::ServerConnection_NotifyRequest(IN ISIPServerConnection *pi
                 objMethod.ToString().GetStr(), GetServiceId().GetStr(), 0);
 
             // Methods which are handled inside of a dialog
-            if (objMethod.Equals(SIPMethod::BYE)
-                || objMethod.Equals(SIPMethod::INFO)
-                || objMethod.Equals(SIPMethod::UPDATE)
-                || objMethod.Equals(SIPMethod::PRACK)
-                || objMethod.Equals(SIPMethod::NOTIFY))
+            if (objMethod.Equals(SipMethod::BYE)
+                || objMethod.Equals(SipMethod::INFO)
+                || objMethod.Equals(SipMethod::UPDATE)
+                || objMethod.Equals(SipMethod::PRACK)
+                || objMethod.Equals(SipMethod::NOTIFY))
             {
-                SendResponse(piSSC, SIPStatusCode::SC_481);
+                SendResponse(piSSC, SipStatusCode::SC_481);
             }
             else
             {
                 // SUBSCRIBE / REGISTER / PUBLISH / ACK (?)
                 // 405 Method Not Allowed ???
-                if (!objMethod.Equals(SIPMethod::ACK))
+                if (!objMethod.Equals(SipMethod::ACK))
                 {
-                    SendResponse(piSSC, SIPStatusCode::SC_405);
+                    SendResponse(piSSC, SipStatusCode::SC_405);
                 }
             }
 
@@ -846,7 +846,7 @@ Remarks
 
 */
 PRIVATE
-IMS_SINT32 CoreService::CheckAndHandleDirectSIPRequest(IN ISIPServerConnection *piSSC)
+IMS_SINT32 CoreService::CheckAndHandleDirectSIPRequest(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 

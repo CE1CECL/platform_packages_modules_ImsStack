@@ -40,7 +40,7 @@ public:
     SIPDialogState* GetDialogState() const;
     IMS_SINT32 GetState() const;
 
-    static IMS_BOOL IsDialogCreatable(IN CONST SIPMethod &objMethod);
+    static IMS_BOOL IsDialogCreatable(IN CONST SipMethod &objMethod);
 
 private:
     // Shared dialog information among all dialog usages

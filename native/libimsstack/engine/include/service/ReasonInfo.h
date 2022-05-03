@@ -24,7 +24,7 @@ class ReasonInfo
 public:
     ReasonInfo();
     explicit ReasonInfo(IN IMS_SINT32 nType_);
-    ReasonInfo(IN IMS_SINT32 nType_, IN CONST SIPStatusCode &objStatusCode_);
+    ReasonInfo(IN IMS_SINT32 nType_, IN CONST SipStatusCode &objStatusCode_);
     ~ReasonInfo();
 
 private:
@@ -42,7 +42,7 @@ public:
 
 private:
     IMS_SINT32 nType;
-    SIPStatusCode objStatusCode;
+    SipStatusCode objStatusCode;
 };
 
 #endif // _REASON_INFO_H_

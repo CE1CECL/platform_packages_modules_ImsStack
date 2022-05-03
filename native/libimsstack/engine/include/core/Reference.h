@@ -44,11 +44,11 @@ public:
         NotifierState& operator=(IN CONST NotifierState &objRHS);
 
     public:
-        void AddSCC(IN ISIPClientConnection *piSCC);
-        void RemoveSCC(IN ISIPClientConnection *piSCC);
+        void AddSCC(IN ISipClientConnection *piSCC);
+        void RemoveSCC(IN ISipClientConnection *piSCC);
 
     private:
-        IMSList<ISIPClientConnection*> objSCCs;
+        IMSList<ISipClientConnection*> objSCCs;
     };
 
 public:
@@ -68,7 +68,7 @@ public:
     // IReference interface
     IMS_RESULT Accept();
     IMS_RESULT ConnectReferMethod(IN Method *pReferMethod);
-    const SIPMethod& GetReferMethod() const;
+    const SipMethod& GetReferMethod() const;
     const AString& GetReferToUserId() const;
     const AString& GetReplaces() const;
     IMS_SINT32 GetState() const;
@@ -94,34 +94,34 @@ protected:
 
     // Method class
     // IMS_AUTH_SIP_DIGEST
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // Handle the exceptions
     virtual void Exception_NotifyError(IN IMS_SINT32 nErrorCode);
     virtual IMS_BOOL InitInstance();
 
     // Handle the incoming request / outgoing response message
-    virtual IMS_BOOL NotifySIPRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL NotifySIPRequest(IN ISipServerConnection *piSSC);
 
     // Handle to the outgoing request / incoming response message
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC);
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC);
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
     // IDialogMethod interface
-    virtual IMS_BOOL Dialog_Compare(IN ISIPServerConnection *piSSC) const;
-    virtual IMS_BOOL Dialog_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL Dialog_Compare(IN ISipServerConnection *piSSC) const;
+    virtual IMS_BOOL Dialog_NotifyRequest(IN ISipServerConnection *piSSC);
 
     // IReferredMessageListener interface
-    virtual void ReferredMessage_NotifyOnActive(IN ISIPMessage *piSIPMsg);
+    virtual void ReferredMessage_NotifyOnActive(IN ISipMessage *piSIPMsg);
     virtual void ReferredMessage_NotifyOnTerminated(
             IN IMS_SINT32 nReasonCode = SubState::REASON_NONE,
-            IN ISIPMessage *piSIPMsg = IMS_NULL);
+            IN ISipMessage *piSIPMsg = IMS_NULL);
 
 private:
     void CleanupOnDestroy();
-    ISIPClientConnection* CreateConnectionL(IN ISIPDialog *piDialog,
-            IN CONST SIPMethod &objMethod);
+    ISipClientConnection* CreateConnectionL(IN ISipDialog *piDialog,
+            IN CONST SipMethod &objMethod);
     IMS_RESULT DoNotification(IN IMS_SINT32 nSubState, IN CONST ByteArray &objContent,
             IN IMS_SINT32 nReasonCode = SubState::REASON_NONE,
             IN IMS_SINT32 nExpires = (-1));
@@ -160,7 +160,7 @@ private:
     // Target URI in Refer-To header
     AString strReferToURI;
     // method uri parameter in Refer-To header
-    SIPMethod objReferMethod;
+    SipMethod objReferMethod;
     // replaces uri-header parameter in Refer-To header
     // It contains callid, from-tag, to-tag
     Replaces *pReplaces;

@@ -19,7 +19,7 @@ __IMS_TRACE_TAG_SIP__;
 
 
 PUBLIC
-SIPMessage::SIPMessage(IN IMS_SINT32 nType_ /* = ISIPMessage::TYPE_REQUEST */)
+SIPMessage::SIPMessage(IN IMS_SINT32 nType_ /* = ISipMessage::TYPE_REQUEST */)
     : nType(nType_)
     , strRequestURI(AString::ConstNull())
     , bBodyPartParsed(IMS_FALSE)
@@ -153,7 +153,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPMessage* SIPMessage::Clone() const
+ISipMessage* SIPMessage::Clone() const
 {
     SIPMessage *pNewMessage = new SIPMessage(nType);
 
@@ -161,7 +161,7 @@ ISIPMessage* SIPMessage::Clone() const
 
     if (pNewMessage == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -180,7 +180,7 @@ ISIPMessage* SIPMessage::Clone() const
         {
             delete pNewMessage;
 
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_NULL;
         }
 
@@ -189,7 +189,7 @@ ISIPMessage* SIPMessage::Clone() const
             delete pNewBodyPart;
             delete pNewMessage;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_NULL;
         }
     }
@@ -203,12 +203,12 @@ ISIPMessage* SIPMessage::Clone() const
         {
             delete pNewMessage;
 
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_NULL;
         }
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
     return pNewMessage;
 }
 
@@ -223,7 +223,7 @@ IMS_RESULT SIPMessage::AddHeader(IN IMS_SINT32 nType, IN CONST AString &strValue
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (SIPStack::IsUnknownHeader(nType, strName))
     {
@@ -235,7 +235,7 @@ IMS_RESULT SIPMessage::AddHeader(IN IMS_SINT32 nType, IN CONST AString &strValue
 
         if (pstHeader == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -243,7 +243,7 @@ IMS_RESULT SIPMessage::AddHeader(IN IMS_SINT32 nType, IN CONST AString &strValue
         {
             SIPStack::FreeHeaderEx(pstHeader);
 
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -277,7 +277,7 @@ AString SIPMessage::GetHeader(IN IMS_SINT32 nType, IN IMS_SINT32 nIndex /* = 0 *
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (SIPStack::IsUnknownHeader(nType, strName))
     {
@@ -312,7 +312,7 @@ IMS_SINT32 SIPMessage::GetHeaderCount(IN IMS_SINT32 nType,
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (pstMessage == IMS_NULL)
         return 0;
@@ -338,7 +338,7 @@ IMSList<AString> SIPMessage::GetHeaders(IN IMS_SINT32 nType,
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (SIPStack::IsUnknownHeader(nType, strName))
     {
@@ -383,7 +383,7 @@ IMS_RESULT SIPMessage::PrependHeader(IN IMS_SINT32 nType, IN CONST AString &strV
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (SIPStack::IsUnknownHeader(nType, strName))
     {
@@ -395,7 +395,7 @@ IMS_RESULT SIPMessage::PrependHeader(IN IMS_SINT32 nType, IN CONST AString &strV
 
         if (pstHeader == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -403,7 +403,7 @@ IMS_RESULT SIPMessage::PrependHeader(IN IMS_SINT32 nType, IN CONST AString &strV
         {
             SIPStack::FreeHeaderEx(pstHeader);
 
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -424,7 +424,7 @@ void SIPMessage::RemoveHeader(IN IMS_SINT32 nType,
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (SIPStack::IsUnknownHeader(nType, strName))
         objUnknownHeaders.RemoveHeader(strName);
@@ -443,7 +443,7 @@ IMS_RESULT SIPMessage::SetHeader(IN IMS_SINT32 nType, IN CONST AString &strValue
 {
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (SIPStack::IsUnknownHeader(nType, strName))
     {
@@ -455,7 +455,7 @@ IMS_RESULT SIPMessage::SetHeader(IN IMS_SINT32 nType, IN CONST AString &strValue
 
         if (pstHeader == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -463,7 +463,7 @@ IMS_RESULT SIPMessage::SetHeader(IN IMS_SINT32 nType, IN CONST AString &strValue
         {
             SIPStack::FreeHeaderEx(pstHeader);
 
-            SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+            SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
             return IMS_FAILURE;
         }
 
@@ -479,17 +479,17 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPMessageBodyPart* SIPMessage::CreateBodyPart()
+ISipMessageBodyPart* SIPMessage::CreateBodyPart()
 {
     SIPMessageBodyPart* pBodyPart = new SIPMessageBodyPart(IMS_FALSE);
 
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (pBodyPart == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -497,7 +497,7 @@ ISIPMessageBodyPart* SIPMessage::CreateBodyPart()
     {
         delete pBodyPart;
 
-        SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_NULL;
     }
 
@@ -510,17 +510,17 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPMessageBodyPart* SIPMessage::CreateSDPBodyPart()
+ISipMessageBodyPart* SIPMessage::CreateSdpBodyPart()
 {
     SIPMessageBodyPart *pBodyPart = new SIPMessageBodyPart(IMS_TRUE);
 
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (pBodyPart == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -528,7 +528,7 @@ ISIPMessageBodyPart* SIPMessage::CreateSDPBodyPart()
     {
         delete pBodyPart;
 
-        SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_NULL;
     }
 
@@ -541,16 +541,16 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMSList<ISIPMessageBodyPart*> SIPMessage::GetBodyParts() const
+IMSList<ISipMessageBodyPart*> SIPMessage::GetBodyParts() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (objBodyParts.IsEmpty())
     {
-        return IMSList<ISIPMessageBodyPart*>();
+        return IMSList<ISipMessageBodyPart*>();
     }
 
-    IMSList<ISIPMessageBodyPart*> objSIPBodyParts;
+    IMSList<ISipMessageBodyPart*> objSIPBodyParts;
 
     for (IMS_UINT32 i = 0; i < objBodyParts.GetSize(); ++i)
     {
@@ -571,7 +571,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPMessageBodyPart* SIPMessage::GetSDPBodyPart() const
+ISipMessageBodyPart* SIPMessage::GetSdpBodyPart() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -597,16 +597,16 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMSList<ISIPMessageBodyPart*> SIPMessage::GetSDPBodyParts() const
+IMSList<ISipMessageBodyPart*> SIPMessage::GetSdpBodyParts() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (objBodyParts.IsEmpty())
     {
-        return IMSList<ISIPMessageBodyPart*>();
+        return IMSList<ISipMessageBodyPart*>();
     }
 
-    IMSList<ISIPMessageBodyPart*> objSIPBodyParts;
+    IMSList<ISipMessageBodyPart*> objSIPBodyParts;
 
     for (IMS_UINT32 i = 0; i < objBodyParts.GetSize(); ++i)
     {
@@ -627,7 +627,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_RESULT SIPMessage::CopyHeadersAndBodyParts(IN CONST ISIPMessage *piSIPMsg)
+IMS_RESULT SIPMessage::CopyHeadersAndBodyParts(IN CONST ISipMessage *piSIPMsg)
 {
     const SIPMessage *pSIPMsg = DYNAMIC_CAST(const SIPMessage*, piSIPMsg);
 
@@ -635,28 +635,28 @@ IMS_RESULT SIPMessage::CopyHeadersAndBodyParts(IN CONST ISIPMessage *piSIPMsg)
 
     if (pSIPMsg == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
     // Overwrites any known headers
     if (!SIPStack::OverwriteHeaders(pSIPMsg->pstMessage, pstMessage))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
     // Overwrites any unknown headers
     if (!objUnknownHeaders.OverwriteHeaders(pSIPMsg->objUnknownHeaders))
     {
-        SIPPrivate::SetLastError(SIPError::GENERAL_ERROR);
+        SIPPrivate::SetLastError(SipError::GENERAL_ERROR);
         return IMS_FAILURE;
     }
 
     // Copy any message body parts if present
     if (pSIPMsg->objBodyParts.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return IMS_SUCCESS;
     }
 
@@ -676,12 +676,12 @@ IMS_RESULT SIPMessage::CopyHeadersAndBodyParts(IN CONST ISIPMessage *piSIPMsg)
         {
             delete pNewBodyPart;
 
-            SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -710,7 +710,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPMessage::IsMessageRPR() const
+IMS_BOOL SIPMessage::IsMessageRpr() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -826,7 +826,7 @@ IMS_RESULT SIPMessage::SetRequestURI(IN CONST AString &strURI)
 
         if (pstAddrSpec == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+            SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
             return IMS_FAILURE;
         }
 
@@ -835,7 +835,7 @@ IMS_RESULT SIPMessage::SetRequestURI(IN CONST AString &strURI)
         SIPStack::FreeAddrSpec(pstAddrSpec);
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return IMS_SUCCESS;
 }
@@ -1038,9 +1038,9 @@ IMS_BOOL SIPMessage::FormMessageOnChallenge()
 
     // FIXME: need to improve the logic
 
-    while (SIPStack::GetHeaderCount(pstMessage, ISIPHeader::UNKNOWN) > 0)
+    while (SIPStack::GetHeaderCount(pstMessage, ISipHeader::UNKNOWN) > 0)
     {
-        SIPStack::RemoveHeader(ISIPHeader::UNKNOWN, pstMessage);
+        SIPStack::RemoveHeader(ISipHeader::UNKNOWN, pstMessage);
     }
 
     // Set unknown headers
@@ -1237,8 +1237,8 @@ IMS_BOOL SIPMessage::ExtractBodyParts()
         SIPStack::FreeMessageBody(pstMsgBody);
 
         // Set "Content-" headers
-        SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::CONTENT_TYPE);
-        pBodyPart->SetHeader(pstHeader, ISIPMessageBodyPart::CONTENT_TYPE);
+        SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CONTENT_TYPE);
+        pBodyPart->SetHeader(pstHeader, ISipMessageBodyPart::CONTENT_TYPE);
 
         SIPStack::FreeHeaderEx(pstHeader);
 
@@ -1331,7 +1331,7 @@ IMS_BOOL SIPMessage::ExtractUnknownHeaders()
     {
         objUnknownHeaders.Clear();
 
-        IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::UNKNOWN);
+        IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::UNKNOWN);
 
         if (nHCount == 0)
         {
@@ -1340,7 +1340,7 @@ IMS_BOOL SIPMessage::ExtractUnknownHeaders()
 
         for (IMS_SINT32 i = 0; i < nHCount; ++i)
         {
-            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::UNKNOWN, i);
+            SipHeaderBase *pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::UNKNOWN, i);
 
             objUnknownHeaders.AddHeader(SIPStack::GetUnknownHeaderName(pstHeader),
                     SIPStack::GetUnknownHeaderBody(pstHeader));

@@ -73,7 +73,7 @@ PUBLIC
 IMS_BOOL MtcExtensionSet::IsSupportRequiredExtensions(IN const IMessage& pMessage) const
 {
     IMSList<AString> lstRequiredExtensions;
-    MessageUtil::GetHeaders(&pMessage, ISIPHeader::REQUIRE, lstRequiredExtensions);
+    MessageUtil::GetHeaders(&pMessage, ISipHeader::REQUIRE, lstRequiredExtensions);
 
     for (IMS_UINT32 nIndex = 0; nIndex < lstRequiredExtensions.GetSize(); nIndex++)
     {

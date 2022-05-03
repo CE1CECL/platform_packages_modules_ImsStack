@@ -46,7 +46,7 @@ public:
 
     // IMessageMediator
     IMS_RESULT MessageMediator_AdjustMessage(
-            IN_OUT ISIPMessage* piSIPMsg, IN IMS_SINT32 nMessage) override;
+            IN_OUT ISipMessage* piSIPMsg, IN IMS_SINT32 nMessage) override;
 
     IMS_BOOL ConstructSendMessage(IN IMessage* piMessage, IN const ByteArray& objSms,
             IN const IMS_UINT32 nSmsType);

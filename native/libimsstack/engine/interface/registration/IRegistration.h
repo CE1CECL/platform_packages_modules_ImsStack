@@ -7,7 +7,7 @@
 #include "IRegParameter.h"
 
 class Credential;
-class SIPProfile;
+class SipProfile;
 class IRegistrationListener;
 class IRegBindingStateListener;
 class IRegUserIdentityNotifier;
@@ -95,7 +95,7 @@ public:
      *
      * @return (Temporary) public user identity.
      */
-    virtual const SIPAddress& GetAOR() const = 0;
+    virtual const SipAddress& GetAOR() const = 0;
 
     /**
      * @brief Returns the network provisioned user identities.
@@ -108,11 +108,11 @@ public:
 
     /**
      * @brief Returns the authorized (topmost in P-Associated-URI) public user identity
-     *        as SIPAddress format.
+     *        as SipAddress format.
      *
      * @return Authorized public user identity.
      */
-    virtual const SIPAddress& GetAuthorizedAOR() const = 0;
+    virtual const SipAddress& GetAuthorizedAOR() const = 0;
 
     /**
      * @brief Returns all the Contacts for this registration.
@@ -169,10 +169,10 @@ public:
     /**
      * @brief Returns the instance of SIP profile of this registration.
      *
-     * @return Pointer to SIPProfile.
+     * @return Pointer to SipProfile.
      * @note MULTI_REG_SIP_PROFILE
      */
-    virtual SIPProfile* GetSIPProfile() const = 0;
+    virtual SipProfile* GetSIPProfile() const = 0;
 
     /**
      * @brief Returns the state of this registration.
@@ -297,7 +297,7 @@ public:
      * @param strSubsId an identifier for SubscriberConfig
      * @note MULTI_SUBS
      */
-    virtual void SetAOR(IN CONST SIPAddress &objAOR,
+    virtual void SetAOR(IN CONST SipAddress &objAOR,
             IN CONST AString &strSubsId = AString::ConstNull()) = 0;
 
     /**
@@ -334,10 +334,10 @@ public:
      * for each registrations when the multiple registration is required
      * and the configuration for each registrations is different.
      *
-     * @param pProfile Pointer to SIPProfile
+     * @param pProfile Pointer to SipProfile
      * @note MULTI_REG_SIP_PROFILE
      */
-    virtual void SetSIPProfile(IN SIPProfile *pProfile) = 0;
+    virtual void SetSIPProfile(IN SipProfile *pProfile) = 0;
 
     /**
      * @brief Sets the listener to monitor the changes of the service's state.
@@ -382,7 +382,7 @@ public:
      * @param pResourceUri Pointer to the resource uri to subscribe
      * @return Pointer to IRegSubscription.
      */
-    virtual IRegSubscription* CreateSubscription(IN SIPAddress *pResourceUri = IMS_NULL) = 0;
+    virtual IRegSubscription* CreateSubscription(IN SipAddress *pResourceUri = IMS_NULL) = 0;
 
 public:
     /// Default expiration time value

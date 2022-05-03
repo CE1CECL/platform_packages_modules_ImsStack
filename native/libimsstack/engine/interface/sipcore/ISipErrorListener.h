@@ -8,11 +8,11 @@
  *        about failure of asynchronous send operations.
  *
  * The application implementing this interface has to register it with
- * a ISIPConnection instance using the ISIPTransaction::SetErrorListener method.
+ * a ISipConnection instance using the ISipTransaction::SetErrorListener method.
  *
- * @see ISIPConnection
+ * @see ISipConnection
  */
-class ISIPErrorListener
+class ISipErrorListener
 {
 public:
     /**
@@ -20,12 +20,12 @@ public:
      *
      * J180 -> void Error_NotifyError(IN CONST AString &strMessage);
      *
-     * @param piSC Pointer to ISIPConnection object which error occurrs
+     * @param piSC Pointer to ISipConnection object which error occurrs
      * @param nCode Reason code of error
      * @param strMessage Reason phrase of error\n
      *                   Implementation dependent non-localized information about the error
      */
-    virtual void Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual void Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage) = 0;
 };
 

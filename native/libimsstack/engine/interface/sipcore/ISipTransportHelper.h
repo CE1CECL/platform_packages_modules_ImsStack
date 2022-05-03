@@ -4,12 +4,12 @@
 #include "IPAddress.h"
 #include "SipRtConfig.h"
 
-class ISIPLocalDnsQueryListener;
+class ISipLocalDnsQueryListener;
 
 /**
  * @brief This class provides an interface to access/control SIP transport layer.
  */
-class ISIPTransportHelper
+class ISipTransportHelper
 {
 public:
     /**
@@ -46,7 +46,7 @@ public:
      * @param objDestPort Destination port number
      * @param bIsConnectionByPeer Flag to indicate which endpoint the TCP connection is requested
      */
-    virtual void DestroyTCPSocket(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
+    virtual void DestroyTcpSocket(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
             IN CONST IPAddress &objDestIP, IN IMS_UINT32 nDestPort,
             IN IMS_BOOL bIsConnectionByPeer = IMS_FALSE) = 0;
 
@@ -55,7 +55,7 @@ public:
      *
      * @param pIPQoS IP QoS (IP, value)
      */
-    virtual void SetIPQoS(IN SIPRTConfig::IPQoS *pIPQoS) = 0;
+    virtual void SetIpQos(IN SipRtConfig::IpQos *pIPQoS) = 0;
 
     /**
      * @brief Sets the keep-alive policy of the TCP client socket which matches
@@ -90,7 +90,7 @@ public:
      * @param piListener Listener to be set
      * @note LOCAL_DNS_QUERY
      */
-    virtual void SetLocalDnsQueryListener(IN ISIPLocalDnsQueryListener *piListener) = 0;
+    virtual void SetLocalDnsQueryListener(IN ISipLocalDnsQueryListener *piListener) = 0;
 };
 
 #endif // _INTERFACE_SIP_TRANSPORT_HELPER_H_

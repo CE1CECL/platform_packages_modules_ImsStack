@@ -7,19 +7,19 @@
  * @brief This class contains constants representing SIP response codes as defined in RFC 3261
  *        and extensions.
  */
-class SIPStatusCode
+class SipStatusCode
 {
 public:
-    SIPStatusCode(IN IMS_SINT32 nCode_ = SC_INVALID);
-    SIPStatusCode(IN IMS_SINT32 nCode_, IN CONST IMS_CHAR *pszReasonPhrase_);
-    SIPStatusCode(IN CONST SIPStatusCode &objRHS);
-    ~SIPStatusCode();
+    SipStatusCode(IN IMS_SINT32 nCode_ = SC_INVALID);
+    SipStatusCode(IN IMS_SINT32 nCode_, IN CONST IMS_CHAR *pszReasonPhrase_);
+    SipStatusCode(IN CONST SipStatusCode &objRHS);
+    ~SipStatusCode();
 
 public:
-    SIPStatusCode& operator=(IN CONST SIPStatusCode &objRHS);
-    SIPStatusCode& operator=(IN IMS_SINT32 nCode);
-    SIPStatusCode& operator=(IN CONST IMS_CHAR* pszReasonPhrase);
-    SIPStatusCode& operator=(IN CONST AString &strReasonPhrase);
+    SipStatusCode& operator=(IN CONST SipStatusCode &objRHS);
+    SipStatusCode& operator=(IN IMS_SINT32 nCode);
+    SipStatusCode& operator=(IN CONST IMS_CHAR* pszReasonPhrase);
+    SipStatusCode& operator=(IN CONST AString &strReasonPhrase);
 
 public:
     /**
@@ -232,34 +232,34 @@ private:
     AString strReasonPhrase;
 };
 
-inline IMS_BOOL operator==(IN CONST SIPStatusCode &objSC, IN IMS_SINT32 nCode)
+inline IMS_BOOL operator==(IN CONST SipStatusCode &objSC, IN IMS_SINT32 nCode)
 { return (objSC.Compare(nCode) == 0); }
-inline IMS_BOOL operator==(IN IMS_SINT32 nCode, IN CONST SIPStatusCode &objSC)
+inline IMS_BOOL operator==(IN IMS_SINT32 nCode, IN CONST SipStatusCode &objSC)
 { return (objSC.Compare(nCode) == 0); }
 
-inline IMS_BOOL operator!=(IN CONST SIPStatusCode &objSC, IN IMS_SINT32 nCode)
+inline IMS_BOOL operator!=(IN CONST SipStatusCode &objSC, IN IMS_SINT32 nCode)
 { return !(objSC.Compare(nCode) == 0); }
-inline IMS_BOOL operator!=(IN IMS_SINT32 nCode, IN CONST SIPStatusCode &objSC)
+inline IMS_BOOL operator!=(IN IMS_SINT32 nCode, IN CONST SipStatusCode &objSC)
 { return !(objSC.Compare(nCode) == 0); }
 
-inline IMS_BOOL operator>=(IN CONST SIPStatusCode &objSC, IN IMS_SINT32 nCode)
+inline IMS_BOOL operator>=(IN CONST SipStatusCode &objSC, IN IMS_SINT32 nCode)
 { return (objSC.Compare(nCode) >= 0); }
-inline IMS_BOOL operator>=(IN IMS_SINT32 nCode, IN CONST SIPStatusCode &objSC)
+inline IMS_BOOL operator>=(IN IMS_SINT32 nCode, IN CONST SipStatusCode &objSC)
 { return (objSC.Compare(nCode) <= 0); }
 
-inline IMS_BOOL operator<=(IN CONST SIPStatusCode &objSC, IN IMS_SINT32 nCode)
+inline IMS_BOOL operator<=(IN CONST SipStatusCode &objSC, IN IMS_SINT32 nCode)
 { return (objSC.Compare(nCode) <= 0); }
-inline IMS_BOOL operator<=(IN IMS_SINT32 nCode, IN CONST SIPStatusCode &objSC)
+inline IMS_BOOL operator<=(IN IMS_SINT32 nCode, IN CONST SipStatusCode &objSC)
 { return (objSC.Compare(nCode) >= 0); }
 
-inline IMS_BOOL operator>(IN CONST SIPStatusCode &objSC, IN IMS_SINT32 nCode)
+inline IMS_BOOL operator>(IN CONST SipStatusCode &objSC, IN IMS_SINT32 nCode)
 { return (objSC.Compare(nCode) > 0); }
-inline IMS_BOOL operator>(IN IMS_SINT32 nCode, IN CONST SIPStatusCode &objSC)
+inline IMS_BOOL operator>(IN IMS_SINT32 nCode, IN CONST SipStatusCode &objSC)
 { return (objSC.Compare(nCode) < 0); }
 
-inline IMS_BOOL operator<(IN CONST SIPStatusCode &objSC, IN IMS_SINT32 nCode)
+inline IMS_BOOL operator<(IN CONST SipStatusCode &objSC, IN IMS_SINT32 nCode)
 { return (objSC.Compare(nCode) < 0); }
-inline IMS_BOOL operator<(IN IMS_SINT32 nCode, IN CONST SIPStatusCode &objSC)
+inline IMS_BOOL operator<(IN IMS_SINT32 nCode, IN CONST SipStatusCode &objSC)
 { return (objSC.Compare(nCode) > 0); }
 
 #endif // _SIP_STATUS_CODE_H_

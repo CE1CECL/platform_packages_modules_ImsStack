@@ -51,7 +51,7 @@ public:
 
     inline IMS_BOOL Create(IN CONST AString &strName, IN CONST AString &strValue)
     {
-        piHeader = SIPParsingHelper::CreateHeader(strName, strValue);
+        piHeader = SipParsingHelper::CreateHeader(strName, strValue);
 
         if (piHeader == IMS_NULL)
         {
@@ -73,7 +73,7 @@ public:
     }
 
 public:
-    ISIPHeader *piHeader;
+    ISipHeader *piHeader;
 };
 
 
@@ -242,22 +242,22 @@ PUBLIC
 RegParameter::RegParameter(IN IMS_SINT32 nSlotId)
     : ImsSlot(nSlotId)
     , bPolicyForAuthenticationCredentials(IMS_TRUE)
-    , nTransportExt(SIP::TRANSPORT_EXT_ANY)
-    , nTransportExtForRegOnly(SIP::TRANSPORT_EXT_ANY)
-    , nPort(SIP::PORT_5060)
+    , nTransportExt(Sip::TRANSPORT_EXT_ANY)
+    , nTransportExtForRegOnly(Sip::TRANSPORT_EXT_ANY)
+    , nPort(Sip::PORT_5060)
     , nFlowControlOption(FLOW_CONTROL_BY_PROVISION)
-    , nPortFlowControl(SIP::PORT_UNSPECIFIED)
+    , nPortFlowControl(Sip::PORT_UNSPECIFIED)
     , strServingCSCF(AString::ConstNull())
     , pPreferredSecurityClient(IMS_NULL)
     , pPreferredSecurityServer(IMS_NULL)
     , pExtraHeaders(IMS_NULL)
-    , objBodyParts(IMSList<ISIPMessageBodyPart*>())
+    , objBodyParts(IMSList<ISipMessageBodyPart*>())
     , bIsAuthRealmLenient(IMS_FALSE)
     , pSIPTVs(IMS_NULL)
 {
     pExtraHeaders = new ExtraHeaders();
 
-    nPort = SIPConfigProxy::GetPort(GetSlotId());
+    nPort = SipConfigProxy::GetPort(GetSlotId());
 
     IMS_TRACE_D("The default port_uc (%d) is selected", nPort, 0, 0);
 }
@@ -299,7 +299,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPAddress& RegParameter::GetTopmostRouteAddress() const
+const SipAddress& RegParameter::GetTopmostRouteAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -312,7 +312,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-void RegParameter::SetSecurityVerifys(IN CONST IMSList<SIPSecurityHeader> &objSecurityVerifys)
+void RegParameter::SetSecurityVerifys(IN CONST IMSList<SipSecurityHeader> &objSecurityVerifys)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -325,25 +325,25 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT RegParameter::FormHeaders(IN_OUT ISIPClientConnection *&piSCC,
+IMS_RESULT RegParameter::FormHeaders(IN_OUT ISipClientConnection *&piSCC,
         IN CONST RCPtr<RegStateTracker> pStateTracker)
 {
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     // Re-write the Request-URI as the S-CSCF's address
-    if (piSCC->SetRequestURI(strServingCSCF) != IMS_SUCCESS)
+    if (piSCC->SetRequestUri(strServingCSCF) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
 
     // Sets the preloaded route set if present
-    if (SIPConfigProxy::IsRouteHeaderInRegRequired(GetSlotId(), pStateTracker->GetSIPProfile()))
+    if (SipConfigProxy::IsRouteHeaderInRegRequired(GetSlotId(), pStateTracker->GetSIPProfile()))
     {
         for (IMS_SINT32 i = 0; i < objPreloadedRoutes.GetCount(); ++i)
         {
-            if (piSIPMsg->AddHeader(ISIPHeader::ROUTE,
+            if (piSIPMsg->AddHeader(ISipHeader::ROUTE,
                     objPreloadedRoutes.GetElementAt(i)) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Adding Route header failed", 0, 0, 0);
@@ -387,40 +387,40 @@ IMS_RESULT RegParameter::FormHeaders(IN_OUT ISIPClientConnection *&piSCC,
         // Add the header values after checking whether or not Security-XXX headers exist
         if (IsSecurityAssociationRequired())
         {
-            if (!SIPConfigProxy::IsIpSecConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
+            if (!SipConfigProxy::IsIpSecConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
             {
                 // Do not add "sec-agree" option tag if IPSec is disabled.
             }
             else
             {
-                piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, SIP::STR_SEC_AGREE);
+                piSIPMsg->AddHeader(ISipHeader::SUPPORTED, Sip::STR_SEC_AGREE);
             }
 
-            piSIPMsg->AddHeader(ISIPHeader::REQUIRE, SIP::STR_SEC_AGREE);
-            piSIPMsg->AddHeader(ISIPHeader::UNKNOWN,
-                    SIP::STR_SEC_AGREE, SIPHeaderName::PROXY_REQUIRE);
+            piSIPMsg->AddHeader(ISipHeader::REQUIRE, Sip::STR_SEC_AGREE);
+            piSIPMsg->AddHeader(ISipHeader::UNKNOWN,
+                    Sip::STR_SEC_AGREE, SipHeaderName::PROXY_REQUIRE);
         }
     }
 
-    if (SIPConfigProxy::IsGRUUConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
+    if (SipConfigProxy::IsGruuConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
     {
-        piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, SIP::STR_GRUU);
+        piSIPMsg->AddHeader(ISipHeader::SUPPORTED, Sip::STR_GRUU);
     }
 
-    if (SIPConfigProxy::IsMultipleRegConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
+    if (SipConfigProxy::IsMultipleRegConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
     {
-        piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, "outbound");
+        piSIPMsg->AddHeader(ISipHeader::SUPPORTED, "outbound");
     }
 
-    if (!piSIPMsg->IsHeaderPresent(ISIPHeader::ALLOW))
+    if (!piSIPMsg->IsHeaderPresent(ISipHeader::ALLOW))
     {
         // Add an allowed/supported methods for this UA
-        const AStringArray &objMethods = SIPConfigProxy::GetRegAllowMethods(
+        const AStringArray &objMethods = SipConfigProxy::GetRegAllowMethods(
                 GetSlotId(), pStateTracker->GetSIPProfile());
 
         for (IMS_SINT32 i = 0; i < objMethods.GetCount(); ++i)
         {
-            if (piSIPMsg->AddHeader(ISIPHeader::ALLOW, objMethods.GetElementAt(i)) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::ALLOW, objMethods.GetElementAt(i)) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Setting Allow header failed", 0, 0, 0);
                 return IMS_FAILURE;
@@ -429,11 +429,11 @@ IMS_RESULT RegParameter::FormHeaders(IN_OUT ISIPClientConnection *&piSCC,
     }
 
     // Add a User-Agent if configurable
-    if (!piSIPMsg->IsHeaderPresent(ISIPHeader::UNKNOWN, SIPHeaderName::USER_AGENT))
+    if (!piSIPMsg->IsHeaderPresent(ISipHeader::UNKNOWN, SipHeaderName::USER_AGENT))
     {
-        if (SIPConfigProxy::IsUserAgentConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
+        if (SipConfigProxy::IsUserAgentConfigured(GetSlotId(), pStateTracker->GetSIPProfile()))
         {
-            UserAgentHeader::SetHeader(SIPHeaderName::USER_AGENT,
+            UserAgentHeader::SetHeader(SipHeaderName::USER_AGENT,
                     pStateTracker->GetSIPProfile(), AString::ConstNull(),
                     pStateTracker->GetIPAddress(), GetSlotId(), piSIPMsg);
         }
@@ -454,7 +454,7 @@ IMS_RESULT RegParameter::FormHeaders(IN_OUT ISIPClientConnection *&piSCC,
                 objCredential.GetRealm().GetStr(),
                 strServingCSCF.GetStr());
 
-        if (SIPConfigProxy::IsAuthenticationAlgorithmRequired(
+        if (SipConfigProxy::IsAuthenticationAlgorithmRequired(
                 GetSlotId(), pStateTracker->GetSIPProfile()))
         {
             strAuthorization.Append(", algorithm=");
@@ -473,7 +473,7 @@ IMS_RESULT RegParameter::FormHeaders(IN_OUT ISIPClientConnection *&piSCC,
             }
         }
 
-        if (piSIPMsg->SetHeader(ISIPHeader::AUTHORIZATION, strAuthorization) != IMS_SUCCESS)
+        if (piSIPMsg->SetHeader(ISipHeader::AUTHORIZATION, strAuthorization) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Setting Authorization header failed", 0, 0, 0);
             return IMS_FAILURE;
@@ -485,11 +485,11 @@ IMS_RESULT RegParameter::FormHeaders(IN_OUT ISIPClientConnection *&piSCC,
     {
         for (IMS_UINT32 i = 0; i < objBodyParts.GetSize(); ++i)
         {
-            ISIPMessageBodyPart *piBodyPart = objBodyParts.GetAt(i);
+            ISipMessageBodyPart *piBodyPart = objBodyParts.GetAt(i);
 
             if (piBodyPart != IMS_NULL)
             {
-                ISIPMessageBodyPart *piNewBodyPart = piSIPMsg->CreateBodyPart();
+                ISipMessageBodyPart *piNewBodyPart = piSIPMsg->CreateBodyPart();
 
                 if (piNewBodyPart != IMS_NULL)
                 {
@@ -508,7 +508,7 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT RegParameter::FormRouteHeaders(IN_OUT ISIPClientConnection *&piSCC,
+IMS_RESULT RegParameter::FormRouteHeaders(IN_OUT ISipClientConnection *&piSCC,
         IN CONST RCPtr<RegStateTracker> pStateTracker)
 {
     //---------------------------------------------------------------------------------------------
@@ -524,24 +524,24 @@ IMS_RESULT RegParameter::FormRouteHeaders(IN_OUT ISIPClientConnection *&piSCC,
         return IMS_SUCCESS;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Removes all Route headers if present.
-    IMS_SINT32 nHCount = piSIPMsg->GetHeaderCount(ISIPHeader::ROUTE);
+    IMS_SINT32 nHCount = piSIPMsg->GetHeaderCount(ISipHeader::ROUTE);
 
     while (nHCount > 0)
     {
-        piSIPMsg->RemoveHeader(ISIPHeader::ROUTE);
+        piSIPMsg->RemoveHeader(ISipHeader::ROUTE);
         --nHCount;
     }
 
-    if (SIPConfigProxy::IsRouteHeaderInRegRequired(GetSlotId(), pStateTracker->GetSIPProfile()))
+    if (SipConfigProxy::IsRouteHeaderInRegRequired(GetSlotId(), pStateTracker->GetSIPProfile()))
     {
         for (IMS_SINT32 i = 0; i < objPreloadedRoutes.GetCount(); ++i)
         {
             const AString &strRoute = objPreloadedRoutes.GetElementAt(i);
 
-            if (piSIPMsg->AddHeader(ISIPHeader::ROUTE, strRoute) != IMS_SUCCESS)
+            if (piSIPMsg->AddHeader(ISipHeader::ROUTE, strRoute) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Adding a Route headers failed", 0, 0, 0);
                 return IMS_FAILURE;
@@ -570,7 +570,7 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISIPClientConnection *&piSCC)
+IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISipClientConnection *&piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -585,22 +585,22 @@ IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISIPClientConnection *&piSCC
         return IMS_SUCCESS;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Removes all Security-Client/-Verify headers if present.
-    IMS_SINT32 nHCount = piSIPMsg->GetHeaderCount(ISIPHeader::SECURITY_CLIENT);
+    IMS_SINT32 nHCount = piSIPMsg->GetHeaderCount(ISipHeader::SECURITY_CLIENT);
 
     while (nHCount > 0)
     {
-        piSIPMsg->RemoveHeader(ISIPHeader::SECURITY_CLIENT);
+        piSIPMsg->RemoveHeader(ISipHeader::SECURITY_CLIENT);
         --nHCount;
     }
 
-    nHCount = piSIPMsg->GetHeaderCount(ISIPHeader::SECURITY_VERIFY);
+    nHCount = piSIPMsg->GetHeaderCount(ISipHeader::SECURITY_VERIFY);
 
     while (nHCount > 0)
     {
-        piSIPMsg->RemoveHeader(ISIPHeader::SECURITY_VERIFY);
+        piSIPMsg->RemoveHeader(ISipHeader::SECURITY_VERIFY);
         --nHCount;
     }
 
@@ -609,9 +609,9 @@ IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISIPClientConnection *&piSCC
         // If no new headers, set the Security-Client header using the current headers
         for (IMS_UINT32 i = 0; i < objSecurityClients.GetSize(); ++i)
         {
-            const SIPSecurityHeader &objSecurityHeader = objSecurityClients.GetAt(i);
+            const SipSecurityHeader &objSecurityHeader = objSecurityClients.GetAt(i);
 
-            if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_CLIENT,
+            if (piSIPMsg->AddHeader(ISipHeader::SECURITY_CLIENT,
                     objSecurityHeader.ToString()) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Adding a Security-Client headers failed", 0, 0, 0);
@@ -622,9 +622,9 @@ IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISIPClientConnection *&piSCC
 
     for (IMS_UINT32 i = 0; i < objNewSecurityClients.GetSize(); ++i)
     {
-        const SIPSecurityHeader &objSecurityHeader = objNewSecurityClients.GetAt(i);
+        const SipSecurityHeader &objSecurityHeader = objNewSecurityClients.GetAt(i);
 
-        if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_CLIENT,
+        if (piSIPMsg->AddHeader(ISipHeader::SECURITY_CLIENT,
                 objSecurityHeader.ToString()) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Adding a Security-Client headers failed", 0, 0, 0);
@@ -632,7 +632,7 @@ IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISIPClientConnection *&piSCC
         }
     }
 
-    IMSList<SIPSecurityHeader> *pSecurityHeaders = &objSecurityServers;
+    IMSList<SipSecurityHeader> *pSecurityHeaders = &objSecurityServers;
 
     if (!objSecurityVerifys.IsEmpty())
     {
@@ -641,9 +641,9 @@ IMS_RESULT RegParameter::FormSecurityHeaders(IN_OUT ISIPClientConnection *&piSCC
 
     for (IMS_UINT32 i = 0; i < pSecurityHeaders->GetSize(); ++i)
     {
-        const SIPSecurityHeader &objSecurityHeader = pSecurityHeaders->GetAt(i);
+        const SipSecurityHeader &objSecurityHeader = pSecurityHeaders->GetAt(i);
 
-        if (piSIPMsg->AddHeader(ISIPHeader::SECURITY_VERIFY,
+        if (piSIPMsg->AddHeader(ISipHeader::SECURITY_VERIFY,
                 objSecurityHeader.ToString()) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Adding a Security-Verify headers failed", 0, 0, 0);
@@ -718,7 +718,7 @@ IMS_SINT32 RegParameter::GetProtectedPortUC() const
 
     if (objSecurityClients.IsEmpty())
     {
-        return SIP::PORT_UNSPECIFIED;
+        return Sip::PORT_UNSPECIFIED;
     }
 
     if (pPreferredSecurityClient == IMS_NULL)
@@ -746,7 +746,7 @@ IMS_SINT32 RegParameter::GetProtectedPortUS() const
 
     if (objSecurityClients.IsEmpty())
     {
-        return SIP::PORT_UNSPECIFIED;
+        return Sip::PORT_UNSPECIFIED;
     }
 
     if (pPreferredSecurityClient == IMS_NULL)
@@ -768,7 +768,7 @@ Remarks
 
 */
 PUBLIC
-const IMSList<SIPSecurityHeader>& RegParameter::GetSecurityClients() const
+const IMSList<SipSecurityHeader>& RegParameter::GetSecurityClients() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -781,7 +781,7 @@ Remarks
 
 */
 PUBLIC
-const IMSList<SIPSecurityHeader>& RegParameter::GetSecurityVerifys() const
+const IMSList<SipSecurityHeader>& RegParameter::GetSecurityVerifys() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -799,7 +799,7 @@ Remarks
 
 */
 PUBLIC
-const SIPTimerValues* RegParameter::GetSIPTimerValues() const
+const SipTimerValues* RegParameter::GetSIPTimerValues() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -881,7 +881,7 @@ IMS_BOOL RegParameter::IsSecurityAssociationRequiredViaUDPEnc() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return ((nTransportExt & SIP::TRANSPORT_EXT_IPSEC_UDP_ENC) != 0);
+    return ((nTransportExt & Sip::TRANSPORT_EXT_IPSEC_UDP_ENC) != 0);
 }
 
 /*
@@ -932,8 +932,8 @@ void RegParameter::Restore()
 
     bPolicyForAuthenticationCredentials = IMS_TRUE;
 
-    nTransportExt &= ~(SIP::TRANSPORT_EXT_IPSEC);
-    nTransportExt &= ~(SIP::TRANSPORT_EXT_IPSEC_UDP_ENC);
+    nTransportExt &= ~(Sip::TRANSPORT_EXT_IPSEC);
+    nTransportExt &= ~(Sip::TRANSPORT_EXT_IPSEC_UDP_ENC);
 
     objSecurityClients.Clear();
     objNewSecurityClients.Clear();
@@ -1000,30 +1000,30 @@ void RegParameter::SetTransportExtForIPSec()
 
     if (IsSecurityAssociationPresent())
     {
-        nTransportExt |= SIP::TRANSPORT_EXT_IPSEC;
+        nTransportExt |= Sip::TRANSPORT_EXT_IPSEC;
 
         if (!objSecurityVerifys.IsEmpty())
         {
-            const SIPSecurityHeader& objHeader = objSecurityVerifys.GetAt(0);
+            const SipSecurityHeader& objHeader = objSecurityVerifys.GetAt(0);
 
-            if (objHeader.GetMode() == SIPSecurityHeader::MODE_UDP_ENC_TUN)
+            if (objHeader.GetMode() == SipSecurityHeader::MODE_UDP_ENC_TUN)
             {
-                nTransportExt |= SIP::TRANSPORT_EXT_IPSEC_UDP_ENC;
+                nTransportExt |= Sip::TRANSPORT_EXT_IPSEC_UDP_ENC;
             }
             else
             {
-                nTransportExt &= ~(SIP::TRANSPORT_EXT_IPSEC_UDP_ENC);
+                nTransportExt &= ~(Sip::TRANSPORT_EXT_IPSEC_UDP_ENC);
             }
         }
         else
         {
-            nTransportExt &= ~(SIP::TRANSPORT_EXT_IPSEC_UDP_ENC);
+            nTransportExt &= ~(Sip::TRANSPORT_EXT_IPSEC_UDP_ENC);
         }
     }
     else
     {
-        nTransportExt &= ~(SIP::TRANSPORT_EXT_IPSEC);
-        nTransportExt &= ~(SIP::TRANSPORT_EXT_IPSEC_UDP_ENC);
+        nTransportExt &= ~(Sip::TRANSPORT_EXT_IPSEC);
+        nTransportExt &= ~(Sip::TRANSPORT_EXT_IPSEC_UDP_ENC);
     }
 }
 
@@ -1033,7 +1033,7 @@ Remarks
  MULTI_SUBS
 */
 PUBLIC
-IMS_BOOL RegParameter::UpdateProfile(IN CONST SIPAddress &objAOR,
+IMS_BOOL RegParameter::UpdateProfile(IN CONST SipAddress &objAOR,
         IN CONST AString &strSubsId /* = AString::ConstNull() */)
 {
     const ImsSubscriberInfo *pSubsInfo = GetImsSubscriberInfo(GetSlotId(), objAOR, strSubsId);
@@ -1043,7 +1043,7 @@ IMS_BOOL RegParameter::UpdateProfile(IN CONST SIPAddress &objAOR,
     if (pSubsInfo == IMS_NULL)
     {
         IMS_TRACE_E(0, "Subscriber (%s) info. is not found",
-                SIPDebug::GetUri1(objAOR.GetURI()).GetStr(), 0, 0);
+                SipDebug::GetUri1(objAOR.GetUri()).GetStr(), 0, 0);
         return IMS_FALSE;
     }
 
@@ -1079,7 +1079,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISIPMessage *piSIPMsg)
+IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1090,7 +1090,7 @@ IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISIPMessage *piSIPMsg)
 
     IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         // Clear new Security-Client headers if P-CSCF rejects the proposal.
         objNewSecurityClients.Clear();
@@ -1109,7 +1109,7 @@ IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISIPMessage *piSIPMsg)
     }
 
     // Updates the Security-Server headers
-    IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISIPHeader::SECURITY_SERVER);
+    IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISipHeader::SECURITY_SERVER);
 
     if (!objHeaders.IsEmpty())
     {
@@ -1120,8 +1120,8 @@ IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISIPMessage *piSIPMsg)
     for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
     {
         const AString &strHeader = objHeaders.GetAt(i);
-        ISIPHeader *piHeader
-                = SIPParsingHelper::CreateHeader(ISIPHeader::SECURITY_SERVER, strHeader);
+        ISipHeader *piHeader
+                = SipParsingHelper::CreateHeader(ISipHeader::SECURITY_SERVER, strHeader);
 
         if (piHeader == IMS_NULL)
         {
@@ -1129,7 +1129,7 @@ IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISIPMessage *piSIPMsg)
             continue;
         }
 
-        SIPSecurityHeader *pSecurityHeader = SIPSecurityHeader::FromSIPHeader(piHeader);
+        SipSecurityHeader *pSecurityHeader = SipSecurityHeader::FromSipHeader(piHeader);
 
         if (pSecurityHeader == IMS_NULL)
         {
@@ -1143,8 +1143,8 @@ IMS_BOOL RegParameter::UpdateSecurityHeaders(IN CONST ISIPMessage *piSIPMsg)
         piHeader->Destroy();
     }
 
-    if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         // Updates the Security-Client headers if P-CSCF accepts the proposal
         if (!objNewSecurityClients.IsEmpty())
@@ -1168,7 +1168,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-void RegParameter::UpdateSIPProfile(IN SIPProfile *pSIPProfile)
+void RegParameter::UpdateSIPProfile(IN SipProfile *pSIPProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1179,7 +1179,7 @@ void RegParameter::UpdateSIPProfile(IN SIPProfile *pSIPProfile)
 
     IMS_SINT32 nProfilePort = pSIPProfile->GetPort();
 
-    if ((nProfilePort != SIPProfile::NOT_PROVISIONED)
+    if ((nProfilePort != SipProfile::NOT_PROVISIONED)
             && (nProfilePort != nPort))
     {
         IMS_TRACE_D("Default port_uc :: %d >> %d", nPort, nProfilePort, 0);
@@ -1235,7 +1235,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_BOOL RegParameter::AddMessageBodyPart(IN ISIPMessageBodyPart *piBodyPart)
+IMS_BOOL RegParameter::AddMessageBodyPart(IN ISipMessageBodyPart *piBodyPart)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1262,19 +1262,19 @@ IMS_BOOL RegParameter::AddPreloadedRoute(IN CONST AString &strRoute)
         return IMS_FALSE;
     }
 
-    SIPAddress objAddress(strRoute);
+    SipAddress objAddress(strRoute);
 
-    if (objAddress.IsSchemeTEL())
+    if (objAddress.IsSchemeTel())
     {
         IMS_TRACE_E(0, "tel URI(%s) is not allowed in the preloaded route set",
-                SIPDebug::GetCharA1(strRoute.GetStr(), 9), 0, 0);
+                SipDebug::GetCharA1(strRoute.GetStr(), 9), 0, 0);
         return IMS_FALSE;
     }
 
     if (objAddress.GetScheme().GetLength() == 0)
     {
         IMS_TRACE_E(0, "URI scheme is not specified; route(%s)",
-                SIPDebug::GetCharA1(strRoute.GetStr(), 5), 0, 0);
+                SipDebug::GetCharA1(strRoute.GetStr(), 5), 0, 0);
         return IMS_FALSE;
     }
 
@@ -1298,11 +1298,11 @@ PRIVATE VIRTUAL
 IMS_BOOL RegParameter::AddPreloadedRoute(IN CONST AString &strHost, IN IMS_SINT32 nPort,
         IN CONST AString &strScheme /* = AString::ConstNull() */)
 {
-    SIPAddress objAddress;
+    SipAddress objAddress;
 
     //---------------------------------------------------------------------------------------------
 
-    objAddress.SetScheme((strScheme.GetLength() == 0) ? SIP::STR_SIP : strScheme);
+    objAddress.SetScheme((strScheme.GetLength() == 0) ? Sip::STR_SIP : strScheme);
     objAddress.SetHost(strHost);
     objAddress.SetPort(nPort);
     objAddress.AddParameter("lr", AString::ConstNull());
@@ -1324,7 +1324,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_BOOL RegParameter::AddSecurityClient(IN CONST SIPSecurityHeader &objSecurityHeader)
+IMS_BOOL RegParameter::AddSecurityClient(IN CONST SipSecurityHeader &objSecurityHeader)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1337,7 +1337,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPSecurityHeader* RegParameter::GetPreferredSecurityClient() const
+const SipSecurityHeader* RegParameter::GetPreferredSecurityClient() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1350,7 +1350,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPSecurityHeader* RegParameter::GetPreferredSecurityServer() const
+const SipSecurityHeader* RegParameter::GetPreferredSecurityServer() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1363,7 +1363,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const IMSList<SIPSecurityHeader>& RegParameter::GetSecurityServers() const
+const IMSList<SipSecurityHeader>& RegParameter::GetSecurityServers() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1384,7 +1384,7 @@ void RegParameter::RemoveAllMessageBodyParts()
     {
         for (IMS_UINT32 i = 0; i < objBodyParts.GetSize(); ++i)
         {
-            ISIPMessageBodyPart *piBodyPart = objBodyParts.GetAt(i);
+            ISipMessageBodyPart *piBodyPart = objBodyParts.GetAt(i);
 
             if (piBodyPart != IMS_NULL)
             {
@@ -1517,7 +1517,7 @@ Remarks
 
 */
 PRIVATE
-void RegParameter::SetSIPTimerValues(IN CONST SIPTimerValues &objTVs)
+void RegParameter::SetSIPTimerValues(IN CONST SipTimerValues &objTVs)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1527,7 +1527,7 @@ void RegParameter::SetSIPTimerValues(IN CONST SIPTimerValues &objTVs)
         pSIPTVs = IMS_NULL;
     }
 
-    pSIPTVs = new SIPTimerValues(objTVs);
+    pSIPTVs = new SipTimerValues(objTVs);
 }
 
 /*
@@ -1538,8 +1538,8 @@ Remarks
 PRIVATE
 void RegParameter::SetTransportExt(IN IMS_SINT32 nTransportExt)
 {
-    IMS_BOOL bIPSec = ((this->nTransportExt & SIP::TRANSPORT_EXT_IPSEC) != 0);
-    IMS_BOOL bIPSecUDPEnc = ((this->nTransportExt & SIP::TRANSPORT_EXT_IPSEC_UDP_ENC) != 0);
+    IMS_BOOL bIPSec = ((this->nTransportExt & Sip::TRANSPORT_EXT_IPSEC) != 0);
+    IMS_BOOL bIPSecUDPEnc = ((this->nTransportExt & Sip::TRANSPORT_EXT_IPSEC_UDP_ENC) != 0);
 
     //---------------------------------------------------------------------------------------------
 
@@ -1547,12 +1547,12 @@ void RegParameter::SetTransportExt(IN IMS_SINT32 nTransportExt)
 
     if (bIPSec)
     {
-        this->nTransportExt |= SIP::TRANSPORT_EXT_IPSEC;
+        this->nTransportExt |= Sip::TRANSPORT_EXT_IPSEC;
     }
 
     if (bIPSecUDPEnc)
     {
-        this->nTransportExt |= SIP::TRANSPORT_EXT_IPSEC_UDP_ENC;
+        this->nTransportExt |= Sip::TRANSPORT_EXT_IPSEC_UDP_ENC;
     }
 }
 
@@ -1590,25 +1590,25 @@ void RegParameter::ChoosePreferredSecurityClient()
 
     if (objSecurityClients.GetSize() == 1)
     {
-        pPreferredSecurityClient = new SIPSecurityHeader(objSecurityClients.GetAt(0));
+        pPreferredSecurityClient = new SipSecurityHeader(objSecurityClients.GetAt(0));
 
         return;
     }
 
     if (pPreferredSecurityServer == IMS_NULL)
     {
-        pPreferredSecurityClient = new SIPSecurityHeader(objSecurityClients.GetAt(0));
+        pPreferredSecurityClient = new SipSecurityHeader(objSecurityClients.GetAt(0));
 
         IMS_TRACE_D("There is no preferred security-server, " \
                 "so choose the topmost security-client", 0, 0, 0);
         return;
     }
 
-    SIPSecurityHeader *pTmpPreferredHeader = IMS_NULL;
+    SipSecurityHeader *pTmpPreferredHeader = IMS_NULL;
 
     for (IMS_UINT32 i = 0; i < objSecurityClients.GetSize(); ++i)
     {
-        const SIPSecurityHeader &objClientHeader = objSecurityClients.GetAt(i);
+        const SipSecurityHeader &objClientHeader = objSecurityClients.GetAt(i);
 
         if (objClientHeader.GetMechanism() != pPreferredSecurityServer->GetMechanism())
         {
@@ -1617,7 +1617,7 @@ void RegParameter::ChoosePreferredSecurityClient()
 
         if (pTmpPreferredHeader == IMS_NULL)
         {
-            pTmpPreferredHeader = new SIPSecurityHeader(objClientHeader);
+            pTmpPreferredHeader = new SipSecurityHeader(objClientHeader);
         }
         else
         {
@@ -1630,14 +1630,14 @@ void RegParameter::ChoosePreferredSecurityClient()
                 // Change the preferred security header
                 delete pTmpPreferredHeader;
 
-                pTmpPreferredHeader = new SIPSecurityHeader(objClientHeader);
+                pTmpPreferredHeader = new SipSecurityHeader(objClientHeader);
             }
         }
     }
 
     if (pTmpPreferredHeader != IMS_NULL)
     {
-        pPreferredSecurityClient = new SIPSecurityHeader(*pTmpPreferredHeader);
+        pPreferredSecurityClient = new SipSecurityHeader(*pTmpPreferredHeader);
 
         delete pTmpPreferredHeader;
     }
@@ -1668,22 +1668,22 @@ void RegParameter::ChoosePreferredSecurityServer()
 
     if (objSecurityServers.GetSize() == 1)
     {
-        pPreferredSecurityServer = new SIPSecurityHeader(objSecurityServers.GetAt(0));
+        pPreferredSecurityServer = new SipSecurityHeader(objSecurityServers.GetAt(0));
 
         return;
     }
 
     // Collect the mechanism from the Security-Clients
-    SIPSecurityHeader *pTmpPreferredHeader = IMS_NULL;
+    SipSecurityHeader *pTmpPreferredHeader = IMS_NULL;
 
     for (IMS_UINT32 i = 0; i < objSecurityServers.GetSize(); ++i)
     {
         IMS_BOOL bSupportedHeaderFound = IMS_FALSE;
-        const SIPSecurityHeader &objServerHeader = objSecurityServers.GetAt(i);
+        const SipSecurityHeader &objServerHeader = objSecurityServers.GetAt(i);
 
         for (IMS_UINT32 j = 0; j < objSecurityClients.GetSize(); ++j)
         {
-            const SIPSecurityHeader &objClientHeader = objSecurityClients.GetAt(j);
+            const SipSecurityHeader &objClientHeader = objSecurityClients.GetAt(j);
 
             if (objClientHeader.GetMechanism() == objServerHeader.GetMechanism())
             {
@@ -1697,7 +1697,7 @@ void RegParameter::ChoosePreferredSecurityServer()
 
         if (pTmpPreferredHeader == IMS_NULL)
         {
-            pTmpPreferredHeader = new SIPSecurityHeader(objServerHeader);
+            pTmpPreferredHeader = new SipSecurityHeader(objServerHeader);
         }
         else
         {
@@ -1710,14 +1710,14 @@ void RegParameter::ChoosePreferredSecurityServer()
                 // Change the preferred security header
                 delete pTmpPreferredHeader;
 
-                pTmpPreferredHeader = new SIPSecurityHeader(objServerHeader);
+                pTmpPreferredHeader = new SipSecurityHeader(objServerHeader);
             }
         }
     }
 
     if (pTmpPreferredHeader != IMS_NULL)
     {
-        pPreferredSecurityServer = new SIPSecurityHeader(*pTmpPreferredHeader);
+        pPreferredSecurityServer = new SipSecurityHeader(*pTmpPreferredHeader);
 
         delete pTmpPreferredHeader;
     }
@@ -1734,7 +1734,7 @@ Remarks
 */
 PRIVATE GLOBAL
 const ImsSubscriberInfo* RegParameter::GetImsSubscriberInfo(IN IMS_SINT32 nSlotId,
-        IN CONST SIPAddress &objAOR, IN CONST AString &strSubsId /* = AString::ConstNull() */)
+        IN CONST SipAddress &objAOR, IN CONST AString &strSubsId /* = AString::ConstNull() */)
 {
     const SubscriberConfig *pSubscriberConfig = IMS_NULL;
     ConfigurationManager* pConfigMngr = ConfigurationManager::GetInstance();
@@ -1759,7 +1759,7 @@ const ImsSubscriberInfo* RegParameter::GetImsSubscriberInfo(IN IMS_SINT32 nSlotI
     }
 
     IMS_SINT32 nCount = pSubscriberConfig->GetSubscriberCount();
-    SIPAddress objIMPU;
+    SipAddress objIMPU;
 
     for (IMS_SINT32 i = 0; i < nCount; ++i)
     {

@@ -37,7 +37,7 @@ PublicationRefreshHelper::~PublicationRefreshHelper()
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL PublicationRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
+IMS_BOOL PublicationRefreshHelper::AddSpecificHeader(IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ IMS_BOOL PublicationRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT PublicationRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piSCC)
+IMS_RESULT PublicationRefreshHelper::SendRefreshRequest(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -73,9 +73,9 @@ IMS_RESULT PublicationRefreshHelper::SendRefreshRequest(IN ISIPClientConnection 
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT PublicationRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection *piSC)
+IMS_RESULT PublicationRefreshHelper::UpdateOnMessageReceived(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ IMS_RESULT PublicationRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnec
     }
 
     // On PUBLISH response received ...
-    if (piSIPMsg->GetMethod().Equals(SIPMethod::PUBLISH))
+    if (piSIPMsg->GetMethod().Equals(SipMethod::PUBLISH))
     {
         // If the publication state is in TERMINATED state & the refresh timer is active,
         // then stop the refresh timer...
@@ -98,7 +98,7 @@ IMS_RESULT PublicationRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnec
 
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             if (pPubState->GetDuration() <= 0)
                 StopRefresh();
@@ -125,7 +125,7 @@ IMS_RESULT PublicationRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnec
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT PublicationRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *piSC)
+IMS_RESULT PublicationRefreshHelper::UpdateOnMessageSent(IN CONST ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ IMS_RESULT PublicationRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection
 }
 
 PROTECTED VIRTUAL
-void PublicationRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
+void PublicationRefreshHelper::RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ void PublicationRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
     {
         IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             StopRefresh();
         }

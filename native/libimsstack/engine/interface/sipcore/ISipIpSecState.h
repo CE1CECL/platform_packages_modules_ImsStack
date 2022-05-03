@@ -3,12 +3,12 @@
 
 #include "IPAddress.h"
 
-class ISIPIPSecStateListener;
+class ISipIpSecStateListener;
 
 /**
  * @brief This class provides an interface to handle IPSec SA(Security Association) state.
  */
-class ISIPIPSecState
+class ISipIpSecState
 {
 public:
     /**
@@ -20,7 +20,7 @@ public:
      *                #SA_NEW\n
      *                #SA_OLD
      */
-    virtual void ClearIPSecSA(IN IMS_SINT32 nSAType) = 0;
+    virtual void ClearIpSecSa(IN IMS_SINT32 nSAType) = 0;
 
     /**
      * @brief Returns the current state of the specified IPSec security association.
@@ -64,7 +64,7 @@ public:
      * @param nPort_PC P-CSCF's client port
      * @param nPort_PS P-CSCF's server port
      */
-    virtual void SetIPSecSA(IN IMS_SINT32 nSAType,
+    virtual void SetIpSecSa(IN IMS_SINT32 nSAType,
             IN CONST IPAddress &objIP_U, IN IMS_SINT32 nPort_UC, IN IMS_SINT32 nPort_US,
             IN CONST IPAddress &objIP_P, IN IMS_SINT32 nPort_PC, IN IMS_SINT32 nPort_PS) = 0;
 
@@ -73,7 +73,7 @@ public:
      *
      * @param piListener Listener to be set
      */
-    virtual void SetListener(IN ISIPIPSecStateListener *piListener) = 0;
+    virtual void SetListener(IN ISipIpSecStateListener *piListener) = 0;
 
 public:
     /// Type of IPSec security association

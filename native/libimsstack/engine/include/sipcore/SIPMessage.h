@@ -20,10 +20,10 @@
 
 
 class SIPMessage
-    : public ISIPMessage
+    : public ISipMessage
 {
 public:
-    explicit SIPMessage(IN IMS_SINT32 nType_ = ISIPMessage::TYPE_REQUEST);
+    explicit SIPMessage(IN IMS_SINT32 nType_ = ISipMessage::TYPE_REQUEST);
     explicit SIPMessage(IN SipMessage *pstMessage_);
     explicit SIPMessage(IN SipMessage *pstMessage_, IN IMS_BOOL bMessageClone);
     virtual ~SIPMessage();
@@ -35,10 +35,10 @@ public:
     SIPMessage& operator=(IN CONST SIPMessage &objRHS);
 
 public:
-    // ISIPObject interface
+    // ISipObject interface
     virtual void Destroy();
-    // ISIPMessage interface
-    virtual ISIPMessage* Clone() const;
+    // ISipMessage interface
+    virtual ISipMessage* Clone() const;
     virtual IMS_RESULT AddHeader(IN IMS_SINT32 nType, IN CONST AString &strValue,
             IN CONST AString &strName = AString::ConstNull());
     virtual IMS_UINT32 GetCSeqNumber() const;
@@ -48,12 +48,12 @@ public:
             IN CONST AString &strName = AString::ConstNull()) const;
     virtual IMSList<AString> GetHeaders(IN IMS_SINT32 nType,
             IN CONST AString &strName = AString::ConstNull()) const;
-    inline virtual const SIPMethod& GetMethod() const
+    inline virtual const SipMethod& GetMethod() const
     { return objMethod; }
     inline virtual const AString& GetReasonPhrase() const
     { return objStatusCode.GetReasonPhrase(); }
-    inline virtual const AString& GetRequestURI() const
-    { return (nType == ISIPMessage::TYPE_RESPONSE) ? AString::ConstNull() : strRequestURI; }
+    inline virtual const AString& GetRequestUri() const
+    { return (nType == ISipMessage::TYPE_RESPONSE) ? AString::ConstNull() : strRequestURI; }
     inline virtual IMS_SINT32 GetStatusCode() const
     { return objStatusCode.ToInt(); }
     inline virtual IMS_SINT32 GetType() const
@@ -65,29 +65,29 @@ public:
     virtual IMS_RESULT SetHeader(IN IMS_SINT32 nType, IN CONST AString &strValue,
             IN CONST AString &strName = AString::ConstNull());
 
-    virtual ISIPMessageBodyPart* CreateBodyPart();
-    virtual ISIPMessageBodyPart* CreateSDPBodyPart();
-    virtual IMSList<ISIPMessageBodyPart*> GetBodyParts() const;
-    virtual ISIPMessageBodyPart* GetSDPBodyPart() const;
-    virtual IMSList<ISIPMessageBodyPart*> GetSDPBodyParts() const;
+    virtual ISipMessageBodyPart* CreateBodyPart();
+    virtual ISipMessageBodyPart* CreateSdpBodyPart();
+    virtual IMSList<ISipMessageBodyPart*> GetBodyParts() const;
+    virtual ISipMessageBodyPart* GetSdpBodyPart() const;
+    virtual IMSList<ISipMessageBodyPart*> GetSdpBodyParts() const;
 
-    virtual IMS_RESULT CopyHeadersAndBodyParts(IN CONST ISIPMessage *piSIPMsg);
+    virtual IMS_RESULT CopyHeadersAndBodyParts(IN CONST ISipMessage *piSIPMsg);
     virtual IMS_BOOL IsHeaderPresent(IN IMS_SINT32 nType,
             IN CONST AString &strName = AString::ConstNull()) const;
-    virtual IMS_BOOL IsMessageRPR() const;
+    virtual IMS_BOOL IsMessageRpr() const;
     virtual IMS_BOOL IsOptionRequired(IN CONST AString &strOption) const;
     virtual IMS_BOOL IsOptionSupported(IN CONST AString &strOption) const;
     virtual void RemoveBodyParts();
     virtual ByteArray ToByteArray(IN IMS_SINT32 nOptions = OPT_ALL) const;
 
-    // ISIPConnection interface
+    // ISipConnection interface
     SIPMessageBodyPart* GetBodyPart() const;
 
-    // ISIPClientConnection interface
+    // ISipClientConnection interface
     IMS_RESULT SetRequestURI(IN CONST AString &strURI);
     void UpdateRequestURI();
 
-    // ISIPServerConnection interface
+    // ISipServerConnection interface
     inline void SetStatusCode(IN IMS_SINT32 nStatusCode)
     { objStatusCode = nStatusCode; }
     inline void SetReasonPhrase(IN CONST AString &strPhrase)
@@ -100,7 +100,7 @@ public:
     IMS_BOOL FormMessageOnRetransmission();
     inline SipMessage* GetMessage() const
     { return pstMessage; }
-    inline void SetMethod(IN CONST SIPMethod &objMethod)
+    inline void SetMethod(IN CONST SipMethod &objMethod)
     { this->objMethod = objMethod; }
 
     static SIPMessage* CreateMessage(IN CONST ByteArray &objMessage);
@@ -114,10 +114,10 @@ private:
 private:
     IMS_SINT32 nType;
 
-    SIPMethod objMethod;
+    SipMethod objMethod;
     // union type ???
     AString strRequestURI;
-    SIPStatusCode objStatusCode;
+    SipStatusCode objStatusCode;
 
     SIPUnknownHeaders objUnknownHeaders;
     IMS_BOOL bBodyPartParsed;

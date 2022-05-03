@@ -22,7 +22,7 @@
 #include "SIPDState.h"
 #include "SIPMessageInfo.h"
 
-class ISIPHeader;
+class ISipHeader;
 class SIPHeader;
 class SIPDialogSharedState;
 class SIPDialogEx;
@@ -73,7 +73,7 @@ public:
 
     inline const AString& GetCallId() const
     { return strCallId; }
-    const ISIPHeader* GetContactHeader() const;
+    const ISipHeader* GetContactHeader() const;
     AString GetLocalTag() const;
     AString GetRemoteTag() const;
     SipHeaderBase* GetLocalTargetURI() const;
@@ -89,7 +89,7 @@ public:
 
     IMS_BOOL InitDialogDetails(IN SipMessage *pstMessage);
     IMS_BOOL InitDialogDetails(IN IMS_SINT32 nTrigger, IN SIPDialogState *pDState);
-    IMS_BOOL InitRequest(IN CONST SIPMethod &objMethod,
+    IMS_BOOL InitRequest(IN CONST SipMethod &objMethod,
             IN_OUT SipMessage *&pstMessage);
     // CONTACT_HEADER_PARAMETER_CONTROL_FOR_MID_DIALOG_REQUEST
     IMS_RESULT SetContactParameter(IN CONST AString &strParameter,
@@ -105,7 +105,7 @@ public:
     SIPDialogEx* GetDialogUsage(IN CONST SIPMessageInfo &objMInfo);
     IMS_BOOL HasMultipleDialogUsages() const;
 
-    static IMS_BOOL IsContactMandatory(IN IMS_SINT32 nMsgType, IN CONST SIPMethod &objMethod,
+    static IMS_BOOL IsContactMandatory(IN IMS_SINT32 nMsgType, IN CONST SipMethod &objMethod,
             IN IMS_SINT32 nStatusCode, IN IMS_BOOL bContactInAll1xxRequired);
 
 private:

@@ -510,7 +510,7 @@ ISubscription* SessionImpl::CreateSubscription(IN CONST AString &strEvent)
 }
 
 PRIVATE VIRTUAL
-ISIPClientConnection* SessionImpl::CreateTransaction(IN CONST SIPMethod &objMethod)
+ISipClientConnection* SessionImpl::CreateTransaction(IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -526,7 +526,7 @@ IMS_SINT32 SessionImpl::GetConfiguration() const
 }
 
 PRIVATE VIRTUAL
-const ISIPHeader* SessionImpl::GetContactHeader() const
+const ISipHeader* SessionImpl::GetContactHeader() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -718,7 +718,7 @@ IMS_RESULT SessionImpl::UpdateEarlyMedia()
 }
 
 PRIVATE VIRTUAL
-IMS_RESULT SessionImpl::UpdateEx(IN IMS_SINT32 nMethod /* = SIPMethod::INVALID */,
+IMS_RESULT SessionImpl::UpdateEx(IN IMS_SINT32 nMethod /* = SipMethod::INVALID */,
         IN IMS_BOOL bSessionRefresh /* = IMS_FALSE */)
 {
     //---------------------------------------------------------------------------------------------
@@ -1021,7 +1021,7 @@ void SessionImpl::OnSession_ProvisionalResponseReceived(IN Session *pSession,
 
 PRIVATE VIRTUAL
 IMS_BOOL SessionImpl::OnSession_TransactionReceived(IN Session *pSession,
-        IN ISIPServerConnection *piSSC)
+        IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 

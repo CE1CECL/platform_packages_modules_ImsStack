@@ -256,7 +256,7 @@ IMS_BOOL SdpPreconditionHelper::IsLocalResourceReservedInSdp(IN ISession* piSess
         return IMS_FALSE;
     }
 
-    ISIPMessage* piSipMessage = IMS_NULL;
+    ISipMessage* piSipMessage = IMS_NULL;
 
     if (piRequestMessage->GetState() == IMessage::STATE_SENT)
     {
@@ -499,7 +499,7 @@ IMediaDescriptor* SdpPreconditionHelper::GetMediaDescriptor(IN IMedia* piMedia)
 }
 
 PRIVATE GLOBAL
-IMS_BOOL SdpPreconditionHelper::HasReservedResourceInSdp(IN ISIPMessage* piSipMessage,
+IMS_BOOL SdpPreconditionHelper::HasReservedResourceInSdp(IN ISipMessage* piSipMessage,
         IN IMS_SINT32 eSdpMediaType)
 {
     if (piSipMessage == IMS_NULL)
@@ -508,10 +508,10 @@ IMS_BOOL SdpPreconditionHelper::HasReservedResourceInSdp(IN ISIPMessage* piSipMe
         return IMS_FALSE;
     }
 
-    ISIPMessageBodyPart* piBodyPart = piSipMessage->GetSDPBodyPart();
+    ISipMessageBodyPart* piBodyPart = piSipMessage->GetSdpBodyPart();
     if (piBodyPart == IMS_NULL)
     {
-        IMS_TRACE_D("HasReservedResourceInSdp : ISIPMessageBodyPart is null.", 0, 0, 0);
+        IMS_TRACE_D("HasReservedResourceInSdp : ISipMessageBodyPart is null.", 0, 0, 0);
         return IMS_FALSE;
     }
 

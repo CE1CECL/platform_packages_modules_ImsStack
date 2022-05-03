@@ -7,11 +7,11 @@
 
 AString strOptionTag = "some_tag";
 
-// FIXME: ISIPMessage and IMessage cannot be used for test now because they don't have
+// FIXME: ISipMessage and IMessage cannot be used for test now because they don't have
 //        virtual destructor. I commented related tests below too.
 #if 0
 class FakeSipMessage :
-        public ISIPMessage
+        public ISipMessage
 {
 public:
     FakeSipMessage(IMS_BOOL bContainsOptionTag) :
@@ -19,27 +19,27 @@ public:
     virtual ~FakeSipMessage() {}
 
     MOCK_METHOD(void, Destroy, ());
-    MOCK_METHOD(ISIPMessage*, Clone, (), (const));
+    MOCK_METHOD(ISipMessage*, Clone, (), (const));
     MOCK_METHOD(IMS_RESULT, AddHeader, (IN IMS_SINT32, const AString&, const AString&));
     MOCK_METHOD(IMS_UINT32, GetCSeqNumber, (), (const));
     MOCK_METHOD(AString, GetHeader, (IN IMS_SINT32, IN IMS_SINT32, const AString&), (const));
     MOCK_METHOD(IMS_SINT32, GetHeaderCount, (IN IMS_SINT32, const AString&), (const));
-    MOCK_METHOD(const SIPMethod&, GetMethod, (), (const));
+    MOCK_METHOD(const SipMethod&, GetMethod, (), (const));
     MOCK_METHOD(const AString&, GetReasonPhrase, (), (const));
-    MOCK_METHOD(const AString&, GetRequestURI, (), (const));
+    MOCK_METHOD(const AString&, GetRequestUri, (), (const));
     MOCK_METHOD(IMS_SINT32, GetStatusCode, (), (const));
     MOCK_METHOD(IMS_SINT32, GetType, (), (const));
     MOCK_METHOD(IMS_RESULT, PrependHeader, (IN IMS_SINT32, const AString&, const AString&));
     MOCK_METHOD(void, RemoveHeader, (IN IMS_SINT32, const AString&));
     MOCK_METHOD(IMS_RESULT, SetHeader, (IN IMS_SINT32, const AString&, const AString&));
-    MOCK_METHOD(ISIPMessageBodyPart*, CreateBodyPart, ());
-    MOCK_METHOD(ISIPMessageBodyPart*, CreateSDPBodyPart,  ());
-    MOCK_METHOD(IMSList<ISIPMessageBodyPart*>, GetBodyParts, (), (const));
-    MOCK_METHOD(ISIPMessageBodyPart*, GetSDPBodyPart, (), (const));
-    MOCK_METHOD(IMSList<ISIPMessageBodyPart*>, GetSDPBodyParts, (), (const));
-    MOCK_METHOD(IMS_RESULT, CopyHeadersAndBodyParts, (const ISIPMessage*));
+    MOCK_METHOD(ISipMessageBodyPart*, CreateBodyPart, ());
+    MOCK_METHOD(ISipMessageBodyPart*, CreateSdpBodyPart,  ());
+    MOCK_METHOD(IMSList<ISipMessageBodyPart*>, GetBodyParts, (), (const));
+    MOCK_METHOD(ISipMessageBodyPart*, GetSdpBodyPart, (), (const));
+    MOCK_METHOD(IMSList<ISipMessageBodyPart*>, GetSdpBodyParts, (), (const));
+    MOCK_METHOD(IMS_RESULT, CopyHeadersAndBodyParts, (const ISipMessage*));
     MOCK_METHOD(IMS_BOOL, IsHeaderPresent, (IN IMS_SINT32, const AString&), (const));
-    MOCK_METHOD(IMS_BOOL, IsMessageRPR, (), (const));
+    MOCK_METHOD(IMS_BOOL, IsMessageRpr, (), (const));
     MOCK_METHOD(IMS_BOOL, IsOptionRequired, (const AString&), (const));
     MOCK_METHOD(IMS_BOOL, IsOptionSupported, (const AString&), (const));
     MOCK_METHOD(void, RemoveBodyParts, ());
@@ -75,12 +75,12 @@ public:
     MOCK_METHOD(IMessageBodyPart*, CreateBodyPart, ());
     MOCK_METHOD(IMSList<IMessageBodyPart*>, GetBodyParts, (), (const));
     MOCK_METHOD(IMSList<AString>, GetHeaders, (const AString&), (const));
-    MOCK_METHOD(const SIPMethod&, GetMethod, (), (const));
+    MOCK_METHOD(const SipMethod&, GetMethod, (), (const));
     MOCK_METHOD(const AString&, GetReasonPhrase, (), (const));
     MOCK_METHOD(IMS_SINT32, GetState, (), (const));
     MOCK_METHOD(IMS_SINT32, GetStatusCode, (), (const));
 
-    ISIPMessage* GetMessage() const override
+    ISipMessage* GetMessage() const override
     {
         return m_pSipMessage;
     }

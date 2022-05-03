@@ -35,21 +35,21 @@ PRIVATE
 FailReason UpdateErrorHandler::GetFailReasonForResponse(IN const IMessage& objMessage) const
 {
     IMS_SINT32 nStatusCode = objMessage.GetStatusCode();
-    IMS_ASSERT(nStatusCode >= SIPStatusCode::SC_300);
+    IMS_ASSERT(nStatusCode >= SipStatusCode::SC_300);
 
-    if (SIPStatusCode::SC_300 <= nStatusCode && nStatusCode < SIPStatusCode::SC_400)
+    if (SipStatusCode::SC_300 <= nStatusCode && nStatusCode < SipStatusCode::SC_400)
     {
         return GetFailReasonFor3xxResponse(objMessage);
     }
-    else if (SIPStatusCode::SC_400 <= nStatusCode && nStatusCode < SIPStatusCode::SC_500)
+    else if (SipStatusCode::SC_400 <= nStatusCode && nStatusCode < SipStatusCode::SC_500)
     {
         return GetFailReasonFor4xxResponse(objMessage);
     }
-    else if (SIPStatusCode::SC_500 <= nStatusCode && nStatusCode < SIPStatusCode::SC_600)
+    else if (SipStatusCode::SC_500 <= nStatusCode && nStatusCode < SipStatusCode::SC_600)
     {
         return GetFailReasonFor5xxResponse(objMessage);
     }
-    else if (SIPStatusCode::SC_600 <= nStatusCode && nStatusCode < SIPStatusCode::SC_MAX)
+    else if (SipStatusCode::SC_600 <= nStatusCode && nStatusCode < SipStatusCode::SC_MAX)
     {
         return GetFailReasonFor6xxResponse(objMessage);
     }
@@ -71,20 +71,20 @@ FailReason UpdateErrorHandler::GetFailReasonFor4xxResponse(IN const IMessage& ob
 
     switch (nStatusCode)
     {
-        case SIPStatusCode::SC_404:
-        case SIPStatusCode::SC_405:
-        case SIPStatusCode::SC_410:
-        case SIPStatusCode::SC_416:
-        case SIPStatusCode::SC_480:
-        case SIPStatusCode::SC_481:
-        case SIPStatusCode::SC_482:
-        case SIPStatusCode::SC_483:
-        case SIPStatusCode::SC_484:
-        case SIPStatusCode::SC_485:
-        case SIPStatusCode::SC_489:
+        case SipStatusCode::SC_404:
+        case SipStatusCode::SC_405:
+        case SipStatusCode::SC_410:
+        case SipStatusCode::SC_416:
+        case SipStatusCode::SC_480:
+        case SipStatusCode::SC_481:
+        case SipStatusCode::SC_482:
+        case SipStatusCode::SC_483:
+        case SipStatusCode::SC_484:
+        case SipStatusCode::SC_485:
+        case SipStatusCode::SC_489:
             return FailReason(FAIL_REASON_SESSION_DESTROYED, nStatusCode);
 
-        case SIPStatusCode::SC_491:
+        case SipStatusCode::SC_491:
             return FailReason(
                     FAIL_REASON_SESSION_RETRY,
                     GetGlareTimeMillisecond(m_objContext.GetCallInfo().ePeerType));
@@ -100,8 +100,8 @@ FailReason UpdateErrorHandler::GetFailReasonFor5xxResponse(IN const IMessage& ob
 
     switch (nStatusCode)
     {
-        case SIPStatusCode::SC_501:
-        case SIPStatusCode::SC_502:
+        case SipStatusCode::SC_501:
+        case SipStatusCode::SC_502:
             return FailReason(FAIL_REASON_SESSION_DESTROYED, nStatusCode);
     }
 
@@ -115,7 +115,7 @@ FailReason UpdateErrorHandler::GetFailReasonFor6xxResponse(IN const IMessage& ob
 
     switch (nStatusCode)
     {
-        case SIPStatusCode::SC_604:
+        case SipStatusCode::SC_604:
             return FailReason(FAIL_REASON_SESSION_DESTROYED, nStatusCode);
     }
 

@@ -21,7 +21,7 @@ class SIPMessageInfo
 {
 public:
     inline SIPMessageInfo(IN IMS_SINT32 nSlotId_,
-        IN CONST SIPMethod &objMethod_, IN SipMessage *pstMessage_,
+        IN CONST SipMethod &objMethod_, IN SipMessage *pstMessage_,
         IN IMS_SINT32 nDirection_)
         : nSlotId(nSlotId_)
         , objMethod(objMethod_)
@@ -41,7 +41,7 @@ public:
     inline SipMessage* GetMessage() const
     { return pstMessage; }
 
-    inline const SIPMethod& GetMethod() const
+    inline const SipMethod& GetMethod() const
     { return objMethod; }
 
     inline IMS_SINT32 GetSlotId() const
@@ -60,7 +60,7 @@ public:
 private:
     IMS_SINT32 nSlotId;
 
-    const SIPMethod &objMethod;
+    const SipMethod &objMethod;
     IMS_SINT32 nDirection;
 
     SipMessage *pstMessage;

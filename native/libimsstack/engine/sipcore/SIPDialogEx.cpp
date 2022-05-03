@@ -64,7 +64,7 @@ SIPDialogEx::~SIPDialogEx()
 
 #ifdef __IMS_SIP_DEBUG__
     IMS_TRACE_D("Destructor :: SIPDialogEx (%s)",
-            SIPDebug::GetCharA1(GetDialogState()->GetCallId().GetStr(), 8, '@'), 0, 0);
+            SipDebug::GetCharA1(GetDialogState()->GetCallId().GetStr(), 8, '@'), 0, 0);
 #endif
 }
 
@@ -95,16 +95,16 @@ SIPDialogEx& SIPDialogEx::operator=(IN CONST SIPDialogEx &objRHS)
 
 // For an initial requests
 PUBLIC
-IMS_BOOL SIPDialogEx::InitDialog(IN CONST SIPMethod &objMethod)
+IMS_BOOL SIPDialogEx::InitDialog(IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
         pDialogUsage = new SIPDialogInviteUsage(this);
     }
-    else if (objMethod.Equals(SIPMethod::SUBSCRIBE)
-            || objMethod.Equals(SIPMethod::REFER))
+    else if (objMethod.Equals(SipMethod::SUBSCRIBE)
+            || objMethod.Equals(SipMethod::REFER))
     {
         SIPDialogSubscribeUsage *pSubscribeUsage = new SIPDialogSubscribeUsage(this);
 
@@ -148,18 +148,18 @@ IMS_BOOL SIPDialogEx::InitDialog(IN CONST SIPMethod &objMethod)
 PUBLIC
 IMS_BOOL SIPDialogEx::InitDialog(IN CONST SIPMessageInfo &objMInfo)
 {
-    const SIPMethod &objMethod = objMInfo.GetMethod();
+    const SipMethod &objMethod = objMInfo.GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
-    if (objMethod.Equals(SIPMethod::INVITE))
+    if (objMethod.Equals(SipMethod::INVITE))
     {
         pDialogUsage = new SIPDialogInviteUsage(this);
     }
     // For a forked NOTIFY request, adds NOTIFY method checking
-    else if (objMethod.Equals(SIPMethod::SUBSCRIBE)
-            || objMethod.Equals(SIPMethod::REFER)
-            || objMethod.Equals(SIPMethod::NOTIFY))
+    else if (objMethod.Equals(SipMethod::SUBSCRIBE)
+            || objMethod.Equals(SipMethod::REFER)
+            || objMethod.Equals(SipMethod::NOTIFY))
     {
         pDialogUsage = new SIPDialogSubscribeUsage(this);
     }
@@ -283,7 +283,7 @@ IMS_SINT32 SIPDialogEx::UpdateDialogDetails(IN CONST SIPMessageInfo &objMInfo)
 }
 
 PUBLIC GLOBAL
-SIPDialogEx* SIPDialogEx::CreateDialog(IN CONST SIPMethod &objMethod)
+SIPDialogEx* SIPDialogEx::CreateDialog(IN CONST SipMethod &objMethod)
 {
     SIPDialogState *pDState = new SIPDialogState();
 
@@ -311,7 +311,7 @@ SIPDialogEx* SIPDialogEx::CreateDialog(IN CONST SIPMethod &objMethod)
 }
 
 PUBLIC GLOBAL
-SIPDialogEx* SIPDialogEx::CreateDialog(IN SIPDialogState *pDState, IN CONST SIPMethod &objMethod)
+SIPDialogEx* SIPDialogEx::CreateDialog(IN SIPDialogState *pDState, IN CONST SipMethod &objMethod)
 {
     SIPDialogEx *pDialogEx = new SIPDialogEx(pDState);
 

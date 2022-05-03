@@ -97,15 +97,15 @@ SIPDialogUsage* SIPDialogInviteUsage::Clone() const
 PUBLIC VIRTUAL
 IMS_BOOL SIPDialogInviteUsage::CompareTo(IN CONST SIPMessageInfo &objMInfo) const
 {
-    const SIPMethod &objMethod = objMInfo.GetMethod();
+    const SipMethod &objMethod = objMInfo.GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     // CASE : subscribe usage & register usage
-    if (objMethod.Equals(SIPMethod::SUBSCRIBE)
-            || objMethod.Equals(SIPMethod::REFER)
-            || objMethod.Equals(SIPMethod::NOTIFY)
-            || objMethod.Equals(SIPMethod::REGISTER))
+    if (objMethod.Equals(SipMethod::SUBSCRIBE)
+            || objMethod.Equals(SipMethod::REFER)
+            || objMethod.Equals(SipMethod::NOTIFY)
+            || objMethod.Equals(SipMethod::REGISTER))
     {
         return IMS_FALSE;
     }
@@ -147,31 +147,31 @@ IMS_SINT32 SIPDialogInviteUsage::GetActionNTrigger(IN CONST SIPMessageInfo &objM
 
     if (SIPStack::IsRequestMessage(pstMessage))
     {
-        if (objMInfo.GetMethod().Equals(SIPMethod::BYE))
+        if (objMInfo.GetMethod().Equals(SipMethod::BYE))
             nTrigger = TRIGGER_BYE;
     }
     else
     {
-        const SIPMethod &objMethod = objMInfo.GetMethod();
+        const SipMethod &objMethod = objMInfo.GetMethod();
 
         nAction = GetActionForResponse(objMInfo);
 
         IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
 
-        if (SIPStatusCode::IsProvisional(nStatusCode))
+        if (SipStatusCode::IsProvisional(nStatusCode))
         {
             nTrigger = TRIGGER_1XX;
         }
-        else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        else if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
-            if (objMethod.Equals(SIPMethod::BYE))
+            if (objMethod.Equals(SipMethod::BYE))
             {
                 nAction = SIPDState::ACTION_TRANSIT_STATE;
                 nTrigger = TRIGGER_2XX_BYE;
             }
             else
             {
-                if (!objMethod.Equals(SIPMethod::INVITE))
+                if (!objMethod.Equals(SipMethod::INVITE))
                 {
                     nAction = SIPDState::ACTION_IGNORE;
                 }
@@ -183,7 +183,7 @@ IMS_SINT32 SIPDialogInviteUsage::GetActionNTrigger(IN CONST SIPMessageInfo &objM
         {
             if (GetState() == SIPDState::STATE_EARLY)
             {
-                if (objMethod.Equals(SIPMethod::INVITE))
+                if (objMethod.Equals(SipMethod::INVITE))
                 {
                     nTrigger = TRIGGER_NON_2XX;
                 }
@@ -191,8 +191,8 @@ IMS_SINT32 SIPDialogInviteUsage::GetActionNTrigger(IN CONST SIPMessageInfo &objM
             else
             {
                 //4 How to handle in case of BYE ???
-                if (!objMethod.Equals(SIPMethod::INVITE)
-                        && !objMethod.Equals(SIPMethod::BYE))
+                if (!objMethod.Equals(SipMethod::INVITE)
+                        && !objMethod.Equals(SipMethod::BYE))
                 {
                     nAction = SIPDState::ACTION_IGNORE;
                 }

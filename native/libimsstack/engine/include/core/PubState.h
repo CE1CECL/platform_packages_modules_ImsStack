@@ -46,16 +46,16 @@ public:
     IMS_SINT32 GetOperation() const;
     IMS_SINT32 GetState() const;
     IMS_BOOL IsTerminated() const;
-    IMS_BOOL SetHeaders(IN_OUT ISIPMessage *&piSIPMsg);
+    IMS_BOOL SetHeaders(IN_OUT ISipMessage *&piSIPMsg);
     void SetOperation(IN IMS_SINT32 nOperation);
-    IMS_BOOL UpdateState(IN CONST ISIPMessage *piSIPMsg);
+    IMS_BOOL UpdateState(IN CONST ISipMessage *piSIPMsg);
     IMS_BOOL UpdateStateOnTxnTimerExpired();
 
 private:
     void SetState(IN IMS_SINT32 nState);
-    void StoreMessage(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnPUBLISHRequest(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnPUBLISHResponse(IN CONST ISIPMessage *piSIPMsg);
+    void StoreMessage(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnPUBLISHRequest(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnPUBLISHResponse(IN CONST ISipMessage *piSIPMsg);
 
     static const IMS_CHAR* StateToString(IN IMS_SINT32 nState);
 
@@ -108,7 +108,7 @@ private:
     AString strEntityTag;
 
     // Manages an initial SIP message for refresh/removal operation
-    ISIPMessage *piSIPMsg;
+    ISipMessage *piSIPMsg;
 };
 
 #endif // _PUB_STATE_H_

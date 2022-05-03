@@ -4,12 +4,12 @@
 #include "AString.h"
 #include "SipTimerValues.h"
 
-class SIPProfile;
+class SipProfile;
 
 /**
  * @brief This class defines the helper class to set the SIP transaction timer values.
  */
-class SIPTimerValuesHelper
+class SipTimerValuesHelper
 {
 public:
     /// Types of SIP transaction
@@ -26,11 +26,11 @@ public:
     };
 
 private:
-    SIPTimerValuesHelper();
+    SipTimerValuesHelper();
 
 public:
     /**
-     * @brief Creates SIPTimerValues from the given information.
+     * @brief Creates SipTimerValues from the given information.
      *
      * @param nSlotId Current slot id
      * @param pSIPProfile SIP profile for this SIP transaction timer
@@ -39,10 +39,10 @@ public:
      *                 #NON_INVITE_SERVER\n
      *                 #INVITE_CLIENT\n
      *                 #INVITE_SERVER
-     * @return The newly created SIPTimerValues.
+     * @return The newly created SipTimerValues.
      */
-    static SIPTimerValues GetValues(IN IMS_SINT32 nSlotId,
-            IN CONST SIPProfile *pSIPProfile = IMS_NULL,
+    static SipTimerValues GetValues(IN IMS_SINT32 nSlotId,
+            IN CONST SipProfile *pSIPProfile = IMS_NULL,
             IN IMS_SINT32 nTxnType = NON_INVITE_CLIENT);
 };
 

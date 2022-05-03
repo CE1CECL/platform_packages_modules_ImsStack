@@ -21,7 +21,7 @@ class SIPTxnKey
 {
 public:
     SIPTxnKey();
-    SIPTxnKey(IN CONST SIPMethod &objMethod_, IN IMS_SINT32 nStatusCode_,
+    SIPTxnKey(IN CONST SipMethod &objMethod_, IN IMS_SINT32 nStatusCode_,
             IN CONST AString &strViaBranch_, IN IMS_UINT32 nCSeq_);
     SIPTxnKey(IN CONST SIPTxnKey &objRHS);
     ~SIPTxnKey();
@@ -33,7 +33,7 @@ public:
     IMS_BOOL Equals(IN CONST SIPTxnKey *pKey) const;
     IMS_SINT32 GetExtraInt() const;
     const AString& GetExtraString() const;
-    const SIPMethod& GetMethod() const;
+    const SipMethod& GetMethod() const;
     IMS_SINT32 GetCSeq() const;
     IMS_SINT32 GetStatusCode() const;
     const AString& GetViaBranch() const;
@@ -42,7 +42,7 @@ public:
     void SetExtraString(IN CONST AString &strExtraString);
 
 private:
-    SIPMethod objMethod;
+    SipMethod objMethod;
     IMS_SINT32 nStatusCode;
     AString strViaBranch;
     IMS_UINT32 nCSeq;

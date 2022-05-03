@@ -103,13 +103,13 @@ IMS_BOOL UceOptionsManager::ReceivedOptions(IN ICoreService* piCoreService,
             IMS_FALSE, m_nSimSlot);
     m_objReceivedUceOptionsMap.Add(key, pOptions);
 
-    ISIPMessage* piSIPMessage = piCapabilities->GetPreviousRequest(
+    ISipMessage* piSIPMessage = piCapabilities->GetPreviousRequest(
             IMessage::CAPABILITIES_QUERY)->GetMessage();
-    SIPAddress objSIPAddress(piSIPMessage->GetHeader(ISIPHeader::FROM));
+    SipAddress objSIPAddress(piSIPMessage->GetHeader(ISipHeader::FROM));
     AString from = objSIPAddress.ToString();
     IMS_TRACE_D("ReceivedOptions:From [%s]", from.GetStr(), 0, 0);
 
-    IMSList<AString> objContactList = piSIPMessage->GetHeaders(ISIPHeader::CONTACT_NORMAL);
+    IMSList<AString> objContactList = piSIPMessage->GetHeaders(ISipHeader::CONTACT_NORMAL);
     IMS_UINT32 capabilities = pOptions->GetCapability(objContactList);
     SendOptionsReceivedInd(key, from, capabilities);
     return IMS_TRUE;

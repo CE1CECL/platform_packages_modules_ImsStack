@@ -50,18 +50,18 @@ Method::Method()
     , piMessageMediator(IMS_NULL)
 {
     // AUTH_SIP_DIGEST {
-    objAuthChallengeMap.Add(SIPMethod::BYE, 0);
-    objAuthChallengeMap.Add(SIPMethod::CANCEL, 0);
-    objAuthChallengeMap.Add(SIPMethod::INVITE, 0);
-    objAuthChallengeMap.Add(SIPMethod::OPTIONS, 0);
-    objAuthChallengeMap.Add(SIPMethod::PRACK, 0);
-    objAuthChallengeMap.Add(SIPMethod::SUBSCRIBE, 0);
-    objAuthChallengeMap.Add(SIPMethod::NOTIFY, 0);
-    objAuthChallengeMap.Add(SIPMethod::UPDATE, 0);
-    objAuthChallengeMap.Add(SIPMethod::MESSAGE, 0);
-    objAuthChallengeMap.Add(SIPMethod::REFER, 0);
-    objAuthChallengeMap.Add(SIPMethod::PUBLISH, 0);
-    objAuthChallengeMap.Add(SIPMethod::INFO, 0);
+    objAuthChallengeMap.Add(SipMethod::BYE, 0);
+    objAuthChallengeMap.Add(SipMethod::CANCEL, 0);
+    objAuthChallengeMap.Add(SipMethod::INVITE, 0);
+    objAuthChallengeMap.Add(SipMethod::OPTIONS, 0);
+    objAuthChallengeMap.Add(SipMethod::PRACK, 0);
+    objAuthChallengeMap.Add(SipMethod::SUBSCRIBE, 0);
+    objAuthChallengeMap.Add(SipMethod::NOTIFY, 0);
+    objAuthChallengeMap.Add(SipMethod::UPDATE, 0);
+    objAuthChallengeMap.Add(SipMethod::MESSAGE, 0);
+    objAuthChallengeMap.Add(SipMethod::REFER, 0);
+    objAuthChallengeMap.Add(SipMethod::PUBLISH, 0);
+    objAuthChallengeMap.Add(SipMethod::INFO, 0);
     // }
 }
 
@@ -164,7 +164,7 @@ Remarks
 */
 PUBLIC
 IMS_BOOL Method::InitMethod(IN CONST AString &strFrom, IN CONST AString &strTo,
-        IN CONST SIPAddress &objUserAOR, IN IMS_BOOL bMobileOriginated /* = IMS_TRUE */)
+        IN CONST SipAddress &objUserAOR, IN IMS_BOOL bMobileOriginated /* = IMS_TRUE */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ IMS_BOOL Method::InitMethod(IN CONST AString &strFrom, IN CONST AString &strTo,
     // From header
     if (strFrom.IsNULL())
     {
-        pUserAOR = new SIPAddress(objUserAOR);
+        pUserAOR = new SipAddress(objUserAOR);
 
         if (pUserAOR == IMS_NULL)
         {
@@ -183,7 +183,7 @@ IMS_BOOL Method::InitMethod(IN CONST AString &strFrom, IN CONST AString &strTo,
     }
     else
     {
-        pUserAOR = new SIPAddress();
+        pUserAOR = new SipAddress();
 
         if (pUserAOR == IMS_NULL)
         {
@@ -201,7 +201,7 @@ IMS_BOOL Method::InitMethod(IN CONST AString &strFrom, IN CONST AString &strTo,
     // To header
     if (strTo.IsNULL())
     {
-        pRemoteUserAOR = new SIPAddress(objUserAOR);
+        pRemoteUserAOR = new SipAddress(objUserAOR);
 
         if (pRemoteUserAOR == IMS_NULL)
         {
@@ -211,7 +211,7 @@ IMS_BOOL Method::InitMethod(IN CONST AString &strFrom, IN CONST AString &strTo,
     }
     else
     {
-        pRemoteUserAOR = new SIPAddress();
+        pRemoteUserAOR = new SipAddress();
 
         if (pRemoteUserAOR == IMS_NULL)
         {
@@ -248,7 +248,7 @@ IMS_BOOL Method::InitMethod(IN CONST Method *pMethod,
     bFlag_MobileOriginated = bMobileOriginated;
 
     // From header
-    pUserAOR = new SIPAddress(*(pMethod->pUserAOR));
+    pUserAOR = new SipAddress(*(pMethod->pUserAOR));
 
     if (pUserAOR == IMS_NULL)
     {
@@ -257,7 +257,7 @@ IMS_BOOL Method::InitMethod(IN CONST Method *pMethod,
     }
 
     // To header
-    pRemoteUserAOR = new SIPAddress(*(pMethod->pRemoteUserAOR));
+    pRemoteUserAOR = new SipAddress(*(pMethod->pRemoteUserAOR));
 
     if (pRemoteUserAOR == IMS_NULL)
     {
@@ -285,7 +285,7 @@ Remarks
 
 */
 PUBLIC
-ISIPDialog* Method::GetDialog() const
+ISipDialog* Method::GetDialog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -298,7 +298,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL Method::ServerConnection_NotifyRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL Method::ServerConnection_NotifyRequest(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -338,7 +338,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Method::NotifySIPRequest(IN ISIPServerConnection * /* piSSC */)
+IMS_BOOL Method::NotifySIPRequest(IN ISipServerConnection * /* piSSC */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -353,8 +353,8 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Method::NotifySIPForkedResponse(IN ISIPClientConnection *piSCC,
-        IN ISIPClientConnection *piForkedSCC)
+IMS_BOOL Method::NotifySIPForkedResponse(IN ISipClientConnection *piSCC,
+        IN ISipClientConnection *piForkedSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -390,7 +390,7 @@ Remarks
 */
 // IMS_AUTH_SIP_DIGEST
 PROTECTED VIRTUAL
-IMS_BOOL Method::SendRequestToChallenge(IN ISIPClientConnection *piSCC)
+IMS_BOOL Method::SendRequestToChallenge(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -416,7 +416,7 @@ Remarks
  SIP_MESSAGE_MEDIATOR
 */
 PROTECTED
-IMS_RESULT Method::AdjustMessage(IN_OUT ISIPMessage *piSIPMsg,
+IMS_RESULT Method::AdjustMessage(IN_OUT ISipMessage *piSIPMsg,
         IN IMS_SINT32 nMessage /* = MESSAGE_CLASS_NORMAL */)
 {
     if (piMessageMediator == IMS_NULL)
@@ -433,7 +433,7 @@ Remarks
 
 */
 PROTECTED
-void Method::CheckNCreateDialog(IN ISIPConnection *piSC, IN IMS_BOOL bDestroy /* = IMS_FALSE */,
+void Method::CheckNCreateDialog(IN ISipConnection *piSC, IN IMS_BOOL bDestroy /* = IMS_FALSE */,
         IN IMS_BOOL bTerminatedDialogRequired /* = IMS_FALSE */)
 {
     //---------------------------------------------------------------------------------------------
@@ -445,20 +445,20 @@ void Method::CheckNCreateDialog(IN ISIPConnection *piSC, IN IMS_BOOL bDestroy /*
 
     if (piDialog == IMS_NULL)
     {
-        ISIPDialog *piTmpDlg = piSC->GetDialog();
+        ISipDialog *piTmpDlg = piSC->GetDialog();
 
-        if ((piTmpDlg->GetState() == ISIPDialog::STATE_EARLY)
-                || (piTmpDlg->GetState() == ISIPDialog::STATE_CONFIRMED))
+        if ((piTmpDlg->GetState() == ISipDialog::STATE_EARLY)
+                || (piTmpDlg->GetState() == ISipDialog::STATE_CONFIRMED))
         {
-            piDialog = DYNAMIC_CAST(ISIPDialog*, piTmpDlg->Clone());
+            piDialog = DYNAMIC_CAST(ISipDialog*, piTmpDlg->Clone());
 
             IMS_TRACE_D("___ DIALOG IS CREATED BY %s ___",
                     piSC->GetMethod().ToString().GetStr(), 0, 0);
         }
         else if (bTerminatedDialogRequired
-                && (piTmpDlg->GetState() == ISIPDialog::STATE_TERMINATED))
+                && (piTmpDlg->GetState() == ISipDialog::STATE_TERMINATED))
         {
-            piDialog = DYNAMIC_CAST(ISIPDialog*, piTmpDlg->Clone());
+            piDialog = DYNAMIC_CAST(ISipDialog*, piTmpDlg->Clone());
 
             IMS_TRACE_D("___ DIALOG IS CREATED BY %s IN TERMINATED STATE ___",
                     piSC->GetMethod().ToString().GetStr(), 0, 0);
@@ -489,7 +489,7 @@ Remarks
 
 */
 PROTECTED
-const SIPAddress* Method::GetUserAOR() const
+const SipAddress* Method::GetUserAOR() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -502,7 +502,7 @@ Remarks
 
 */
 PROTECTED
-const SIPAddress* Method::GetRemoteUserAOR() const
+const SipAddress* Method::GetRemoteUserAOR() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -528,7 +528,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL Method::HandleAllSIPResponse(IN ISIPClientConnection *piSCC)
+IMS_BOOL Method::HandleAllSIPResponse(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -536,17 +536,17 @@ IMS_BOOL Method::HandleAllSIPResponse(IN ISIPClientConnection *piSCC)
     {
         if (piSCC->Receive() != IMS_SUCCESS)
         {
-            if (SIPError::GetLastError() == SIPError::NO_MESSAGE)
+            if (SipError::GetLastError() == SipError::NO_MESSAGE)
             {
                 IMS_TRACE_I("No more messages in this client transaction", 0, 0, 0);
                 break;
             }
 
-            IMS_TRACE_E(0, "Receive() :: SIPError (%d)", SIPError::GetLastError(), 0, 0);
+            IMS_TRACE_E(0, "Receive() :: SipError (%d)", SipError::GetLastError(), 0, 0);
             return IMS_FALSE;
         }
 
-        ISIPMessage *piSIPMsg = piSCC->GetMessage();
+        ISipMessage *piSIPMsg = piSCC->GetMessage();
 
         if (piSIPMsg == IMS_NULL)
         {
@@ -555,12 +555,12 @@ IMS_BOOL Method::HandleAllSIPResponse(IN ISIPClientConnection *piSCC)
         }
 
         // Parse the message body if it is a multipart body
-        if (!SIPParsingHelper::CreateMessageBodyParts(piSIPMsg))
+        if (!SipParsingHelper::CreateMessageBodyParts(piSIPMsg))
         {
             IMS_TRACE_E(0, "Parsing a message body part failed", 0, 0, 0);
 
             Error_NotifyError(piSCC,
-                    SIPError::PARSING_ERROR, AString("Parsing Error :: message body part"));
+                    SipError::PARSING_ERROR, AString("Parsing Error :: message body part"));
             return IMS_FALSE;
         }
 
@@ -570,8 +570,8 @@ IMS_BOOL Method::HandleAllSIPResponse(IN ISIPClientConnection *piSCC)
             nStatusCode, piSIPMsg->GetMethod().ToString().GetStr(), 0);
 
         // Update the remote user identities if present
-        if (SIPStatusCode::IsProvisional(nStatusCode)
-                || SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsProvisional(nStatusCode)
+                || SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             UpdateRemoteUserIds(piSCC);
         }
@@ -579,7 +579,7 @@ IMS_BOOL Method::HandleAllSIPResponse(IN ISIPClientConnection *piSCC)
         // All the subclass of this class MUST implement the below method.
         NotifySIPResponse(piSCC);
 
-        if (nStatusCode >= SIPStatusCode::SC_200)
+        if (nStatusCode >= SipStatusCode::SC_200)
         {
             // After the final response is received and handled,
             // the SCC does not contain any response messages in the queue.
@@ -610,7 +610,7 @@ Remarks
 */
 // IMS_AUTH_SIP_DIGEST
 PROTECTED
-void Method::ResetChallengeCount(IN ISIPClientConnection *piSCC)
+void Method::ResetChallengeCount(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -620,7 +620,7 @@ void Method::ResetChallengeCount(IN ISIPClientConnection *piSCC)
         return;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     if (piSIPMsg == IMS_NULL)
     {
@@ -628,9 +628,9 @@ void Method::ResetChallengeCount(IN ISIPClientConnection *piSCC)
         return;
     }
 
-    if (SIPStatusCode::IsFinalSuccess(piSIPMsg->GetStatusCode()))
+    if (SipStatusCode::IsFinalSuccess(piSIPMsg->GetStatusCode()))
     {
-        const SIPMethod &objMethod = piSIPMsg->GetMethod();
+        const SipMethod &objMethod = piSIPMsg->GetMethod();
         IMS_SLONG nIndex = objAuthChallengeMap.GetIndexOfKey(objMethod.ToInt());
 
         if (nIndex >= 0)
@@ -653,7 +653,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL Method::RespondToChallenge(IN ISIPClientConnection *piSCC)
+IMS_BOOL Method::RespondToChallenge(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -663,7 +663,7 @@ IMS_BOOL Method::RespondToChallenge(IN ISIPClientConnection *piSCC)
         return IMS_FALSE;
     }
 
-    const SIPMethod &objMethod = piSCC->GetMethod();
+    const SipMethod &objMethod = piSCC->GetMethod();
     IMS_SLONG nIndex = objAuthChallengeMap.GetIndexOfKey(objMethod.ToInt());
 
     // If any needs, we MAY change the scheme to compare with the configuration value
@@ -679,7 +679,7 @@ IMS_BOOL Method::RespondToChallenge(IN ISIPClientConnection *piSCC)
         }
     }
 
-    ISIPGenericChallenge *piChallenge = piSCC->GetAuthenticationChallenge();
+    ISipGenericChallenge *piChallenge = piSCC->GetAuthenticationChallenge();
 
     if (piChallenge == IMS_NULL)
     {
@@ -732,8 +732,8 @@ IMS_BOOL Method::RespondToChallenge(IN ISIPClientConnection *piSCC)
             && (!objCredential.GetRealm().Equals(piChallenge->GetRealm())))
     {
         IMS_TRACE_D("auth_realm_leniency is true; %s -> %s",
-                SIPDebug::GetCharA1(objCredential.GetRealm().GetStr(), 4),
-                SIPDebug::GetCharA2(piChallenge->GetRealm().GetStr(), 4), 0);
+                SipDebug::GetCharA1(objCredential.GetRealm().GetStr(), 4),
+                SipDebug::GetCharA2(piChallenge->GetRealm().GetStr(), 4), 0);
 
         objCredential.SetRealm(piChallenge->GetRealm());
     }
@@ -801,7 +801,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL Method::SetChallengeNCredentials(IN ISIPClientConnection *piSCC)
+IMS_BOOL Method::SetChallengeNCredentials(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -843,8 +843,8 @@ IMS_BOOL Method::SetChallengeNCredentials(IN ISIPClientConnection *piSCC)
             && (!objCredential.GetRealm().Equals(piAuthChallenge->GetRealm())))
     {
         IMS_TRACE_D("auth_realm_leniency is true; %s -> %s",
-                SIPDebug::GetCharA1(objCredential.GetRealm().GetStr(), 4),
-                SIPDebug::GetCharA2(piAuthChallenge->GetRealm().GetStr(), 4), 0);
+                SipDebug::GetCharA1(objCredential.GetRealm().GetStr(), 4),
+                SipDebug::GetCharA2(piAuthChallenge->GetRealm().GetStr(), 4), 0);
 
         objCredential.SetRealm(piAuthChallenge->GetRealm());
     }
@@ -871,9 +871,9 @@ Remarks
 
 */
 PROTECTED
-void Method::UpdateRemoteUserIds(IN ISIPConnection *piSC)
+void Method::UpdateRemoteUserIds(IN ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = (piSC != IMS_NULL) ? piSC->GetMessage() : IMS_NULL;
+    ISipMessage *piSIPMsg = (piSC != IMS_NULL) ? piSC->GetMessage() : IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
@@ -884,11 +884,11 @@ void Method::UpdateRemoteUserIds(IN ISIPConnection *piSC)
 
     if (objRemoteUserIds.IsEmpty())
     {
-        objRemoteUserIds = piSIPMsg->GetHeaders(ISIPHeader::P_ASSERTED_IDENTITY);
+        objRemoteUserIds = piSIPMsg->GetHeaders(ISipHeader::P_ASSERTED_IDENTITY);
     }
     else
     {
-        IMSList<AString> objLatestPAIDs = piSIPMsg->GetHeaders(ISIPHeader::P_ASSERTED_IDENTITY);
+        IMSList<AString> objLatestPAIDs = piSIPMsg->GetHeaders(ISipHeader::P_ASSERTED_IDENTITY);
 
         if (!objLatestPAIDs.IsEmpty())
         {
@@ -904,8 +904,8 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Method::ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
-        IN ISIPClientConnection *piForkedSCC /* = IMS_NULL */)
+void Method::ClientConnection_NotifyResponse(IN ISipClientConnection *piSCC,
+        IN ISipClientConnection *piForkedSCC /* = IMS_NULL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -921,16 +921,16 @@ void Method::ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
 
     if (piSCC->Receive() != IMS_SUCCESS)
     {
-        if (SIPError::GetLastError() == SIPError::NO_MESSAGE)
+        if (SipError::GetLastError() == SipError::NO_MESSAGE)
         {
             IMS_TRACE_I("No more messages in this client transaction", 0, 0, 0);
         }
 
-        IMS_TRACE_E(0, "Receive() :: SIPError (%d)", SIPError::GetLastError(), 0, 0);
+        IMS_TRACE_E(0, "Receive() :: SipError (%d)", SipError::GetLastError(), 0, 0);
         return;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     if (piSIPMsg == IMS_NULL)
     {
@@ -939,12 +939,12 @@ void Method::ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
     }
 
     // Parse the message body if it is a multipart body
-    if (!SIPParsingHelper::CreateMessageBodyParts(piSIPMsg))
+    if (!SipParsingHelper::CreateMessageBodyParts(piSIPMsg))
     {
         IMS_TRACE_E(0, "Parsing a message body part failed", 0, 0, 0);
 
         Error_NotifyError(piSCC,
-                SIPError::PARSING_ERROR, AString("Parsing Error :: message body part"));
+                SipError::PARSING_ERROR, AString("Parsing Error :: message body part"));
         return;
     }
 
@@ -954,8 +954,8 @@ void Method::ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
             nStatusCode, piSIPMsg->GetMethod().ToString().GetStr(), 0);
 
     // Update the remote user identities if present
-    if (SIPStatusCode::IsProvisional(nStatusCode)
-            || SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsProvisional(nStatusCode)
+            || SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         UpdateRemoteUserIds(piSCC);
     }
@@ -976,7 +976,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Method::Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void Method::Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
 
@@ -985,9 +985,9 @@ void Method::Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
     IMS_TRACE_I("Error_NotifyError - %s : %d : %s",
             piSC->GetMethod().ToString().GetStr(), nCode, strMessage.GetStr());
 
-    // SIPError::TRANSACTION_TIMER_EXPIRED
-    // SIPError::AUTHENTICATION_FAILED
-    // SIPError::PARSING_ERROR
+    // SipError::TRANSACTION_TIMER_EXPIRED
+    // SipError::AUTHENTICATION_FAILED
+    // SipError::PARSING_ERROR
 
     // AUTH_SIP_DIGEST {
     if (piAuthChallenge != IMS_NULL)
@@ -1030,7 +1030,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-void Method::SCCListener::Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void Method::SCCListener::Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
     //---------------------------------------------------------------------------------------------
@@ -1052,8 +1052,8 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-void Method::SCCListener::ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
-        IN ISIPClientConnection *piForkedSCC /* = IMS_NULL */)
+void Method::SCCListener::ClientConnection_NotifyResponse(IN ISipClientConnection *piSCC,
+        IN ISipClientConnection *piForkedSCC /* = IMS_NULL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1067,12 +1067,12 @@ void Method::SCCListener::ClientConnection_NotifyResponse(IN ISIPClientConnectio
 
     if (piSCC->Receive() != IMS_SUCCESS)
     {
-        if (SIPError::GetLastError() == SIPError::NO_MESSAGE)
+        if (SipError::GetLastError() == SipError::NO_MESSAGE)
         {
             IMS_TRACE_I("No more messages in this client transaction", 0, 0, 0);
         }
 
-        IMS_TRACE_E(0, "Receive() :: SIPError (%d)", SIPError::GetLastError(), 0, 0);
+        IMS_TRACE_E(0, "Receive() :: SipError (%d)", SipError::GetLastError(), 0, 0);
 
         piSCC->Close();
 

@@ -30,7 +30,7 @@ class SIPConnectionFactory
 {
 public:
     SIPConnectionFactory(IN Service *pService_);
-    SIPConnectionFactory(IN Service *pService_, IN ISIPServerConnection *piSSC);
+    SIPConnectionFactory(IN Service *pService_, IN ISipServerConnection *piSSC);
     virtual ~SIPConnectionFactory();
 
 public:
@@ -38,12 +38,12 @@ public:
     virtual IMS_BOOL DispatchMessage(IN IMSMSG &objMSG);
 
     // IDialogMethod class
-    virtual IMS_BOOL Dialog_Compare(IN ISIPServerConnection *piSSC) const;
-    virtual IMS_BOOL Dialog_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL Dialog_Compare(IN ISipServerConnection *piSSC) const;
+    virtual IMS_BOOL Dialog_NotifyRequest(IN ISipServerConnection *piSSC);
 
     // ICancellableMethod class
-    virtual IMS_BOOL Cancellable_Compare(IN ISIPServerConnection *piSSC_CANCEL) const;
-    virtual IMS_BOOL Cancellable_NotifyRequest(IN ISIPServerConnection *piSSC_CANCEL);
+    virtual IMS_BOOL Cancellable_Compare(IN ISipServerConnection *piSSC_CANCEL) const;
+    virtual IMS_BOOL Cancellable_NotifyRequest(IN ISipServerConnection *piSSC_CANCEL);
 
     // IMethod class
     virtual void Destroy();
@@ -51,16 +51,16 @@ public:
     virtual void SetMessageMediator(IN IMessageMediator *piMediator);
 
     // ISIPConnectionFactory class
-    virtual ISIPClientConnection* CreateClientConnection(IN CONST SIPMethod &objMethod,
-            IN CONST SIPAddress *pFrom, IN CONST SIPAddress *pTo);
-    virtual ISIPClientConnection* CreateClientConnection(IN ISIPDialog *piDialog,
-            IN CONST SIPMethod &objMethod);
-    virtual IMS_BOOL CreateResponse(IN_OUT ISIPServerConnection *piSSC,
+    virtual ISipClientConnection* CreateClientConnection(IN CONST SipMethod &objMethod,
+            IN CONST SipAddress *pFrom, IN CONST SipAddress *pTo);
+    virtual ISipClientConnection* CreateClientConnection(IN ISipDialog *piDialog,
+            IN CONST SipMethod &objMethod);
+    virtual IMS_BOOL CreateResponse(IN_OUT ISipServerConnection *piSSC,
             IN IMS_SINT32 nStatusCode, IN CONST AString &strPhrase = AString::ConstNull());
-    virtual ISIPServerConnection* GetNewServerConnection();
-    virtual void SetDialog(IN ISIPDialog *piDialog);
+    virtual ISipServerConnection* GetNewServerConnection();
+    virtual void SetDialog(IN ISipDialog *piDialog);
     virtual void SetListener(IN ISIPConnectionFactoryListener *piListener);
-    virtual void SetSSCForCANCEL(IN ISIPServerConnection *piSSC);
+    virtual void SetSSCForCANCEL(IN ISipServerConnection *piSSC);
 
 private:
     enum
@@ -69,11 +69,11 @@ private:
     };
 
     Service *pService;
-    ISIPDialog *piDialog;
+    ISipDialog *piDialog;
     ISIPConnectionFactoryListener *piListener;
     // It is only maintained for a new incoming request
-    ISIPServerConnection *piInitialSSC;
-    ISIPServerConnection *piInviteSSC;
+    ISipServerConnection *piInitialSSC;
+    ISipServerConnection *piInviteSSC;
 };
 
 #endif // _SIP_CONNECTION_FACTORY_H_

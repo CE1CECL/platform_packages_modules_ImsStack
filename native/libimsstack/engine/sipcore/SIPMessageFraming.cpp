@@ -253,7 +253,7 @@ Remarks
 PRIVATE
 void SIPMessageFraming::ParseContentLength()
 {
-    const IMS_CHAR acCF_CLEN[2] = { SIPHeaderName::CF_CONTENT_LENGTH, '\0' };
+    const IMS_CHAR acCF_CLEN[2] = { SipHeaderName::CF_CONTENT_LENGTH, '\0' };
 
     IMS_CHAR *pStart = reinterpret_cast<IMS_CHAR*>(objMessageBuffer.GetData() + nOffset);
     IMS_CHAR *pEnd = pStart + objMessageBuffer.GetLength() - nOffset; // over 1 byte
@@ -377,7 +377,7 @@ void SIPMessageFraming::ParseContentLength()
 
             if (((nLengthOfHeader == 1) && (IMS_StrNICmp(pHeaderStart, &acCF_CLEN[0], 1) == 0))
                     || ((nLengthOfHeader == 14)
-                        && (IMS_StrNICmp(pHeaderStart, SIPHeaderName::CONTENT_LENGTH, 14) == 0)))
+                        && (IMS_StrNICmp(pHeaderStart, SipHeaderName::CONTENT_LENGTH, 14) == 0)))
             {
                 IMS_CHAR *pHeaderBodyStart = pCurrentPos + 1;
                 IMS_CHAR *pHeaderBodyEnd;

@@ -24,16 +24,16 @@
 // SIP_MESSAGE_MEDIATOR
 #include "base/IMessageMediator.h"
 
-class ISIPGenericChallenge; // IMS_AUTH_SIP_DIGEST
-class ISIPServerConnection;
+class ISipGenericChallenge; // IMS_AUTH_SIP_DIGEST
+class ISipServerConnection;
 class IReferredMessageListener;
 
 
 
 class Method
     : public EngineActivity
-    , public ISIPClientConnectionListener
-    , public ISIPErrorListener
+    , public ISipClientConnectionListener
+    , public ISipErrorListener
 {
 public:
     Method();
@@ -55,68 +55,68 @@ public:
 
     IMS_BOOL Equals(IN CONST Method *pMethod) const;
     IMS_BOOL InitMethod(IN CONST AString &strFrom, IN CONST AString &strTo,
-            IN CONST SIPAddress &objUserAOR, IN IMS_BOOL bMobileOriginated = IMS_TRUE);
+            IN CONST SipAddress &objUserAOR, IN IMS_BOOL bMobileOriginated = IMS_TRUE);
     IMS_BOOL InitMethod(IN CONST Method *pMethod, IN IMS_BOOL bMobileOriginated = IMS_TRUE);
-    ISIPDialog* GetDialog() const;
-    IMS_BOOL ServerConnection_NotifyRequest(IN ISIPServerConnection *piSSC);
+    ISipDialog* GetDialog() const;
+    IMS_BOOL ServerConnection_NotifyRequest(IN ISipServerConnection *piSSC);
 
 protected:
     // Overridable methods
     virtual IMS_BOOL InitInstance();
-    virtual IMS_BOOL NotifySIPRequest(IN ISIPServerConnection *piSSC);
-    virtual IMS_BOOL NotifySIPForkedResponse(IN ISIPClientConnection *piSCC,
-            IN ISIPClientConnection *piForkedSCC);
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC) = 0;
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual IMS_BOOL NotifySIPRequest(IN ISipServerConnection *piSSC);
+    virtual IMS_BOOL NotifySIPForkedResponse(IN ISipClientConnection *piSCC,
+            IN ISipClientConnection *piForkedSCC);
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC) = 0;
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage) = 0;
 
     // MULTI_SUBS
     virtual const AString& GetSubscriberId() const;
     // IMS_AUTH_SIP_DIGEST
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // SIP_MESSAGE_MEDIATOR
-    IMS_RESULT AdjustMessage(IN_OUT ISIPMessage *piSIPMsg,
+    IMS_RESULT AdjustMessage(IN_OUT ISipMessage *piSIPMsg,
             IN IMS_SINT32 nMessage = MESSAGE_CLASS_NORMAL);
-    void CheckNCreateDialog(IN ISIPConnection *piSC, IN IMS_BOOL bDestroy = IMS_FALSE,
+    void CheckNCreateDialog(IN ISipConnection *piSC, IN IMS_BOOL bDestroy = IMS_FALSE,
             IN IMS_BOOL bTerminatedDialogRequired = IMS_FALSE);
     void DestroyDialog();
-    const SIPAddress* GetUserAOR() const;
-    const SIPAddress* GetRemoteUserAOR() const;
+    const SipAddress* GetUserAOR() const;
+    const SipAddress* GetRemoteUserAOR() const;
     const IMSList<AString>& GetRemoteUserIds() const;
-    IMS_BOOL HandleAllSIPResponse(IN ISIPClientConnection *piSCC);
+    IMS_BOOL HandleAllSIPResponse(IN ISipClientConnection *piSCC);
     IMS_BOOL IsMobileOriginated() const;
 
     // IMS_AUTH_SIP_DIGEST
-    void ResetChallengeCount(IN ISIPClientConnection *piSCC);
-    IMS_BOOL RespondToChallenge(IN ISIPClientConnection *piSCC);
-    IMS_BOOL SetChallengeNCredentials(IN ISIPClientConnection *piSCC);
+    void ResetChallengeCount(IN ISipClientConnection *piSCC);
+    IMS_BOOL RespondToChallenge(IN ISipClientConnection *piSCC);
+    IMS_BOOL SetChallengeNCredentials(IN ISipClientConnection *piSCC);
 
-    void UpdateRemoteUserIds(IN ISIPConnection *piSC);
+    void UpdateRemoteUserIds(IN ISipConnection *piSC);
 
 private:
-    // ISIPClientConnectionListener interface
-    virtual void ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
-            IN ISIPClientConnection *piForkedSCC = IMS_NULL);
-    // ISIPErrorListener interface
-    virtual void Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    // ISipClientConnectionListener interface
+    virtual void ClientConnection_NotifyResponse(IN ISipClientConnection *piSCC,
+            IN ISipClientConnection *piForkedSCC = IMS_NULL);
+    // ISipErrorListener interface
+    virtual void Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
 public:
     class SCCListener
-        : public ISIPErrorListener
-        , public ISIPClientConnectionListener
+        : public ISipErrorListener
+        , public ISipClientConnectionListener
     {
     public:
         SCCListener();
         virtual ~SCCListener();
 
     protected:
-        virtual void Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+        virtual void Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
                 IN CONST AString &strMessage);
 
-        virtual void ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
-                IN ISIPClientConnection *piForkedSCC = IMS_NULL);
+        virtual void ClientConnection_NotifyResponse(IN ISipClientConnection *piSCC,
+                IN ISipClientConnection *piForkedSCC = IMS_NULL);
     };
 
 public:
@@ -141,21 +141,21 @@ private:
     IMS_BOOL bFlag_MobileOriginated;
 
     // Logical identity of the initiator of the request; From header field in SIP message
-    SIPAddress *pUserAOR;
+    SipAddress *pUserAOR;
     // Logical identity of the recipient of the request; To header field in SIP message
-    SIPAddress *pRemoteUserAOR;
+    SipAddress *pRemoteUserAOR;
     // Remote asserted user identities; from P-Asserted-Identity header in SIP message
     IMSList<AString> objRemoteUserIds;
 
-    // Pointer to ISIPDialog object
-    ISIPDialog *piDialog;
+    // Pointer to ISipDialog object
+    ISipDialog *piDialog;
 
     // If the authentication is failed for the consecutive three times,
     // then it considers that the method can't be progressing anymore.
     static const IMS_SINT32 MAX_CHALLENGE_COUNT = 2;
     // Authentication challenge which is received from 401/407 response
     // when SIP digest authentication is used
-    ISIPGenericChallenge *piAuthChallenge;
+    ISipGenericChallenge *piAuthChallenge;
     // Authentication challenge counts
     IMSMap<IMS_SINT32, IMS_SINT32> objAuthChallengeMap;
 

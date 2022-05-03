@@ -189,7 +189,7 @@ void ConferenceController::OnReferenceStartFailed(IN IConferenceReference* piCon
 
 PUBLIC VIRTUAL
 void ConferenceController::OnReferenceUpdated(IN IConferenceReference* piConfRef,
-        IN SIPStatusCode nSipFragCode, IN ReferSubscriptionState eState)
+        IN SipStatusCode nSipFragCode, IN ReferSubscriptionState eState)
 {
     // TODO: separate functions. : HandleSuccessSipFrag / HandleFailureSipFrag
     // ExpandController to override them.
@@ -203,17 +203,17 @@ void ConferenceController::OnReferenceUpdated(IN IConferenceReference* piConfRef
         ConfUser* pTempUser = m_objParticipantList.GetConfUser(piConfRef);
         UpdateUserStatusByReferResult(pTempUser, piConfRef, nSipFragCode);
 
-        if (SIPStatusCode::IsFinalSuccess(nSipFragCode.ToInt()))
+        if (SipStatusCode::IsFinalSuccess(nSipFragCode.ToInt()))
         {
             StopFinalSipfragWaitTimer();
             CompleteCurrentAndDoNextOperation(CONTROL_OPERATION_REFER_INVITE, pTempUser);
         }
-        else if (SIPStatusCode::IsFinalFailure(nSipFragCode.ToInt()))
+        else if (SipStatusCode::IsFinalFailure(nSipFragCode.ToInt()))
         {
             StopFinalSipfragWaitTimer();
             Recover();
         }
-        else if (SIPStatusCode::Is1XX(nSipFragCode.ToInt()))
+        else if (SipStatusCode::Is1XX(nSipFragCode.ToInt()))
         {
             CheckNStartFinalSipfragWaitTimer(CONDITION_SIPFRAG_100_RECEIVED);
         }
@@ -574,7 +574,7 @@ void ConferenceController::ClearOngoingReferences()
 
         if (piTemp == IMS_NULL
                 || piTemp->GetType() == REFERENCE_TYPE_INVITE
-                || SIPStatusCode::IsFinalFailure(piTemp->GetResponseCode()))
+                || SipStatusCode::IsFinalFailure(piTemp->GetResponseCode()))
         {
             continue;
         }
@@ -610,17 +610,17 @@ void ConferenceController::RemoveReference(IN IConferenceReference* piConfRef)
 PROTECTED VIRTUAL
 void ConferenceController::UpdateUserStatusByReferResult(IN ConfUser* pUser,
         IN IConferenceReference* piConfRef,
-        IN SIPStatusCode nStatusCode/* = SIPStatusCode::SC_200*/)
+        IN SipStatusCode nStatusCode/* = SipStatusCode::SC_200*/)
 {
     IMS_TRACE_D("UpdateUserStatusByReferResult", 0, 0, 0);
-    if (nStatusCode == SIPStatusCode::SC_100)
+    if (nStatusCode == SipStatusCode::SC_100)
     {
         if (piConfRef->GetType() == REFERENCE_TYPE_INVITE)
         {
             pUser->eStatus = CONFINFO_STATUS_DIALING_OUT;
         }
     }
-    else if (nStatusCode == SIPStatusCode::SC_200)
+    else if (nStatusCode == SipStatusCode::SC_200)
     {
         if (piConfRef->GetType() == REFERENCE_TYPE_INVITE)
         {
@@ -1054,7 +1054,7 @@ void ConferenceController::GetFocusAddress(OUT AString& strAddress) const
         piMessage = objSession.GetPreviousRequest(IMessage::SESSION_START);
     }
 
-    MessageUtil::GetUri(piMessage, IMS_TRUE, ISIPHeader::CONTACT_NORMAL, strAddress);
+    MessageUtil::GetUri(piMessage, IMS_TRUE, ISipHeader::CONTACT_NORMAL, strAddress);
 }
 
 PROTECTED

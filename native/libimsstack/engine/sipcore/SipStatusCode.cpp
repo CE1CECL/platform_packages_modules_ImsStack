@@ -17,114 +17,114 @@
 
 
 PRIVATE GLOBAL
-const SIPStatusCode::CodeTable SIPStatusCode::CODE_TABLE[] =
+const SipStatusCode::CodeTable SipStatusCode::CODE_TABLE[] =
 {
-    { SIPStatusCode::SC_100, "Trying" },
-    { SIPStatusCode::SC_180, "Ringing" },
-    { SIPStatusCode::SC_181, "Call Is Being Forwarded" },
-    { SIPStatusCode::SC_182, "Queued" },
-    { SIPStatusCode::SC_183, "Session Progress" },
-    { SIPStatusCode::SC_199, "Early Dialog Terminated" },
-    { SIPStatusCode::SC_200, "OK" },
-    { SIPStatusCode::SC_202, "Accepted" },
-    { SIPStatusCode::SC_204, "No Notification" },
-    { SIPStatusCode::SC_300, "Multiple Choices" },
-    { SIPStatusCode::SC_301, "Moved Permanently" },
-    { SIPStatusCode::SC_302, "Moved Temporarily" },
-    { SIPStatusCode::SC_305, "Use Proxy" },
-    { SIPStatusCode::SC_380, "Alternative Service" },
-    { SIPStatusCode::SC_400, "Bad Request" },
-    { SIPStatusCode::SC_401, "Unauthorized" },
-    { SIPStatusCode::SC_402, "Payment Required" },
-    { SIPStatusCode::SC_403, "Forbidden" },
-    { SIPStatusCode::SC_404, "Not Found" },
-    { SIPStatusCode::SC_405, "Method Not Allowed" },
-    { SIPStatusCode::SC_406, "Not Acceptable" },
-    { SIPStatusCode::SC_407, "Proxy Authentication Required" },
-    { SIPStatusCode::SC_408, "Request Timeout" },
-    { SIPStatusCode::SC_410, "Gone" },
-    { SIPStatusCode::SC_412, "Conditional Request Failed" },
-    { SIPStatusCode::SC_413, "Request Entity Too Large" },
-    { SIPStatusCode::SC_414, "Request-URI Too Long" },
-    { SIPStatusCode::SC_415, "Unsupported Media Type" },
-    { SIPStatusCode::SC_416, "Unsupported URI Scheme" },
-    { SIPStatusCode::SC_417, "Unknown Resource-Priority" },
-    { SIPStatusCode::SC_420, "Bad Extension" },
-    { SIPStatusCode::SC_421, "Extension Required" },
-    { SIPStatusCode::SC_422, "Session Interval Too Small" },
-    { SIPStatusCode::SC_423, "Interval Too Brief" },
-    { SIPStatusCode::SC_424, "Bad Location Information" },
-    { SIPStatusCode::SC_428, "Use Identity Header" },
-    { SIPStatusCode::SC_429, "Provide Referrer Identity" },
-    { SIPStatusCode::SC_430, "Flow Failed" },
-    { SIPStatusCode::SC_433, "Anonymity Disallowed" },
-    { SIPStatusCode::SC_436, "Bad Identity-Info" },
-    { SIPStatusCode::SC_437, "Unsupported Certificate" },
-    { SIPStatusCode::SC_438, "Invalid Identity Header" },
-    { SIPStatusCode::SC_439, "First Hop Lacks Outbound Support" },
-    { SIPStatusCode::SC_440, "Max-Breadth Exceeded" },
-    { SIPStatusCode::SC_469, "Bad Info Package" },
-    { SIPStatusCode::SC_470, "Consent Needed" },
-    { SIPStatusCode::SC_480, "Temporarily Unavailable" },
-    { SIPStatusCode::SC_481, "Call/Transaction Does Not Exist" },
-    { SIPStatusCode::SC_482, "Loop Detect" },
-    { SIPStatusCode::SC_483, "Too Many Hops" },
-    { SIPStatusCode::SC_484, "Address Incomplete" },
-    { SIPStatusCode::SC_485, "Ambiguous" },
-    { SIPStatusCode::SC_486, "Busy Here" },
-    { SIPStatusCode::SC_487, "Request Terminated" },
-    { SIPStatusCode::SC_488, "Not Acceptable Here" },
-    { SIPStatusCode::SC_489, "Bad Event" },
-    { SIPStatusCode::SC_491, "Request Pending" },
-    { SIPStatusCode::SC_493, "Undecipherable" },
-    { SIPStatusCode::SC_494, "Security Agreement Required" },
-    { SIPStatusCode::SC_499, "Not Reachable" },
-    { SIPStatusCode::SC_500, "Server Internal Error" },
-    { SIPStatusCode::SC_501, "Not Implemented" },
-    { SIPStatusCode::SC_502, "Bad Gateway" },
-    { SIPStatusCode::SC_503, "Service Unavailable" },
-    { SIPStatusCode::SC_504, "Server Time-out" },
-    { SIPStatusCode::SC_505, "Version Not Supported" },
-    { SIPStatusCode::SC_513, "Message Too Large" },
-    { SIPStatusCode::SC_580, "Precondition Failure" },
-    { SIPStatusCode::SC_600, "Busy Everywhere" },
-    { SIPStatusCode::SC_603, "Decline" },
-    { SIPStatusCode::SC_604, "Does Not Exist Everywhere" },
-    { SIPStatusCode::SC_606, "Not Acceptable" },
+    { SipStatusCode::SC_100, "Trying" },
+    { SipStatusCode::SC_180, "Ringing" },
+    { SipStatusCode::SC_181, "Call Is Being Forwarded" },
+    { SipStatusCode::SC_182, "Queued" },
+    { SipStatusCode::SC_183, "Session Progress" },
+    { SipStatusCode::SC_199, "Early Dialog Terminated" },
+    { SipStatusCode::SC_200, "OK" },
+    { SipStatusCode::SC_202, "Accepted" },
+    { SipStatusCode::SC_204, "No Notification" },
+    { SipStatusCode::SC_300, "Multiple Choices" },
+    { SipStatusCode::SC_301, "Moved Permanently" },
+    { SipStatusCode::SC_302, "Moved Temporarily" },
+    { SipStatusCode::SC_305, "Use Proxy" },
+    { SipStatusCode::SC_380, "Alternative Service" },
+    { SipStatusCode::SC_400, "Bad Request" },
+    { SipStatusCode::SC_401, "Unauthorized" },
+    { SipStatusCode::SC_402, "Payment Required" },
+    { SipStatusCode::SC_403, "Forbidden" },
+    { SipStatusCode::SC_404, "Not Found" },
+    { SipStatusCode::SC_405, "Method Not Allowed" },
+    { SipStatusCode::SC_406, "Not Acceptable" },
+    { SipStatusCode::SC_407, "Proxy Authentication Required" },
+    { SipStatusCode::SC_408, "Request Timeout" },
+    { SipStatusCode::SC_410, "Gone" },
+    { SipStatusCode::SC_412, "Conditional Request Failed" },
+    { SipStatusCode::SC_413, "Request Entity Too Large" },
+    { SipStatusCode::SC_414, "Request-URI Too Long" },
+    { SipStatusCode::SC_415, "Unsupported Media Type" },
+    { SipStatusCode::SC_416, "Unsupported URI Scheme" },
+    { SipStatusCode::SC_417, "Unknown Resource-Priority" },
+    { SipStatusCode::SC_420, "Bad Extension" },
+    { SipStatusCode::SC_421, "Extension Required" },
+    { SipStatusCode::SC_422, "Session Interval Too Small" },
+    { SipStatusCode::SC_423, "Interval Too Brief" },
+    { SipStatusCode::SC_424, "Bad Location Information" },
+    { SipStatusCode::SC_428, "Use Identity Header" },
+    { SipStatusCode::SC_429, "Provide Referrer Identity" },
+    { SipStatusCode::SC_430, "Flow Failed" },
+    { SipStatusCode::SC_433, "Anonymity Disallowed" },
+    { SipStatusCode::SC_436, "Bad Identity-Info" },
+    { SipStatusCode::SC_437, "Unsupported Certificate" },
+    { SipStatusCode::SC_438, "Invalid Identity Header" },
+    { SipStatusCode::SC_439, "First Hop Lacks Outbound Support" },
+    { SipStatusCode::SC_440, "Max-Breadth Exceeded" },
+    { SipStatusCode::SC_469, "Bad Info Package" },
+    { SipStatusCode::SC_470, "Consent Needed" },
+    { SipStatusCode::SC_480, "Temporarily Unavailable" },
+    { SipStatusCode::SC_481, "Call/Transaction Does Not Exist" },
+    { SipStatusCode::SC_482, "Loop Detect" },
+    { SipStatusCode::SC_483, "Too Many Hops" },
+    { SipStatusCode::SC_484, "Address Incomplete" },
+    { SipStatusCode::SC_485, "Ambiguous" },
+    { SipStatusCode::SC_486, "Busy Here" },
+    { SipStatusCode::SC_487, "Request Terminated" },
+    { SipStatusCode::SC_488, "Not Acceptable Here" },
+    { SipStatusCode::SC_489, "Bad Event" },
+    { SipStatusCode::SC_491, "Request Pending" },
+    { SipStatusCode::SC_493, "Undecipherable" },
+    { SipStatusCode::SC_494, "Security Agreement Required" },
+    { SipStatusCode::SC_499, "Not Reachable" },
+    { SipStatusCode::SC_500, "Server Internal Error" },
+    { SipStatusCode::SC_501, "Not Implemented" },
+    { SipStatusCode::SC_502, "Bad Gateway" },
+    { SipStatusCode::SC_503, "Service Unavailable" },
+    { SipStatusCode::SC_504, "Server Time-out" },
+    { SipStatusCode::SC_505, "Version Not Supported" },
+    { SipStatusCode::SC_513, "Message Too Large" },
+    { SipStatusCode::SC_580, "Precondition Failure" },
+    { SipStatusCode::SC_600, "Busy Everywhere" },
+    { SipStatusCode::SC_603, "Decline" },
+    { SipStatusCode::SC_604, "Does Not Exist Everywhere" },
+    { SipStatusCode::SC_606, "Not Acceptable" },
 
-    { SIPStatusCode::SC_MAX, IMS_NULL }
+    { SipStatusCode::SC_MAX, IMS_NULL }
 };
 
 
 
 PUBLIC
-SIPStatusCode::SIPStatusCode(IN IMS_SINT32 nCode_ /* = SC_INVALID */)
+SipStatusCode::SipStatusCode(IN IMS_SINT32 nCode_ /* = SC_INVALID */)
     : nCode(nCode_)
     , strReasonPhrase(AString::ConstNull())
 {
 }
 
 PUBLIC
-SIPStatusCode::SIPStatusCode(IN IMS_SINT32 nCode_, IN CONST IMS_CHAR *pszReasonPhrase_)
+SipStatusCode::SipStatusCode(IN IMS_SINT32 nCode_, IN CONST IMS_CHAR *pszReasonPhrase_)
     : nCode(nCode_)
     , strReasonPhrase(pszReasonPhrase_)
 {
 }
 
 PUBLIC
-SIPStatusCode::SIPStatusCode(IN CONST SIPStatusCode &objRHS)
+SipStatusCode::SipStatusCode(IN CONST SipStatusCode &objRHS)
     : nCode(objRHS.nCode)
     , strReasonPhrase(objRHS.strReasonPhrase)
 {
 }
 
 PUBLIC
-SIPStatusCode::~SIPStatusCode()
+SipStatusCode::~SipStatusCode()
 {
 }
 
 PUBLIC
-SIPStatusCode& SIPStatusCode::operator=(IN CONST SIPStatusCode &objRHS)
+SipStatusCode& SipStatusCode::operator=(IN CONST SipStatusCode &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ Gets a textual representation of the given SIP status code.
 Remarks
 */
 PUBLIC
-SIPStatusCode& SIPStatusCode::operator=(IN IMS_SINT32 nCode)
+SipStatusCode& SipStatusCode::operator=(IN IMS_SINT32 nCode)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ Gets a textual representation of the given SIP status code.
 Remarks
 */
 PUBLIC
-SIPStatusCode& SIPStatusCode::operator=(IN CONST IMS_CHAR* pszReasonPhrase)
+SipStatusCode& SipStatusCode::operator=(IN CONST IMS_CHAR* pszReasonPhrase)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -171,7 +171,7 @@ Gets a textual representation of the given SIP status code.
 Remarks
 */
 PUBLIC
-SIPStatusCode& SIPStatusCode::operator=(IN CONST AString &strReasonPhrase)
+SipStatusCode& SipStatusCode::operator=(IN CONST AString &strReasonPhrase)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ Gets a textual representation of the given SIP status code.
 Remarks
 */
 PUBLIC
-IMS_SINT32 SIPStatusCode::Compare(IN IMS_SINT32 nCode_) const
+IMS_SINT32 SipStatusCode::Compare(IN IMS_SINT32 nCode_) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ Gets a textual representation of the given SIP status code.
 Remarks
 */
 PUBLIC GLOBAL
-const IMS_CHAR* SIPStatusCode::GetReasonPhrase(IN IMS_SINT32 nCode)
+const IMS_CHAR* SipStatusCode::GetReasonPhrase(IN IMS_SINT32 nCode)
 {
     IMS_SINT32 nIndex = 0;
 

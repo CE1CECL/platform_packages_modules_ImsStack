@@ -157,7 +157,7 @@ public:
         IN IMS_UINT32 nSpiS);
 
     /// Make Security Client Header
-    void MakeSecurityClientH(IN SIPSecurityHeader& objSecuH, IN IMS_BOOL bSpi3gpp = IMS_TRUE);
+    void MakeSecurityClientH(IN SipSecurityHeader& objSecuH, IN IMS_BOOL bSpi3gpp = IMS_TRUE);
 
     /// Set lifetime of SAs
     void IgnorePolicyLifetime();

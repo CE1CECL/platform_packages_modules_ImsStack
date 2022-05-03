@@ -182,7 +182,7 @@ IMS_RESULT Subscription::Poll()
     // if the state is in ACTIVE and refresh is started by the subscription,
     // keep the request and after refresh is completed, try to send a SUBSCRIBE request...
 
-    ISIPClientConnection *piSCC = CreateConnection(SIPMethod(SIPMethod::SUBSCRIBE));
+    ISipClientConnection *piSCC = CreateConnection(SipMethod(SipMethod::SUBSCRIBE));
 
     if (piSCC == IMS_NULL)
     {
@@ -190,17 +190,17 @@ IMS_RESULT Subscription::Poll()
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Event header
-    piSIPMsg->SetHeader(ISIPHeader::EVENT, GetEvent());
+    piSIPMsg->SetHeader(ISipHeader::EVENT, GetEvent());
 
     // Do something for SubscriberRefreshHelper ???
     // Accept, Allow-Events
 
-    if (!piSIPMsg->IsHeaderPresent(ISIPHeader::EXPIRES_ANY))
+    if (!piSIPMsg->IsHeaderPresent(ISipHeader::EXPIRES_ANY))
     {
-        piSIPMsg->SetHeader(ISIPHeader::EXPIRES_ANY, "0");
+        piSIPMsg->SetHeader(ISipHeader::EXPIRES_ANY, "0");
     }
 
     // Try to send a SUBSCRIBE request to the network
@@ -285,9 +285,9 @@ IMS_RESULT Subscription::Subscribe()
         return IMS_FAILURE;
     }
 
-    ISIPDialog *piDialog = GetDialog();
-    SIPMethod objMethod(SIPMethod::SUBSCRIBE);
-    ISIPClientConnection *piSCC;
+    ISipDialog *piDialog = GetDialog();
+    SipMethod objMethod(SipMethod::SUBSCRIBE);
+    ISipClientConnection *piSCC;
 
     if (piDialog == IMS_NULL)
         piSCC = CreateConnection(objMethod);
@@ -300,15 +300,15 @@ IMS_RESULT Subscription::Subscribe()
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Event header
-    piSIPMsg->SetHeader(ISIPHeader::EVENT, GetEvent());
+    piSIPMsg->SetHeader(ISipHeader::EVENT, GetEvent());
 
     // Do something for SubscriberRefreshHelper ???
     // Accept, Allow-Events
 
-    if (!piSIPMsg->IsHeaderPresent(ISIPHeader::EXPIRES_ANY))
+    if (!piSIPMsg->IsHeaderPresent(ISipHeader::EXPIRES_ANY))
     {
         // Expires header ?
         AString strExpires;
@@ -322,7 +322,7 @@ IMS_RESULT Subscription::Subscribe()
             strExpires.Sprintf("%d", pSubState->GetEventPackage()->GetDefaultDuration());
         }
 
-        piSIPMsg->SetHeader(ISIPHeader::EXPIRES_ANY, strExpires);
+        piSIPMsg->SetHeader(ISipHeader::EXPIRES_ANY, strExpires);
     }
 
     // Try to send a SUBSCRIBE request to the network
@@ -395,8 +395,8 @@ IMS_RESULT Subscription::Unsubscribe()
         return IMS_FAILURE;
     }
 
-    SIPMethod objMethod(SIPMethod::SUBSCRIBE);
-    ISIPClientConnection *piSCC = CreateConnectionL(GetDialog(), objMethod);
+    SipMethod objMethod(SipMethod::SUBSCRIBE);
+    ISipClientConnection *piSCC = CreateConnectionL(GetDialog(), objMethod);
 
     if (piSCC == IMS_NULL)
     {
@@ -404,16 +404,16 @@ IMS_RESULT Subscription::Unsubscribe()
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     // Event header
-    piSIPMsg->SetHeader(ISIPHeader::EVENT, GetEvent());
+    piSIPMsg->SetHeader(ISipHeader::EVENT, GetEvent());
 
     // Do something for SubscriberRefreshHelper ???
     // Accept, Allow-Events
 
     // Expires header (overwrites the header field if present)
-    piSIPMsg->SetHeader(ISIPHeader::EXPIRES_ANY, "0");
+    piSIPMsg->SetHeader(ISipHeader::EXPIRES_ANY, "0");
 
     // Try to send a SUBSCRIBE request to the network
     if (!SendNUpdateRequest(IMessage::SUBSCRIPTION_UNSUBSCRIBE, piSCC))
@@ -606,7 +606,7 @@ Remarks
 */
 // IMS_AUTH_SIP_DIGEST
 PROTECTED VIRTUAL
-IMS_BOOL Subscription::SendRequestToChallenge(IN ISIPClientConnection *piSCC)
+IMS_BOOL Subscription::SendRequestToChallenge(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -742,16 +742,16 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-void Subscription::NotifySIPResponse(IN ISIPClientConnection *piSCC)
+void Subscription::NotifySIPResponse(IN ISipClientConnection *piSCC)
 {
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     IMS_TRACE_I("The response is received in the %s", StateToString(GetState()), 0, 0);
 
-    if (!objMethod.Equals(SIPMethod::SUBSCRIBE))
+    if (!objMethod.Equals(SipMethod::SUBSCRIBE))
     {
         piSCC->Close();
         return;
@@ -785,13 +785,13 @@ void Subscription::NotifySIPResponse(IN ISIPClientConnection *piSCC)
     UpdateResponse(piSCC);
 
     // Handle the response to SUBSCRIBE request ...
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         // Do nothing ...
         return;
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         // AUTH_SIP_DIGEST {
         // In case of other method except for REGISTER,
@@ -806,7 +806,7 @@ void Subscription::NotifySIPResponse(IN ISIPClientConnection *piSCC)
     // Start or re-start a subscription refresh timer
     pRefreshHelper->UpdateOnMessageReceived(piSCC);
 
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         if (GetState() != STATE_PENDING)
         {
@@ -824,13 +824,13 @@ void Subscription::NotifySIPResponse(IN ISIPClientConnection *piSCC)
         {
             if (nOperation == SubState::OPERATION_CREATE)
             {
-                ISIPDialog *piDialog = GetDialog();
+                ISipDialog *piDialog = GetDialog();
 
                 if ((piDialog != IMS_NULL)
-                        && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED))
+                        && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED))
                 {
                     CallerPreferenceManager::GetInstance()->UpdateDialogId(GetName(),
-                            piDialog->GetDialogID());
+                            piDialog->GetDialogId());
                 }
             }
 
@@ -838,12 +838,12 @@ void Subscription::NotifySIPResponse(IN ISIPClientConnection *piSCC)
 
             if (piMessage != IMS_NULL)
             {
-                ISIPMessage *piPreviousSIPMsg = piMessage->GetMessage();
+                ISipMessage *piPreviousSIPMsg = piMessage->GetMessage();
 
                 if (piPreviousSIPMsg != IMS_NULL)
                 {
                     CallerPreferenceManager::GetInstance()->UpdateAcceptContacts(
-                            GetName(), piPreviousSIPMsg->GetHeaders(ISIPHeader::ACCEPT_CONTACT));
+                            GetName(), piPreviousSIPMsg->GetHeaders(ISipHeader::ACCEPT_CONTACT));
                 }
             }
         }
@@ -887,17 +887,17 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-void Subscription::NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void Subscription::NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
-    const SIPMethod &objMethod = piSC->GetMethod();
+    const SipMethod &objMethod = piSC->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     (void) nCode;
     (void) strMessage;
 
-    if (!objMethod.Equals(SIPMethod::SUBSCRIBE))
+    if (!objMethod.Equals(SipMethod::SUBSCRIBE))
     {
         piSC->Close();
         return;
@@ -930,7 +930,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Subscription::Dialog_Compare(IN ISIPServerConnection *piSSC) const
+IMS_BOOL Subscription::Dialog_Compare(IN ISipServerConnection *piSSC) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -943,12 +943,12 @@ IMS_BOOL Subscription::Dialog_Compare(IN ISIPServerConnection *piSSC) const
 #endif
 
     // Filters some method which does not handle in the subscription
-    if (!piSSC->GetMethod().Equals(SIPMethod::NOTIFY))
+    if (!piSSC->GetMethod().Equals(SipMethod::NOTIFY))
     {
         return IMS_FALSE;
     }
 
-    ISIPDialog *piDialog = GetDialog();
+    ISipDialog *piDialog = GetDialog();
 
     if (piDialog == IMS_NULL)
     {
@@ -956,7 +956,7 @@ IMS_BOOL Subscription::Dialog_Compare(IN ISIPServerConnection *piSSC) const
         if (GetState() == STATE_PENDING)
         {
             IMS_SINT32 nOperation = pSubState->GetOperation();
-            ISIPClientConnection *piSCC = IMS_NULL;
+            ISipClientConnection *piSCC = IMS_NULL;
 
             IMS_TRACE_I("Checks if the early NOTIFY is received or not ...", 0, 0, 0);
 
@@ -996,16 +996,16 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Subscription::Dialog_NotifyRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL Subscription::Dialog_NotifyRequest(IN ISipServerConnection *piSSC)
 {
-    const SIPMethod& objMethod = piSSC->GetMethod();
+    const SipMethod& objMethod = piSSC->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
-    if (!objMethod.Equals(SIPMethod::NOTIFY))
+    if (!objMethod.Equals(SipMethod::NOTIFY))
     {
         // Handling of OPTIONS request
-        if (objMethod.Equals(SIPMethod::OPTIONS))
+        if (objMethod.Equals(SipMethod::OPTIONS))
         {
             if (Capabilities::HandleOPTIONSRequestWithinDialog(
                     GetService(), this, piSSC) != IMS_SUCCESS)
@@ -1016,24 +1016,24 @@ IMS_BOOL Subscription::Dialog_NotifyRequest(IN ISIPServerConnection *piSSC)
             return IMS_TRUE;
         }
 
-        GetService()->SendResponse(piSSC, SIPStatusCode::SC_405);
+        GetService()->SendResponse(piSSC, SipStatusCode::SC_405);
         piSSC->Close();
         return IMS_FALSE;
     }
 
-    if (SIPConfigProxy::IsRequestUriValidationRequiredInMidDialog(
+    if (SipConfigProxy::IsRequestUriValidationRequiredInMidDialog(
             GetSlotId(), GetService()->GetSIPProfile()))
     {
         // Checks if Request-URI is matched or not
-        const AString &strRequestURI = piSSC->GetRequestURI();
-        SIPAddress objRequestURI(strRequestURI);
+        const AString &strRequestURI = piSSC->GetRequestUri();
+        SipAddress objRequestURI(strRequestURI);
 
         if (!GetService()->ValidateRequestURI(objRequestURI, piSSC->GetDialog(), IMS_TRUE))
         {
             IMS_TRACE_D("Request-URI (%s) in mid-dialog request is not matched",
-                    SIPDebug::GetUri1(strRequestURI).GetStr(), 0, 0);
+                    SipDebug::GetUri1(strRequestURI).GetStr(), 0, 0);
 
-            GetService()->SendResponse(piSSC, SIPStatusCode::SC_404);
+            GetService()->SendResponse(piSSC, SipStatusCode::SC_404);
             piSSC->Close();
             return IMS_FALSE;
         }
@@ -1055,7 +1055,7 @@ IMS_BOOL Subscription::Dialog_NotifyRequest(IN ISIPServerConnection *piSSC)
     // Update the subscription state for NOTIFY request
     if (!pSubState->UpdateState(piSSC->GetMessage()))
     {
-        GetService()->SendResponse(piSSC, SIPStatusCode::SC_500);
+        GetService()->SendResponse(piSSC, SipStatusCode::SC_500);
         piSSC->Close();
         return IMS_FALSE;
     }
@@ -1066,7 +1066,7 @@ IMS_BOOL Subscription::Dialog_NotifyRequest(IN ISIPServerConnection *piSSC)
     if (pMessage == IMS_NULL)
     {
         // Internal error ... ???
-        if (GetService()->SendResponse(piSSC, SIPStatusCode::SC_500))
+        if (GetService()->SendResponse(piSSC, SipStatusCode::SC_500))
         {
             pSubState->UpdateState(piSSC->GetMessage());
             pRefreshHelper->UpdateOnMessageSent(piSSC);
@@ -1078,7 +1078,7 @@ IMS_BOOL Subscription::Dialog_NotifyRequest(IN ISIPServerConnection *piSSC)
     }
 
     // Send a 2xx response to NOTIFY request immediately
-    if (GetService()->SendResponse(piSSC, SIPStatusCode::SC_200) == IMS_FALSE)
+    if (GetService()->SendResponse(piSSC, SipStatusCode::SC_200) == IMS_FALSE)
     {
         delete pMessage;
         piSSC->Close();
@@ -1125,7 +1125,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Subscription::ForkedDialog_Compare(IN ISIPDialog *piOrigDialog) const
+IMS_BOOL Subscription::ForkedDialog_Compare(IN ISipDialog *piOrigDialog) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1134,7 +1134,7 @@ IMS_BOOL Subscription::ForkedDialog_Compare(IN ISIPDialog *piOrigDialog) const
         return IMS_FALSE;
     }
 
-    ISIPDialog *piDialog = GetDialog();
+    ISipDialog *piDialog = GetDialog();
 
     if (piDialog == IMS_NULL)
     {
@@ -1157,7 +1157,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-IMS_BOOL Subscription::ForkedDialog_NotifyRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL Subscription::ForkedDialog_NotifyRequest(IN ISipServerConnection *piSSC)
 {
     Subscription *pSubscription = new Subscription(GetService(), strEvent);
 
@@ -1165,7 +1165,7 @@ IMS_BOOL Subscription::ForkedDialog_NotifyRequest(IN ISIPServerConnection *piSSC
 
     if (pSubscription == IMS_NULL)
     {
-        GetService()->SendResponse(piSSC, SIPStatusCode::SC_500);
+        GetService()->SendResponse(piSSC, SipStatusCode::SC_500);
         piSSC->Close();
 
         return IMS_FALSE;
@@ -1175,7 +1175,7 @@ IMS_BOOL Subscription::ForkedDialog_NotifyRequest(IN ISIPServerConnection *piSSC
     {
         delete pSubscription;
 
-        GetService()->SendResponse(piSSC, SIPStatusCode::SC_500);
+        GetService()->SendResponse(piSSC, SipStatusCode::SC_500);
         piSSC->Close();
         return IMS_FALSE;
     }
@@ -1193,7 +1193,7 @@ IMS_BOOL Subscription::ForkedDialog_NotifyRequest(IN ISIPServerConnection *piSSC
     {
         delete pSubscription;
 
-        GetService()->SendResponse(piSSC, SIPStatusCode::SC_500);
+        GetService()->SendResponse(piSSC, SipStatusCode::SC_500);
         piSSC->Close();
         return IMS_FALSE;
     }
@@ -1214,7 +1214,7 @@ Remarks
 
 */
 PROTECTED VIRTUAL
-void Subscription::Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+void Subscription::Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -1241,8 +1241,8 @@ void Subscription::Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
         // AUTH_SIP_DIGEST {
         IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
-        if ((nStatusCode == SIPStatusCode::SC_401)
-                || (nStatusCode == SIPStatusCode::SC_407))
+        if ((nStatusCode == SipStatusCode::SC_401)
+                || (nStatusCode == SipStatusCode::SC_407))
         {
             // In case of other method except for REGISTER,
             // the UE only supports the authentication algorithm, MD5
@@ -1257,7 +1257,7 @@ void Subscription::Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
 
         CheckDialogNCallListener();
     }
-    else if (nCode == SIPStatusCode::SC_408)
+    else if (nCode == SipStatusCode::SC_408)
     {
         Refreshable_RefreshTerminated();
     }
@@ -1298,8 +1298,8 @@ IMS_BOOL Subscription::Refreshable_RefreshStarted()
         pSubState->SetOperation(SubState::OPERATION_IMPLICIT_REFRESH);
 
         // Send a refresh request : SUBSCRIBE
-        SIPMethod objMethod(SIPMethod::SUBSCRIBE);
-        ISIPClientConnection *piSCC = GetService()->CreateConnection(GetDialog(), objMethod);
+        SipMethod objMethod(SipMethod::SUBSCRIBE);
+        ISipClientConnection *piSCC = GetService()->CreateConnection(GetDialog(), objMethod);
 
         if (piSCC == IMS_NULL)
         {
@@ -1310,8 +1310,8 @@ IMS_BOOL Subscription::Refreshable_RefreshStarted()
             return IMS_FALSE;
         }
 
-        ISIPMessage *piSIPMsg = piSCC->GetMessage();
-        ISIPMessage *piInitialSIPMsg = pSubState->GetInitialMessage();
+        ISipMessage *piSIPMsg = piSCC->GetMessage();
+        ISipMessage *piInitialSIPMsg = pSubState->GetInitialMessage();
 
         if (piInitialSIPMsg != IMS_NULL)
         {
@@ -1394,13 +1394,13 @@ PRIVATE
 void Subscription::CheckDialogNCallListener()
 {
     // Check if the dialog is terminated or not
-    ISIPDialog *piDialog = GetDialog();
+    ISipDialog *piDialog = GetDialog();
 
     //---------------------------------------------------------------------------------------------
 
     if (piDialog != IMS_NULL)
     {
-        if (piDialog->GetState() == ISIPDialog::STATE_TERMINATED)
+        if (piDialog->GetState() == ISipDialog::STATE_TERMINATED)
         {
             PostMessage(AMSG_SUBSCRIPTION_TERMINATED, 0, 0);
         }
@@ -1479,10 +1479,10 @@ Remarks
 
 */
 PRIVATE
-ISIPClientConnection* Subscription::CreateConnectionL(IN ISIPDialog *piDialog,
-        IN CONST SIPMethod &objMethod)
+ISipClientConnection* Subscription::CreateConnectionL(IN ISipDialog *piDialog,
+        IN CONST SipMethod &objMethod)
 {
-    ISIPClientConnection *piSCC = CreateConnection(piDialog, objMethod);
+    ISipClientConnection *piSCC = CreateConnection(piDialog, objMethod);
 
     //---------------------------------------------------------------------------------------------
 
@@ -1521,7 +1521,7 @@ Remarks
 
 */
 PRIVATE
-void Subscription::UpdateResponse(IN ISIPClientConnection *piSCC)
+void Subscription::UpdateResponse(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 

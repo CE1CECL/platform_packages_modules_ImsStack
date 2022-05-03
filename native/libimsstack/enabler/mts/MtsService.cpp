@@ -80,16 +80,16 @@ void MtsService::Init(
 
     if (piSFC != IMS_NULL)
     {
-        SIPMethod objMethod(SIPMethod::MESSAGE);
+        SipMethod objMethod(SipMethod::MESSAGE);
         TriggerPoint objTP(objMethod);
 
         // Add iFC for 3GPP2 SMS format (Content-Type: application/vnd.3gpp2.sms)
-        objTP.AddHeader(ISIPHeader::CONTENT_TYPE, "application/vnd.3gpp2.sms");
+        objTP.AddHeader(ISipHeader::CONTENT_TYPE, "application/vnd.3gpp2.sms");
         piSFC->AddTriggerPoint(objTP);
 
         // Add iFC for 3GPP SMS format (Content-Type: application/vnd.3gpp.sms)
         objTP.RemoveAllHeaders();
-        objTP.AddHeader(ISIPHeader::CONTENT_TYPE, "application/vnd.3gpp.sms");
+        objTP.AddHeader(ISipHeader::CONTENT_TYPE, "application/vnd.3gpp.sms");
         piSFC->AddTriggerPoint(objTP);
     }
     //// iFC -- ends

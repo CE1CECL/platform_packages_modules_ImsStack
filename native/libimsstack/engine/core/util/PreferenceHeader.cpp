@@ -49,7 +49,7 @@ PreferenceHeader::PreferenceHeader(IN CONST AString &strHeader)
 }
 
 PUBLIC
-PreferenceHeader::PreferenceHeader(IN CONST ISIPHeader *piHeader)
+PreferenceHeader::PreferenceHeader(IN CONST ISipHeader *piHeader)
     : objPreferenceFeatures(IMSList<FeatureSet*>())
     , bExplicit(IMS_FALSE)
     , bRequire(IMS_FALSE)
@@ -61,11 +61,11 @@ PreferenceHeader::PreferenceHeader(IN CONST ISIPHeader *piHeader)
         return;
     }
 
-    const IMSList<SIPParameter*> &objParameters = piHeader->GetParameters();
+    const IMSList<SipParameter*> &objParameters = piHeader->GetParameters();
 
     for (IMS_UINT32 i = 0; i < objParameters.GetSize(); ++i)
     {
-        const SIPParameter *pParameter = objParameters.GetAt(i);
+        const SipParameter *pParameter = objParameters.GetAt(i);
 
         if (pParameter == IMS_NULL)
             continue;

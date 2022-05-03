@@ -46,7 +46,7 @@ PUBLIC VIRTUAL
 RegInfoContact::~RegInfoContact()
 {
     IMS_TRACE_D("Destructor :: uri=%s, id=%s",
-            SIPDebug::GetUri1(objURI.ToString()).GetStr(), strId.GetStr(), 0);
+            SipDebug::GetUri1(objURI.ToString()).GetStr(), strId.GetStr(), 0);
 }
 
 PUBLIC VIRTUAL
@@ -162,7 +162,7 @@ const IMSMap<AString, AString>& RegInfoContact::GetUnknownParameters() const
 }
 
 PUBLIC VIRTUAL
-const SIPAddress& RegInfoContact::GetURI() const
+const SipAddress& RegInfoContact::GetURI() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -285,7 +285,7 @@ IMS_BOOL RegInfoContact::Update(IN INode *piNode)
         if (!IMS_UTIL_SYS_PROP_IS_SERVER_INFO_HIDDEN_IN_LOG())
         {
             IMS_TRACE_I("Contact :: uri=%s, id=%s",
-                    SIPDebug::GetUri1(objURI.ToString()).GetStr(), strId.GetStr(), 0);
+                    SipDebug::GetUri1(objURI.ToString()).GetStr(), strId.GetStr(), 0);
         }
     }
     else
@@ -385,7 +385,7 @@ void RegInfoContact::DisplayRegInfo(IN const AString& strTag/* = AString::ConstN
     objLog.Append(", event=").Append(pszEvent[nEvent]);
     objLog.Append(", duration-registered=").Append(nDurationRegistered);
     objLog.Append(", expires=").Append(nExpires);
-    objLog.Append(", callid=").Append(SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'));
+    objLog.Append(", callid=").Append(SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'));
     objLog.Append(", cseq=").Append(nCSeq);
     objLog.Append(", retry-after=").Append(nRetryAfter);
     objLog.Append(", q-value=").Append(strQValue);
@@ -393,10 +393,10 @@ void RegInfoContact::DisplayRegInfo(IN const AString& strTag/* = AString::ConstN
 
     if (!IMS_UTIL_SYS_PROP_IS_SERVER_INFO_HIDDEN_IN_LOG())
     {
-        objLog.Append(", display-name=").Append(SIPDebug::GetCharA1(strDisplayName.GetStr(), 6));
-        objLog.Append(", uri=").Append(SIPDebug::GetUri1(objURI.ToString()));
-        objLog.Append(", pub-gruu=").Append(SIPDebug::GetUri1(strPubGRUU));
-        objLog.Append(", temp-gruu=").Append(SIPDebug::GetUri1(objTempGRUU.strGRUU));
+        objLog.Append(", display-name=").Append(SipDebug::GetCharA1(strDisplayName.GetStr(), 6));
+        objLog.Append(", uri=").Append(SipDebug::GetUri1(objURI.ToString()));
+        objLog.Append(", pub-gruu=").Append(SipDebug::GetUri1(strPubGRUU));
+        objLog.Append(", temp-gruu=").Append(SipDebug::GetUri1(objTempGRUU.strGRUU));
     }
 
     objLog.Append(", unknown-param-count=").Append(objUnknownParameters.GetSize());
@@ -409,7 +409,7 @@ void RegInfoContact::DisplayRegInfo(IN const AString& strTag/* = AString::ConstN
         const AString &strValue = objUnknownParameters.GetValueAt(i);
 
         IMS_TRACE_D("(%s) unknown-param :: %s=%s",
-                strTag.GetStr(), strName.GetStr(), SIPDebug::GetCharA1(strValue.GetStr(), 6));
+                strTag.GetStr(), strName.GetStr(), SipDebug::GetCharA1(strValue.GetStr(), 6));
     }
 }
 
@@ -798,7 +798,7 @@ void RegInfoContact::SetUnknownParameter(IN INode *piNode)
         else
         {
             IMS_TRACE_D("unknown-param :: %s=%s", strName.GetStr(),
-                    SIPDebug::GetCharA1(strValue.GetStr(), 6), 0);
+                    SipDebug::GetCharA1(strValue.GetStr(), 6), 0);
         }
     }
 
@@ -829,7 +829,7 @@ IMS_BOOL RegInfoContact::SetURI(IN INode *piNode)
     if (!objURI.Create(strURI))
     {
         IMS_TRACE_E(0, "Creating a Contact URI (%s) failed",
-                SIPDebug::GetUri1(strURI).GetStr(), 0, 0);
+                SipDebug::GetUri1(strURI).GetStr(), 0, 0);
         return IMS_FALSE;
     }
 

@@ -58,7 +58,7 @@ ImplicitSubscriberState::~ImplicitSubscriberState()
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL ImplicitSubscriberState::UpdateState(IN CONST ISIPMessage *piSIPMsg)
+IMS_BOOL ImplicitSubscriberState::UpdateState(IN CONST ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -67,13 +67,13 @@ IMS_BOOL ImplicitSubscriberState::UpdateState(IN CONST ISIPMessage *piSIPMsg)
         return IMS_FALSE;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     // Update the subscription state information...
-    if (objMethod.Equals(SIPMethod::REFER))
+    if (objMethod.Equals(SipMethod::REFER))
     {
         // On REFER request sent ...
-        if (piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+        if (piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
         {
             if (!UpdateOnREFERRequest(piSIPMsg))
             {
@@ -94,10 +94,10 @@ IMS_BOOL ImplicitSubscriberState::UpdateState(IN CONST ISIPMessage *piSIPMsg)
             }
         }
     }
-    else if (objMethod.Equals(SIPMethod::NOTIFY))
+    else if (objMethod.Equals(SipMethod::NOTIFY))
     {
         // On NOTIFY request received ...
-        if (piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+        if (piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
         {
             // Reset the flag for subscription duration changed
             SetDurationUpdated(IMS_FALSE);
@@ -141,20 +141,20 @@ IMS_BOOL ImplicitSubscriberState::UpdateState(IN CONST ISIPMessage *piSIPMsg)
 }
 
 PRIVATE
-IMS_SINT32 ImplicitSubscriberState::TranslateMessage(IN CONST ISIPMessage *piSIPMsg)
+IMS_SINT32 ImplicitSubscriberState::TranslateMessage(IN CONST ISipMessage *piSIPMsg)
 {
     IMS_SINT32 nMsgType = piSIPMsg->GetType();
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
-    if (nMsgType == ISIPMessage::TYPE_REQUEST)
+    if (nMsgType == ISipMessage::TYPE_REQUEST)
     {
-        if (objMethod.Equals(SIPMethod::REFER))
+        if (objMethod.Equals(SipMethod::REFER))
         {
             return MESSAGE_REFER;
         }
-        else if (objMethod.Equals(SIPMethod::NOTIFY))
+        else if (objMethod.Equals(SipMethod::NOTIFY))
         {
             IMS_SINT32 nSubStateValue = GetSubState();
 
@@ -166,27 +166,27 @@ IMS_SINT32 ImplicitSubscriberState::TranslateMessage(IN CONST ISIPMessage *piSIP
                 return MESSAGE_NOTIFY_TERMINATED;
         }
     }
-    else if (nMsgType == ISIPMessage::TYPE_RESPONSE)
+    else if (nMsgType == ISipMessage::TYPE_RESPONSE)
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if (objMethod.Equals(SIPMethod::REFER))
+        if (objMethod.Equals(SipMethod::REFER))
         {
-            if (SIPStatusCode::Is1XX(nStatusCode))
+            if (SipStatusCode::Is1XX(nStatusCode))
             {
                 return MESSAGE_REFER_1XX;
             }
-            else if (nStatusCode == SIPStatusCode::SC_200)
+            else if (nStatusCode == SipStatusCode::SC_200)
             {
                 return MESSAGE_REFER_200;
             }
-            else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+            else if (SipStatusCode::IsFinalSuccess(nStatusCode))
             {
                 return MESSAGE_REFER_202;
             }
             else
             {
-                if (nStatusCode == SIPStatusCode::SC_481)
+                if (nStatusCode == SipStatusCode::SC_481)
                 {
                     return MESSAGE_REFER_481;
                 }
@@ -196,13 +196,13 @@ IMS_SINT32 ImplicitSubscriberState::TranslateMessage(IN CONST ISIPMessage *piSIP
                 }
             }
         }
-        else if (objMethod.Equals(SIPMethod::NOTIFY))
+        else if (objMethod.Equals(SipMethod::NOTIFY))
         {
-            if (SIPStatusCode::Is1XX(nStatusCode))
+            if (SipStatusCode::Is1XX(nStatusCode))
             {
                 return MESSAGE_NOTIFY_1XX;
             }
-            else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+            else if (SipStatusCode::IsFinalSuccess(nStatusCode))
             {
                 if (GetSubState() == SUB_STATE_TERMINATED)
                     return MESSAGE_NOTIFY_XXX_TERMINATED;
@@ -223,10 +223,10 @@ IMS_SINT32 ImplicitSubscriberState::TranslateMessage(IN CONST ISIPMessage *piSIP
 }
 
 PRIVATE
-IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYRequest(IN CONST ISIPMessage *piSIPMsg)
+IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYRequest(IN CONST ISipMessage *piSIPMsg)
 {
     AString strHeader;
-    ISIPHeader *piHeader;
+    ISipHeader *piHeader;
     EventPackage *pEventPackage = GetEventPackage();
 
     //---------------------------------------------------------------------------------------------
@@ -236,21 +236,21 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYRequest(IN CONST ISIPMessage *pi
     // In such a case (of a subscription-creating NOTIFY), Event header needs to be updated.
     if (pEventPackage->GetEventHeader() == IMS_NULL)
     {
-        if (!piSIPMsg->IsHeaderPresent(ISIPHeader::EVENT))
+        if (!piSIPMsg->IsHeaderPresent(ISipHeader::EVENT))
         {
             IMS_TRACE_E(0, "Mandatory header missing : Event header", 0, 0, 0);
             return IMS_FALSE;
         }
 
-        strHeader = piSIPMsg->GetHeader(ISIPHeader::EVENT);
-        piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::EVENT, strHeader);
+        strHeader = piSIPMsg->GetHeader(ISipHeader::EVENT);
+        piHeader = SipParsingHelper::CreateHeader(ISipHeader::EVENT, strHeader);
 
         pEventPackage->SetEventHeader(piHeader);
     }
 
     // Extracts a subs-state & "expires" parameter from Subscription-State header
-    strHeader = piSIPMsg->GetHeader(ISIPHeader::SUBSCRIPTION_STATE);
-    piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::SUBSCRIPTION_STATE, strHeader);
+    strHeader = piSIPMsg->GetHeader(ISipHeader::SUBSCRIPTION_STATE);
+    piHeader = SipParsingHelper::CreateHeader(ISipHeader::SUBSCRIPTION_STATE, strHeader);
 
     if (piHeader == IMS_NULL)
     {
@@ -336,22 +336,22 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYRequest(IN CONST ISIPMessage *pi
 }
 
 PRIVATE
-IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYResponse(IN CONST ISIPMessage *piSIPMsg)
+IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYResponse(IN CONST ISipMessage *piSIPMsg)
 {
     IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
     //---------------------------------------------------------------------------------------------
 
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         // Do nothing ...
         return IMS_TRUE;
     }
-    else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    else if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-        || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+        || (nStatusCode == SipStatusCode::SC_407))
     {
         // Do nothing ...
         return IMS_TRUE;
@@ -375,7 +375,7 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYResponse(IN CONST ISIPMessage *p
         // the notifier MUST remove the corresponding subscription even if such subscription was
         // installed by non-SUBSCRIBE means (such as an administrative interface).
 
-        if (nStatusCode == SIPStatusCode::SC_481)
+        if (nStatusCode == SipStatusCode::SC_481)
         {
             // Transit the state to TERMINATED
             SetState(piSIPMsg, STATE_TERMINATED);
@@ -383,7 +383,7 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYResponse(IN CONST ISIPMessage *p
         else
         {
             // If no "Retry-After" header ...
-            if (!piSIPMsg->IsHeaderPresent(ISIPHeader::RETRY_AFTER_ANY))
+            if (!piSIPMsg->IsHeaderPresent(ISipHeader::RETRY_AFTER_ANY))
             {
                 // Transit the state to TERMINATED
                 SetState(piSIPMsg, STATE_TERMINATED);
@@ -395,7 +395,7 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnNOTIFYResponse(IN CONST ISIPMessage *p
 }
 
 PRIVATE
-IMS_BOOL ImplicitSubscriberState::UpdateOnREFERRequest(IN CONST ISIPMessage *piSIPMsg)
+IMS_BOOL ImplicitSubscriberState::UpdateOnREFERRequest(IN CONST ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -404,17 +404,17 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnREFERRequest(IN CONST ISIPMessage *piS
     {
         AString strHeader;
 
-        if (!piSIPMsg->IsHeaderPresent(ISIPHeader::EVENT))
+        if (!piSIPMsg->IsHeaderPresent(ISipHeader::EVENT))
         {
             IMS_TRACE_D("No Event header in REFER", 0, 0, 0);
-            strHeader = SIP::STR_REFER;
+            strHeader = Sip::STR_REFER;
         }
         else
         {
-            strHeader = piSIPMsg->GetHeader(ISIPHeader::EVENT);
+            strHeader = piSIPMsg->GetHeader(ISipHeader::EVENT);
         }
 
-        ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::EVENT, strHeader);
+        ISipHeader *piHeader = SipParsingHelper::CreateHeader(ISipHeader::EVENT, strHeader);
 
         GetEventPackage()->SetEventHeader(piHeader);
     }
@@ -423,7 +423,7 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnREFERRequest(IN CONST ISIPMessage *piS
 }
 
 PRIVATE
-IMS_BOOL ImplicitSubscriberState::UpdateOnREFERResponse(IN CONST ISIPMessage *piSIPMsg)
+IMS_BOOL ImplicitSubscriberState::UpdateOnREFERResponse(IN CONST ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -435,16 +435,16 @@ IMS_BOOL ImplicitSubscriberState::UpdateOnREFERResponse(IN CONST ISIPMessage *pi
 
     IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         // Do nothing ...
         return IMS_TRUE;
     }
-    else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    else if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-        || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+        || (nStatusCode == SipStatusCode::SC_407))
     {
         if (GetOperation() == OPERATION_REMOVE)
         {

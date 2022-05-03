@@ -17,7 +17,7 @@
 
 
 PUBLIC
-SIPTimerValues::SIPTimerValues()
+SipTimerValues::SipTimerValues()
     : nTV_Flags(0)
     , nTV_T1(2000)
     , nTV_T2(16000)
@@ -32,7 +32,7 @@ SIPTimerValues::SIPTimerValues()
 }
 
 PUBLIC
-SIPTimerValues::SIPTimerValues(IN CONST SIPTimerValues &objRHS)
+SipTimerValues::SipTimerValues(IN CONST SipTimerValues &objRHS)
     : nTV_Flags(objRHS.nTV_Flags)
     , nTV_T1(objRHS.nTV_T1)
     , nTV_T2(objRHS.nTV_T2)
@@ -47,12 +47,12 @@ SIPTimerValues::SIPTimerValues(IN CONST SIPTimerValues &objRHS)
 }
 
 PUBLIC
-SIPTimerValues::~SIPTimerValues()
+SipTimerValues::~SipTimerValues()
 {
 }
 
 PUBLIC
-SIPTimerValues& SIPTimerValues::operator=(IN CONST SIPTimerValues &objRHS)
+SipTimerValues& SipTimerValues::operator=(IN CONST SipTimerValues &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ SIPTimerValues& SIPTimerValues::operator=(IN CONST SIPTimerValues &objRHS)
 }
 
 PUBLIC
-IMS_SINT32 SIPTimerValues::GetValue(IN IMS_SINT32 nType) const
+IMS_SINT32 SipTimerValues::GetValue(IN IMS_SINT32 nType) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ IMS_SINT32 SIPTimerValues::GetValue(IN IMS_SINT32 nType) const
 }
 
 PUBLIC
-IMS_BOOL SIPTimerValues::IsSet(IN IMS_SINT32 nType) const
+IMS_BOOL SipTimerValues::IsSet(IN IMS_SINT32 nType) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -132,7 +132,7 @@ IMS_BOOL SIPTimerValues::IsSet(IN IMS_SINT32 nType) const
 }
 
 PUBLIC
-void SIPTimerValues::SetValue(IN IMS_SINT32 nType, IN IMS_UINT32 nValue)
+void SipTimerValues::SetValue(IN IMS_SINT32 nType, IN IMS_UINT32 nValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -177,9 +177,9 @@ void SIPTimerValues::SetValue(IN IMS_SINT32 nType, IN IMS_UINT32 nValue)
 }
 
 PUBLIC GLOBAL
-SIPTimerValues SIPTimerValues::CreateTimerValues(IN IMS_SINT32 nT1, IN IMS_SINT32 nT2)
+SipTimerValues SipTimerValues::CreateTimerValues(IN IMS_SINT32 nT1, IN IMS_SINT32 nT2)
 {
-    SIPTimerValues objTVs;
+    SipTimerValues objTVs;
 
     //---------------------------------------------------------------------------------------------
 

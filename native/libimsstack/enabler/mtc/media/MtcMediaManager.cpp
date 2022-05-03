@@ -454,7 +454,7 @@ void MtcMediaManager::Run(IN ISession* piSession, IN IMessage* piMessage, IN IMS
 
     for (IMS_UINT32 index = 0; index < objResponses.GetSize(); index++)
     {
-        if (objResponses.GetAt(index)->GetStatusCode() == SIPStatusCode::SC_180)
+        if (objResponses.GetAt(index)->GetStatusCode() == SipStatusCode::SC_180)
         {
             b180Received = IMS_TRUE;
             break;
@@ -466,8 +466,8 @@ void MtcMediaManager::Run(IN ISession* piSession, IN IMessage* piMessage, IN IMS
     /* IR.92 - 2.2.7 Early media and announcements
      * For SIP response 181 and 182 to the SIP INVITE, the UE must not locally render tones to
      * indicate diversion or queueing of calls. */
-    IMS_SINT32 nStatusCode = (!piMessage) ? SIPStatusCode::SC_INVALID : piMessage->GetStatusCode();
-    if (nStatusCode == SIPStatusCode::SC_181 || nStatusCode == SIPStatusCode::SC_182)
+    IMS_SINT32 nStatusCode = (!piMessage) ? SipStatusCode::SC_INVALID : piMessage->GetStatusCode();
+    if (nStatusCode == SipStatusCode::SC_181 || nStatusCode == SipStatusCode::SC_182)
     {
         nNetworkToneTimerDuration = 0;
     }
@@ -714,7 +714,7 @@ void MtcMediaManager::UpdatePemType(IN ISession* piSession, IN IMessage* piMessa
     // if (KEY_IGNORE_P_EARLY_MEDIA_HEADER_BOOL == IMS_TRUE) return;
 
     AString strPemValue;
-    IMS_RESULT nResult = MessageUtil::GetHeaderValue(piMessage, ISIPHeader::P_EARLY_MEDIA,
+    IMS_RESULT nResult = MessageUtil::GetHeaderValue(piMessage, ISipHeader::P_EARLY_MEDIA,
             strPemValue);
 
     if (nResult == IMS_FAILURE) // no P-Early-Media header or no value

@@ -52,7 +52,7 @@ void ExpandController::OnCallUpdated(IN IMS_UINT32 nType, IN IMS_UINTP nCallKey)
     IMS_TRACE_D("Updated : Add user of the exist 1-to-1 session", 0, 0, 0);
 
     ConfUser* p1to1User = new ConfUser();
-    SIPAddress objSIPAddress(
+    SipAddress objSIPAddress(
             GetConferenceCall()->GetCallContext().GetParticipantInfo().GetRemoteUri());
     p1to1User->aStrTarget = objSIPAddress.GetUserInfoPart()->GetUser();
 
@@ -116,7 +116,7 @@ void ExpandController::OnReferenceStartFailed(IN IConferenceReference* piConfRef
 
 PUBLIC VIRTUAL
 void ExpandController::OnReferenceUpdated(IN IConferenceReference* piConfRef,
-        IN SIPStatusCode nSipFragCode, IN ReferSubscriptionState eState)
+        IN SipStatusCode nSipFragCode, IN ReferSubscriptionState eState)
 {
     IMS_TRACE_D("OnReferenceUpdated : R-NOTIFY is received.", 0, 0, 0);
 
@@ -129,7 +129,7 @@ void ExpandController::OnReferenceUpdated(IN IConferenceReference* piConfRef,
     ConfUser* pTempUser = m_objParticipantList.GetConfUser(piConfRef);
     UpdateUserStatusByReferResult(pTempUser, piConfRef, nSipFragCode);
 
-    if (SIPStatusCode::IsFinalSuccess(nSipFragCode.ToInt()))
+    if (SipStatusCode::IsFinalSuccess(nSipFragCode.ToInt()))
     {
         StopFinalSipfragWaitTimer();
 
@@ -147,7 +147,7 @@ void ExpandController::OnReferenceUpdated(IN IConferenceReference* piConfRef,
             CompleteCurrentAndDoNextOperation(CONTROL_OPERATION_REFER_INVITE, pTempUser);
         }
     }
-    else if (SIPStatusCode::IsFinalFailure(nSipFragCode.ToInt()))
+    else if (SipStatusCode::IsFinalFailure(nSipFragCode.ToInt()))
     {
         StopFinalSipfragWaitTimer();
 
@@ -161,7 +161,7 @@ void ExpandController::OnReferenceUpdated(IN IConferenceReference* piConfRef,
             NotifyUsersInfo();
         }
     }
-    else if (SIPStatusCode::Is1XX(nSipFragCode.ToInt()) && (GetState() == STATE_EXPANDING))
+    else if (SipStatusCode::Is1XX(nSipFragCode.ToInt()) && (GetState() == STATE_EXPANDING))
     {
         CheckNStartFinalSipfragWaitTimer(CONDITION_SIPFRAG_100_RECEIVED);
     }
@@ -279,45 +279,45 @@ void ExpandController::Recover()
 PROTECTED VIRTUAL
 void ExpandController::UpdateUserStatusByReferResult(IN ConfUser* pUser,
         IN IConferenceReference* piConfRef,
-        IN SIPStatusCode nStatusCode/* = SIPStatusCode::SC_200*/)
+        IN SipStatusCode nStatusCode/* = SipStatusCode::SC_200*/)
 {
     if (ConferenceConfigurationWrapper::IsReferSubscriptionRequired() &&
             (GetState() == STATE_JOINING) &&
             (piConfRef->GetType() == REFERENCE_TYPE_INVITE) &&
-            SIPStatusCode::IsFinalFailure(nStatusCode.ToInt()))
+            SipStatusCode::IsFinalFailure(nStatusCode.ToInt()))
     {
         switch (nStatusCode.ToInt())
         {
-            case SIPStatusCode::SC_400:
-            case SIPStatusCode::SC_503:
+            case SipStatusCode::SC_400:
+            case SipStatusCode::SC_503:
                 pUser->eStatus = CONFINFO_STATUS_SERVERERROR;
                 break;
-            case SIPStatusCode::SC_403:
+            case SipStatusCode::SC_403:
                 pUser->eStatus = CONFINFO_STATUS_FORBIDDEN;
                 break;
-            case SIPStatusCode::SC_404:
-            case SIPStatusCode::SC_415:
+            case SipStatusCode::SC_404:
+            case SipStatusCode::SC_415:
                 pUser->eStatus = CONFINFO_STATUS_NOTSUPPORTED;
                 break;
-            case SIPStatusCode::SC_408:
+            case SipStatusCode::SC_408:
                 pUser->eStatus = CONFINFO_STATUS_NOANSWER;
                 break;
-            case SIPStatusCode::SC_480:
+            case SipStatusCode::SC_480:
                 pUser->eStatus = CONFINFO_STATUS_LOWBATTERY;
                 break;
-            case SIPStatusCode::SC_486:
+            case SipStatusCode::SC_486:
                 pUser->eStatus = CONFINFO_STATUS_BUSY;
                 break;
-            case SIPStatusCode::SC_499:
+            case SipStatusCode::SC_499:
                 pUser->eStatus = CONFINFO_STATUS_NOTREACHABLE;
                 break;
-            case SIPStatusCode::SC_500:
+            case SipStatusCode::SC_500:
                 pUser->eStatus = CONFINFO_STATUS_INTSERVERERROR;
                 break;
-            case SIPStatusCode::SC_603:
+            case SipStatusCode::SC_603:
                 pUser->eStatus = CONFINFO_STATUS_REJECT;
                 break;
-            case SIPStatusCode::SC_606:
+            case SipStatusCode::SC_606:
                 pUser->eStatus = CONFINFO_STATUS_NOTACCEPTABLE;
                 break;
 

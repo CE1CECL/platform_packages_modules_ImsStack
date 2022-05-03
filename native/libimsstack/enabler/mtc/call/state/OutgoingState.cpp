@@ -110,7 +110,7 @@ CallStateName OutgoingState::QosReserved(IN ISession* piSession, IN IMS_UINT32 e
     }
 
     IMessage* piMessage = piSession->GetPreviousResponse(IMessage::SESSION_PRACK);
-    if (piMessage == IMS_NULL || piMessage->GetStatusCode() != SIPStatusCode::SC_200)
+    if (piMessage == IMS_NULL || piMessage->GetStatusCode() != SipStatusCode::SC_200)
     {
         IMS_TRACE_D("QosReserved : There's no PRACK or response to PRACK.", 0, 0, 0);
         return GetStateName();
@@ -290,7 +290,7 @@ CallStateName OutgoingState::SessionEarlyMediaUpdateReceived(IN ISession* piSess
 
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
     {
-        if (SendResponseToEarlyUpdate(SIPStatusCode::SC_488, m_objSessions.GetValue(piSession)) ==
+        if (SendResponseToEarlyUpdate(SipStatusCode::SC_488, m_objSessions.GetValue(piSession)) ==
                 IMS_FAILURE)
         {
             FailReason objReason(FAIL_REASON_MEDIA_NEGOFAIL);
@@ -303,7 +303,7 @@ CallStateName OutgoingState::SessionEarlyMediaUpdateReceived(IN ISession* piSess
 
     UpdatePreconditionCapability(piSession, piMessage); // TODO: not in AlertingState?
 
-    if (SendResponseToEarlyUpdate(SIPStatusCode::SC_200, m_objSessions.GetValue(piSession)) ==
+    if (SendResponseToEarlyUpdate(SipStatusCode::SC_200, m_objSessions.GetValue(piSession)) ==
             IMS_FAILURE)
     {
         FailReason objReason(FAIL_REASON_SESSION_SETUPFAILED);
@@ -373,7 +373,7 @@ CallStateName OutgoingState::SessionPRAckDelivered(IN ISession* piSession)
 
     IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(piSession, IMessage::SESSION_START);
 
-    if (nStatusCode == SIPStatusCode::SC_183)
+    if (nStatusCode == SipStatusCode::SC_183)
     {
         IMtcMediaManager& objMediaManager = m_objContext.GetMediaManager();
         if (objMediaManager.GetNegotiationState(piSession) != NegotiationState::STATE_NEGOTIATED)
@@ -389,7 +389,7 @@ CallStateName OutgoingState::SessionPRAckDelivered(IN ISession* piSession)
             return TransitToTerminating(objReason);
         }
     }
-    else if (nStatusCode == SIPStatusCode::SC_200)
+    else if (nStatusCode == SipStatusCode::SC_200)
     {
         // TODO: send update after sending ACK to 200 OK response.
     }
@@ -403,7 +403,7 @@ CallStateName OutgoingState::SessionPRAckDeliveryFailed(IN ISession* piSession)
     IMS_TRACE_D("SessionPRAckDeliveryFailed", 0, 0, 0);
     IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(piSession, IMessage::SESSION_START);
     FailReason objReason = FailReason(
-            nStatusCode == SIPStatusCode::SC_INVALID ?
+            nStatusCode == SipStatusCode::SC_INVALID ?
             FAIL_REASON_SESSION_RES_TIMEOUT :
             FAIL_REASON_SESSION_SETUPFAILED,
             nStatusCode);
@@ -438,11 +438,11 @@ CallStateName OutgoingState::SessionProvisionalResponseReceived(
     IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(
             piSession, IMessage::SESSION_START, nIndex);
     // TODO: move to SessionAlerting
-    if (nStatusCode == SIPStatusCode::SC_180)
+    if (nStatusCode == SipStatusCode::SC_180)
     {
         m_bRemoteAlerted = IMS_TRUE;
     }
-    if (nStatusCode == SIPStatusCode::SC_199)
+    if (nStatusCode == SipStatusCode::SC_199)
     {
         // TODO: An early dialog is terminated
         return GetStateName();
@@ -461,7 +461,7 @@ CallStateName OutgoingState::SessionProvisionalResponseReceived(
         return TransitToTerminating(objReason);
     }
 
-    if (nStatusCode == SIPStatusCode::SC_180/* && local precondition support? */)
+    if (nStatusCode == SipStatusCode::SC_180/* && local precondition support? */)
     {
         m_objContext.GetPreconditionManager().SetRemoteResourceAvailable(piSession);
     }
@@ -495,11 +495,11 @@ CallStateName OutgoingState::SessionRPRReceived(IN ISession* piSession, IN IMS_U
     IMS_SINT32 nStatusCode = MessageUtil::GetResponseStatusCode(
             piSession, IMessage::SESSION_START, nIndex);
     // TODO: move to SessionAlerting
-    if (nStatusCode == SIPStatusCode::SC_180)
+    if (nStatusCode == SipStatusCode::SC_180)
     {
         m_bRemoteAlerted = IMS_TRUE;
     }
-    if (nStatusCode == SIPStatusCode::SC_199)
+    if (nStatusCode == SipStatusCode::SC_199)
     {
         // TODO: An early dialog is terminated
         return GetStateName();
@@ -521,7 +521,7 @@ CallStateName OutgoingState::SessionRPRReceived(IN ISession* piSession, IN IMS_U
     UpdatePreconditionCapability(piSession, piMessage);
 
     IMtcPreconditionManager& objPreconditionManager = m_objContext.GetPreconditionManager();
-    if (nStatusCode == SIPStatusCode::SC_180)
+    if (nStatusCode == SipStatusCode::SC_180)
     {
         objPreconditionManager.SetRemoteResourceAvailable(piSession);
     }
@@ -616,7 +616,7 @@ PRIVATE
 IMS_BOOL OutgoingState::IsRttCapable(IN IMessage* piMessage)
 {
     AString strContact;
-    MessageUtil::GetHeader(piMessage, ISIPHeader::CONTACT_NORMAL, strContact);
+    MessageUtil::GetHeader(piMessage, ISipHeader::CONTACT_NORMAL, strContact);
     return MessageUtil::ContainsTag(strContact, "text");
 }
 
@@ -641,16 +641,16 @@ void OutgoingState::HandleCountrySpecificServiceUrn(IN IMessage* piMessage)
     // If there is an alternative service URN in the Contact header of the 380 response,
     // it should be used to the subsequent emergency call.
 
-    if ((piMessage->GetStatusCode() == SIPStatusCode::SC_380) &&
-            MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::CONTACT_NORMAL))
+    if ((piMessage->GetStatusCode() == SipStatusCode::SC_380) &&
+            MessageUtil::IsHeaderPresent(piMessage, ISipHeader::CONTACT_NORMAL))
     {
         AString strServiceUrn;
-        MessageUtil::GetHeader(piMessage, ISIPHeader::CONTACT_NORMAL, strServiceUrn);
+        MessageUtil::GetHeader(piMessage, ISipHeader::CONTACT_NORMAL, strServiceUrn);
 
         if (strServiceUrn.StartsWith("urn:service:sos.country-specific"))
         {
             AString strNumber;
-            MessageUtil::GetUserPart(piMessage, ISIPHeader::TO, strNumber);
+            MessageUtil::GetUserPart(piMessage, ISipHeader::TO, strNumber);
             m_objContext.GetDialingPlan().OnCountrySpecificServiceUrnReceived(
                     strNumber, strServiceUrn);
         }

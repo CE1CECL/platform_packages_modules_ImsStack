@@ -29,10 +29,10 @@ RegFlow::RegFlow(IN const RegKey& objRegKey_)
     , nSubscriber(NO_SUBSCRIBER)
     , strSessionId(AString::ConstNull()) // HEADER_REQ_SESSION-ID
 {
-    SIPFactory::GenerateCallId(AString::ConstNull(), strCallId);
+    SipFactory::GenerateCallId(AString::ConstNull(), strCallId);
 
     // HEADER_REQ_SESSION-ID
-    SIPFactory::GenerateSessionId(objRegKey.GetSlotId(), strCallId, strSessionId);
+    SipFactory::GenerateSessionId(objRegKey.GetSlotId(), strCallId, strSessionId);
 }
 
 PUBLIC
@@ -49,7 +49,7 @@ PUBLIC
 RegFlow::~RegFlow()
 {
     IMS_TRACE_D("Destructor :: %X, %s, %u",
-            nSubscriber, SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), nCSeqValue);
+            nSubscriber, SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), nCSeqValue);
 }
 
 /*
@@ -180,13 +180,13 @@ Remarks
 PUBLIC
 void RegFlow::Restore()
 {
-    SIPFactory::GenerateCallId(AString::ConstNull(), strCallId);
+    SipFactory::GenerateCallId(AString::ConstNull(), strCallId);
 
     nSubscriber = NO_SUBSCRIBER;
     nCSeqValue = 0;
 
     // HEADER_REQ_SESSION-ID
-    SIPFactory::GenerateSessionId(objRegKey.GetSlotId(), strCallId, strSessionId);
+    SipFactory::GenerateSessionId(objRegKey.GetSlotId(), strCallId, strSessionId);
 }
 
 /*
@@ -220,6 +220,6 @@ void RegFlow::UpdateCallId(IN const IPAddress &objIP)
         strCallId.Append(objIP.ToString());
 
         // HEADER_REQ_SESSION-ID
-        SIPFactory::GenerateSessionId(objRegKey.GetSlotId(), strCallId, strSessionId);
+        SipFactory::GenerateSessionId(objRegKey.GetSlotId(), strCallId, strSessionId);
     }
 }

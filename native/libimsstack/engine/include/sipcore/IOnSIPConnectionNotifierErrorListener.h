@@ -14,7 +14,7 @@
 #ifndef _INTERFACE_ON_SIP_CONNECTION_NOTIFIER_ERROR_LISTENER_H_
 #define _INTERFACE_ON_SIP_CONNECTION_NOTIFIER_ERROR_LISTENER_H_
 
-class ISIPConnectionNotifier;
+class ISipConnectionNotifier;
 
 
 

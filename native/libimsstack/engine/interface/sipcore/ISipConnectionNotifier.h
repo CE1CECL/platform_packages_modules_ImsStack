@@ -4,11 +4,11 @@
 #include "IPAddress.h"
 #include "IConnection.h"
 
-class SIPProfile;
-class ISIPDialog;
-class ISIPServerConnection;
-class ISIPServerConnectionListener;
-class ISIPConnectionNotifierErrorListener;
+class SipProfile;
+class ISipDialog;
+class ISipServerConnection;
+class ISipServerConnectionListener;
+class ISipConnectionNotifierErrorListener;
 
 /**
  * @brief This class provides an interface to receive an incoming SIP request.
@@ -16,20 +16,20 @@ class ISIPConnectionNotifierErrorListener;
  * The SIP server transaction notifier is created with Connector.Open()
  * using a SIP URI string with the host and user omitted.
  *
- * @see IConnection, ISIPServerConnection, ISIPServerConnectionListener
+ * @see IConnection, ISipServerConnection, ISipServerConnectionListener
  */
-class ISIPConnectionNotifier
+class ISipConnectionNotifier
     : public IConnection
 {
 public:
     /**
-     * @brief Accepts and opens a new ISIPServerConnection in this listening port.
+     * @brief Accepts and opens a new ISipServerConnection in this listening port.
      *
      * If there are no messages in the queue, the method will throw an exception.
      *
-     * @return Pointer to ISIPServerConnection object which carries the received request.
+     * @return Pointer to ISipServerConnection object which carries the received request.
      */
-    virtual ISIPServerConnection* AcceptAndOpen() = 0;
+    virtual ISipServerConnection* AcceptAndOpen() = 0;
 
     /**
      * @brief Gets the local IP address for this SIP transaction notifier.
@@ -57,21 +57,21 @@ public:
      *
      * @param piListener Listener to monitor an incoming SIP requests
      */
-    virtual void SetListener(IN ISIPServerConnectionListener *piListener) = 0;
+    virtual void SetListener(IN ISipServerConnectionListener *piListener) = 0;
 
     ///////////////////////////////////////////////////////////////////////////
     // IMS extensions
 
     /**
-     * @brief Accepts and opens a new ISIPServerConnection in this listening port
+     * @brief Accepts and opens a new ISipServerConnection in this listening port
      *        when receiving a forked request.
      *
      * If there are no messages in the queue, the method will throw an exception.
      *
      * @param piOrigDialog Pointer to the original dialog when the request is forked
-     * @return Pointer to ISIPServerConnection object which carries the received request.
+     * @return Pointer to ISipServerConnection object which carries the received request.
      */
-    virtual ISIPServerConnection* AcceptAndOpen(OUT ISIPDialog *&piOrigDialog) = 0;
+    virtual ISipServerConnection* AcceptAndOpen(OUT ISipDialog *&piOrigDialog) = 0;
 
     /**
      * @brief Returns the default contact address.
@@ -83,10 +83,10 @@ public:
     /**
      * @brief Returns the SIP profile of this SIP connection notifier.
      *
-     * @return Pointer to SIPProfile.
+     * @return Pointer to SipProfile.
      * @note MULTI_REG_SIP_PROFILE
      */
-    virtual SIPProfile* GetSIPProfile() const = 0;
+    virtual SipProfile* GetSipProfile() const = 0;
 
     /**
      * @brief Gets the slot-id for this SIP connection notifier.
@@ -157,7 +157,7 @@ public:
      * @param pProfile SIP profile for SIP server transaction
      * @note MULTI_REG_SIP_PROFILE
      */
-    virtual void SetSIPProfile(IN SIPProfile *pProfile) = 0;
+    virtual void SetSipProfile(IN SipProfile *pProfile) = 0;
 
     /**
      * @brief Updates the port for the flow control based on RFC5626.
@@ -174,21 +174,21 @@ public:
      *
      * @param nPort Protected client port (uc) to be updated
      */
-    virtual void UpdatePortUC(IN IMS_SINT32 nPort) = 0;
+    virtual void UpdatePortUc(IN IMS_SINT32 nPort) = 0;
 
     /**
      * @brief Adds the listener for error notifications.
      *
-     * @param piListener Pointer to ISIPConnectionNotifierErrorListener
+     * @param piListener Pointer to ISipConnectionNotifierErrorListener
      */
-    virtual void AddErrorListener(IN ISIPConnectionNotifierErrorListener *piListener) = 0;
+    virtual void AddErrorListener(IN ISipConnectionNotifierErrorListener *piListener) = 0;
 
     /**
      * @brief Removes the listener for error notifications.
      *
-     * @param piListener Pointer to ISIPConnectionNotifierErrorListener
+     * @param piListener Pointer to ISipConnectionNotifierErrorListener
      */
-    virtual void RemoveErrorListener(IN ISIPConnectionNotifierErrorListener *piListener) = 0;
+    virtual void RemoveErrorListener(IN ISipConnectionNotifierErrorListener *piListener) = 0;
 
 public:
     /// Error codes

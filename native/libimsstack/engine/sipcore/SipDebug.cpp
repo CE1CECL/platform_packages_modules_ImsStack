@@ -20,27 +20,27 @@
 
 
 PRIVATE GLOBAL
-IMS_CHAR SIPDebug::acIP[SIPDebug::MAX_LOG_IP + 1] = { '\0', };
+IMS_CHAR SipDebug::acIpAddr[SipDebug::MAX_LOG_IP + 1] = { '\0', };
 PRIVATE GLOBAL
-IMS_CHAR SIPDebug::acLog1[SIPDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
+IMS_CHAR SipDebug::acLog1[SipDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
 PRIVATE GLOBAL
-IMS_CHAR SIPDebug::acLog2[SIPDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
+IMS_CHAR SipDebug::acLog2[SipDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
 PRIVATE GLOBAL
-AString SIPDebug::strLog1 = AString::ConstNull();
+AString SipDebug::strLog1 = AString::ConstNull();
 PRIVATE GLOBAL
-AString SIPDebug::strLog2 = AString::ConstNull();
+AString SipDebug::strLog2 = AString::ConstNull();
 
 // For SIM2 for multi-SIM device
 PRIVATE GLOBAL
-IMS_CHAR SIPDebug::acIP_1[SIPDebug::MAX_LOG_IP + 1] = { '\0', };
+IMS_CHAR SipDebug::acIpAddr_1[SipDebug::MAX_LOG_IP + 1] = { '\0', };
 PRIVATE GLOBAL
-IMS_CHAR SIPDebug::acLog1_1[SIPDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
+IMS_CHAR SipDebug::acLog1_1[SipDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
 PRIVATE GLOBAL
-IMS_CHAR SIPDebug::acLog2_1[SIPDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
+IMS_CHAR SipDebug::acLog2_1[SipDebug::MAX_LOG_CHAR_ARRAY + 3 + 1] = { '\0', };
 PRIVATE GLOBAL
-AString SIPDebug::strLog1_1 = AString::ConstNull();
+AString SipDebug::strLog1_1 = AString::ConstNull();
 PRIVATE GLOBAL
-AString SIPDebug::strLog2_1 = AString::ConstNull();
+AString SipDebug::strLog2_1 = AString::ConstNull();
 
 /*
 
@@ -48,7 +48,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-void SIPDebug::Send(IN IMS_SINT32 nSlotId, IN IMS_SINT32 nMsgType,
+void SipDebug::Send(IN IMS_SINT32 nSlotId, IN IMS_SINT32 nMsgType,
         IN IMS_SINT32 nDirection, IN IMS_SINT32 nMethod, IN IMS_SINT32 nStatusCode /* = 0 */)
 {
     // EVENT_IMS_DEBUG
@@ -80,9 +80,9 @@ Remarks
 
 */
 PUBLIC GLOBAL
-void SIPDebug::InitLogging()
+void SipDebug::InitLogging()
 {
-    IMS_MEM_Memset(acIP, 0x00, sizeof(acIP));
+    IMS_MEM_Memset(acIpAddr, 0x00, sizeof(acIpAddr));
     IMS_MEM_Memset(acLog1, 0x00, sizeof(acLog1));
     IMS_MEM_Memset(acLog2, 0x00, sizeof(acLog2));
 
@@ -90,7 +90,7 @@ void SIPDebug::InitLogging()
     strLog2 = AString::ConstNull();
 
     // For SIM2 for multi-SIM device
-    IMS_MEM_Memset(acIP_1, 0x00, sizeof(acIP_1));
+    IMS_MEM_Memset(acIpAddr_1, 0x00, sizeof(acIpAddr_1));
     IMS_MEM_Memset(acLog1_1, 0x00, sizeof(acLog1_1));
     IMS_MEM_Memset(acLog2_1, 0x00, sizeof(acLog2_1));
 
@@ -104,7 +104,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const IMS_CHAR* SIPDebug::GetCharA1(IN CONST IMS_CHAR *pszValue, IN IMS_SINT32 nCount,
+const IMS_CHAR* SipDebug::GetCharA1(IN CONST IMS_CHAR *pszValue, IN IMS_SINT32 nCount,
         IN CONST IMS_CHAR cDelimiter/* = 0 no delimiter */)
 {
     if (nCount > MAX_LOG_CHAR_ARRAY)
@@ -123,7 +123,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const IMS_CHAR* SIPDebug::GetCharA2(IN CONST IMS_CHAR *pszValue, IN IMS_SINT32 nCount,
+const IMS_CHAR* SipDebug::GetCharA2(IN CONST IMS_CHAR *pszValue, IN IMS_SINT32 nCount,
         IN CONST IMS_CHAR cDelimiter/* = 0 no delimiter */)
 {
     if (nCount > MAX_LOG_CHAR_ARRAY)
@@ -142,11 +142,11 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const IMS_CHAR* SIPDebug::GetIP(IN CONST IPAddress &objIPA)
+const IMS_CHAR* SipDebug::GetIp(IN CONST IPAddress &objIPA)
 {
     //---------------------------------------------------------------------------------------------
 
-    IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acIP[0] : &acIP_1[0];
+    IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acIpAddr[0] : &acIpAddr_1[0];
 
     // fe80:xxx or 192.1xxx
     return SIPStack::GetLogString(objIPA.ToCharString(), pszLog, 8);
@@ -158,11 +158,11 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const IMS_CHAR* SIPDebug::GetIP(IN CONST AString &strIP)
+const IMS_CHAR* SipDebug::GetIp(IN CONST AString &strIP)
 {
     //---------------------------------------------------------------------------------------------
 
-    IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acIP[0] : &acIP_1[0];
+    IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acIpAddr[0] : &acIpAddr_1[0];
 
     // fe80:xxx or 192.1xxx
     return SIPStack::GetLogString(strIP.GetStr(), pszLog, 8);
@@ -174,7 +174,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const AString& SIPDebug::GetStr1(IN CONST AString &strValue, IN IMS_SINT32 nCount,
+const AString& SipDebug::GetStr1(IN CONST AString &strValue, IN IMS_SINT32 nCount,
         IN CONST IMS_CHAR cDelimiter/* = 0 no delimiter */)
 {
     //---------------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const AString& SIPDebug::GetStr2(IN CONST AString &strValue, IN IMS_SINT32 nCount,
+const AString& SipDebug::GetStr2(IN CONST AString &strValue, IN IMS_SINT32 nCount,
         IN CONST IMS_CHAR cDelimiter/* = 0 no delimiter */)
 {
     //---------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const AString& SIPDebug::GetUri1(IN CONST AString &strValue)
+const AString& SipDebug::GetUri1(IN CONST AString &strValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -221,7 +221,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-const AString& SIPDebug::GetUri2(IN CONST AString &strValue)
+const AString& SipDebug::GetUri2(IN CONST AString &strValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -236,7 +236,7 @@ Remarks
 
 */
 PRIVATE GLOBAL
-IMS_BOOL SIPDebug::CheckIfDebugRequired(IN IMS_SINT32/* nSlotId*/, IN IMS_SINT32 nMsgType,
+IMS_BOOL SipDebug::CheckIfDebugRequired(IN IMS_SINT32/* nSlotId*/, IN IMS_SINT32 nMsgType,
         IN IMS_SINT32 nDirection, IN IMS_SINT32 nMethod, IN IMS_SINT32 nStatusCode)
 {
     IMS_BOOL bCheckDebugRequired = IMS_FALSE;
@@ -245,15 +245,15 @@ IMS_BOOL SIPDebug::CheckIfDebugRequired(IN IMS_SINT32/* nSlotId*/, IN IMS_SINT32
     {
         (void) nStatusCode;
 
-        if (nMethod == SIPMethod::REGISTER)
+        if (nMethod == SipMethod::REGISTER)
         {
             if ((nMsgType == MSG_RSP) && (nDirection == DIR_IN))
             {
                 return IMS_TRUE;
             }
         }
-        else if ((nMethod == SIPMethod::INVITE)
-                || (nMethod == SIPMethod::BYE))
+        else if ((nMethod == SipMethod::INVITE)
+                || (nMethod == SipMethod::BYE))
         {
             if (nMsgType == MSG_REQ)
             {
@@ -283,7 +283,7 @@ Remarks
 
 */
 PRIVATE GLOBAL
-IMS_SINT32 SIPDebug::GetSimSlot()
+IMS_SINT32 SipDebug::GetSimSlot()
 {
     if (SystemConfig::IsMultiSimEnabled())
     {

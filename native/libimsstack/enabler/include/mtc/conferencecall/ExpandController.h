@@ -26,7 +26,7 @@ public:
     void OnReferenceStarted(IN IConferenceReference* piConfRef) override;
     void OnReferenceStartFailed(IN IConferenceReference* piConfRef) override;
     void OnReferenceUpdated(IN IConferenceReference* piConfRef,
-            IN SIPStatusCode nSipFragCode, IN ReferSubscriptionState eState) override;
+            IN SipStatusCode nSipFragCode, IN ReferSubscriptionState eState) override;
 
 protected:
     void ProcessExpand(IN IMSList<ConfUser*>& objUsers) override;
@@ -37,7 +37,7 @@ protected:
     void OnCallUpdated(IN IMS_UINT32 nEvent, IN IMS_UINTP nCallKey) override;
     void UpdateUserStatusByReferResult(IN ConfUser* pUser,
             IN IConferenceReference* piConfRef,
-            IN SIPStatusCode nStatusCode = SIPStatusCode::SC_200) override;
+            IN SipStatusCode nStatusCode = SipStatusCode::SC_200) override;
 
     void NotifyCmdResult() override;
 

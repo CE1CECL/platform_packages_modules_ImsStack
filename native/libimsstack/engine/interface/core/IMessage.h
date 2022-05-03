@@ -3,14 +3,14 @@
 
 #include "SipMethod.h"
 
-class ISIPMessage;
+class ISipMessage;
 class IMessageBodyPart;
 
 /**
  * @brief This class provides functionality to manipulate headers and body parts
  *        of SIP messages.
  *
- * @see IServiceMethod, IMessageBodyPart, ISIPMessage
+ * @see IServiceMethod, IMessageBodyPart, ISipMessage
  */
 class IMessage
 {
@@ -50,16 +50,16 @@ public:
     /**
      * @brief Returns the SIP message for this IMessage.
      *
-     * @return Pointer to ISIPMessage.
+     * @return Pointer to ISipMessage.
      */
-    virtual ISIPMessage* GetMessage() const = 0;
+    virtual ISipMessage* GetMessage() const = 0;
 
     /**
      * @brief Returns the SIP method for this IMessage.
      *
-     * @return Reference to SIPMethod.
+     * @return Reference to SipMethod.
      */
-    virtual const SIPMethod& GetMethod() const = 0;
+    virtual const SipMethod& GetMethod() const = 0;
 
     /**
      * @brief Returns the reason phrase of the response.

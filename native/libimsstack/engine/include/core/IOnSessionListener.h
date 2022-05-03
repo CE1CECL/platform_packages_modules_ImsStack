@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_ON_SESSION_LISTENER_H_
 #define _INTERFACE_ON_SESSION_LISTENER_H_
 
-class ISIPServerConnection;
+class ISipServerConnection;
 class Session;
 class Reference;
 
@@ -296,7 +296,7 @@ public:
     parameter               description
     ----------              ----------
     pSession                Pointer to Session object
-    piSSC                   Pointer to ISIPServerConnection object
+    piSSC                   Pointer to ISipServerConnection object
     </table>
 
     Returns
@@ -309,7 +309,7 @@ public:
 
     */
     virtual IMS_BOOL OnSession_TransactionReceived(IN Session *pSession,
-            IN ISIPServerConnection *piSSC) = 0;
+            IN ISipServerConnection *piSSC) = 0;
 };
 
 #endif // _INTERFACE_ON_SESSION_LISTENER_H_

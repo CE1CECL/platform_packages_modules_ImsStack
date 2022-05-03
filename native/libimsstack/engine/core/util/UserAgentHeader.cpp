@@ -27,29 +27,29 @@ __IMS_TRACE_TAG_IMS_CORE__;
 
 
 PUBLIC GLOBAL
-void UserAgentHeader::SetHeader(IN CONST AString &strName, IN CONST SIPProfile *pSIPProfile,
+void UserAgentHeader::SetHeader(IN CONST AString &strName, IN CONST SipProfile *pSIPProfile,
         IN CONST AString& /*strServiceId*/, IN CONST IPAddress& /*objIP*/, IN IMS_SINT32 nSlotId,
-        IN_OUT ISIPMessage *&piSIPMsg)
+        IN_OUT ISipMessage *&piSIPMsg)
 {
     if (strName.GetLength() == 0)
     {
         return;
     }
 
-    if (!SIPConfigProxy::IsUserAgentConfigured(nSlotId, pSIPProfile))
+    if (!SipConfigProxy::IsUserAgentConfigured(nSlotId, pSIPProfile))
     {
         return;
     }
 
     AString strUaString;
 
-    if (piSIPMsg->GetMethod().Equals(SIPMethod::REGISTER))
+    if (piSIPMsg->GetMethod().Equals(SipMethod::REGISTER))
     {
-        strUaString = SIPConfigProxy::GetRegUaString(nSlotId, pSIPProfile);
+        strUaString = SipConfigProxy::GetRegUaString(nSlotId, pSIPProfile);
     }
     else
     {
-        strUaString = SIPConfigProxy::GetUaString(nSlotId, pSIPProfile);
+        strUaString = SipConfigProxy::GetUaString(nSlotId, pSIPProfile);
     }
 
     if (strUaString.GetLength() == 0)
@@ -58,7 +58,7 @@ void UserAgentHeader::SetHeader(IN CONST AString &strName, IN CONST SIPProfile *
         return;
     }
 
-    if (piSIPMsg->SetHeader(ISIPHeader::UNKNOWN, strUaString, strName) != IMS_SUCCESS)
+    if (piSIPMsg->SetHeader(ISipHeader::UNKNOWN, strUaString, strName) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Setting %s header failed", strName.GetStr(), 0, 0);
         return;

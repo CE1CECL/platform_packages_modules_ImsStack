@@ -135,7 +135,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPDialog* SIPClientConnectionImpl::GetDialog() const
+ISipDialog* SIPClientConnectionImpl::GetDialog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -175,7 +175,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPMethod& SIPClientConnectionImpl::GetMethod() const
+const SipMethod& SIPClientConnectionImpl::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const AString& SIPClientConnectionImpl::GetRequestURI() const
+const AString& SIPClientConnectionImpl::GetRequestUri() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -254,10 +254,10 @@ IMS_RESULT SIPClientConnectionImpl::Send()
                 && (pDialog != IMS_NULL)
                 && (pDialog->GetState() == SIPDialog::STATE_CONFIRMED))
         {
-            const SIPMethod& objMethod = GetMethod();
+            const SipMethod& objMethod = GetMethod();
 
-            if (objMethod.Equals(SIPMethod::SUBSCRIBE)
-                    || objMethod.Equals(SIPMethod::REFER))
+            if (objMethod.Equals(SipMethod::SUBSCRIBE)
+                    || objMethod.Equals(SipMethod::REFER))
             {
                 *pDialog = *pSccDialog;
             }
@@ -273,7 +273,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPClientConnectionImpl::SetErrorListener(IN ISIPErrorListener *piListener)
+void SIPClientConnectionImpl::SetErrorListener(IN ISipErrorListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -339,7 +339,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPMessage* SIPClientConnectionImpl::GetMessage() const
+ISipMessage* SIPClientConnectionImpl::GetMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -365,7 +365,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PRIVATE VIRTUAL
-void SIPClientConnectionImpl::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPClientConnectionImpl::SetSipProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -378,7 +378,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPClientConnectionImpl::SetTransactionTimerValues(IN CONST SIPTimerValues &objTV)
+void SIPClientConnectionImpl::SetTransactionTimerValues(IN CONST SipTimerValues &objTV)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -404,7 +404,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPClientConnection* SIPClientConnectionImpl::InitCancel()
+ISipClientConnection* SIPClientConnectionImpl::InitCancel()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -422,7 +422,7 @@ ISIPClientConnection* SIPClientConnectionImpl::InitCancel()
 
     if (pCANCELImpl == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::CONNECTION_NOT_FOUND);
+        SIPPrivate::SetLastError(SipError::CONNECTION_NOT_FOUND);
         return IMS_NULL;
     }
 
@@ -436,7 +436,7 @@ Remarks
 */
 PRIVATE VIRTUAL
 IMS_RESULT SIPClientConnectionImpl::InitRequest(IN CONST AString &strMethod,
-        IN ISIPConnectionNotifier *piSCN)
+        IN ISipConnectionNotifier *piSCN)
 {
     SIPConnectionNotifierImpl *pSCNImpl = DYNAMIC_CAST(SIPConnectionNotifierImpl*, piSCN);
     SIPConnectionNotifier *pSCN = IMS_NULL;
@@ -513,7 +513,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPClientConnectionImpl::SetListener(IN ISIPClientConnectionListener *piListener)
+void SIPClientConnectionImpl::SetListener(IN ISipClientConnectionListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -526,7 +526,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_RESULT SIPClientConnectionImpl::SetRequestURI(IN CONST AString &strURI)
+IMS_RESULT SIPClientConnectionImpl::SetRequestUri(IN CONST AString &strURI)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -539,7 +539,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPGenericChallenge* SIPClientConnectionImpl::GetAuthenticationChallenge(
+ISipGenericChallenge* SIPClientConnectionImpl::GetAuthenticationChallenge(
         IN IMS_SINT32 nIndex /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
@@ -553,7 +553,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-ISIPAckPackage* SIPClientConnectionImpl::GrabAck()
+ISipAckPackage* SIPClientConnectionImpl::GrabAck()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -606,7 +606,7 @@ Remarks
 */
 PRIVATE VIRTUAL
 IMS_RESULT SIPClientConnectionImpl::SetAuthenticationChallenge(
-        IN ISIPGenericChallenge *piChallenge)
+        IN ISipGenericChallenge *piChallenge)
 {
     //---------------------------------------------------------------------------------------------
 

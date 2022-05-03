@@ -193,7 +193,7 @@ IMS_RESULT EstablishedState::HandleReceivedUpdate(OUT CallStateName& eStateName)
     }
 
     IMessage* piMessage = objSession.GetPreviousRequest(IMessage::SESSION_UPDATE);
-    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SIPMethod::UPDATE))
+    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SipMethod::UPDATE))
     {
         eStateName = CallStateName::ESTABLISHED;
     }
@@ -214,7 +214,7 @@ IMS_RESULT EstablishedState::HandleReceivedUpdateWithoutOffer(OUT CallStateName&
     eStateName = CallStateName::UPDATING;
     IMessage* piMessage =
             m_objContext.GetSession()->GetISession().GetPreviousRequest(IMessage::SESSION_UPDATE);
-    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SIPMethod::UPDATE))
+    if (piMessage != IMS_NULL && piMessage->GetMethod().Equals(SipMethod::UPDATE))
     {
         eStateName = CallStateName::ESTABLISHED;
     }

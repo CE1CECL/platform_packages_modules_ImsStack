@@ -6,15 +6,15 @@
 /**
  * @brief This class defines the SIP transaction timer values which are set by the application.
  */
-class SIPTimerValues
+class SipTimerValues
 {
 public:
-    SIPTimerValues();
-    SIPTimerValues(IN CONST SIPTimerValues &objRHS);
-    ~SIPTimerValues();
+    SipTimerValues();
+    SipTimerValues(IN CONST SipTimerValues &objRHS);
+    ~SipTimerValues();
 
 public:
-    SIPTimerValues& operator=(IN CONST SIPTimerValues &objRHS);
+    SipTimerValues& operator=(IN CONST SipTimerValues &objRHS);
 
 public:
     /**
@@ -67,13 +67,13 @@ public:
     void SetValue(IN IMS_SINT32 nType, IN IMS_UINT32 nValue);
 
     /**
-     * @brief Creates SIPTimerValues based on T1 and T2.
+     * @brief Creates SipTimerValues based on T1 and T2.
      *
      * @param nT1 T1 timer value
      * @param nT2 T2 timer value
-     * @return The newly created SIPTimerValues.
+     * @return The newly created SipTimerValues.
      */
-    static SIPTimerValues CreateTimerValues(IN IMS_SINT32 nT1, IN IMS_SINT32 nT2);
+    static SipTimerValues CreateTimerValues(IN IMS_SINT32 nT1, IN IMS_SINT32 nT2);
 
 public:
     /// Types of SIP transaction timer

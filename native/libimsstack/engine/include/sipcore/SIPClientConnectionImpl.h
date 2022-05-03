@@ -23,7 +23,7 @@ class SIPClientConnection;
 
 
 class SIPClientConnectionImpl
-    : public ISIPClientConnection
+    : public ISipClientConnection
     , public IOnSIPErrorListener
     , public IOnSIPClientConnectionListener
 {
@@ -43,43 +43,43 @@ private:
     // IConnection interface implementation
     virtual void Close();
 
-    // ISIPConnection interface implementation
+    // ISipConnection interface implementation
     virtual IMS_RESULT AddHeader(IN CONST AString &strName, IN CONST AString &strValue);
-    virtual ISIPDialog* GetDialog() const;
+    virtual ISipDialog* GetDialog() const;
     virtual AString GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex = 0);
     virtual IMSList<AString> GetHeaders(IN CONST AString &strName);
-    virtual const SIPMethod& GetMethod() const;
+    virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
-    virtual const AString& GetRequestURI() const;
+    virtual const AString& GetRequestUri() const;
     virtual IMS_SINT32 GetStatusCode() const;
     virtual IMS_RESULT RemoveHeader(IN CONST AString &strName);
     virtual IMS_RESULT Send();
-    virtual void SetErrorListener(IN ISIPErrorListener *piListener);
+    virtual void SetErrorListener(IN ISipErrorListener *piListener);
     virtual IMS_RESULT SetHeader(IN CONST AString &strName, IN CONST AString &strValue);
     virtual const ByteArray& GetContent() const;
     virtual IMS_RESULT SetContent(IN CONST ByteArray &objContent);
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString &strName) const;
-    virtual ISIPMessage* GetMessage() const;
+    virtual ISipMessage* GetMessage() const;
     virtual IMS_SINT32 GetSlotId() const;
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
-    virtual void SetTransactionTimerValues(IN CONST SIPTimerValues &objTV);
+    virtual void SetSipProfile(IN SipProfile *pProfile);
+    virtual void SetTransactionTimerValues(IN CONST SipTimerValues &objTV);
 
-    // ISIPClientConnection interface implementation
+    // ISipClientConnection interface implementation
     virtual IMS_RESULT InitAck();
-    virtual ISIPClientConnection* InitCancel();
-    virtual IMS_RESULT InitRequest(IN CONST AString &strMethod, IN ISIPConnectionNotifier *piSCN);
+    virtual ISipClientConnection* InitCancel();
+    virtual IMS_RESULT InitRequest(IN CONST AString &strMethod, IN ISipConnectionNotifier *piSCN);
     virtual IMS_RESULT Receive(IN IMS_SLONG nTimeout = 0);
     virtual IMS_RESULT SetCredentials(IN IMSList<Credential> &objCredentials);
     virtual IMS_RESULT SetCredentials(IN CONST Credential &objCredential);
-    virtual void SetListener(IN ISIPClientConnectionListener *piListener);
-    virtual IMS_RESULT SetRequestURI(IN CONST AString &strURI);
-    virtual ISIPGenericChallenge* GetAuthenticationChallenge(IN IMS_SINT32 nIndex = 0) const;
-    virtual ISIPAckPackage* GrabAck();
+    virtual void SetListener(IN ISipClientConnectionListener *piListener);
+    virtual IMS_RESULT SetRequestUri(IN CONST AString &strURI);
+    virtual ISipGenericChallenge* GetAuthenticationChallenge(IN IMS_SINT32 nIndex = 0) const;
+    virtual ISipAckPackage* GrabAck();
     virtual IMS_RESULT InitResubmissionRequest();
     virtual void RemoveAllChallenges();
     virtual void RemoveAllCredentials();
-    virtual IMS_RESULT SetAuthenticationChallenge(IN ISIPGenericChallenge *piChallenge);
+    virtual IMS_RESULT SetAuthenticationChallenge(IN ISipGenericChallenge *piChallenge);
     virtual void SetExtensionTokenForViaBranch(IN CONST AString &strToken);
     virtual void SetImplicitRouteHeader(IN CONST AString &strRouteHeader);
     virtual void SetTransportTuple(IN CONST IPAddress &objIPA,
@@ -96,8 +96,8 @@ private:
             IN SIPClientConnection *pForkedSCC);
 
 private:
-    ISIPErrorListener *piErrorListener;
-    ISIPClientConnectionListener *piListener;
+    ISipErrorListener *piErrorListener;
+    ISipClientConnectionListener *piListener;
 
     SIPDialogImpl *pDialogImpl;
     SIPClientConnection *pSCC;

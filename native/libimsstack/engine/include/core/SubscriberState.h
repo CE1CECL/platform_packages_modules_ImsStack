@@ -38,19 +38,19 @@ private:
 
 public:
     // SubState class
-    virtual IMS_BOOL UpdateState(IN CONST ISIPMessage *piSIPMsg);
+    virtual IMS_BOOL UpdateState(IN CONST ISipMessage *piSIPMsg);
 
 protected:
     // SubState class
     virtual const SIPHeaderProperty* GetRestrictedHeaders(OUT IMS_UINT32 &nCount) const;
 
 private:
-    IMS_SINT32 TranslateMessage(IN CONST ISIPMessage *piSIPMsg);
+    IMS_SINT32 TranslateMessage(IN CONST ISipMessage *piSIPMsg);
 
-    IMS_BOOL UpdateOnNOTIFYRequest(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnNOTIFYResponse(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnSUBSCRIBERequest(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnSUBSCRIBEResponse(IN CONST ISIPMessage *piSIPMsg);
+    IMS_BOOL UpdateOnNOTIFYRequest(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnNOTIFYResponse(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnSUBSCRIBERequest(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnSUBSCRIBEResponse(IN CONST ISipMessage *piSIPMsg);
 
     static void InitializeStateTable();
 

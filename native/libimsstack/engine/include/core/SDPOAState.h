@@ -17,7 +17,7 @@
 #include "SdpParser.h"
 #include "SessionParameter.h"
 
-class ISIPMessage;
+class ISipMessage;
 class Service;
 class SessionCapabilities;
 
@@ -64,13 +64,13 @@ public:
     IMS_BOOL InitiateOffer(IN IMS_SINT32 nType);
     IMS_BOOL IsOfferProgress() const;
     IMS_BOOL IsSessionChanged() const;
-    IMS_SINT32 HandleOfferAnswer(IN CONST ISIPMessage *piSIPMsg);
+    IMS_SINT32 HandleOfferAnswer(IN CONST ISipMessage *piSIPMsg);
     void CompleteExchange();
     IMS_BOOL RestoreState();
-    IMS_BOOL UpdateState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow,
+    IMS_BOOL UpdateState(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow,
             IN IMS_BOOL bIsCallEstablished, IN IMS_BOOL bAllowOAForNonRPR = IMS_FALSE);
     void UpdateStateOnTransactionCompleted(
-            IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow);
+            IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nMessageFlow);
 
     // REFUSE_SDP_OFFER_ANSWER_EXCHANGE {
     void CreateRefusedView();

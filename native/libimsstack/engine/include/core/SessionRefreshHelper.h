@@ -15,7 +15,7 @@
 
 #include "util/RefreshHelper.h"
 
-class ISIPConnection;
+class ISipConnection;
 class Service;
 
 
@@ -28,24 +28,24 @@ public:
     virtual ~SessionRefreshHelper();
 
 public:
-    virtual IMS_BOOL AddSpecificHeader(IN ISIPConnection *piSC);
-    virtual IMS_BOOL AddSpecificHeaderWithoutParameterChange(IN ISIPConnection *piSC);
-    virtual IMS_RESULT SendRefreshRequest(IN ISIPClientConnection *piSCC);
-    virtual IMS_RESULT UpdateOnMessageReceived(IN CONST ISIPConnection *piSC);
-    virtual IMS_RESULT UpdateOnMessageSent(IN CONST ISIPConnection *piSC);
+    virtual IMS_BOOL AddSpecificHeader(IN ISipConnection *piSC);
+    virtual IMS_BOOL AddSpecificHeaderWithoutParameterChange(IN ISipConnection *piSC);
+    virtual IMS_RESULT SendRefreshRequest(IN ISipClientConnection *piSCC);
+    virtual IMS_RESULT UpdateOnMessageReceived(IN CONST ISipConnection *piSC);
+    virtual IMS_RESULT UpdateOnMessageSent(IN CONST ISipConnection *piSC);
 
-    IMS_BOOL AddSpecificHeaderOnEarlyUPDATE(IN ISIPConnection *piSC,
+    IMS_BOOL AddSpecificHeaderOnEarlyUPDATE(IN ISipConnection *piSC,
             IN IMS_BOOL bTimerOptionSupported);
     IMS_SINT32 GetRefreshMethod() const;
-    IMS_BOOL IsSessionTimerSupported(IN CONST ISIPConnection *piSC,
+    IMS_BOOL IsSessionTimerSupported(IN CONST ISipConnection *piSC,
             IN IMS_BOOL bCheckSEPresentity = IMS_TRUE);
     IMS_BOOL IsSessionTimerSupportedBySessionExpires() const;
-    void StopSessionTimer(IN CONST ISIPConnection *piSC);
-    void UpdateTimerOptionOnRequestReceived(IN CONST ISIPConnection *piSC);
+    void StopSessionTimer(IN CONST ISipConnection *piSC);
+    void UpdateTimerOptionOnRequestReceived(IN CONST ISipConnection *piSC);
 
 protected:
     virtual IMS_SINT32 GetTimerInterval() const;
-    virtual void RefreshCompleted(IN ISIPClientConnection *piSCC, IN IMS_SINT32 nCode = 0);
+    virtual void RefreshCompleted(IN ISipClientConnection *piSCC, IN IMS_SINT32 nCode = 0);
     virtual void RefreshStarted();
     virtual void RefreshTerminated();
 
@@ -57,11 +57,11 @@ private:
     IMS_BOOL IsRefresherParameterControlledOnEarlyUPDATE() const;
     IMS_BOOL IsRequireHeaderRequired() const;
     IMS_BOOL IsSessionExpiresHeaderRequired() const;
-    IMS_BOOL IsSessionRefreshRequired(IN CONST ISIPConnection *piSC) const;
+    IMS_BOOL IsSessionRefreshRequired(IN CONST ISipConnection *piSC) const;
     IMS_BOOL IsSessionTimerSupportedOnRemoteUA() const;
     IMS_BOOL IsSessionTimerSupportedOnUAC() const;
     void NegotiateRefresher(IN IMS_BOOL bTimerOptionSupported);
-    void UpdateProperties(IN CONST ISIPConnection *piSC, IN IMS_BOOL bTimerOptionSupported,
+    void UpdateProperties(IN CONST ISipConnection *piSC, IN IMS_BOOL bTimerOptionSupported,
             IN IMS_BOOL bSent = IMS_FALSE);
 
     inline IMS_BOOL IsTimerSupportedOnRemoteEnd(IN IMS_SINT32 nFlag) const

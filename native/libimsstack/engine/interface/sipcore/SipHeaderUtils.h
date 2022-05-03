@@ -6,10 +6,10 @@
 /**
  * @brief This class defines the warning error codes and to generate the retry-after field value.
  */
-class SIPHeaderUtil
+class SipHeaderUtils
 {
 private:
-    SIPHeaderUtil();
+    SipHeaderUtils();
 
 public:
     /**

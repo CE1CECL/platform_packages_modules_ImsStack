@@ -17,7 +17,7 @@
 
 PUBLIC
 SIPTxnKey::SIPTxnKey()
-    : objMethod(SIPMethod::INVALID)
+    : objMethod(SipMethod::INVALID)
     , nStatusCode(0)
     , strViaBranch(AString::ConstNull())
     , nCSeq(0)
@@ -27,7 +27,7 @@ SIPTxnKey::SIPTxnKey()
 }
 
 PUBLIC
-SIPTxnKey::SIPTxnKey(IN CONST SIPMethod &objMethod_, IN IMS_SINT32 nStatusCode_,
+SIPTxnKey::SIPTxnKey(IN CONST SipMethod &objMethod_, IN IMS_SINT32 nStatusCode_,
         IN CONST AString &strViaBranch_, IN IMS_UINT32 nCSeq_)
     : objMethod(objMethod_)
     , nStatusCode(nStatusCode_)
@@ -130,7 +130,7 @@ Remarks
 
 */
 PUBLIC
-const SIPMethod& SIPTxnKey::GetMethod() const
+const SipMethod& SIPTxnKey::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 

@@ -25,7 +25,7 @@ __IMS_TRACE_TAG_SIP__;
 PUBLIC
 SIPForkedTransactionManager::SIPForkedTransactionManager()
     : RCObject()
-    , nStatusCode(SIPStatusCode::SC_INVALID)
+    , nStatusCode(SipStatusCode::SC_INVALID)
 {
 }
 
@@ -94,7 +94,7 @@ IMS_BOOL SIPForkedTransactionManager::IsTransactionCompleted() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return SIPStatusCode::IsFinal(nStatusCode);
+    return SipStatusCode::IsFinal(nStatusCode);
 }
 
 /*
@@ -131,36 +131,36 @@ SIPClientTransactionState* SIPForkedTransactionManager::Lookup(IN SipMessage *ps
     AString strCallId;
 
     // Call Id
-    pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::CALL_ID);
+    pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CALL_ID);
     SIPStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strCallId);
     SIPStack::FreeHeaderEx(pstHeader);
 
     if (SIPStack::IsRequestMessage(pstMessage))
     {
         // Get local tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
-        strNewLocalTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewLocalTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
 
         // Get remote tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
 
-        strNewRemoteTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewRemoteTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
     }
     else
     {
         // Get local tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::FROM);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
 
-        strNewLocalTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewLocalTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
 
         // Get remote tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISIPHeader::TO);
+        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
 
-        strNewRemoteTag = SIPStack::GetParameter(pstHeader, SIP::STR_TAG);
+        strNewRemoteTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
         SIPStack::FreeHeaderEx(pstHeader);
     }
 
@@ -178,7 +178,7 @@ SIPClientTransactionState* SIPForkedTransactionManager::Lookup(IN SipMessage *ps
         {
             IMS_TRACE_D("ForkedTransactionManager :: Dialog " \
                     "(call-id=%s, local-tag=%s, remote-tag=%s)",
-                    SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'),
+                    SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'),
                     strLocalTag.GetStr(), strRemoteTag.GetStr());
             return pCTState.Get();
         }

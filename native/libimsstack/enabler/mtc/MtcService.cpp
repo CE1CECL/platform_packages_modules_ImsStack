@@ -279,7 +279,7 @@ void MtcService::SetServiceFilterCriteria()
         return;
     }
 
-    SIPMethod objInviteMethod(SIPMethod::INVITE);
+    SipMethod objInviteMethod(SipMethod::INVITE);
     TriggerPoint objInviteTp(objInviteMethod);
     piSfc->AddTriggerPoint(objInviteTp);
 

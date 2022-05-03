@@ -50,14 +50,14 @@ protected:
 
     // Method class
     // IMS_AUTH_SIP_DIGEST
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // Handlie the incoming request / outgoing response message
-    virtual IMS_BOOL NotifySIPRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL NotifySIPRequest(IN ISipServerConnection *piSSC);
 
     // Handle to the outgoing request / incoming response message
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC);
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC);
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
 private:

@@ -35,7 +35,7 @@ private:
 public:
     virtual IMS_SINT32 CheckMessageValidity();
     virtual IMS_BOOL FormMessage();
-    virtual IMS_BOOL Send(IN SIPTimerValues *pTV = IMS_NULL);
+    virtual IMS_BOOL Send(IN SipTimerValues *pTV = IMS_NULL);
     virtual IMS_BOOL UpdateTransportDetails();
 
     IMS_BOOL InitResponse(IN IMS_SINT32 nStatusCode);
@@ -53,7 +53,7 @@ private:
     IMS_BOOL InitResponse(IN IMS_SINT32 nStatusCode, OUT SipMessage *&pstOutMessage);
     IMS_BOOL UpdateTxnDetails();
 
-    static IMS_BOOL Is100TryingResponseRequired(IN CONST SIPMethod &objMethod);
+    static IMS_BOOL Is100TryingResponseRequired(IN CONST SipMethod &objMethod);
     static IMS_RESULT SendResponse100Trying(IN SIPServerTransactionState *pSTState);
     static void StartTimer100Trying(IN SIPServerTransactionState *pSTState,
             IN IMS_SINT32 nTimerInterval /* milli-seconds */);

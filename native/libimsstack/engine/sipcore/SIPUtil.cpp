@@ -181,7 +181,7 @@ AString SIPUtil::GenerateViaBranch(IN const IMS_CHAR *pszToTag, IN const IMS_CHA
 
     acViaBranch[32] = '\0';
 
-    AString strViaBranch(SIP::STR_BRANCH_MAGIC_COOKIE);
+    AString strViaBranch(Sip::STR_BRANCH_MAGIC_COOKIE);
 
     return strViaBranch.Append(acViaBranch).Append(strExtensionToken);
 }
@@ -196,7 +196,7 @@ AString SIPUtil::GenerateViaBranch(
     if (strExtensionToken.GetLength() > 0)
     {
         strViaBranch.Sprintf("%s%02d%02d%05x-%08x_%s",
-            SIP::STR_BRANCH_MAGIC_COOKIE,
+            Sip::STR_BRANCH_MAGIC_COOKIE,
             stTime.nMinute, stTime.nSecond,
             IMS_SYS_GetTimeInMicroSeconds(), IMS_SYS_GetRandom0(),
             strExtensionToken.GetStr());
@@ -204,7 +204,7 @@ AString SIPUtil::GenerateViaBranch(
     else
     {
         strViaBranch.Sprintf("%s%02d%02d%05x-%08x",
-            SIP::STR_BRANCH_MAGIC_COOKIE,
+            Sip::STR_BRANCH_MAGIC_COOKIE,
             stTime.nMinute, stTime.nSecond,
             IMS_SYS_GetTimeInMicroSeconds(), IMS_SYS_GetRandom0());
     }
@@ -218,7 +218,7 @@ void SIPUtil::Init(IN IMS_SINT32 nSlotId)
     (void) nSlotId;
 
     // HEADER_REQ_SESSION-ID
-    if (SIPFeatures::IsHeaderSessionIdRequired(nSlotId))
+    if (SipFeatures::IsHeaderSessionIdRequired(nSlotId))
     {
         if (pFixedKeyForSessionId == IMS_NULL)
         {

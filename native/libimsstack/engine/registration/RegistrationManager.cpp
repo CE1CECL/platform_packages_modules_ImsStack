@@ -33,8 +33,8 @@ private:
 public:
     // MULTI_SUBS
     IMS_BOOL CreateRegistration(IN IMS_UINT32 nFlowId,
-            IN CONST SIPAddress &objAOR, IN IMS_BOOL bFake, IN CONST AString &strSubsId,
-            IN SIPProfile *pSIPProfile);
+            IN CONST SipAddress &objAOR, IN IMS_BOOL bFake, IN CONST AString &strSubsId,
+            IN SipProfile *pSIPProfile);
     void DestroyRegistration(IN IRegistration *piReg, IN IMS_BOOL bByForce = IMS_FALSE);
     IRegistration* GetRegistration(IN IMS_SINT32 nSlotId, IN IMS_UINT32 nFlowId) const;
 
@@ -66,8 +66,8 @@ RegistrationManagerPrivate::~RegistrationManagerPrivate()
 
 PUBLIC
 IMS_BOOL RegistrationManagerPrivate::CreateRegistration(IN IMS_UINT32 nFlowId,
-        IN CONST SIPAddress &objAOR, IN IMS_BOOL bFake, IN CONST AString &strSubsId,
-        IN SIPProfile *pSIPProfile)
+        IN CONST SipAddress &objAOR, IN IMS_BOOL bFake, IN CONST AString &strSubsId,
+        IN SipProfile *pSIPProfile)
 {
     // Fine a proper registration flow, but in this time, it uses a default registration flow.
 
@@ -272,9 +272,9 @@ PUBLIC
 IMS_BOOL RegistrationManager::CreateRegistration(IN IMS_UINT32 nFlowId,
         IN CONST AString &strAOR, IN IMS_BOOL bFake /* = IMS_FALSE */,
         IN CONST AString &strSubsId /* = AString::ConstNull() */,
-        IN SIPProfile *pSIPProfile/* = IMS_NULL*/)
+        IN SipProfile *pSIPProfile/* = IMS_NULL*/)
 {
-    SIPAddress objAOR;
+    SipAddress objAOR;
 
     if (!objAOR.Create(strAOR))
     {
@@ -292,9 +292,9 @@ Remarks
 */
 PUBLIC
 IMS_BOOL RegistrationManager::CreateRegistration(IN IMS_UINT32 nFlowId,
-        IN CONST SIPAddress &objAOR, IN IMS_BOOL bFake /* = IMS_FALSE */,
+        IN CONST SipAddress &objAOR, IN IMS_BOOL bFake /* = IMS_FALSE */,
         IN CONST AString &strSubsId /* = AString::ConstNull() */,
-        IN SIPProfile *pSIPProfile/* = IMS_NULL*/)
+        IN SipProfile *pSIPProfile/* = IMS_NULL*/)
 {
     IMS_SINT32 nSlotId = ThreadService::GetCurrentSlotId();
 
@@ -325,9 +325,9 @@ Remarks
 */
 PUBLIC
 IMS_BOOL RegistrationManager::IsRegSubscriptionSupported(IN IMS_SINT32 nSlotId/* = IMS_SLOT_0*/,
-        IN SIPProfile *pSIPProfile/* = IMS_NULL*/) const
+        IN SipProfile *pSIPProfile/* = IMS_NULL*/) const
 {
-    return SIPConfigProxy::IsRegSubscriptionConfigured(nSlotId, pSIPProfile);
+    return SipConfigProxy::IsRegSubscriptionConfigured(nSlotId, pSIPProfile);
 }
 
 /*

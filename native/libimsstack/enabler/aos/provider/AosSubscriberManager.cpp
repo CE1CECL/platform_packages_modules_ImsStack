@@ -371,7 +371,7 @@ IMS_BOOL AosSubscriberManager::GetImpuFromNormalRegistration(OUT AStringArray& o
     }
 
     // get IMPU from P-Associated-URI header
-    SIPAddress objSipAddress = piRegistration->GetAuthorizedAOR();
+    SipAddress objSipAddress = piRegistration->GetAuthorizedAOR();
     AString strImpu = objSipAddress.ToString();
 
     A_IMS_TRACE_D(AOSTAG, "IMPU (%s) from P-Associated-URI", strImpu.GetStr(), 0, 0);
@@ -524,7 +524,7 @@ IMS_BOOL AosSubscriberManager::CheckIsimValues()
     }
     else
     {
-        SIPAddress objSipAddress;
+        SipAddress objSipAddress;
         IMS_BOOL bIMPUValid = IMS_FALSE;
 
         for (IMS_SINT32 nAt = 0; nAt < objImpus.GetCount(); ++nAt)
@@ -535,8 +535,8 @@ IMS_BOOL AosSubscriberManager::CheckIsimValues()
             {
                 if (objSipAddress.Create(strImpu))
                 {
-                    if (objSipAddress.IsSchemeSIP() || objSipAddress.IsSchemeSIPS() ||
-                            objSipAddress.IsSchemeTEL())
+                    if (objSipAddress.IsSchemeSip() || objSipAddress.IsSchemeSips() ||
+                            objSipAddress.IsSchemeTel())
                     {
                         bIMPUValid = IMS_TRUE;
                         break;
@@ -1270,7 +1270,7 @@ IMS_BOOL AosSubscriberManager::IsPrimaryImpuValid(IN const AStringArray& objImpu
     }
 
     const AString& strMsisdnImpu = objImpus.GetElementAt(1);
-    SIPAddress objSipAddress;
+    SipAddress objSipAddress;
 
     if (!objSipAddress.Create(strMsisdnImpu))
     {
@@ -1289,12 +1289,12 @@ IMS_BOOL AosSubscriberManager::IsPrimaryImpuValid(IN const AStringArray& objImpu
 PRIVATE
 IMS_BOOL AosSubscriberManager::IsSipUri(IN const AString& strImpu) const
 {
-    SIPAddress objSipAddress;
+    SipAddress objSipAddress;
     if (strImpu.GetLength() > 0)
     {
         if (objSipAddress.Create(strImpu))
         {
-            if (objSipAddress.IsSchemeSIP() || objSipAddress.IsSchemeSIPS())
+            if (objSipAddress.IsSchemeSip() || objSipAddress.IsSchemeSips())
             {
                 return IMS_TRUE;
             }

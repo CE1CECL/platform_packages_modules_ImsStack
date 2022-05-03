@@ -34,11 +34,11 @@ public:
     virtual IMS_UINT32 AddTriggerPoint(IN CONST TriggerPoint &objTP);
     virtual void RemoveTriggerPoint(IN IMS_SINT32 nTriggerPointId);
     virtual void RemoveAllTriggerPoints();
-    virtual void SetCalleePreference(IN CONST SIPMethod &objMethod,
+    virtual void SetCalleePreference(IN CONST SipMethod &objMethod,
             IN IMS_BOOL bCalleePreference = IMS_TRUE);
 
-    IMS_UINT32 Evaluate(IN CONST ISIPMessage *piSIPMsg) const;
-    IMS_BOOL IsCalleePreferenceSupported(IN CONST SIPMethod &objMethod) const;
+    IMS_UINT32 Evaluate(IN CONST ISipMessage *piSIPMsg) const;
+    IMS_BOOL IsCalleePreferenceSupported(IN CONST SipMethod &objMethod) const;
     IMS_BOOL IsEmpty() const;
 
 private:

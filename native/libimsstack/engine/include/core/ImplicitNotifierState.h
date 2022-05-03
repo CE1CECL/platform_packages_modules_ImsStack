@@ -38,15 +38,15 @@ private:
 
 public:
     // SubState class
-    virtual IMS_BOOL UpdateState(IN CONST ISIPMessage *piSIPMsg);
+    virtual IMS_BOOL UpdateState(IN CONST ISipMessage *piSIPMsg);
 
 private:
-    IMS_SINT32 TranslateMessage(IN CONST ISIPMessage *piSIPMsg);
+    IMS_SINT32 TranslateMessage(IN CONST ISipMessage *piSIPMsg);
 
-    IMS_BOOL UpdateOnNOTIFYRequest(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnNOTIFYResponse(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnREFERRequest(IN CONST ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnREFERResponse(IN CONST ISIPMessage *piSIPMsg);
+    IMS_BOOL UpdateOnNOTIFYRequest(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnNOTIFYResponse(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnREFERRequest(IN CONST ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnREFERResponse(IN CONST ISipMessage *piSIPMsg);
 
     static void InitializeStateTable();
 

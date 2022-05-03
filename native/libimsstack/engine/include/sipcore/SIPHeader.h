@@ -21,12 +21,12 @@
 #include "ISipHeader.h"
 #include "SIPStackHeaders.h"
 
-class SIPParameter;
+class SipParameter;
 
 
 
 class SIPHeader
-    : public ISIPHeader
+    : public ISipHeader
 {
 public:
     SIPHeader();
@@ -41,17 +41,17 @@ private:
     SIPHeader& operator=(IN CONST SIPHeader& objRHS);
 
 public:
-    // ISIPObject interface
+    // ISipObject interface
     virtual void Destroy();
-    // ISIPHeader interface
-    virtual ISIPHeader* Clone() const;
-    virtual IMS_BOOL Equals(IN CONST ISIPHeader *piHeader) const;
-    virtual const SIPAddress* GetSIPAddress() const;
+    // ISipHeader interface
+    virtual ISipHeader* Clone() const;
+    virtual IMS_BOOL Equals(IN CONST ISipHeader *piHeader) const;
+    virtual const SipAddress* GetSipAddress() const;
     virtual AString GetHeaderValue() const;
     virtual const AString& GetName() const;
-    virtual const SIPParameter* GetParameter(IN CONST AString &strName) const;
+    virtual const SipParameter* GetParameter(IN CONST AString &strName) const;
     virtual IMS_RESULT GetParameterNames(OUT IMSList<AString> &objPNames) const;
-    virtual const IMSList<SIPParameter*>& GetParameters() const;
+    virtual const IMSList<SipParameter*>& GetParameters() const;
     virtual IMS_SINT32 GetType() const;
     virtual const AString& GetValue() const;
     virtual IMS_SINT32 GetValueInt() const;
@@ -77,8 +77,8 @@ private:
     AString strName;
     AString strBody;
     // This field is not NULL if the header type can have an URI format body
-    SIPAddress *pAddress;
-    IMSList<SIPParameter*> objParams;
+    SipAddress *pAddress;
+    IMSList<SipParameter*> objParams;
 };
 
 #endif // _SIP_HEADER_H_

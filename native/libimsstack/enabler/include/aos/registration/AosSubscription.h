@@ -40,7 +40,7 @@ public:
         IN IAosAppContext* piContext,
         IN IRegSubscription* piRegSubscription,
         IN const AString& strAoR,
-        IN const SIPAddress& objContactAddress
+        IN const SipAddress& objContactAddress
     );
 
     virtual ~AosSubscription();
@@ -59,7 +59,7 @@ public:
 protected:
     void ClearThrottlingCount();
 
-    const SIPAddress& GetContactAddress();
+    const SipAddress& GetContactAddress();
     IMS_BOOL IsSubTrying() const;
     IMS_BOOL IsTerminated() const;
     IMS_BOOL IsTrmSupported() const;
@@ -102,7 +102,7 @@ protected:
     virtual void SetRetryTimer(IN IMS_BOOL bCheckRetryAfter);
     virtual IRegInfoContact* GetRegInfoContact(IN const IMSList<IRegInfoContact*> objContact);
     virtual IMS_BOOL CheckRegInfoState(IN IRegInfoContact* piRegInfoContact, IN IMS_SINT32 nState);
-    virtual IMS_BOOL CompareUriAssociatedWithContact(IN const SIPAddress& objUri);
+    virtual IMS_BOOL CompareUriAssociatedWithContact(IN const SipAddress& objUri);
 
     virtual IMS_SINT32 ConvertRegInfoEvent(IN IMS_SINT32 nEvent);
     virtual void ProcessNotifyState_Terminated(IN IMS_SINT32 nEvent);
@@ -184,7 +184,7 @@ protected:
     IMS_UINT32 m_nThrottlingCount;
 
     // for matching reg info contact
-    SIPAddress m_objContactAddress;
+    SipAddress m_objContactAddress;
 
     AString m_strTag;
 

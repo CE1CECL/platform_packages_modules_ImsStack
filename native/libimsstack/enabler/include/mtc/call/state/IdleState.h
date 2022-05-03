@@ -76,7 +76,7 @@ private:
     void UpdateIncomingInformation(IN ISession* piSession);
     IMSList<IMtcBlockRule*> GetIncomingCallBlockRules();
     IMSList<IMtcBlockRule*> GetOutgoingCallBlockRules();
-    void SetAcceptContact(IN ISIPMessage* piSipMessage);
+    void SetAcceptContact(IN ISipMessage* piSipMessage);
 
     ConferenceType m_eConferenceStartType;  // TODO: usage?
     std::unique_ptr<IMtcBlockChecker> m_pBlockChecker;

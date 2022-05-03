@@ -225,7 +225,7 @@ void DEMngr::SubscriptionNotify(IN ISubscription* piSubscription, IN IMessage *p
     IMS_BOOL bUpdated = IMS_FALSE;
     IMSList<IMessageBodyPart*> objBodyParts = piNotify->GetBodyParts();
     AString aStrSubState;
-    MessageUtil::GetHeader(piNotify, ISIPHeader::SUBSCRIPTION_STATE, aStrSubState);
+    MessageUtil::GetHeader(piNotify, ISipHeader::SUBSCRIPTION_STATE, aStrSubState);
 
     // set terminated reason & retry-after
     if (HandleSubState(aStrSubState))
@@ -655,7 +655,7 @@ void DEMngr::SetHeaderSubscribe()
         return;
     }
 
-    ISIPMessage* pISIPMessage = pIMessage->GetMessage();
+    ISipMessage* pISIPMessage = pIMessage->GetMessage();
     if(pISIPMessage == IMS_NULL)
     {
         IMS_TRACE_E(0, "SetHeaderSubscribe : pISIPMessage is NULL.", 0, 0, 0);
@@ -668,7 +668,7 @@ void DEMngr::SetHeaderSubscribe()
     {
         AString aStrExpireTime = AString::ConstNull();
         aStrExpireTime.SetNumber(m_nExpireTime);
-        pISIPMessage->SetHeader(ISIPHeader::EXPIRES_SEC, aStrExpireTime);
+        pISIPMessage->SetHeader(ISipHeader::EXPIRES_SEC, aStrExpireTime);
     }
 
 }
@@ -716,7 +716,7 @@ void DEMngr::HandleStarted(IN IMSMSG &objMSG)
 PROTECTED VIRTUAL
 void DEMngr::HandleStartFailed(IN IMSMSG &objMSG)
 {
-    IMS_UINT32 nStatusCode = SIPStatusCode::SC_INVALID;
+    IMS_UINT32 nStatusCode = SipStatusCode::SC_INVALID;
     ISubscription* pISubscription = reinterpret_cast<ISubscription*>(objMSG.nWparam);
     IMessage* pIMessage = pISubscription->GetPreviousResponse(IMessage::SUBSCRIPTION_SUBSCRIBE);
     if (pIMessage != IMS_NULL)
@@ -770,7 +770,7 @@ IMS_BOOL DEMngr::HandleFailureRes(IN ISubscription* pISubscription, IN IMS_SINT3
 {
     IMS_BOOL bHandle = IMS_FALSE;
 
-    if (nStatusCode == SIPStatusCode::SC_423)
+    if (nStatusCode == SipStatusCode::SC_423)
     {
         bHandle = HandleFailureRes_423(pISubscription);
     }
@@ -788,7 +788,7 @@ IMS_BOOL DEMngr::HandleFailureRes_423(IN ISubscription* pISubscription)
     IMS_SINT32 nMins = -1;
 
     nMins = MessageUtil::GetHeaderValueInt(pISubscription->GetPreviousResponse(
-                IMessage::SUBSCRIPTION_SUBSCRIBE), ISIPHeader::MIN_EXPIRES);
+                IMessage::SUBSCRIPTION_SUBSCRIBE), ISipHeader::MIN_EXPIRES);
 
     if (nMins == -1)
     {
@@ -1240,12 +1240,12 @@ AString DEMngr::ConvertNumber(IN AString aStrIdentity)
 {
     AString aStrNumber = AString::ConstNull();
 
-    SIPAddress objSIPAddress;
+    SipAddress objSIPAddress;
     if (objSIPAddress.Create(aStrIdentity))
     {
-        if (objSIPAddress.IsSchemeSIP() || objSIPAddress.IsSchemeSIPS())
+        if (objSIPAddress.IsSchemeSip() || objSIPAddress.IsSchemeSips())
         {
-            const SIPAddress::UserInfoPart* pUserInfoPart = objSIPAddress.GetUserInfoPart();
+            const SipAddress::UserInfoPart* pUserInfoPart = objSIPAddress.GetUserInfoPart();
             if (pUserInfoPart != IMS_NULL)
             {
                 aStrNumber = pUserInfoPart->GetUser();
@@ -1255,7 +1255,7 @@ AString DEMngr::ConvertNumber(IN AString aStrIdentity)
                 aStrNumber = objSIPAddress.GetUser();
             }
         }
-        else if(objSIPAddress.IsSchemeTEL())
+        else if(objSIPAddress.IsSchemeTel())
         {
             aStrNumber = objSIPAddress.GetHost();
         }

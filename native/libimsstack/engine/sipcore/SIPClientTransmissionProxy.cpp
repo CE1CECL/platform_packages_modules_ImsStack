@@ -143,7 +143,7 @@ Remarks
 
 */
 PUBLIC
-void SIPClientTransmissionProxy::SetTimerValues(IN SIPTimerValues *pTV)
+void SIPClientTransmissionProxy::SetTimerValues(IN SipTimerValues *pTV)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -264,11 +264,11 @@ Remarks
 PRIVATE
 IMS_BOOL SIPClientTransmissionProxy::IsUDPFallbackSupported() const
 {
-    SIPProfile *pProfile = (pCTState != IMS_NULL) ? pCTState->GetSIPProfile() : IMS_NULL;
+    SipProfile *pProfile = (pCTState != IMS_NULL) ? pCTState->GetSIPProfile() : IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
-    return SIPConfigProxy::IsUdpFallbackConfigured(GetSlotId(), pProfile);
+    return SipConfigProxy::IsUdpFallbackConfigured(GetSlotId(), pProfile);
 }
 
 /*
@@ -299,7 +299,7 @@ void SIPClientTransmissionProxy::NotifyTransportError(IN IMS_SINT32 nErrorCode)
         AString strError = SIPTransport::CreateSocketErrorMessage(
                 nErrorCode, SIPSocketAddress::SOCKET_NONE);
 
-        piListener->ClientTransmission_NotifyError(SIPError::TRANSPORT_ERROR, strError);
+        piListener->ClientTransmission_NotifyError(SipError::TRANSPORT_ERROR, strError);
     }
 }
 
@@ -458,7 +458,7 @@ EXIT_SendPendingMessage:
         else
         {
             AString strError = "SIP message transmission failed";
-            piListener->ClientTransmission_NotifyError(SIPError::TRANSPORT_ERROR, strError);
+            piListener->ClientTransmission_NotifyError(SipError::TRANSPORT_ERROR, strError);
         }
     }
 }

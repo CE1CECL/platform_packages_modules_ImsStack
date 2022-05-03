@@ -33,7 +33,7 @@ See Also
 */
 class IRegistrationEx
     : public IRegistration
-    , public ISIPConnectionNotifierErrorListener
+    , public ISipConnectionNotifierErrorListener
 {
 public:
     /*

@@ -139,7 +139,7 @@ void MtsClient::ReportTransmissionResult(
 
     IMS_UINT32 nResultCode = 0;
 
-    if ((nResponse == SIPStatusCode::SC_200) || (nResponse == SIPStatusCode::SC_202))
+    if ((nResponse == SipStatusCode::SC_200) || (nResponse == SipStatusCode::SC_202))
     {
         IMS_TRACE_I("Reporting SUCCESS, nResponse is %d", nResponse, 0, 0);
 

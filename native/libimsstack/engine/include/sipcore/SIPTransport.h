@@ -20,7 +20,7 @@
 #include "ISIPSocketListener.h"
 #include "SIPSocket.h"
 
-class SIPProfile;
+class SipProfile;
 class ISIPTransportErrorListener;
 class SIPTransportHelper;
 
@@ -54,7 +54,7 @@ public:
     void InitRetransmissionFlag();
     // MULTI_REG_SIP_PROFILE
     IMS_BOOL InitTransportDetails(IN CONST SIPTransport *pTransport,
-            IN CONST SIPProfile *pSIPProfile = IMS_NULL);
+            IN CONST SipProfile *pSIPProfile = IMS_NULL);
     IMS_BOOL InitTransportOnMessageReceived(IN SipMessage *pstMessage);
     IMS_BOOL IsIPSecRequired() const;
     IMS_BOOL IsTCPConnectionOnlyRequired() const;
@@ -70,15 +70,15 @@ public:
     void SetTransactionFlowControlRequired(IN IMS_BOOL bFlowControlRequired);
     void SetTransportTuple(IN CONST IPAddress &objIPA,
             IN IMS_SINT32 nPortS, IN IMS_SINT32 nPortC,
-            IN IMS_SINT32 nPortFC = SIP::PORT_UNSPECIFIED,
+            IN IMS_SINT32 nPortFC = Sip::PORT_UNSPECIFIED,
             IN IMS_SINT32 nTransportExt = 0 /* ANY */);
     void StoreResource();
 
     // MULTI_REG_SIP_PROFILE
     virtual IMS_BOOL FormViaHeader(IN_OUT SipMessage *&pstMessage,
-            IN CONST SIPProfile *pSIPProfile = IMS_NULL);
+            IN CONST SipProfile *pSIPProfile = IMS_NULL);
     // MULTI_REG_SIP_PROFILE
-    virtual IMS_BOOL ReserveResource(IN CONST SIPProfile *pSIPProfile = IMS_NULL);
+    virtual IMS_BOOL ReserveResource(IN CONST SipProfile *pSIPProfile = IMS_NULL);
     virtual IMS_BOOL UpdateDestinationInfo(IN SipMessage *pstMessage,
             IN IMS_BOOL bRoutingLR = IMS_TRUE, IN SipAddrSpec *pstImplicitRoute = IMS_NULL);
     virtual IMS_SINT32 ValidateViaHeader(IN SipMessage *pstMessage);
@@ -112,7 +112,7 @@ private:
     SIPSocket* LookupSocket() const;
     void ReleaseSocket();
     // MULTI_REG_SIP_PROFILE
-    IMS_BOOL ReserveSocket(IN CONST SIPProfile *pSIPProfile = IMS_NULL);
+    IMS_BOOL ReserveSocket(IN CONST SipProfile *pSIPProfile = IMS_NULL);
     IMS_BOOL TransmitMessage(IN CONST IMS_BYTE *pBuffer, IN IMS_SINT32 nBuffLen);
 
 public:

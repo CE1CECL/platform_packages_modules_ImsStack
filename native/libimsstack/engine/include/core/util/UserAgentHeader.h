@@ -15,8 +15,8 @@
 
 #include "AString.h"
 
-class ISIPMessage;
-class SIPProfile;
+class ISipMessage;
+class SipProfile;
 
 
 
@@ -26,9 +26,9 @@ private:
     UserAgentHeader();
 
 public:
-    static void SetHeader(IN CONST AString &strName, IN CONST SIPProfile *pSIPProfile,
+    static void SetHeader(IN CONST AString &strName, IN CONST SipProfile *pSIPProfile,
             IN CONST AString &strServiceId, IN CONST IPAddress& objIP, IN IMS_SINT32 nSlotId,
-            IN_OUT ISIPMessage *&piSIPMsg);
+            IN_OUT ISipMessage *&piSIPMsg);
 };
 
 #endif // _USER_AGENT_HEADER_H_

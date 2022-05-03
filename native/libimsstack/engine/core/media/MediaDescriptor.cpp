@@ -1186,7 +1186,7 @@ IMS_RESULT MediaDescriptor::SetConnectionAddress(IN CONST AString &strAddress)
         IMS::SetLastError(IMSError::ILLEGAL_STATE);
 
         IMS_TRACE_E(0, "Trying to set a media connection address (%s) in the state (%d)",
-                SIPDebug::GetIP(strAddress), nState, 0);
+                SipDebug::GetIp(strAddress), nState, 0);
         return IMS_FAILURE;
     }
 
@@ -1205,7 +1205,7 @@ IMS_RESULT MediaDescriptor::SetConnectionAddress(IN CONST AString &strAddress)
         IMS::SetLastError(IMSError::ILLEGAL_ARGUMENT);
 
         IMS_TRACE_E(0, "Setting a connection address (%s) in c-line of media-level",
-                SIPDebug::GetIP(strAddress), 0, 0);
+                SipDebug::GetIp(strAddress), 0, 0);
         return IMS_FAILURE;
     }
 

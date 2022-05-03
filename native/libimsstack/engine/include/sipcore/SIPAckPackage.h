@@ -24,7 +24,7 @@ class SIPAckPackagePrivate;
 
 
 class SIPAckPackage
-    : public ISIPAckPackage
+    : public ISipAckPackage
 {
 private:
     SIPAckPackage(IN CONST AString &strCallId_);
@@ -37,10 +37,10 @@ public:
     IMS_BOOL NotifyStray2xx(IN SipTxnKey *pstTxnKey);
 
 private:
-    // ISIPObject class
+    // ISipObject class
     virtual void Destroy();
 
-    // ISIPAckPackage class
+    // ISipAckPackage class
     virtual void RemoveStrayAcks();
 
 public:

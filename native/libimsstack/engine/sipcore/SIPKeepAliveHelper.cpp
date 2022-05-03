@@ -107,12 +107,12 @@ IMS_RESULT SIPKeepAliveHelper::SendPacket(IN CONST ByteArray &objPacket)
 
     if (pSocket == IMS_NULL)
     {
-        IMS_TRACE_D("NearEnd - %s, %d, %d", SIPDebug::GetIP(objSA_NearEnd.GetIPAddress()),
+        IMS_TRACE_D("NearEnd - %s, %d, %d", SipDebug::GetIp(objSA_NearEnd.GetIPAddress()),
                 objSA_NearEnd.GetPort(), objSA_NearEnd.GetType());
         // LOG_EXCLUDING_SERVER_INFO
         IMS_TRACE_D("FarEnd - %s, %d, %d",
                 SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ? \
-                "xxx" : SIPDebug::GetIP(objSA_FarEnd.GetIPAddress()),
+                "xxx" : SipDebug::GetIp(objSA_FarEnd.GetIPAddress()),
                 objSA_FarEnd.GetPort(), objSA_FarEnd.GetType());
         IMS_TRACE_E(0, "Finding the socket failed", 0, 0, 0);
         return IMS_FAILURE;
@@ -136,7 +136,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPKeepAliveHelper::SetListener(IN ISIPKeepAliveHelperListener *piListener)
+void SIPKeepAliveHelper::SetListener(IN ISipKeepAliveHelperListener *piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -164,15 +164,15 @@ Remarks
 */
 PRIVATE VIRTUAL
 void SIPKeepAliveHelper::SetTransportTupleS(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort,
-        IN IMS_SINT32 nProtocol /* = SIP::TRANSPORT_UDP */)
+        IN IMS_SINT32 nProtocol /* = Sip::TRANSPORT_UDP */)
 {
     //---------------------------------------------------------------------------------------------
 
     objSA_NearEnd.SetIPAddress(objIP);
     objSA_NearEnd.SetPort(nPort);
 
-    if ((nProtocol == SIP::TRANSPORT_TCP)
-            || (nProtocol == SIP::TRANSPORT_TLS))
+    if ((nProtocol == Sip::TRANSPORT_TCP)
+            || (nProtocol == Sip::TRANSPORT_TLS))
     {
         objSA_NearEnd.SetType(SIPSocketAddress::SOCKET_TCP_CLIENT);
     }

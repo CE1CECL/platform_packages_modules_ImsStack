@@ -63,7 +63,7 @@ IMS_BOOL SIPManager::AttachDialogState(IN SIPDialogState *pDState)
     }
 
     IMS_TRACE_I("___ Attach::DialogState (%s)",
-            SIPDebug::GetCharA1(pDState->GetCallId().GetStr(), 8, '@'), 0, 0);
+            SipDebug::GetCharA1(pDState->GetCallId().GetStr(), 8, '@'), 0, 0);
 
     return objDialogStates.Append(pDState);
 }
@@ -92,7 +92,7 @@ void SIPManager::DetachDialogState(IN SIPDialogState *pDState)
             if (pTempDState == pDState)
             {
                 IMS_TRACE_I("___ Detach::DialogState (%s)",
-                        SIPDebug::GetCharA1(pDState->GetCallId().GetStr(), 8, '@'),
+                        SipDebug::GetCharA1(pDState->GetCallId().GetStr(), 8, '@'),
                         0, 0);
 
                 objDialogStates.RemoveAt(i);
@@ -303,7 +303,7 @@ IMS_BOOL SIPManager::StartUp()
     // For ACK retransmission for 2xx response to INVITE
     SIPAckPackage::Init();
 
-    SIPDebug::InitLogging();
+    SipDebug::InitLogging();
 
     nState = STATE_ACTIVE;
 
@@ -409,7 +409,7 @@ void StaticSIP::InitializeForSlot(IN IMS_SINT32 nSlotId)
 
     IMS_SINT32 nOptions = SIPPrivate::OPTIONS_E;
 
-    if (SIPConfigProxy::IsCompactFormConfigured(nSlotId))
+    if (SipConfigProxy::IsCompactFormConfigured(nSlotId))
     {
         nOptions |= SIPPrivate::OPT_E_SHORTFORM;
     }

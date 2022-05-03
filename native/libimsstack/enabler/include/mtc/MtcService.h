@@ -22,7 +22,7 @@ class MtcService :
         public ICoreServiceListener,
         public IImsAosListener,
         public IImsAosMonitor
-        //public ISIPRoutingRejectListener
+        //public ISipRoutingRejectListener
 {
 public:
     MtcService(IN IMtcContext& objContext, IN ServiceType eType);
@@ -73,12 +73,12 @@ public:
     void ImsAosMonitor_Connected(IN IMS_UINT32 nServices, IN IMS_UINT32 nIpcan) override;
     void ImsAosMonitor_Notify(IN IMS_UINT32 nType, IN IMS_UINT32 nState) override;
 
-    // ISIPRoutingRejectListener
+    // ISipRoutingRejectListener
     /*
-    IMS_BOOL RoutingReject_NotifyRequest(IN ISIPMessage* piSIPMsg,
-            IN_OUT SIPStatusCode& objStatusCode);
-    IMS_BOOL RoutingReject_NotifyRequest(IN ISIPServerConnection* piSSC,
-            IN_OUT SIPStatusCode& objStatusCode);
+    IMS_BOOL RoutingReject_NotifyRequest(IN ISipMessage* piSIPMsg,
+            IN_OUT SipStatusCode& objStatusCode);
+    IMS_BOOL RoutingReject_NotifyRequest(IN ISipServerConnection* piSSC,
+            IN_OUT SipStatusCode& objStatusCode);
     */
 
 private:

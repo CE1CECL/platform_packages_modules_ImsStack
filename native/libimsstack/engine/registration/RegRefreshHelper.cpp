@@ -34,7 +34,7 @@ RegRefreshHelper::~RegRefreshHelper()
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL RegRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
+IMS_BOOL RegRefreshHelper::AddSpecificHeader(IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ IMS_BOOL RegRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT RegRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piSCC)
+IMS_RESULT RegRefreshHelper::SendRefreshRequest(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ IMS_RESULT RegRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piSCC)
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT RegRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection *piSC)
+IMS_RESULT RegRefreshHelper::UpdateOnMessageReceived(IN CONST ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ IMS_RESULT RegRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection *pi
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT RegRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *piSC)
+IMS_RESULT RegRefreshHelper::UpdateOnMessageSent(IN CONST ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ IMS_RESULT RegRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *piSC)
 }
 
 PUBLIC
-const SIPAddress& RegRefreshHelper::GetContactAddress() const
+const SipAddress& RegRefreshHelper::GetContactAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ const SIPAddress& RegRefreshHelper::GetContactAddress() const
 }
 
 PUBLIC
-void RegRefreshHelper::SetContactAddress(IN CONST SIPAddress &objContactAddress)
+void RegRefreshHelper::SetContactAddress(IN CONST SipAddress &objContactAddress)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ IMS_BOOL RegRefreshHelper::UpdateRefreshTimer(IN IMS_SINT32 nDuration)
 }
 
 PROTECTED VIRTUAL
-void RegRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
+void RegRefreshHelper::RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -145,8 +145,8 @@ void RegRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
     {
         IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
-        if ((nStatusCode >= SIPStatusCode::SC_200)
-                && (nStatusCode < SIPStatusCode::SC_300))
+        if ((nStatusCode >= SipStatusCode::SC_200)
+                && (nStatusCode < SipStatusCode::SC_300))
         {
             // Update the refresh timer
             if (UpdateOnMessageReceived(piSCC) != IMS_SUCCESS)

@@ -37,7 +37,7 @@ public:
     virtual IMS_BOOL FormMessage();
     virtual IMS_BOOL FormMessageForResubmissionRequest();
     virtual IMS_BOOL InitTxnDetails(IN CONST SIPTransactionState *pTState);
-    virtual IMS_BOOL Send(IN SIPTimerValues *pTV = IMS_NULL);
+    virtual IMS_BOOL Send(IN SipTimerValues *pTV = IMS_NULL);
     virtual IMS_BOOL UpdateTransportDetails();
 
     IMS_BOOL AdjustTransportProtocolAsUDP();
@@ -45,17 +45,17 @@ public:
     inline IMS_BOOL IsTargetUpdated() const
     { return (nRoutingType == TARGET_SR); }
     IMS_BOOL InitCancel(IN CONST SIPClientTransactionState *pInviteTState);
-    IMS_BOOL InitRequest(IN CONST SIPMethod &objMethod);
-    IMS_BOOL InitRequest(IN CONST SIPMethod &objMethod, IN SIPDialogEx *pDialogEx);
+    IMS_BOOL InitRequest(IN CONST SipMethod &objMethod);
+    IMS_BOOL InitRequest(IN CONST SipMethod &objMethod, IN SIPDialogEx *pDialogEx);
     // FORKED_RESPONSE
     IMS_SINT32 RemoveForkedTransaction();
-    IMS_BOOL SendWithCredentials(IN SIPTimerValues *pTV = IMS_NULL);
+    IMS_BOOL SendWithCredentials(IN SipTimerValues *pTV = IMS_NULL);
     void SetExtensionTokenForViaBranch(IN CONST AString &strToken);
     // IMPLICIT_ROUTE
     void SetImplicitRouteHeader(IN CONST AString &strRouteHeader);
     inline void SetListener(IN ISIPClientTransactionStateListener *piListener)
     { this->piListener = piListener; }
-    IMS_BOOL UpdateRouteDetails(IN CONST SIPMethod &objMethod);
+    IMS_BOOL UpdateRouteDetails(IN CONST SipMethod &objMethod);
     IMS_SINT32 HandleResponse(IN SipMessage *pstMessage);
     static IMS_SINT32 MatchTransaction(IN SipMessage *pstMessage,
             IN CONST SIPTransportAddress &objFarEnd,
@@ -68,10 +68,10 @@ private:
     void CheckNSendAck();
     IMS_BOOL HandleForkedResponse(IN CONST SIPMessageInfo &objMInfo);
     IMS_BOOL InitAck(IN_OUT SipMessage *&pstAckMessage, IN SipMessage* pstRespMessage);
-    IMS_BOOL SetDialogRelatedHeaders(IN CONST SIPMethod &objMethod);
-    IMS_BOOL SetMandatoryHeaders(IN CONST SIPMethod &objMethod);
-    void SetPANIHeader(IN CONST SIPMethod& objMethod, IN_OUT SipMessage*& pstMessage);
-    IMS_BOOL UpdateTxnDetails(IN CONST SIPMethod &objMethod);
+    IMS_BOOL SetDialogRelatedHeaders(IN CONST SipMethod &objMethod);
+    IMS_BOOL SetMandatoryHeaders(IN CONST SipMethod &objMethod);
+    void SetPANIHeader(IN CONST SipMethod& objMethod, IN_OUT SipMessage*& pstMessage);
+    IMS_BOOL UpdateTxnDetails(IN CONST SipMethod &objMethod);
 
 private:
     // Flag which will be used to determine the destination transport information

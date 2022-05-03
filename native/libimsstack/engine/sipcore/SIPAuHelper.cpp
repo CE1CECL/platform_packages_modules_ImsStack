@@ -23,10 +23,10 @@ __IMS_TRACE_TAG_SIP__;
 
 
 class SIPGenericChallenge
-    : public ISIPGenericChallenge
+    : public ISipGenericChallenge
 {
 public:
-    SIPGenericChallenge(IN IMS_SINT32 nType_ = ISIPHeader::WWW_AUTHENTICATE);
+    SIPGenericChallenge(IN IMS_SINT32 nType_ = ISipHeader::WWW_AUTHENTICATE);
     SIPGenericChallenge(IN CONST SIPGenericChallenge &objRHS);
     virtual ~SIPGenericChallenge();
 
@@ -34,8 +34,8 @@ public:
     SIPGenericChallenge& operator=(IN CONST SIPGenericChallenge &objRHS);
 
 public:
-    // ISIPGenericChallenge class
-    inline virtual ISIPGenericChallenge* Clone() const
+    // ISipGenericChallenge class
+    inline virtual ISipGenericChallenge* Clone() const
     {
         return new SIPGenericChallenge(*this);
     }
@@ -173,7 +173,7 @@ private:
 
 
 PUBLIC
-SIPGenericChallenge::SIPGenericChallenge(IN IMS_SINT32 nType_ /* = ISIPHeader::WWW_AUTHENTICATE */)
+SIPGenericChallenge::SIPGenericChallenge(IN IMS_SINT32 nType_ /* = ISipHeader::WWW_AUTHENTICATE */)
     : nType(nType_)
     , strScheme(AString::ConstNull())
     , strRealm(AString::ConstNull())
@@ -284,7 +284,7 @@ private:
 
 PUBLIC
 SIPGenericResponse::SIPGenericResponse()
-    : nType(ISIPHeader::AUTHORIZATION)
+    : nType(ISipHeader::AUTHORIZATION)
     , strScheme(AString::ConstNull())
     , strNonce(AString::ConstNull())
     , strAlgorithm(AString::ConstNull())
@@ -353,16 +353,16 @@ public:
     ~SIPAuHelperPrivate();
 
 public:
-    IMS_BOOL AddChallenge(IN ISIPGenericChallenge *piChallenge);
+    IMS_BOOL AddChallenge(IN ISipGenericChallenge *piChallenge);
     IMS_BOOL AddChallenge(IN IMS_SINT32 nType, IN SipHeaderBase *pstHeader);
     IMS_BOOL AddCredential(IN CONST Credential &objCredential);
     IMS_BOOL AddHeader(IN_OUT SipMessage *&pstMessage);
     IMS_BOOL CalculateResponse();
     void Clear();
-    IMS_BOOL FormCredentials(IN CONST SIPMethod &objMethod, IN CONST AString &strURI,
+    IMS_BOOL FormCredentials(IN CONST SipMethod &objMethod, IN CONST AString &strURI,
             IN CONST AString &strEntityBody, IN_OUT SIPGenericResponse &objResponse,
             OUT SipHeaderBase *&pstHeader);
-    ISIPGenericChallenge* GetChallenge(IN IMS_SINT32 nIndex) const;
+    ISipGenericChallenge* GetChallenge(IN IMS_SINT32 nIndex) const;
     IMS_BOOL IsChallengePresent() const;
     IMS_BOOL IsCredentialPresent() const;
     const Credential* LookupCredential(IN CONST AString &strRealm) const;
@@ -447,7 +447,7 @@ SIPAuHelperPrivate::~SIPAuHelperPrivate()
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelperPrivate::AddChallenge(IN ISIPGenericChallenge *piChallenge)
+IMS_BOOL SIPAuHelperPrivate::AddChallenge(IN ISipGenericChallenge *piChallenge)
 {
     SIPGenericChallenge *pChallenge = DYNAMIC_CAST(SIPGenericChallenge*, piChallenge);
 
@@ -552,8 +552,8 @@ IMS_BOOL SIPAuHelperPrivate::AddCredential(IN CONST Credential &objCredential)
     if (pExCredential != IMS_NULL)
     {
         IMS_TRACE_D("The credential already exists - Realm (%s), UserName (%s), Password (xxx)",
-                SIPDebug::GetCharA1(pExCredential->GetRealm().GetStr(), 4),
-                SIPDebug::GetCharA2(pExCredential->GetUsername().GetStr(), 6),
+                SipDebug::GetCharA1(pExCredential->GetRealm().GetStr(), 4),
+                SipDebug::GetCharA2(pExCredential->GetUsername().GetStr(), 6),
                 0);
         return IMS_TRUE;
     }
@@ -572,7 +572,7 @@ IMS_BOOL SIPAuHelperPrivate::AddHeader(IN_OUT SipMessage *&pstMessage)
     // Get the URI from the Request-Line to be used in the uri parameter of the response
     // in case of Digest scheme.
     AString strURI;
-    SIPMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
     AString strEntityBody("");
     IMS_BOOL bQopAuthInt = IMS_FALSE;
 
@@ -671,10 +671,10 @@ IMS_BOOL SIPAuHelperPrivate::CalculateResponse()
             }
 
             // Copy the challenge parameters to the response parameters
-            if (pChallenge->GetType() == ISIPHeader::WWW_AUTHENTICATE)
-                pResponse->nType = ISIPHeader::AUTHORIZATION;
+            if (pChallenge->GetType() == ISipHeader::WWW_AUTHENTICATE)
+                pResponse->nType = ISipHeader::AUTHORIZATION;
             else
-                pResponse->nType = ISIPHeader::PROXY_AUTHORIZATION;
+                pResponse->nType = ISipHeader::PROXY_AUTHORIZATION;
 
             pResponse->strScheme = pChallenge->GetScheme();
             pResponse->strNonce = pChallenge->GetNonce();
@@ -770,7 +770,7 @@ void SIPAuHelperPrivate::Clear()
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SIPMethod &objMethod,
+IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod &objMethod,
         IN CONST AString &strURI, IN CONST AString &strEntityBody,
         IN_OUT SIPGenericResponse &objResponse, OUT SipHeaderBase *&pstHeader)
 {
@@ -1007,7 +1007,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SIPMethod &objMethod,
 }
 
 PUBLIC
-ISIPGenericChallenge* SIPAuHelperPrivate::GetChallenge(IN IMS_SINT32 nIndex) const
+ISipGenericChallenge* SIPAuHelperPrivate::GetChallenge(IN IMS_SINT32 nIndex) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1076,7 +1076,7 @@ SIPAuHelper::~SIPAuHelper()
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::AddChallenge(IN ISIPGenericChallenge *piChallenge)
+IMS_BOOL SIPAuHelper::AddChallenge(IN ISipGenericChallenge *piChallenge)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1103,19 +1103,19 @@ IMS_BOOL SIPAuHelper::FormCredentials(IN_OUT SipMessage *&pstMessage)
     }
 
     // Removes all Authorization/Proxy-Authorization headers if present.
-    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::AUTHORIZATION);
+    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::AUTHORIZATION);
 
     while (nHCount > 0)
     {
-        SIPStack::RemoveHeader(ISIPHeader::AUTHORIZATION, pstMessage);
+        SIPStack::RemoveHeader(ISipHeader::AUTHORIZATION, pstMessage);
         --nHCount;
     }
 
-    nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::PROXY_AUTHORIZATION);
+    nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::PROXY_AUTHORIZATION);
 
     while (nHCount > 0)
     {
-        SIPStack::RemoveHeader(ISIPHeader::PROXY_AUTHORIZATION, pstMessage);
+        SIPStack::RemoveHeader(ISipHeader::PROXY_AUTHORIZATION, pstMessage);
         --nHCount;
     }
 
@@ -1135,7 +1135,7 @@ IMS_BOOL SIPAuHelper::FormCredentials(IN_OUT SipMessage *&pstMessage)
 }
 
 PUBLIC
-ISIPGenericChallenge* SIPAuHelper::GetChallenge(IN IMS_SINT32 nIndex /* = 0 */) const
+ISipGenericChallenge* SIPAuHelper::GetChallenge(IN IMS_SINT32 nIndex /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1184,18 +1184,18 @@ IMS_BOOL SIPAuHelper::SetChallenges(IN SipMessage *pstMessage)
     pSAHelper->Clear();
 
     // In case of 401 response, the header type to be extracted is a SipHdrTypeWwwAuthenticate.
-    nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::WWW_AUTHENTICATE);
+    nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::WWW_AUTHENTICATE);
 
     if (nHCount != 0)
     {
         for (IMS_SINT32 i = 0; i < nHCount; ++i)
         {
             SipHeaderBase *pstHeader = SIPStack::GetHeader(
-                    pstMessage, ISIPHeader::WWW_AUTHENTICATE, i);
+                    pstMessage, ISipHeader::WWW_AUTHENTICATE, i);
 
             if (SIPStack::IsValidHeader(pstHeader))
             {
-                if (!pSAHelper->AddChallenge(ISIPHeader::WWW_AUTHENTICATE, pstHeader))
+                if (!pSAHelper->AddChallenge(ISipHeader::WWW_AUTHENTICATE, pstHeader))
                 {
                     SIPStack::FreeHeaderEx(pstHeader);
                     return IMS_FALSE;
@@ -1207,18 +1207,18 @@ IMS_BOOL SIPAuHelper::SetChallenges(IN SipMessage *pstMessage)
     }
 
     // In case of 407 response, the header type to be extracted is a Proxy-Authenticate.
-    nHCount = SIPStack::GetHeaderCount(pstMessage, ISIPHeader::PROXY_AUTHENTICATE);
+    nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::PROXY_AUTHENTICATE);
 
     if (nHCount != 0)
     {
         for (IMS_SINT32 i = 0; i < nHCount; ++i)
         {
             SipHeaderBase *pstHeader = SIPStack::GetHeader(
-                    pstMessage, ISIPHeader::PROXY_AUTHENTICATE, i);
+                    pstMessage, ISipHeader::PROXY_AUTHENTICATE, i);
 
             if (SIPStack::IsValidHeader(pstHeader))
             {
-                if (!pSAHelper->AddChallenge(ISIPHeader::PROXY_AUTHENTICATE, pstHeader))
+                if (!pSAHelper->AddChallenge(ISipHeader::PROXY_AUTHENTICATE, pstHeader))
                 {
                     SIPStack::FreeHeaderEx(pstHeader);
                     return IMS_FALSE;

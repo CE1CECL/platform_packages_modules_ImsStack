@@ -6,8 +6,8 @@
 
 class ISession;
 class IMessage;
-class ISIPHeader;
-class SIPAddress;
+class ISipHeader;
+class SipAddress;
 class MtcConfigurationProxy;
 
 class MtcSupplementaryService final
@@ -47,9 +47,9 @@ public:
     void Add(IN SuppType eSuppType, IN IMS_BOOL bValue);
 
 private:
-    ISIPHeader* GetHistoryInfoHeader(IN IMessage* piMessage);
-    IMS_BOOL GetCdivCause(IN const SIPAddress* pAddress, OUT IMS_SINT32& nCause);
-    IMS_BOOL GetCdivTarget(IN const SIPAddress* pAddress, OUT AString &strTarget);
+    ISipHeader* GetHistoryInfoHeader(IN IMessage* piMessage);
+    IMS_BOOL GetCdivCause(IN const SipAddress* pAddress, OUT IMS_SINT32& nCause);
+    IMS_BOOL GetCdivTarget(IN const SipAddress* pAddress, OUT AString &strTarget);
     IMS_SINT32 ConvertCdivCause(IN IMS_SINT32 nCause);
     IMS_SINT32 GetCallingNumVerificationResult(IN AString& strValue);
     IMS_BOOL IsIncomingUssdCall(IN IMessage* piMessage);

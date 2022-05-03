@@ -1,7 +1,7 @@
 #ifndef _INTERFACE_SESSION_LISTENER_H_
 #define _INTERFACE_SESSION_LISTENER_H_
 
-class ISIPServerConnection;
+class ISipServerConnection;
 class ISession;
 class IReference;
 
@@ -193,10 +193,10 @@ public:
      *        within the session dialog is received.
      *
      * @param piSession The concerned ISession
-     * @param piSSC New ISIPServerConnection which contains an incoming SIP request
+     * @param piSSC New ISipServerConnection which contains an incoming SIP request
      */
     virtual void SessionTransactionReceived(IN ISession *piSession,
-            IN ISIPServerConnection *piSSC) = 0;
+            IN ISipServerConnection *piSSC) = 0;
 };
 
 #endif // _INTERFACE_SESSION_LISTENER_H_

@@ -68,17 +68,17 @@ public:
         return pPacketTracker;
     }
 
-    inline SIPRoutingRejectNotifier* GetRoutingRejectNotifier()
+    inline SipRoutingRejectNotifier* GetRoutingRejectNotifier()
     {
         if (pRoutingRejectNotifier == IMS_NULL)
         {
-            pRoutingRejectNotifier = new SIPRoutingRejectNotifier();
+            pRoutingRejectNotifier = new SipRoutingRejectNotifier();
         }
 
         return pRoutingRejectNotifier;
     }
 
-    inline SIPRTConfigHelper* GetRTConfigHelper()
+    inline SIPRTConfigHelper* GetRtConfigHelper()
     {
         if (pRTConfigHelper == IMS_NULL)
         {
@@ -98,7 +98,7 @@ public:
         return pTransportHelper;
     }
 
-    inline void SetTokenGenerator(IN ISIPTokenGenerator* piTokenGenerator)
+    inline void SetTokenGenerator(IN ISipTokenGenerator* piTokenGenerator)
     { this->piTokenGenerator = piTokenGenerator; }
 
     inline IMS_BOOL IsIPSecStateEnabled() const
@@ -120,10 +120,10 @@ private:
     SIPIPSecState* pIPSecState;
     SIPMessageTracker* pMessageTracker;
     SIPPacketTracker* pPacketTracker;
-    SIPRoutingRejectNotifier* pRoutingRejectNotifier;
+    SipRoutingRejectNotifier* pRoutingRejectNotifier;
     SIPRTConfigHelper* pRTConfigHelper;
     SIPTransportHelper* pTransportHelper;
-    ISIPTokenGenerator* piTokenGenerator;
+    ISipTokenGenerator* piTokenGenerator;
 };
 
 PUBLIC
@@ -305,7 +305,7 @@ Remarks
 
 */
 PUBLIC
-SIPRoutingRejectNotifier* SIPFactoryProxy::GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId)
+SipRoutingRejectNotifier* SIPFactoryProxy::GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->GetRoutingRejectNotifier();
@@ -317,10 +317,10 @@ Remarks
 
 */
 PUBLIC
-SIPRTConfigHelper* SIPFactoryProxy::GetRTConfigHelper(IN IMS_SINT32 nSlotId)
+SIPRTConfigHelper* SIPFactoryProxy::GetRtConfigHelper(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
-    return pHolder->GetRTConfigHelper();
+    return pHolder->GetRtConfigHelper();
 }
 
 /*
@@ -342,7 +342,7 @@ Remarks
 */
 PUBLIC
 void SIPFactoryProxy::SetTokenGenerator(IN IMS_SINT32 nSlotId,
-        IN ISIPTokenGenerator* piTokenGenerator)
+        IN ISipTokenGenerator* piTokenGenerator)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     pHolder->SetTokenGenerator(piTokenGenerator);

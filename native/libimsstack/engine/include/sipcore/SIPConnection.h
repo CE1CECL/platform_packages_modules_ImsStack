@@ -20,7 +20,7 @@
 #include "SIPDialog.h"
 #include "SipTimerValues.h"
 
-class SIPProfile;
+class SipProfile;
 class IOnSIPErrorListener;
 
 
@@ -42,12 +42,12 @@ public:
     // IConnection interface
     virtual void Close();
 
-    // ISIPConnection interface
+    // ISipConnection interface
     virtual IMS_RESULT AddHeader(IN CONST AString &strName, IN CONST AString &strValue);
     virtual SIPDialog* GetDialog() const;
     virtual AString GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex = 0);
     virtual IMSList<AString> GetHeaders(IN CONST AString &strName);
-    virtual const SIPMethod& GetMethod() const;
+    virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
     virtual const AString& GetRequestURI() const;
     virtual IMS_SINT32 GetStatusCode() const;
@@ -59,11 +59,11 @@ public:
     virtual IMS_RESULT SetContent(IN CONST ByteArray &objContent);
     // IMS extensions
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString &strName) const;
-    inline virtual ISIPMessage* GetMessage() const
+    inline virtual ISipMessage* GetMessage() const
     { return pMessage; }
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
-    void SetTransactionTimerValues(IN CONST SIPTimerValues &objTV);
+    virtual void SetSIPProfile(IN SipProfile *pProfile);
+    void SetTransactionTimerValues(IN CONST SipTimerValues &objTV);
 
 protected:
     // ISIPTransactionStateListener interface
@@ -76,7 +76,7 @@ protected:
     virtual IMS_BOOL IsTransportErrorReportRequired(IN IMS_SINT32 nCode,
             IN CONST AString &strMessage) const;
 
-    SIPTimerValues* GetTransactionTimerValues() const;
+    SipTimerValues* GetTransactionTimerValues() const;
     void InitMessage(IN SIPMessage *pMessage_ = IMS_NULL,
             IN IMS_SINT32 nType_ = SIPMessage::TYPE_REQUEST);
     void NotifyError(IN IMS_SINT32 nCode, IN CONST AString &strMessage);
@@ -93,7 +93,7 @@ protected:
     SIPMessage *pMessage;
 
     // SIP transaction timer values
-    SIPTimerValues *pTV;
+    SipTimerValues *pTV;
 };
 
 #endif // _SIP_CONNECTION_H_

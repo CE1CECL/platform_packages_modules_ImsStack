@@ -226,16 +226,16 @@ IMS_RESULT Capabilities::QueryCapabilities(IN IMS_BOOL bSDPInRequest,
     }
 
     // Create new connection and get SIPMessage
-    ISIPDialog *piDialog = GetDialog();
-    ISIPClientConnection *piSCC = IMS_NULL;
+    ISipDialog *piDialog = GetDialog();
+    ISipClientConnection *piSCC = IMS_NULL;
 
     if (piDialog == IMS_NULL)
     {
-        piSCC = CreateConnection(SIPMethod(SIPMethod::OPTIONS));
+        piSCC = CreateConnection(SipMethod(SipMethod::OPTIONS));
     }
     else
     {
-        piSCC = CreateConnection(piDialog, SIPMethod(SIPMethod::OPTIONS));
+        piSCC = CreateConnection(piDialog, SipMethod(SipMethod::OPTIONS));
     }
 
     if (piSCC == IMS_NULL)
@@ -244,18 +244,18 @@ IMS_RESULT Capabilities::QueryCapabilities(IN IMS_BOOL bSDPInRequest,
         return IMS_FAILURE;
     }
 
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
 #if 0
     // Sets Expires header
-    if (piSIPMsg->SetHeader(ISIPHeader::EXPIRES_SEC, "0") != IMS_SUCCESS)
+    if (piSIPMsg->SetHeader(ISipHeader::EXPIRES_SEC, "0") != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Setting Expires header failed", 0, 0, 0);
         goto EXIT_QueryCapabilities;
     }
 
     // Sets Accept header
-    if (piSIPMsg->PrependHeader(ISIPHeader::ACCEPT, DEFAULT_MEDIA_TYPE) != IMS_SUCCESS)
+    if (piSIPMsg->PrependHeader(ISipHeader::ACCEPT, DEFAULT_MEDIA_TYPE) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Setting Accept header failed", 0, 0, 0);
         goto EXIT_QueryCapabilities;
@@ -270,17 +270,17 @@ IMS_RESULT Capabilities::QueryCapabilities(IN IMS_BOOL bSDPInRequest,
 
         if (CreateContactHeader(strContactHeader, bIsContactGRUU))
         {
-            if (piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
+            if (piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Setting Contact header failed", 0, 0, 0);
                 goto EXIT_QueryCapabilities;
             }
 
-            const AString strGRUU(SIP::STR_GRUU);
+            const AString strGRUU(Sip::STR_GRUU);
 
             if (bIsContactGRUU && !piSIPMsg->IsOptionSupported(strGRUU))
             {
-                piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+                piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
             }
         }
     }
@@ -297,14 +297,14 @@ IMS_RESULT Capabilities::QueryCapabilities(IN IMS_BOOL bSDPInRequest,
             goto EXIT_QueryCapabilities;
         }
 
-        ISIPMessageBodyPart *piSIPBodyPart = piSIPMsg->CreateSDPBodyPart();
+        ISipMessageBodyPart *piSIPBodyPart = piSIPMsg->CreateSdpBodyPart();
 
         if (piSIPBodyPart == IMS_NULL)
         {
             goto EXIT_QueryCapabilities;
         }
 
-        piSIPBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, DEFAULT_MEDIA_TYPE);
+        piSIPBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, DEFAULT_MEDIA_TYPE);
         piSIPBodyPart->SetContent(strSDP);
     }
 
@@ -341,16 +341,16 @@ IMS_RESULT Capabilities::QueryCapabilitiesEx()
     }
 
     // Create new connection and get SIPMessage
-    ISIPDialog *piDialog = GetDialog();
-    ISIPClientConnection *piSCC = IMS_NULL;
+    ISipDialog *piDialog = GetDialog();
+    ISipClientConnection *piSCC = IMS_NULL;
 
     if (piDialog == IMS_NULL)
     {
-        piSCC = CreateConnection(SIPMethod(SIPMethod::OPTIONS));
+        piSCC = CreateConnection(SipMethod(SipMethod::OPTIONS));
     }
     else
     {
-        piSCC = CreateConnection(piDialog, SIPMethod(SIPMethod::OPTIONS));
+        piSCC = CreateConnection(piDialog, SipMethod(SipMethod::OPTIONS));
     }
 
     if (piSCC == IMS_NULL)
@@ -410,7 +410,7 @@ IMS_RESULT Capabilities::Accept(IN IMS_BOOL bFeatureInContact /* = IMS_TRUE */,
         return IMS_FAILURE;
     }
 
-    ISIPServerConnection *piSSC = GetServerConnection(IMessage::CAPABILITIES_QUERY);
+    ISipServerConnection *piSSC = GetServerConnection(IMessage::CAPABILITIES_QUERY);
 
     if (piSSC == IMS_NULL)
     {
@@ -418,16 +418,16 @@ IMS_RESULT Capabilities::Accept(IN IMS_BOOL bFeatureInContact /* = IMS_TRUE */,
     }
 
     // Send a 200 OK to OPTIONS request
-    if (CreateResponse(piSSC, SIPStatusCode::SC_200) == IMS_FALSE)
+    if (CreateResponse(piSSC, SipStatusCode::SC_200) == IMS_FALSE)
     {
         IMS_TRACE_E(0, "Initializing the response to OPTIONS request failed", 0, 0, 0);
     }
 
     // Now, the variable, piSIPMsg will be used for OPTIONS response message
-    ISIPMessage *piSIPMsg = piSSC->GetMessage();
+    ISipMessage *piSIPMsg = piSSC->GetMessage();
 
     // Sets Accept header
-    if (piSIPMsg->PrependHeader(ISIPHeader::ACCEPT, DEFAULT_MEDIA_TYPE) != IMS_SUCCESS)
+    if (piSIPMsg->PrependHeader(ISipHeader::ACCEPT, DEFAULT_MEDIA_TYPE) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "Setting Accept header failed", 0, 0, 0);
         return IMS_FAILURE;
@@ -443,17 +443,17 @@ IMS_RESULT Capabilities::Accept(IN IMS_BOOL bFeatureInContact /* = IMS_TRUE */,
 
     if (CreateContactHeader(strContactHeader, bIsContactGRUU, bFeatureInContact))
     {
-        if (piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
+        if (piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Setting Contact header failed", 0, 0, 0);
             return IMS_FAILURE;
         }
 
-        const AString strGRUU(SIP::STR_GRUU);
+        const AString strGRUU(Sip::STR_GRUU);
 
         if (bIsContactGRUU && !piSIPMsg->IsOptionSupported(strGRUU))
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
         }
     }
 
@@ -466,14 +466,14 @@ IMS_RESULT Capabilities::Accept(IN IMS_BOOL bFeatureInContact /* = IMS_TRUE */,
         return IMS_FAILURE;
     }
 
-    ISIPMessageBodyPart *piSIPBodyPart = piSIPMsg->CreateSDPBodyPart();
+    ISipMessageBodyPart *piSIPBodyPart = piSIPMsg->CreateSdpBodyPart();
 
     if (piSIPBodyPart == IMS_NULL)
     {
         return IMS_FAILURE;
     }
 
-    piSIPBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, DEFAULT_MEDIA_TYPE);
+    piSIPBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, DEFAULT_MEDIA_TYPE);
     piSIPBodyPart->SetContent(strSDP);
 
     if (!SendNUpdateResponse(IMessage::CAPABILITIES_QUERY, piSSC))
@@ -512,7 +512,7 @@ IMS_RESULT Capabilities::AcceptEx()
         return IMS_FAILURE;
     }
 
-    ISIPServerConnection *piSSC = GetServerConnection(IMessage::CAPABILITIES_QUERY);
+    ISipServerConnection *piSSC = GetServerConnection(IMessage::CAPABILITIES_QUERY);
 
     if (piSSC == IMS_NULL)
     {
@@ -520,7 +520,7 @@ IMS_RESULT Capabilities::AcceptEx()
     }
 
     // Send a 200 OK to OPTIONS request
-    if (CreateResponse(piSSC, SIPStatusCode::SC_200) == IMS_FALSE)
+    if (CreateResponse(piSSC, SipStatusCode::SC_200) == IMS_FALSE)
     {
         IMS_TRACE_E(0, "Initializing the response to OPTIONS request failed", 0, 0, 0);
     }
@@ -566,7 +566,7 @@ IMS_RESULT Capabilities::Reject(IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nRetryA
         return IMS_FAILURE;
     }
 
-    ISIPServerConnection *piSSC = GetServerConnection(IMessage::CAPABILITIES_QUERY);
+    ISipServerConnection *piSSC = GetServerConnection(IMessage::CAPABILITIES_QUERY);
 
     if(piSSC == IMS_NULL)
         return IMS_FAILURE;
@@ -578,7 +578,7 @@ IMS_RESULT Capabilities::Reject(IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nRetryA
     }
 
     // Now, the variable, piSIPMsg will be used for OPTIONS response message
-    ISIPMessage *piSIPMsg = piSSC->GetMessage();
+    ISipMessage *piSIPMsg = piSSC->GetMessage();
 
     if (nRetryAfter > 0)
     {
@@ -586,7 +586,7 @@ IMS_RESULT Capabilities::Reject(IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nRetryA
 
         strRetryAfter.SetNumber(nRetryAfter);
 
-        piSIPMsg->AddHeader(ISIPHeader::RETRY_AFTER_SEC, strRetryAfter);
+        piSIPMsg->AddHeader(ISipHeader::RETRY_AFTER_SEC, strRetryAfter);
     }
 
     // Accept headers
@@ -600,17 +600,17 @@ IMS_RESULT Capabilities::Reject(IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nRetryA
 
     if (CreateContactHeader(strContactHeader, bIsContactGRUU, IMS_FALSE))
     {
-        if (piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
+        if (piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Setting Contact header failed", 0, 0, 0);
             return IMS_FAILURE;
         }
 
-        const AString strGRUU(SIP::STR_GRUU);
+        const AString strGRUU(Sip::STR_GRUU);
 
         if (bIsContactGRUU && !piSIPMsg->IsOptionSupported(strGRUU))
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
         }
     }
 
@@ -639,7 +639,7 @@ Remarks
 */
 PUBLIC GLOBAL
 IMS_RESULT Capabilities::HandleOPTIONSRequestWithinDialog(
-        IN Service *pService, IN CONST Method *pOwnerMethod, IN ISIPServerConnection *piSSC)
+        IN Service *pService, IN CONST Method *pOwnerMethod, IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -652,7 +652,7 @@ IMS_RESULT Capabilities::HandleOPTIONSRequestWithinDialog(
 
     if (pCapabilities == IMS_NULL)
     {
-        pService->SendResponse(piSSC, SIPStatusCode::SC_488);
+        pService->SendResponse(piSSC, SipStatusCode::SC_488);
         piSSC->Close();
 
         IMS_TRACE_E(0, "Creating Capabilities failed", 0, 0, 0);
@@ -661,7 +661,7 @@ IMS_RESULT Capabilities::HandleOPTIONSRequestWithinDialog(
 
     if (!pCapabilities->InitMethod(pOwnerMethod, IMS_FALSE))
     {
-        pService->SendResponse(piSSC, SIPStatusCode::SC_488);
+        pService->SendResponse(piSSC, SipStatusCode::SC_488);
         piSSC->Close();
         delete pCapabilities;
 
@@ -724,7 +724,7 @@ Remarks
 */
 // IMS_AUTH_SIP_DIGEST
 PRIVATE VIRTUAL
-IMS_BOOL Capabilities::SendRequestToChallenge(IN ISIPClientConnection *piSCC)
+IMS_BOOL Capabilities::SendRequestToChallenge(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -752,9 +752,9 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_BOOL Capabilities::NotifySIPRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL Capabilities::NotifySIPRequest(IN ISipServerConnection *piSSC)
 {
-    ISIPMessage *piSIPMsg = piSSC->GetMessage();
+    ISipMessage *piSIPMsg = piSSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -784,11 +784,11 @@ IMS_BOOL Capabilities::NotifySIPRequest(IN ISIPServerConnection *piSSC)
 
     AString strContactHeader;
     AString strSDP;
-    ISIPMessageBodyPart *piSIPBodyPart;
+    ISipMessageBodyPart *piSIPBodyPart;
     IMS_BOOL bIsContactGRUU = IMS_FALSE;
 
     // Send a 200 OK to OPTIONS request
-    if (CreateResponse(piSSC, SIPStatusCode::SC_200) == IMS_FALSE)
+    if (CreateResponse(piSSC, SipStatusCode::SC_200) == IMS_FALSE)
     {
         IMS_TRACE_E(0, "Initializing the response to OPTIONS request failed", 0, 0, 0);
         goto EXIT_NotifySIPRequest;
@@ -806,17 +806,17 @@ IMS_BOOL Capabilities::NotifySIPRequest(IN ISIPServerConnection *piSSC)
 
     if (CreateContactHeader(strContactHeader, bIsContactGRUU))
     {
-        if (piSIPMsg->SetHeader(ISIPHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
+        if (piSIPMsg->SetHeader(ISipHeader::CONTACT_NORMAL, strContactHeader) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Setting Contact header failed", 0, 0, 0);
             goto EXIT_NotifySIPRequest;
         }
 
-        const AString strGRUU(SIP::STR_GRUU);
+        const AString strGRUU(Sip::STR_GRUU);
 
         if (bIsContactGRUU && !piSIPMsg->IsOptionSupported(strGRUU))
         {
-            piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, strGRUU);
+            piSIPMsg->AddHeader(ISipHeader::SUPPORTED, strGRUU);
         }
     }
 
@@ -827,14 +827,14 @@ IMS_BOOL Capabilities::NotifySIPRequest(IN ISIPServerConnection *piSSC)
         goto EXIT_NotifySIPRequest;
     }
 
-    piSIPBodyPart = piSIPMsg->CreateSDPBodyPart();
+    piSIPBodyPart = piSIPMsg->CreateSdpBodyPart();
 
     if (piSIPBodyPart == IMS_NULL)
     {
         goto EXIT_NotifySIPRequest;
     }
 
-    piSIPBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, DEFAULT_MEDIA_TYPE);
+    piSIPBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, DEFAULT_MEDIA_TYPE);
     piSIPBodyPart->SetContent(strSDP);
 
     if (!SendNUpdateResponse(IMessage::CAPABILITIES_QUERY, piSSC))
@@ -863,7 +863,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Capabilities::NotifySIPResponse(IN ISIPClientConnection* piSCC)
+void Capabilities::NotifySIPResponse(IN ISipClientConnection* piSCC)
 {
     IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
@@ -873,13 +873,13 @@ void Capabilities::NotifySIPResponse(IN ISIPClientConnection* piSCC)
     UpdateResponseOnReceived(IMessage::CAPABILITIES_QUERY, piSCC);
 
     // Handle the response to OPTIONS request ...
-    if (SIPStatusCode::Is1XX(nStatusCode))
+    if (SipStatusCode::Is1XX(nStatusCode))
     {
         // Do nothing ...
         return;
     }
-    else if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+    else if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
     {
         // AUTH_SIP_DIGEST {
         // In case of other method except for REGISTER,
@@ -892,7 +892,7 @@ void Capabilities::NotifySIPResponse(IN ISIPClientConnection* piSCC)
     }
 
     // Check the status code
-    if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+    if (SipStatusCode::IsFinalSuccess(nStatusCode))
     {
         HandleCapabilities(piSCC);
 
@@ -916,17 +916,17 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void Capabilities::NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+void Capabilities::NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
         IN CONST AString &strMessage)
 {
-    const SIPMethod &objMethod = piSC->GetMethod();
+    const SipMethod &objMethod = piSC->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     (void) nCode;
     (void) strMessage;
 
-    if (!objMethod.Equals(SIPMethod::OPTIONS))
+    if (!objMethod.Equals(SipMethod::OPTIONS))
     {
         piSC->Close();
         return;
@@ -971,14 +971,14 @@ IMS_BOOL Capabilities::CreateContactHeader(OUT AString &strContactHeader,
 
     AString strContact(AString::ConstNull());
     Service *pService = GetService();
-    IMS_BOOL bGRUUSupported = SIPConfigProxy::IsGRUUConfigured(
+    IMS_BOOL bGRUUSupported = SipConfigProxy::IsGruuConfigured(
             GetSlotId(), GetService()->GetSIPProfile());
 
-    if (SIPConfigProxy::IsMultipleRegConfigured(GetSlotId(), GetService()->GetSIPProfile()))
+    if (SipConfigProxy::IsMultipleRegConfigured(GetSlotId(), GetService()->GetSIPProfile()))
     {
-        SIPAddress objContact;
+        SipAddress objContact;
         //4 Consider the Privacy information (temp-gruu)
-        const SIPAddress *pPubGRUU = bGRUUSupported ? pService->GetPublicGRUU() : IMS_NULL;
+        const SipAddress *pPubGRUU = bGRUUSupported ? pService->GetPublicGRUU() : IMS_NULL;
 
         if (pPubGRUU != IMS_NULL)
         {
@@ -987,17 +987,17 @@ IMS_BOOL Capabilities::CreateContactHeader(OUT AString &strContactHeader,
         }
         else
         {
-            const SIPAddress *pContact
+            const SipAddress *pContact
                     = pService->GetContactAddressForOutgoingMessage();
 
             objContact = (pContact != IMS_NULL) ? \
                     *pContact : pService->GetContactAddress();
         }
 
-        if (SIPConfigProxy::IsMultipleRegConfigured(
+        if (SipConfigProxy::IsMultipleRegConfigured(
                 pService->GetSlotId(), pService->GetSIPProfile()))
         {
-            objContact.AddParameter(SIP::STR_OB, AString::ConstNull());
+            objContact.AddParameter(Sip::STR_OB, AString::ConstNull());
         }
 
         strContact = objContact.ToString();
@@ -1005,7 +1005,7 @@ IMS_BOOL Capabilities::CreateContactHeader(OUT AString &strContactHeader,
     else
     {
         //4 Consider the Privacy information (temp-gruu)
-        const SIPAddress *pPubGRUU = bGRUUSupported ? pService->GetPublicGRUU() : IMS_NULL;
+        const SipAddress *pPubGRUU = bGRUUSupported ? pService->GetPublicGRUU() : IMS_NULL;
 
         if (pPubGRUU != IMS_NULL)
         {
@@ -1014,7 +1014,7 @@ IMS_BOOL Capabilities::CreateContactHeader(OUT AString &strContactHeader,
         }
         else
         {
-            const SIPAddress *pContact
+            const SipAddress *pContact
                     = pService->GetContactAddressForOutgoingMessage();
 
             strContact = (pContact != IMS_NULL) ? \
@@ -1056,7 +1056,7 @@ IMS_BOOL Capabilities::CreateSDP(OUT AString &strSDP, IN IMS_BOOL bCheckSupport 
     SdpSessionDescription objSessionDesc;
 
     // Create a session-level mandatory descriptions
-    if (!objSessionDesc.CreateMandatoryLines(GetUserAOR()->GetURI(), objLocalAddress))
+    if (!objSessionDesc.CreateMandatoryLines(GetUserAOR()->GetUri(), objLocalAddress))
     {
         IMS_TRACE_E(0, "Creating a session descriptor failed", 0, 0, 0);
         return IMS_FALSE;
@@ -1249,14 +1249,14 @@ Remarks
 
 */
 PRIVATE
-void Capabilities::HandleCapabilities(IN ISIPClientConnection *piSCC)
+void Capabilities::HandleCapabilities(IN ISipClientConnection *piSCC)
 {
-    ISIPMessage *piSIPMsg = piSCC->GetMessage();
+    ISipMessage *piSIPMsg = piSCC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     // Gets the Contact headers
-    IMSList<AString> objContacts = piSIPMsg->GetHeaders(ISIPHeader::CONTACT_ANY);
+    IMSList<AString> objContacts = piSIPMsg->GetHeaders(ISipHeader::CONTACT_ANY);
 
     if (objContacts.IsEmpty())
     {
@@ -1268,21 +1268,21 @@ void Capabilities::HandleCapabilities(IN ISIPClientConnection *piSCC)
     for (IMS_UINT32 i = 0; i < objContacts.GetSize(); ++i)
     {
         const AString &strContact = objContacts.GetAt(i);
-        ISIPHeader *piContact
-                = SIPParsingHelper::CreateHeader(ISIPHeader::CONTACT_NORMAL, strContact);
+        ISipHeader *piContact
+                = SipParsingHelper::CreateHeader(ISipHeader::CONTACT_NORMAL, strContact);
 
         if (piContact != IMS_NULL)
         {
-            const SIPAddress *pAddress = piContact->GetSIPAddress();
+            const SipAddress *pAddress = piContact->GetSipAddress();
 
             if (pAddress != IMS_NULL)
             {
                 const AString &strScheme = pAddress->GetScheme();
 
                 // Collects all SIP & TEL URIs ...
-                if (strScheme.EqualsIgnoreCase(SIP::STR_SIP)
-                    || strScheme.EqualsIgnoreCase(SIP::STR_SIPS)
-                    || strScheme.EqualsIgnoreCase(SIP::STR_TEL))
+                if (strScheme.EqualsIgnoreCase(Sip::STR_SIP)
+                    || strScheme.EqualsIgnoreCase(Sip::STR_SIPS)
+                    || strScheme.EqualsIgnoreCase(Sip::STR_TEL))
                 {
                     objRemoteUserIdentities.Append(pAddress->ToString());
                 }

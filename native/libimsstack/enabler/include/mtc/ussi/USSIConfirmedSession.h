@@ -11,9 +11,9 @@
 
 #include "call/IMtcCall.h"
 
-class ISIPConnection;
-class ISIPClientConnection;
-class ISIPServerConnection;
+class ISipConnection;
+class ISipClientConnection;
+class ISipServerConnection;
 
 class USSIConfirmedSession
     // TODO, MTC BUILD
@@ -55,7 +55,7 @@ protected:
 
 // protected:
 //     virtual IMS_BOOL OnMessage(IN IMSMSG &objMSG);
-//     virtual IMS_BOOL IsUSSIInfoReceived(IN ISIPMessage* pSIPMessage);
+//     virtual IMS_BOOL IsUSSIInfoReceived(IN ISipMessage* pSIPMessage);
 
 //     virtual IMS_BOOL StateCONVERSATION_SS_Terminated(IN IMSMSG &objMsg);
 //     virtual IMS_BOOL StateXXX_SS_TransactionReceived(IN IMSMSG &objMsg);
@@ -63,18 +63,18 @@ protected:
 
 //     virtual void LoadConfig();
 
-//     virtual void SendUSSITransactionToListn(IN ISIPMessage* pISIPMessage);
+//     virtual void SendUSSITransactionToListn(IN ISipMessage* pISIPMessage);
 
-//     virtual void ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
-//             IN ISIPClientConnection * piForkedSCC /* = IMS_NULL */);
-//     virtual void Error_NotifyError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+//     virtual void ClientConnection_NotifyResponse(IN ISipClientConnection *piSCC,
+//             IN ISipClientConnection * piForkedSCC /* = IMS_NULL */);
+//     virtual void Error_NotifyError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
 //             IN const AString &strMessage);
 //     virtual void SendTransactionWithErrorCode(IN IMS_UINT32 nErrorCode);
 
 // private:
 //     virtual void SendTransactionResponse(IN IMS_UINT32 nResponseCode,
 //             IN const AString& strPhrase = AString::ConstEmpty());
-//     virtual IMS_BOOL SetUSSIBody(IN ISIPMessage* pISIPMessage, IN const AString& strUSSDStr,
+//     virtual IMS_BOOL SetUSSIBody(IN ISipMessage* pISIPMessage, IN const AString& strUSSDStr,
 //             IN IMS_UINT32 nErrorCode);
 // ------------------------------------------------------------------------------------------------
 // Variable
@@ -93,8 +93,8 @@ enum
 };
 
 protected:
-    ISIPClientConnection*    m_pISIPClientConnection;
-    ISIPServerConnection*    m_pISIPServerConnection;
+    ISipClientConnection*    m_pISIPClientConnection;
+    ISipServerConnection*    m_pISIPServerConnection;
 
     IMS_UINT32 m_nUSSType;
 };

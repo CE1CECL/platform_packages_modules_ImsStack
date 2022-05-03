@@ -59,7 +59,7 @@ IMS_RESULT EmergencyMessageFormatter::FormStartMessage()
 PRIVATE
 void EmergencyMessageFormatter::SetPPreferredIdentityHeader()
 {
-    if (MessageUtil::IsHeaderPresent(m_piNextMessage, ISIPHeader::P_PREFERRED_IDENTITY))
+    if (MessageUtil::IsHeaderPresent(m_piNextMessage, ISipHeader::P_PREFERRED_IDENTITY))
     {
         return;
     }
@@ -89,14 +89,14 @@ void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByUserId()
     CONST AStringArray& objUserIds = piCoreService->GetUserIdentities();
     for (IMS_SINT32 i = 0; i < objUserIds.GetCount(); i++)
     {
-        SIPAddress objSipAddress;
+        SipAddress objSipAddress;
         AString strAddress = objUserIds.GetElementAt(i);
         if (!objSipAddress.Create(strAddress))
         {
             continue;
         }
 
-        MessageUtil::SetHeader(m_piNextMessage, strAddress, ISIPHeader::P_PREFERRED_IDENTITY);
+        MessageUtil::SetHeader(m_piNextMessage, strAddress, ISipHeader::P_PREFERRED_IDENTITY);
         return;
     }
 }
@@ -127,7 +127,7 @@ void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByDeviceId()
     strImei = strImei.AlignLeft(LEN_IMEI_TAC + LEN_IMEI_SNR, '0');
 
     AString strValue;
-    strValue.Append(SIP::STR_SIP);
+    strValue.Append(Sip::STR_SIP);
     strValue.Append(TextParser::CHAR_COLON);
     strValue.Append(strImei.GetSubStr(0, LEN_IMEI_TAC));
     strValue.Append(strImei.GetSubStr(LEN_IMEI_TAC, LEN_IMEI_SNR));
@@ -151,7 +151,7 @@ void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByDeviceId()
     strPort.Sprintf("%d", nPort);
     strValue.Append(strPort);
 
-    MessageUtil::SetHeader(m_piNextMessage, strValue, ISIPHeader::P_PREFERRED_IDENTITY);
+    MessageUtil::SetHeader(m_piNextMessage, strValue, ISipHeader::P_PREFERRED_IDENTITY);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void EmergencyMessageFormatter::SetSipInstanceFeature()
         return;
     }
 
-    CONST SIPParameter* pParameter = piCoreService->GetInstanceParameter();
+    CONST SipParameter* pParameter = piCoreService->GetInstanceParameter();
     if (pParameter == IMS_NULL)
     {
         return;

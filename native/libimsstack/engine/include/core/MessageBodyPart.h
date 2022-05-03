@@ -25,12 +25,12 @@ class MessageBodyPart
     : public IMessageBodyPart
 {
 public:
-    MessageBodyPart(IN IMessage *piMessage_, IN ISIPMessageBodyPart *piBodyPart_);
+    MessageBodyPart(IN IMessage *piMessage_, IN ISipMessageBodyPart *piBodyPart_);
     virtual ~MessageBodyPart();
 
 public:
-    ISIPMessageBodyPart* GetBodyPart() const;
-    void SetBodyPart(IN ISIPMessageBodyPart *piNewBodyPart);
+    ISipMessageBodyPart* GetBodyPart() const;
+    void SetBodyPart(IN ISipMessageBodyPart *piNewBodyPart);
 
 private:
     // IMessageBodyPart interface implementation
@@ -42,7 +42,7 @@ private:
 
 private:
     IMessage *piMessage;
-    ISIPMessageBodyPart *piBodyPart;
+    ISipMessageBodyPart *piBodyPart;
 };
 
 #endif // _MESSAGE_BODY_PART_H_

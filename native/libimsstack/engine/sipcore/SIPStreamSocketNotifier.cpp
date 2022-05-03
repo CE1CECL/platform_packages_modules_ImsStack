@@ -35,7 +35,7 @@ PUBLIC VIRTUAL
 SIPStreamSocketNotifier::~SIPStreamSocketNotifier()
 {
     IMS_TRACE_D("StreamSocketNotifier(D) :: (%s, %d)",
-            SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort(), 0);
+            SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort(), 0);
 }
 
 /*
@@ -118,7 +118,7 @@ IMS_BOOL SIPStreamSocketNotifier::Create(IN CONST IPAddress &objIPA, IN IMS_UINT
 
     IMS_TRACE_I("StreamSocketNotifier(C) :: (%s, %d)",
             SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ?\
-            "xxx" : SIPDebug::GetIP(objIPA), nPort, 0);
+            "xxx" : SipDebug::GetIp(objIPA), nPort, 0);
 
     ApplyIpSec();
 

@@ -17,7 +17,7 @@
 #include "IMSMap.h"
 
 class IMutex;
-class ISIPServerConnection;
+class ISipServerConnection;
 class ICancellableMethod;
 
 
@@ -39,7 +39,7 @@ public:
     static CancellableMethodManager* GetInstance();
 
 private:
-    IMS_BOOL HandleCancelRequest(IN ISIPServerConnection *piSSC);
+    IMS_BOOL HandleCancelRequest(IN ISipServerConnection *piSSC);
 
 private:
     friend class SIPConnectionNotifierManagerPrivate;

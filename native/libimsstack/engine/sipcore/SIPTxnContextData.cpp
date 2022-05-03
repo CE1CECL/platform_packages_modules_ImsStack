@@ -36,7 +36,7 @@ SIPTxnContextData::~SIPTxnContextData()
 }
 
 PUBLIC
-const SIPMethod& SIPTxnContextData::GetMethod() const
+const SipMethod& SIPTxnContextData::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ SIPTransactionState* SIPTxnContextData::GetTxnState() const
 }
 
 PUBLIC
-void SIPTxnContextData::SetMethod(IN CONST SIPMethod &objMethod)
+void SIPTxnContextData::SetMethod(IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 

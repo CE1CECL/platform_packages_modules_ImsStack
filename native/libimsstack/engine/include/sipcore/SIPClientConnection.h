@@ -21,8 +21,8 @@
 #include "SIPClientTransactionState.h"
 
 class IOnSIPClientConnectionListener;
-class ISIPGenericChallenge;
-class ISIPAckPackage;
+class ISipGenericChallenge;
+class ISipAckPackage;
 class SIPConnectionNotifier;
 class SIPAuHelper;
 
@@ -47,11 +47,11 @@ public:
     // IConnection interface
     virtual void Close();
 
-    // ISIPConnection interface
+    // ISipConnection interface
     virtual IMS_RESULT AddHeader(IN CONST AString &strName, IN CONST AString &strValue);
     virtual AString GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex = 0);
     virtual IMSList<AString> GetHeaders(IN CONST AString &strName);
-    virtual const SIPMethod& GetMethod() const;
+    virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
     virtual const AString& GetRequestURI() const;
     virtual IMS_SINT32 GetStatusCode() const;
@@ -63,9 +63,9 @@ public:
     // IMS extensions
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString &strName) const;
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
+    virtual void SetSIPProfile(IN SipProfile *pProfile);
 
-    // ISIPClientConnection interface
+    // ISipClientConnection interface
     IMS_RESULT InitAck();
     SIPClientConnection* InitCancel();
     IMS_RESULT InitRequest(IN CONST AString &strMethod, IN SIPConnectionNotifier *pSCN);
@@ -74,12 +74,12 @@ public:
     IMS_RESULT SetCredentials(IN CONST Credential &objCredential);
     void SetListener(IN IOnSIPClientConnectionListener *piListener);
     IMS_RESULT SetRequestURI(IN CONST AString &strURI);
-    ISIPGenericChallenge* GetAuthenticationChallenge(IN IMS_SINT32 nIndex = 0) const;
-    ISIPAckPackage* GrabAck();
+    ISipGenericChallenge* GetAuthenticationChallenge(IN IMS_SINT32 nIndex = 0) const;
+    ISipAckPackage* GrabAck();
     IMS_RESULT InitResubmissionRequest();
     void RemoveAllChallenges();
     void RemoveAllCredentials();
-    IMS_RESULT SetAuthenticationChallenge(IN ISIPGenericChallenge *piChallenge);
+    IMS_RESULT SetAuthenticationChallenge(IN ISipGenericChallenge *piChallenge);
     void SetExtensionTokenForViaBranch(IN CONST AString &strToken);
     void SetImplicitRouteHeader(IN CONST AString &strRouteHeader);
     void SetTransportTuple(IN CONST IPAddress &objIPA,
@@ -87,7 +87,7 @@ public:
             IN IMS_SINT32 nTransportExt = 0 /* ANY */);
 
     // Extension methods
-    IMS_RESULT InitDialogRequest(IN CONST SIPMethod &objMethod,  IN SIPDialogEx *pDialogEx);
+    IMS_RESULT InitDialogRequest(IN CONST SipMethod &objMethod,  IN SIPDialogEx *pDialogEx);
     IMS_RESULT SendWithCredentials();
 
 private:

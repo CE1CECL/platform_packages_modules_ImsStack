@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_REFRESHABLE_H_
 #define _INTERFACE_REFRESHABLE_H_
 
-class ISIPClientConnection;
+class ISipClientConnection;
 
 
 
@@ -45,7 +45,7 @@ public:
     </table>
 
     */
-    virtual void Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+    virtual void Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
             IN IMS_SINT32 nCode = 0) = 0;
 
     /*

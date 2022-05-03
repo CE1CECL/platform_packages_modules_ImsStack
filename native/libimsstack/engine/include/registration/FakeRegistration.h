@@ -50,9 +50,9 @@ public:
 
     // MULTI_SUBS
     // MULTI_REG_SIP_PROFILE
-    IMS_BOOL Create(IN IMS_UINT32 nFlowId, IN CONST SIPAddress &objAOR,
+    IMS_BOOL Create(IN IMS_UINT32 nFlowId, IN CONST SipAddress &objAOR,
             IN CONST AString &strSubsId = AString::ConstNull(),
-            IN SIPProfile *pSIPProfile = IMS_NULL);
+            IN SipProfile *pSIPProfile = IMS_NULL);
     void Destroy();
     const IMSList<RegContact*>& GetAllContactsEx() const;
     IMS_BOOL HasActiveBindings() const;
@@ -63,9 +63,9 @@ private:
     virtual IMS_BOOL DispatchMessage(IN IMSMSG &objMSG);
 
     // IRegBase interface
-    virtual ISIPMessage* GetNextRequest();
-    virtual ISIPMessage* GetPreviousRequest() const;
-    virtual ISIPMessage* GetPreviousResponse() const;
+    virtual ISipMessage* GetNextRequest();
+    virtual ISipMessage* GetPreviousRequest() const;
+    virtual ISipMessage* GetPreviousResponse() const;
     // SIP_MESSAGE_MEDIATOR
     virtual void SetSipMessageMediator(IN IMessageMediator *piMediator);
 
@@ -79,9 +79,9 @@ private:
     virtual void DestroyContact(IN IRegContact *piContact);
     virtual void DestroyContact(IN CONST IPAddress &objIPA, IN IMS_SINT32 nPort);
     virtual const Credential* GetCredential() const;
-    virtual const SIPAddress& GetAOR() const;
+    virtual const SipAddress& GetAOR() const;
     virtual const AStringArray& GetAssociatedURIs() const;
-    virtual const SIPAddress& GetAuthorizedAOR() const;
+    virtual const SipAddress& GetAuthorizedAOR() const;
     virtual IMSList<IRegContact*> GetAllContacts() const;
     virtual IRegContact* GetContact(IN CONST IPAddress &objIPA, IN IMS_SINT32 nPort) const;
     virtual IRegContact* GetPreferredContact() const;
@@ -89,7 +89,7 @@ private:
     virtual const IPAddress& GetPublicIPAddress() const;
     virtual const AStringArray& GetServiceRoutes() const;
     // MULTI_REG_SIP_PROFILE
-    virtual SIPProfile* GetSIPProfile() const;
+    virtual SipProfile* GetSIPProfile() const;
     virtual IMS_SINT32 GetState() const;
     virtual IMS_BOOL IsBindingsUpdated() const;
     virtual IMS_BOOL IsBindingsUpdating() const;
@@ -103,21 +103,21 @@ private:
     virtual IMS_RESULT RestoreActiveBindings();
     virtual void SetActiveBindingsRestorationUsage(IN IMS_BOOL bEnabled);
     // MULTI_SUBS
-    virtual void SetAOR(IN CONST SIPAddress &objAOR,
+    virtual void SetAOR(IN CONST SipAddress &objAOR,
             IN CONST AString &strSubsId = AString::ConstNull());
     virtual void SetListener(IN IRegistrationListener *piListener);
     virtual void SetRefreshPolicy(IN IMS_SINT32 nPolicy,
             IN IMS_SINT32 nCriteriaInterval, IN IMS_SINT32 nValueEorLT, IN IMS_SINT32 nValueGT);
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
+    virtual void SetSIPProfile(IN SipProfile *pProfile);
     virtual void SetBindingStateListener(IN IRegBindingStateListener *piListener);
     virtual void SetFlagForWithinTrustDomain(IN IMS_BOOL bWithinTrustDomain);
     virtual void SetUserIdentityNotifier(IN IRegUserIdentityNotifier *piUserIdNotifier);
     virtual void SetUserInfoForContactHeader(IN CONST AString &strUserInfo);
-    virtual IRegSubscription* CreateSubscription(IN SIPAddress *pResourceUri = IMS_NULL);
+    virtual IRegSubscription* CreateSubscription(IN SipAddress *pResourceUri = IMS_NULL);
 
-    // ISIPConnectionNotifierErrorListener class
-    virtual void ConnectionNotifierError_NotifyError(IN ISIPConnectionNotifier *piSCN,
+    // ISipConnectionNotifierErrorListener class
+    virtual void ConnectionNotifierError_NotifyError(IN ISipConnectionNotifier *piSCN,
             IN IMS_SINT32 nCode, IN CONST AString &strMessage);
 
     // IRegistrationEx interface
@@ -216,7 +216,7 @@ private:
     // For trust domain checking
     IMS_BOOL bIsWithinTrustDomain;
 
-    // Reference count for ISIPConnectionNotifierErrorListener
+    // Reference count for ISipConnectionNotifierErrorListener
     IMS_SINT32 nRefCountForSCNEL;
 };
 

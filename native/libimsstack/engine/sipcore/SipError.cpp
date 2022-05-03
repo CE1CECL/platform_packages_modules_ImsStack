@@ -23,7 +23,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-IMS_SINT32 SIPError::GetLastError()
+IMS_SINT32 SipError::GetLastError()
 {
     //---------------------------------------------------------------------------------------------
 

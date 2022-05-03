@@ -4,36 +4,36 @@
 #include "ISipObject.h"
 #include "ISipClientConnection.h"
 
-class ISIPHeader;
+class ISipHeader;
 
 /**
  * @brief This class provides an interface to access/control a SIP dialog.
  *
- * The ISIPDialog can be retrieved from a ISIPConnection object,
+ * The ISipDialog can be retrieved from a ISipConnection object,
  * when it is available (at earliest after provisional 101-199 response with local or remote tag).
  * \nThree SIP requests can open a dialog : INVITE, SUBSCRIBE - NOTIFY, REFER - NOTIFY.
  *
- * @see ISIPConnection, ISIPClientConnection
+ * @see ISipConnection, ISipClientConnection
  */
-class ISIPDialog
-    : public ISIPObject
+class ISipDialog
+    : public ISipObject
 {
 public:
     /**
      * @brief Clones this SIP dialog.
      *
-     * @return Pointer to ISIPDialog.
+     * @return Pointer to ISipDialog.
      */
-    virtual ISIPDialog* Clone() const = 0;
+    virtual ISipDialog* Clone() const = 0;
 
     /**
-     * @brief Compares if the specified ISIPDialog equals or not.
+     * @brief Compares if the specified ISipDialog equals or not.
      *
-     * @param piDialog Pointer to ISIPDialog to be compared
+     * @param piDialog Pointer to ISipDialog to be compared
      * @return If the specified SIP dialog equals to this dialog, returns IMS_TRUE.
      *         Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL Equals(IN CONST ISIPDialog *piDialog) = 0;
+    virtual IMS_BOOL Equals(IN CONST ISipDialog *piDialog) = 0;
 
     /**
      * @brief Returns the ID (Call-ID + Local Tag + Remote Tag) of the SIP dialog.
@@ -42,12 +42,12 @@ public:
      *
      * @return Textual format of the dialog ID.
      */
-    virtual AString GetDialogID() = 0;
+    virtual AString GetDialogId() = 0;
 
     /**
-     * @brief Returns a new ISIPClientConnection in this dialog.
+     * @brief Returns a new ISipClientConnection in this dialog.
      *
-     * The returned ISIPClientConnection will be in INITIALIZED state.\n
+     * The returned ISipClientConnection will be in INITIALIZED state.\n
      * The object is initialized with the given method and default headers.
      *
      * The following headers will be set by the method:
@@ -61,9 +61,9 @@ public:
      *     - Max-Forwards
      *
      * @param strMethod SIP method name to be created
-     * @return Pointer to ISIPClientConnection object with preset method and headers.
+     * @return Pointer to ISipClientConnection object with preset method and headers.
      */
-    virtual ISIPClientConnection* GetNewClientConnection(IN CONST AString &strMethod) = 0;
+    virtual ISipClientConnection* GetNewClientConnection(IN CONST AString &strMethod) = 0;
 
     /**
      * @brief Returns the state of the SIP dialog.
@@ -77,13 +77,13 @@ public:
     virtual IMS_SINT32 GetState() const = 0;
 
     /**
-     * @brief Compares if the given ISIPConnection belongs to this dialog or not.
+     * @brief Compares if the given ISipConnection belongs to this dialog or not.
      *
-     * @param piSC Pointer to ISIPConnection object to be compared
+     * @param piSC Pointer to ISipConnection object to be compared
      * @return If the given SIP transaction belongs to the current dialog, returns IMS_TRUE.
      *         Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL IsSameDialog(IN CONST ISIPConnection *piSC) = 0;
+    virtual IMS_BOOL IsSameDialog(IN CONST ISipConnection *piSC) = 0;
 
     /**
      * @brief Returns the component of SIP dialog (call-id, local-tag, remote-tag).
@@ -104,14 +104,14 @@ public:
      * @return Textual format of the dialog ID.
      * @note BYE_REQUEST_ON_DIALOG_TERMINATED
      */
-    virtual AString GetDialogIDEx() = 0;
+    virtual AString GetDialogIdEx() = 0;
 
     /**
      * @brief Returns the local contact address of this dialog.
      *
-     * @return Pointer to ISIPHeader.
+     * @return Pointer to ISipHeader.
      */
-    virtual const ISIPHeader* GetContactHeader() const = 0;
+    virtual const ISipHeader* GetContactHeader() const = 0;
 
     /**
      * @brief Sets the contact header parameter on the early or confirmed state.

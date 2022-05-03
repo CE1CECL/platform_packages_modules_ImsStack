@@ -292,7 +292,7 @@ void SIPTransactionState::PreProcessMessageSentByStack(IN SipMessage* pstSipMsg)
     if (pFactoryProxy->IsMessageTrackerEnabled(GetSlotId()))
     {
         SIPMessageTracker *pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
-        const SIPMethod objMethod = SIPStack::GetMethod(pstSipMsg);
+        const SipMethod objMethod = SIPStack::GetMethod(pstSipMsg);
 
         if (SIPStack::IsRequestMessage(pstSipMsg))
         {
@@ -327,7 +327,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPTransactionState::Send(IN SIPTimerValues *pTV /* = IMS_NULL */)
+IMS_BOOL SIPTransactionState::Send(IN SipTimerValues *pTV /* = IMS_NULL */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -424,7 +424,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-void SIPTransactionState::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPTransactionState::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -525,7 +525,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL SIPTransactionState::Send(IN SipMessage *pSipMsg, IN SIPTimerValues *pTV)
+IMS_BOOL SIPTransactionState::Send(IN SipMessage *pSipMsg, IN SipTimerValues *pTV)
 {
     SipTransportParameter objTranspParam;
 
@@ -576,12 +576,12 @@ IMS_BOOL SIPTransactionState::Send(IN SipMessage *pSipMsg, IN SIPTimerValues *pT
         {
             IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pSipMsg);
 
-            if ((nStatusCode == SIPStatusCode::SC_401)
-                    || (nStatusCode == SIPStatusCode::SC_407))
+            if ((nStatusCode == SipStatusCode::SC_401)
+                    || (nStatusCode == SipStatusCode::SC_407))
             {
-                const SIPMethod objMethod = SIPStack::GetMethod(pSipMsg);
+                const SipMethod objMethod = SIPStack::GetMethod(pSipMsg);
 
-                if (objMethod.Equals(SIPMethod::ACK))
+                if (objMethod.Equals(SipMethod::ACK))
                 {
                     IMS_TRACE_D("AUTH_CHALLENGE_TO_INVITE :: ACK (%d) " \
                             "& transaction state is cloned", nStatusCode, 0, 0);
@@ -627,7 +627,7 @@ IMS_BOOL SIPTransactionState::Send(IN SipMessage *pSipMsg, IN SIPTimerValues *pT
     if (pFactoryProxy->IsMessageTrackerEnabled(GetSlotId()))
     {
         SIPMessageTracker *pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
-        const SIPMethod objMethod = SIPStack::GetMethod(pSipMsg);
+        const SipMethod objMethod = SIPStack::GetMethod(pSipMsg);
 
         if (SIPStack::IsRequestMessage(pSipMsg))
         {
@@ -727,7 +727,7 @@ IMS_BOOL SIPTransactionState::Send(IN SipMessage *pSipMsg, IN SIPTimerValues *pT
             // This will be used when the application calls AbortCall().
             IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pSipMsg);
 
-            if (nStatusCode != SIPStatusCode::SC_INVALID)
+            if (nStatusCode != SipStatusCode::SC_INVALID)
                 pstTxnKey->SetRespCode(static_cast<SIP_UINT16>(nStatusCode));
         }
     }
@@ -741,7 +741,7 @@ Remarks
 
 */
 PROTECTED
-void SIPTransactionState::SetTimerValues(IN SIPTimerValues *pTV,
+void SIPTransactionState::SetTimerValues(IN SipTimerValues *pTV,
         IN_OUT SipTxnContext *&pstTxnContext)
 {
     //---------------------------------------------------------------------------------------------
@@ -755,9 +755,9 @@ Remarks
 
 */
 PROTECTED
-void SIPTransactionState::SetFlowControlOption(IN CONST SIPMethod &objMethod)
+void SIPTransactionState::SetFlowControlOption(IN CONST SipMethod &objMethod)
 {
-    if (objMethod.Equals(SIPMethod::REGISTER))
+    if (objMethod.Equals(SipMethod::REGISTER))
     {
         pTransport->SetTransactionFlowControlRequired(IMS_FALSE);
     }

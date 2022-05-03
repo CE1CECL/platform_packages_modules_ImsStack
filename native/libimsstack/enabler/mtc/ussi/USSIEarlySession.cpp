@@ -272,7 +272,7 @@ USSIEarlySession::~USSIEarlySession()
 //     IEarlySessionRequestReceivedParam* pParam = new IEarlySessionRequestReceivedParam();
 //     pParam->pISession = m_pISession;
 //     pParam->pCallInfo = new CallInfo(*m_pSessInfo);
-//     MessageUtil::GetHeader(pIMessage, ISIPHeader::UNKNOWN, "Session-ID", pParam->aStrSessionID);
+//     MessageUtil::GetHeader(pIMessage, ISipHeader::UNKNOWN, "Session-ID", pParam->aStrSessionID);
 //     pParam->stTIPInfo = m_stTIPInfo;
 //     pParam->nRequireFeatures = m_nRequireFeatures;
 //     pParam->nSupportFeatures = m_nSupportedFeatures;

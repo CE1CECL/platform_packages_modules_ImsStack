@@ -48,7 +48,7 @@ public:
     virtual void PostProcessMessageSentByStack(IN SipMessage* pstSipMsg,
             IN const ByteArray& objBuffer);
     virtual void PreProcessMessageSentByStack(IN SipMessage* pstSipMsg);
-    virtual IMS_BOOL Send(IN SIPTimerValues *pTV = IMS_NULL);
+    virtual IMS_BOOL Send(IN SipTimerValues *pTV = IMS_NULL);
     virtual IMS_RESULT RetransmitMessage();
     virtual IMS_BOOL UpdateTransportDetails();
 
@@ -59,7 +59,7 @@ public:
     inline SipMessage* GetLastMessage() const
     { return pstLastMessage; }
     // MULTI_REG_SIP_PROFILE
-    inline SIPProfile* GetSIPProfile() const
+    inline SipProfile* GetSIPProfile() const
     { return pSIPProfile.Get(); }
     inline SIPTransport* GetSIPTransport() const
     { return pTransport; }
@@ -68,7 +68,7 @@ public:
     IMS_SINT32 GetSlotId() const;
     IMS_BOOL IsIPSecRequired() const;
     // MULTI_REG_SIP_PROFILE
-    void SetSIPProfile(IN SIPProfile *pProfile);
+    void SetSIPProfile(IN SipProfile *pProfile);
     void SetTransactionListener(IN ISIPTransactionStateListener *piListener);
     void SetTransportListener(IN ISIPTransportErrorListener *piListener);
     void SetTransportTuple(IN CONST IPAddress &objIPA,
@@ -81,9 +81,9 @@ public:
 protected:
     virtual SIPTransactionState* Clone();
 
-    IMS_BOOL Send(IN SipMessage *pstMessage, IN SIPTimerValues *pTV);
-    void SetTimerValues(IN SIPTimerValues *pTV, IN_OUT SipTxnContext *&pstTxnContext);
-    void SetFlowControlOption(IN CONST SIPMethod &objMethod);
+    IMS_BOOL Send(IN SipMessage *pstMessage, IN SipTimerValues *pTV);
+    void SetTimerValues(IN SipTimerValues *pTV, IN_OUT SipTxnContext *&pstTxnContext);
+    void SetFlowControlOption(IN CONST SipMethod &objMethod);
 
 public:
     enum
@@ -106,7 +106,7 @@ protected:
     IMS_SINT32 nClass; // Class of transaction (INVITE/non-INVITE/Overlap)
     IMS_UINT32 nCSeqNumber;
     // MULTI_REG_SIP_PROFILE
-    RCPtr<SIPProfile> pSIPProfile;
+    RCPtr<SipProfile> pSIPProfile;
     ISIPTransactionStateListener *piListener;
 
     RCPtr<SIPDialogEx> pDialogEx;

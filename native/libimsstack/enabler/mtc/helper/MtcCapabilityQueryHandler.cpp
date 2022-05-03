@@ -49,15 +49,15 @@ PRIVATE GLOBAL
 void MtcCapabilityQueryHandler::SetHeaderForCapabilityQuery(IN ICoreService* piService,
         IN IMessage* piMessage)
 {
-    piMessage->AddHeader(SIPHeaderName::SUPPORTED, MessageUtil::STR_TIMER);
-    piMessage->AddHeader(SIPHeaderName::SUPPORTED, SIP::STR_100REL);
+    piMessage->AddHeader(SipHeaderName::SUPPORTED, MessageUtil::STR_TIMER);
+    piMessage->AddHeader(SipHeaderName::SUPPORTED, Sip::STR_100REL);
      // TODO: supportability check.
-    piMessage->AddHeader(SIPHeaderName::SUPPORTED, MessageUtil::STR_PRECONDITION);
+    piMessage->AddHeader(SipHeaderName::SUPPORTED, MessageUtil::STR_PRECONDITION);
 
-    ISIPHeader* piContactHeader = piService->GetContactHeader();
+    ISipHeader* piContactHeader = piService->GetContactHeader();
     if (piContactHeader != IMS_NULL)
     {
-        piMessage->GetMessage()->SetHeader(ISIPHeader::CONTACT_NORMAL,
+        piMessage->GetMessage()->SetHeader(ISipHeader::CONTACT_NORMAL,
                 piContactHeader->ToStringWithoutName());
         piContactHeader->Destroy();
     }
@@ -113,7 +113,7 @@ void MtcCapabilityQueryHandler::SetBodyForCapabilityQuery(IN ICoreService* piSer
     }
 
     IMessageBodyPart* pIBodyPart = piMessage->CreateBodyPart();
-    pIBodyPart->SetHeader(SIPHeaderName::CONTENT_TYPE, SIP::STR_APPLICATION_SDP);
+    pIBodyPart->SetHeader(SipHeaderName::CONTENT_TYPE, Sip::STR_APPLICATION_SDP);
     pIBodyPart->SetContent(ByteArray(strSDP));
 }
 
@@ -124,7 +124,7 @@ void MtcCapabilityQueryHandler::SetSessionLevelDescription(IN ICoreService* piSe
     SdpSessionDescription objSessionDesc;
 
     // Create a session-level mandatory descriptions
-    if (!objSessionDesc.CreateMandatoryLines(piService->GetAuthorizedUserId().GetURI(),
+    if (!objSessionDesc.CreateMandatoryLines(piService->GetAuthorizedUserId().GetUri(),
             piService->GetIPAddress()))
     {
         IMS_TRACE_E(0, "Creating a session descriptor failed", 0, 0, 0);

@@ -144,11 +144,11 @@ IMS_RESULT ReferenceImpl::ConnectReferMethod(IN IServiceMethod *piServiceMethod)
         return IMS_FAILURE;
     }
 
-    const SIPMethod &objMethod = pReference->GetReferMethod();
+    const SipMethod &objMethod = pReference->GetReferMethod();
     Method *pMethod = IMS_NULL;
 
-    if (objMethod.Equals(SIPMethod::INVITE)
-        || objMethod.Equals(SIPMethod::BYE))
+    if (objMethod.Equals(SipMethod::INVITE)
+        || objMethod.Equals(SipMethod::BYE))
     {
         SessionImpl *pSessionImpl = DYNAMIC_CAST(SessionImpl*, piServiceMethod);
 

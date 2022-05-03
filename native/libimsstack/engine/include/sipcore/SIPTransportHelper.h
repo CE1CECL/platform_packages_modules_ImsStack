@@ -24,13 +24,13 @@
 
 class ISIPSocketListener;
 class ISIPTransportListener;
-class ISIPLocalDnsQueryListener;
+class ISipLocalDnsQueryListener;
 
 
 
 class SIPTransportHelper
     : public EngineActivity
-    , public ISIPTransportHelper
+    , public ISipTransportHelper
     , public ISIPStreamSocketListener
     , public ISIPDatagramSocketListener
 {
@@ -69,19 +69,19 @@ public:
             IN CONST AString &strHostname, OUT IPAddress &objHostIP);
 
 private:
-    // ISIPTransportHelper
+    // ISipTransportHelper
     virtual void ApplyIpSecForServerSockets();
     virtual void DestroyAllSockets(IN IMS_SINT32 nMethod = 0,
             IN CONST IPAddress &objLocalIP = IPAddress::NONE);
-    virtual void DestroyTCPSocket(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
+    virtual void DestroyTcpSocket(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
             IN CONST IPAddress &objDestIP, IN IMS_UINT32 nDestPort,
             IN IMS_BOOL bIsConnectionByPeer = IMS_FALSE);
-    virtual void SetIPQoS(IN SIPRTConfig::IPQoS *pIPQoS);
+    virtual void SetIpQos(IN SipRtConfig::IpQos *pIPQoS);
     virtual void SetKeepAlivePolicy(IN CONST IPAddress &objSrcIP, IN IMS_UINT32 nSrcPort,
             IN CONST IPAddress &objDestIP, IN IMS_UINT32 nDestPort,
             IN IMS_SINT32 nPolicy = (-1) /* default */);
     // LOCAL_DNS_QUERY
-    virtual void SetLocalDnsQueryListener(IN ISIPLocalDnsQueryListener *piListener);
+    virtual void SetLocalDnsQueryListener(IN ISipLocalDnsQueryListener *piListener);
 
     // ISIPDatagramSocketListener
     virtual void DatagramSocket_DataReceived(IN SIPSocket *pSocket, IN CONST ByteArray &objBuffer,
@@ -169,7 +169,7 @@ private:
     // LOCAL_DNS_QUERY
     // 1) Test purpose
     // 2) Using the application layer's DNS query result
-    ISIPLocalDnsQueryListener *piDnsQueryListener;
+    ISipLocalDnsQueryListener *piDnsQueryListener;
 };
 
 #endif // _SIP_TRANSPORT_HELPER_H_

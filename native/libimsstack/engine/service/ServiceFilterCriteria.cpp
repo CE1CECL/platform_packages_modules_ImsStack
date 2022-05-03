@@ -24,10 +24,10 @@ ServiceFilterCriteria::ServiceFilterCriteria()
     , nNextTriggerPointId(1)
     , objTPs(IMSMap<IMS_UINT32, TriggerPoint*>())
 {
-    objCalleePreferences.Add(SIPMethod::INVITE, IMS_FALSE);
-    objCalleePreferences.Add(SIPMethod::OPTIONS, IMS_FALSE);
-    objCalleePreferences.Add(SIPMethod::MESSAGE, IMS_FALSE);
-    objCalleePreferences.Add(SIPMethod::REFER, IMS_FALSE);
+    objCalleePreferences.Add(SipMethod::INVITE, IMS_FALSE);
+    objCalleePreferences.Add(SipMethod::OPTIONS, IMS_FALSE);
+    objCalleePreferences.Add(SipMethod::MESSAGE, IMS_FALSE);
+    objCalleePreferences.Add(SipMethod::REFER, IMS_FALSE);
 }
 
 PUBLIC VIRTUAL
@@ -129,15 +129,15 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-void ServiceFilterCriteria::SetCalleePreference(IN CONST SIPMethod &objMethod,
+void ServiceFilterCriteria::SetCalleePreference(IN CONST SipMethod &objMethod,
         IN IMS_BOOL bCalleePreference /* = IMS_TRUE */)
 {
     //---------------------------------------------------------------------------------------------
 
-    if (!objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::OPTIONS)
-            && !objMethod.Equals(SIPMethod::MESSAGE)
-            && !objMethod.Equals(SIPMethod::REFER))
+    if (!objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::OPTIONS)
+            && !objMethod.Equals(SipMethod::MESSAGE)
+            && !objMethod.Equals(SipMethod::REFER))
     {
         return;
     }
@@ -151,7 +151,7 @@ Remarks
 
 */
 PUBLIC
-IMS_UINT32 ServiceFilterCriteria::Evaluate(IN CONST ISIPMessage *piSIPMsg) const
+IMS_UINT32 ServiceFilterCriteria::Evaluate(IN CONST ISipMessage *piSIPMsg) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -177,14 +177,14 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL ServiceFilterCriteria::IsCalleePreferenceSupported(IN CONST SIPMethod &objMethod) const
+IMS_BOOL ServiceFilterCriteria::IsCalleePreferenceSupported(IN CONST SipMethod &objMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
-    if (!objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::OPTIONS)
-            && !objMethod.Equals(SIPMethod::MESSAGE)
-            && !objMethod.Equals(SIPMethod::REFER))
+    if (!objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::OPTIONS)
+            && !objMethod.Equals(SipMethod::MESSAGE)
+            && !objMethod.Equals(SipMethod::REFER))
     {
         return IMS_FALSE;
     }

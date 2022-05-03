@@ -200,7 +200,7 @@ IMS_BOOL NormalDialingPlan::IsAddressSpec(IN const AString& strNumber)
 PRIVATE GLOBAL
 void NormalDialingPlan::AddAquotIfRequired(IN_OUT AString& strNumber)
 {
-    // TODO: can this be replaced by SIPAddress apis?
+    // TODO: can this be replaced by SipAddress apis?
     if (strNumber.Contains(TextParser::CHAR_SEMICOLON))
     {
         strNumber.Prepend(TextParser::CHAR_LAQUOT);

@@ -23,12 +23,12 @@ __IMS_TRACE_TAG_SIP__;
 PUBLIC
 SIPRTConfigHelper::SIPRTConfigHelper()
     : objConfigSet(IMSMap<IMS_SINT32, IMS_BOOL>())
-    , nFeatures(SIPRTConfig::FEATURE_NONE)
-    , objIPQoSs(IMSList<SIPRTConfig::IPQoS>())
-    , objHeaders(IMSList<SIPRTConfig::Header>())
-    , objIPSecSAs(IMSList<SIPRTConfig::IPSecSA>())
+    , nFeatures(SipRtConfig::FEATURE_NONE)
+    , objIPQoSs(IMSList<SipRtConfig::IpQos>())
+    , objHeaders(IMSList<SipRtConfig::Header>())
+    , objIPSecSAs(IMSList<SipRtConfig::IpSecSa>())
 {
-    for (IMS_SINT32 i = 0; i < SIPRTConfig::CONFIG_I_MAX; ++i)
+    for (IMS_SINT32 i = 0; i < SipRtConfig::CONFIG_I_MAX; ++i)
     {
         objConfigSet.Add(i, IMS_FALSE);
     }
@@ -45,7 +45,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPRTConfig::Header* SIPRTConfigHelper::GetHeader(IN CONST AString &strName) const
+const SipRtConfig::Header* SIPRTConfigHelper::GetHeader(IN CONST AString &strName) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ const SIPRTConfig::Header* SIPRTConfigHelper::GetHeader(IN CONST AString &strNam
 
     for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
     {
-        const SIPRTConfig::Header &objHeader = objHeaders.GetAt(i);
+        const SipRtConfig::Header &objHeader = objHeaders.GetAt(i);
 
         if (strName.EqualsIgnoreCase(objHeader.strName))
         {
@@ -73,7 +73,7 @@ Remarks
 
 */
 PUBLIC
-const SIPRTConfig::LogMask* SIPRTConfigHelper::GetLogMask() const
+const SipRtConfig::LogMask* SIPRTConfigHelper::GetLogMask() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ Remarks
 
 */
 PUBLIC
-const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT32 nItem) const
+const SipRtConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT32 nItem) const
 {
     IMS_SLONG nIndex = objSOMap.GetIndexOfKey(nItem);
 
@@ -97,7 +97,7 @@ const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT3
         return IMS_NULL;
     }
 
-    const IMSList<SIPRTConfig::SocketOption> &objSOs = objSOMap.GetValueAt(nIndex);
+    const IMSList<SipRtConfig::SocketOption> &objSOs = objSOMap.GetValueAt(nIndex);
 
     if (objSOs.IsEmpty())
     {
@@ -106,7 +106,7 @@ const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT3
 
     for (IMS_UINT32 i = 0; i < objSOs.GetSize(); ++i)
     {
-        const SIPRTConfig::SocketOption &objSO = objSOs.GetAt(i);
+        const SipRtConfig::SocketOption &objSO = objSOs.GetAt(i);
 
         if (objSO.IsGlobalOption())
         {
@@ -123,7 +123,7 @@ Remarks
 
 */
 PUBLIC
-const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT32 nItem,
+const SipRtConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT32 nItem,
         IN CONST IPAddress &objIP, IN IMS_SINT32 nPort/* = 0*/) const
 {
     //---------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT3
         return IMS_NULL;
     }
 
-    const IMSList<SIPRTConfig::SocketOption> &objSOs = objSOMap.GetValueAt(nIndex);
+    const IMSList<SipRtConfig::SocketOption> &objSOs = objSOMap.GetValueAt(nIndex);
 
     if (objSOs.IsEmpty())
     {
@@ -150,7 +150,7 @@ const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT3
     // Condition: IP & Port
     for (IMS_UINT32 i = 0; i < objSOs.GetSize(); ++i)
     {
-        const SIPRTConfig::SocketOption &objSO = objSOs.GetAt(i);
+        const SipRtConfig::SocketOption &objSO = objSOs.GetAt(i);
 
         if ((objSO.nPort == nPort) && objIP.Equals(objSO.objIP))
         {
@@ -161,7 +161,7 @@ const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT3
     // Condition: IP
     for (IMS_UINT32 i = 0; i < objSOs.GetSize(); ++i)
     {
-        const SIPRTConfig::SocketOption &objSO = objSOs.GetAt(i);
+        const SipRtConfig::SocketOption &objSO = objSOs.GetAt(i);
 
         if ((objSO.nPort == 0) && objIP.Equals(objSO.objIP))
         {
@@ -172,7 +172,7 @@ const SIPRTConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT3
     // Condition: Port
     for (IMS_UINT32 i = 0; i < objSOs.GetSize(); ++i)
     {
-        const SIPRTConfig::SocketOption &objSO = objSOs.GetAt(i);
+        const SipRtConfig::SocketOption &objSO = objSOs.GetAt(i);
 
         if ((objSO.objIP.Equals(IPAddress::NONE) || objSO.objIP.Equals(IPAddress::IPv6NONE))
                 && (objSO.nPort == nPort))
@@ -190,7 +190,7 @@ Remarks
 
 */
 PUBLIC
-const SIPRTConfig::IPQoS* SIPRTConfigHelper::GetIPQoS(IN CONST IPAddress &objIP,
+const SipRtConfig::IpQos* SIPRTConfigHelper::GetIpQos(IN CONST IPAddress &objIP,
         IN IMS_SINT32 nPort /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
@@ -203,13 +203,13 @@ const SIPRTConfig::IPQoS* SIPRTConfigHelper::GetIPQoS(IN CONST IPAddress &objIP,
 
     for (IMS_UINT32 i = 0; i < objIPQoSs.GetSize(); ++i)
     {
-        const SIPRTConfig::IPQoS &objIPQoS = objIPQoSs.GetAt(i);
+        const SipRtConfig::IpQos &objIPQoS = objIPQoSs.GetAt(i);
 
         if (objIP.Equals(objIPQoS.objIP))
         {
             if (objIPQoS.nPort == 0)
             {
-                IMS_TRACE_D("IP-level QoS supports - IP (%s)", SIPDebug::GetIP(objIP), 0, 0);
+                IMS_TRACE_D("IP-level QoS supports - IP (%s)", SipDebug::GetIp(objIP), 0, 0);
                 return &objIPQoS;
             }
             else
@@ -217,7 +217,7 @@ const SIPRTConfig::IPQoS* SIPRTConfigHelper::GetIPQoS(IN CONST IPAddress &objIP,
                 if (nPort == objIPQoS.nPort)
                 {
                     IMS_TRACE_D("IP-level QoS supports - IP (%s), Port (%d)",
-                            SIPDebug::GetIP(objIP), nPort, 0);
+                            SipDebug::GetIp(objIP), nPort, 0);
                     return &objIPQoS;
                 }
             }
@@ -235,7 +235,7 @@ Remarks
 
 */
 PUBLIC
-const IMSList<SIPRTConfig::IPSecSA>& SIPRTConfigHelper::GetIPSecSAs() const
+const IMSList<SipRtConfig::IpSecSa>& SIPRTConfigHelper::GetIpSecSas() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -248,7 +248,7 @@ Remarks
 
 */
 PUBLIC
-const SIPAddress* SIPRTConfigHelper::GetRegContactUri(IN CONST AString &strCallId) const
+const SipAddress* SIPRTConfigHelper::GetRegContactUri(IN CONST AString &strCallId) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -259,11 +259,11 @@ const SIPAddress* SIPRTConfigHelper::GetRegContactUri(IN CONST AString &strCallI
 
     for (IMS_UINT32 i = 0; i < objRegContacts.GetSize(); ++i)
     {
-        const SIPRTConfig::RegContactAddress &objRegContactA = objRegContacts.GetAt(i);
+        const SipRtConfig::RegContactAddress &objRegContactA = objRegContacts.GetAt(i);
 
         if (strCallId.Equals(objRegContactA.GetCallId()))
         {
-            const SIPAddress &objUri = objRegContactA.GetUri();
+            const SipAddress &objUri = objRegContactA.GetUri();
             return &objUri;
         }
     }
@@ -314,7 +314,7 @@ IMS_BOOL SIPRTConfigHelper::IsMessageHiddenInLog() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return ((objLogMask.nValue & SIPRTConfig::LogMask::I_MESSAGE_HIDDEN) != 0);
+    return ((objLogMask.nValue & SipRtConfig::LogMask::I_MESSAGE_HIDDEN) != 0);
 }
 
 /*
@@ -327,7 +327,7 @@ IMS_BOOL SIPRTConfigHelper::IsRoutingInfoHiddenInLog() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return ((objLogMask.nValue & SIPRTConfig::LogMask::I_ROUTING_INFO_HIDDEN) != 0);
+    return ((objLogMask.nValue & SipRtConfig::LogMask::I_ROUTING_INFO_HIDDEN) != 0);
 }
 
 /*
@@ -375,34 +375,34 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *pParam)
+void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SipRtConfig::Base *pParam)
 {
     //---------------------------------------------------------------------------------------------
 
     switch (nItem)
     {
-    case SIPRTConfig::CONFIG_I_LOG_MASK:
-        objLogMask.nValue = SIPRTConfig::LogMask::I_NONE;
+    case SipRtConfig::CONFIG_I_LOG_MASK:
+        objLogMask.nValue = SipRtConfig::LogMask::I_NONE;
         break;
 
-    case SIPRTConfig::CONFIG_I_REUSEADDR: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_LINGER: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_SHUTDOWN: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_KEEPALIVE: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_TCP_KEEP_COUNT: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_TCP_KEEP_IDLE: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_TCP_KEEP_INTERVAL:
-        RemoveSocketOption(nItem, DYNAMIC_CAST(SIPRTConfig::SocketOption*, pParam));
+    case SipRtConfig::CONFIG_I_REUSEADDR: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_LINGER: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_SHUTDOWN: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_KEEPALIVE: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_TCP_KEEP_COUNT: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_TCP_KEEP_IDLE: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_TCP_KEEP_INTERVAL:
+        RemoveSocketOption(nItem, DYNAMIC_CAST(SipRtConfig::SocketOption*, pParam));
 
         if (GetSocketOptionCount(nItem) != 0)
         {
-            IMS_TRACE_D("SIPRTConfig :: SocketOption(%d) is removed; sizeOfMap=%d",
+            IMS_TRACE_D("SipRtConfig :: SocketOption(%d) is removed; sizeOfMap=%d",
                     nItem, objSOMap.GetSize(), 0);
             return;
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_IP_QOS:
+    case SipRtConfig::CONFIG_I_IP_QOS:
         if (objIPQoSs.IsEmpty())
         {
             break;
@@ -417,7 +417,7 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         for (IMS_UINT32 i = 0; i < objIPQoSs.GetSize(); ++i)
         {
-            const SIPRTConfig::IPQoS &objIPQoS = objIPQoSs.GetAt(i);
+            const SipRtConfig::IpQos &objIPQoS = objIPQoSs.GetAt(i);
 
             if (objIPQoS.Equals(*pParam))
             {
@@ -428,12 +428,12 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         if (!objIPQoSs.IsEmpty())
         {
-            IMS_TRACE_D("SIPRTConfig :: IPQoS is removed; size=%d", objIPQoSs.GetSize(), 0, 0);
+            IMS_TRACE_D("SipRtConfig :: IpQos is removed; size=%d", objIPQoSs.GetSize(), 0, 0);
             return;
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_SIP_HEADER:
+    case SipRtConfig::CONFIG_I_SIP_HEADER:
         if (objHeaders.IsEmpty())
         {
             break;
@@ -448,7 +448,7 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
         {
-            const SIPRTConfig::Header &objHeader = objHeaders.GetAt(i);
+            const SipRtConfig::Header &objHeader = objHeaders.GetAt(i);
 
             if (objHeader.Equals(*pParam))
             {
@@ -459,12 +459,12 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         if (!objHeaders.IsEmpty())
         {
-            IMS_TRACE_D("SIPRTConfig :: Header is removed; size=%d", objHeaders.GetSize(), 0, 0);
+            IMS_TRACE_D("SipRtConfig :: Header is removed; size=%d", objHeaders.GetSize(), 0, 0);
             return;
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_IPSEC_SA:
+    case SipRtConfig::CONFIG_I_IPSEC_SA:
         if (objIPSecSAs.IsEmpty())
         {
             break;
@@ -479,7 +479,7 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         for (IMS_UINT32 i = 0; i < objIPSecSAs.GetSize(); ++i)
         {
-            const SIPRTConfig::IPSecSA &objIPSecSA = objIPSecSAs.GetAt(i);
+            const SipRtConfig::IpSecSa &objIPSecSA = objIPSecSAs.GetAt(i);
 
             if (objIPSecSA.Equals(*pParam))
             {
@@ -490,19 +490,19 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         if (!objIPSecSAs.IsEmpty())
         {
-            IMS_TRACE_D("SIPRTConfig :: IPSecSA is removed; size=%d",
+            IMS_TRACE_D("SipRtConfig :: IpSecSa is removed; size=%d",
                     objIPSecSAs.GetSize(), 0, 0);
             return;
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_TCP_PORT_RANGE:
+    case SipRtConfig::CONFIG_I_TCP_PORT_RANGE:
         {
             SIPPortManager::GetInstance()->Clear();
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_REG_CONTACT_ADDRESS:
+    case SipRtConfig::CONFIG_I_REG_CONTACT_ADDRESS:
         if (objRegContacts.IsEmpty())
         {
             break;
@@ -517,7 +517,7 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         for (IMS_UINT32 i = 0; i < objRegContacts.GetSize(); ++i)
         {
-            const SIPRTConfig::RegContactAddress &objRegContactA = objRegContacts.GetAt(i);
+            const SipRtConfig::RegContactAddress &objRegContactA = objRegContacts.GetAt(i);
 
             if (objRegContactA.Equals(*pParam))
             {
@@ -528,7 +528,7 @@ void SIPRTConfigHelper::RemoveConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *
 
         if (!objRegContacts.IsEmpty())
         {
-            IMS_TRACE_D("SIPRTConfig :: RegContactAddress is removed; size=%d",
+            IMS_TRACE_D("SipRtConfig :: RegContactAddress is removed; size=%d",
                     objRegContacts.GetSize(), 0, 0);
             return;
         }
@@ -555,7 +555,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Base *pParam)
+IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SipRtConfig::Base *pParam)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -567,9 +567,9 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
     switch (nItem)
     {
-    case SIPRTConfig::CONFIG_I_LOG_MASK:
+    case SipRtConfig::CONFIG_I_LOG_MASK:
         {
-            SIPRTConfig::LogMask *pLogMask = DYNAMIC_CAST(SIPRTConfig::LogMask*, pParam);
+            SipRtConfig::LogMask *pLogMask = DYNAMIC_CAST(SipRtConfig::LogMask*, pParam);
 
             if (pLogMask == IMS_NULL)
             {
@@ -581,30 +581,30 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_REUSEADDR: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_LINGER: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_SHUTDOWN: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_KEEPALIVE: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_TCP_KEEP_COUNT: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_TCP_KEEP_IDLE: // FALL-THROUGH
-    case SIPRTConfig::CONFIG_I_TCP_KEEP_INTERVAL:
+    case SipRtConfig::CONFIG_I_REUSEADDR: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_LINGER: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_SHUTDOWN: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_KEEPALIVE: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_TCP_KEEP_COUNT: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_TCP_KEEP_IDLE: // FALL-THROUGH
+    case SipRtConfig::CONFIG_I_TCP_KEEP_INTERVAL:
         if (SetSocketOption(nItem,
-                DYNAMIC_CAST(SIPRTConfig::SocketOption*, pParam)) != IMS_SUCCESS)
+                DYNAMIC_CAST(SipRtConfig::SocketOption*, pParam)) != IMS_SUCCESS)
         {
             return IMS_FAILURE;
         }
 
         if (GetSocketOptionCount(nItem) > 1)
         {
-            IMS_TRACE_D("SIPRTConfig :: SocketOption(%d) is set; sizeOfMap=%d",
+            IMS_TRACE_D("SipRtConfig :: SocketOption(%d) is set; sizeOfMap=%d",
                     nItem, objSOMap.GetSize(), 0);
             return IMS_SUCCESS;
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_IP_QOS:
+    case SipRtConfig::CONFIG_I_IP_QOS:
         {
-            SIPRTConfig::IPQoS *pIPQoS = DYNAMIC_CAST(SIPRTConfig::IPQoS*, pParam);
+            SipRtConfig::IpQos *pIPQoS = DYNAMIC_CAST(SipRtConfig::IpQos*, pParam);
 
             if (pIPQoS == IMS_NULL)
             {
@@ -614,7 +614,7 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             for (IMS_UINT32 i = 0; i < objIPQoSs.GetSize(); ++i)
             {
-                SIPRTConfig::IPQoS &objIPQoS = objIPQoSs.GetAt(i);
+                SipRtConfig::IpQos &objIPQoS = objIPQoSs.GetAt(i);
 
                 if (objIPQoS.Equals(*pIPQoS))
                 {
@@ -633,15 +633,15 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             if (objIPQoSs.GetSize() > 1)
             {
-                IMS_TRACE_D("SIPRTConfig :: IPQoS is set; size=%d", objIPQoSs.GetSize(), 0, 0);
+                IMS_TRACE_D("SipRtConfig :: IpQos is set; size=%d", objIPQoSs.GetSize(), 0, 0);
                 return IMS_SUCCESS;
             }
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_SIP_HEADER:
+    case SipRtConfig::CONFIG_I_SIP_HEADER:
         {
-            SIPRTConfig::Header *pHeader = DYNAMIC_CAST(SIPRTConfig::Header*, pParam);
+            SipRtConfig::Header *pHeader = DYNAMIC_CAST(SipRtConfig::Header*, pParam);
 
             if (pHeader == IMS_NULL)
             {
@@ -651,7 +651,7 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
             {
-                SIPRTConfig::Header &objHeader = objHeaders.GetAt(i);
+                SipRtConfig::Header &objHeader = objHeaders.GetAt(i);
 
                 if (objHeader.Equals(*pHeader))
                 {
@@ -670,15 +670,15 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             if (objHeaders.GetSize() > 1)
             {
-                IMS_TRACE_D("SIPRTConfig :: Header is set; size=%d", objHeaders.GetSize(), 0, 0);
+                IMS_TRACE_D("SipRtConfig :: Header is set; size=%d", objHeaders.GetSize(), 0, 0);
                 return IMS_SUCCESS;
             }
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_IPSEC_SA:
+    case SipRtConfig::CONFIG_I_IPSEC_SA:
         {
-            SIPRTConfig::IPSecSA *pIPSecSA = DYNAMIC_CAST(SIPRTConfig::IPSecSA*, pParam);
+            SipRtConfig::IpSecSa *pIPSecSA = DYNAMIC_CAST(SipRtConfig::IpSecSa*, pParam);
 
             if (pIPSecSA == IMS_NULL)
             {
@@ -688,7 +688,7 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             for (IMS_UINT32 i = 0; i < objIPSecSAs.GetSize(); ++i)
             {
-                SIPRTConfig::IPSecSA &objIPSecSA = objIPSecSAs.GetAt(i);
+                SipRtConfig::IpSecSa &objIPSecSA = objIPSecSAs.GetAt(i);
 
                 if (objIPSecSA.Equals(*pIPSecSA))
                 {
@@ -706,17 +706,17 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             if (objIPSecSAs.GetSize() > 1)
             {
-                IMS_TRACE_D("SIPRTConfig :: IPSecSA is set; size=%d",
+                IMS_TRACE_D("SipRtConfig :: IpSecSa is set; size=%d",
                         objIPSecSAs.GetSize(), 0, 0);
                 return IMS_SUCCESS;
             }
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_TCP_PORT_RANGE:
+    case SipRtConfig::CONFIG_I_TCP_PORT_RANGE:
         {
-            SIPRTConfig::TCPPortRange *pPortRange
-                    = DYNAMIC_CAST(SIPRTConfig::TCPPortRange*, pParam);
+            SipRtConfig::TcpPortRange *pPortRange
+                    = DYNAMIC_CAST(SipRtConfig::TcpPortRange*, pParam);
 
             if (pPortRange == IMS_NULL)
             {
@@ -734,10 +734,10 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
         }
         break;
 
-    case SIPRTConfig::CONFIG_I_REG_CONTACT_ADDRESS:
+    case SipRtConfig::CONFIG_I_REG_CONTACT_ADDRESS:
         {
-            SIPRTConfig::RegContactAddress *pRegContactA
-                    = DYNAMIC_CAST(SIPRTConfig::RegContactAddress*, pParam);
+            SipRtConfig::RegContactAddress *pRegContactA
+                    = DYNAMIC_CAST(SipRtConfig::RegContactAddress*, pParam);
 
             if (pRegContactA == IMS_NULL)
             {
@@ -747,7 +747,7 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             for (IMS_UINT32 i = 0; i < objRegContacts.GetSize(); ++i)
             {
-                SIPRTConfig::RegContactAddress &objRegContactA = objRegContacts.GetAt(i);
+                SipRtConfig::RegContactAddress &objRegContactA = objRegContacts.GetAt(i);
 
                 if (objRegContactA.Equals(*pRegContactA))
                 {
@@ -766,7 +766,7 @@ IMS_RESULT SIPRTConfigHelper::SetConfig(IN IMS_SINT32 nItem, IN SIPRTConfig::Bas
 
             if (objRegContacts.GetSize() > 1)
             {
-                IMS_TRACE_D("SIPRTConfig :: RegContactAddress is set; size=%d",
+                IMS_TRACE_D("SipRtConfig :: RegContactAddress is set; size=%d",
                         objRegContacts.GetSize(), 0, 0);
                 return IMS_SUCCESS;
             }
@@ -805,7 +805,7 @@ IMS_UINT32 SIPRTConfigHelper::GetSocketOptionCount(IN IMS_SINT32 nItem) const
         return 0;
     }
 
-    const IMSList<SIPRTConfig::SocketOption> &objSOs = objSOMap.GetValueAt(nIndex);
+    const IMSList<SipRtConfig::SocketOption> &objSOs = objSOMap.GetValueAt(nIndex);
 
     return objSOs.GetSize();
 }
@@ -817,7 +817,7 @@ Remarks
 */
 PRIVATE
 void SIPRTConfigHelper::RemoveSocketOption(IN IMS_SINT32 nItem,
-        IN CONST SIPRTConfig::SocketOption *pSO)
+        IN CONST SipRtConfig::SocketOption *pSO)
 {
     if (pSO == IMS_NULL)
     {
@@ -832,11 +832,11 @@ void SIPRTConfigHelper::RemoveSocketOption(IN IMS_SINT32 nItem,
         return;
     }
 
-    IMSList<SIPRTConfig::SocketOption>& objSOs = objSOMap.GetValueAt(nIndex);
+    IMSList<SipRtConfig::SocketOption>& objSOs = objSOMap.GetValueAt(nIndex);
 
     for (IMS_UINT32 i = 0; i < objSOs.GetSize(); ++i)
     {
-        SIPRTConfig::SocketOption& objSO = objSOs.GetAt(i);
+        SipRtConfig::SocketOption& objSO = objSOs.GetAt(i);
 
         if (pSO->Equals(objSO))
         {
@@ -858,7 +858,7 @@ Remarks
 */
 PRIVATE
 IMS_RESULT SIPRTConfigHelper::SetSocketOption(IN IMS_SINT32 nItem,
-        IN CONST SIPRTConfig::SocketOption *pSO)
+        IN CONST SipRtConfig::SocketOption *pSO)
 {
     if (pSO == IMS_NULL)
     {
@@ -870,7 +870,7 @@ IMS_RESULT SIPRTConfigHelper::SetSocketOption(IN IMS_SINT32 nItem,
 
     if (nIndex < 0)
     {
-        IMSList<SIPRTConfig::SocketOption> objSOs;
+        IMSList<SipRtConfig::SocketOption> objSOs;
         objSOs.Append(*pSO);
 
         objSOMap.Add(nItem, objSOs);
@@ -878,11 +878,11 @@ IMS_RESULT SIPRTConfigHelper::SetSocketOption(IN IMS_SINT32 nItem,
         return IMS_SUCCESS;
     }
 
-    IMSList<SIPRTConfig::SocketOption>& objSOs = objSOMap.GetValueAt(nIndex);
+    IMSList<SipRtConfig::SocketOption>& objSOs = objSOMap.GetValueAt(nIndex);
 
     for (IMS_UINT32 i = 0; i < objSOs.GetSize(); ++i)
     {
-        SIPRTConfig::SocketOption& objSO = objSOs.GetAt(i);
+        SipRtConfig::SocketOption& objSO = objSOs.GetAt(i);
 
         if (pSO->Equals(objSO))
         {

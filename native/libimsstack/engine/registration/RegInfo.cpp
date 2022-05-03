@@ -43,7 +43,7 @@ RegInfo::~RegInfo()
 PUBLIC VIRTUAL
 IRegInfoRegistration* RegInfo::GetRegistration(IN CONST AString &strAOR) const
 {
-    SIPAddress objAOR;
+    SipAddress objAOR;
 
     //---------------------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ IRegInfoRegistration* RegInfo::GetRegistration(IN CONST AString &strAOR) const
 }
 
 PUBLIC VIRTUAL
-IRegInfoRegistration* RegInfo::GetRegistration(IN CONST SIPAddress &objAOR) const
+IRegInfoRegistration* RegInfo::GetRegistration(IN CONST SipAddress &objAOR) const
 {
     //---------------------------------------------------------------------------------------------
 

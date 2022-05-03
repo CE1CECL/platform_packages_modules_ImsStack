@@ -65,7 +65,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPMessage* Message::GetMessage() const
+ISipMessage* Message::GetMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -78,9 +78,9 @@ Remarks
 
 */
 PUBLIC
-ISIPMessageBodyPart* Message::CreateBodyPartEx()
+ISipMessageBodyPart* Message::CreateBodyPartEx()
 {
-    ISIPMessageBodyPart *piBodyPart = piSIPMessage->CreateBodyPart();
+    ISipMessageBodyPart *piBodyPart = piSIPMessage->CreateBodyPart();
 
     //---------------------------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ Remarks
 
 */
 PUBLIC
-void Message::UpdateSentMessage(IN ISIPMessage *piSIPMsg)
+void Message::UpdateSentMessage(IN ISipMessage *piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@ void Message::UpdateSentMessage(IN ISIPMessage *piSIPMsg)
         piSIPMessage = IMS_NULL;
     }
 
-    piSIPMessage = DYNAMIC_CAST(ISIPMessage*, piSIPMsg->Clone());
+    piSIPMessage = DYNAMIC_CAST(ISipMessage*, piSIPMsg->Clone());
 
     if (piSIPMessage == IMS_NULL)
     {
@@ -142,7 +142,7 @@ void Message::UpdateSentMessage(IN ISIPMessage *piSIPMsg)
     }
 
     // Update a message body parts if present (except for SDP message body)
-    IMSList<ISIPMessageBodyPart*> objIBodyParts = piSIPMessage->GetBodyParts();
+    IMSList<ISipMessageBodyPart*> objIBodyParts = piSIPMessage->GetBodyParts();
 
     if (!objIBodyParts.IsEmpty())
     {
@@ -228,9 +228,9 @@ Message* Message::CreateUnsentMessage(IN AppConfig *pAppConfig, IN IMS_BOOL bReq
     }
 
     if (bRequest)
-        pMessage->piSIPMessage = SIPParsingHelper::CreateMessage(ISIPMessage::TYPE_REQUEST);
+        pMessage->piSIPMessage = SipParsingHelper::CreateMessage(ISipMessage::TYPE_REQUEST);
     else
-        pMessage->piSIPMessage = SIPParsingHelper::CreateMessage(ISIPMessage::TYPE_RESPONSE);
+        pMessage->piSIPMessage = SipParsingHelper::CreateMessage(ISipMessage::TYPE_RESPONSE);
 
     if (pMessage->piSIPMessage == IMS_NULL)
     {
@@ -251,7 +251,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-Message* Message::CreateReceivedMessage(IN AppConfig *pAppConfig, IN ISIPMessage *piSIPMsg)
+Message* Message::CreateReceivedMessage(IN AppConfig *pAppConfig, IN ISipMessage *piSIPMsg)
 {
     Message *pMessage = new Message(pAppConfig, STATE_RECEIVED);
 
@@ -349,7 +349,7 @@ IMessageBodyPart* Message::CreateBodyPart()
         return IMS_NULL;
     }
 
-    ISIPMessageBodyPart *piBodyPart = piSIPMessage->CreateBodyPart();
+    ISipMessageBodyPart *piBodyPart = piSIPMessage->CreateBodyPart();
 
     if (piBodyPart == IMS_NULL)
     {
@@ -420,7 +420,7 @@ IMS_RESULT Message::AddHeader(IN CONST AString &strName, IN CONST AString &strVa
         return IMS_FAILURE;
     }
 
-    ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(strHName);
+    ISipHeader *piHeader = SipParsingHelper::CreateHeader(strHName);
 
     if (piHeader == IMS_NULL)
     {
@@ -484,7 +484,7 @@ IMSList<AString> Message::GetHeaders(IN CONST AString &strName) const
         return IMSList<AString>();
     }
 
-    ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(strHName);
+    ISipHeader *piHeader = SipParsingHelper::CreateHeader(strHName);
 
     if (piHeader == IMS_NULL)
     {
@@ -527,7 +527,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-const SIPMethod& Message::GetMethod() const
+const SipMethod& Message::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -588,7 +588,7 @@ IMS_BOOL Message::CreateBodyParts()
         return IMS_TRUE;
     }
 
-    IMSList<ISIPMessageBodyPart*> objSIPBodyParts = piSIPMessage->GetBodyParts();
+    IMSList<ISipMessageBodyPart*> objSIPBodyParts = piSIPMessage->GetBodyParts();
 
     if (!objSIPBodyParts.IsEmpty())
     {
@@ -614,15 +614,15 @@ IMS_BOOL Message::CreateBodyParts()
 
     // In case of 2xx response to OPTIONS,
     // If SDP body is present, it needs to be added the body parts.
-    if (piSIPMessage->GetType() == ISIPMessage::TYPE_RESPONSE)
+    if (piSIPMessage->GetType() == ISipMessage::TYPE_RESPONSE)
     {
-        const SIPMethod &objMethod = piSIPMessage->GetMethod();
+        const SipMethod &objMethod = piSIPMessage->GetMethod();
         IMS_SINT32 nStatusCode = piSIPMessage->GetStatusCode();
 
-        if (objMethod.Equals(SIPMethod::OPTIONS)
-                && SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (objMethod.Equals(SipMethod::OPTIONS)
+                && SipStatusCode::IsFinalSuccess(nStatusCode))
         {
-            ISIPMessageBodyPart *piSIPBodyPart = piSIPMessage->GetSDPBodyPart();
+            ISipMessageBodyPart *piSIPBodyPart = piSIPMessage->GetSdpBodyPart();
 
             if (piSIPBodyPart != IMS_NULL)
             {
@@ -660,25 +660,25 @@ IMS_BOOL Message::IsInaccessibleHeader(IN IMS_SINT32 nHType, IN CONST AString &s
 
     switch (nHType)
     {
-    case ISIPHeader::AUTHORIZATION:
-    case ISIPHeader::MAX_FORWARDS:
-    case ISIPHeader::MIN_EXPIRES:
-    case ISIPHeader::PROXY_AUTHENTICATE:
-    case ISIPHeader::PROXY_AUTHORIZATION:
-    case ISIPHeader::RECORD_ROUTE:
-    case ISIPHeader::SECURITY_CLIENT:
-    case ISIPHeader::SECURITY_SERVER:
-    case ISIPHeader::SECURITY_VERIFY:
-    case ISIPHeader::SERVICE_ROUTE:
-    case ISIPHeader::VIA:
+    case ISipHeader::AUTHORIZATION:
+    case ISipHeader::MAX_FORWARDS:
+    case ISipHeader::MIN_EXPIRES:
+    case ISipHeader::PROXY_AUTHENTICATE:
+    case ISipHeader::PROXY_AUTHORIZATION:
+    case ISipHeader::RECORD_ROUTE:
+    case ISipHeader::SECURITY_CLIENT:
+    case ISipHeader::SECURITY_SERVER:
+    case ISipHeader::SECURITY_VERIFY:
+    case ISipHeader::SERVICE_ROUTE:
+    case ISipHeader::VIA:
         return IMS_TRUE;
 
-    case ISIPHeader::UNKNOWN:
+    case ISipHeader::UNKNOWN:
         switch (strHName[0])
         {
         case 'a':
         case 'A':
-            if (strHName.EqualsIgnoreCase(SIPHeaderName::AUTHENTICATION_INFO))
+            if (strHName.EqualsIgnoreCase(SipHeaderName::AUTHENTICATION_INFO))
                 return IMS_TRUE;
             break;
 
@@ -708,26 +708,26 @@ IMS_BOOL Message::IsReadOnlyHeader(IN IMS_SINT32 nHType, IN CONST AString &strHN
 
     switch (nHType)
     {
-    case ISIPHeader::ACCEPT_CONTACT:
-    case ISIPHeader::CALL_ID:
-    case ISIPHeader::CONTACT_NORMAL:
-    case ISIPHeader::CONTACT_WILDCARD:
-    case ISIPHeader::CONTACT_ANY:
-    case ISIPHeader::CONTENT_LENGTH:
-    case ISIPHeader::CSEQ:
-    case ISIPHeader::EVENT:
-    case ISIPHeader::FROM:
-    case ISIPHeader::P_ACCESS_NETWORK_INFO:
-    case ISIPHeader::P_ASSERTED_IDENTITY:
-    case ISIPHeader::P_ASSOCIATED_URI:
-    case ISIPHeader::P_PREFERRED_IDENTITY:
-    case ISIPHeader::RACK:
-    case ISIPHeader::REFER_TO:
-    case ISIPHeader::REFERRED_BY:
-    case ISIPHeader::REPLACES:
-    case ISIPHeader::RSEQ:
-    case ISIPHeader::TO:
-    case ISIPHeader::WWW_AUTHENTICATE:
+    case ISipHeader::ACCEPT_CONTACT:
+    case ISipHeader::CALL_ID:
+    case ISipHeader::CONTACT_NORMAL:
+    case ISipHeader::CONTACT_WILDCARD:
+    case ISipHeader::CONTACT_ANY:
+    case ISipHeader::CONTENT_LENGTH:
+    case ISipHeader::CSEQ:
+    case ISipHeader::EVENT:
+    case ISipHeader::FROM:
+    case ISipHeader::P_ACCESS_NETWORK_INFO:
+    case ISipHeader::P_ASSERTED_IDENTITY:
+    case ISipHeader::P_ASSOCIATED_URI:
+    case ISipHeader::P_PREFERRED_IDENTITY:
+    case ISipHeader::RACK:
+    case ISipHeader::REFER_TO:
+    case ISipHeader::REFERRED_BY:
+    case ISipHeader::REPLACES:
+    case ISipHeader::RSEQ:
+    case ISipHeader::TO:
+    case ISipHeader::WWW_AUTHENTICATE:
         return IMS_TRUE;
 
     default:

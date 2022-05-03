@@ -430,7 +430,7 @@ ISubscription* VirtualSessionImpl::CreateSubscription(IN CONST AString& /*strEve
 }
 
 PRIVATE VIRTUAL
-ISIPClientConnection* VirtualSessionImpl::CreateTransaction(IN CONST SIPMethod& /*objMethod*/)
+ISipClientConnection* VirtualSessionImpl::CreateTransaction(IN CONST SipMethod& /*objMethod*/)
 {
     virtualSessionImpl_MethodNotSupported();
     return IMS_NULL;
@@ -448,7 +448,7 @@ IMS_SINT32 VirtualSessionImpl::GetConfiguration() const
 }
 
 PRIVATE VIRTUAL
-const ISIPHeader* VirtualSessionImpl::GetContactHeader() const
+const ISipHeader* VirtualSessionImpl::GetContactHeader() const
 {
     if (piOwnerSession != IMS_NULL)
     {
@@ -646,7 +646,7 @@ IMS_RESULT VirtualSessionImpl::UpdateEarlyMedia()
 }
 
 PRIVATE VIRTUAL
-IMS_RESULT VirtualSessionImpl::UpdateEx(IN IMS_SINT32 /*nMethod = SIPMethod::INVALID*/,
+IMS_RESULT VirtualSessionImpl::UpdateEx(IN IMS_SINT32 /*nMethod = SipMethod::INVALID*/,
         IN IMS_BOOL /*bSessionRefresh = IMS_FALSE*/)
 {
     virtualSessionImpl_MethodNotSupported();

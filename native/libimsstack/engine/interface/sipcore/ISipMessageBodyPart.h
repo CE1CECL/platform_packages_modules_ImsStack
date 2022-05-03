@@ -7,25 +7,25 @@
 /**
  * @brief This class provides an interface to handle SIP message body part.
  *
- * @see ISIPMessage
+ * @see ISipMessage
  */
-class ISIPMessageBodyPart
-    : public ISIPObject
+class ISipMessageBodyPart
+    : public ISipObject
 {
 public:
     /**
      * @brief Clones the SIP message body part.
      *
-     * @return Pointer to the cloned ISIPMessageBodyPart.
+     * @return Pointer to the cloned ISipMessageBodyPart.
      */
-    virtual ISIPMessageBodyPart* Clone() const = 0;
+    virtual ISipMessageBodyPart* Clone() const = 0;
 
     /**
      * @brief Copies the SIP message body part from the specified one.
      *
      * @param piBodyPart SIP message body part to be copied
      */
-    virtual void CopyFrom(IN CONST ISIPMessageBodyPart *piBodyPart) = 0;
+    virtual void CopyFrom(IN CONST ISipMessageBodyPart *piBodyPart) = 0;
 
     /**
      * @brief Gets the header field value of the specified header type.

@@ -28,7 +28,7 @@ ReasonInfo::ReasonInfo(IN IMS_SINT32 nType_)
 }
 
 PUBLIC
-ReasonInfo::ReasonInfo(IN IMS_SINT32 nType_, IN CONST SIPStatusCode &objStatusCode_)
+ReasonInfo::ReasonInfo(IN IMS_SINT32 nType_, IN CONST SipStatusCode &objStatusCode_)
     : nType(nType_)
     , objStatusCode(objStatusCode_)
 {
@@ -84,5 +84,5 @@ void ReasonInfo::SetStatusCode(IN IMS_SINT32 nStatusCode)
 
     this->objStatusCode = nStatusCode;
     // ?????
-    this->objStatusCode = SIPStatusCode::GetReasonPhrase(nStatusCode);
+    this->objStatusCode = SipStatusCode::GetReasonPhrase(nStatusCode);
 }

@@ -77,11 +77,11 @@ USSIConfirmedSession::~USSIConfirmedSession()
 //     {
 //         if (nInParam == IMS_SUCCESS)
 //         {
-//             SendTransactionResponse(SIPStatusCode::SC_200);
+//             SendTransactionResponse(SipStatusCode::SC_200);
 //         }
 //         else
 //         {
-//             SendTransactionResponse(SIPStatusCode::SC_469, "Bad Info Package");
+//             SendTransactionResponse(SipStatusCode::SC_469, "Bad Info Package");
 //         }
 //     }
 //     return IMS_TRUE;
@@ -123,12 +123,12 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PUBLIC VIRTUAL
-// IMS_BOOL USSIConfirmedSession::IsUSSIInfoReceived(IN ISIPMessage* pISIPMessage)
+// IMS_BOOL USSIConfirmedSession::IsUSSIInfoReceived(IN ISipMessage* pISIPMessage)
 // {
 //     IMS_TRACE_I("IsUSSIInfoReceived()", 0, 0, 0);
 
 //     if (!MessageUtil::ContainsValue(pISIPMessage, USSDConstants::HEADER_USSD_PACKAGE,
-//             ISIPHeader::UNKNOWN, SIPHeaderName::INFO_PACKAGE))
+//             ISipHeader::UNKNOWN, SipHeaderName::INFO_PACKAGE))
 //     {
 //         return IMS_FALSE;
 //     }
@@ -141,16 +141,16 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // PROTECTED VIRTUAL
 // IMS_BOOL USSIConfirmedSession::StateXXX_SS_TransactionReceived(IN IMSMSG &objMsg)
 // {
-//     m_pISIPServerConnection = reinterpret_cast<ISIPServerConnection*>(objMsg.nLparam);
+//     m_pISIPServerConnection = reinterpret_cast<ISipServerConnection*>(objMsg.nLparam);
 
 //     IMS_TRACE_I("StateXXX_SS_TransactionReceived", 0, 0, 0);
 
 //     IMS_SINT32 nMethod = m_pISIPServerConnection->GetMethod().ToInt();
-//     ISIPMessage* pISIPMessage = m_pISIPServerConnection->GetMessage();
+//     ISipMessage* pISIPMessage = m_pISIPServerConnection->GetMessage();
 
 //     switch (nMethod)
 //     {
-//         case SIPMethod::INFO:
+//         case SipMethod::INFO:
 //         {
 //             if (IsUSSIInfoReceived(pISIPMessage))
 //             {
@@ -158,13 +158,13 @@ USSIConfirmedSession::~USSIConfirmedSession()
 //             }
 //             else
 //             {
-//                 SendTransactionResponse(SIPStatusCode::SC_469, "Bad Info Package");
+//                 SendTransactionResponse(SipStatusCode::SC_469, "Bad Info Package");
 //             }
 //         }
 //             break;
 //         default:
 //         {
-//             SendTransactionResponse(SIPStatusCode::SC_200);
+//             SendTransactionResponse(SipStatusCode::SC_200);
 //         }
 //             break;
 //     }
@@ -179,13 +179,13 @@ USSIConfirmedSession::~USSIConfirmedSession()
 //     IConfirmedSendTransactionParam* pTransactionParam
 //             = reinterpret_cast<IConfirmedSendTransactionParam*>(objMsg.nLparam);
 
-//     m_pISIPClientConnection = m_pSession->GetISession()->CreateTransaction(SIPMethod::INFO);
+//     m_pISIPClientConnection = m_pSession->GetISession()->CreateTransaction(SipMethod::INFO);
 
 //     m_pISIPClientConnection->SetHeader(USSDConstants::HEADER_INFO_PACKAGE,
 //             USSDConstants::HEADER_USSD_PACKAGE);
-//     m_pISIPClientConnection->SetHeader(SIPHeaderName::CONTENT_TYPE,
+//     m_pISIPClientConnection->SetHeader(SipHeaderName::CONTENT_TYPE,
 //             USSDConstants::HEADER_APPLICATION_USSDXML);
-//     m_pISIPClientConnection->SetHeader(SIPHeaderName::CONTENT_DISPOSITION,
+//     m_pISIPClientConnection->SetHeader(SipHeaderName::CONTENT_DISPOSITION,
 //             USSDConstants::HEADER_INFO_PACKAGE);
 
 //     AString strUSSIString = pTransactionParam->aStrUSSIString;
@@ -228,7 +228,7 @@ USSIConfirmedSession::~USSIConfirmedSession()
 //     if (pIMessage != IMS_NULL)
 //     {
 //         AString strHeader;
-//         MessageUtil::GetHeader(pIMessage, ISIPHeader::CONTENT_TYPE, strHeader);
+//         MessageUtil::GetHeader(pIMessage, ISipHeader::CONTENT_TYPE, strHeader);
 //         if (strHeader.Contains(USSDConstants::HEADER_APPLICATION_USSDXML))
 //         {
 //             SendUSSITransactionToListn(pIMessage->GetMessage());
@@ -244,7 +244,7 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PROTECTED VIRTUAL
-// void USSIConfirmedSession::SendUSSITransactionToListn(IN ISIPMessage* pISIPMessage)
+// void USSIConfirmedSession::SendUSSITransactionToListn(IN ISipMessage* pISIPMessage)
 // {
 //     IConfirmedTransactionReceivedParam* pParam = new IConfirmedTransactionReceivedParam();
 //     pParam->pISIPMessage = pISIPMessage;
@@ -257,8 +257,8 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PROTECTED VIRTUAL
-// void USSIConfirmedSession::ClientConnection_NotifyResponse(IN ISIPClientConnection *piSCC,
-//         IN ISIPClientConnection * /* piForkedSCC = IMS_NULL */)
+// void USSIConfirmedSession::ClientConnection_NotifyResponse(IN ISipClientConnection *piSCC,
+//         IN ISipClientConnection * /* piForkedSCC = IMS_NULL */)
 // {
 //     if (piSCC == IMS_NULL)
 //     {
@@ -282,7 +282,7 @@ USSIConfirmedSession::~USSIConfirmedSession()
 
 //     IMS_TRACE_I("ClientConnection_NotifyResponse : StatusCode[%d]", nStatusCode, 0, 0);
 
-//     if (SIPStatusCode::IsFinal(nStatusCode))
+//     if (SipStatusCode::IsFinal(nStatusCode))
 //     {
 //         m_pISIPClientConnection->Close();
 //         m_pISIPClientConnection = IMS_NULL;
@@ -293,8 +293,8 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PROTECTED VIRTUAL
-// void USSIConfirmedSession::Error_NotifyError(IN ISIPConnection* /*piSC*/, IN IMS_SINT32 /*nCode*/,
-//         IN const AString& /*strMessage*/)
+// void USSIConfirmedSession::Error_NotifyError(IN ISipConnection* /*piSC*/,
+//         IN IMS_SINT32 /*nCode*/, IN const AString& /*strMessage*/)
 // {
 //     if (m_pISIPClientConnection != IMS_NULL)
 //     {
@@ -312,13 +312,13 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // {
 //     IMS_TRACE_D("SendTransactionWithErrorCode", 0, 0, 0);
 
-//     m_pISIPClientConnection = m_pSession->GetISession()->CreateTransaction(SIPMethod::INFO);
+//     m_pISIPClientConnection = m_pSession->GetISession()->CreateTransaction(SipMethod::INFO);
 
 //     m_pISIPClientConnection->SetHeader(USSDConstants::HEADER_INFO_PACKAGE,
 //             USSDConstants::HEADER_USSD_PACKAGE);
-//     m_pISIPClientConnection->SetHeader(SIPHeaderName::CONTENT_TYPE,
+//     m_pISIPClientConnection->SetHeader(SipHeaderName::CONTENT_TYPE,
 //             USSDConstants::HEADER_APPLICATION_USSDXML);
-//     m_pISIPClientConnection->SetHeader(SIPHeaderName::CONTENT_DISPOSITION,
+//     m_pISIPClientConnection->SetHeader(SipHeaderName::CONTENT_DISPOSITION,
 //             USSDConstants::HEADER_INFO_PACKAGE);
 
 //     if (SetUSSIBody(m_pISIPClientConnection->GetMessage(), AString::ConstEmpty(), nErrorCode))
@@ -372,17 +372,17 @@ USSIConfirmedSession::~USSIConfirmedSession()
 // /* ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------ */
 // PRIVATE VIRTUAL
-// IMS_BOOL USSIConfirmedSession::SetUSSIBody(IN ISIPMessage* pISIPMessage,
+// IMS_BOOL USSIConfirmedSession::SetUSSIBody(IN ISipMessage* pISIPMessage,
 //         IN const AString& strUSSDStr, IN IMS_UINT32 nErrorCode)
 // {
-//     ISIPMessageBodyPart *piBodyPart = pISIPMessage->CreateBodyPart();
+//     ISipMessageBodyPart *piBodyPart = pISIPMessage->CreateBodyPart();
 //     if (piBodyPart == IMS_NULL)
 //     {
 //         IMS_TRACE_E(0, "piBodyPart is NULL", 0, 0, 0);
 //         return IMS_FALSE;
 //     }
 
-//     piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE,
+//     piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE,
 //                 USSDConstants::HEADER_APPLICATION_USSDXML);
 
 //     AStringBuffer objXML(USSDConstants::XML_BUFFER_SIZE);

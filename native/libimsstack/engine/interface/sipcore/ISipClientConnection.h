@@ -4,32 +4,32 @@
 #include "IPAddress.h"
 #include "ISipConnection.h"
 
-class ISIPConnectionNotifier;
-class ISIPClientConnectionListener;
-class ISIPGenericChallenge;
-class ISIPAckPackage;
+class ISipConnectionNotifier;
+class ISipClientConnectionListener;
+class ISipGenericChallenge;
+class ISipAckPackage;
 class Credential;
 
 /**
  * @brief This class provides an interface to handle SIP client transaction.
  *
- * Applications can create a new ISIPClientConnection via Connector or ISIPDialog interface.
+ * Applications can create a new ISipClientConnection via Connector or ISipDialog interface.
  *
- * @see ISIPConnection, ISIPConnectionNotifier
+ * @see ISipConnection, ISipConnectionNotifier
  */
-class ISIPClientConnection
-    : public ISIPConnection
+class ISipClientConnection
+    : public ISipConnection
 {
 public:
     /**
-     * @brief Convenience method to initialize ISIPClientConnection with SIP request method, ACK.
+     * @brief Convenience method to initialize ISipClientConnection with SIP request method, ACK.
      *
      * ACK can be applied only to INVITE request.\n
      * This method is available when a successful final response (2xx) has been received.\n
      * The header fields of the ACK are constructed in the same way as for any request sent within
      * a dialog with the exception of the CSeq and the header fields related to authentication.\n
      * The Request-URI and header fields will be initialized automatically.\n
-     * After this, the ISIPClientConnection is in INITIALIZED state.
+     * After this, the ISipClientConnection is in INITIALIZED state.
      *
      * The following information will be set by the method:
      *     - Request-URI
@@ -47,14 +47,14 @@ public:
     virtual IMS_RESULT InitAck() = 0;
 
     /**
-     * @brief Convenience method to initialize ISIPClientConnection with SIP request method,
+     * @brief Convenience method to initialize ISipClientConnection with SIP request method,
      *        CANCEL.
      *
      * This method is available when a provisional response has been received.\n
      * The CANCEL request starts a new SIP transaction, that is why the method returns a new
-     * ISIPClientConnection.\n The CANCEL request will be built according to the original INVITE
+     * ISipClientConnection.\n The CANCEL request will be built according to the original INVITE
      * request within this transaction.\n The Request-URI and header fields will be initialized
-     * automatically.\n After this, the ISIPClientConnection is in INITIALIZED state.
+     * automatically.\n After this, the ISipClientConnection is in INITIALIZED state.
      *
      * The following information will be set by the method:
      *     - Request-URI
@@ -66,18 +66,18 @@ public:
      *     - Route
      *     - Max-Forwards
      *
-     * @return A new ISIPClientConnection with pre-initialized CANCEL request.
+     * @return A new ISipClientConnection with pre-initialized CANCEL request.
      */
-    virtual ISIPClientConnection* InitCancel() = 0;
+    virtual ISipClientConnection* InitCancel() = 0;
 
     /**
-     * @brief Initializes ISIPClientConnection to a specific SIP request method (REGISTER, INVITE,
+     * @brief Initializes ISipClientConnection to a specific SIP request method (REGISTER, INVITE,
      *        MESSAGE, REFER, ...).
      *
      * The default Request-URI and header fields will be initialized automatically.\n
-     * After this, the ISIPClientConnection is in INITIALIZED state.\n
+     * After this, the ISipClientConnection is in INITIALIZED state.\n
      * SIP methods belonging to an already established dialog (BYE, NOTIFY, PRACK, UPDATE)
-     * should be created using ISIPDialog::GetNewClientConnection() instead of this method.
+     * should be created using ISipDialog::GetNewClientConnection() instead of this method.
      *
      * Header fields that will be initialized are as follows:
      *     - To
@@ -89,18 +89,18 @@ public:
      *     - Max-Forwards
      *
      * @param strMethod Name of the SIP method
-     * @param piSCN Pointer to ISIPConnectionNotifier to which the request will be associated.\n
+     * @param piSCN Pointer to ISipConnectionNotifier to which the request will be associated.\n
      *              If piSCN is NULL, the request will not be associated to any user defined
      *              listening port.
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
      */
     virtual IMS_RESULT InitRequest(IN CONST AString& strMethod,
-            IN ISIPConnectionNotifier *piSCN) = 0;
+            IN ISipConnectionNotifier *piSCN) = 0;
 
     /**
      * @brief Receives a SIP response message.
      *
-     * This method will update the ISIPClientConnection with the last new received response.\n
+     * This method will update the ISipClientConnection with the last new received response.\n
      * The implementation places the responses in a FIFO queue and when this method is called,
      * it fetches the lease recently arrived response which has not been fetched already.
      *
@@ -119,7 +119,7 @@ public:
      *     - Before sending the original request in INITIALIZED state.
      *     - When 401(Unauthorized) or 407(Proxy Authentication Required) response is received
      *       in the UNAUTHORIZED state.
-     *       After this, the ISIPClientConnection will be in PROCEEDING state.
+     *       After this, the ISipClientConnection will be in PROCEEDING state.
      *
      * @param objCredentials List of credential (username, password, realm)
      *                       for digest authentication
@@ -137,7 +137,7 @@ public:
      *     - Before sending the original request in INITIALIZED state.
      *     - When 401(Unauthorized) or 407(Proxy Authentication Required) response is received
      *       in the UNAUTHORIZED state.
-     *       After this, the ISIPClientConnection will be in PROCEEDING state.
+     *       After this, the ISipClientConnection will be in PROCEEDING state.
      *
      * @param objCredential Credential (username, password, realm) for digest authentication
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
@@ -153,7 +153,7 @@ public:
      * @param piListener Listener to be set\n
      *                   null value will remove the existing listener
      */
-    virtual void SetListener(IN ISIPClientConnectionListener *piListener) = 0;
+    virtual void SetListener(IN ISipClientConnectionListener *piListener) = 0;
 
     /**
      * @brief Sets Request-URI explicitly.
@@ -166,7 +166,7 @@ public:
      * @param strURI String representation of Request-URI
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
      */
-    virtual IMS_RESULT SetRequestURI(IN CONST AString& strURI) = 0;
+    virtual IMS_RESULT SetRequestUri(IN CONST AString& strURI) = 0;
 
     //// IMS extensions
 
@@ -174,18 +174,18 @@ public:
      * @brief Returns the authentication challenge.
      *
      * @param nIndex Position of authentication challenge
-     * @return Pointer to ISIPGenericChallenge.
+     * @return Pointer to ISipGenericChallenge.
      */
-    virtual ISIPGenericChallenge* GetAuthenticationChallenge(IN IMS_SINT32 nIndex = 0) const = 0;
+    virtual ISipGenericChallenge* GetAuthenticationChallenge(IN IMS_SINT32 nIndex = 0) const = 0;
 
     /**
      * @brief Returns the helper package for SIP ACK retransmission.
      *
      * The application SHOULD destroy the returned object if it does not use anymore.
      *
-     * @return Pointer to ISIPAckPackage.
+     * @return Pointer to ISipAckPackage.
      */
-    virtual ISIPAckPackage* GrabAck() = 0;
+    virtual ISipAckPackage* GrabAck() = 0;
 
     /**
      * @brief Initializes the resubmitting request message when the connection had received
@@ -218,7 +218,7 @@ public:
      * @param piChallenge Authentication challenge to be set
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
      */
-    virtual IMS_RESULT SetAuthenticationChallenge(IN ISIPGenericChallenge *piChallenge) = 0;
+    virtual IMS_RESULT SetAuthenticationChallenge(IN ISipGenericChallenge *piChallenge) = 0;
 
     /**
      * @brief Sets the extension token of the branch parameter in the Via header.
@@ -246,7 +246,7 @@ public:
      * @param nPortC Client port number of the device
      * @param nPortS Server port number of the device
      * @param nPortFC Port number for the flow control (RFC5626)
-     * @param nTransportExt Transport extension (SIP::TRANSPORT_EXT_XXX in Sip.h)
+     * @param nTransportExt Transport extension (Sip::TRANSPORT_EXT_XXX in Sip.h)
      * @note RFC5626_FLOW_CONTROL, MULTI_REG_TRANSPORT
      */
     virtual void SetTransportTuple(IN CONST IPAddress &objIPA,

@@ -76,7 +76,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPDialog* SIPDialogImpl::Clone() const
+ISipDialog* SIPDialogImpl::Clone() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -108,13 +108,13 @@ ISIPDialog* SIPDialogImpl::Clone() const
 }
 
 /*
- Compares if the specified ISIPDialog equals or not.
+ Compares if the specified ISipDialog equals or not.
 
 Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPDialogImpl::Equals(IN CONST ISIPDialog *piDialog)
+IMS_BOOL SIPDialogImpl::Equals(IN CONST ISipDialog *piDialog)
 {
     const SIPDialogImpl *pDialogImpl = DYNAMIC_CAST(const SIPDialogImpl*, piDialog);
 
@@ -133,7 +133,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-AString SIPDialogImpl::GetDialogID()
+AString SIPDialogImpl::GetDialogId()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ Remarks
     Max-Forwards
 */
 PUBLIC VIRTUAL
-ISIPClientConnection* SIPDialogImpl::GetNewClientConnection(IN CONST AString &strMethod)
+ISipClientConnection* SIPDialogImpl::GetNewClientConnection(IN CONST AString &strMethod)
 {
     SIPClientConnection *pSCC = pDialog->CreateClientConnection(strMethod);
 
@@ -178,7 +178,7 @@ ISIPClientConnection* SIPDialogImpl::GetNewClientConnection(IN CONST AString &st
     if (pSCCImpl == IMS_NULL)
     {
         delete pSCC;
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
 
         IMS_TRACE_E(0, "Allocating SCCImpl (%s) failed", strMethod.GetStr(), 0, 0);
         return IMS_NULL;
@@ -187,7 +187,7 @@ ISIPClientConnection* SIPDialogImpl::GetNewClientConnection(IN CONST AString &st
     if (pSCCImpl->InitDialogRequest() != IMS_SUCCESS)
     {
         delete pSCCImpl;
-        SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+        SIPPrivate::SetLastError(SipError::NO_MEMORY);
 
         IMS_TRACE_E(0, "Initializing Dialog info. (%s) failed", strMethod.GetStr(), 0, 0);
         return IMS_NULL;
@@ -223,27 +223,27 @@ IMS_SINT32 SIPDialogImpl::GetState() const
     switch (pDialog->GetState())
     {
     case SIPDialog::STATE_TERMINATED:
-        return ISIPDialog::STATE_TERMINATED;
+        return ISipDialog::STATE_TERMINATED;
 
     case SIPDialog::STATE_EARLY:
-        return ISIPDialog::STATE_EARLY;
+        return ISipDialog::STATE_EARLY;
 
     case SIPDialog::STATE_CONFIRMED:
-        return ISIPDialog::STATE_CONFIRMED;
+        return ISipDialog::STATE_CONFIRMED;
 
     default:
-        return ISIPDialog::STATE_INIT;
+        return ISipDialog::STATE_INIT;
     }
 }
 
 /*
- Compares if the given ISIPConnection belongs to this dialog or not.
+ Compares if the given ISipConnection belongs to this dialog or not.
 
 Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPDialogImpl::IsSameDialog(IN CONST ISIPConnection *piSC)
+IMS_BOOL SIPDialogImpl::IsSameDialog(IN CONST ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -292,7 +292,7 @@ Remarks
  BYE_REQUEST_ON_DIALOG_TERMINATED
 */
 PUBLIC VIRTUAL
-AString SIPDialogImpl::GetDialogIDEx()
+AString SIPDialogImpl::GetDialogIdEx()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -307,7 +307,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const ISIPHeader* SIPDialogImpl::GetContactHeader() const
+const ISipHeader* SIPDialogImpl::GetContactHeader() const
 {
     //---------------------------------------------------------------------------------------------
 

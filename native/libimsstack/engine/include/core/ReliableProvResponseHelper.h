@@ -27,11 +27,11 @@ private:
 
 public:
     IMS_SINT32 GetState() const;
-    void Initialize(IN ISIPMessage *piSIPMsg);
-    IMS_BOOL SetRAckHeader(IN_OUT ISIPMessage *&piSIPMsg) const;
-    IMS_BOOL SetRSeqHeader(IN_OUT ISIPMessage *&piSIPMsg) const;
-    IMS_BOOL UpdateOnMessageReceived(IN ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOnMessageSent(IN ISIPMessage *piSIPMsg);
+    void Initialize(IN ISipMessage *piSIPMsg);
+    IMS_BOOL SetRAckHeader(IN_OUT ISipMessage *&piSIPMsg) const;
+    IMS_BOOL SetRSeqHeader(IN_OUT ISipMessage *&piSIPMsg) const;
+    IMS_BOOL UpdateOnMessageReceived(IN ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOnMessageSent(IN ISipMessage *piSIPMsg);
     IMS_BOOL UpdateOnOperationFailed();
 
 private:
@@ -64,7 +64,7 @@ private:
     // CSeq number
     IMS_UINT32 nCSeqNumber;
 
-    SIPMethod objMethod;
+    SipMethod objMethod;
 };
 
 #endif // _RELIABLE_PROV_RESPONSE_HELPER_H_

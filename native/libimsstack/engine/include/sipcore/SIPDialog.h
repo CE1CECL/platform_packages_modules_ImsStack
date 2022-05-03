@@ -30,7 +30,7 @@
 
 #include "SIPDialogEx.h"
 
-class ISIPHeader;
+class ISipHeader;
 class SIPClientConnection;
 
 
@@ -51,7 +51,7 @@ public:
 public:
     SIPClientConnection* CreateClientConnection(IN CONST AString &strMethod);
     const AString& GetCallId() const;
-    const ISIPHeader* GetContactHeader() const;
+    const ISipHeader* GetContactHeader() const;
     AString GetLocalTag() const;
     AString GetRemoteTag() const;
     IMS_SINT32 GetState() const;
@@ -63,8 +63,8 @@ public:
     void UpdateDialog(IN SIPDialogEx *pDialogEx);
 
 private:
-    IMS_BOOL CheckMethodValidity(IN CONST SIPMethod &objMethod) const;
-    SIPDialogEx* GetOptimumDialog(IN CONST SIPMethod &objMethod) const;
+    IMS_BOOL CheckMethodValidity(IN CONST SipMethod &objMethod) const;
+    SIPDialogEx* GetOptimumDialog(IN CONST SipMethod &objMethod) const;
 
 public:
     // State of SIP dialog

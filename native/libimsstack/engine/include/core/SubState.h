@@ -39,13 +39,13 @@ private:
 
 public:
     virtual void Clear();
-    virtual IMS_BOOL UpdateState(IN CONST ISIPMessage *piSIPMsg) = 0;
+    virtual IMS_BOOL UpdateState(IN CONST ISipMessage *piSIPMsg) = 0;
 
     IMS_BOOL CreateEventPackage(IN CONST AString &strEvent);
     IMS_SINT32 GetConfiguration() const;
     IMS_SINT32 GetDuration() const;
     EventPackage* GetEventPackage();
-    ISIPMessage* GetInitialMessage() const;
+    ISipMessage* GetInitialMessage() const;
     IMS_SINT32 GetOperation() const;
     IMS_SINT32 GetState() const;
     IMS_SINT32 GetSubState() const;
@@ -54,14 +54,14 @@ public:
     IMS_BOOL IsTerminated() const;
 
 #if 0
-    IMS_BOOL SetHeadersAndBodyParts(IN_OUT ISIPMessage *&piSIPMsg);
+    IMS_BOOL SetHeadersAndBodyParts(IN_OUT ISipMessage *&piSIPMsg);
 #endif
     void SetConfiguration(IN IMS_SINT32 nConfigValue);
     void SetOperation(IN IMS_SINT32 nOperation);
 
-    static IMS_SINT32 ExtractExpiresParameter(IN CONST ISIPHeader *piHeader);
-    static IMS_SINT32 ExtractReasonParameter(IN CONST ISIPHeader *piHeader);
-    static IMS_SINT32 ExtractSubStateValue(IN CONST ISIPHeader *piHeader);
+    static IMS_SINT32 ExtractExpiresParameter(IN CONST ISipHeader *piHeader);
+    static IMS_SINT32 ExtractReasonParameter(IN CONST ISipHeader *piHeader);
+    static IMS_SINT32 ExtractSubStateValue(IN CONST ISipHeader *piHeader);
 
     // Gets the constant values from ISubscriptionState
     static IMS_SINT32 GetSubStateFromSubscriptionState(IN IMS_SINT32 nSubState);
@@ -75,9 +75,9 @@ protected:
     void SetDuration(IN IMS_SINT32 nDuration);
     void SetDurationUpdated(IN IMS_BOOL bDurationUpdated);
     void SetInstantSubscription(IN IMS_BOOL bInstantSubscription);
-    void SetState(IN CONST ISIPMessage *piSIPMsg, IN IMS_SINT32 nState);
+    void SetState(IN CONST ISipMessage *piSIPMsg, IN IMS_SINT32 nState);
     void SetSubState(IN IMS_SINT32 nSubState);
-    void StoreMessage(IN CONST ISIPMessage *piSIPMsg);
+    void StoreMessage(IN CONST ISipMessage *piSIPMsg);
 
 private:
     static const IMS_CHAR* OperationToString(IN IMS_SINT32 nOperation);
@@ -186,7 +186,7 @@ private:
     IMS_BOOL bFlag_InstantSubscription;
 
     // Manages an initial SIP message for refresh/removal operation
-    ISIPMessage *piSIPMsg;
+    ISipMessage *piSIPMsg;
 };
 
 #endif // _SUB_STATE_H_

@@ -40,7 +40,7 @@ public:
      *
      * @return Contact address (SIP URI)
      */
-    virtual const SIPAddress& GetContactAddress() const = 0;
+    virtual const SipAddress& GetContactAddress() const = 0;
 
     /**
      * @brief Returns the expiration value for this contact.
@@ -68,42 +68,42 @@ public:
      *
      * @return List of header parameter of this contact.
      */
-    virtual const IMSList<SIPParameter*>& GetHeaderParameters() const = 0;
+    virtual const IMSList<SipParameter*>& GetHeaderParameters() const = 0;
 
     /**
      * @brief Returns the instance("+sip.instance") header parameter.
      *
      * @return Pointer to SIP header parameter for "+sip.instance".
      */
-    virtual const SIPParameter* GetInstanceParameter() const = 0;
+    virtual const SipParameter* GetInstanceParameter() const = 0;
 
     /**
      * @brief Returns the registration identifier("reg-id") header parameter.
      *
      * @return Pointer to SIP header parameter for "reg-id".
      */
-    virtual const SIPParameter* GetRegIdParameter() const = 0;
+    virtual const SipParameter* GetRegIdParameter() const = 0;
 
     /**
      * @brief Returns the public GRUU.
      *
      * @return Pointer to public GRUU.
      */
-    virtual const SIPAddress* GetPublicGRUU() const = 0;
+    virtual const SipAddress* GetPublicGRUU() const = 0;
 
     /**
      * @brief Returns the valid (the latest) temporary GRUU.
      *
      * @return Pointer to temporary GRUU.
      */
-    virtual const SIPAddress* GetTemporaryGRUU() const = 0;
+    virtual const SipAddress* GetTemporaryGRUU() const = 0;
 
     /**
      * @brief Returns the valid temporary GRUUs.
      *
      * @return List of temporary GRUU.
      */
-    virtual const IMSList<SIPAddress*>& GetTemporaryGRUUs() const = 0;
+    virtual const IMSList<SipAddress*>& GetTemporaryGRUUs() const = 0;
 
     /**
      * @brief Checks if the contact is an active or not.

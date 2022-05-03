@@ -51,7 +51,7 @@ AosSubscription::AosSubscription
     IN IAosAppContext* piContext,
     IN IRegSubscription* piRegSubscription,
     IN const AString& strAor,
-    IN const SIPAddress& objContactAddress
+    IN const SipAddress& objContactAddress
 )
     : m_piRegSubscription(piRegSubscription)
     , m_piContext(piContext)
@@ -210,7 +210,7 @@ void AosSubscription::ClearThrottlingCount()
 }
 
 PROTECTED
-const SIPAddress& AosSubscription::GetContactAddress()
+const SipAddress& AosSubscription::GetContactAddress()
 {
     return m_objContactAddress;
 }
@@ -388,7 +388,7 @@ void AosSubscription::PrintRegInfo(IN IMSList<IRegInfoContact*>& objRegInfo)
         strLog.Append(RegInfoEventToString(piCurr->GetEvent()));
         strLog.Append("]");
         strLog.Append("[uri/");
-        strLog.Append(piCurr->GetURI().GetURI().GetStr());
+        strLog.Append(piCurr->GetURI().GetUri().GetStr());
         strLog.Append("]");
 
         if (piCurr->GetQValue().GetLength() > 0)
@@ -455,7 +455,7 @@ IMS_BOOL AosSubscription::ProcessFailureResponse_504()
 {
     IMS_TRACE_I("ProcessFailureResponse_504", 0, 0, 0);
 
-    ISIPMessage* piMsg = IMS_NULL;
+    ISipMessage* piMsg = IMS_NULL;
     piMsg = m_piRegSubscription->GetPreviousResponse();
 
     if (piMsg == IMS_NULL)
@@ -674,7 +674,7 @@ IMS_BOOL AosSubscription::ProcessFailed_StatusCode(IN IMS_SINT32 nStatusCode,
     {
         return IMS_TRUE;
     }
-    else if ((!m_bIsErrChecked) && (nStatusCode == SIPStatusCode::SC_423))
+    else if ((!m_bIsErrChecked) && (nStatusCode == SipStatusCode::SC_423))
     {
         if (ProcessFailureResponse_423(bIsRefreshed))
         {
@@ -685,7 +685,7 @@ IMS_BOOL AosSubscription::ProcessFailed_StatusCode(IN IMS_SINT32 nStatusCode,
     {
         return IMS_TRUE;
     }
-    else if ((!m_bIsErrChecked) && (nStatusCode == SIPStatusCode::SC_504))
+    else if ((!m_bIsErrChecked) && (nStatusCode == SipStatusCode::SC_504))
     {
         if (ProcessFailureResponse_504())
         {
@@ -694,7 +694,7 @@ IMS_BOOL AosSubscription::ProcessFailed_StatusCode(IN IMS_SINT32 nStatusCode,
     }
     else if (bIsRefreshed == IMS_TRUE)
     {
-        if ((!m_bIsErrChecked) && (nStatusCode == SIPStatusCode::SC_481))
+        if ((!m_bIsErrChecked) && (nStatusCode == SipStatusCode::SC_481))
         {
             RequestCommand(REASON_SUB_FAILED, COMMAND_SUB_REQUIRED);
             return IMS_TRUE;
@@ -917,7 +917,7 @@ IMS_BOOL AosSubscription::CheckRegInfoState(IN IRegInfoContact* piRegInfoContact
 }
 
 PROTECTED VIRTUAL
-IMS_BOOL AosSubscription::CompareUriAssociatedWithContact(IN const SIPAddress& objUri)
+IMS_BOOL AosSubscription::CompareUriAssociatedWithContact(IN const SipAddress& objUri)
 {
     if (objUri.GetHost().Equals(m_objContactAddress.GetHost()) == IMS_FALSE)
     {

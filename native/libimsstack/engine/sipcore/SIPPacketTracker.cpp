@@ -33,7 +33,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPPacketTracker::SetListener(IN ISIPPacketTrackerListener* piListener)
+void SIPPacketTracker::SetListener(IN ISipPacketTrackerListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ Remarks
 
 */
 PUBLIC
-void SIPPacketTracker::NotifyMessageSent(IN ISIPMessage *piSIPMsg,
+void SIPPacketTracker::NotifyMessageSent(IN ISipMessage *piSIPMsg,
         IN CONST ByteArray &objMsg, IN IMS_BOOL bIsRetransmission)
 {
     //---------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ Remarks
 
 */
 PUBLIC
-void SIPPacketTracker::NotifyMessageReceived(IN ISIPMessage *piSIPMsg,
+void SIPPacketTracker::NotifyMessageReceived(IN ISipMessage *piSIPMsg,
         IN CONST ByteArray &objMsg, IN IMS_BOOL bIsRetransmission)
 {
     //---------------------------------------------------------------------------------------------

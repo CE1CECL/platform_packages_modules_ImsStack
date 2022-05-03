@@ -57,7 +57,7 @@ const AString& EventPackage::GetEvent() const
 }
 
 PUBLIC
-const ISIPHeader* EventPackage::GetEventHeader() const
+const ISipHeader* EventPackage::GetEventHeader() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ void EventPackage::SetEvent(IN CONST AString &strEvent)
 }
 
 PUBLIC
-void EventPackage::SetEventHeader(IN ISIPHeader *piHeader)
+void EventPackage::SetEventHeader(IN ISipHeader *piHeader)
 {
     //---------------------------------------------------------------------------------------------
 

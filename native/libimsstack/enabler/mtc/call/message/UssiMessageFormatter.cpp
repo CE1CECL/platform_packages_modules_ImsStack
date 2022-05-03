@@ -57,7 +57,7 @@ PRIVATE
 void UssiMessageFormatter::SetRecvInfoHeader()
 {
     MessageUtil::AddValueIfNotExists(m_piNextMessage, USSDConstants::HEADER_USSD_PACKAGE,
-            ISIPHeader::UNKNOWN, SIPHeaderName::RECV_INFO);
+            ISipHeader::UNKNOWN, SipHeaderName::RECV_INFO);
 
     return;
 }
@@ -68,13 +68,13 @@ PRIVATE
 void UssiMessageFormatter::SetAcceptHeader()
 {
     MessageUtil::AddValueIfNotExists(m_piNextMessage, USSDConstants::HEADER_APPLICATION_SDP,
-            ISIPHeader::ACCEPT);
+            ISipHeader::ACCEPT);
     MessageUtil::AddValueIfNotExists(m_piNextMessage, USSDConstants::HEADER_APPLICATION_IMSXML,
-            ISIPHeader::ACCEPT);
+            ISipHeader::ACCEPT);
     MessageUtil::AddValueIfNotExists(m_piNextMessage, USSDConstants::HEADER_APPLICATION_USSDXML,
-            ISIPHeader::ACCEPT);
+            ISipHeader::ACCEPT);
     MessageUtil::AddValueIfNotExists(m_piNextMessage, USSDConstants::HEADER_MULTIPART_MIXED,
-            ISIPHeader::ACCEPT);
+            ISipHeader::ACCEPT);
 
     return;
 }
@@ -85,7 +85,7 @@ PRIVATE
 void UssiMessageFormatter::SetContentTypeHeader()
 {
     MessageUtil::AddValueIfNotExists(m_piNextMessage, USSDConstants::HEADER_MULTIPART_MIXED,
-            ISIPHeader::CONTENT_TYPE);
+            ISipHeader::CONTENT_TYPE);
 
     return;
 }

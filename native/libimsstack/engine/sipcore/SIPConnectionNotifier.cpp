@@ -48,14 +48,14 @@ SIPConnectionNotifier::SIPConnectionNotifier(IN IMS_SINT32 nScheme_, IN IMS_SINT
     , nMode(DEDICATED)
     , nScheme(nScheme_)
     , nPort(nPort_)
-    , nTransportProtocol(SIP::TRANSPORT_ANY)
-    , nTransportExt(SIP::TRANSPORT_EXT_ANY)
+    , nTransportProtocol(Sip::TRANSPORT_ANY)
+    , nTransportExt(Sip::TRANSPORT_EXT_ANY)
     , strType(AString::ConstNull())
     , strFilter(AString::ConstNull())
-    , nPortC(SIP::PORT_UNSPECIFIED)
+    , nPortC(Sip::PORT_UNSPECIFIED)
     , pSocket_UDP(IMS_NULL)
     , pSocket_TCP(IMS_NULL)
-    , nPortFlowControl(SIP::PORT_UNSPECIFIED)
+    , nPortFlowControl(Sip::PORT_UNSPECIFIED)
     // FIX_MESSAGE_ORDER_ON_MIXED_TRANSPORT_USE
     , pSocket_UDPClient(IMS_NULL)
     , pSocket_TCPClient(IMS_NULL)
@@ -80,7 +80,7 @@ SIPConnectionNotifier::SIPConnectionNotifier(IN IMS_SINT32 nScheme_, IN IMS_SINT
         nMode = SHARED;
     }
 
-    if ((bSharedMode_ == IMS_FALSE) && (nPort == SIP::PORT_UNSPECIFIED))
+    if ((bSharedMode_ == IMS_FALSE) && (nPort == Sip::PORT_UNSPECIFIED))
     {
         nPort = ++pGlobalSystemPort[GetSlotId()];
     }
@@ -97,7 +97,7 @@ SIPConnectionNotifier::~SIPConnectionNotifier()
     {
         for (IMS_UINT32 i = 0; i < objParameters.GetSize(); ++i)
         {
-            SIPParameter *pParameter = objParameters.GetAt(i);
+            SipParameter *pParameter = objParameters.GetAt(i);
 
             if (pParameter != IMS_NULL)
                 delete pParameter;
@@ -155,13 +155,13 @@ Remarks
 
 */
 PUBLIC
-ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen()
+ISipServerConnection* SIPConnectionNotifier::AcceptAndOpen()
 {
     //---------------------------------------------------------------------------------------------
 
     if (objTxnStates.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::NO_MESSAGE);
+        SIPPrivate::SetLastError(SipError::NO_MESSAGE);
         return IMS_NULL;
     }
 
@@ -169,7 +169,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen()
 
     if (pSTState.IsNull())
     {
-        SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_NULL;
     }
 
@@ -179,7 +179,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen()
 
     if (pSSC == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -187,7 +187,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen()
     {
         delete pSSC;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -197,11 +197,11 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen()
     {
         delete pSSC;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return pSSCImpl;
 }
@@ -253,13 +253,13 @@ Remarks
 
 */
 PUBLIC
-ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOrigDialog)
+ISipServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISipDialog *&piOrigDialog)
 {
     //---------------------------------------------------------------------------------------------
 
     if (objForkedTxnStates.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::NO_MESSAGE);
+        SIPPrivate::SetLastError(SipError::NO_MESSAGE);
         return IMS_NULL;
     }
 
@@ -267,7 +267,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOr
 
     if (pForkedTxnState == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_NULL;
     }
 
@@ -282,7 +282,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOr
 
     if (pSSC == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -290,7 +290,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOr
     {
         delete pSSC;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -300,7 +300,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOr
     {
         delete pSSC;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -311,7 +311,7 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOr
     {
         delete pSSCImpl;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -322,11 +322,11 @@ ISIPServerConnection* SIPConnectionNotifier::AcceptAndOpen(OUT ISIPDialog *&piOr
         delete pDialog;
         delete pSSCImpl;
 
-        SIPPrivate::SetLastError(SIPError::TRANSACTION_UNAVAILABLE);
+        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     return pSSCImpl;
 }
@@ -354,10 +354,10 @@ AString SIPConnectionNotifier::GetContactAddress() const
     strContact.Append(TextParser::CHAR_LAQUOT);
 
     // "sip" & "sips" URI scheme only supports in the spec. (JSR 180 v1.1.0)
-    if (nScheme == SIP::URI_SCHEME_SIPS)
-        strContact.Append(SIP::STR_SIPS);
+    if (nScheme == Sip::URI_SCHEME_SIPS)
+        strContact.Append(Sip::STR_SIPS);
     else
-        strContact.Append(SIP::STR_SIP);
+        strContact.Append(Sip::STR_SIP);
 
     strContact.Append(TextParser::CHAR_COLON);
 
@@ -386,16 +386,16 @@ AString SIPConnectionNotifier::GetContactAddress() const
     strContact.Append(strPort);
 
     // Set transport protocol if the type is present in Connection String.
-    if (nTransportProtocol != SIP::TRANSPORT_ANY)
+    if (nTransportProtocol != Sip::TRANSPORT_ANY)
     {
         strContact.Append(TextParser::CHAR_SEMICOLON);
-        strContact.Append(SIPAddress::PARAM_TRANSPORT);
+        strContact.Append(SipAddress::PARAM_TRANSPORT);
         strContact.Append(TextParser::CHAR_EQUAL);
 
         if (nTransportProtocol == SIPTransportAddress::PROTOCOL_UDP)
-            strContact.Append(SIP::STR_UDP);
+            strContact.Append(Sip::STR_UDP);
         else
-            strContact.Append(SIP::STR_TCP);
+            strContact.Append(Sip::STR_TCP);
     }
 
     strContact.Append(TextParser::CHAR_RAQUOT);
@@ -407,10 +407,10 @@ AString SIPConnectionNotifier::GetContactAddress() const
     strContact.Append(TextParser::CHAR_LAQUOT);
 
     // "sip" & "sips" URI scheme only supports in the spec. (JSR 180 v1.1.0)
-    if (nScheme == SIP::URI_SCHEME_SIPS)
-        strContact.Append(SIP::STR_SIPS);
+    if (nScheme == Sip::URI_SCHEME_SIPS)
+        strContact.Append(Sip::STR_SIPS);
     else
-        strContact.Append(SIP::STR_SIP);
+        strContact.Append(Sip::STR_SIP);
 
     strContact.Append(TextParser::CHAR_COLON);
 
@@ -433,16 +433,16 @@ AString SIPConnectionNotifier::GetContactAddress() const
     strContact.Append(strPort);
 
     // Set transport protocol if the type is present in Connection String.
-    if (nTransportProtocol != SIP::TRANSPORT_ANY)
+    if (nTransportProtocol != Sip::TRANSPORT_ANY)
     {
         strContact.Append(TextParser::CHAR_SEMICOLON);
-        strContact.Append(SIPAddress::PARAM_TRANSPORT);
+        strContact.Append(SipAddress::PARAM_TRANSPORT);
         strContact.Append(TextParser::CHAR_EQUAL);
 
         if (nTransportProtocol == SIPTransportAddress::PROTOCOL_UDP)
-            strContact.Append(SIP::STR_UDP);
+            strContact.Append(Sip::STR_UDP);
         else
-            strContact.Append(SIP::STR_TCP);
+            strContact.Append(Sip::STR_TCP);
     }
 
     strContact.Append(TextParser::CHAR_RAQUOT);
@@ -458,7 +458,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-SIPProfile* SIPConnectionNotifier::GetSIPProfile() const
+SipProfile* SIPConnectionNotifier::GetSIPProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -611,7 +611,7 @@ IMS_RESULT SIPConnectionNotifier::ReserveTransportResource(IN CONST IPAddress &o
         if (pSocket_TCP == IMS_NULL)
         {
             IMS_TRACE_E(0, "Creating TCP Server (%s:%d) failed",
-                    SIPDebug::GetIP(objIPA), nPort, 0);
+                    SipDebug::GetIp(objIPA), nPort, 0);
             // hwangoo.park, 140210, do not return even though TCP server socket is not created
             // return IMS_FAILURE;
         }
@@ -629,7 +629,7 @@ IMS_RESULT SIPConnectionNotifier::ReserveTransportResource(IN CONST IPAddress &o
     {
         ClearTransportResource();
 
-        IMS_TRACE_E(0, "Creating UDP Server (%s:%d) failed", SIPDebug::GetIP(objIPA), nPort, 0);
+        IMS_TRACE_E(0, "Creating UDP Server (%s:%d) failed", SipDebug::GetIp(objIPA), nPort, 0);
         return IMS_FAILURE;
     }
 
@@ -731,7 +731,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC
-void SIPConnectionNotifier::SetSIPProfile(IN SIPProfile *pProfile)
+void SIPConnectionNotifier::SetSIPProfile(IN SipProfile *pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -759,7 +759,7 @@ void SIPConnectionNotifier::UpdatePortFlowControl(IN IMS_SINT32 nPort)
 
         nPortFlowControl = nPort;
 
-        if (SIP::IsPortSpecified(nPort))
+        if (Sip::IsPortSpecified(nPort))
         {
             // First, find out the existing socket
             if (!CreateClientInitiatedConnection(nPort, IMS_NULL))
@@ -792,7 +792,7 @@ void SIPConnectionNotifier::UpdatePortUC(IN IMS_SINT32 nPort)
         {
             DestroyClientInitiatedConnection(nPortC);
 
-            if (SIP::IsPortSpecified(nPort))
+            if (Sip::IsPortSpecified(nPort))
             {
                 CreateClientInitiatedConnection(nPort, IMS_NULL);
 
@@ -1004,7 +1004,7 @@ void SIPConnectionNotifier::Socket_NotifyError(IN SIPSocket *pSocket, IN IMS_SIN
         }
         else
         {
-            DestroyClientInitiatedConnection(SIP::PORT_UNSPECIFIED);
+            DestroyClientInitiatedConnection(Sip::PORT_UNSPECIFIED);
         }
         return;
     }
@@ -1105,7 +1105,7 @@ void SIPConnectionNotifier::ClearTransportResource()
     }
     else
     {
-        DestroyClientInitiatedConnection(SIP::PORT_UNSPECIFIED);
+        DestroyClientInitiatedConnection(Sip::PORT_UNSPECIFIED);
     }
 
     if (pSA_FarEnd != IMS_NULL)
@@ -1125,7 +1125,7 @@ void SIPConnectionNotifier::ControlUDPClientReference(IN IMS_SINT32 nControl)
 {
     if (nControl == CTRL_CREATE)
     {
-        if (SIP::IsPortSpecified(nPortC) && (nPort != nPortC) && IsIPSecRequired())
+        if (Sip::IsPortSpecified(nPortC) && (nPort != nPortC) && IsIPSecRequired())
         {
             SIPSocketAddress objSA;
 
@@ -1140,7 +1140,7 @@ void SIPConnectionNotifier::ControlUDPClientReference(IN IMS_SINT32 nControl)
                 pSocket_UDPClient->SetListener(this);
 
                 IMS_TRACE_D("UDP client (Ref. :: %s-%d) is created",
-                        SIPDebug::GetIP(objIPA), nPortC, 0);
+                        SipDebug::GetIp(objIPA), nPortC, 0);
             }
         }
     }
@@ -1192,7 +1192,7 @@ IMS_BOOL SIPConnectionNotifier::CreateClientInitiatedConnection(IN IMS_SINT32 nP
     if (pSocket_TCPClient == IMS_NULL)
     {
         IMS_TRACE_I("TCP client socket(%s,%d) can't be opened or created",
-                SIPDebug::GetIP(objIPA), nPort, 0);
+                SipDebug::GetIp(objIPA), nPort, 0);
         return IMS_FALSE;
     }
 
@@ -1256,7 +1256,7 @@ IMS_BOOL SIPConnectionNotifier::ConnectClientInitiatedConnection()
         {
             IMS_TRACE_E(0, "Connecting TCP client socket failed; (peer=%s,%d)",
                     SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ? \
-                        "xxx" : SIPDebug::GetIP(pSA_FarEnd->GetIPAddress()),
+                        "xxx" : SipDebug::GetIp(pSA_FarEnd->GetIPAddress()),
                     pSA_FarEnd->GetPort(), 0);
         }
         else
@@ -1285,7 +1285,7 @@ void SIPConnectionNotifier::DestroyClientInitiatedConnection(IN IMS_SINT32 nPort
         pTransportHelper->DetachClientInitiatedConnection(pSocket_TCPClient);
         pTransportHelper->Destroy(pSocket_TCPClient, this);
 
-        if ((pSA_FarEnd != IMS_NULL) && SIP::IsPortSpecified(nPort))
+        if ((pSA_FarEnd != IMS_NULL) && Sip::IsPortSpecified(nPort))
         {
             SIPSocketAddress objSA;
 
@@ -1312,7 +1312,7 @@ void SIPConnectionNotifier::ExtractProperties(IN CONST AString &strParams)
 
     //---------------------------------------------------------------------------------------------
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
 
     if (strTmp.GetLength() > 0)
     {
@@ -1324,10 +1324,10 @@ void SIPConnectionNotifier::ExtractProperties(IN CONST AString &strParams)
     // MULTI_REG_TRANSPORT
     if (!objParameters.IsEmpty())
     {
-        const AString TRANSPORT_EXT(SIP::STR_TRANSPORT_EXT);
+        const AString TRANSPORT_EXT(Sip::STR_TRANSPORT_EXT);
         for (IMS_UINT32 i = 0; i < objParameters.GetSize(); ++i)
         {
-            const SIPParameter *pParameter = objParameters.GetAt(i);
+            const SipParameter *pParameter = objParameters.GetAt(i);
 
             if (pParameter != IMS_NULL)
             {
@@ -1339,7 +1339,7 @@ void SIPConnectionNotifier::ExtractProperties(IN CONST AString &strParams)
 
                     if (!bOK)
                     {
-                        nTransportExt = SIP::TRANSPORT_EXT_ANY;
+                        nTransportExt = Sip::TRANSPORT_EXT_ANY;
                     }
 
                     IMS_TRACE_D("SCN :: transportProtocolExt=%02X", nTransportExt, 0, 0);
@@ -1357,11 +1357,11 @@ void SIPConnectionNotifier::ExtractProperties(IN CONST AString &strParams)
         return;
     }
 
-    const SIPParameter *pParameter = objParameters.GetAt(0);
+    const SipParameter *pParameter = objParameters.GetAt(0);
 
     if (pParameter == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SIPError::LIST_OPERATION_FAILED);
+        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return; // throw exception
     }
 
@@ -1370,11 +1370,11 @@ void SIPConnectionNotifier::ExtractProperties(IN CONST AString &strParams)
     // Look up "type" & "transport" parameters
     for (i = 0; i < objParameters.GetSize(); ++i)
     {
-        const SIPParameter *pParameter = objParameters.GetAt(i);
+        const SipParameter *pParameter = objParameters.GetAt(i);
 
         if (pParameter != IMS_NULL)
         {
-            if (pParameter->GetName().EqualsIgnoreCase(SIP::STR_TYPE))
+            if (pParameter->GetName().EqualsIgnoreCase(Sip::STR_TYPE))
             {
                 strType = pParameter->GetValue();
                 objParameters.RemoveAt(i);
@@ -1385,23 +1385,23 @@ void SIPConnectionNotifier::ExtractProperties(IN CONST AString &strParams)
 
     if ((strType.GetLength() == 0) && (nMode == SHARED))
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return; // throw exception
     }
 
     for (i = 0; i < objParameters.GetSize(); ++i)
     {
-        const SIPParameter *pParameter = objParameters.GetAt(i);
+        const SipParameter *pParameter = objParameters.GetAt(i);
 
         if (pParameter != IMS_NULL)
         {
-            if (pParameter->GetName().EqualsIgnoreCase(SIPAddress::PARAM_TRANSPORT))
+            if (pParameter->GetName().EqualsIgnoreCase(SipAddress::PARAM_TRANSPORT))
             {
                 const AString &strTransport = pParameter->GetValue();
 
-                if (strTransport.EqualsIgnoreCase(SIP::STR_UDP))
+                if (strTransport.EqualsIgnoreCase(Sip::STR_UDP))
                     nTransportProtocol = SIPTransportAddress::PROTOCOL_UDP;
-                else if (strTransport.EqualsIgnoreCase(SIP::STR_TCP))
+                else if (strTransport.EqualsIgnoreCase(Sip::STR_TCP))
                     nTransportProtocol = SIPTransportAddress::PROTOCOL_TCP;
                 else
                 {
@@ -1436,7 +1436,7 @@ IMS_BOOL SIPConnectionNotifier::IsClientInitiatedConnectionRequired() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return SIP::IsPortSpecified(nPortFlowControl);
+    return Sip::IsPortSpecified(nPortFlowControl);
 }
 
 /*
@@ -1447,7 +1447,7 @@ Remarks
 PRIVATE
 IMS_BOOL SIPConnectionNotifier::IsIPSecRequired() const
 {
-    return ((nTransportExt & SIP::TRANSPORT_EXT_IPSEC) != 0);
+    return ((nTransportExt & Sip::TRANSPORT_EXT_IPSEC) != 0);
 }
 
 /*
@@ -1458,7 +1458,7 @@ Remarks
 PRIVATE
 IMS_BOOL SIPConnectionNotifier::IsTCPConnectionOnlyRequired() const
 {
-    return ((nTransportExt & SIP::TRANSPORT_EXT_TCP_ONLY) != 0);
+    return ((nTransportExt & Sip::TRANSPORT_EXT_TCP_ONLY) != 0);
 }
 
 /*
@@ -1471,7 +1471,7 @@ IMS_RESULT SIPConnectionNotifier::RestoreTransportResourceForClientInitiatedConn
         IN CONST IPAddress &objPeerIP, IN IMS_SINT32 nPeerPort)
 {
     IMS_BOOL bRestorationRequired = IMS_FALSE;
-    IMS_SINT32 nClientPort = SIP::PORT_UNSPECIFIED;
+    IMS_SINT32 nClientPort = Sip::PORT_UNSPECIFIED;
 
     //---------------------------------------------------------------------------------------------
 
@@ -1490,7 +1490,7 @@ IMS_RESULT SIPConnectionNotifier::RestoreTransportResourceForClientInitiatedConn
         }
     }
 
-    if (bRestorationRequired && (nClientPort != SIP::PORT_UNSPECIFIED))
+    if (bRestorationRequired && (nClientPort != Sip::PORT_UNSPECIFIED))
     {
         IMS_TRACE_I("RestoreTransportResourceForClientInitiatedConnection", 0, 0, 0);
 
@@ -1549,7 +1549,7 @@ IMS_RESULT SIPConnectionNotifier::RestoreTransportResourceForServerConnection()
         if (pSocket_TCP == IMS_NULL)
         {
             IMS_TRACE_E(0, "Creating TCP Server (%s:%d) failed",
-                    SIPDebug::GetIP(objIPA), nPort, 0);
+                    SipDebug::GetIp(objIPA), nPort, 0);
 
             nResult = IMS_FAILURE;
         }
@@ -1569,7 +1569,7 @@ IMS_RESULT SIPConnectionNotifier::RestoreTransportResourceForServerConnection()
         if (pSocket_UDP == IMS_NULL)
         {
             IMS_TRACE_E(0, "Creating UDP Server (%s:%d) failed",
-                    SIPDebug::GetIP(objIPA), nPort, 0);
+                    SipDebug::GetIp(objIPA), nPort, 0);
 
             nResult = IMS_FAILURE;
         }

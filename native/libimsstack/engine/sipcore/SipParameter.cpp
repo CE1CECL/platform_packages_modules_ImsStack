@@ -19,19 +19,19 @@
 
 
 PUBLIC
-SIPParameter::SIPParameter()
+SipParameter::SipParameter()
     : strName(AString::ConstNull())
 {
 }
 
 PUBLIC
-SIPParameter::SIPParameter(IN CONST AString &strName_)
+SipParameter::SipParameter(IN CONST AString &strName_)
     : strName(strName_)
 {
 }
 
 PUBLIC
-SIPParameter::SIPParameter(IN CONST AString &strName_, IN CONST AString &strValue_)
+SipParameter::SipParameter(IN CONST AString &strName_, IN CONST AString &strValue_)
     : strName(strName_)
 {
     if (!strValue_.IsNULL())
@@ -41,21 +41,21 @@ SIPParameter::SIPParameter(IN CONST AString &strName_, IN CONST AString &strValu
 }
 
 PUBLIC
-SIPParameter::SIPParameter(IN CONST AString &strName_, IN CONST AStringArray &objValues_)
+SipParameter::SipParameter(IN CONST AString &strName_, IN CONST AStringArray &objValues_)
     : strName(strName_)
     , objValues(objValues_)
 {
 }
 
 PUBLIC
-SIPParameter::SIPParameter(IN CONST SIPParameter &objRHS)
+SipParameter::SipParameter(IN CONST SipParameter &objRHS)
     : strName(objRHS.strName)
     , objValues(objRHS.objValues)
 {
 }
 
 PUBLIC
-SIPParameter::~SIPParameter()
+SipParameter::~SipParameter()
 {
 }
 
@@ -65,7 +65,7 @@ Remarks
 
 */
 PUBLIC
-SIPParameter& SIPParameter::operator=(IN CONST SIPParameter &objRHS)
+SipParameter& SipParameter::operator=(IN CONST SipParameter &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ Remarks
 
 */
 PUBLIC
-void SIPParameter::AddValue(IN CONST AString &strValue)
+void SipParameter::AddValue(IN CONST AString &strValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ Remarks
 
 */
 PUBLIC
-void SIPParameter::AddValues(IN CONST AString &strValues)
+void SipParameter::AddValues(IN CONST AString &strValues)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -172,7 +172,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPParameter::Create(IN CONST AString &strParameter)
+IMS_BOOL SipParameter::Create(IN CONST AString &strParameter)
 {
     AString strValue;
     IMS_SINT32 nCount = strParameter.SplitF(TextParser::CHAR_EQUAL, strName, strValue);
@@ -208,7 +208,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPParameter::Equals(IN CONST SIPParameter *pParameter) const
+IMS_BOOL SipParameter::Equals(IN CONST SipParameter *pParameter) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -280,7 +280,7 @@ Remarks
 
 */
 PUBLIC
-const AString& SIPParameter::GetName() const
+const AString& SipParameter::GetName() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -293,7 +293,7 @@ Remarks
 
 */
 PUBLIC
-const AString& SIPParameter::GetValue() const
+const AString& SipParameter::GetValue() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -309,7 +309,7 @@ Remarks
 
 */
 PUBLIC
-const AStringArray& SIPParameter::GetValues() const
+const AStringArray& SipParameter::GetValues() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -322,7 +322,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPParameter::IsNameOnly() const
+IMS_BOOL SipParameter::IsNameOnly() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -335,7 +335,7 @@ Remarks
 
 */
 PUBLIC
-void SIPParameter::RemoveValue(IN CONST AString &strValue)
+void SipParameter::RemoveValue(IN CONST AString &strValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -357,13 +357,13 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT SIPParameter::SetValue(IN CONST AString &strValue)
+IMS_RESULT SipParameter::SetValue(IN CONST AString &strValue)
 {
     //---------------------------------------------------------------------------------------------
 
     if (strValue.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -371,13 +371,13 @@ IMS_RESULT SIPParameter::SetValue(IN CONST AString &strValue)
 
     if (strValue.IsNULL())
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return IMS_SUCCESS;
     }
 
     objValues.AddElement(strValue);
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -387,13 +387,13 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT SIPParameter::SetValues(IN CONST AString &strValues)
+IMS_RESULT SipParameter::SetValues(IN CONST AString &strValues)
 {
     //---------------------------------------------------------------------------------------------
 
     if (strValues.IsEmpty())
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -401,7 +401,7 @@ IMS_RESULT SIPParameter::SetValues(IN CONST AString &strValues)
 
     if (strValues.IsNULL())
     {
-        SIPPrivate::SetLastError(SIPError::NO_ERROR);
+        SIPPrivate::SetLastError(SipError::NO_ERROR);
         return IMS_SUCCESS;
     }
 
@@ -429,7 +429,7 @@ IMS_RESULT SIPParameter::SetValues(IN CONST AString &strValues)
         objValues.AddElement(strValues);
     }
 
-    SIPPrivate::SetLastError(SIPError::NO_ERROR);
+    SIPPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -439,7 +439,7 @@ Remarks
 
 */
 PUBLIC
-AString SIPParameter::ToString() const
+AString SipParameter::ToString() const
 {
     IMS_SINT32 nPValueCount = objValues.GetCount();
 

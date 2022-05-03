@@ -6,15 +6,15 @@
 /**
  * @brief This class provides an interface to handle SIP authentication challenge.
  */
-class ISIPGenericChallenge
+class ISipGenericChallenge
 {
 public:
     /**
      * @brief Clones a SIP generic challenge.
      *
-     * @return Pointer to ISIPGenericChallenge.
+     * @return Pointer to ISipGenericChallenge.
      */
-    virtual ISIPGenericChallenge* Clone() const = 0;
+    virtual ISipGenericChallenge* Clone() const = 0;
 
     /**
      * @brief Destroys the authentication challenge.
@@ -68,9 +68,9 @@ public:
      *
      * It is same to the SIP header type (WWW-Authenticate / Proxy-Authenticate).
      *
-     * @return Authentication related header type in ISIPHeader.\n
-     *         ISIPHeader#WWW_AUTHENTICATE\n
-     *         ISIPHeader#PROXY_AUTHENTICATE.
+     * @return Authentication related header type in ISipHeader.\n
+     *         ISipHeader#WWW_AUTHENTICATE\n
+     *         ISipHeader#PROXY_AUTHENTICATE.
      */
     virtual IMS_SINT32 GetType() const = 0;
 

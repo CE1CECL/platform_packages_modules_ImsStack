@@ -78,7 +78,7 @@ IMS_RESULT SIPConnection::AddHeader(IN CONST AString &strName, IN CONST AString 
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -87,7 +87,7 @@ IMS_RESULT SIPConnection::AddHeader(IN CONST AString &strName, IN CONST AString 
     if (SIPConnection::IsReadOnlyHeader(nHType, strName)
             || SIPConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -147,8 +147,8 @@ SIPDialog* SIPConnection::GetDialog() const
 
     IMS_SINT32 nState = pDialogImpl->GetState();
 
-    if ((nState == ISIPDialog::STATE_EARLY)
-            || (nState == ISIPDialog::STATE_CONFIRMED))
+    if ((nState == ISipDialog::STATE_EARLY)
+            || (nState == ISipDialog::STATE_CONFIRMED))
     {
         return pDialogImpl;
     }
@@ -169,7 +169,7 @@ AString SIPConnection::GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return AString::ConstNull();
     }
 
@@ -177,7 +177,7 @@ AString SIPConnection::GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex
 
     if (SIPConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return AString::ConstNull();
     }
 
@@ -196,7 +196,7 @@ IMSList<AString> SIPConnection::GetHeaders(IN CONST AString &strName)
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMSList<AString>();
     }
 
@@ -204,7 +204,7 @@ IMSList<AString> SIPConnection::GetHeaders(IN CONST AString &strName)
 
     if (SIPConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMSList<AString>();
     }
 
@@ -217,7 +217,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-const SIPMethod& SIPConnection::GetMethod() const
+const SipMethod& SIPConnection::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -247,7 +247,7 @@ const AString& SIPConnection::GetRequestURI() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return pMessage->GetRequestURI();
+    return pMessage->GetRequestUri();
 }
 
 /*
@@ -275,7 +275,7 @@ IMS_RESULT SIPConnection::RemoveHeader(IN CONST AString &strName)
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -284,7 +284,7 @@ IMS_RESULT SIPConnection::RemoveHeader(IN CONST AString &strName)
     if (SIPConnection::IsReadOnlyHeader(nHType, strName)
             || SIPConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -333,7 +333,7 @@ IMS_RESULT SIPConnection::SetHeader(IN CONST AString &strName, IN CONST AString 
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -342,7 +342,7 @@ IMS_RESULT SIPConnection::SetHeader(IN CONST AString &strName, IN CONST AString 
     if (SIPConnection::IsReadOnlyHeader(nHType, strName)
             || SIPConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -429,7 +429,7 @@ IMS_RESULT SIPConnection::SetContent(IN CONST ByteArray &objContent)
 
         if (pBodyPart == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SIPError::NO_MEMORY);
+            SIPPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_FAILURE;
         }
     }
@@ -451,7 +451,7 @@ IMS_SINT32 SIPConnection::GetHeaderCount(IN CONST AString &strName) const
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SIPError::ILLEGAL_ARGUMENT);
+        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return 0;
     }
 
@@ -459,7 +459,7 @@ IMS_SINT32 SIPConnection::GetHeaderCount(IN CONST AString &strName) const
 
     if (SIPConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SIPError::INVALID_OPERATION);
+        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
         return 0;
     }
 
@@ -472,7 +472,7 @@ Remarks
  MULTI_REG_SIP_PROFILE
 */
 PUBLIC VIRTUAL
-void SIPConnection::SetSIPProfile(IN SIPProfile */*pProfile*/)
+void SIPConnection::SetSIPProfile(IN SipProfile */*pProfile*/)
 {
     // no-op
 }
@@ -483,7 +483,7 @@ Remarks
 
 */
 PUBLIC
-void SIPConnection::SetTransactionTimerValues(IN CONST SIPTimerValues &objTV)
+void SIPConnection::SetTransactionTimerValues(IN CONST SipTimerValues &objTV)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -492,7 +492,7 @@ void SIPConnection::SetTransactionTimerValues(IN CONST SIPTimerValues &objTV)
         delete pTV;
     }
 
-    pTV = new SIPTimerValues(objTV);
+    pTV = new SipTimerValues(objTV);
 
     if (pTV == IMS_NULL)
     {
@@ -516,22 +516,22 @@ void SIPConnection::TransactionState_TimerExpired()
     if (pFactoryProxy->IsMessageTrackerEnabled(GetSlotId()))
     {
         SIPMessageTracker *pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
-        const SIPMethod &objMethod = SIPConnection::GetMethod();
+        const SipMethod &objMethod = SIPConnection::GetMethod();
 
         if (pDialog != IMS_NULL)
         {
             pMessageTracker->NotifyMessageSent(objMethod, GetStatusCode(),
                     pDialog->GetCallId(),
-                    SIPError::TRANSACTION_TIMER_EXPIRED);
+                    SipError::TRANSACTION_TIMER_EXPIRED);
         }
         else
         {
-            ISIPMessage *piSIPMsg = GetMessage();
+            ISipMessage *piSIPMsg = GetMessage();
 
             pMessageTracker->NotifyMessageSent(objMethod, GetStatusCode(),
                     (piSIPMsg != IMS_NULL) ? \
-                            piSIPMsg->GetHeader(ISIPHeader::CALL_ID) : AString::ConstNull(),
-                    SIPError::TRANSACTION_TIMER_EXPIRED);
+                            piSIPMsg->GetHeader(ISipHeader::CALL_ID) : AString::ConstNull(),
+                    SipError::TRANSACTION_TIMER_EXPIRED);
         }
     }
 
@@ -542,7 +542,7 @@ void SIPConnection::TransactionState_TimerExpired()
         pIPSecState->NotifyMessageSentFailed(pMessage->GetMessage());
     }
 
-    NotifyError(SIPError::TRANSACTION_TIMER_EXPIRED, AString("Transaction Timer Expired"));
+    NotifyError(SipError::TRANSACTION_TIMER_EXPIRED, AString("Transaction Timer Expired"));
 }
 
 /*
@@ -577,11 +577,11 @@ void SIPConnection::TransportError_NotifyError(IN IMS_SINT32 nCode, IN CONST ASt
         }
         else
         {
-            ISIPMessage *piSIPMsg = GetMessage();
+            ISipMessage *piSIPMsg = GetMessage();
 
             pMessageTracker->NotifyMessageSent(SIPConnection::GetMethod(), GetStatusCode(),
                     (piSIPMsg != IMS_NULL) ? \
-                            piSIPMsg->GetHeader(ISIPHeader::CALL_ID) : AString::ConstNull(),
+                            piSIPMsg->GetHeader(ISipHeader::CALL_ID) : AString::ConstNull(),
                     nCode);
         }
     }
@@ -610,13 +610,13 @@ IMS_BOOL SIPConnection::IsTransportErrorReportRequired(IN IMS_SINT32 nCode,
 {
     //---------------------------------------------------------------------------------------------
 
-    if (nCode == SIPError::TRANSPORT_ERROR)
+    if (nCode == SipError::TRANSPORT_ERROR)
     {
         AString strTECode;
 
-        strTECode.Sprintf("%d", SIPError::TRANSPORT_E_CODE_104);
+        strTECode.Sprintf("%d", SipError::TRANSPORT_E_CODE_104);
 
-        // SIPError::TRANSPORT_E_CODE_104
+        // SipError::TRANSPORT_E_CODE_104
         if (strMessage.StartsWith(strTECode))
         {
             // Ignore "Socket is closed by peer"(104) event notification
@@ -633,7 +633,7 @@ Remarks
 
 */
 PROTECTED
-SIPTimerValues* SIPConnection::GetTransactionTimerValues() const
+SipTimerValues* SIPConnection::GetTransactionTimerValues() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -695,11 +695,11 @@ IMS_BOOL SIPConnection::IsCommaSeparatedListHeader(IN IMS_SINT32 nHType, IN CONS
 
     switch (nHType)
     {
-    case ISIPHeader::AUTHORIZATION:
-    case ISIPHeader::PROXY_AUTHORIZATION:
-    case ISIPHeader::WWW_AUTHENTICATE:
-    case ISIPHeader::PROXY_AUTHENTICATE:
-    case ISIPHeader::DATE:
+    case ISipHeader::AUTHORIZATION:
+    case ISipHeader::PROXY_AUTHORIZATION:
+    case ISipHeader::WWW_AUTHENTICATE:
+    case ISipHeader::PROXY_AUTHENTICATE:
+    case ISipHeader::DATE:
         return IMS_FALSE;
 
     default:
@@ -719,25 +719,25 @@ IMS_BOOL SIPConnection::IsInaccessibleHeader(IN IMS_SINT32 nHType, IN CONST AStr
 
     switch (nHType)
     {
-    case ISIPHeader::AUTHORIZATION:
-    case ISIPHeader::CALL_ID:
-    case ISIPHeader::CSEQ:
-    case ISIPHeader::MIN_EXPIRES:
-    case ISIPHeader::MAX_FORWARDS:
-    case ISIPHeader::SERVICE_ROUTE:
-    case ISIPHeader::PROXY_AUTHENTICATE:
-    case ISIPHeader::PROXY_AUTHORIZATION:
-    case ISIPHeader::RECORD_ROUTE:
-    case ISIPHeader::SECURITY_SERVER:
-    case ISIPHeader::SECURITY_VERIFY:
-    case ISIPHeader::VIA:
-    case ISIPHeader::WWW_AUTHENTICATE:
+    case ISipHeader::AUTHORIZATION:
+    case ISipHeader::CALL_ID:
+    case ISipHeader::CSEQ:
+    case ISipHeader::MIN_EXPIRES:
+    case ISipHeader::MAX_FORWARDS:
+    case ISipHeader::SERVICE_ROUTE:
+    case ISipHeader::PROXY_AUTHENTICATE:
+    case ISipHeader::PROXY_AUTHORIZATION:
+    case ISipHeader::RECORD_ROUTE:
+    case ISipHeader::SECURITY_SERVER:
+    case ISipHeader::SECURITY_VERIFY:
+    case ISipHeader::VIA:
+    case ISipHeader::WWW_AUTHENTICATE:
         return IMS_TRUE;
 
-    case ISIPHeader::UNKNOWN:
+    case ISipHeader::UNKNOWN:
         if ((strHName[0] == 'A') || (strHName[0] == 'a'))
         {
-            if (strHName.EqualsIgnoreCase(SIPHeaderName::AUTHENTICATION_INFO))
+            if (strHName.EqualsIgnoreCase(SipHeaderName::AUTHENTICATION_INFO))
                 return IMS_TRUE;
         }
         return IMS_FALSE;
@@ -759,15 +759,15 @@ IMS_BOOL SIPConnection::IsReadOnlyHeader(IN IMS_SINT32 nHType, IN CONST AString 
 
     switch (nHType)
     {
-    case ISIPHeader::AUTHORIZATION:
-    case ISIPHeader::MIN_EXPIRES:
-    case ISIPHeader::MAX_FORWARDS:
-    case ISIPHeader::SERVICE_ROUTE:
-    case ISIPHeader::PROXY_AUTHORIZATION:
-    case ISIPHeader::RECORD_ROUTE:
-    case ISIPHeader::SECURITY_SERVER:
-    case ISIPHeader::SECURITY_VERIFY:
-    case ISIPHeader::VIA:
+    case ISipHeader::AUTHORIZATION:
+    case ISipHeader::MIN_EXPIRES:
+    case ISipHeader::MAX_FORWARDS:
+    case ISipHeader::SERVICE_ROUTE:
+    case ISipHeader::PROXY_AUTHORIZATION:
+    case ISipHeader::RECORD_ROUTE:
+    case ISipHeader::SECURITY_SERVER:
+    case ISipHeader::SECURITY_VERIFY:
+    case ISipHeader::VIA:
         return IMS_TRUE;
 
     default:

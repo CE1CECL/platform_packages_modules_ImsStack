@@ -5,22 +5,22 @@
 #include "IConnection.h"
 #include "SipTimerValues.h"
 
-class ISIPDialog;
-class ISIPErrorListener;
-class ISIPMessage;
+class ISipDialog;
+class ISipErrorListener;
+class ISipMessage;
 class ByteArray;
-class SIPMethod;
-class SIPProfile;
+class SipMethod;
+class SipProfile;
 
 /**
  * @brief This class provides a base interface for SIP transactions.
  *
- * ISIPConnection holds the common properties and methods for subinterfaces
- * ISIPClientConnection and ISIPServerConnection.
+ * ISipConnection holds the common properties and methods for subinterfaces
+ * ISipClientConnection and ISipServerConnection.
  *
- * @see IConnection, ISIPDialog, ISIPErrorListener
+ * @see IConnection, ISipDialog, ISipErrorListener
  */
-class ISIPConnection
+class ISipConnection
     : public IConnection
 {
 public:
@@ -47,22 +47,22 @@ public:
     /**
      * @brief Returns the current SIP dialog.
      *
-     * This is available when the ISIPConnection belongs to a created ISIPDialog,
+     * This is available when the ISipConnection belongs to a created ISipDialog,
      * which is in EARLY or CONFIRMED state.
      *
-     * The ISIPDialog returned from the ISIPConnection defines always the peer-to-peer association
+     * The ISipDialog returned from the ISipConnection defines always the peer-to-peer association
      * created by the latest sent or received request or response.\n
      * This method returns null if a terminating error response (3xx - 6xx) is received or sent on
      * the transaction or the transaction is terminated.\n
-     * The following rules apply when this method is called on a ISIPServerConnection instance:
+     * The following rules apply when this method is called on a ISipServerConnection instance:
      *     - If the received request is CANCEL, then the method returns null since the dialog is
      *      in EARLY state and the CANCEL request does not relate to the dialog.
      *     - If the request is ACK, then the method returns the dialog object if it is available.
      *
-     * @return Pointer to ISIPDialog if this transaction belongs to a dialog.
+     * @return Pointer to ISipDialog if this transaction belongs to a dialog.
      *         Otherwise, returns null.
      */
-    virtual ISIPDialog* GetDialog() const = 0;
+    virtual ISipDialog* GetDialog() const = 0;
 
     /**
      * @brief Gets the header field value of the specified header type.
@@ -99,13 +99,13 @@ public:
      *
      * @return SIP method object if available.
      */
-    virtual const SIPMethod& GetMethod() const = 0;
+    virtual const SipMethod& GetMethod() const = 0;
 
     /**
      * @brief Gets SIP reason phrase.
      *
-     * It is available when ISIPClientConnection is in PROCEEDING, UNAUTHORIZED, or COMPLETED
-     * state or when ISIPServerConnection is in INITIALIZED state.\n
+     * It is available when ISipClientConnection is in PROCEEDING, UNAUTHORIZED, or COMPLETED
+     * state or when ISipServerConnection is in INITIALIZED state.\n
      * It returns null if the reason phrase is not available (e.g. message is not initialized
      * or the transaction is terminated).\n
      * It returns an empty string if the reason phrase was set with null or empty string
@@ -118,8 +118,8 @@ public:
     /**
      * @brief Gets a Request-URI.
      *
-     * If this method is supported, it is available when ISIPClientConnection is in INITIALIZED
-     * state or when ISIPServerConnection is in REQUEST_RECEIVED state.\n
+     * If this method is supported, it is available when ISipClientConnection is in INITIALIZED
+     * state or when ISipServerConnection is in REQUEST_RECEIVED state.\n
      * It is built from the original URI given in Connector::open(...).\n
      * It is not mandated that this method be supported, an implementation may return null
      * in any state.\n
@@ -128,13 +128,13 @@ public:
      *
      * @return A Request-URI if available.
      */
-    virtual const AString& GetRequestURI() const = 0;
+    virtual const AString& GetRequestUri() const = 0;
 
     /**
      * @brief Gets a SIP response status code.
      *
-     * It is available when ISIPClientConnection is in PROCEEDING, UNAUTHORIZED or COMPLETED
-     * state or when ISIPServerConnection is in INITIALIZED state.
+     * It is available when ISipClientConnection is in PROCEEDING, UNAUTHORIZED or COMPLETED
+     * state or when ISipServerConnection is in INITIALIZED state.
      *
      * @return A value between 1xx and 6xx if available. Otherwise, returns zero.
      */
@@ -156,8 +156,8 @@ public:
     /**
      * @brief Sends the SIP message.
      *
-     * Errors during the send operation can be handled with the ISIPErrorListener mechanism.\n
-     * In case of ISIPServerConnection, it is possible to resend 2xx responses in COMPLETED
+     * Errors during the send operation can be handled with the ISipErrorListener mechanism.\n
+     * In case of ISipServerConnection, it is possible to resend 2xx responses in COMPLETED
      * state, by calling directly Send().
      *
      * @return If it succeeds, returns IMS_SUCCESS. Otherwise, returns IMS_FAILURE.
@@ -168,15 +168,15 @@ public:
      * @brief Sets the listener for error notifications.
      *
      * Applications that want to receive notification about a failure of an asynchronous
-     * Send() operation MUST implement the ISIPErrorListener interface and register it
+     * Send() operation MUST implement the ISipErrorListener interface and register it
      * with a transaction using this method.
      *
      * Only one listener can be set at any time, if a listener is already set, it will be
      * overwritten.\n Setting listener to NULL will remove the current listener.
      *
-     * @param pListener Pointer to ISIPErrorListener object.
+     * @param pListener Pointer to ISipErrorListener object.
      */
-    virtual void SetErrorListener(IN ISIPErrorListener *piListener) = 0;
+    virtual void SetErrorListener(IN ISipErrorListener *piListener) = 0;
 
     /**
      * @brief Sets header value in SIP message.
@@ -235,7 +235,7 @@ public:
      *
      * @return Pointer to SIPMessage object.
      */
-    virtual ISIPMessage* GetMessage() const = 0;
+    virtual ISipMessage* GetMessage() const = 0;
 
     /**
      * @brief Gets the slot-id for this SIP connection.
@@ -250,14 +250,14 @@ public:
      * @param pProfile SIP profile for this SIP connection
      * @note MULTI_REG_SIP_PROFILE
      */
-    virtual void SetSIPProfile(IN SIPProfile *pProfile) = 0;
+    virtual void SetSipProfile(IN SipProfile *pProfile) = 0;
 
     /**
      * @brief Sets the SIP transaction timer values.
      *
      * @param objTV Transaction timer values to be set
      */
-    virtual void SetTransactionTimerValues(IN CONST SIPTimerValues &objTV) = 0;
+    virtual void SetTransactionTimerValues(IN CONST SipTimerValues &objTV) = 0;
 };
 
 #endif // _INTERFACE_SIP_CONNECTION_H_

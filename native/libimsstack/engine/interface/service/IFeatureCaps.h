@@ -27,10 +27,10 @@ public:
      *
      * @param strName the feature name
      * @param strValue the feature value
-     * @param nSIPMethod an SIP method; refer to @ref SIPMethod class\n
+     * @param nSIPMethod an SIP method; refer to @ref SipMethod class\n
      *                   (Allowed for INVITE, SUBSCRIBE, REFER, NOTIFY, OPTIONS, PUBLISH)
      * @param nMessageType an SIP message type (0: request, 1: response, 2: any);
-     *                     refer to @ref ISIPMessage class
+     *                     refer to @ref ISipMessage class
      */
     virtual void AddFeature(IN CONST AString &strName, IN CONST AString &strValue,
             IN IMS_SINT32 nSIPMethod, IN IMS_SINT32 nMessageType = 2 /* ANY */) = 0;
@@ -53,10 +53,10 @@ public:
      *
      * @param strName the feature name
      * @param strValue the feature value
-     * @param nSIPMethod an SIP method; refer to @ref SIPMethod class\n
+     * @param nSIPMethod an SIP method; refer to @ref SipMethod class\n
      *                   (Allowed for INVITE, SUBSCRIBE, REFER, NOTIFY, OPTIONS, PUBLISH)
      * @param nMessageType an SIP message type (0: request, 1: response, 2: any);
-     *                     refer to @ref ISIPMessage class
+     *                     refer to @ref ISipMessage class
      */
     virtual void RemoveFeature(IN CONST AString &strName, IN CONST AString &strValue,
             IN IMS_SINT32 nSIPMethod, IN IMS_SINT32 nMessageType = 2 /* ANY */) = 0;

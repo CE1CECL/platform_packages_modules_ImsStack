@@ -182,7 +182,7 @@ void SIPAckPackage::Destroy()
     if (pAckPackageP == IMS_NULL)
     {
         IMS_TRACE_D("SIPAckPackage (%s) is destroyed",
-                SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+                SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
         delete this;
         return;
     }
@@ -199,7 +199,7 @@ void SIPAckPackage::Destroy()
         if (pPackage->IsSamePackage(strCallId))
         {
             IMS_TRACE_D("SIPAckPackage (%s) is destroyed",
-                    SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+                    SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
 
             pAckPackageP->objAckPackages.RemoveAt(i);
             delete this;
@@ -271,7 +271,7 @@ SIPAckPackage* SIPAckPackage::CreateAckPackage(IN CONST AString &strCallId)
         if (pPackage->IsSamePackage(strCallId))
         {
             IMS_TRACE_D("SIPAckPackage :: RE-USE (%s)",
-                    SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+                    SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
             return pPackage;
         }
     }
@@ -281,7 +281,7 @@ SIPAckPackage* SIPAckPackage::CreateAckPackage(IN CONST AString &strCallId)
     pAckPackageP->objAckPackages.Append(pNewPackage);
 
     IMS_TRACE_D("SIPAckPackage (%s) is created",
-            SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+            SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
 
     return pNewPackage;
 }
@@ -344,7 +344,7 @@ IMS_BOOL SIPAckPackage::HandleStray2xx(IN SipMessage *pstMessage)
             if (!bStray2xxHandled)
             {
                 IMS_TRACE_D("SIPAckPackage :: ACK (%s) is not handled",
-                        SIPDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+                        SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
             }
             break;
         }

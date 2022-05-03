@@ -31,9 +31,9 @@
 
 class ISipConfigV;
 class SipEventContext;
-class SIPProfile;
+class SipProfile;
 class SipTimeoutData;
-class SIPTimerValues;
+class SipTimerValues;
 class SIPTxnContextData;
 class SIPTxnKey;
 
@@ -98,7 +98,7 @@ namespace SIPStack
 
     GLOBAL void Initialize();
     GLOBAL void SetTransactionTimerValues(
-            IN CONST SIPProfile *pSIPProfile, IN CONST ISipConfigV *piSipConfigV);
+            IN CONST SipProfile *pSIPProfile, IN CONST ISipConfigV *piSipConfigV);
 
     GLOBAL SipEn_ErrorTypes GetLastError();
     inline IMS_BOOL IsLastErrorNoExist()
@@ -191,9 +191,9 @@ namespace SIPStack
             OUT IMS_BYTE *&pBuffer, OUT IMS_SINT32 &nBuffLen);
     GLOBAL IMS_BOOL EncodePartialMessage(IN SipMessage *pstMessage, IN IMS_SINT32 nOptions,
             OUT ByteArray &objMessage);
-    GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipHeaderBase *pstHeader);
-    GLOBAL IMSList<SIPParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec);
-    GLOBAL IMSList<SIPParameter*> ExtractParameters(IN CONST AString &strParams, IN IMS_CHAR cSep);
+    GLOBAL IMSList<SipParameter*> ExtractParameters(IN SipHeaderBase *pstHeader);
+    GLOBAL IMSList<SipParameter*> ExtractParameters(IN SipAddrSpec *pstAddrSpec);
+    GLOBAL IMSList<SipParameter*> ExtractParameters(IN CONST AString &strParams, IN IMS_CHAR cSep);
 
     GLOBAL void FreeMemBlock(IN void *&pvMemBlock);
     GLOBAL void FreeAddrSpec(IN SipAddrSpec *&pstAddrSpec);
@@ -217,7 +217,7 @@ namespace SIPStack
             OUT IMS_SINT32 &nContentLength);
     GLOBAL IMS_UINT32 GetCSeqNumber(IN SipMessage *pstMessage);
     GLOBAL IMS_BOOL GetRAckHeader(IN SipMessage *pstMessage, OUT IMS_UINT32 &nResponseNum,
-            OUT IMS_UINT32 &nCSeqNum, OUT SIPMethod &objMethod);
+            OUT IMS_UINT32 &nCSeqNum, OUT SipMethod &objMethod);
     GLOBAL IMS_SINT32 GetDestinationTransport(IN SipMessage *pstMessage);
     GLOBAL IMS_BOOL GetEventHeader(IN SipMessage *pstMessage, OUT AString &strEvent,
             OUT AString &strEventId);
@@ -230,7 +230,7 @@ namespace SIPStack
             OUT AString &strHost, OUT IMS_UINT32 &nPort);
     GLOBAL IMS_BOOL GetHostNPortFromViaHeader(IN SipMessage *pstMessage,
             OUT AString &strHost, OUT IMS_SINT32 &nPort);
-    GLOBAL SIPMethod GetMethod(IN SipMessage *pstMessage);
+    GLOBAL SipMethod GetMethod(IN SipMessage *pstMessage);
     GLOBAL SipMsgBody* GetMessageBody(IN SipMessage *pstMessage, IN IMS_SINT32 nIndex = 0);
     GLOBAL IMS_SINT32 GetMessageBodyCount(IN SipMessage *pstMessage);
     GLOBAL AString GetMIMEHeader(IN SipMsgBody *pstMsgBody,
@@ -247,7 +247,7 @@ namespace SIPStack
     GLOBAL AString GetSentProtocolFromVia(IN SipHeaderBase *pstHeader);
     GLOBAL AString GetSIPVersion(IN SipMessage *pstMessage);
     GLOBAL IMS_SINT32 GetStatusCode(IN SipMessage *pstMessage);
-    GLOBAL SIPStatusCode GetStatusCodeEx(IN SipMessage *pstMessage);
+    GLOBAL SipStatusCode GetStatusCodeEx(IN SipMessage *pstMessage);
     GLOBAL IMS_BOOL GetSubscriptionStateHeader(IN SipMessage *pstMessage,
             OUT AString &strSubsState, OUT IMS_SINT32 *pnExpires = IMS_NULL);
     GLOBAL SipHeaderBase* GetUnknownHeader(IN SipMessage *pstMessage, IN CONST AString &strName,
@@ -300,7 +300,7 @@ namespace SIPStack
     GLOBAL IMS_BOOL SetContent(IN CONST IMS_BYTE *pContent, IN IMS_SINT32 nContentLength,
             IN_OUT SipMsgBody *&pstMsgBody);
     GLOBAL IMS_BOOL SetHeader(IN SipHeaderBase *pstHeader, IN_OUT SipMessage *&pstMessage);
-    GLOBAL IMS_BOOL SetMethod(IN CONST SIPMethod &objMethod, IN_OUT SipMessage *&pstMessage);
+    GLOBAL IMS_BOOL SetMethod(IN CONST SipMethod &objMethod, IN_OUT SipMessage *&pstMessage);
     GLOBAL IMS_BOOL SetMIMEHeader(IN IMS_SINT32 nType, IN SipHeaderBase *pstHeader,
             IN_OUT SipMsgBody *&pstMsgBody);
     GLOBAL IMS_BOOL SetMIMEHeader(IN IMS_SINT32 nType, IN CONST AString &strName,
@@ -376,7 +376,7 @@ namespace SIPStack
     GLOBAL const IMS_CHAR* GetTimerTypeAsString(IN SipTimeoutData* pData);
     GLOBAL void InvokeTimerCallback(IN SipTimerCallback pfnCallback,
             IN SipTimeoutData* pData, IN IMS_PVOID pvExtraParam);
-    GLOBAL void SetTimerValues(IN SIPTimerValues *pTV, IN_OUT SipTxnContext *&pstTxnContext);
+    GLOBAL void SetTimerValues(IN SipTimerValues *pTV, IN_OUT SipTxnContext *&pstTxnContext);
 
     // APIs for trace or debugging
     GLOBAL void DisplayUnknownHeaders(IN SipMessage *pstMessage);

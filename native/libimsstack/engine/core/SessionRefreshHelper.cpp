@@ -48,7 +48,7 @@ SessionRefreshHelper::SessionRefreshHelper(IN Service *pService_,
     , nMinSE(0)
     , nSessionInterval(0)
     , nRefresher(REFRESHER_NONE)
-    , nRefreshRequest(SIPMethod::INVALID)
+    , nRefreshRequest(SipMethod::INVALID)
     , bUPDATEAllowed(IMS_FALSE)
     , nTimerSupportedOnRemoteEnd(0)
     , nSIPHeaders(SipConfigV::SESSION_HEADER_SESSION_EXPIRES)
@@ -76,37 +76,37 @@ SessionRefreshHelper::~SessionRefreshHelper()
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
+IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     if (piSIPMsg == IMS_NULL)
         return IMS_FALSE;
 
-    ISIPDialog *piDialog = piSC->GetDialog();
+    ISipDialog *piDialog = piSC->GetDialog();
 
     if (piDialog == IMS_NULL)
         return IMS_FALSE;
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (!objMethod.Equals(SIPMethod::INVITE) && !objMethod.Equals(SIPMethod::UPDATE))
+    if (!objMethod.Equals(SipMethod::INVITE) && !objMethod.Equals(SipMethod::UPDATE))
         return IMS_TRUE;
 
     IMS_BOOL bUpdateOnConfirmedDialog = IMS_FALSE;
 
-    if (objMethod.Equals(SIPMethod::UPDATE)
-            && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED))
+    if (objMethod.Equals(SipMethod::UPDATE)
+            && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED))
     {
         bUpdateOnConfirmedDialog = IMS_TRUE;
     }
 
     // Updates the session timer information which is set by the application
-    if ((piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
-            && objMethod.Equals(SIPMethod::INVITE)
-            && (piDialog->GetState() != ISIPDialog::STATE_CONFIRMED))
+    if ((piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
+            && objMethod.Equals(SipMethod::INVITE)
+            && (piDialog->GetState() != ISipDialog::STATE_CONFIRMED))
     {
         IMS_SINT32 nTmpRefresher = nRefresher;
 
@@ -131,17 +131,17 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
     // Set Supported header field if the application wants to use the session timer
     if (pSipConfigV->IsSessionTimerSupported() && !piSIPMsg->IsOptionSupported(STR_TIMER))
     {
-        if (piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, STR_TIMER) != IMS_SUCCESS)
+        if (piSIPMsg->AddHeader(ISipHeader::SUPPORTED, STR_TIMER) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Adding Supported header failed", 0, 0, 0);
             return IMS_FALSE;
         }
     }
 
-    if ((piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+    if ((piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
             && pSipConfigV->IsSessionTimerSupported())
     {
-        if (objMethod.Equals(SIPMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE))
+        if (objMethod.Equals(SipMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE))
         {
             // Set a Min-SE header field
             if (((nMinSE > 0) || (nConfig_MinSE > 0)) && IsMinSEHeaderRequired())
@@ -153,7 +153,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
                 else
                     strMinSE.SetNumber(nConfig_MinSE);
 
-                if (piSIPMsg->SetHeader(ISIPHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
+                if (piSIPMsg->SetHeader(ISipHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
                 {
                     IMS_TRACE_E(0, "Setting Min-SE header failed", 0, 0, 0);
                     return IMS_FALSE;
@@ -162,12 +162,12 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
 
             // At the time of making the request, if the request is INVITE or UPDATE
             // (in established state), then set the session refresh request.
-            if (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)
+            if (piDialog->GetState() == ISipDialog::STATE_CONFIRMED)
             {
-                if (objMethod.Equals(SIPMethod::INVITE))
-                    nRefreshRequest = SIPMethod::INVITE;
-                else if (objMethod.Equals(SIPMethod::UPDATE))
-                    nRefreshRequest = SIPMethod::UPDATE;
+                if (objMethod.Equals(SipMethod::INVITE))
+                    nRefreshRequest = SipMethod::INVITE;
+                else if (objMethod.Equals(SipMethod::UPDATE))
+                    nRefreshRequest = SipMethod::UPDATE;
             }
 
             // Set a Session-Expires header field
@@ -190,7 +190,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
                         strSessionExpires.Append(STR_UAS);
                 }
 
-                if (piSIPMsg->SetHeader(ISIPHeader::SESSION_EXPIRES,
+                if (piSIPMsg->SetHeader(ISipHeader::SESSION_EXPIRES,
                         strSessionExpires) != IMS_SUCCESS)
                 {
                     IMS_TRACE_E(0, "Setting Session-Expires header failed", 0, 0, 0);
@@ -199,12 +199,12 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
             }
         }
     }
-    else if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+    else if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if ((nStatusCode == SIPStatusCode::SC_422)
-                && (objMethod.Equals(SIPMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE)))
+        if ((nStatusCode == SipStatusCode::SC_422)
+                && (objMethod.Equals(SipMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE)))
         {
             AString strMinSE;
 
@@ -214,14 +214,14 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
             else
                 strMinSE.SetNumber(nConfig_MinSE);
 
-            if (piSIPMsg->SetHeader(ISIPHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
+            if (piSIPMsg->SetHeader(ISipHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Setting Min-SE header failed", 0, 0, 0);
                 return IMS_FALSE;
             }
         }
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             // Set a Session-Expires header field
             if (nSessionInterval > 0)
@@ -233,7 +233,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
                                 && IsSessionTimerSupportedOnUAC()))
                 {
                     // Set a Require header field
-                    if (piSIPMsg->AddHeader(ISIPHeader::REQUIRE, STR_TIMER) != IMS_SUCCESS)
+                    if (piSIPMsg->AddHeader(ISipHeader::REQUIRE, STR_TIMER) != IMS_SUCCESS)
                     {
                         IMS_TRACE_E(0, "Adding Require header failed", 0, 0, 0);
                         return IMS_FALSE;
@@ -259,7 +259,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
                         strSessionExpires.Append(STR_UAC);
                 }
 
-                if (piSIPMsg->SetHeader(ISIPHeader::SESSION_EXPIRES,
+                if (piSIPMsg->SetHeader(ISipHeader::SESSION_EXPIRES,
                         strSessionExpires) != IMS_SUCCESS)
                 {
                     IMS_TRACE_E(0, "Setting Session-Expires header failed", 0, 0, 0);
@@ -273,23 +273,23 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPConnection *piSC)
+IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     if (piSIPMsg == IMS_NULL)
         return IMS_FALSE;
 
-    ISIPDialog *piDialog = piSC->GetDialog();
+    ISipDialog *piDialog = piSC->GetDialog();
 
     if (piDialog == IMS_NULL)
         return IMS_FALSE;
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (!objMethod.Equals(SIPMethod::INVITE) && !objMethod.Equals(SIPMethod::UPDATE))
+    if (!objMethod.Equals(SipMethod::INVITE) && !objMethod.Equals(SipMethod::UPDATE))
         return IMS_TRUE;
 
     IMS_BOOL bUpdateOnConfirmedDialog = IMS_FALSE;
@@ -298,16 +298,16 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
     IMS_SINT32 nBackupMinSE = nMinSE;
     IMS_SINT32 nBackupSessionInterval = nSessionInterval;
 
-    if (objMethod.Equals(SIPMethod::UPDATE)
-            && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED))
+    if (objMethod.Equals(SipMethod::UPDATE)
+            && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED))
     {
         bUpdateOnConfirmedDialog = IMS_TRUE;
     }
 
     // Updates the session timer information which is set by the application
-    if ((piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
-            && objMethod.Equals(SIPMethod::INVITE)
-            && (piDialog->GetState() != ISIPDialog::STATE_CONFIRMED))
+    if ((piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
+            && objMethod.Equals(SipMethod::INVITE)
+            && (piDialog->GetState() != ISipDialog::STATE_CONFIRMED))
     {
         IMS_SINT32 nTmpRefresher = nRefresher;
 
@@ -337,7 +337,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
     // Set Supported header field if the application wants to use the session timer
     if (pSipConfigV->IsSessionTimerSupported() && !piSIPMsg->IsOptionSupported(STR_TIMER))
     {
-        if (piSIPMsg->AddHeader(ISIPHeader::SUPPORTED, STR_TIMER) != IMS_SUCCESS)
+        if (piSIPMsg->AddHeader(ISipHeader::SUPPORTED, STR_TIMER) != IMS_SUCCESS)
         {
             // Restore the parameter values
             nRefresher = nBackupRefresher;
@@ -350,10 +350,10 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
         }
     }
 
-    if ((piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+    if ((piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
             && pSipConfigV->IsSessionTimerSupported())
     {
-        if (objMethod.Equals(SIPMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE))
+        if (objMethod.Equals(SipMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE))
         {
             // Set a Min-SE header field
             if (((nMinSE > 0) || (nConfig_MinSE > 0)) && IsMinSEHeaderRequired())
@@ -365,7 +365,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
                 else
                     strMinSE.SetNumber(nConfig_MinSE);
 
-                if (piSIPMsg->SetHeader(ISIPHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
+                if (piSIPMsg->SetHeader(ISipHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
                 {
                     // Restore the parameter values
                     nRefresher = nBackupRefresher;
@@ -380,12 +380,12 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
 
             // At the time of making the request, if the request is INVITE or UPDATE
             // (in established state), then set the session refresh request.
-            if (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)
+            if (piDialog->GetState() == ISipDialog::STATE_CONFIRMED)
             {
-                if (objMethod.Equals(SIPMethod::INVITE))
-                    nRefreshRequest = SIPMethod::INVITE;
-                else if (objMethod.Equals(SIPMethod::UPDATE))
-                    nRefreshRequest = SIPMethod::UPDATE;
+                if (objMethod.Equals(SipMethod::INVITE))
+                    nRefreshRequest = SipMethod::INVITE;
+                else if (objMethod.Equals(SipMethod::UPDATE))
+                    nRefreshRequest = SipMethod::UPDATE;
             }
 
             // Set a Session-Expires header field
@@ -408,7 +408,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
                         strSessionExpires.Append(STR_UAS);
                 }
 
-                if (piSIPMsg->SetHeader(ISIPHeader::SESSION_EXPIRES,
+                if (piSIPMsg->SetHeader(ISipHeader::SESSION_EXPIRES,
                         strSessionExpires) != IMS_SUCCESS)
                 {
                     // Restore the parameter values
@@ -423,12 +423,12 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
             }
         }
     }
-    else if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+    else if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if ((nStatusCode == SIPStatusCode::SC_422)
-                && (objMethod.Equals(SIPMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE)))
+        if ((nStatusCode == SipStatusCode::SC_422)
+                && (objMethod.Equals(SipMethod::INVITE) || (bUpdateOnConfirmedDialog == IMS_TRUE)))
         {
             AString strMinSE;
 
@@ -438,7 +438,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
             else
                 strMinSE.SetNumber(nConfig_MinSE);
 
-            if (piSIPMsg->SetHeader(ISIPHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
+            if (piSIPMsg->SetHeader(ISipHeader::MIN_SE, strMinSE) != IMS_SUCCESS)
             {
                 // Restore the parameter values
                 nRefresher = nBackupRefresher;
@@ -451,7 +451,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
             }
         }
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             // Set a Session-Expires header field
             if (nSessionInterval > 0)
@@ -463,7 +463,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
                                 && IsSessionTimerSupportedOnUAC()))
                 {
                     // Set a Require header field
-                    if (piSIPMsg->AddHeader(ISIPHeader::REQUIRE, STR_TIMER) != IMS_SUCCESS)
+                    if (piSIPMsg->AddHeader(ISipHeader::REQUIRE, STR_TIMER) != IMS_SUCCESS)
                     {
                         // Restore the parameter values
                         nRefresher = nBackupRefresher;
@@ -495,7 +495,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
                         strSessionExpires.Append(STR_UAC);
                 }
 
-                if (piSIPMsg->SetHeader(ISIPHeader::SESSION_EXPIRES,
+                if (piSIPMsg->SetHeader(ISipHeader::SESSION_EXPIRES,
                         strSessionExpires) != IMS_SUCCESS)
                 {
                     // Restore the parameter values
@@ -521,7 +521,7 @@ IMS_BOOL SessionRefreshHelper::AddSpecificHeaderWithoutParameterChange(IN ISIPCo
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT SessionRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piSCC)
+IMS_RESULT SessionRefreshHelper::SendRefreshRequest(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -550,9 +550,9 @@ IMS_RESULT SessionRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piS
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection *piSC)
+IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -561,38 +561,38 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
         return RESULT_ERROR;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     // Currently, the session refresh parameters are effected only for INVITE/UPDATE/BYE.
-    if (!objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::BYE)
-            && !objMethod.Equals(SIPMethod::UPDATE))
+    if (!objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::BYE)
+            && !objMethod.Equals(SipMethod::UPDATE))
     {
         return RESULT_SUCCESS;
     }
 
     // BYE message processing stops here.
-    if (objMethod.Equals(SIPMethod::BYE) && IsTimerActive())
+    if (objMethod.Equals(SipMethod::BYE) && IsTimerActive())
     {
         StopRefresh();
         return RESULT_SUCCESS;
     }
 
-    ISIPDialog *piDialog = piSC->GetDialog();
+    ISipDialog *piDialog = piSC->GetDialog();
 
     // Any session refresh info. which comes in an early UPDATE SHOULD be ignored.
     if (piDialog != IMS_NULL)
     {
-        if (objMethod.Equals(SIPMethod::UPDATE)
-                && piDialog->GetState() != ISIPDialog::STATE_CONFIRMED)
+        if (objMethod.Equals(SipMethod::UPDATE)
+                && piDialog->GetState() != ISipDialog::STATE_CONFIRMED)
         {
             // do nothing...
             return RESULT_SUCCESS;
         }
 
         // CallEstablished -> Confirmed
-        if ((piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)
-                && (piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+        if ((piDialog->GetState() == ISipDialog::STATE_CONFIRMED)
+                && (piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
                 && IsTimerActive())
         {
             StopRefresh();
@@ -600,8 +600,8 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
     }
 
     // The rest of the code is valid only for INVITE/UPDATE and responses to it.
-    if (!objMethod.Equals(SIPMethod::INVITE)
-            && !objMethod.Equals(SIPMethod::UPDATE))
+    if (!objMethod.Equals(SipMethod::INVITE)
+            && !objMethod.Equals(SipMethod::UPDATE))
     {
         // do nothing...
         return RESULT_SUCCESS;
@@ -611,11 +611,11 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
     IMS_BOOL bCheckSEPresentity = IsSessionTimerSupportedBySessionExpires();
     IMS_BOOL bTimerOptionSupported = IsSessionTimerSupported(piSC, bCheckSEPresentity);
 
-    if (piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+    if (piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
     {
-        if (objMethod.Equals(SIPMethod::UPDATE)
-                && (nRefreshRequest != SIPMethod::INVALID)
-                && (piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES)))
+        if (objMethod.Equals(SipMethod::UPDATE)
+                && (nRefreshRequest != SipMethod::INVALID)
+                && (piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES)))
         {
             // An UPDATE/INVITE has come to update session timer,
             // while it is already being updated by another re-INVITE or UPDATE.
@@ -625,15 +625,15 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
         // Checks if timer option tag is specified in the incoming request message
         UpdateTimerOptionOnRequestReceived(piSC);
 
-        if (piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES))
+        if (piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES))
         {
             // In this state (STATE_ESTABLISHED), we have received a (re)fresh request,
             // set the session refresh method to indicate that either a (re)INVITE / UPDATE
             // has come
-            if (objMethod.Equals(SIPMethod::INVITE))
-                nRefreshRequest = SIPMethod::INVITE;
-            else if (objMethod.Equals(SIPMethod::UPDATE))
-                nRefreshRequest = SIPMethod::UPDATE;
+            if (objMethod.Equals(SipMethod::INVITE))
+                nRefreshRequest = SipMethod::INVITE;
+            else if (objMethod.Equals(SipMethod::UPDATE))
+                nRefreshRequest = SipMethod::UPDATE;
         }
         else
         {
@@ -690,20 +690,20 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
         // Checks if Allow header contains UPDATE method
         bUPDATEAllowed = IMS_FALSE;
 
-        IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISIPHeader::ALLOW);
+        IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISipHeader::ALLOW);
 
         for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
         {
             const AString &strHeader = objHeaders.GetAt(i);
 
-            if (strHeader.Equals(SIPMethod::ToName(SIPMethod::UPDATE)))
+            if (strHeader.Equals(SipMethod::ToName(SipMethod::UPDATE)))
             {
                 bUPDATEAllowed = IMS_TRUE;
                 break;
             }
         }
 
-        IMS_SINT32 nFlag = objMethod.Equals(SIPMethod::INVITE) \
+        IMS_SINT32 nFlag = objMethod.Equals(SipMethod::INVITE) \
                 ? TIMER_SUPPORTED_TEMPORARY_ON_INCOMING_INVITE \
                 : TIMER_SUPPORTED_TEMPORARY_ON_INCOMING_UPDATE;
 
@@ -713,7 +713,7 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if (nStatusCode == SIPStatusCode::SC_422)
+        if (nStatusCode == SipStatusCode::SC_422)
         {
             // Once a 422 response is sent, the session timer should be turned off
             nSessionInterval = 0;
@@ -721,7 +721,7 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
 
             SetDuration(nSessionInterval);
         }
-        else if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        else if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             SetOrClearTimerSupportedOnRemoteEnd(bTimerOptionSupported,
                     TIMER_SUPPORTED_ON_REMOTE_UA);
@@ -735,7 +735,7 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
             if ((GetDuration() > 0) && IsSessionRefreshRequired(piSC))
             {
                 // Session timer negotiation is done, so reset the request method
-                nRefreshRequest = SIPMethod::INVALID;
+                nRefreshRequest = SipMethod::INVALID;
 
                 if (!StartRefresh())
                 {
@@ -755,13 +755,13 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
             // Checks if Allow header contains UPDATE method
             bUPDATEAllowed = IMS_FALSE;
 
-            IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISIPHeader::ALLOW);
+            IMSList<AString> objHeaders = piSIPMsg->GetHeaders(ISipHeader::ALLOW);
 
             for (IMS_UINT32 i = 0; i < objHeaders.GetSize(); ++i)
             {
                 const AString &strHeader = objHeaders.GetAt(i);
 
-                if (strHeader.Equals(SIPMethod::ToName(SIPMethod::UPDATE)))
+                if (strHeader.Equals(SipMethod::ToName(SipMethod::UPDATE)))
                 {
                     bUPDATEAllowed = IMS_TRUE;
                     break;
@@ -777,13 +777,13 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
             {
                 // Re-start a session refresh timer with the previous negotiated session interval
                 if ((piDialog != IMS_NULL)
-                        && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)
-                        && (nStatusCode != SIPStatusCode::SC_100))
+                        && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED)
+                        && (nStatusCode != SipStatusCode::SC_100))
                 {
                     IMS_TRACE_D("Session refresh is resumed using the previous session interval",
                             0, 0, 0);
 
-                    nRefreshRequest = SIPMethod::INVALID;
+                    nRefreshRequest = SipMethod::INVALID;
 
                     if ((GetDuration() > 0) && IsSessionTimerSupportedOnRemoteUA())
                     {
@@ -802,34 +802,34 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT SessionRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *piSC)
+IMS_RESULT SessionRefreshHelper::UpdateOnMessageSent(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     if (piSIPMsg == IMS_NULL)
         return RESULT_ERROR;
 
-    ISIPDialog *piDialog = piSC->GetDialog();
+    ISipDialog *piDialog = piSC->GetDialog();
 
     if (piDialog == IMS_NULL)
         return RESULT_ERROR;
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+    if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
     {
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
         // Only one ongoing transaction for each method exists.
-        if (SIPStatusCode::IsFinal(nStatusCode))
+        if (SipStatusCode::IsFinal(nStatusCode))
         {
-            IMS_SINT32 nFlag = objMethod.Equals(SIPMethod::INVITE) \
+            IMS_SINT32 nFlag = objMethod.Equals(SipMethod::INVITE) \
                     ? TIMER_SUPPORTED_TEMPORARY_ON_INCOMING_INVITE \
                     : TIMER_SUPPORTED_TEMPORARY_ON_INCOMING_UPDATE;
 
-            if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+            if (SipStatusCode::IsFinalSuccess(nStatusCode))
             {
                 SetOrClearTimerSupportedOnRemoteEnd(IsTimerSupportedOnRemoteEnd(nFlag),
                         TIMER_SUPPORTED_ON_REMOTE_UA);
@@ -841,14 +841,14 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *pi
             ClearTimerSupportedOnRemoteEnd(nFlag);
         }
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode)
-                && (objMethod.Equals(SIPMethod::INVITE)
-                    || (objMethod.Equals(SIPMethod::UPDATE)
-                    && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED))))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode)
+                && (objMethod.Equals(SipMethod::INVITE)
+                    || (objMethod.Equals(SipMethod::UPDATE)
+                    && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED))))
         {
             // Session timer negotiation is complete by now.
             // Hence, reset the refresh request parameter of the session timer.
-            nRefreshRequest = SIPMethod::INVALID;
+            nRefreshRequest = SipMethod::INVALID;
 
             IMS_BOOL bCheckSEPresentity = IsSessionTimerSupportedBySessionExpires();
             UpdateProperties(piSC, IsSessionTimerSupported(piSC, bCheckSEPresentity), IMS_TRUE);
@@ -871,24 +871,24 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *pi
         }
         // Session timer negotiation is complete by now.
         // Hence, reset the refresh request parameter of the session timer.
-        else if (nStatusCode == SIPStatusCode::SC_422)
+        else if (nStatusCode == SipStatusCode::SC_422)
         {
-            nRefreshRequest = SIPMethod::INVALID;
+            nRefreshRequest = SipMethod::INVALID;
         }
         else
         {
             if (IsSessionTimerUpdateRequiredByReInvite())
             {
                 // Re-start a session refresh timer with the previous negotiated session interval
-                if ((piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)
-                        && (objMethod.Equals(SIPMethod::INVITE)
-                            || objMethod.Equals(SIPMethod::UPDATE))
-                        && (nStatusCode != SIPStatusCode::SC_100))
+                if ((piDialog->GetState() == ISipDialog::STATE_CONFIRMED)
+                        && (objMethod.Equals(SipMethod::INVITE)
+                            || objMethod.Equals(SipMethod::UPDATE))
+                        && (nStatusCode != SipStatusCode::SC_100))
                 {
                     IMS_TRACE_D("Session refresh is resumed using the previous session interval",
                             0, 0, 0);
 
-                    nRefreshRequest = SIPMethod::INVALID;
+                    nRefreshRequest = SipMethod::INVALID;
 
                     if ((GetDuration() > 0) && IsSessionTimerSupportedOnRemoteUA())
                     {
@@ -907,7 +907,7 @@ IMS_RESULT SessionRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *pi
 }
 
 PUBLIC
-IMS_BOOL SessionRefreshHelper::AddSpecificHeaderOnEarlyUPDATE(IN ISIPConnection *piSC,
+IMS_BOOL SessionRefreshHelper::AddSpecificHeaderOnEarlyUPDATE(IN ISipConnection *piSC,
         IN IMS_BOOL bTimerOptionSupported)
 {
     // Store the current refresher parameter
@@ -937,33 +937,33 @@ IMS_SINT32 SessionRefreshHelper::GetRefreshMethod() const
 
     if (pSipConfigV == IMS_NULL)
     {
-        return SIPMethod::INVALID;
+        return SipMethod::INVALID;
     }
 
     IMS_SINT32 nRefreshMethod = pSipConfigV->GetSessionMethod();
 
     if (nRefreshMethod == SipConfigV::SESSION_REFRESH_INVITE)
     {
-        return SIPMethod::INVITE;
+        return SipMethod::INVITE;
     }
     else if (nRefreshMethod == SipConfigV::SESSION_REFRESH_UPDATE)
     {
-        return SIPMethod::UPDATE;
+        return SipMethod::UPDATE;
     }
     else
     {
         if (bUPDATEAllowed)
-            return SIPMethod::UPDATE;
+            return SipMethod::UPDATE;
         else
-            return SIPMethod::INVITE;
+            return SipMethod::INVITE;
     }
 }
 
 PUBLIC
-IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISIPConnection *piSC,
+IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISipConnection *piSC,
         IN IMS_BOOL bCheckSEPresentity /* = IMS_TRUE */)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -971,7 +971,7 @@ IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISIPConnection *
         return IMS_FALSE;
 
     // Get Supported header field values
-    AStringArray objSupported = piSIPMsg->GetHeaders(ISIPHeader::SUPPORTED);
+    AStringArray objSupported = piSIPMsg->GetHeaders(ISipHeader::SUPPORTED);
 
     if (!objSupported.IsEmpty())
     {
@@ -984,7 +984,7 @@ IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISIPConnection *
     }
 
     // Check the additional headers: Require, Session-Expires
-    AStringArray objRequire = piSIPMsg->GetHeaders(ISIPHeader::REQUIRE);
+    AStringArray objRequire = piSIPMsg->GetHeaders(ISipHeader::REQUIRE);
 
     if (!objRequire.IsEmpty())
     {
@@ -997,7 +997,7 @@ IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISIPConnection *
     }
 
     // NON-STANDARD :: for IMS client's flexibility
-    if (bCheckSEPresentity && piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES))
+    if (bCheckSEPresentity && piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES))
     {
         IMS_TRACE_D("Session timer is supported by Session-Expires header", 0, 0, 0);
         return IMS_TRUE;
@@ -1012,10 +1012,10 @@ IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISIPConnection *
     return IMS_FALSE;
 
 #if 0
-    if (piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+    if (piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
     {
         // Get Supported header field values
-        AStringArray objSupported = piSIPMsg->GetHeaders(ISIPHeader::SUPPORTED);
+        AStringArray objSupported = piSIPMsg->GetHeaders(ISipHeader::SUPPORTED);
 
         if (!objSupported.IsEmpty())
         {
@@ -1031,14 +1031,14 @@ IMS_BOOL SessionRefreshHelper::IsSessionTimerSupported(IN CONST ISIPConnection *
     {
         // Session timer is not supported by the remote end
         // if there was no Require or Session-Expires header field.
-        if (!piSIPMsg->IsHeaderPresent(ISIPHeader::REQUIRE)
-                || !piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES))
+        if (!piSIPMsg->IsHeaderPresent(ISipHeader::REQUIRE)
+                || !piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES))
         {
             return IMS_FALSE;
         }
 
         // Get Require header field values
-        AStringArray objRequire = piSIPMsg->GetHeaders(ISIPHeader::REQUIRE);
+        AStringArray objRequire = piSIPMsg->GetHeaders(ISipHeader::REQUIRE);
 
         if (!objRequire.IsEmpty())
         {
@@ -1060,38 +1060,38 @@ IMS_BOOL SessionRefreshHelper::IsSessionTimerSupportedBySessionExpires() const
 }
 
 PUBLIC
-void SessionRefreshHelper::StopSessionTimer(IN CONST ISIPConnection *piSC)
+void SessionRefreshHelper::StopSessionTimer(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     if (piSIPMsg == IMS_NULL)
         return;
 
-    ISIPDialog *piDialog = piSC->GetDialog();
+    ISipDialog *piDialog = piSC->GetDialog();
 
     if (piDialog == IMS_NULL)
         return;
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     // Stop the session timer for the messages of type BYE, UPDATE and re-INVITE.
-    if ((piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
-            && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)
+    if ((piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
+            && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED)
             && IsTimerActive()
-            && (objMethod.Equals(SIPMethod::INVITE)
-                || objMethod.Equals(SIPMethod::BYE)
-                || objMethod.Equals(SIPMethod::UPDATE)))
+            && (objMethod.Equals(SipMethod::INVITE)
+                || objMethod.Equals(SipMethod::BYE)
+                || objMethod.Equals(SipMethod::UPDATE)))
     {
         StopRefresh();
     }
 }
 
 PUBLIC
-void SessionRefreshHelper::UpdateTimerOptionOnRequestReceived(IN CONST ISIPConnection *piSC)
+void SessionRefreshHelper::UpdateTimerOptionOnRequestReceived(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -1100,20 +1100,20 @@ void SessionRefreshHelper::UpdateTimerOptionOnRequestReceived(IN CONST ISIPConne
         return;
     }
 
-    if (piSIPMsg->GetType() != ISIPMessage::TYPE_REQUEST)
+    if (piSIPMsg->GetType() != ISipMessage::TYPE_REQUEST)
     {
         return;
     }
 
-    ISIPDialog *piDialog = piSC->GetDialog();
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    ISipDialog *piDialog = piSC->GetDialog();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     // Checks if the initial INVITE/re-INVITE/UPDATE request supports
     // the session timer or not... (Supported header)
-    if (objMethod.Equals(SIPMethod::INVITE)
+    if (objMethod.Equals(SipMethod::INVITE)
             && ((piDialog == IMS_NULL)
                 || ((piDialog != IMS_NULL)
-                    && (piDialog->GetState() != ISIPDialog::STATE_CONFIRMED))))
+                    && (piDialog->GetState() != ISipDialog::STATE_CONFIRMED))))
     {
         if (piSIPMsg->IsOptionSupported(STR_TIMER))
         {
@@ -1124,8 +1124,8 @@ void SessionRefreshHelper::UpdateTimerOptionOnRequestReceived(IN CONST ISIPConne
         return;
     }
 
-    if ((objMethod.Equals(SIPMethod::INVITE) || objMethod.Equals(SIPMethod::UPDATE))
-            && ((piDialog != IMS_NULL) && (piDialog->GetState() == ISIPDialog::STATE_CONFIRMED)))
+    if ((objMethod.Equals(SipMethod::INVITE) || objMethod.Equals(SipMethod::UPDATE))
+            && ((piDialog != IMS_NULL) && (piDialog->GetState() == ISipDialog::STATE_CONFIRMED)))
     {
         if (piSIPMsg->IsOptionSupported(STR_TIMER))
         {
@@ -1167,12 +1167,12 @@ IMS_SINT32 SessionRefreshHelper::GetTimerInterval() const
 
             if (nRefreshMethod == SipConfigV::SESSION_REFRESH_INVITE)
             {
-                nRefreshMethodTxnTV = SIPConfigProxy::GetTimerValueTB(
+                nRefreshMethodTxnTV = SipConfigProxy::GetTimerValueB(
                         pService->GetSlotId(), pService->GetSIPProfile(), pSipConfigV);
             }
             else if (nRefreshMethod == SipConfigV::SESSION_REFRESH_UPDATE)
             {
-                nRefreshMethodTxnTV = SIPConfigProxy::GetTimerValueTF(
+                nRefreshMethodTxnTV = SipConfigProxy::GetTimerValueF(
                         pService->GetSlotId(), pService->GetSIPProfile(), pSipConfigV);
             }
         }
@@ -1180,7 +1180,7 @@ IMS_SINT32 SessionRefreshHelper::GetTimerInterval() const
         if (nRefreshMethodTxnTV < 0)
         {
             // (T1 * 64) seconds
-            nRefreshMethodTxnTV = SIPConfigProxy::GetTimerValueT1(
+            nRefreshMethodTxnTV = SipConfigProxy::GetTimerValueT1(
                     pService->GetSlotId(), pService->GetSIPProfile(), pSipConfigV) * 64;
         }
 
@@ -1218,7 +1218,7 @@ IMS_SINT32 SessionRefreshHelper::GetTimerInterval() const
 }
 
 PROTECTED VIRTUAL
-void SessionRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
+void SessionRefreshHelper::RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -1228,7 +1228,7 @@ void SessionRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
     {
         IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             StopRefresh();
         }
@@ -1249,7 +1249,7 @@ void SessionRefreshHelper::RefreshStarted()
 {
     //---------------------------------------------------------------------------------------------
 
-    if (nRefreshRequest != SIPMethod::INVALID)
+    if (nRefreshRequest != SipMethod::INVALID)
         return;
 
     if (nRefresher == REFRESHER_REMOTE)
@@ -1278,7 +1278,7 @@ void SessionRefreshHelper::RefreshTerminated()
 PROTECTED VIRTUAL
 IMS_BOOL SessionRefreshHelper::IsSessionTimerUpdateRequiredByReInvite() const
 {
-    return SIPConfigProxy::IsSessionTimerUpdateRequiredByReInvite(
+    return SipConfigProxy::IsSessionTimerUpdateRequiredByReInvite(
             pService->GetSlotId(), pService->GetSIPProfile());
 }
 
@@ -1324,7 +1324,7 @@ IMS_BOOL SessionRefreshHelper::IsSessionExpiresHeaderRequired() const
 }
 
 PRIVATE
-IMS_BOOL SessionRefreshHelper::IsSessionRefreshRequired(IN CONST ISIPConnection *piSC) const
+IMS_BOOL SessionRefreshHelper::IsSessionRefreshRequired(IN CONST ISipConnection *piSC) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1333,14 +1333,14 @@ IMS_BOOL SessionRefreshHelper::IsSessionRefreshRequired(IN CONST ISIPConnection 
         return IMS_FALSE;
     }
 
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     if (piSIPMsg == IMS_NULL)
     {
         return IMS_FALSE;
     }
 
-    if (!piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES))
+    if (!piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES))
     {
         IMS_TRACE_D("The message had no Session-Expires header field;" \
                 " no refreshes have to be performed", 0, 0, 0);
@@ -1400,20 +1400,20 @@ void SessionRefreshHelper::NegotiateRefresher(IN IMS_BOOL bTimerOptionSupported)
 }
 
 PRIVATE
-void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
+void SessionRefreshHelper::UpdateProperties(IN CONST ISipConnection *piSC,
         IN IMS_BOOL bTimerOptionSupported, IN IMS_BOOL bSent /* = IMS_FALSE */)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
     // Gets the Session-Expires header field from SIP message
     // and sets the session interval and refresher.
-    if (piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES))
+    if (piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES))
     {
-        AString strHeader = piSIPMsg->GetHeader(ISIPHeader::SESSION_EXPIRES);
-        ISIPHeader *piHeader
-                = SIPParsingHelper::CreateHeader(ISIPHeader::SESSION_EXPIRES, strHeader);
+        AString strHeader = piSIPMsg->GetHeader(ISipHeader::SESSION_EXPIRES);
+        ISipHeader *piHeader
+                = SipParsingHelper::CreateHeader(ISipHeader::SESSION_EXPIRES, strHeader);
 
         if (piHeader == IMS_NULL)
         {
@@ -1429,7 +1429,7 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
             return;
         }
 
-        const SIPParameter *pParameter = piHeader->GetParameter(STR_REFRESHER);
+        const SipParameter *pParameter = piHeader->GetParameter(STR_REFRESHER);
 
         if (pParameter == IMS_NULL)
         {
@@ -1440,7 +1440,7 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
             {
                 if (bSent)
                 {
-                    if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+                    if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
                         nRefresher = REFRESHER_LOCAL;
                 }
                 else
@@ -1453,7 +1453,7 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
         {
             const AString &strRefresher = pParameter->GetValue();
 
-            if (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
+            if (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
             {
                 if (bSent)
                 {
@@ -1490,7 +1490,7 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
                     }
                 }
             }
-            else if (piSIPMsg->GetType() == ISIPMessage::TYPE_REQUEST)
+            else if (piSIPMsg->GetType() == ISipMessage::TYPE_REQUEST)
             {
                 if (bSent)
                 {
@@ -1525,10 +1525,10 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
     }
 
     // Gets Min-SE header from the SIP message and sets the minimum session expiration duration.
-    if (piSIPMsg->IsHeaderPresent(ISIPHeader::MIN_SE))
+    if (piSIPMsg->IsHeaderPresent(ISipHeader::MIN_SE))
     {
-        AString strHeader = piSIPMsg->GetHeader(ISIPHeader::MIN_SE);
-        ISIPHeader *piHeader = SIPParsingHelper::CreateHeader(ISIPHeader::MIN_SE, strHeader);
+        AString strHeader = piSIPMsg->GetHeader(ISipHeader::MIN_SE);
+        ISipHeader *piHeader = SipParsingHelper::CreateHeader(ISipHeader::MIN_SE, strHeader);
 
         if (piHeader == IMS_NULL)
         {
@@ -1557,8 +1557,8 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
     // with Session-Expires > Min-SE.
     // Otherwise, we should increase the value of Session-Expires equal to Min-SE.
     IMS_BOOL bSessionIntervalChangeable = !bTimerOptionSupported
-            || (!bSent && (piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
-                    && (piSIPMsg->GetStatusCode() == SIPStatusCode::SC_422));
+            || (!bSent && (piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
+                    && (piSIPMsg->GetStatusCode() == SipStatusCode::SC_422));
 
     if (bSessionIntervalChangeable && (nMinSE > nSessionInterval))
     {
@@ -1569,7 +1569,7 @@ void SessionRefreshHelper::UpdateProperties(IN CONST ISIPConnection *piSC,
     //// To handle other optional cases for session refresh...
     if (IsLocalSessionTimerRequired()
             && !bSent
-            && !piSIPMsg->IsHeaderPresent(ISIPHeader::SESSION_EXPIRES)
+            && !piSIPMsg->IsHeaderPresent(ISipHeader::SESSION_EXPIRES)
             && bTimerOptionSupported)
     {
         // According to RFC 4028,

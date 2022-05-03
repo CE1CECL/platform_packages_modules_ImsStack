@@ -51,35 +51,35 @@ protected:
     void ClearConnection(IN IMS_SINT32 nServiceMethod);
     void CloseConnection(IN IMS_SINT32 nServiceMethod);
     void CopyPreviousMessage(IN IMS_SINT32 nServiceMethod_From, IN IMS_SINT32 nServiceMethod_To);
-    ISIPClientConnection* CreateCancelConnection(IN ISIPClientConnection *piSCC);
-    ISIPClientConnection* CreateConnection(IN CONST SIPMethod &objMethod);
-    ISIPClientConnection* CreateConnection(IN ISIPDialog *piDialog,
-            IN CONST SIPMethod &objMethod);
-    IMS_BOOL CreateResponse(IN_OUT ISIPServerConnection *piSSC,
+    ISipClientConnection* CreateCancelConnection(IN ISipClientConnection *piSCC);
+    ISipClientConnection* CreateConnection(IN CONST SipMethod &objMethod);
+    ISipClientConnection* CreateConnection(IN ISipDialog *piDialog,
+            IN CONST SipMethod &objMethod);
+    IMS_BOOL CreateResponse(IN_OUT ISipServerConnection *piSSC,
             IN IMS_SINT32 nStatusCode, IN CONST AString &strPhrase = AString::ConstNull());
-    ISIPClientConnection* GetClientConnection(IN IMS_SINT32 nServiceMethod) const;
-    ISIPServerConnection* GetServerConnection(IN IMS_SINT32 nServiceMethod) const;
+    ISipClientConnection* GetClientConnection(IN IMS_SINT32 nServiceMethod) const;
+    ISipServerConnection* GetServerConnection(IN IMS_SINT32 nServiceMethod) const;
     Service* GetService() const;
     IMS_BOOL IsPrivacyRequested(IN IMS_BOOL bRequest = IMS_TRUE) const;
     IMS_BOOL IsServiceOpen() const;
     IMS_BOOL RemovePreviousMessage(IN IMS_SINT32 nServiceMethod);
-    IMS_BOOL SendNUpdateRequest(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
-    IMS_BOOL SendNUpdateResponse(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
+    IMS_BOOL SendNUpdateRequest(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
+    IMS_BOOL SendNUpdateResponse(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
     IMS_BOOL SendNUpdateRequestEx(IN IMS_SINT32 nServiceMethod,
-            IN ISIPConnection *piSC, IN IMS_SINT32 nMessageClass = MESSAGE_CLASS_NORMAL);
+            IN ISipConnection *piSC, IN IMS_SINT32 nMessageClass = MESSAGE_CLASS_NORMAL);
     IMS_BOOL SendNUpdateResponseEx(IN IMS_SINT32 nServiceMethod,
-            IN ISIPConnection *piSC, IN IMS_SINT32 nMessageClass = MESSAGE_CLASS_NORMAL);
-    void UpdateConnection(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
-    IMS_BOOL UpdateRequestOnReceived(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
-    IMS_BOOL UpdateRequestOnSent(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
-    IMS_BOOL UpdateResponseOnReceived(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
-    IMS_BOOL UpdateResponseOnSent(IN IMS_SINT32 nServiceMethod, IN ISIPConnection *piSC);
+            IN ISipConnection *piSC, IN IMS_SINT32 nMessageClass = MESSAGE_CLASS_NORMAL);
+    void UpdateConnection(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
+    IMS_BOOL UpdateRequestOnReceived(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
+    IMS_BOOL UpdateRequestOnSent(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
+    IMS_BOOL UpdateResponseOnReceived(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
+    IMS_BOOL UpdateResponseOnSent(IN IMS_SINT32 nServiceMethod, IN ISipConnection *piSC);
 
 private:
     IMS_BOOL AddPreviousResponse(IN IMS_SINT32 nServiceMethod, IN Message *pMessage);
     IMS_BOOL SetPreviousRequest(IN IMS_SINT32 nServiceMethod, IN Message *pMessage,
-            IN ISIPConnection *piSC);
-    ISIPConnection* GetConnection(IN IMS_SINT32 nServiceMethod) const;
+            IN ISipConnection *piSC);
+    ISipConnection* GetConnection(IN IMS_SINT32 nServiceMethod) const;
 
 private:
     // Reference to Service

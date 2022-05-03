@@ -20,16 +20,16 @@
 
 #include "AString.h"
 
-class ISIPHeader;
+class ISipHeader;
 
 namespace SIPStack
 {
 
 GLOBAL IMS_BOOL DecodeHeaderComponent(IN CONST SipAddrSpec *pAddrSpec,
-        OUT IMSList<ISIPHeader*> &objHeaders);
+        OUT IMSList<ISipHeader*> &objHeaders);
 
 GLOBAL IMS_BOOL DecodeHeaderComponent(IN CONST AString &strHeaders,
-        OUT IMSList<ISIPHeader*> &objHeaders);
+        OUT IMSList<ISipHeader*> &objHeaders);
 
 }
 

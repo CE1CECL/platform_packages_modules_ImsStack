@@ -15,7 +15,7 @@ class ICoreService;
 class ISubscription;
 class Subscription;
 class ITimer;
-class ISIPMessage;
+class ISipMessage;
 class UceXmlDocumentHelperThread;
 class UceRlmiComposer;
 class UceNonCapabilityUser;
@@ -56,7 +56,7 @@ public:
             IN CONST AString &strManagerName, IN IMS_UINT32 conectedService,
             IN IMS_SINT32 nSimSlot = 0);
     virtual ~UceSubscribe();
-    virtual IMS_RESULT MessageMediator_AdjustMessage(IN_OUT ISIPMessage* piSIPMsg,
+    virtual IMS_RESULT MessageMediator_AdjustMessage(IN_OUT ISipMessage* piSIPMsg,
         IN IMS_SINT32 nMessage = MESSAGE_NORMAL);
 
     IMS_BOOL QuerySingleCapability(IN AString strUser, IN IMS_UINT32 key);
@@ -108,22 +108,22 @@ private:
     void SendSubscribeResourceTerminatedInd(IMSList<UceNonCapabilityUser*>* pList);
     void SendSubscribeTerminatedInd();
 
-    IMS_BOOL SetHeaderForSingleSubscription(IN_OUT ISIPMessage* piSIPMessage);
+    IMS_BOOL SetHeaderForSingleSubscription(IN_OUT ISipMessage* piSIPMessage);
     AString GetListSubscribeUri();
-    IMS_BOOL SetHeaderForListSubscription(IN_OUT ISIPMessage* piSIPMessage,
+    IMS_BOOL SetHeaderForListSubscription(IN_OUT ISipMessage* piSIPMessage,
             IN CONST AString &strListSubscriptionRequestUri);
-    IMS_BOOL SetContentBody(IN_OUT ISIPMessage* piSIPMessage, IN CONST AString &strXMLBody);
-    ISIPMessage* GetISIPMessage();
+    IMS_BOOL SetContentBody(IN_OUT ISipMessage* piSIPMessage, IN CONST AString &strXMLBody);
+    ISipMessage* GetISIPMessage();
 
     IMS_BOOL SendSingleSubscribe();
     IMS_BOOL SendListSubscribe();
 
-    ISubscribeResponseData* GetSubscribeResponseData(ISIPMessage* piMessage);
+    ISubscribeResponseData* GetSubscribeResponseData(ISipMessage* piMessage);
 
-    IMS_BOOL HandleRetryAfterHeader(ISIPMessage* piSIPMessage);
-    IMS_BOOL Handle403FailureResponse(ISIPMessage* piSIPMessage);
-    IMS_BOOL Handle423FailureResponse(ISIPMessage* piSIPMessage);
-    IMS_BOOL HandleNotifyInd(IN ISIPMessage* piSIPMessage);
+    IMS_BOOL HandleRetryAfterHeader(ISipMessage* piSIPMessage);
+    IMS_BOOL Handle403FailureResponse(ISipMessage* piSIPMessage);
+    IMS_BOOL Handle423FailureResponse(ISipMessage* piSIPMessage);
+    IMS_BOOL HandleNotifyInd(IN ISipMessage* piSIPMessage);
 
     void StartWaitingNotifyMessageTimer(IMS_UINT32 nDuration);
     void StopWaitingNotifyMessageTimer();

@@ -9,7 +9,7 @@
     Description
      This class defines a listener interface for notifications about failure of asynchronous send
     operations. The application implementing this interface has to register it with
-    a ISIPConnection instance using the ISIPTransaction::SetErrorListener method.
+    a ISipConnection instance using the ISIPTransaction::SetErrorListener method.
 */
 
 #ifndef _INTERFACE_ON_SIP_ERROR_LISTENER_H_

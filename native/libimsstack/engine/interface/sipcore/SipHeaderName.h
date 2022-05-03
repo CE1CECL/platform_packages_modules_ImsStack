@@ -6,10 +6,10 @@
 /**
  * @brief This class defines SIP header names.
  */
-class SIPHeaderName
+class SipHeaderName
 {
 private:
-    SIPHeaderName();
+    SipHeaderName();
 
 public:
     static const IMS_CHAR ALLOW[];

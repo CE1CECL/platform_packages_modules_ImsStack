@@ -50,19 +50,19 @@ __IMS_TRACE_TAG_IMS__;
 
 class SIPServerConnectionListenerProxy
     : public EngineActivity
-    , public ISIPServerConnectionListener
+    , public ISipServerConnectionListener
 {
 public:
     SIPServerConnectionListenerProxy(
-            IN const AString& strName, IN ISIPServerConnectionListener *piListener_);
+            IN const AString& strName, IN ISipServerConnectionListener *piListener_);
     virtual ~SIPServerConnectionListenerProxy();
 
 private:
     // Activity class
     virtual IMS_BOOL DispatchMessage(IN IMSMSG &objMSG);
 
-    // ISIPServerConnectionListener interface implementations
-    virtual void ServerConnection_NotifyRequest(IN ISIPConnectionNotifier *piSCN,
+    // ISipServerConnectionListener interface implementations
+    virtual void ServerConnection_NotifyRequest(IN ISipConnectionNotifier *piSCN,
             IN IMS_BOOL bIsForked = IMS_FALSE);
 
 private:
@@ -73,13 +73,13 @@ private:
         AMSG_SIP_FORKED_REQUEST_RECEIVED
     };
 
-    ISIPServerConnectionListener *piListener;
+    ISipServerConnectionListener *piListener;
 };
 
 PUBLIC
 SIPServerConnectionListenerProxy::SIPServerConnectionListenerProxy(
         IN const AString& strName,
-        IN ISIPServerConnectionListener *piListener_)
+        IN ISipServerConnectionListener *piListener_)
     : EngineActivity(strName)
     , piListener(piListener_)
 {
@@ -99,12 +99,12 @@ IMS_BOOL SIPServerConnectionListenerProxy::DispatchMessage(IN IMSMSG &objMSG)
     {
     case AMSG_SIP_REQUEST_RECEIVED:
         piListener->ServerConnection_NotifyRequest(
-                reinterpret_cast<ISIPConnectionNotifier*>(objMSG.nLparam));
+                reinterpret_cast<ISipConnectionNotifier*>(objMSG.nLparam));
         return IMS_TRUE;
 
     case AMSG_SIP_FORKED_REQUEST_RECEIVED:
         piListener->ServerConnection_NotifyRequest(
-                reinterpret_cast<ISIPConnectionNotifier*>(objMSG.nLparam), IMS_TRUE);
+                reinterpret_cast<ISipConnectionNotifier*>(objMSG.nLparam), IMS_TRUE);
         return IMS_TRUE;
 
     default:
@@ -115,8 +115,8 @@ IMS_BOOL SIPServerConnectionListenerProxy::DispatchMessage(IN IMSMSG &objMSG)
 }
 
 PRIVATE VIRTUAL
-void SIPServerConnectionListenerProxy::ServerConnection_NotifyRequest(IN ISIPConnectionNotifier *piSCN,
-        IN IMS_BOOL bIsForked/* = IMS_FALSE*/)
+void SIPServerConnectionListenerProxy::ServerConnection_NotifyRequest(
+        IN ISipConnectionNotifier *piSCN, IN IMS_BOOL bIsForked/* = IMS_FALSE*/)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ void SIPServerConnectionListenerProxy::ServerConnection_NotifyRequest(IN ISIPCon
 
 
 class SIPConnectionNotifierManagerPrivate
-    : public ISIPServerConnectionListener
+    : public ISipServerConnectionListener
 {
 public:
     SIPConnectionNotifierManagerPrivate();
@@ -149,29 +149,29 @@ private:
 public:
     void Init(IN IMS_SINT32 nSlotId);
 
-    ISIPConnectionNotifier* CreateConnectionNotifier(
+    ISipConnectionNotifier* CreateConnectionNotifier(
             IN CONST AString &strScheme, IN CONST IPAddress &objIPA, IN IMS_SINT32 nPortS,
             IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFlowControl,
-            IN CONST AString &strParams, IN CONST SIPAddress &objUserId);
+            IN CONST AString &strParams, IN CONST SipAddress &objUserId);
 
-    ISIPConnectionNotifier* GetConnectionNotifier(IN CONST IPAddress &objIP,
+    ISipConnectionNotifier* GetConnectionNotifier(IN CONST IPAddress &objIP,
             IN IMS_SINT32 nPort);
 
-    void AddConnectionNotifier(IN const AString& strKey, IN ISIPConnectionNotifier *piSCN);
-    void ReleaseConnectionNotifier(IN ISIPConnectionNotifier *piSCN);
+    void AddConnectionNotifier(IN const AString& strKey, IN ISipConnectionNotifier *piSCN);
+    void ReleaseConnectionNotifier(IN ISipConnectionNotifier *piSCN);
 
 private:
-    // ISIPServerConnectionListener interface implementations
-    virtual void ServerConnection_NotifyRequest(IN ISIPConnectionNotifier *piSCN,
+    // ISipServerConnectionListener interface implementations
+    virtual void ServerConnection_NotifyRequest(IN ISipConnectionNotifier *piSCN,
             IN IMS_BOOL bIsForked = IMS_FALSE);
 
     void AddReference(IN CONST AString &strKey);
     IMS_SINT32 RemoveReference(IN CONST AString &strKey);
-    ISIPConnectionNotifier* GetConnectionNotifier(IN CONST AString &strKey);
+    ISipConnectionNotifier* GetConnectionNotifier(IN CONST AString &strKey);
     SIPServerConnectionListenerProxy* GetServerConnectionListener(IN IMS_SINT32 nSlotId);
-    IMS_BOOL IsConnectionNotifierPresent(IN ISIPConnectionNotifier *piSCN) const;
+    IMS_BOOL IsConnectionNotifierPresent(IN ISipConnectionNotifier *piSCN) const;
 
-    static IMS_BOOL CheckMessageValidity(IN ISIPMessage *piSIPMsg, OUT AString &strReason);
+    static IMS_BOOL CheckMessageValidity(IN ISipMessage *piSIPMsg, OUT AString &strReason);
     static AString CreateConnectionNotifierKey(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort);
     static void CreateExtraFeatures(IN Service *pService, OUT IMSList<FeatureSet*> &objFeatures);
     static void CreatePreferenceHeaders(IN CONST AStringArray &objAcceptContacts,
@@ -179,31 +179,31 @@ private:
     static void DestroyExtraFeatures(OUT IMSList<FeatureSet*> &objFeatures);
     static void DestroyPreferenceHeaders(OUT IMSList<PreferenceHeader*> &objHeaders);
     static void GetCalleePreferenceSupportedServices(IN CONST IMSList<Service*> &objServices,
-            IN CONST SIPMethod &objMethod,
+            IN CONST SipMethod &objMethod,
             OUT IMSList<Service*> &objCalleePreferenceServices);
-    static void GetRejectCode(IN ISIPServerConnection *piSSC,
-            IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nLogInfo, OUT SIPStatusCode &objStatusCode);
-    static void HandleSIPRequest(IN ISIPConnectionNotifier *piSCN,
+    static void GetRejectCode(IN ISipServerConnection *piSSC,
+            IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nLogInfo, OUT SipStatusCode &objStatusCode);
+    static void HandleSIPRequest(IN ISipConnectionNotifier *piSCN,
             IN IMS_BOOL bIsForked = IMS_FALSE);
     static IMS_BOOL HasService(IN CONST IMSList<Service*> &objServices,
             IN CONST Service *pEvaluatedService);
     static IMS_BOOL IsCalleePreferenceSupported(IN CONST IMSList<Service*> &objServices,
-            IN CONST SIPMethod &objMethod);
-    static Service* RouteSIPRequest(IN ISIPServerConnection *piSSC,
-            OUT SIPStatusCode &objStatusCode);
+            IN CONST SipMethod &objMethod);
+    static Service* RouteSIPRequest(IN ISipServerConnection *piSSC,
+            OUT SipStatusCode &objStatusCode);
     static Service* RouteSIPRequestByIFC(
-            IN CONST IMSList<Service*> &objServices, IN ISIPServerConnection *piSSC);
-    static void SendResponse(IN ISIPConnectionNotifier *piSCN,
-            IN ISIPServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
+            IN CONST IMSList<Service*> &objServices, IN ISipServerConnection *piSSC);
+    static void SendResponse(IN ISipConnectionNotifier *piSCN,
+            IN ISipServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
             IN CONST AString &strReasonPhrase = AString::ConstNull(),
             IN IMS_BOOL bDebuggableToTag = IMS_FALSE);
-    static void SetServerHeader(IN ISIPConnectionNotifier *piSCN, IN ISIPServerConnection *piSSC);
+    static void SetServerHeader(IN ISipConnectionNotifier *piSCN, IN ISipServerConnection *piSSC);
 
 private:
     IMutex *piLock;
     SIPServerConnectionListenerProxy **ppListenerProxy;
-    // < (IP + Port), ISIPConnectionNotifier* >
-    IMSMap<AString, ISIPConnectionNotifier*> objConnectionNotifiers;
+    // < (IP + Port), ISipConnectionNotifier* >
+    IMSMap<AString, ISipConnectionNotifier*> objConnectionNotifiers;
     // < (IP + Port), Count >
     IMSMap<AString, IMS_SINT32> objReferenceCounts;
 };
@@ -280,16 +280,16 @@ Remarks
 
 */
 PUBLIC
-ISIPConnectionNotifier* SIPConnectionNotifierManagerPrivate::CreateConnectionNotifier(
+ISipConnectionNotifier* SIPConnectionNotifierManagerPrivate::CreateConnectionNotifier(
         IN CONST AString &strScheme, IN CONST IPAddress &objIPA, IN IMS_SINT32 nPortS,
         IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFlowControl,
-        IN CONST AString &strParams, IN CONST SIPAddress &objUserId)
+        IN CONST AString &strParams, IN CONST SipAddress &objUserId)
 {
     AString strKey = CreateConnectionNotifierKey(objIPA, nPortS);
 
     //---------------------------------------------------------------------------------------------
 
-    ISIPConnectionNotifier *piSCN = GetConnectionNotifier(strKey);
+    ISipConnectionNotifier *piSCN = GetConnectionNotifier(strKey);
 
     if (piSCN != IMS_NULL)
     {
@@ -302,7 +302,7 @@ ISIPConnectionNotifier* SIPConnectionNotifierManagerPrivate::CreateConnectionNot
     AString strName;
     strName.SetNumber(nPortS);
 
-    piSCN = DYNAMIC_CAST(ISIPConnectionNotifier*, Connector::Open(strScheme, strName, strParams));
+    piSCN = DYNAMIC_CAST(ISipConnectionNotifier*, Connector::Open(strScheme, strName, strParams));
 
     if (piSCN == IMS_NULL)
     {
@@ -321,13 +321,13 @@ ISIPConnectionNotifier* SIPConnectionNotifierManagerPrivate::CreateConnectionNot
     }
 
     // Set a default From & Contact information
-    piSCN->SetFromAndContact(objUserId.GetURI(), objUserId.GetDisplayName(), objUserId.GetUser());
+    piSCN->SetFromAndContact(objUserId.GetUri(), objUserId.GetDisplayName(), objUserId.GetUser());
 
     AddConnectionNotifier(strKey, piSCN);
     AddReference(strKey);
 
     IMS_TRACE_D("SIP Connection Notifier (%s, %d) is created",
-            SIPDebug::GetCharA1(strKey.GetStr(), 5), piSCN->GetSlotId(), 0);
+            SipDebug::GetCharA1(strKey.GetStr(), 5), piSCN->GetSlotId(), 0);
 
     return piSCN;
 }
@@ -338,18 +338,18 @@ Remarks
 
 */
 PUBLIC
-ISIPConnectionNotifier* SIPConnectionNotifierManagerPrivate::GetConnectionNotifier(
+ISipConnectionNotifier* SIPConnectionNotifierManagerPrivate::GetConnectionNotifier(
         IN CONST IPAddress &objIP, IN IMS_SINT32 nPort)
 {
     AString strKey = CreateConnectionNotifierKey(objIP, nPort);
-    ISIPConnectionNotifier *piSCN = GetConnectionNotifier(strKey);
+    ISipConnectionNotifier *piSCN = GetConnectionNotifier(strKey);
 
     //---------------------------------------------------------------------------------------------
 
     if (piSCN == IMS_NULL)
     {
         IMS_TRACE_D("SIP Connection Notifier (%s) is not found",
-                SIPDebug::GetCharA1(strKey.GetStr(), 5), 0, 0);
+                SipDebug::GetCharA1(strKey.GetStr(), 5), 0, 0);
         return IMS_NULL;
     }
 
@@ -365,7 +365,7 @@ Remarks
 */
 PUBLIC
 void SIPConnectionNotifierManagerPrivate::AddConnectionNotifier(
-        IN const AString& strKey, IN ISIPConnectionNotifier *piSCN)
+        IN const AString& strKey, IN ISipConnectionNotifier *piSCN)
 {
     LockGuard objLock(piLock);
 
@@ -380,7 +380,8 @@ Remarks
 
 */
 PUBLIC
-void SIPConnectionNotifierManagerPrivate::ReleaseConnectionNotifier(IN ISIPConnectionNotifier *piSCN)
+void SIPConnectionNotifierManagerPrivate::ReleaseConnectionNotifier(
+        IN ISipConnectionNotifier *piSCN)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -410,7 +411,7 @@ Remarks
 */
 PRIVATE VIRTUAL
 void SIPConnectionNotifierManagerPrivate::ServerConnection_NotifyRequest(
-        IN ISIPConnectionNotifier *piSCN, IN IMS_BOOL bIsForked /* = IMS_FALSE */)
+        IN ISipConnectionNotifier *piSCN, IN IMS_BOOL bIsForked /* = IMS_FALSE */)
 {
     if (!IsConnectionNotifierPresent(piSCN))
     {
@@ -439,7 +440,7 @@ void SIPConnectionNotifierManagerPrivate::AddReference(IN CONST AString &strKey)
         // It is just created, so add a new reference count
         objReferenceCounts.Add(strKey, 1);
         IMS_TRACE_D("SCN_REF (%s) :: Created",
-                SIPDebug::GetCharA1(strKey.GetStr(), 5), 0, 0);
+                SipDebug::GetCharA1(strKey.GetStr(), 5), 0, 0);
         return;
     }
 
@@ -448,7 +449,7 @@ void SIPConnectionNotifierManagerPrivate::AddReference(IN CONST AString &strKey)
     ++nValue;
 
     IMS_TRACE_D("SCN_REF (%s) :: %d >>> %d",
-            SIPDebug::GetCharA1(strKey.GetStr(), 5), nValue - 1, nValue);
+            SipDebug::GetCharA1(strKey.GetStr(), 5), nValue - 1, nValue);
 }
 
 /*
@@ -474,7 +475,7 @@ IMS_SINT32 SIPConnectionNotifierManagerPrivate::RemoveReference(IN CONST AString
     --nValue;
 
     IMS_TRACE_D("SCN_REF (%s) :: %d >>> %d",
-            SIPDebug::GetCharA1(strKey.GetStr(), 5), nValue + 1, nValue);
+            SipDebug::GetCharA1(strKey.GetStr(), 5), nValue + 1, nValue);
 
     return nValue;
 }
@@ -485,7 +486,7 @@ Remarks
 
 */
 PRIVATE
-ISIPConnectionNotifier* SIPConnectionNotifierManagerPrivate::GetConnectionNotifier(
+ISipConnectionNotifier* SIPConnectionNotifierManagerPrivate::GetConnectionNotifier(
         IN CONST AString &strKey)
 {
     LockGuard objLock(piLock);
@@ -527,7 +528,7 @@ Remarks
 */
 PRIVATE
 IMS_BOOL SIPConnectionNotifierManagerPrivate::IsConnectionNotifierPresent(
-        IN ISIPConnectionNotifier *piSCN) const
+        IN ISipConnectionNotifier *piSCN) const
 {
     LockGuard objLock(piLock);
 
@@ -535,7 +536,7 @@ IMS_BOOL SIPConnectionNotifierManagerPrivate::IsConnectionNotifierPresent(
 
     for (IMS_UINT32 i = 0; i < objConnectionNotifiers.GetSize(); ++i)
     {
-        ISIPConnectionNotifier *piTmpSCN = objConnectionNotifiers.GetValueAt(i);
+        ISipConnectionNotifier *piTmpSCN = objConnectionNotifiers.GetValueAt(i);
 
         if (piTmpSCN == IMS_NULL)
             continue;
@@ -555,18 +556,18 @@ Remarks
 
 */
 PRIVATE GLOBAL
-IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISIPMessage *piSIPMsg,
+IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISipMessage *piSIPMsg,
         OUT AString &strReason)
 {
     // According to the SIP method, check the mandatory header or parameters ...
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     //---------------------------------------------------------------------------------------------
 
     // RFC 3891 : Replaces header requirements
-    if (objMethod.ToInt() != SIPMethod::INVITE)
+    if (objMethod.ToInt() != SipMethod::INVITE)
     {
-        if (piSIPMsg->IsHeaderPresent(ISIPHeader::REPLACES))
+        if (piSIPMsg->IsHeaderPresent(ISipHeader::REPLACES))
         {
             strReason = "Replaces header is present in non-INVITE";
             return IMS_FALSE;
@@ -575,10 +576,10 @@ IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISIPMessag
 
     switch (objMethod.ToInt())
     {
-    case SIPMethod::INVITE:
+    case SipMethod::INVITE:
         {
             // Check Replaces header
-            if (piSIPMsg->GetHeaderCount(ISIPHeader::REPLACES) > 1)
+            if (piSIPMsg->GetHeaderCount(ISipHeader::REPLACES) > 1)
             {
                 strReason = "Multiple Replaces headers are present";
                 return IMS_FALSE;
@@ -586,10 +587,10 @@ IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISIPMessag
         }
         break;
 
-    case SIPMethod::REFER:
+    case SipMethod::REFER:
         {
             // Check Refer-To header
-            AString strReferTo = piSIPMsg->GetHeader(ISIPHeader::REFER_TO);
+            AString strReferTo = piSIPMsg->GetHeader(ISipHeader::REFER_TO);
 
             if (strReferTo.IsNULL() || strReferTo.IsEmpty())
             {
@@ -597,8 +598,8 @@ IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISIPMessag
                 return IMS_FALSE;
             }
 
-            ISIPHeader *piHeader
-                    = SIPParsingHelper::CreateHeader(ISIPHeader::REFER_TO, strReferTo);
+            ISipHeader *piHeader
+                    = SipParsingHelper::CreateHeader(ISipHeader::REFER_TO, strReferTo);
 
             if (piHeader == IMS_NULL)
             {
@@ -606,7 +607,7 @@ IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISIPMessag
                 return IMS_FALSE;
             }
 
-            const SIPAddress *pAddress = piHeader->GetSIPAddress();
+            const SipAddress *pAddress = piHeader->GetSipAddress();
 
             if (pAddress == IMS_NULL)
             {
@@ -616,7 +617,7 @@ IMS_BOOL SIPConnectionNotifierManagerPrivate::CheckMessageValidity(IN ISIPMessag
                 return IMS_FALSE;
             }
 
-            const SIPParameter *pParameter = pAddress->GetParameter(SIP::STR_METHOD);
+            const SipParameter *pParameter = pAddress->GetParameter(Sip::STR_METHOD);
 
             if (pParameter == IMS_NULL)
             {
@@ -681,7 +682,7 @@ void SIPConnectionNotifierManagerPrivate::CreateExtraFeatures(IN Service *pServi
     // Provide the "+sip.instance" feature if it is supported in the device
     // Q-OS: always enabled
     {
-        const SIPParameter *pParameter = pService->GetInstanceParameter();
+        const SipParameter *pParameter = pService->GetInstanceParameter();
 
         if (pParameter != IMS_NULL)
         {
@@ -713,8 +714,8 @@ void SIPConnectionNotifierManagerPrivate::CreatePreferenceHeaders(
     for (IMS_SINT32 i = 0; i < objAcceptContacts.GetCount(); ++i)
     {
         const AString &strHeader = objAcceptContacts.GetElementAt(i);
-        ISIPHeader *piSIPHeader
-                = SIPParsingHelper::CreateHeader(ISIPHeader::ACCEPT_CONTACT, strHeader);
+        ISipHeader *piSIPHeader
+                = SipParsingHelper::CreateHeader(ISipHeader::ACCEPT_CONTACT, strHeader);
 
         if (piSIPHeader == IMS_NULL)
             continue;
@@ -793,13 +794,13 @@ Remarks
 */
 PRIVATE GLOBAL
 void SIPConnectionNotifierManagerPrivate::GetCalleePreferenceSupportedServices(
-        IN CONST IMSList<Service*> &objServices, IN CONST SIPMethod &objMethod,
+        IN CONST IMSList<Service*> &objServices, IN CONST SipMethod &objMethod,
         OUT IMSList<Service*> &objCalleePreferenceServices)
 {
     //---------------------------------------------------------------------------------------------
 
     // In the moment, OPTIONS method will be only handled for this request.
-    if (!objMethod.Equals(SIPMethod::OPTIONS))
+    if (!objMethod.Equals(SipMethod::OPTIONS))
     {
         // no-op
         return;
@@ -834,8 +835,8 @@ Remarks
 
 */
 PRIVATE GLOBAL
-void SIPConnectionNotifierManagerPrivate::GetRejectCode(IN ISIPServerConnection *piSSC,
-        IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nLogInfo, OUT SIPStatusCode &objStatusCode)
+void SIPConnectionNotifierManagerPrivate::GetRejectCode(IN ISipServerConnection *piSSC,
+        IN IMS_SINT32 nStatusCode, IN IMS_SINT32 nLogInfo, OUT SipStatusCode &objStatusCode)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -845,7 +846,7 @@ void SIPConnectionNotifierManagerPrivate::GetRejectCode(IN ISIPServerConnection 
 
     if (pFactoryProxy->IsRoutingRejectNotifierEnabled(piSSC->GetSlotId()))
     {
-        SIPRoutingRejectNotifier* pRoutingRejectNotifier
+        SipRoutingRejectNotifier* pRoutingRejectNotifier
                 = pFactoryProxy->GetRoutingRejectNotifier(piSSC->GetSlotId());
         pRoutingRejectNotifier->NotifyRequestReject(piSSC, objStatusCode);
 
@@ -863,7 +864,7 @@ Remarks
 
 */
 PRIVATE GLOBAL
-void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNotifier *piSCN,
+void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISipConnectionNotifier *piSCN,
         IN IMS_BOOL bIsForked /* = IMS_FALSE */)
 {
     //---------------------------------------------------------------------------------------------
@@ -871,8 +872,8 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
     if (piSCN == IMS_NULL)
         return;
 
-    ISIPDialog *piOrigDialog = IMS_NULL;
-    ISIPServerConnection *piSSC = IMS_NULL;
+    ISipDialog *piOrigDialog = IMS_NULL;
+    ISipServerConnection *piSSC = IMS_NULL;
 
     if (bIsForked)
     {
@@ -896,23 +897,23 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
 
     if (!CheckMessageValidity(piSSC->GetMessage(), strReasonPhrase))
     {
-        SendResponse(piSCN, piSSC, SIPStatusCode::SC_400, strReasonPhrase);
+        SendResponse(piSCN, piSSC, SipStatusCode::SC_400, strReasonPhrase);
         piSSC->Close();
         return;
     }
 
     // Parse the message body if it is a multipart body
-    if (!SIPParsingHelper::CreateMessageBodyParts(piSSC->GetMessage()))
+    if (!SipParsingHelper::CreateMessageBodyParts(piSSC->GetMessage()))
     {
         IMS_TRACE_E(0, "Parsing a message body part failed", 0, 0, 0);
 
-        SendResponse(piSCN, piSSC, SIPStatusCode::SC_400);
+        SendResponse(piSCN, piSSC, SipStatusCode::SC_400);
         piSSC->Close();
         return;
     }
 
     // First, check if the message is CANCEL request ...
-    if (piSSC->GetMethod().Equals(SIPMethod::CANCEL))
+    if (piSSC->GetMethod().Equals(SipMethod::CANCEL))
     {
         IMS_BOOL bHandled = CancellableMethodManager::GetInstance()->HandleCancelRequest(piSSC);
 
@@ -922,7 +923,7 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
             IMS_TRACE_D("SIPConnectionNotifierManager :: Sending 481 response " \
                     "to CANCEL request ...", 0, 0, 0);
 
-            SendResponse(piSCN, piSSC, SIPStatusCode::SC_481);
+            SendResponse(piSCN, piSSC, SipStatusCode::SC_481);
             piSSC->Close();
         }
 
@@ -930,27 +931,27 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
     }
 
     IMS_BOOL bRequestWithinDialog = IMS_FALSE;
-    ISIPDialog *piDialog = piSSC->GetDialog();
+    ISipDialog *piDialog = piSSC->GetDialog();
 
     if (piDialog != IMS_NULL)
     {
         IMS_SINT32 nDState = piDialog->GetState();
 
-        if ((nDState == ISIPDialog::STATE_EARLY)
-                || (nDState == ISIPDialog::STATE_CONFIRMED))
+        if ((nDState == ISipDialog::STATE_EARLY)
+                || (nDState == ISipDialog::STATE_CONFIRMED))
         {
             bRequestWithinDialog = IMS_TRUE;
         }
-        else if (nDState == ISIPDialog::STATE_TERMINATED)
+        else if (nDState == ISipDialog::STATE_TERMINATED)
         {
-            const SIPMethod &objMethod = piSSC->GetMethod();
+            const SipMethod &objMethod = piSSC->GetMethod();
 
             // To guard the race condition of re-INVITE/non-2xx & BYE request
-            if (objMethod.Equals(SIPMethod::BYE)
-                    || objMethod.Equals(SIPMethod::NOTIFY)
-                    || objMethod.Equals(SIPMethod::INVITE)
-                    || objMethod.Equals(SIPMethod::UPDATE)
-                    || objMethod.Equals(SIPMethod::REFER))
+            if (objMethod.Equals(SipMethod::BYE)
+                    || objMethod.Equals(SipMethod::NOTIFY)
+                    || objMethod.Equals(SipMethod::INVITE)
+                    || objMethod.Equals(SipMethod::UPDATE)
+                    || objMethod.Equals(SipMethod::REFER))
             {
                 IMS_TRACE_D("SIPConnectionNotifierManager :: Dialog is already terminated, "
                         "but try to route the message to the proper service method", 0, 0, 0);
@@ -977,11 +978,11 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
 
         if (!bHandled)
         {
-            if (piSSC->GetMethod().Equals(SIPMethod::ACK))
+            if (piSSC->GetMethod().Equals(SipMethod::ACK))
             {
                 IMS_TRACE_D("SIPConnectionNotifierManager :: ACK request is received, " \
                         "but no dialog(%s) matched ...",
-                        SIPDebug::GetStr1(piDialog->GetDialogID(), 8, '@').GetStr(), 0, 0);
+                        SipDebug::GetStr1(piDialog->GetDialogId(), 8, '@').GetStr(), 0, 0);
             }
             else
             {
@@ -989,9 +990,9 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
                 IMS_TRACE_D("SIPConnectionNotifierManager :: Sending 481 response " \
                         "to %s request within the dialog (%s) ...",
                         piSSC->GetMethod().ToString().GetStr(),
-                        SIPDebug::GetStr1(piDialog->GetDialogID(), 8, '@').GetStr(), 0);
+                        SipDebug::GetStr1(piDialog->GetDialogId(), 8, '@').GetStr(), 0);
 
-                SendResponse(piSCN, piSSC, SIPStatusCode::SC_481);
+                SendResponse(piSCN, piSSC, SipStatusCode::SC_481);
             }
 
             piSSC->Close();
@@ -1000,7 +1001,7 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
     // New incoming SIP request received
     else
     {
-        SIPStatusCode objStatusCode;
+        SipStatusCode objStatusCode;
 
         // Find an appropriate service from the incoming SIP request message
         Service *pService = RouteSIPRequest(piSSC, objStatusCode);
@@ -1017,7 +1018,7 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
         }
         else
         {
-            if (piSSC->GetMethod().Equals(SIPMethod::ACK))
+            if (piSSC->GetMethod().Equals(SipMethod::ACK))
             {
                 piSSC->Close();
 
@@ -1026,10 +1027,10 @@ void SIPConnectionNotifierManagerPrivate::HandleSIPRequest(IN ISIPConnectionNoti
                 return;
             }
 
-            if (objStatusCode == SIPStatusCode::SC_INVALID)
+            if (objStatusCode == SipStatusCode::SC_INVALID)
             {
                 // Default status code is 404
-                objStatusCode = SIPStatusCode::SC_404;
+                objStatusCode = SipStatusCode::SC_404;
             }
 
             // Send 404 response (480 ???)
@@ -1080,7 +1081,7 @@ Remarks
 */
 PRIVATE GLOBAL
 IMS_BOOL SIPConnectionNotifierManagerPrivate::IsCalleePreferenceSupported(
-        IN CONST IMSList<Service*> &objServices, IN CONST SIPMethod &objMethod)
+        IN CONST IMSList<Service*> &objServices, IN CONST SipMethod &objMethod)
 {
     IMS_BOOL bCalleePreference = IMS_FALSE;
 
@@ -1116,8 +1117,8 @@ Remarks
 
 */
 PRIVATE GLOBAL
-Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISIPServerConnection *piSSC,
-        OUT SIPStatusCode &objStatusCode)
+Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISipServerConnection *piSSC,
+        OUT SipStatusCode &objStatusCode)
 {
     IMSList<Service*> objServices = ServiceManager::GetInstance()->GetServices();
 
@@ -1125,20 +1126,20 @@ Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISIPServerConne
 
     if (objServices.IsEmpty())
     {
-        GetRejectCode(piSSC, SIPStatusCode::SC_404, 1, objStatusCode);
+        GetRejectCode(piSSC, SipStatusCode::SC_404, 1, objStatusCode);
         IMS_TRACE_E(0, "There are no installed services", 0, 0, 0);
         return IMS_NULL;
     }
 
     // First, check the Request-URI if it matches with the Contact address of the service.
-    const SIPMethod &objMethod = piSSC->GetMethod();
-    const AString &strRequestURI = piSSC->GetRequestURI();
-    SIPAddress objRequestURI(strRequestURI);
+    const SipMethod &objMethod = piSSC->GetMethod();
+    const AString &strRequestURI = piSSC->GetRequestUri();
+    SipAddress objRequestURI(strRequestURI);
 
     IMS_TRACE_D("RouteSIPRequest :: Request-URI (%s)",
-            SIPDebug::GetUri1(strRequestURI).GetStr(), 0, 0);
+            SipDebug::GetUri1(strRequestURI).GetStr(), 0, 0);
 
-    if (SIPFeatures::IsTransportParameterIgnoredForIncomingRequestRouting(piSSC->GetSlotId()))
+    if (SipFeatures::IsTransportParameterIgnoredForIncomingRequestRouting(piSSC->GetSlotId()))
     {
         const AString strTransport("transport");
         objRequestURI.RemoveParameter(strTransport);
@@ -1179,7 +1180,7 @@ Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISIPServerConne
         // Check the Request-URI validation
         IMS_BOOL bValidity = pService->ValidateRequestURI(objRequestURI);
 
-        if (!bValidity && SIPFeatures::IsHostPartValidationRequiredForIncomingRequestRouting(
+        if (!bValidity && SipFeatures::IsHostPartValidationRequiredForIncomingRequestRouting(
                 piSSC->GetSlotId()))
         {
             // Checks if IP and port is matched with those in the Contact address.
@@ -1201,12 +1202,12 @@ Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISIPServerConne
 
     if (objServices.IsEmpty())
     {
-        GetRejectCode(piSSC, SIPStatusCode::SC_404, 2, objStatusCode);
+        GetRejectCode(piSSC, SipStatusCode::SC_404, 2, objStatusCode);
         IMS_TRACE_E(0, "There are no matched services", 0, 0, 0);
         return IMS_NULL;
     }
 
-    AStringArray objAcceptContacts = piSSC->GetMessage()->GetHeaders(ISIPHeader::ACCEPT_CONTACT);
+    AStringArray objAcceptContacts = piSSC->GetMessage()->GetHeaders(ISipHeader::ACCEPT_CONTACT);
 
     if (objAcceptContacts.IsEmpty())
     {
@@ -1215,7 +1216,7 @@ Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISIPServerConne
 
         if (pService == IMS_NULL)
         {
-            GetRejectCode(piSSC, SIPStatusCode::SC_404, 3, objStatusCode);
+            GetRejectCode(piSSC, SipStatusCode::SC_404, 3, objStatusCode);
             return IMS_NULL;
         }
 
@@ -1291,7 +1292,7 @@ Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequest(IN ISIPServerConne
 
         if (pService == IMS_NULL)
         {
-            GetRejectCode(piSSC, SIPStatusCode::SC_480, 4, objStatusCode);
+            GetRejectCode(piSSC, SipStatusCode::SC_480, 4, objStatusCode);
             return IMS_NULL;
         }
 
@@ -1354,7 +1355,7 @@ Remarks
 */
 PRIVATE GLOBAL
 Service* SIPConnectionNotifierManagerPrivate::RouteSIPRequestByIFC(
-        IN CONST IMSList<Service*> &objServices, IN ISIPServerConnection *piSSC)
+        IN CONST IMSList<Service*> &objServices, IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1408,8 +1409,8 @@ Remarks
 
 */
 PRIVATE GLOBAL
-void SIPConnectionNotifierManagerPrivate::SendResponse(IN ISIPConnectionNotifier *piSCN,
-        IN ISIPServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
+void SIPConnectionNotifierManagerPrivate::SendResponse(IN ISipConnectionNotifier *piSCN,
+        IN ISipServerConnection *piSSC, IN IMS_SINT32 nStatusCode,
         IN CONST AString &strReasonPhrase/* = AString::ConstNull()*/,
         IN IMS_BOOL bDebuggableToTag/* = IMS_FALSE*/)
 {
@@ -1433,12 +1434,12 @@ void SIPConnectionNotifierManagerPrivate::SendResponse(IN ISIPConnectionNotifier
     if (bDebuggableToTag)
     {
         // It's for out-of-dialog message.
-        AString strTo = piSSC->GetMessage()->GetHeader(ISIPHeader::TO);
+        AString strTo = piSSC->GetMessage()->GetHeader(ISipHeader::TO);
 
         if (strTo.GetLength() > 0)
         {
             strTo.Append("_j281_sr");
-            piSSC->GetMessage()->SetHeader(ISIPHeader::TO, strTo);
+            piSSC->GetMessage()->SetHeader(ISipHeader::TO, strTo);
         }
     }
     // DEBUG -- ends
@@ -1458,8 +1459,8 @@ Remarks
 
 */
 PRIVATE GLOBAL
-void SIPConnectionNotifierManagerPrivate::SetServerHeader(IN ISIPConnectionNotifier *piSCN,
-        IN ISIPServerConnection *piSSC)
+void SIPConnectionNotifierManagerPrivate::SetServerHeader(IN ISipConnectionNotifier *piSCN,
+        IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1473,7 +1474,7 @@ void SIPConnectionNotifierManagerPrivate::SetServerHeader(IN ISIPConnectionNotif
         return;
     }
 
-    ISIPMessage *piSIPMsg = piSSC->GetMessage();
+    ISipMessage *piSIPMsg = piSSC->GetMessage();
 
     if (piSIPMsg == IMS_NULL)
     {
@@ -1481,23 +1482,23 @@ void SIPConnectionNotifierManagerPrivate::SetServerHeader(IN ISIPConnectionNotif
     }
 
     IMS_SINT32 nSlotId = piSSC->GetSlotId();
-    SIPProfile* pSIPProfile = piSCN->GetSIPProfile();
+    SipProfile* pSIPProfile = piSCN->GetSipProfile();
 
-    if (!SIPConfigProxy::IsUserAgentConfigured(nSlotId, pSIPProfile))
+    if (!SipConfigProxy::IsUserAgentConfigured(nSlotId, pSIPProfile))
     {
         return;
     }
 
     const IPAddress& objIP = piSCN->GetLocalAddress();
 
-    if (SIPConfigProxy::IsUserAgentSetByContext(nSlotId, pSIPProfile))
+    if (SipConfigProxy::IsUserAgentSetByContext(nSlotId, pSIPProfile))
     {
-        UserAgentHeader::SetHeader(SIPHeaderName::SERVER,
+        UserAgentHeader::SetHeader(SipHeaderName::SERVER,
                 pSIPProfile, AString::ConstNull(), objIP, nSlotId, piSIPMsg);
     }
     else
     {
-        UserAgentHeader::SetHeader(SIPHeaderName::USER_AGENT,
+        UserAgentHeader::SetHeader(SipHeaderName::USER_AGENT,
                 pSIPProfile, AString::ConstNull(), objIP, nSlotId, piSIPMsg);
     }
 }
@@ -1525,10 +1526,10 @@ Remarks
 
 */
 PUBLIC
-ISIPConnectionNotifier* SIPConnectionNotifierManager::CreateConnectionNotifier(
+ISipConnectionNotifier* SIPConnectionNotifierManager::CreateConnectionNotifier(
         IN CONST AString &strScheme, IN CONST IPAddress &objIPA, IN IMS_SINT32 nPortS,
         IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFlowControl,
-        IN CONST AString &strParams, IN CONST SIPAddress &objUserId)
+        IN CONST AString &strParams, IN CONST SipAddress &objUserId)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1547,8 +1548,8 @@ Remarks
 
 */
 PUBLIC
-ISIPConnectionNotifier* SIPConnectionNotifierManager::GetConnectionNotifier(IN CONST IPAddress &objIP,
-        IN IMS_SINT32 nPort)
+ISipConnectionNotifier* SIPConnectionNotifierManager::GetConnectionNotifier(
+        IN CONST IPAddress &objIP, IN IMS_SINT32 nPort)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1566,7 +1567,7 @@ Remarks
 
 */
 PUBLIC
-void SIPConnectionNotifierManager::ReleaseConnectionNotifier(IN ISIPConnectionNotifier *&piSCN)
+void SIPConnectionNotifierManager::ReleaseConnectionNotifier(IN ISipConnectionNotifier *&piSCN)
 {
     //---------------------------------------------------------------------------------------------
 

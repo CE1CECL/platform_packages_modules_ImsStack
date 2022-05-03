@@ -87,7 +87,7 @@ DialogMethodManager* DialogMethodManager::GetInstance()
 }
 
 PRIVATE
-IMS_BOOL DialogMethodManager::HandleRequestWithinDialog(IN ISIPServerConnection *piSSC)
+IMS_BOOL DialogMethodManager::HandleRequestWithinDialog(IN ISipServerConnection *piSSC)
 {
     LockGuard objLock(piLock);
 

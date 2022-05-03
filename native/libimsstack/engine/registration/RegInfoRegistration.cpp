@@ -47,11 +47,11 @@ RegInfoRegistration::~RegInfoRegistration()
     }
 
     IMS_TRACE_D("Destructor :: aor=%s, id=%s",
-            SIPDebug::GetUri1(objAOR.ToString()).GetStr(), strId.GetStr(), 0);
+            SipDebug::GetUri1(objAOR.ToString()).GetStr(), strId.GetStr(), 0);
 }
 
 PUBLIC VIRTUAL
-const SIPAddress& RegInfoRegistration::GetAOR() const
+const SipAddress& RegInfoRegistration::GetAOR() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ const SIPAddress& RegInfoRegistration::GetAOR() const
 }
 
 PUBLIC VIRTUAL
-IRegInfoContact* RegInfoRegistration::GetContact(IN CONST SIPAddress &objContactUri) const
+IRegInfoContact* RegInfoRegistration::GetContact(IN CONST SipAddress &objContactUri) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ void RegInfoRegistration::DisplayRegInfo()
     else
     {
         IMS_TRACE_I("REG :: id=%s, aor=%s, state=%s",
-                strId.GetStr(), SIPDebug::GetUri1(objAOR.ToString()).GetStr(), pszState[nState]);
+                strId.GetStr(), SipDebug::GetUri1(objAOR.ToString()).GetStr(), pszState[nState]);
     }
 
     AString strTag;
@@ -247,7 +247,7 @@ IMS_BOOL RegInfoRegistration::Update(IN INode *piNode)
         else
         {
             IMS_TRACE_I("REG :: aor=%s, id=%s",
-                    SIPDebug::GetUri1(objAOR.ToString()).GetStr(), strId.GetStr(), 0);
+                    SipDebug::GetUri1(objAOR.ToString()).GetStr(), strId.GetStr(), 0);
         }
     }
     else
@@ -323,7 +323,7 @@ IMS_BOOL RegInfoRegistration::SetAOR(IN INamedNodeMap *piNodeMap)
     if (!objAOR.Create(piNode->GetNodeValue()))
     {
         IMS_TRACE_E(0, "Creating an AOR (%s) failed",
-                SIPDebug::GetUri1(piNode->GetNodeValue()).GetStr(), 0, 0);
+                SipDebug::GetUri1(piNode->GetNodeValue()).GetStr(), 0, 0);
         return IMS_FALSE;
     }
 

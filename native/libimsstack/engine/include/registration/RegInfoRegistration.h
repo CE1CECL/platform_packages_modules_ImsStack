@@ -30,8 +30,8 @@ public:
 
 public:
     // IRegInfoRegistration interface
-    virtual const SIPAddress& GetAOR() const;
-    virtual IRegInfoContact* GetContact(IN CONST SIPAddress &objContactUri) const;
+    virtual const SipAddress& GetAOR() const;
+    virtual IRegInfoContact* GetContact(IN CONST SipAddress &objContactUri) const;
     virtual IMSList<IRegInfoContact*> GetContacts() const;
     virtual RegInfoContact* GetPriorContact() const;
     virtual IMS_SINT32 GetState() const;
@@ -51,7 +51,7 @@ private:
 private:
     AString strId;
     IMS_SINT32 nState;
-    SIPAddress objAOR;
+    SipAddress objAOR;
 
     IMSList<RegInfoContact*> objContacts;
 };

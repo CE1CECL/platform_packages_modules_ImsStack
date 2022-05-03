@@ -28,7 +28,7 @@ Remarks
 
 */
 GLOBAL IMS_BOOL DecodeHeaderComponent(IN CONST SipAddrSpec *pAddrSpec,
-        OUT IMSList<ISIPHeader*> &objHeaders)
+        OUT IMSList<ISipHeader*> &objHeaders)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ Remarks
 
 */
 GLOBAL IMS_BOOL DecodeHeaderComponent(IN CONST AString &strHeaders,
-        OUT IMSList<ISIPHeader*> &objHeaders)
+        OUT IMSList<ISipHeader*> &objHeaders)
 {
     IMSList<AString> objTokens = strHeaders.Split(TextParser::CHAR_AMPERSAND);
 

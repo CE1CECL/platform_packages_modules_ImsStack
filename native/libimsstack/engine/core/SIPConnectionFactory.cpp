@@ -39,7 +39,7 @@ SIPConnectionFactory::SIPConnectionFactory(IN Service *pService_)
 }
 
 PUBLIC
-SIPConnectionFactory::SIPConnectionFactory(IN Service *pService_, IN ISIPServerConnection *piSSC)
+SIPConnectionFactory::SIPConnectionFactory(IN Service *pService_, IN ISipServerConnection *piSSC)
     : pService(pService_)
     , piDialog(IMS_NULL)
     , piListener(IMS_NULL)
@@ -73,13 +73,13 @@ IMS_BOOL SIPConnectionFactory::DispatchMessage(IN IMSMSG &objMSG)
     {
     case AMSG_SSC_FOR_MID_DIALOG_RECEIVED:
     {
-        ISIPServerConnection *piSSC = reinterpret_cast<ISIPServerConnection*>(objMSG.nLparam);
+        ISipServerConnection *piSSC = reinterpret_cast<ISipServerConnection*>(objMSG.nLparam);
 
         if (piListener == IMS_NULL)
         {
             if (pService != IMS_NULL)
             {
-                pService->SendResponse(piSSC, SIPStatusCode::SC_480);
+                pService->SendResponse(piSSC, SipStatusCode::SC_480);
             }
 
             piSSC->Close();
@@ -103,7 +103,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPConnectionFactory::Dialog_Compare(IN ISIPServerConnection *piSSC) const
+IMS_BOOL SIPConnectionFactory::Dialog_Compare(IN ISipServerConnection *piSSC) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -112,27 +112,27 @@ IMS_BOOL SIPConnectionFactory::Dialog_Compare(IN ISIPServerConnection *piSSC) co
         return IMS_FALSE;
     }
 
-    const SIPMethod &objMethod = piSSC->GetMethod();
+    const SipMethod &objMethod = piSSC->GetMethod();
 
-    if (objMethod.Equals(SIPMethod::REFER))
+    if (objMethod.Equals(SipMethod::REFER))
     {
         // If the server transaction has the same dialog identifier with a dialog of this session,
         // then it will be handled by this session.
-        ISIPDialog *piReferDialog = piSSC->GetDialog();
+        ISipDialog *piReferDialog = piSSC->GetDialog();
 
         if (piReferDialog == IMS_NULL)
         {
             return IMS_FALSE;
         }
 
-        AString strDialogId = piDialog->GetDialogID();
-        AString strReferDialogId = piReferDialog->GetDialogID();
+        AString strDialogId = piDialog->GetDialogId();
+        AString strReferDialogId = piReferDialog->GetDialogId();
 
         if (strDialogId.Equals(strReferDialogId))
         {
             IMS_TRACE_D("SIPConnectionFactory :: Dialog (%s), Refer's Dialog (%s)",
-                    SIPDebug::GetCharA1(strDialogId.GetStr(), 8, '@'),
-                    SIPDebug::GetCharA2(strReferDialogId.GetStr(), 8, '@'), 0);
+                    SipDebug::GetCharA1(strDialogId.GetStr(), 8, '@'),
+                    SipDebug::GetCharA2(strReferDialogId.GetStr(), 8, '@'), 0);
             return IMS_TRUE;
         }
 
@@ -153,7 +153,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPConnectionFactory::Dialog_NotifyRequest(IN ISIPServerConnection *piSSC)
+IMS_BOOL SIPConnectionFactory::Dialog_NotifyRequest(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -161,7 +161,7 @@ IMS_BOOL SIPConnectionFactory::Dialog_NotifyRequest(IN ISIPServerConnection *piS
     {
         if (pService != IMS_NULL)
         {
-            pService->SendResponse(piSSC, SIPStatusCode::SC_480);
+            pService->SendResponse(piSSC, SipStatusCode::SC_480);
         }
 
         piSSC->Close();
@@ -179,7 +179,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPConnectionFactory::Cancellable_Compare(IN ISIPServerConnection *piSSC_CANCEL) const
+IMS_BOOL SIPConnectionFactory::Cancellable_Compare(IN ISipServerConnection *piSSC_CANCEL) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -197,7 +197,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPConnectionFactory::Cancellable_NotifyRequest(IN ISIPServerConnection *piSSC_CANCEL)
+IMS_BOOL SIPConnectionFactory::Cancellable_NotifyRequest(IN ISipServerConnection *piSSC_CANCEL)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -207,7 +207,7 @@ IMS_BOOL SIPConnectionFactory::Cancellable_NotifyRequest(IN ISIPServerConnection
     }
     else
     {
-        CreateResponse(piSSC_CANCEL, SIPStatusCode::SC_200);
+        CreateResponse(piSSC_CANCEL, SipStatusCode::SC_200);
         piSSC_CANCEL->Send();
         piSSC_CANCEL->Close();
     }
@@ -248,8 +248,8 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPClientConnection* SIPConnectionFactory::CreateClientConnection(IN CONST SIPMethod &objMethod,
-        IN CONST SIPAddress *pFrom, IN CONST SIPAddress *pTo)
+ISipClientConnection* SIPConnectionFactory::CreateClientConnection(IN CONST SipMethod &objMethod,
+        IN CONST SipAddress *pFrom, IN CONST SipAddress *pTo)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -259,15 +259,15 @@ ISIPClientConnection* SIPConnectionFactory::CreateClientConnection(IN CONST SIPM
         return IMS_NULL;
     }
 
-    const SIPAddress *pTempFrom;
-    const SIPAddress *pTempTo;
+    const SipAddress *pTempFrom;
+    const SipAddress *pTempTo;
     IMS_BOOL bFromDeleteRequired = IMS_FALSE;
     IMS_BOOL bToDeleteRequired = IMS_FALSE;
 
     if (pFrom == IMS_NULL)
     {
         bFromDeleteRequired = IMS_TRUE;
-        pTempFrom = new SIPAddress(pService->GetAuthorizedUserId());
+        pTempFrom = new SipAddress(pService->GetAuthorizedUserId());
     }
     else
     {
@@ -277,14 +277,14 @@ ISIPClientConnection* SIPConnectionFactory::CreateClientConnection(IN CONST SIPM
     if (pTo == IMS_NULL)
     {
         bToDeleteRequired = IMS_TRUE;
-        pTempTo = new SIPAddress(ImsIdentity::GetAnonymousUserId());
+        pTempTo = new SipAddress(ImsIdentity::GetAnonymousUserId());
     }
     else
     {
         pTempTo = pTo;
     }
 
-    ISIPClientConnection *piSCC = pService->CreateConnection(pTempFrom, pTempTo, objMethod);
+    ISipClientConnection *piSCC = pService->CreateConnection(pTempFrom, pTempTo, objMethod);
 
     if (bFromDeleteRequired)
     {
@@ -305,8 +305,8 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPClientConnection* SIPConnectionFactory::CreateClientConnection(IN ISIPDialog *piDialog,
-        IN CONST SIPMethod &objMethod)
+ISipClientConnection* SIPConnectionFactory::CreateClientConnection(IN ISipDialog *piDialog,
+        IN CONST SipMethod &objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -316,11 +316,11 @@ ISIPClientConnection* SIPConnectionFactory::CreateClientConnection(IN ISIPDialog
         return IMS_NULL;
     }
 
-    ISIPDialog *piTempDialog = (piDialog != IMS_NULL) ? piDialog : this->piDialog;
+    ISipDialog *piTempDialog = (piDialog != IMS_NULL) ? piDialog : this->piDialog;
 
     if (piTempDialog == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ISIPDialog is null", 0, 0, 0);
+        IMS_TRACE_E(0, "ISipDialog is null", 0, 0, 0);
         return IMS_NULL;
     }
 
@@ -333,7 +333,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-IMS_BOOL SIPConnectionFactory::CreateResponse(IN_OUT ISIPServerConnection *piSSC,
+IMS_BOOL SIPConnectionFactory::CreateResponse(IN_OUT ISipServerConnection *piSSC,
         IN IMS_SINT32 nStatusCode, IN CONST AString &strPhrase /* = AString::ConstNull() */)
 {
     //---------------------------------------------------------------------------------------------
@@ -353,7 +353,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-ISIPServerConnection* SIPConnectionFactory::GetNewServerConnection()
+ISipServerConnection* SIPConnectionFactory::GetNewServerConnection()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -366,7 +366,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-void SIPConnectionFactory::SetDialog(IN ISIPDialog *piDialog)
+void SIPConnectionFactory::SetDialog(IN ISipDialog *piDialog)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -401,7 +401,7 @@ Remarks
 
 */
 PUBLIC VIRTUAL
-void SIPConnectionFactory::SetSSCForCANCEL(IN ISIPServerConnection *piSSC)
+void SIPConnectionFactory::SetSSCForCANCEL(IN ISipServerConnection *piSSC)
 {
     //---------------------------------------------------------------------------------------------
 

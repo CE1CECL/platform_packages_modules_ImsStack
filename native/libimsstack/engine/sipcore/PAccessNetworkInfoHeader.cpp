@@ -41,7 +41,7 @@ IMS_BOOL PAccessNetworkInfoHeader::FormHeader(IN IMS_SINT32 nSlotId,
     }
 
     const SipConfigV *pSipConfigV
-            = DYNAMIC_CAST(const SipConfigV*, SIPConfigProxy::GetSipConfigV(nSlotId));
+            = DYNAMIC_CAST(const SipConfigV*, SipConfigProxy::GetSipConfigV(nSlotId));
 
     if (pSipConfigV != IMS_NULL)
     {
@@ -86,8 +86,8 @@ IMS_BOOL PAccessNetworkInfoHeader::FormHeader(IN IMS_SINT32 nSlotId,
 
 PUBLIC GLOBAL
 IMS_BOOL PAccessNetworkInfoHeader::FormHeaderForOperatorSpecific(IN IMS_SINT32 nSlotId,
-        IN INetworkConnection* piConnection, IN const SIPMethod& /*objMethod*/,
-        IN const SIPProfile* pSIPProfile, OUT AString& strHeader)
+        IN INetworkConnection* piConnection, IN const SipMethod& /*objMethod*/,
+        IN const SipProfile* pSIPProfile, OUT AString& strHeader)
 {
     if (piConnection == IMS_NULL)
     {
@@ -104,7 +104,7 @@ IMS_BOOL PAccessNetworkInfoHeader::FormHeaderForOperatorSpecific(IN IMS_SINT32 n
         return IMS_FALSE;
     }
 
-    if (SIPConfigProxy::IsInvalidMacAddressRequiredInPaniHeader(nSlotId, pSIPProfile))
+    if (SipConfigProxy::IsInvalidMacAddressRequiredInPaniHeader(nSlotId, pSIPProfile))
     {
         ReformPANIHeaderForATT(objANInfo, strHeader);
     }
@@ -115,7 +115,7 @@ IMS_BOOL PAccessNetworkInfoHeader::FormHeaderForOperatorSpecific(IN IMS_SINT32 n
         return IMS_FALSE;
     }
 
-    if (SIPConfigProxy::IsLocalTimeZoneRequiredInPaniHeader(nSlotId, pSIPProfile))
+    if (SipConfigProxy::IsLocalTimeZoneRequiredInPaniHeader(nSlotId, pSIPProfile))
     {
         ReformPANIHeaderForTEL(strHeader);
     }
@@ -133,8 +133,8 @@ IMS_BOOL PAccessNetworkInfoHeader::FormHeaderForOperatorSpecific(IN IMS_SINT32 n
 
 PUBLIC GLOBAL
 IMS_BOOL PAccessNetworkInfoHeader::FormHeaderForOperatorSpecific(IN IMS_SINT32 nSlotId,
-        IN const IPAddress &objIP, IN const SIPMethod& objMethod,
-        IN const SIPProfile* pSIPProfile, OUT AString& strHeader)
+        IN const IPAddress &objIP, IN const SipMethod& objMethod,
+        IN const SipProfile* pSIPProfile, OUT AString& strHeader)
 {
     INetworkConnection* piConnection = NetworkService::GetNetworkService()->FindConnection(objIP);
 
@@ -149,7 +149,7 @@ IMS_BOOL PAccessNetworkInfoHeader::FormHeaderForOperatorSpecific(IN IMS_SINT32 n
 
 PUBLIC GLOBAL
 void PAccessNetworkInfoHeader::SetHeader(IN IMS_SINT32 nSlotId, IN const IPAddress &objIP,
-        IN const SIPProfile* pSIPProfile, IN_OUT ISIPMessage *&piSIPMsg)
+        IN const SipProfile* pSIPProfile, IN_OUT ISipMessage *&piSIPMsg)
 {
     if (piSIPMsg == IMS_NULL)
     {
@@ -173,7 +173,7 @@ void PAccessNetworkInfoHeader::SetHeader(IN IMS_SINT32 nSlotId, IN const IPAddre
 
     if (strHeader.GetLength() > 0)
     {
-        if (piSIPMsg->SetHeader(ISIPHeader::P_ACCESS_NETWORK_INFO,
+        if (piSIPMsg->SetHeader(ISipHeader::P_ACCESS_NETWORK_INFO,
                 strHeader) != IMS_SUCCESS)
         {
             IMS_TRACE_E(0, "Setting P-Access-Network-Info header failed", 0, 0, 0);
@@ -284,7 +284,7 @@ void PAccessNetworkInfoHeader::ReformPANIHeaderForCountryCode(IN IMS_SINT32 nSlo
 
 PRIVATE GLOBAL
 void PAccessNetworkInfoHeader::SetPrivateHeaderForTMUS(IN IMS_SINT32 nSlotId,
-        IN INetworkConnection *piConnection, IN_OUT ISIPMessage *&piSIPMsg)
+        IN INetworkConnection *piConnection, IN_OUT ISipMessage *&piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -293,9 +293,9 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForTMUS(IN IMS_SINT32 nSlotId,
         return;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (objMethod.Equals(SIPMethod::ACK) || objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::ACK) || objMethod.Equals(SipMethod::CANCEL))
     {
         return;
     }
@@ -322,8 +322,8 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForTMUS(IN IMS_SINT32 nSlotId,
     if (bPLANIRequired)
     {
         const AString P_LAST_ACCESS_NETWORK_INFO("P-Last-Access-Network-Info");
-        ISIPRTConfigHelper *piRTConfigHelper = SIPFactory::GetRTConfigHelper();
-        const SIPRTConfig::Header *pHeader
+        ISipRtConfigHelper *piRTConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
+        const SipRtConfig::Header *pHeader
                 = piRTConfigHelper->GetHeader(P_LAST_ACCESS_NETWORK_INFO);
         do
         {
@@ -375,7 +375,7 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForTMUS(IN IMS_SINT32 nSlotId,
                 }
             }
 
-            if (piSIPMsg->SetHeader(ISIPHeader::UNKNOWN,
+            if (piSIPMsg->SetHeader(ISipHeader::UNKNOWN,
                     strLastPANInfo, P_LAST_ACCESS_NETWORK_INFO) != IMS_SUCCESS)
             {
                 IMS_TRACE_E(0, "Setting %s header failed",
@@ -390,7 +390,7 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForTMUS(IN IMS_SINT32 nSlotId,
 
 PRIVATE GLOBAL
 void PAccessNetworkInfoHeader::SetPrivateHeaderForMTS(IN IMS_SINT32 nSlotId,
-        IN INetworkConnection *piConnection, IN_OUT ISIPMessage *&piSIPMsg)
+        IN INetworkConnection *piConnection, IN_OUT ISipMessage *&piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -399,17 +399,17 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForMTS(IN IMS_SINT32 nSlotId,
         return;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (objMethod.Equals(SIPMethod::ACK)
-            || objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::ACK)
+            || objMethod.Equals(SipMethod::CANCEL))
     {
         return;
     }
 
     const AString strHeaderName("P-Last-Cell-ID");
-    ISIPRTConfigHelper *piRTConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
-    const SIPRTConfig::Header *pHeader
+    ISipRtConfigHelper *piRTConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
+    const SipRtConfig::Header *pHeader
             = piRTConfigHelper->GetHeader(strHeaderName);
 
     if (pHeader == IMS_NULL)
@@ -449,7 +449,7 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForMTS(IN IMS_SINT32 nSlotId,
         strLastKnownPANInfo.Append(pHeader->strParameter);
     }
 
-    if (piSIPMsg->SetHeader(ISIPHeader::UNKNOWN,
+    if (piSIPMsg->SetHeader(ISipHeader::UNKNOWN,
             strLastKnownPANInfo, strHeaderName) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "SetPrivateHeaderForMTS :: Setting %s header failed",
@@ -460,7 +460,7 @@ void PAccessNetworkInfoHeader::SetPrivateHeaderForMTS(IN IMS_SINT32 nSlotId,
 PRIVATE GLOBAL
 void PAccessNetworkInfoHeader::SetCNIHeader(IN IMS_SINT32 nSlotId,
         IN INetworkConnection *piConnection,
-        IN const SIPProfile* pSIPProfile, IN_OUT ISIPMessage *&piSIPMsg)
+        IN const SipProfile* pSIPProfile, IN_OUT ISipMessage *&piSIPMsg)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -471,27 +471,27 @@ void PAccessNetworkInfoHeader::SetCNIHeader(IN IMS_SINT32 nSlotId,
         return;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
-    if (objMethod.Equals(SIPMethod::CANCEL))
+    if (objMethod.Equals(SipMethod::CANCEL))
     {
         return;
     }
-    else if (objMethod.Equals(SIPMethod::ACK)
-            && !SIPFeatures::IsPANIHeaderForAckRequired(nSlotId))
+    else if (objMethod.Equals(SipMethod::ACK)
+            && !SipFeatures::IsPaniHeaderForAckRequired(nSlotId))
     {
         return;
     }
 
-    // If runtime condition is required, then use SIPProfile.
-    IMS_BOOL bCNIHeaderRequired = SIPConfigProxy::IsCellularNetworkInfoHeaderRequired(
+    // If runtime condition is required, then use SipProfile.
+    IMS_BOOL bCNIHeaderRequired = SipConfigProxy::IsCellularNetworkInfoHeaderRequired(
             nSlotId, IMS_NULL/*pSIPProfile*/);
     const AString strHeaderName("Cellular-Network-Info");
 
     if (!bCNIHeaderRequired)
     {
-        ISIPRTConfigHelper *piRTConfigHelper = SIPFactory::GetRTConfigHelper(nSlotId);
-        const SIPRTConfig::Header* pHeader = piRTConfigHelper->GetHeader(strHeaderName);
+        ISipRtConfigHelper *piRTConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
+        const SipRtConfig::Header* pHeader = piRTConfigHelper->GetHeader(strHeaderName);
 
         if (pHeader == IMS_NULL)
         {
@@ -520,7 +520,7 @@ void PAccessNetworkInfoHeader::SetCNIHeader(IN IMS_SINT32 nSlotId,
     strHeader.Append(";cell-info-age=");
     strHeader.Append(strCellInfoAge);
 
-    if (piSIPMsg->SetHeader(ISIPHeader::UNKNOWN,
+    if (piSIPMsg->SetHeader(ISipHeader::UNKNOWN,
             strHeader, strHeaderName) != IMS_SUCCESS)
     {
         IMS_TRACE_E(0, "SetCNIHeader :: Setting %s header failed",
@@ -548,12 +548,12 @@ IMS_BOOL PAccessNetworkInfoHeader::IsAccessNetworkTypeWiFi(IN CONST AccessNetwor
 
 PRIVATE GLOBAL
 IMS_BOOL PAccessNetworkInfoHeader::IsCountryInfoRequiredForVoWiFi(IN IMS_SINT32 nSlotId,
-        IN const SIPProfile* pSIPProfile)
+        IN const SipProfile* pSIPProfile)
 {
     (void)pSIPProfile;
 
-    // If runtime condition is required, then use SIPProfile.
-    IMS_BOOL bCountryInfoRequired = SIPConfigProxy::IsCountryInfoRequiredInPANIHeader(
+    // If runtime condition is required, then use SipProfile.
+    IMS_BOOL bCountryInfoRequired = SipConfigProxy::IsCountryInfoRequiredInPaniHeader(
             nSlotId, IMS_NULL/*pSIPProfile*/);
 
     return bCountryInfoRequired;

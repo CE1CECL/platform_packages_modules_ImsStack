@@ -110,7 +110,7 @@ SIPStreamSocket::~SIPStreamSocket()
 {
     IMS_TRACE_D("StreamSocket(D) :: (FarEnd: %s, %d)",
             SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ?\
-            "xxx" : SIPDebug::GetIP(objSA.GetIPAddress()), objSA.GetPort(), 0);
+            "xxx" : SipDebug::GetIp(objSA.GetIPAddress()), objSA.GetPort(), 0);
 
     StopTxTimer();
     StopKeepAliveTimer();
@@ -208,7 +208,7 @@ IMS_BOOL SIPStreamSocket::Create(IN CONST IPAddress &objIPA, IN IMS_UINT32 nPort
 
     IMS_TRACE_I("StreamSocket(C) :: (%s , %d)",
             SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId()) ?\
-            "xxx" : SIPDebug::GetIP(objIPA), nPort, 0);
+            "xxx" : SipDebug::GetIp(objIPA), nPort, 0);
 
     ApplyIpSec();
 

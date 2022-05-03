@@ -112,18 +112,18 @@ void FeatureCaps::AddFeature(IN CONST AString &strName, IN CONST AString &strVal
 {
     //---------------------------------------------------------------------------------------------
 
-    if ((nSIPMethod != SIPMethod::INVITE)
-            && (nSIPMethod != SIPMethod::SUBSCRIBE)
-            && (nSIPMethod != SIPMethod::REFER)
-            && (nSIPMethod != SIPMethod::NOTIFY)
-            && (nSIPMethod != SIPMethod::OPTIONS)
-            && (nSIPMethod != SIPMethod::PUBLISH))
+    if ((nSIPMethod != SipMethod::INVITE)
+            && (nSIPMethod != SipMethod::SUBSCRIBE)
+            && (nSIPMethod != SipMethod::REFER)
+            && (nSIPMethod != SipMethod::NOTIFY)
+            && (nSIPMethod != SipMethod::OPTIONS)
+            && (nSIPMethod != SipMethod::PUBLISH))
     {
         IMS_TRACE_E(0, "FeatureCaps :: Method(%d) is not allowed", nSIPMethod, 0, 0);
         return;
     }
 
-    if ((nMessageType < ISIPMessage::TYPE_REQUEST) || (nMessageType > ISIPMessage::TYPE_ANY))
+    if ((nMessageType < ISipMessage::TYPE_REQUEST) || (nMessageType > ISipMessage::TYPE_ANY))
     {
         IMS_TRACE_E(0, "FeatureCaps :: Message type(%d) is not allowed", nMessageType, 0, 0);
         return;
@@ -132,7 +132,7 @@ void FeatureCaps::AddFeature(IN CONST AString &strName, IN CONST AString &strVal
     CallerCapability *pFeatures = IMS_NULL;
     Feature objFeature(strName, strValue);
 
-    if (nMessageType == ISIPMessage::TYPE_ANY)
+    if (nMessageType == ISipMessage::TYPE_ANY)
     {
         // REQUEST
         pFeatures = GetFeaturesForRequest(nSIPMethod, IMS_TRUE);
@@ -150,7 +150,7 @@ void FeatureCaps::AddFeature(IN CONST AString &strName, IN CONST AString &strVal
             pFeatures->AddFeature(&objFeature);
         }
     }
-    else if (nMessageType == ISIPMessage::TYPE_REQUEST)
+    else if (nMessageType == ISipMessage::TYPE_REQUEST)
     {
         pFeatures = GetFeaturesForRequest(nSIPMethod, IMS_TRUE);
 
@@ -159,7 +159,7 @@ void FeatureCaps::AddFeature(IN CONST AString &strName, IN CONST AString &strVal
             pFeatures->AddFeature(&objFeature);
         }
     }
-    else if (nMessageType == ISIPMessage::TYPE_RESPONSE)
+    else if (nMessageType == ISipMessage::TYPE_RESPONSE)
     {
         pFeatures = GetFeaturesForResponse(nSIPMethod, IMS_TRUE);
 
@@ -201,18 +201,18 @@ void FeatureCaps::RemoveFeature(IN CONST AString &strName, IN CONST AString &str
 {
     //---------------------------------------------------------------------------------------------
 
-    if ((nSIPMethod != SIPMethod::INVITE)
-            && (nSIPMethod != SIPMethod::SUBSCRIBE)
-            && (nSIPMethod != SIPMethod::REFER)
-            && (nSIPMethod != SIPMethod::NOTIFY)
-            && (nSIPMethod != SIPMethod::OPTIONS)
-            && (nSIPMethod != SIPMethod::PUBLISH))
+    if ((nSIPMethod != SipMethod::INVITE)
+            && (nSIPMethod != SipMethod::SUBSCRIBE)
+            && (nSIPMethod != SipMethod::REFER)
+            && (nSIPMethod != SipMethod::NOTIFY)
+            && (nSIPMethod != SipMethod::OPTIONS)
+            && (nSIPMethod != SipMethod::PUBLISH))
     {
         IMS_TRACE_E(0, "FeatureCaps :: Method(%d) is not allowed", nSIPMethod, 0, 0);
         return;
     }
 
-    if ((nMessageType < ISIPMessage::TYPE_REQUEST) || (nMessageType > ISIPMessage::TYPE_ANY))
+    if ((nMessageType < ISipMessage::TYPE_REQUEST) || (nMessageType > ISipMessage::TYPE_ANY))
     {
         IMS_TRACE_E(0, "FeatureCaps :: Message type(%d) is not allowed", nMessageType, 0, 0);
         return;
@@ -221,7 +221,7 @@ void FeatureCaps::RemoveFeature(IN CONST AString &strName, IN CONST AString &str
     CallerCapability *pFeatures = IMS_NULL;
     Feature objFeature(strName, strValue);
 
-    if (nMessageType == ISIPMessage::TYPE_ANY)
+    if (nMessageType == ISipMessage::TYPE_ANY)
     {
         // REQUEST
         pFeatures = GetFeaturesForRequest(nSIPMethod);
@@ -239,7 +239,7 @@ void FeatureCaps::RemoveFeature(IN CONST AString &strName, IN CONST AString &str
             pFeatures->RemoveFeature(&objFeature);
         }
     }
-    else if (nMessageType == ISIPMessage::TYPE_REQUEST)
+    else if (nMessageType == ISipMessage::TYPE_REQUEST)
     {
         pFeatures = GetFeaturesForRequest(nSIPMethod);
 
@@ -248,7 +248,7 @@ void FeatureCaps::RemoveFeature(IN CONST AString &strName, IN CONST AString &str
             pFeatures->RemoveFeature(&objFeature);
         }
     }
-    else if (nMessageType == ISIPMessage::TYPE_RESPONSE)
+    else if (nMessageType == ISipMessage::TYPE_RESPONSE)
     {
         pFeatures = GetFeaturesForResponse(nSIPMethod);
 

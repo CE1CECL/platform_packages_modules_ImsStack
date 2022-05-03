@@ -3,15 +3,15 @@
 
 #include "SipMethod.h"
 
-class ISIPMessageTrackerListener;
+class ISipMessageTrackerListener;
 
 /**
  * @brief This class provides an interface to add/remove any filters or set a listener
  *        to monitor SIP messages when the SIP messages are sent or received.
  *
- * @see ISIPMessageTrackerListener
+ * @see ISipMessageTrackerListener
  */
-class ISIPMessageTracker
+class ISipMessageTracker
 {
 public:
     /**
@@ -22,7 +22,7 @@ public:
      * @param bOutgoing Direction of SIP message (true : outgoing, false : incoming)
      * @return If it succeeds, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    virtual IMS_BOOL AddFilter(IN CONST SIPMethod &objMethod, IN IMS_SINT32 nStatusCode,
+    virtual IMS_BOOL AddFilter(IN CONST SipMethod &objMethod, IN IMS_SINT32 nStatusCode,
             IN IMS_BOOL bOutgoing) = 0;
 
     /**
@@ -30,7 +30,7 @@ public:
      *
      * @param objMethod SIP method
      */
-    virtual void RemoveFilter(IN CONST SIPMethod &objMethod) = 0;
+    virtual void RemoveFilter(IN CONST SipMethod &objMethod) = 0;
 
     /**
      * @brief Removes all filters which match with the specified parameters.
@@ -39,7 +39,7 @@ public:
      * @param nStatusCode SIP status code
      * @param bOutgoing Direction of SIP message (true : outgoing, false : incoming)
      */
-    virtual void RemoveFilter(IN CONST SIPMethod &objMethod, IN IMS_SINT32 nStatusCode,
+    virtual void RemoveFilter(IN CONST SipMethod &objMethod, IN IMS_SINT32 nStatusCode,
             IN IMS_BOOL bOutgoing) = 0;
 
     /**
@@ -52,7 +52,7 @@ public:
      *
      * @param piListener Listener to be set
      */
-    virtual void SetListener(IN ISIPMessageTrackerListener *piListener) = 0;
+    virtual void SetListener(IN ISipMessageTrackerListener *piListener) = 0;
 };
 
 #endif // _INTERFACE_SIP_MESSAGE_TRACKER_H_

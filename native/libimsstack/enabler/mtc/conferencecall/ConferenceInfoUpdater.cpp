@@ -395,8 +395,8 @@ IMS_SINT32 ConferenceInfoUpdater::FindParticipantByOrderLegId(IN const Conferenc
     const AString strUserEntity = pUser->GetEntity();
     IMS_TRACE_I("FindParticipantByOrderLegId : user-entity=[%s]", strUserEntity.GetStr(), 0, 0);
 
-    SIPAddress objSIPAddress(strUserEntity);
-    const SIPParameter* pParameter = objSIPAddress.GetParameter(ConferenceConst::LEG_ID);
+    SipAddress objSIPAddress(strUserEntity);
+    const SipParameter* pParameter = objSIPAddress.GetParameter(ConferenceConst::LEG_ID);
 
     if (pParameter != IMS_NULL)
     {

@@ -309,6 +309,6 @@ IMS_BOOL MtcCallController::IsUssi(IN ISession* piSession)
     }
 
     return MessageUtil::ContainsValue(
-            piMessage, USSDConstants::HEADER_USSD_PACKAGE, ISIPHeader::UNKNOWN,
+            piMessage, USSDConstants::HEADER_USSD_PACKAGE, ISipHeader::UNKNOWN,
             USSDConstants::HEADER_RECVINFO);
 }

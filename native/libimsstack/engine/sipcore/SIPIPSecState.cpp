@@ -394,7 +394,7 @@ IMS_BOOL SIPIPSecState::DispatchMessage(IN IMSMSG &objMSG)
             return IMS_FALSE;
         }
 
-        piListener->IPSecState_StateChanged(LONG_TO_SINT(objMSG.nWparam));
+        piListener->IpSecState_StateChanged(LONG_TO_SINT(objMSG.nWparam));
         return IMS_TRUE;
 
     default:
@@ -410,7 +410,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPIPSecState::ClearIPSecSA(IN IMS_SINT32 nSAType)
+void SIPIPSecState::ClearIpSecSa(IN IMS_SINT32 nSAType)
 {
     if ((nSAType == SA_NEW) && (pNewSA != IMS_NULL))
     {
@@ -470,7 +470,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPIPSecState::SetIPSecSA(IN IMS_SINT32 nSAType,
+void SIPIPSecState::SetIpSecSa(IN IMS_SINT32 nSAType,
         IN CONST IPAddress &objIP_U, IN IMS_SINT32 nPort_UC, IN IMS_SINT32 nPort_US,
         IN CONST IPAddress &objIP_P, IN IMS_SINT32 nPort_PC, IN IMS_SINT32 nPort_PS)
 {
@@ -516,7 +516,7 @@ Remarks
 
 */
 PRIVATE VIRTUAL
-void SIPIPSecState::SetListener(IN ISIPIPSecStateListener *piListener)
+void SIPIPSecState::SetListener(IN ISipIpSecStateListener *piListener)
 {
     this->piListener = piListener;
 }
@@ -553,7 +553,7 @@ void SIPIPSecState::NotifyMessageReceivedInternal(IN CONST SIPTransportAddress &
                     PostMessage(AMSG_NOTIFY_STATE_CHANGED, SA_NEW, 0);
                 }
             }
-            else if (SIPStatusCode::IsFinal(pTxnKey->GetStatusCode()))
+            else if (SipStatusCode::IsFinal(pTxnKey->GetStatusCode()))
             {
                 // Incoming SIP response
                 if (!pNewSA->RemoveTransaction(pTxnKey))
@@ -590,7 +590,7 @@ void SIPIPSecState::NotifyMessageReceivedInternal(IN CONST SIPTransportAddress &
                     PostMessage(AMSG_NOTIFY_STATE_CHANGED, SA_OLD, 0);
                 }
             }
-            else if (SIPStatusCode::IsFinal(pTxnKey->GetStatusCode()))
+            else if (SipStatusCode::IsFinal(pTxnKey->GetStatusCode()))
             {
                 // Incoming SIP response
                 if (pOldSA->RemoveTransaction(pTxnKey))
@@ -683,7 +683,7 @@ void SIPIPSecState::NotifyMessageSentInternal(IN CONST SIPTransportAddress &objN
                     PostMessage(AMSG_NOTIFY_STATE_CHANGED, SA_NEW, 0);
                 }
             }
-            else if (SIPStatusCode::IsFinal(pTxnKey->GetStatusCode()))
+            else if (SipStatusCode::IsFinal(pTxnKey->GetStatusCode()))
             {
                 // Outgoing SIP response
                 if (!pNewSA->RemoveTransaction(pTxnKey))
@@ -714,7 +714,7 @@ void SIPIPSecState::NotifyMessageSentInternal(IN CONST SIPTransportAddress &objN
                     PostMessage(AMSG_NOTIFY_STATE_CHANGED, SA_OLD, 0);
                 }
             }
-            else if (SIPStatusCode::IsFinal(pTxnKey->GetStatusCode()))
+            else if (SipStatusCode::IsFinal(pTxnKey->GetStatusCode()))
             {
                 // Outgoing SIP response
                 if (pOldSA->RemoveTransaction(pTxnKey))

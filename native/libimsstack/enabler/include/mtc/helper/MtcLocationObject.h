@@ -16,7 +16,7 @@
 #include "call/IMtcCall.h"
 
 class IMessage;
-class ISIPMessage;
+class ISipMessage;
 
 class UCLocationObject
 {
@@ -28,7 +28,7 @@ public:
     virtual IMS_BOOL IsGeolocationInfoRequired(IN IMtcCall *pSession);
     void SetLocation(IN IMtcCall *pSession, IN_OUT IMessage *piMessage,
             IN IMS_BOOL bGeolocationRouting  = IMS_FALSE);
-    void SetLocation(IN IMtcCall *pSession, IN_OUT ISIPMessage *piSIPMessage,
+    void SetLocation(IN IMtcCall *pSession, IN_OUT ISipMessage *piSIPMessage,
             IN IMS_BOOL bGeolocationRouting = IMS_FALSE);
 
 private:

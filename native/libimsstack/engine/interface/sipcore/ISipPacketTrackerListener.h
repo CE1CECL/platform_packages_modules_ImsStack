@@ -3,35 +3,35 @@
 
 #include "ByteArray.h"
 
-class ISIPMessage;
+class ISipMessage;
 
 /**
  * @brief This class provides a listener interface to notify SIP packets
  *        when the SIP messages are sent or received.
  *
- * @see ISIPPacketTracker, ISIPMessage
+ * @see ISipPacketTracker, ISipMessage
  */
-class ISIPPacketTrackerListener
+class ISipPacketTrackerListener
 {
 public:
     /**
      * @brief Notifies the application that SIP packet is sent to the network.
      *
-     * @param piSIPMsg Pointer to ISIPMessage object
+     * @param piSIPMsg Pointer to ISipMessage object
      * @param objMsg Byte array to SIP Message
      * @param bIsRetransmission Flag that SIP message is retransmitted
      */
-    virtual void PacketTracker_NotifyMessageSent(IN ISIPMessage *piSIPMsg,
+    virtual void PacketTracker_NotifyMessageSent(IN ISipMessage *piSIPMsg,
             IN CONST ByteArray &objMsg, IN IMS_BOOL bIsRetransmission) = 0;
 
     /**
      * @brief Notifies the application that SIP packet is received from the network.
      *
-     * @param piSIPMsg Pointer to ISIPMessage object
+     * @param piSIPMsg Pointer to ISipMessage object
      * @param objMsg Byte array to SIP Message
      * @param bIsRetransmission Flag that SIP message is retransmitted
      */
-    virtual void PacketTracker_NotifyMessageReceived(IN ISIPMessage *piSIPMsg,
+    virtual void PacketTracker_NotifyMessageReceived(IN ISipMessage *piSIPMsg,
             IN CONST ByteArray &objMsg, IN IMS_BOOL bIsRetransmission) = 0;
 };
 

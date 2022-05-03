@@ -5,13 +5,13 @@
 #include "Sip.h"
 #include "ISipObject.h"
 
-class ISIPKeepAliveHelperListener;
+class ISipKeepAliveHelperListener;
 
 /**
  * @brief This class provides a helper interface to control SIP keep-alive operations.
  */
-class ISIPKeepAliveHelper
-    : public ISIPObject
+class ISipKeepAliveHelper
+    : public ISipObject
 {
 public:
     /**
@@ -27,7 +27,7 @@ public:
      *
      * @param piListener Keep-alive helper listener
      */
-    virtual void SetListener(IN ISIPKeepAliveHelperListener *piListener) = 0;
+    virtual void SetListener(IN ISipKeepAliveHelperListener *piListener) = 0;
 
      /**
       * @brief Sets the destination transport information to transmit the keep-alive packet.
@@ -47,7 +47,7 @@ public:
       *                  #SIP#TRANSPORT_TCP
       */
     virtual void SetTransportTupleS(IN CONST IPAddress &objIP, IN IMS_SINT32 nPort,
-            IN IMS_SINT32 nProtocol = SIP::TRANSPORT_UDP) = 0;
+            IN IMS_SINT32 nProtocol = Sip::TRANSPORT_UDP) = 0;
 };
 
 #endif // _INTERFACE_SIP_KEEP_ALIVE_HELPER_H_

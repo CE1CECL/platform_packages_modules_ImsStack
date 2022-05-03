@@ -22,7 +22,7 @@ class SIPServerConnection;
 
 
 class SIPServerConnectionImpl
-    : public ISIPServerConnection
+    : public ISipServerConnection
     , public IOnSIPErrorListener
 {
 public:
@@ -38,39 +38,39 @@ private:
     // IConnection interface implementation
     virtual void Close();
 
-    // ISIPConnection interface implementation
+    // ISipConnection interface implementation
     virtual IMS_RESULT AddHeader(IN CONST AString &strName, IN CONST AString &strValue);
-    virtual ISIPDialog* GetDialog() const;
+    virtual ISipDialog* GetDialog() const;
     virtual AString GetHeader(IN CONST AString &strName, IN IMS_SINT32 nIndex = 0);
     virtual IMSList<AString> GetHeaders(IN CONST AString &strName);
-    virtual const SIPMethod& GetMethod() const;
+    virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
-    virtual const AString& GetRequestURI() const;
+    virtual const AString& GetRequestUri() const;
     virtual IMS_SINT32 GetStatusCode() const;
     virtual IMS_RESULT RemoveHeader(IN CONST AString &strName);
     virtual IMS_RESULT Send();
-    virtual void SetErrorListener(IN ISIPErrorListener *piListener);
+    virtual void SetErrorListener(IN ISipErrorListener *piListener);
     virtual IMS_RESULT SetHeader(IN CONST AString &strName, IN CONST AString &strValue);
     virtual const ByteArray& GetContent() const;
     virtual IMS_RESULT SetContent(IN CONST ByteArray &objContent);
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString &strName) const;
-    virtual ISIPMessage* GetMessage() const;
+    virtual ISipMessage* GetMessage() const;
     virtual IMS_SINT32 GetSlotId() const;
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
-    virtual void SetTransactionTimerValues(IN CONST SIPTimerValues &objTV);
+    virtual void SetSipProfile(IN SipProfile *pProfile);
+    virtual void SetTransactionTimerValues(IN CONST SipTimerValues &objTV);
 
     // ISIPServerTransaction interface
     virtual IMS_RESULT InitResponse(IN IMS_SINT32 nStatusCode);
     virtual IMS_RESULT SetReasonPhrase(IN CONST AString &strReasonPhrase);
-    virtual IMS_BOOL IsSameTransaction(IN CONST ISIPServerConnection *piOngoingSSC) const;
+    virtual IMS_BOOL IsSameTransaction(IN CONST ISipServerConnection *piOngoingSSC) const;
 
     // IOnSIPErrorListener interface
     virtual void OnError_NotifyError(IN SIPConnection *pSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
 private:
-    ISIPErrorListener *piErrorListener;
+    ISipErrorListener *piErrorListener;
 
     SIPDialogImpl *pDialogImpl;
     SIPServerConnection *pSSC;

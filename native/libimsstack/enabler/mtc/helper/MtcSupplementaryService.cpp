@@ -70,9 +70,9 @@ PUBLIC
 void MtcSupplementaryService::UpdateTip(IN IMessage* piMessage)
 {
     AString strPrivacy;
-    MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy);
+    MessageUtil::GetHeader(piMessage, ISipHeader::PRIVACY, strPrivacy);
     IMS_BOOL bHasPAssertedIdentity =
-            MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY);
+            MessageUtil::IsHeaderPresent(piMessage, ISipHeader::P_ASSERTED_IDENTITY);
 
     IMS_SINT32 tipType;
     AString tipStr;
@@ -89,8 +89,8 @@ void MtcSupplementaryService::UpdateTip(IN IMessage* piMessage)
         tipType = TIP_TYPE_IDENTITY;
         AString strNumber;
         AString strName;
-        MessageUtil::GetUserPart(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strNumber);
-        MessageUtil::GetDisplayName(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strName);
+        MessageUtil::GetUserPart(piMessage, ISipHeader::P_ASSERTED_IDENTITY, strNumber);
+        MessageUtil::GetDisplayName(piMessage, ISipHeader::P_ASSERTED_IDENTITY, strName);
         tipStr.Append(strNumber);
         tipStr.Append(',');
         tipStr.Append(strName);
@@ -128,9 +128,9 @@ IMS_BOOL MtcSupplementaryService::UpdateCallerId(IN IMessage* piMessage)
 {
     AString strPrivacy;
     OipType eOipType = OipType::INVALID;
-    MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy);
+    MessageUtil::GetHeader(piMessage, ISipHeader::PRIVACY, strPrivacy);
 
-    if (MessageUtil::GetHeader(piMessage, ISIPHeader::PRIVACY, strPrivacy) == IMS_SUCCESS)
+    if (MessageUtil::GetHeader(piMessage, ISipHeader::PRIVACY, strPrivacy) == IMS_SUCCESS)
     {
         if (strPrivacy.EqualsIgnoreCase("id"))
         {
@@ -145,18 +145,18 @@ IMS_BOOL MtcSupplementaryService::UpdateCallerId(IN IMessage* piMessage)
     switch (m_nCnapType)
     {
         case CNAP_SCHEME_PAID_FROM:
-            eOipType = (MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY) ||
-                    MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::FROM)) ?
+            eOipType = (MessageUtil::IsHeaderPresent(piMessage, ISipHeader::P_ASSERTED_IDENTITY) ||
+                    MessageUtil::IsHeaderPresent(piMessage, ISipHeader::FROM)) ?
                     OipType::IDENTITY :
                     OipType::NONE;
             break;
         case CNAP_SCHEME_FROM:
-            eOipType = MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::FROM) ?
+            eOipType = MessageUtil::IsHeaderPresent(piMessage, ISipHeader::FROM) ?
                     OipType::IDENTITY :
                     OipType::NONE;
             break;
         case CNAP_SCHEME_PAID:
-            eOipType = MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY) ?
+            eOipType = MessageUtil::IsHeaderPresent(piMessage, ISipHeader::P_ASSERTED_IDENTITY) ?
                     OipType::IDENTITY :
                     OipType::NONE;
             break;
@@ -181,13 +181,13 @@ IMS_BOOL MtcSupplementaryService::UpdateCnap(IN IMessage* piMessage)
 
     if (m_nCnapType == CNAP_SCHEME_PAID_FROM || m_nCnapType == CNAP_SCHEME_PAID)
     {
-        MessageUtil::GetDisplayName(piMessage, ISIPHeader::P_ASSERTED_IDENTITY, strDisplayName);
+        MessageUtil::GetDisplayName(piMessage, ISipHeader::P_ASSERTED_IDENTITY, strDisplayName);
     }
 
     if (strDisplayName.GetLength() <= 0 &&
             (m_nCnapType == CNAP_SCHEME_PAID_FROM || m_nCnapType == CNAP_SCHEME_FROM))
     {
-        MessageUtil::GetDisplayName(piMessage, ISIPHeader::FROM, strDisplayName);
+        MessageUtil::GetDisplayName(piMessage, ISipHeader::FROM, strDisplayName);
     }
 
     if (strDisplayName.GetLength() <= 0)
@@ -228,7 +228,7 @@ IMS_BOOL MtcSupplementaryService::UpdateGtt(IN IMessage* /*piMessage*/)
 PUBLIC
 IMS_BOOL MtcSupplementaryService::UpdateCdivCause(IN IMessage* piMessage)
 {
-    ISIPHeader* piHeader = GetHistoryInfoHeader(piMessage);
+    ISipHeader* piHeader = GetHistoryInfoHeader(piMessage);
 
     if (piHeader == IMS_NULL)
     {
@@ -237,7 +237,7 @@ IMS_BOOL MtcSupplementaryService::UpdateCdivCause(IN IMessage* piMessage)
 
     IMS_SINT32 nCause;
 
-    if (GetCdivCause(piHeader->GetSIPAddress(), nCause))
+    if (GetCdivCause(piHeader->GetSipAddress(), nCause))
     {
         Add(SuppType::CDIV_CAUSE, ConvertCdivCause(nCause));
     }
@@ -251,7 +251,7 @@ PUBLIC
 IMS_BOOL MtcSupplementaryService::UpdateCdivHistory(IN IMessage* piMessage)
 {
 
-    ISIPHeader* piHeader = GetHistoryInfoHeader(piMessage);
+    ISipHeader* piHeader = GetHistoryInfoHeader(piMessage);
 
     if (piHeader == IMS_NULL)
     {
@@ -260,7 +260,7 @@ IMS_BOOL MtcSupplementaryService::UpdateCdivHistory(IN IMessage* piMessage)
 
     AString strTarget;
 
-    if (GetCdivTarget(piHeader->GetSIPAddress(), strTarget))
+    if (GetCdivTarget(piHeader->GetSipAddress(), strTarget))
     {
         Add(SuppType::CDIV_HISTORY, strTarget);
     }
@@ -275,8 +275,8 @@ PUBLIC
 IMS_BOOL MtcSupplementaryService::UpdateCw(IN IMessage* piMessage)
 {
 
-    if (MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::UNKNOWN,
-            SIPHeaderName::ALERT_INFO) == IMS_FALSE)
+    if (MessageUtil::IsHeaderPresent(piMessage, ISipHeader::UNKNOWN,
+            SipHeaderName::ALERT_INFO) == IMS_FALSE)
     {
         return IMS_FALSE;
     }
@@ -469,10 +469,10 @@ void MtcSupplementaryService::Add(IN SuppType eSuppType, IN IMS_BOOL bValue)
 }
 
 PRIVATE
-ISIPHeader* MtcSupplementaryService::GetHistoryInfoHeader(IN IMessage* piMessage)
+ISipHeader* MtcSupplementaryService::GetHistoryInfoHeader(IN IMessage* piMessage)
 {
     IMSList<AString> lstHistoryInfos;
-    MessageUtil::GetHeaders(piMessage, ISIPHeader::HISTORY_INFO, lstHistoryInfos);
+    MessageUtil::GetHeaders(piMessage, ISipHeader::HISTORY_INFO, lstHistoryInfos);
     if (lstHistoryInfos.IsEmpty())
     {
         return IMS_NULL;
@@ -484,16 +484,16 @@ ISIPHeader* MtcSupplementaryService::GetHistoryInfoHeader(IN IMessage* piMessage
         return IMS_NULL;
     }
 
-    return SIPParsingHelper::CreateHeader(SIPHeaderName::HISTORY_INFO, strHistoryInfo);
+    return SipParsingHelper::CreateHeader(SipHeaderName::HISTORY_INFO, strHistoryInfo);
 }
 
 PRIVATE
-IMS_BOOL MtcSupplementaryService::GetCdivCause(IN const SIPAddress* pAddress,
+IMS_BOOL MtcSupplementaryService::GetCdivCause(IN const SipAddress* pAddress,
         OUT IMS_SINT32& nCause)
 {
     if (pAddress != IMS_NULL)
     {
-        const SIPParameter* pSIPParameter = pAddress->GetParameter("cause");
+        const SipParameter* pSIPParameter = pAddress->GetParameter("cause");
 
         if (pSIPParameter != IMS_NULL)
         {
@@ -513,7 +513,7 @@ IMS_BOOL MtcSupplementaryService::GetCdivCause(IN const SIPAddress* pAddress,
 }
 
 PRIVATE
-IMS_BOOL MtcSupplementaryService::GetCdivTarget(IN const SIPAddress* pAddress,
+IMS_BOOL MtcSupplementaryService::GetCdivTarget(IN const SipAddress* pAddress,
         OUT AString& strTarget)
 {
     if (pAddress == IMS_NULL)
@@ -522,11 +522,11 @@ IMS_BOOL MtcSupplementaryService::GetCdivTarget(IN const SIPAddress* pAddress,
         return IMS_FALSE;
     }
 
-    if (pAddress->IsSchemeSIP() || pAddress->IsSchemeSIPS())
+    if (pAddress->IsSchemeSip() || pAddress->IsSchemeSips())
     {
         strTarget = pAddress->GetUser();
     }
-    else if (pAddress->IsSchemeTEL())
+    else if (pAddress->IsSchemeTel())
     {
         strTarget = pAddress->GetHost();
     }
@@ -608,7 +608,7 @@ IMS_BOOL MtcSupplementaryService::IsIncomingUssdCall(IN IMessage* piMessage)
     }
 
     IMSList<AString> objAcceptHeaders;
-    MessageUtil::GetHeaders(piMessage, ISIPHeader::ACCEPT, objAcceptHeaders);
+    MessageUtil::GetHeaders(piMessage, ISipHeader::ACCEPT, objAcceptHeaders);
     for (IMS_UINT32 index = 0; index < objAcceptHeaders.GetSize(); index++)
     {
         AString strAcceptHeader = objAcceptHeaders.GetAt(index);
@@ -628,14 +628,14 @@ IMS_SINT32 MtcSupplementaryService::GetCnvHeaderType(IN IMessage* piMessage)
 {
     if (m_nCnapType == CNAP_SCHEME_PAID ||
             (m_nCnapType == CNAP_SCHEME_PAID_FROM &&
-            MessageUtil::IsHeaderPresent(piMessage, ISIPHeader::P_ASSERTED_IDENTITY)))
+            MessageUtil::IsHeaderPresent(piMessage, ISipHeader::P_ASSERTED_IDENTITY)))
     {
         IMS_TRACE_D("GetCNVHeaderType - P_ASSERTED_IDENTITY", 0, 0, 0);
-        return ISIPHeader::P_ASSERTED_IDENTITY;
+        return ISipHeader::P_ASSERTED_IDENTITY;
     }
 
     IMS_TRACE_D("GetCNVHeaderType - FROM", 0, 0, 0);
-    return ISIPHeader::FROM;
+    return ISipHeader::FROM;
 }
 
 PRIVATE

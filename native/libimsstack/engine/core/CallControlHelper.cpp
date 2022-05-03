@@ -174,7 +174,7 @@ Remarks
 
 */
 PUBLIC GLOBAL
-Replaces* CallControlHelper::CreateReplaces(IN IMS_BOOL bMO, IN ISIPDialog *piDialog)
+Replaces* CallControlHelper::CreateReplaces(IN IMS_BOOL bMO, IN ISipDialog *piDialog)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -184,9 +184,9 @@ Replaces* CallControlHelper::CreateReplaces(IN IMS_BOOL bMO, IN ISIPDialog *piDi
         return IMS_NULL;
 
     Replaces *pReplaces = new Replaces(
-            piDialog->GetComponent(ISIPDialog::COMPONENT_CALL_ID),
-            piDialog->GetComponent(ISIPDialog::COMPONENT_LOCAL_TAG),
-            piDialog->GetComponent(ISIPDialog::COMPONENT_REMOTE_TAG));
+            piDialog->GetComponent(ISipDialog::COMPONENT_CALL_ID),
+            piDialog->GetComponent(ISipDialog::COMPONENT_LOCAL_TAG),
+            piDialog->GetComponent(ISipDialog::COMPONENT_REMOTE_TAG));
 
     if (pReplaces == IMS_NULL)
     {

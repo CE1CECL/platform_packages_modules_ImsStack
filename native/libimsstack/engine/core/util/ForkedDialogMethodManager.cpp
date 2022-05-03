@@ -78,8 +78,8 @@ ForkedDialogMethodManager* ForkedDialogMethodManager::GetInstance()
 }
 
 PRIVATE
-IMS_BOOL ForkedDialogMethodManager::HandleRequestWithinDialog(IN ISIPServerConnection *piSSC,
-        IN ISIPDialog *piOrigDialog)
+IMS_BOOL ForkedDialogMethodManager::HandleRequestWithinDialog(IN ISipServerConnection *piSSC,
+        IN ISipDialog *piOrigDialog)
 {
     LockGuard objLock(piLock);
 

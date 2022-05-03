@@ -18,29 +18,29 @@
 #include "util/OperatorFeatureResolver.h"
 
 PUBLIC GLOBAL
-IMS_BOOL OperatorFeatureResolver::IsMessageForEarlySessionModel(IN const ISIPMessage* piSIPMsg)
+IMS_BOOL OperatorFeatureResolver::IsMessageForEarlySessionModel(IN const ISipMessage* piSIPMsg)
 {
     if (piSIPMsg == IMS_NULL)
     {
         return IMS_FALSE;
     }
 
-    const AString strEarlySession(SIP::STR_EARLY_SESSION);
+    const AString strEarlySession(Sip::STR_EARLY_SESSION);
 
     if (!piSIPMsg->IsOptionRequired(strEarlySession))
     {
         return IMS_FALSE;
     }
 
-    AString strHeaderBody = piSIPMsg->GetHeader(ISIPHeader::CONTENT_DISPOSITION);
+    AString strHeaderBody = piSIPMsg->GetHeader(ISipHeader::CONTENT_DISPOSITION);
 
     if (strHeaderBody.GetLength() == 0)
     {
         return IMS_FALSE;
     }
 
-    ISIPHeader* piHeader = SIPParsingHelper::CreateHeader(
-            ISIPHeader::CONTENT_DISPOSITION, strHeaderBody);
+    ISipHeader* piHeader = SipParsingHelper::CreateHeader(
+            ISipHeader::CONTENT_DISPOSITION, strHeaderBody);
 
     if (piHeader == IMS_NULL)
     {
@@ -55,5 +55,5 @@ IMS_BOOL OperatorFeatureResolver::IsMessageForEarlySessionModel(IN const ISIPMes
         return IMS_FALSE;
     }
 
-    return (piSIPMsg->GetSDPBodyPart() != IMS_NULL);
+    return (piSIPMsg->GetSdpBodyPart() != IMS_NULL);
 }

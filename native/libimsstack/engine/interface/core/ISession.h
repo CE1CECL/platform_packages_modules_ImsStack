@@ -4,8 +4,8 @@
 #include "IServiceMethod.h"
 #include "SipMethod.h"
 
-class ISIPHeader;
-class ISIPClientConnection;
+class ISipHeader;
+class ISipClientConnection;
 class ICapabilities;
 class IReference;
 class ISubscription;
@@ -275,9 +275,9 @@ public:
      * @brief Creates a new mid-call or in-dialog transaction using this ISession.
      *
      * @param objMethod SIP method for this transaction
-     * @return Pointer to new ISIPClientConnection.
+     * @return Pointer to new ISipClientConnection.
      */
-    virtual ISIPClientConnection* CreateTransaction(IN CONST SIPMethod &objMethod) = 0;
+    virtual ISipClientConnection* CreateTransaction(IN CONST SipMethod &objMethod) = 0;
 
     /**
      * @brief Returns the configurations for session control.
@@ -293,7 +293,7 @@ public:
      *
      * @return The Contact header of this ISession.
      */
-    virtual const ISIPHeader* GetContactHeader() const = 0;
+    virtual const ISipHeader* GetContactHeader() const = 0;
 
     /**
      * @brief Returns the replace information(call-id/from-tag/to-tag) from this session.
@@ -582,7 +582,7 @@ public:
      * @return If the message is successfully sent, returns IMS_SUCCESS.
      *         Otherwise, returns IMS_FAILURE.
      */
-    virtual IMS_RESULT UpdateEx(IN IMS_SINT32 nMethod = SIPMethod::INVALID,
+    virtual IMS_RESULT UpdateEx(IN IMS_SINT32 nMethod = SipMethod::INVALID,
             IN IMS_BOOL bSessionRefresh = IMS_FALSE) = 0;
 
     // REFUSE_SDP_OFFER_ANSWER_EXCHANGE {

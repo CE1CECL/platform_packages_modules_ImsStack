@@ -7,14 +7,14 @@
 /**
  * @brief This class provides an interface for SIP debug operations.
  */
-class SIPDebug
+class SipDebug
 {
 private:
-    SIPDebug();
+    SipDebug();
 
 private:
-    SIPDebug(IN CONST SIPDebug &objRHS);
-    SIPDebug& operator=(IN CONST SIPDebug &objRHS);
+    SipDebug(IN CONST SipDebug &objRHS);
+    SipDebug& operator=(IN CONST SipDebug &objRHS);
 
 public:
     /**
@@ -28,7 +28,7 @@ public:
      *                   #DIR_OUT\n
      *                   #DIR_IN
      * @param nMethod SIP method type\n
-     *                #SIPMethod\n
+     *                #SipMethod\n
      *                #M_DEREGISTER\n
      *                #M_REINVITE
      * @param nStatusCode SIP status code for SIP response
@@ -71,7 +71,7 @@ public:
      * @param objIPA IP address
      * @return The adjusted logging string.
      */
-    static const IMS_CHAR* GetIP(IN CONST IPAddress &objIPA);
+    static const IMS_CHAR* GetIp(IN CONST IPAddress &objIPA);
     /**
      * @brief Gets a string representation of IP address.
      *
@@ -80,7 +80,7 @@ public:
      * @param strIP IP address
      * @return The adjusted logging string.
      */
-    static const IMS_CHAR* GetIP(IN CONST AString &strIP);
+    static const IMS_CHAR* GetIp(IN CONST AString &strIP);
     /**
      * @brief Gets the adjusted logging string with the count and the delimiter.
      *
@@ -155,10 +155,10 @@ public:
     };
 
     /// Method & StatusCode\n
-    /// Refer SIPMethod & SIPStatusCode class for each enumerations
+    /// Refer SipMethod & SipStatusCode class for each enumerations
     enum
     {
-        M_DEREGISTER = (SIPMethod::MAX + 1),
+        M_DEREGISTER = (SipMethod::MAX + 1),
         M_REINVITE
     };
 
@@ -169,14 +169,14 @@ private:
         MAX_LOG_CHAR_ARRAY = 64
     };
 
-    static IMS_CHAR acIP[MAX_LOG_IP + 1];
+    static IMS_CHAR acIpAddr[MAX_LOG_IP + 1];
     static IMS_CHAR acLog1[MAX_LOG_CHAR_ARRAY + 3 + 1];
     static IMS_CHAR acLog2[MAX_LOG_CHAR_ARRAY + 3 + 1];
     static AString strLog1;
     static AString strLog2;
 
     // For SIM2 in multi-SIM device
-    static IMS_CHAR acIP_1[MAX_LOG_IP + 1];
+    static IMS_CHAR acIpAddr_1[MAX_LOG_IP + 1];
     static IMS_CHAR acLog1_1[MAX_LOG_CHAR_ARRAY + 3 + 1];
     static IMS_CHAR acLog2_1[MAX_LOG_CHAR_ARRAY + 3 + 1];
     static AString strLog1_1;

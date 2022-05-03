@@ -95,7 +95,7 @@ IMS_BOOL SIPSocket::Create(IN CONST IPAddress & objIPA, IN IMS_UINT32 nPort /* =
 
     if (piNetConnection == IMS_NULL)
     {
-        IMS_TRACE_E(0, "No data connection (%s)", SIPDebug::GetIP(objIPA), 0, 0);
+        IMS_TRACE_E(0, "No data connection (%s)", SipDebug::GetIp(objIPA), 0, 0);
         return IMS_FALSE;
     }
 
@@ -148,7 +148,7 @@ IMS_BOOL SIPSocket::Create(IN CONST IPAddress & objIPA, IN IMS_UINT32 nPort /* =
     SetSocketOptions(objIPA, nPort);
 
     if ((objSA.GetType() != SIPSocketAddress::SOCKET_UDP)
-            && SIPFeatures::IsSocketOptionRequiredForTcpMaxSeg(GetSlotId()))
+            && SipFeatures::IsSocketOptionRequiredForTcpMaxSeg(GetSlotId()))
     {
         SetSocketOptionForTcpMaxSeg(piNetConnection, objIPA);
     }
@@ -529,24 +529,24 @@ void SIPSocket::SetSocketOptionForTcpMaxSeg(
     IMS_SINT32 nMss = piConnection->GetMtu();
     IMS_BOOL bIPV6 = !objLocalIP.IsIPv4Address();
     IMS_BOOL bWfcSupported = CarrierConfig::IsWfcEnabled(GetSlotId());
-    IMS_SINT32 nOverhead = SIP::PACKET_OVERHEAD_ESP + SIP::PACKET_OVERHEAD_TCP;
+    IMS_SINT32 nOverhead = Sip::PACKET_OVERHEAD_ESP + Sip::PACKET_OVERHEAD_TCP;
 
     //---------------------------------------------------------------------------------------------
 
     // Total overhead : esp + tcp + ip + edpg
-    nOverhead += (bIPV6 ? SIP::PACKET_OVERHEAD_IPV6 : SIP::PACKET_OVERHEAD_IPV4);
-    nOverhead += (bWfcSupported ? SIP::PACKET_OVERHEAD_EPDG : 0);
+    nOverhead += (bIPV6 ? Sip::PACKET_OVERHEAD_IPV6 : Sip::PACKET_OVERHEAD_IPV4);
+    nOverhead += (bWfcSupported ? Sip::PACKET_OVERHEAD_EPDG : 0);
 
-    if (bIPV6 && bWfcSupported && (nMss > SIP::MTU_IPV6))
+    if (bIPV6 && bWfcSupported && (nMss > Sip::MTU_IPV6))
     {
-        IMS_TRACE_I("MTU (IPv6) :: %d >> %d", nMss, SIP::MTU_IPV6, 0);
+        IMS_TRACE_I("MTU (IPv6) :: %d >> %d", nMss, Sip::MTU_IPV6, 0);
 
-        nMss = SIP::MTU_IPV6;
+        nMss = Sip::MTU_IPV6;
     }
 
     if (nMss <= 0)
     {
-        nMss = bIPV6 ? SIP::MTU_IPV6 : SIP::MTU_IPV4;
+        nMss = bIPV6 ? Sip::MTU_IPV6 : Sip::MTU_IPV4;
     }
 
     // MSS will be set to (MTU - lower layer's overhead)
@@ -574,13 +574,13 @@ void SIPSocket::SetSocketOptions(IN CONST IPAddress &objLocalIP, IN IMS_UINT32 n
     if (nSocketType != SIPSocketAddress::SOCKET_UDP)
     {
         SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                SIPRTConfig::CONFIG_I_REUSEADDR, ISocket::OPT_REUSEADDR,
+                SipRtConfig::CONFIG_I_REUSEADDR, ISocket::OPT_REUSEADDR,
                 "OPT_REUSEADDR");
         SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                SIPRTConfig::CONFIG_I_LINGER, ISocket::OPT_LINGER,
+                SipRtConfig::CONFIG_I_LINGER, ISocket::OPT_LINGER,
                 "OPT_LINGER");
         SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                SIPRTConfig::CONFIG_I_SHUTDOWN, ISocket::OPT_SHUTDOWN,
+                SipRtConfig::CONFIG_I_SHUTDOWN, ISocket::OPT_SHUTDOWN,
                 "OPT_SHUTDOWN");
 
         // TCP_KEEPCNT / TCP_KEEPIDLE / TCP_KEEPINTVL option for StreamSocket (client only)
@@ -588,17 +588,17 @@ void SIPSocket::SetSocketOptions(IN CONST IPAddress &objLocalIP, IN IMS_UINT32 n
                 || (nSocketType == SIPSocketAddress::SOCKET_TCP_CLIENT_BY_PEER))
         {
             SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                    SIPRTConfig::CONFIG_I_KEEPALIVE, ISocket::OPT_KEEPALIVE,
+                    SipRtConfig::CONFIG_I_KEEPALIVE, ISocket::OPT_KEEPALIVE,
                     "OPT_KEEPALIVE");
 
             SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                    SIPRTConfig::CONFIG_I_TCP_KEEP_COUNT, ISocket::OPT_TCP_KEEPCNT,
+                    SipRtConfig::CONFIG_I_TCP_KEEP_COUNT, ISocket::OPT_TCP_KEEPCNT,
                     "OPT_TCP_KEEPCNT");
             SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                    SIPRTConfig::CONFIG_I_TCP_KEEP_IDLE, ISocket::OPT_TCP_KEEPIDLE,
+                    SipRtConfig::CONFIG_I_TCP_KEEP_IDLE, ISocket::OPT_TCP_KEEPIDLE,
                     "OPT_TCP_KEEPIDLE");
             SetSocketOption(GetSlotId(), piSocket, objLocalIP, nLocalPort,
-                    SIPRTConfig::CONFIG_I_TCP_KEEP_INTERVAL, ISocket::OPT_TCP_KEEPINTVL,
+                    SipRtConfig::CONFIG_I_TCP_KEEP_INTERVAL, ISocket::OPT_TCP_KEEPINTVL,
                     "OPT_TCP_KEEPINTVL");
         }
     }
@@ -606,9 +606,9 @@ void SIPSocket::SetSocketOptions(IN CONST IPAddress &objLocalIP, IN IMS_UINT32 n
     SIPRTConfigHelper *pConfigHelper = SIPRTConfigUtils::GetConfigHelper(GetSlotId());
 
     // IP-level QoS option
-    if (pConfigHelper->IsItemConfigured(SIPRTConfig::CONFIG_I_IP_QOS))
+    if (pConfigHelper->IsItemConfigured(SipRtConfig::CONFIG_I_IP_QOS))
     {
-        const SIPRTConfig::IPQoS *pIPQoS = pConfigHelper->GetIPQoS(objLocalIP, nLocalPort);
+        const SipRtConfig::IpQos *pIPQoS = pConfigHelper->GetIpQos(objLocalIP, nLocalPort);
 
         if (pIPQoS != IMS_NULL)
         {
@@ -661,9 +661,9 @@ void SIPSocket::SetSocketOption(IN IMS_SINT32 nSlotId, IN ISocket *piSocket,
 
     if (pConfigHelper->IsItemConfigured(nConfigItem))
     {
-        const SIPRTConfig::SocketOption *pSO
+        const SipRtConfig::SocketOption *pSO
                 = pConfigHelper->GetSocketOption(nConfigItem);
-        const SIPRTConfig::SocketOption *pDedicatedSO
+        const SipRtConfig::SocketOption *pDedicatedSO
                 = pConfigHelper->GetSocketOption(nConfigItem, objLocalIP, nLocalPort);
 
         if (pDedicatedSO != IMS_NULL)

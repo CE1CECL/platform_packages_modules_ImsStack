@@ -17,8 +17,8 @@
 #include "IOnDirectCoreServiceListener.h"
 #include "CoreService.h"
 
-class ISIPConnectionNotifier;
-class ISIPServerConnection;
+class ISipConnectionNotifier;
+class ISipServerConnection;
 
 
 
@@ -42,26 +42,26 @@ private:
     // IService interface
     virtual const AString& GetAppId() const;
     virtual const AString& GetScheme() const;
-    virtual const SIPAddress& GetAuthorizedUserId() const;
-    virtual const SIPAddress& GetContactAddress() const;
-    virtual const SIPAddress* GetContactAddressForOutgoingMessage() const;
-    virtual ISIPHeader* GetContactHeader(
+    virtual const SipAddress& GetAuthorizedUserId() const;
+    virtual const SipAddress& GetContactAddress() const;
+    virtual const SipAddress* GetContactAddressForOutgoingMessage() const;
+    virtual ISipHeader* GetContactHeader(
             IN IMS_BOOL bPrivacy = IMS_FALSE, IN IMS_BOOL bRequest = IMS_TRUE,
-            IN IMS_SINT32 nSIPMethod = (-1) /* SIPMethod::INVALID */) const;
+            IN IMS_SINT32 nSIPMethod = (-1) /* SipMethod::INVALID */) const;
     virtual IFeatureCaps* GetFeatureCaps() const;
     virtual IServiceFilterCriteria* GetFilterCriteria() const;
     virtual const AStringArray& GetPathHeaders() const;
     virtual const IRegInfo* GetRegInfo() const;
     virtual const IPAddress& GetIPAddress() const;
     // MULTI_REG_SIP_PROFILE
-    virtual SIPProfile* GetSIPProfile() const;
+    virtual SipProfile* GetSIPProfile() const;
     virtual const AStringArray& GetUserIdentities() const;
     virtual const AString& GetUserIdentity(IN IMS_SINT32 nScheme) const;
-    virtual const SIPParameter* GetInstanceParameter() const;
+    virtual const SipParameter* GetInstanceParameter() const;
 
-    virtual const SIPAddress* GetPublicGRUU() const;
-    virtual const SIPAddress* GetTemporaryGRUU() const;
-    virtual const IMSList<SIPAddress*>& GetTemporaryGRUUs() const;
+    virtual const SipAddress* GetPublicGRUU() const;
+    virtual const SipAddress* GetTemporaryGRUU() const;
+    virtual const IMSList<SipAddress*>& GetTemporaryGRUUs() const;
 
     virtual IMS_BOOL IsBehindNAT() const;
     virtual IMS_BOOL IsImsConnected() const;
@@ -72,7 +72,7 @@ private:
     virtual IMS_BOOL RemoveFeatureTags(IN CONST IMSList<AString> &objFeatureTags,
             IN IMS_BOOL bRegRequired = IMS_TRUE);
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SIPProfile *pProfile);
+    virtual void SetSIPProfile(IN SipProfile *pProfile);
 
     // ICoreService interface
     virtual ICapabilities* CreateCapabilities(IN CONST AString &strFrom, IN CONST AString &strTo);

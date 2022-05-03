@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_REG_BINDING_LISTENER_H_
 #define _INTERFACE_REG_BINDING_LISTENER_H_
 
-class SIPAddress;
+class SipAddress;
 class CallerCapability;
 
 
@@ -76,7 +76,7 @@ public:
     </table>
 
     */
-    virtual void RegBinding_OnInit(IN CONST SIPAddress *pAOR) = 0;
+    virtual void RegBinding_OnInit(IN CONST SipAddress *pAOR) = 0;
 
     /*
      Queries the service capability to the application. It is for the caller capabilities.

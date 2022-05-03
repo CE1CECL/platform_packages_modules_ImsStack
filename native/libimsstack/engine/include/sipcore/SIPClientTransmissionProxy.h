@@ -18,7 +18,7 @@
 #include "ISIPSocketListener.h"
 
 class ISIPClientTransmissionListener;
-class SIPTimerValues;
+class SipTimerValues;
 
 
 
@@ -42,7 +42,7 @@ public:
     IMS_RESULT Send();
     IMS_RESULT SendWithCredentials();
     void SetListener(IN ISIPClientTransmissionListener *piListener);
-    void SetTimerValues(IN SIPTimerValues *pTV);
+    void SetTimerValues(IN SipTimerValues *pTV);
     void SetTransactionState(IN SIPClientTransactionState *pCTState);
 
 private:
@@ -73,7 +73,7 @@ private:
         AMSG_NOTIFY_TRANSPORT_ERROR
     };
 
-    SIPTimerValues *pTV;
+    SipTimerValues *pTV;
     SIPClientTransactionState *pCTState;
     ISIPClientTransmissionListener *piListener;
 

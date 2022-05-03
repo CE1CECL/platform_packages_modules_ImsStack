@@ -15,7 +15,7 @@ public:
      *
      * @return AOR (Address Of Record) of registration.
      */
-    virtual const SIPAddress& GetAOR() const = 0;
+    virtual const SipAddress& GetAOR() const = 0;
 
     /**
      * @brief Returns the contact with the specified contact uri of this registration element.
@@ -23,7 +23,7 @@ public:
      * @param objContactUri the contact URI to be retrieved
      * @return Pointer to IRegInfoContact or null.
      */
-    virtual IRegInfoContact* GetContact(IN CONST SIPAddress &objContactUri) const = 0;
+    virtual IRegInfoContact* GetContact(IN CONST SipAddress &objContactUri) const = 0;
 
     /**
      * @brief Returns all the contacts of this registration element.

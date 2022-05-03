@@ -20,59 +20,59 @@
 
 
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MECHANISM_DIGEST[] = "digest";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MECHANISM_DIGEST[] = "digest";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MECHANISM_TLS[] = "tls";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MECHANISM_TLS[] = "tls";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MECHANISM_IPSEC_IKE[] = "ipsec-ike";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MECHANISM_IPSEC_IKE[] = "ipsec-ike";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MECHANISM_IPSEC_MAN[] = "ipsec-man";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MECHANISM_IPSEC_MAN[] = "ipsec-man";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MECHANISM_IPSEC_3GPP[] = "ipsec-3gpp";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MECHANISM_IPSEC_3GPP[] = "ipsec-3gpp";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_ALG_HMAC_MD5_96[] = "hmac-md5-96";
+const IMS_CHAR SipSecurityHeader::P_VALUE_ALG_HMAC_MD5_96[] = "hmac-md5-96";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_ALG_HMAC_SHA_1_96[] = "hmac-sha-1-96";
+const IMS_CHAR SipSecurityHeader::P_VALUE_ALG_HMAC_SHA_1_96[] = "hmac-sha-1-96";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_PROT_AH[] = "ah";
+const IMS_CHAR SipSecurityHeader::P_VALUE_PROT_AH[] = "ah";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_PROT_ESP[] = "esp";
+const IMS_CHAR SipSecurityHeader::P_VALUE_PROT_ESP[] = "esp";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MOD_TRANS[] = "trans";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MOD_TRANS[] = "trans";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MOD_TUN[] = "tun";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MOD_TUN[] = "tun";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_MOD_UDP_ENC_TUN[] = "UDP-enc-tun";
+const IMS_CHAR SipSecurityHeader::P_VALUE_MOD_UDP_ENC_TUN[] = "UDP-enc-tun";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_EALG_DES_EDE3_CBC[] = "des-ede3-cbc";
+const IMS_CHAR SipSecurityHeader::P_VALUE_EALG_DES_EDE3_CBC[] = "des-ede3-cbc";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_EALG_AES_CBC[] = "aes-cbc";
+const IMS_CHAR SipSecurityHeader::P_VALUE_EALG_AES_CBC[] = "aes-cbc";
 PUBLIC GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_VALUE_EALG_NULL[] = "null";
+const IMS_CHAR SipSecurityHeader::P_VALUE_EALG_NULL[] = "null";
 
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_PREFERENCE[] = "q";
+const IMS_CHAR SipSecurityHeader::P_NAME_PREFERENCE[] = "q";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_ALGORITHM[] = "alg";
+const IMS_CHAR SipSecurityHeader::P_NAME_ALGORITHM[] = "alg";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_PROTOCOL[] = "prot";
+const IMS_CHAR SipSecurityHeader::P_NAME_PROTOCOL[] = "prot";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_MODE[] = "mod";
+const IMS_CHAR SipSecurityHeader::P_NAME_MODE[] = "mod";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_ENCRYPTION_ALGORITHM[] = "ealg";
+const IMS_CHAR SipSecurityHeader::P_NAME_ENCRYPTION_ALGORITHM[] = "ealg";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_SPI_C[] = "spi-c";
+const IMS_CHAR SipSecurityHeader::P_NAME_SPI_C[] = "spi-c";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_SPI_S[] = "spi-s";
+const IMS_CHAR SipSecurityHeader::P_NAME_SPI_S[] = "spi-s";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_PORT_C[] = "port-c";
+const IMS_CHAR SipSecurityHeader::P_NAME_PORT_C[] = "port-c";
 PRIVATE GLOBAL
-const IMS_CHAR SIPSecurityHeader::P_NAME_PORT_S[] = "port-s";
+const IMS_CHAR SipSecurityHeader::P_NAME_PORT_S[] = "port-s";
 
 
 
 PUBLIC
-SIPSecurityHeader::SIPSecurityHeader(IN IMS_SINT32 nMechanism_ /* = MECHANISM_IPSEC_3GPP */,
+SipSecurityHeader::SipSecurityHeader(IN IMS_SINT32 nMechanism_ /* = MECHANISM_IPSEC_3GPP */,
         IN CONST AString &strMechanism_ /* = AString::ConstNull() */,
         IN IMS_BOOL bParameterRequired_ /* = IMS_TRUE */)
     : bParameterRequired(bParameterRequired_)
@@ -95,7 +95,7 @@ SIPSecurityHeader::SIPSecurityHeader(IN IMS_SINT32 nMechanism_ /* = MECHANISM_IP
 }
 
 PUBLIC
-SIPSecurityHeader::SIPSecurityHeader(IN CONST SIPSecurityHeader &objRHS)
+SipSecurityHeader::SipSecurityHeader(IN CONST SipSecurityHeader &objRHS)
     : bParameterRequired(objRHS.bParameterRequired)
     , nMechanism(objRHS.nMechanism)
     , strMechanism(objRHS.strMechanism)
@@ -116,12 +116,12 @@ SIPSecurityHeader::SIPSecurityHeader(IN CONST SIPSecurityHeader &objRHS)
 }
 
 PUBLIC
-SIPSecurityHeader::~SIPSecurityHeader()
+SipSecurityHeader::~SipSecurityHeader()
 {
 }
 
 PUBLIC
-SIPSecurityHeader& SIPSecurityHeader::operator=(IN CONST SIPSecurityHeader &objRHS)
+SipSecurityHeader& SipSecurityHeader::operator=(IN CONST SipSecurityHeader &objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ SIPSecurityHeader& SIPSecurityHeader::operator=(IN CONST SIPSecurityHeader &objR
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetMechanism() const
+IMS_SINT32 SipSecurityHeader::GetMechanism() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ IMS_SINT32 SIPSecurityHeader::GetMechanism() const
 }
 
 PUBLIC
-const AString& SIPSecurityHeader::GetUnknownMechanism() const
+const AString& SipSecurityHeader::GetUnknownMechanism() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ const AString& SIPSecurityHeader::GetUnknownMechanism() const
 }
 
 PUBLIC
-const AString& SIPSecurityHeader::GetPreference() const
+const AString& SipSecurityHeader::GetPreference() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ const AString& SIPSecurityHeader::GetPreference() const
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetAlgorithm() const
+IMS_SINT32 SipSecurityHeader::GetAlgorithm() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ IMS_SINT32 SIPSecurityHeader::GetAlgorithm() const
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetEncryptionAlgorithm() const
+IMS_SINT32 SipSecurityHeader::GetEncryptionAlgorithm() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -192,7 +192,7 @@ IMS_SINT32 SIPSecurityHeader::GetEncryptionAlgorithm() const
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetMode() const
+IMS_SINT32 SipSecurityHeader::GetMode() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -200,7 +200,7 @@ IMS_SINT32 SIPSecurityHeader::GetMode() const
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetPortC() const
+IMS_SINT32 SipSecurityHeader::GetPortC() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ IMS_SINT32 SIPSecurityHeader::GetPortC() const
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetPortS() const
+IMS_SINT32 SipSecurityHeader::GetPortS() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -216,7 +216,7 @@ IMS_SINT32 SIPSecurityHeader::GetPortS() const
 }
 
 PUBLIC
-IMS_SINT32 SIPSecurityHeader::GetProtocol() const
+IMS_SINT32 SipSecurityHeader::GetProtocol() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ IMS_SINT32 SIPSecurityHeader::GetProtocol() const
 }
 
 PUBLIC
-IMS_UINT32 SIPSecurityHeader::GetSPIC() const
+IMS_UINT32 SipSecurityHeader::GetSpiC() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -232,7 +232,7 @@ IMS_UINT32 SIPSecurityHeader::GetSPIC() const
 }
 
 PUBLIC
-IMS_UINT32 SIPSecurityHeader::GetSPIS() const
+IMS_UINT32 SipSecurityHeader::GetSpiS() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -240,7 +240,7 @@ IMS_UINT32 SIPSecurityHeader::GetSPIS() const
 }
 
 PUBLIC
-const IMSMap<AString,AString>& SIPSecurityHeader::GetExtensionParameters() const
+const IMSMap<AString,AString>& SipSecurityHeader::GetExtensionParameters() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -248,7 +248,7 @@ const IMSMap<AString,AString>& SIPSecurityHeader::GetExtensionParameters() const
 }
 
 PUBLIC
-const AString& SIPSecurityHeader::GetUnknownParameterValue(IN IMS_SINT32 nName) const
+const AString& SipSecurityHeader::GetUnknownParameterValue(IN IMS_SINT32 nName) const
 {
     IMS_SLONG nIndex = objUnknownParamValues.GetIndexOfKey(nName);
 
@@ -263,7 +263,7 @@ const AString& SIPSecurityHeader::GetUnknownParameterValue(IN IMS_SINT32 nName) 
 }
 
 PUBLIC
-const IMSMap<IMS_SINT32, AString>& SIPSecurityHeader::GetUnknownParameterValues() const
+const IMSMap<IMS_SINT32, AString>& SipSecurityHeader::GetUnknownParameterValues() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -271,7 +271,7 @@ const IMSMap<IMS_SINT32, AString>& SIPSecurityHeader::GetUnknownParameterValues(
 }
 
 PUBLIC
-IMS_BOOL SIPSecurityHeader::IsParameterPresent(IN IMS_SINT32 nParam) const
+IMS_BOOL SipSecurityHeader::IsParameterPresent(IN IMS_SINT32 nParam) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -279,7 +279,7 @@ IMS_BOOL SIPSecurityHeader::IsParameterPresent(IN IMS_SINT32 nParam) const
 }
 
 PUBLIC
-void SIPSecurityHeader::SetPreference(IN CONST AString &strPreference)
+void SipSecurityHeader::SetPreference(IN CONST AString &strPreference)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -287,7 +287,7 @@ void SIPSecurityHeader::SetPreference(IN CONST AString &strPreference)
 }
 
 PUBLIC
-void SIPSecurityHeader::SetAlgorithm(IN IMS_SINT32 nAlgorithm)
+void SipSecurityHeader::SetAlgorithm(IN IMS_SINT32 nAlgorithm)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -295,7 +295,7 @@ void SIPSecurityHeader::SetAlgorithm(IN IMS_SINT32 nAlgorithm)
 }
 
 PUBLIC
-void SIPSecurityHeader::SetEncryptionAlgorithm(IN IMS_SINT32 nEncryptionAlgorithm)
+void SipSecurityHeader::SetEncryptionAlgorithm(IN IMS_SINT32 nEncryptionAlgorithm)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -303,7 +303,7 @@ void SIPSecurityHeader::SetEncryptionAlgorithm(IN IMS_SINT32 nEncryptionAlgorith
 }
 
 PUBLIC
-void SIPSecurityHeader::SetMode(IN IMS_SINT32 nMode)
+void SipSecurityHeader::SetMode(IN IMS_SINT32 nMode)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -311,7 +311,7 @@ void SIPSecurityHeader::SetMode(IN IMS_SINT32 nMode)
 }
 
 PUBLIC
-void SIPSecurityHeader::SetPort(IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortS)
+void SipSecurityHeader::SetPort(IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -338,7 +338,7 @@ void SIPSecurityHeader::SetPort(IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortS)
 }
 
 PUBLIC
-void SIPSecurityHeader::SetProtocol (IN IMS_SINT32 nProtocol)
+void SipSecurityHeader::SetProtocol (IN IMS_SINT32 nProtocol)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -346,7 +346,7 @@ void SIPSecurityHeader::SetProtocol (IN IMS_SINT32 nProtocol)
 }
 
 PUBLIC
-void SIPSecurityHeader::SetSPI(IN IMS_UINT32 nSPIC, IN IMS_UINT32 nSPIS,
+void SipSecurityHeader::SetSpi(IN IMS_UINT32 nSPIC, IN IMS_UINT32 nSPIS,
         IN IMS_BOOL bSPI_3GPP /* = IMS_TRUE */)
 {
     //---------------------------------------------------------------------------------------------
@@ -360,7 +360,7 @@ void SIPSecurityHeader::SetSPI(IN IMS_UINT32 nSPIC, IN IMS_UINT32 nSPIS,
 }
 
 PUBLIC
-void SIPSecurityHeader::SetSPIOption(IN IMS_BOOL bSPI_3GPP)
+void SipSecurityHeader::SetSpiOption(IN IMS_BOOL bSPI_3GPP)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -368,7 +368,7 @@ void SIPSecurityHeader::SetSPIOption(IN IMS_BOOL bSPI_3GPP)
 }
 
 PUBLIC
-IMS_BOOL SIPSecurityHeader::SetExtensionParameter(IN CONST AString &strName,
+IMS_BOOL SipSecurityHeader::SetExtensionParameter(IN CONST AString &strName,
         IN CONST AString &strValue)
 {
     IMS_SLONG nIndex = objExtensions.GetIndexOfKey(strName);
@@ -385,7 +385,7 @@ IMS_BOOL SIPSecurityHeader::SetExtensionParameter(IN CONST AString &strName,
 }
 
 PUBLIC
-IMS_BOOL SIPSecurityHeader::SetUnknownParameterValue(IN IMS_SINT32 nName,
+IMS_BOOL SipSecurityHeader::SetUnknownParameterValue(IN IMS_SINT32 nName,
         IN CONST AString &strValue)
 {
     IMS_SLONG nIndex = objUnknownParamValues.GetIndexOfKey(nName);
@@ -402,7 +402,7 @@ IMS_BOOL SIPSecurityHeader::SetUnknownParameterValue(IN IMS_SINT32 nName,
 }
 
 PUBLIC
-AString SIPSecurityHeader::ToString() const
+AString SipSecurityHeader::ToString() const
 {
     AStringBuffer objBuffer(256);
 
@@ -617,7 +617,7 @@ AString SIPSecurityHeader::ToString() const
 }
 
 PUBLIC GLOBAL
-SIPSecurityHeader* SIPSecurityHeader::FromSIPHeader(IN ISIPHeader *piHeader)
+SipSecurityHeader* SipSecurityHeader::FromSipHeader(IN ISipHeader *piHeader)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -628,9 +628,9 @@ SIPSecurityHeader* SIPSecurityHeader::FromSIPHeader(IN ISIPHeader *piHeader)
 
     IMS_SINT32 nType = piHeader->GetType();
 
-    if ((nType != ISIPHeader::SECURITY_CLIENT)
-            && (nType != ISIPHeader::SECURITY_SERVER)
-            && (nType != ISIPHeader::SECURITY_VERIFY))
+    if ((nType != ISipHeader::SECURITY_CLIENT)
+            && (nType != ISipHeader::SECURITY_SERVER)
+            && (nType != ISipHeader::SECURITY_VERIFY))
     {
         return IMS_NULL;
     }
@@ -654,7 +654,7 @@ SIPSecurityHeader* SIPSecurityHeader::FromSIPHeader(IN ISIPHeader *piHeader)
     else if (strMechanism.EqualsIgnoreCase(P_VALUE_MECHANISM_IPSEC_MAN))
         nMechanism = MECHANISM_IPSEC_MAN;
 
-    SIPSecurityHeader *pSecurityHeader = new SIPSecurityHeader(nMechanism, strMechanism);
+    SipSecurityHeader *pSecurityHeader = new SipSecurityHeader(nMechanism, strMechanism);
 
     if (pSecurityHeader == IMS_NULL)
     {
@@ -666,11 +666,11 @@ SIPSecurityHeader* SIPSecurityHeader::FromSIPHeader(IN ISIPHeader *piHeader)
     pSecurityHeader->nMode = MODE_UNSPECIFIED;
     pSecurityHeader->nEncryptionAlgorithm = EALG_UNSPECIFIED;
 
-    const IMSList<SIPParameter*> &objParameters = piHeader->GetParameters();
+    const IMSList<SipParameter*> &objParameters = piHeader->GetParameters();
 
     for (IMS_UINT32 i = 0; i < objParameters.GetSize(); ++i)
     {
-        const SIPParameter *pParameter = objParameters.GetAt(i);
+        const SipParameter *pParameter = objParameters.GetAt(i);
         const AString &strName = pParameter->GetName();
         const AString &strValue = pParameter->GetValue();
 

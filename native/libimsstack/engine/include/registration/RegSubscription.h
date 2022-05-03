@@ -21,8 +21,8 @@
 #include "RegKey.h"
 #include "RegStateTracker.h"
 
-class ISIPConnectionNotifier;
-class SIPTimerValues;
+class ISipConnectionNotifier;
+class SipTimerValues;
 class IRegistration;
 class IRegSubscriptionListener;
 class SubState;
@@ -41,7 +41,7 @@ public:
     RegSubscription(IN CONST RegKey& objRegKey_,
             IN RegStateTracker *pRegStateTracker_,
             IN IMS_UINT32 nExpiresValue_ = 0,
-            IN CONST SIPTimerValues *pSIPTVs_ = IMS_NULL);
+            IN CONST SipTimerValues *pSIPTVs_ = IMS_NULL);
     virtual ~RegSubscription();
 
 private:
@@ -50,9 +50,9 @@ private:
 
 public:
     // IRegBase interface
-    virtual ISIPMessage* GetNextRequest();
-    virtual ISIPMessage* GetPreviousRequest() const;
-    virtual ISIPMessage* GetPreviousResponse() const;
+    virtual ISipMessage* GetNextRequest();
+    virtual ISipMessage* GetPreviousRequest() const;
+    virtual ISipMessage* GetPreviousResponse() const;
     // SIP_MESSAGE_MEDIATOR
     virtual void SetSipMessageMediator(IN IMessageMediator *piMediator);
 
@@ -79,19 +79,19 @@ private:
     // Method class
     virtual IMS_BOOL InitInstance();
     // IMS_AUTH_SIP_DIGEST
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // Method class - Handle to the outgoing request / incoming response message
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC);
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC);
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
     // IDialogMethod interface
-    virtual IMS_BOOL Dialog_Compare(IN ISIPServerConnection *piSSC) const;
-    virtual IMS_BOOL Dialog_NotifyRequest(IN ISIPServerConnection *piSSC);
+    virtual IMS_BOOL Dialog_Compare(IN ISipServerConnection *piSSC) const;
+    virtual IMS_BOOL Dialog_NotifyRequest(IN ISipServerConnection *piSSC);
 
     // IRefreshable interface
-    virtual void Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+    virtual void Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
             IN IMS_SINT32 nCode = 0);
     virtual IMS_BOOL Refreshable_RefreshStarted();
     virtual void Refreshable_RefreshTerminated();
@@ -102,23 +102,23 @@ private:
 
     void CheckDialogNCallListener();
     void ClearNextRequest();
-    IMS_BOOL CopyHeadersAndBodyParts(IN_OUT ISIPMessage *&piSIPMsg);
+    IMS_BOOL CopyHeadersAndBodyParts(IN_OUT ISipMessage *&piSIPMsg);
     IMS_BOOL IsFeatureEnabled(IN IMS_SINT32 nFeature) const;
-    void SetOngoingConnection(IN ISIPClientConnection *piSCC);
-    void SetPreviousRequest(IN ISIPMessage *piSIPMsg);
-    void SetPreviousResponse(IN ISIPMessage *piSIPMsg);
-    IMS_BOOL SendResponse(IN ISIPServerConnection *piSSC, IN IMS_SINT32 nStatusCode);
-    IMS_BOOL SetContactHeader(IN_OUT ISIPMessage *&piSIPMsg,
+    void SetOngoingConnection(IN ISipClientConnection *piSCC);
+    void SetPreviousRequest(IN ISipMessage *piSIPMsg);
+    void SetPreviousResponse(IN ISipMessage *piSIPMsg);
+    IMS_BOOL SendResponse(IN ISipServerConnection *piSSC, IN IMS_SINT32 nStatusCode);
+    IMS_BOOL SetContactHeader(IN_OUT ISipMessage *&piSIPMsg,
             OUT IMS_BOOL &bIsContactGRUU);
-    IMS_BOOL SetHeaders(IN_OUT ISIPMessage *&piSIPMsg);
+    IMS_BOOL SetHeaders(IN_OUT ISipMessage *&piSIPMsg);
     void SetState(IN IMS_SINT32 nState);
     IMS_BOOL SubscribeOnImplicitRefresh();
 
     // IMS_REQUEST_URI_VALIDATION_IN_MID_DIALOG
-    IMS_BOOL ValidateRequestURI(IN CONST SIPAddress &objRequestURI, IN ISIPDialog *piDialog) const;
+    IMS_BOOL ValidateRequestURI(IN CONST SipAddress &objRequestURI, IN ISipDialog *piDialog) const;
 
-    static ISIPClientConnection* CreateConnection(IN RegSubscription *pRegSub);
-    static IMS_UINT16 GetReasonParameter(IN ISIPMessage *piMessage);
+    static ISipClientConnection* CreateConnection(IN RegSubscription *pRegSub);
+    static IMS_UINT16 GetReasonParameter(IN ISipMessage *piMessage);
 
     static const IMS_CHAR* StateToString(IN IMS_SINT32 nState);
 
@@ -206,14 +206,14 @@ private:
     SubscriberRefreshHelper *pRefreshHelper;
 
     // Current SIP connection for abnormal cases
-    ISIPClientConnection *piOngoingSCC;
+    ISipClientConnection *piOngoingSCC;
 
     // Message for the next SUBSCIRBE request
-    ISIPMessage *piNextRequest;
+    ISipMessage *piNextRequest;
     // Message for the previous SUBSCRIBE request
-    ISIPMessage *piPreviousRequest;
+    ISipMessage *piPreviousRequest;
     // Message for the previous SUBSCRIBE response
-    ISIPMessage *piPreviousResponse;
+    ISipMessage *piPreviousResponse;
 
 #ifdef __IMS_ASYNC_XML_PARSER__
     // Queue for reginfo notification
@@ -221,11 +221,11 @@ private:
 #endif
 
     // Timer values of SIP transaction layer
-    SIPTimerValues *pSIPTVs;
+    SipTimerValues *pSIPTVs;
 
     // NOTIFY_REQUEST_HANDLING_AFTER_DE_REG
     // To handle a notification properly after de-REG
-    ISIPConnectionNotifier *piReferredSCN;
+    ISipConnectionNotifier *piReferredSCN;
 };
 
 #endif // _REG_SUBSCRIBER_H_

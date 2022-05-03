@@ -35,7 +35,7 @@ class SIPDialog;
 
 
 class SIPDialogImpl
-    : public ISIPDialog
+    : public ISipDialog
 {
 public:
     explicit SIPDialogImpl(IN SIPDialog *pDialog_);
@@ -47,21 +47,21 @@ private:
     SIPDialogImpl& operator=(IN CONST SIPDialogImpl &objRHS);
 
 public:
-    // ISIPObject interface
+    // ISipObject interface
     virtual void Destroy();
-    // ISIPDialog interface
-    virtual ISIPDialog* Clone() const;
-    virtual IMS_BOOL Equals(IN CONST ISIPDialog *piDialog);
-    virtual AString GetDialogID();
-    virtual ISIPClientConnection* GetNewClientConnection(IN CONST AString &strMethod);
+    // ISipDialog interface
+    virtual ISipDialog* Clone() const;
+    virtual IMS_BOOL Equals(IN CONST ISipDialog *piDialog);
+    virtual AString GetDialogId();
+    virtual ISipClientConnection* GetNewClientConnection(IN CONST AString &strMethod);
     virtual IMS_SINT32 GetState() const;
-    virtual IMS_BOOL IsSameDialog(IN CONST ISIPConnection *piSC);
+    virtual IMS_BOOL IsSameDialog(IN CONST ISipConnection *piSC);
     virtual AString GetComponent(IN IMS_SINT32 nType) const;
 
     //// IMS Extensions
     // BYE_REQUEST_ON_DIALOG_TERMINATED
-    virtual AString GetDialogIDEx();
-    virtual const ISIPHeader* GetContactHeader() const;
+    virtual AString GetDialogIdEx();
+    virtual const ISipHeader* GetContactHeader() const;
     // CONTACT_HEADER_PARAMETER_CONTROL_FOR_MID_DIALOG_REQUEST
     virtual IMS_RESULT SetContactParameter(IN CONST AString &strParameter,
             IN IMS_SINT32 nOperation = 0 /* (0: ADD, 1: REMOVE) */);

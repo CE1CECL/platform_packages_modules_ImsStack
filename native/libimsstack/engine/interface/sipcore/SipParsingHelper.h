@@ -3,69 +3,69 @@
 
 #include "ByteArray.h"
 
-class ISIPHeader;
-class ISIPMessage;
-class ISIPMessageBodyPart;
+class ISipHeader;
+class ISipMessage;
+class ISipMessageBodyPart;
 
 /**
  * @brief This class provides a helper interface to parse SIP components.
  */
-class SIPParsingHelper
+class SipParsingHelper
 {
 private:
-    SIPParsingHelper();
+    SipParsingHelper();
 
 public:
     /**
      * @brief Ceates SIP header with the specified header name only.
      *
      * @param strName SIP header name
-     * @return Pointer to ISIPHeader.
+     * @return Pointer to ISipHeader.
      */
-    static ISIPHeader* CreateHeader(IN CONST AString &strName);
+    static ISipHeader* CreateHeader(IN CONST AString &strName);
 
     /**
      * @brief Ceates SIP header with the specified header name and value.
      *
      * @param strName SIP header name
      * @param strValue SIP header value
-     * @return Pointer to ISIPHeader.
+     * @return Pointer to ISipHeader.
      */
-    static ISIPHeader* CreateHeader(IN CONST AString &strName, IN CONST AString &strValue);
+    static ISipHeader* CreateHeader(IN CONST AString &strName, IN CONST AString &strValue);
 
     /**
      * @brief Ceates SIP header with the specified header type and value.
      *
      * @param nType The defined SIP header type
      * @param strValue SIP header value
-     * @return Pointer to ISIPHeader.
+     * @return Pointer to ISipHeader.
      */
-    static ISIPHeader* CreateHeader(IN IMS_SINT32 nType, IN CONST AString &strValue);
+    static ISipHeader* CreateHeader(IN IMS_SINT32 nType, IN CONST AString &strValue);
 
     /**
      * @brief Ceates SIP message with the specified message type.
      *
      * @param nType The defined SIP message type\n
-     *              #ISIPMessage#TYPE_REQUEST\n
-     *              #ISIPMessage#TYPE_RESPONSE
-     * @return Pointer to ISIPMessage.
+     *              #ISipMessage#TYPE_REQUEST\n
+     *              #ISipMessage#TYPE_RESPONSE
+     * @return Pointer to ISipMessage.
      */
-    static ISIPMessage* CreateMessage(IN IMS_SINT32 nType);
+    static ISipMessage* CreateMessage(IN IMS_SINT32 nType);
 
     /**
      * @brief Ceates SIP message with the specified raw SIP message string.
      *
      * @param objMessage The raw SIP message
-     * @return Pointer to ISIPMessage.
+     * @return Pointer to ISipMessage.
      */
-    static ISIPMessage* CreateMessage(IN CONST ByteArray &objMessage);
+    static ISipMessage* CreateMessage(IN CONST ByteArray &objMessage);
 
     /**
      * @brief Ceates an empty SIP message body part.
      *
-     * @return Pointer to ISIPMessageBodyPart.
+     * @return Pointer to ISipMessageBodyPart.
      */
-    static ISIPMessageBodyPart* CreateMessageBodyPart();
+    static ISipMessageBodyPart* CreateMessageBodyPart();
 
     /**
      * @brief Ceates the SIP message body parts from the specified SIP message.
@@ -73,7 +73,7 @@ public:
      * @param piSIPMsg SIP message to be parsed
      * @return If it succeeds, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    static IMS_BOOL CreateMessageBodyParts(IN_OUT ISIPMessage *piSIPMsg);
+    static IMS_BOOL CreateMessageBodyParts(IN_OUT ISipMessage *piSIPMsg);
 
     /**
      * @brief Returns Reason header which the protocol indicates "SIP" from Reason header list.
@@ -81,7 +81,7 @@ public:
      * @param objReasonHeaders Reason header list
      * @return Reason header which indicates "SIP" protocol.
      */
-    static const AString& GetSIPReasonHeader(IN CONST IMSList<AString> &objReasonHeaders);
+    static const AString& GetSipReasonHeader(IN CONST IMSList<AString> &objReasonHeaders);
 
     /**
      * @brief Parses Reason header with "cause" / "text" parameters.

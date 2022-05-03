@@ -59,26 +59,26 @@ protected:
 
     // Method class
     // IMS_AUTH_SIP_DIGEST
-    virtual IMS_BOOL SendRequestToChallenge(IN ISIPClientConnection *piSCC);
+    virtual IMS_BOOL SendRequestToChallenge(IN ISipClientConnection *piSCC);
 
     // Handle the exceptions
     virtual void Exception_NotifyError(IN IMS_SINT32 nErrorCode);
     virtual IMS_BOOL InitInstance();
 
     // Handle to the outgoing request / incoming response message
-    virtual void NotifySIPResponse(IN ISIPClientConnection *piSCC);
-    virtual void NotifySIPError(IN ISIPConnection *piSC, IN IMS_SINT32 nCode,
+    virtual void NotifySIPResponse(IN ISipClientConnection *piSCC);
+    virtual void NotifySIPError(IN ISipConnection *piSC, IN IMS_SINT32 nCode,
             IN CONST AString &strMessage);
 
     // IRefreshable interface
-    virtual void Refreshable_RefreshCompleted(IN ISIPClientConnection *piSCC,
+    virtual void Refreshable_RefreshCompleted(IN ISipClientConnection *piSCC,
             IN IMS_SINT32 nCode = 0);
     virtual IMS_BOOL Refreshable_RefreshStarted();
     virtual void Refreshable_RefreshTerminated();
 
 private:
     void CloseConnection();
-    void ReceiveResponse(IN ISIPClientConnection *piSCC);
+    void ReceiveResponse(IN ISipClientConnection *piSCC);
     void SetState(IN IMS_SINT32 nState);
 
     static const IMS_CHAR* StateToString(IN IMS_SINT32 nState);

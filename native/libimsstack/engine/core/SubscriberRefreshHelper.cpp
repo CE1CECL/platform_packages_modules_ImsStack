@@ -38,7 +38,7 @@ SubscriberRefreshHelper::~SubscriberRefreshHelper()
 }
 
 PUBLIC VIRTUAL
-IMS_BOOL SubscriberRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
+IMS_BOOL SubscriberRefreshHelper::AddSpecificHeader(IN ISipConnection *piSC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ IMS_BOOL SubscriberRefreshHelper::AddSpecificHeader(IN ISIPConnection *piSC)
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT SubscriberRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *piSCC)
+IMS_RESULT SubscriberRefreshHelper::SendRefreshRequest(IN ISipClientConnection *piSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -74,9 +74,9 @@ IMS_RESULT SubscriberRefreshHelper::SendRefreshRequest(IN ISIPClientConnection *
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnection *piSC)
+IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageReceived(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -85,10 +85,10 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnect
         return IMS_FAILURE;
     }
 
-    const SIPMethod &objMethod = piSIPMsg->GetMethod();
+    const SipMethod &objMethod = piSIPMsg->GetMethod();
 
     // Case 1) SUBSCRIBE response received ...
-    if (objMethod.Equals(SIPMethod::SUBSCRIBE))
+    if (objMethod.Equals(SipMethod::SUBSCRIBE))
     {
         // If the subscription is in TERMINATED state & the refresh timer is active,
         // then stop the refresh timer...
@@ -101,7 +101,7 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnect
 
         IMS_SINT32 nStatusCode = piSIPMsg->GetStatusCode();
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             if (pSubState->IsSubscriptionDurationUpdated())
             {
@@ -136,9 +136,9 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageReceived(IN CONST ISIPConnect
 }
 
 PUBLIC VIRTUAL
-IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection *piSC)
+IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageSent(IN CONST ISipConnection *piSC)
 {
-    ISIPMessage *piSIPMsg = piSC->GetMessage();
+    ISipMessage *piSIPMsg = piSC->GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection 
     }
 
     // Case 1) SUBSCRIBE request sent ...
-    if (piSIPMsg->GetMethod().Equals(SIPMethod::SUBSCRIBE))
+    if (piSIPMsg->GetMethod().Equals(SipMethod::SUBSCRIBE))
     {
         // No actions after sending SUBSCRIBE request ...
     }
@@ -171,7 +171,7 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection 
             StopRefresh();
         }
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             if (pSubState->IsSubscriptionDurationUpdated() && (pSubState->GetDuration() > 0))
             {
@@ -183,8 +183,8 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection 
                 }
             }
         }
-        else if ((nStatusCode == SIPStatusCode::SC_401)
-            || (nStatusCode == SIPStatusCode::SC_407))
+        else if ((nStatusCode == SipStatusCode::SC_401)
+            || (nStatusCode == SipStatusCode::SC_407))
         {
         }
         else
@@ -198,7 +198,7 @@ IMS_RESULT SubscriberRefreshHelper::UpdateOnMessageSent(IN CONST ISIPConnection 
 }
 
 PROTECTED VIRTUAL
-void SubscriberRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
+void SubscriberRefreshHelper::RefreshCompleted(IN ISipClientConnection *piSCC,
         IN IMS_SINT32 nCode /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -210,7 +210,7 @@ void SubscriberRefreshHelper::RefreshCompleted(IN ISIPClientConnection *piSCC,
     {
         IMS_SINT32 nStatusCode = piSCC->GetStatusCode();
 
-        if (SIPStatusCode::IsFinalSuccess(nStatusCode))
+        if (SipStatusCode::IsFinalSuccess(nStatusCode))
         {
             StopRefresh();
         }

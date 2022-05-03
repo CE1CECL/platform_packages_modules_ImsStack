@@ -9,7 +9,7 @@
 /**
  * @brief This class defines SIP profile for the run-time configuration of SIP engine.
  */
-class SIPProfile
+class SipProfile
     : public RCObject
 {
 public:
@@ -19,7 +19,7 @@ public:
     enum { TCP_CRITERION_LEN = 1300 };
 
 public:
-    inline SIPProfile()
+    inline SipProfile()
         : nDefaultPort(NOT_PROVISIONED)
         , nTcpCriterionLength(NOT_PROVISIONED)
         , nSIPFeatures(NOT_PROVISIONED)
@@ -36,7 +36,7 @@ public:
         , nRegSubExpires(NOT_PROVISIONED)
         , nConfigValue(0)
     {}
-    inline SIPProfile(IN CONST SIPProfile &objRHS)
+    inline SipProfile(IN CONST SipProfile &objRHS)
         : RCObject(objRHS)
         , nDefaultPort(objRHS.nDefaultPort)
         , nTcpCriterionLength(objRHS.nTcpCriterionLength)
@@ -55,11 +55,11 @@ public:
         , nRegSubExpires(objRHS.nRegSubExpires)
         , nConfigValue(objRHS.nConfigValue)
     {}
-    inline virtual ~SIPProfile()
+    inline virtual ~SipProfile()
     {}
 
 private:
-    SIPProfile& operator=(IN CONST SIPProfile &objRHS);
+    SipProfile& operator=(IN CONST SipProfile &objRHS);
 
 public:
     /**
@@ -159,7 +159,7 @@ public:
      *
      * @return The SIP timer values.
      */
-    inline const SIPTimerValues& GetTimerValues() const
+    inline const SipTimerValues& GetTimerValues() const
     { return objTVs; }
     /**
      * @brief Gets an UA string for User-Agent/Server header.
@@ -267,7 +267,7 @@ public:
      *         #ISipConfig#SIP_FEATURE_CAPS_CONTACT_IN_ALL_1XX\n
      *         #ISipConfig#SIP_FEATURE_CAPS_TRANSPORT_ERROR_REPORT_ON_TXN
      */
-    inline void SetSIPFeatures(IN IMS_SINT32 nFeatures)
+    inline void SetSipFeatures(IN IMS_SINT32 nFeatures)
     { this->nSIPFeatures = nFeatures; }
     /**
      * @brief Sets the default SIP timer T1.
@@ -302,14 +302,14 @@ public:
      *
      * @param objTVs The SIP timer values
      */
-    inline void SetTimerValues(IN CONST SIPTimerValues &objTVs)
+    inline void SetTimerValues(IN CONST SipTimerValues &objTVs)
     { this->objTVs = objTVs; }
     /**
      * @brief Sets an UA string for User-Agent/Server header.
      *
      * @param strUAString The UA string
      */
-    inline void SetUAString(IN CONST AString &strUAString)
+    inline void SetUaString(IN CONST AString &strUAString)
     { this->strUAString = strUAString; }
 
     /**
@@ -345,7 +345,7 @@ public:
      *
      * @param strUAString The UA string for IMS registration
      */
-    inline void SetRegUAString(IN CONST AString &strUAString)
+    inline void SetRegUaString(IN CONST AString &strUAString)
     { this->strRegUAString = strUAString; }
 
     /**
@@ -353,7 +353,7 @@ public:
      *
      * @return If it's provisioned, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL IsSIPFeatureProvisioned() const
+    inline IMS_BOOL IsSipFeatureProvisioned() const
     { return nSIPFeatures != NOT_PROVISIONED; }
     /**
      * @brief Checks if the authentication algorithm is required or not.
@@ -383,14 +383,14 @@ public:
      *
      * @return If it's required, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL IsCountryInfoRequiredInPANIHeader() const
+    inline IMS_BOOL IsCountryInfoRequiredInPaniHeader() const
     { return (nSIPFeatures & ISipConfig::SIP_FEATURE_CAPS_COUNTRY_INFO_IN_PANI_HEADER) != 0; }
     /**
      * @brief Checks if the display name of SIP address should contain double quotation or not.
      *
      * @return If it's required, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL IsDisplayNameDQUOTRequired() const
+    inline IMS_BOOL IsDisplayNameDquotRequired() const
     { return (nSIPFeatures & ISipConfig::SIP_FEATURE_CAPS_DISPLAY_NAME_DQUOT) != 0; }
     /**
      * @brief Checks if the Expires header in REGISTER request should be added or not.
@@ -411,7 +411,7 @@ public:
      *
      * @return If it's configured, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL IsGRUUConfigured() const
+    inline IMS_BOOL IsGruuConfigured() const
     { return (nSIPFeatures & ISipConfig::SIP_FEATURE_CAPS_GRUU) != 0; }
     /**
      * @brief Checks if "keep" parameter in Via header is configured or not.
@@ -432,7 +432,7 @@ public:
      *
      * @return If it's configured, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL IsNoAcceptContactHeaderInBYE() const
+    inline IMS_BOOL IsNoAcceptContactHeaderInBye() const
     { return (nSIPFeatures & ISipConfig::SIP_FEATURE_CAPS_NO_ACCEPT_CONTACT_HEADER_IN_BYE) != 0; }
     /**
      * @brief Checks if P-Access-Network-Info header in the initial registration
@@ -440,7 +440,7 @@ public:
      *
      * @return If it's required, returns IMS_TRUE. Otherwise, returns IMS_FALSE.
      */
-    inline IMS_BOOL IsPANInfoInInitialRegRequired() const
+    inline IMS_BOOL IsPanInfoInInitialRegRequired() const
     { return (nSIPFeatures & ISipConfig::SIP_FEATURE_CAPS_PANI_HEADER_IN_INITIAL_REG) != 0; }
     /**
      * @brief Checks if P-Preferred-Identity header in "reg" subscription
@@ -636,7 +636,7 @@ private:
     // For pre-defined device identifier
     AString strDeviceId;
     // SIP transaction timer value: T1, T2
-    SIPTimerValues objTVs;
+    SipTimerValues objTVs;
     IMS_SINT32 nTV_T1;
     IMS_SINT32 nTV_T2;
     // Application specific tag prefix

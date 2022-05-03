@@ -35,7 +35,7 @@ __IMS_TRACE_TAG_IMS_CORE__;
 
 
 PUBLIC
-VirtualSession::VirtualSession(IN Service *pService_, IN const SIPAddress* pUserAoR)
+VirtualSession::VirtualSession(IN Service *pService_, IN const SipAddress* pUserAoR)
     : RCObject()
     , pService(pService_)
     , nState(STATE_CREATED)
@@ -89,7 +89,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL VirtualSession::CheckNSetSDPBodyPart(IN_OUT ISIPMessage*& piSIPMsg)
+IMS_BOOL VirtualSession::CheckNSetSDPBodyPart(IN_OUT ISipMessage*& piSIPMsg)
 {
     IMS_SINT32 nOAState = GetOfferAnswerState();
 
@@ -117,7 +117,7 @@ IMS_BOOL VirtualSession::CheckNSetSDPBodyPart(IN_OUT ISIPMessage*& piSIPMsg)
         return IMS_FALSE;
     }
 
-    ISIPMessageBodyPart *piBodyPart = piSIPMsg->CreateSDPBodyPart();
+    ISipMessageBodyPart *piBodyPart = piSIPMsg->CreateSdpBodyPart();
 
     if (piBodyPart == IMS_NULL)
     {
@@ -130,15 +130,15 @@ IMS_BOOL VirtualSession::CheckNSetSDPBodyPart(IN_OUT ISIPMessage*& piSIPMsg)
 
     ByteArray objSDP(strSDP);
 
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_TYPE, SIP::STR_APPLICATION_SDP);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_TYPE, Sip::STR_APPLICATION_SDP);
     piBodyPart->SetContent(objSDP);
 
     // Set the Content-Length header
     AString strCLEN;
     strCLEN.SetNumber(objSDP.GetLength());
 
-    piBodyPart->SetHeader(ISIPMessageBodyPart::CONTENT_UNKNOWN,
-            strCLEN, SIPHeaderName::CONTENT_LENGTH);
+    piBodyPart->SetHeader(ISipMessageBodyPart::CONTENT_UNKNOWN,
+            strCLEN, SipHeaderName::CONTENT_LENGTH);
 
     IMS_TRACE_D("SDP is formed by SDP offer/answer context", 0, 0, 0);
 
@@ -151,7 +151,7 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT VirtualSession::Notify18xResponse(IN const ISIPMessage* piSIPMsg)
+IMS_RESULT VirtualSession::Notify18xResponse(IN const ISipMessage* piSIPMsg)
 {
     if (piSIPMsg == IMS_NULL)
     {
@@ -196,7 +196,7 @@ Remarks
 
 */
 PUBLIC
-void VirtualSession::NotifyPRAckSent(IN const ISIPMessage* piSIPMsg)
+void VirtualSession::NotifyPRAckSent(IN const ISipMessage* piSIPMsg)
 {
     // Update the Offer/Answer state
     UpdateOfferAnswerStateOnMessageSent(piSIPMsg);
@@ -687,10 +687,10 @@ IMS_BOOL VirtualSession::CheckNCreateSessionDescriptor()
     }
 
     // Create a media capabilities for this service & session
-    const SIPAddress::UserInfoPart* pUserInfo = objUserAoR.GetUserInfoPart();
+    const SipAddress::UserInfoPart* pUserInfo = objUserAoR.GetUserInfoPart();
     const AString& strUserId = (pUserInfo != IMS_NULL)
             ? pUserInfo->GetUser()
-            : objUserAoR.IsSchemeTEL() ? objUserAoR.GetHost() : objUserAoR.GetUser();
+            : objUserAoR.IsSchemeTel() ? objUserAoR.GetHost() : objUserAoR.GetUser();
 
     if (!pOAState->CreateCapabilities(pService, strUserId))
     {
@@ -751,7 +751,7 @@ Remarks
 
 */
 PROTECTED
-IMS_SINT32 VirtualSession::HandleSDPOfferAnswer(IN const ISIPMessage *piSIPMsg)
+IMS_SINT32 VirtualSession::HandleSDPOfferAnswer(IN const ISipMessage *piSIPMsg)
 {
     if (pOAState == IMS_NULL)
     {
@@ -900,7 +900,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL VirtualSession::UpdateOfferAnswerStateOnMessageReceived(IN const ISIPMessage *piSIPMsg)
+IMS_BOOL VirtualSession::UpdateOfferAnswerStateOnMessageReceived(IN const ISipMessage *piSIPMsg)
 {
     if (pOAState == IMS_NULL)
     {
@@ -914,8 +914,8 @@ IMS_BOOL VirtualSession::UpdateOfferAnswerStateOnMessageReceived(IN const ISIPMe
     //After the UAC has received the answer in a reliable provisional response to the INVITE,
     //[RFC3261] requires that any SDP in subsequent responses be ignored.
     {
-       if ((piSIPMsg->GetType() == ISIPMessage::TYPE_RESPONSE)
-                && piSIPMsg->GetMethod().Equals(SIPMethod::INVITE))
+       if ((piSIPMsg->GetType() == ISipMessage::TYPE_RESPONSE)
+                && piSIPMsg->GetMethod().Equals(SipMethod::INVITE))
        {
            if ((nState == STATE_NEGOTIATING)
                     && (GetOfferAnswerState() == SDPOAState::STATE_ESTABLISHED))
@@ -947,7 +947,7 @@ Remarks
 
 */
 PROTECTED
-IMS_BOOL VirtualSession::UpdateOfferAnswerStateOnMessageSent(IN const ISIPMessage *piSIPMsg)
+IMS_BOOL VirtualSession::UpdateOfferAnswerStateOnMessageSent(IN const ISipMessage *piSIPMsg)
 {
     if (pOAState == IMS_NULL)
     {
@@ -974,7 +974,7 @@ Remarks
 
 */
 PRIVATE
-void VirtualSession::Init(IN const SIPAddress* pUserAoR)
+void VirtualSession::Init(IN const SipAddress* pUserAoR)
 {
     if (pUserAoR != IMS_NULL)
     {

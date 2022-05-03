@@ -4,7 +4,7 @@
 /**
  * @brief This class provides an interface to check the run-time features for SIP engine.
  */
-class SIPFeatures
+class SipFeatures
 {
 public:
     /**
@@ -46,7 +46,7 @@ public:
      *
      * @param nSlotId Slot id
      */
-    static IMS_BOOL IsPANIHeaderForAckRequired(IN IMS_SINT32 nSlotId);
+    static IMS_BOOL IsPaniHeaderForAckRequired(IN IMS_SINT32 nSlotId);
 
     /**
      * @brief Indicates that "TcpMaxSeg" socket option is required

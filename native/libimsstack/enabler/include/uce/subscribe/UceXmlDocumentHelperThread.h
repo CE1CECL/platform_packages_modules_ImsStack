@@ -20,7 +20,6 @@
 #include "IXmlStateListener.h"
 
 class IThread;
-class ISIPHeader;
 class IXmlTransactionProvider;
 class IXmlTransaction;
 class IDocument;

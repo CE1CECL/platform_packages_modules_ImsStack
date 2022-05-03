@@ -17,8 +17,8 @@
 #include "ISessionState.h"
 #include "Service.h"
 
-class SIPAddress;
-class ISIPMessage;
+class SipAddress;
+class ISipMessage;
 class SDPOAState;
 class SessionDescriptor;
 class Media;
@@ -28,7 +28,7 @@ class VirtualSession
     , public ISessionState
 {
 public:
-    explicit VirtualSession(IN Service *pService_, IN const SIPAddress* pUserAoR);
+    explicit VirtualSession(IN Service *pService_, IN const SipAddress* pUserAoR);
     VirtualSession(IN const VirtualSession &objRHS);
     virtual ~VirtualSession();
 
@@ -36,9 +36,9 @@ private:
     VirtualSession& operator=(IN const VirtualSession &objRHS);
 
 public:
-    IMS_BOOL CheckNSetSDPBodyPart(IN_OUT ISIPMessage*& piSIPMsg);
-    IMS_RESULT Notify18xResponse(IN const ISIPMessage* piSIPMsg);
-    void NotifyPRAckSent(IN const ISIPMessage* piSIPMsg);
+    IMS_BOOL CheckNSetSDPBodyPart(IN_OUT ISipMessage*& piSIPMsg);
+    IMS_RESULT Notify18xResponse(IN const ISipMessage* piSIPMsg);
+    void NotifyPRAckSent(IN const ISipMessage* piSIPMsg);
 
     Media* CreateMedia(IN const AString &strType, IN IMS_SINT32 nDirection,
             IN IMS_SINT32 nCountOfDescriptor = 0, IN IMS_BOOL bIMSExtension = IMS_TRUE);
@@ -60,15 +60,15 @@ protected:
     // Methods for handling SDP & Session Descriptor related operations
     IMS_BOOL CheckNCreateSessionDescriptor();
     IMS_SINT32 GetOfferAnswerState() const;
-    IMS_SINT32 HandleSDPOfferAnswer(IN const ISIPMessage *piSIPMsg);
+    IMS_SINT32 HandleSDPOfferAnswer(IN const ISipMessage *piSIPMsg);
     void RestoreEx();
     IMS_BOOL UpdateMedia(IN IMS_SINT32 nTrigger);
     IMS_BOOL RestoreOfferAnswerState();
-    IMS_BOOL UpdateOfferAnswerStateOnMessageReceived(IN const ISIPMessage *piSIPMsg);
-    IMS_BOOL UpdateOfferAnswerStateOnMessageSent(IN const ISIPMessage *piSIPMsg);
+    IMS_BOOL UpdateOfferAnswerStateOnMessageReceived(IN const ISipMessage *piSIPMsg);
+    IMS_BOOL UpdateOfferAnswerStateOnMessageSent(IN const ISipMessage *piSIPMsg);
 
 private:
-    void Init(IN const SIPAddress* pUserAoR);
+    void Init(IN const SipAddress* pUserAoR);
     inline IMS_SINT32 GetSlotId() const
     { return (pService != IMS_NULL) ? pService->GetSlotId() : IMS_SLOT_ANY; }
     void SetState(IN IMS_SINT32 nState);
@@ -100,7 +100,7 @@ public:
 
 private:
     Service* pService;
-    SIPAddress objUserAoR;
+    SipAddress objUserAoR;
 
     IMS_SINT32 nState;
     SDPOAState *pOAState;
