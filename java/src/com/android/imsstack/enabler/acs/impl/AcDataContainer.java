@@ -23,17 +23,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.StringBufferInputStream;
+import java.io.IOException;
 import java.util.Set;
 
 /**
  * This class handles the RCS provisioning XML data and is created based on sub ID
  */
-public class ACDataContainer {
+public class AcDataContainer {
     public  static final int VERSION_UNKNOWN = -99;
     public  static final long VALIDITY_UNKNOWN = -99l;
 
-    private static final String TAG = ACDataContainer.class.getSimpleName();
+    private static final String TAG = AcDataContainer.class.getSimpleName();
     private static final String LOCAL_FILE_NAME_PREF = "rcs_provisioning_data_";
     private static final String VERSION = "version";
     private static final String VALIDITY = "validity";
@@ -43,9 +43,8 @@ public class ACDataContainer {
     private final String mFileName;
 
     private PersistableBundle mProvisioningData;
-    private boolean mValidProvisioning;
 
-    public ACDataContainer(Context context, int subId) {
+    public AcDataContainer(Context context, int subId) {
         mContext = context;
         mSubId = subId;
 
@@ -59,13 +58,11 @@ public class ACDataContainer {
     public void setProvisioningData(String data) {
         // TODO
         // check whole or partial data
-        if (createPersistableBundleFromString(data, mProvisioningData)) {
+        mProvisioningData = createPersistableBundleFromString(data);
+        if (mProvisioningData != null) {
             saveDataToFile();
-            mValidProvisioning = true;
-            log("setProvisioningData : creating and saving are success");
         } else {
-            mValidProvisioning = false;
-            log("setProvisioningData : creating and saving are failed");
+            log("setProvisioningData : creating failed");
         }
     }
 
@@ -74,7 +71,6 @@ public class ACDataContainer {
      */
     public void resetProvisioningData() {
         mProvisioningData.clear();
-        mValidProvisioning = false;
     }
 
     /**
@@ -99,10 +95,14 @@ public class ACDataContainer {
      * @return true if the operation is success, or false otherwise
      */
     public boolean updateVersionValidity(String data) {
+        if (!isValidProvisioning()) {
+            log("updateVersionValidity : provisioning data is empty");
+            return false;
+        }
+
         // create new PersistableBundle from string
-        PersistableBundle newProvisioningData = new PersistableBundle();
-        boolean result = createPersistableBundleFromString(data, newProvisioningData);
-        if (!result) {
+        PersistableBundle newProvisioningData = createPersistableBundleFromString(data);
+        if (newProvisioningData == null) {
             log("updateVersionValidity : create PersistableBundle failed from String");
             return false;
         }
@@ -114,10 +114,10 @@ public class ACDataContainer {
             // update version at exist Provisioning data
             log("updateVersionValidity : " + version + " " + validity);
             return setVersionValidity(version, validity);
-        } else {
-            log("updateVersionValidity : update version failed");
-            return false;
         }
+
+        log("updateVersionValidity : update version failed");
+        return false;
     }
 
     /**
@@ -125,15 +125,15 @@ public class ACDataContainer {
      * @return true if object has valid provisioning, or false otherwise.
      */
     public boolean isValidProvisioning() {
-        return mValidProvisioning;
+        return !(mProvisioningData == null || mProvisioningData.isEmpty());
     }
 
     /**
-     * Get whole provisioning data
+     * Get copied provisioning data
      * @return PersistableBundle includes provisioning data
      */
     public PersistableBundle getProvisioningData() {
-        return mProvisioningData;
+        return new PersistableBundle(mProvisioningData);
     }
 
     /**
@@ -146,41 +146,47 @@ public class ACDataContainer {
 
     private void readDataFromFile() {
         // load xml data from FS based on subId
-        // if not exist, mValidProvisioning = false
         try {
             File file = new File(mContext.getFilesDir(), mFileName);
             FileInputStream inputStream = new FileInputStream(file);
             mProvisioningData = PersistableBundle.readFromStream(inputStream);
             inputStream.close();
-            mValidProvisioning = true;
-        } catch (Exception e) {
-            mValidProvisioning = false;
+        } catch (FileNotFoundException e) {
+            log("readDataFromFile" + e.getMessage());
+        } catch (IOException e) {
             log("readDataFromFile" + e.getMessage());
         }
     }
 
     private void saveDataToFile() {
+        if (!isValidProvisioning()) {
+            log("saveDataToFile : provisioning data is empty");
+            return;
+        }
+
         try {
             File file = new File(mContext.getFilesDir(), mFileName);
             FileOutputStream outputStream = new FileOutputStream(file);
             mProvisioningData.writeToStream(outputStream);
-        } catch (Exception e) {
-            log("saveDataToFile" + e.getMessage());
+            outputStream.close();
+            log("saveDataToFile : " + mFileName);
+        } catch (IOException e) {
+            log("saveDataToFile : " + e.getMessage());
         }
     }
 
-    private boolean createPersistableBundleFromString(String in, PersistableBundle out) {
+    private PersistableBundle createPersistableBundleFromString(String in) {
         try {
-            // construct PersistableBundle and save XML file
+            // create PersistableBundle from String data
             ByteArrayInputStream inputStream = new ByteArrayInputStream(in.getBytes());
-            out = PersistableBundle.readFromStream(inputStream);
+            PersistableBundle out = PersistableBundle.readFromStream(inputStream);
             inputStream.close();
-            return true;
-        } catch (Exception e) {
-            log("createPersistableBundleFromString" + e.getMessage());
+            return out;
+        } catch (IOException e) {
+            loge("createPersistableBundleFromString" + e.getMessage());
         }
 
-        return false;
+        return null;
     }
 
     private int getVersion(PersistableBundle data) {
@@ -223,6 +229,9 @@ public class ACDataContainer {
             if (validity != VALIDITY_UNKNOWN) {
                 sub.putInt(VERSION, newVersion);
                 sub.putLong(VALIDITY, newValidity);
+
+                saveDataToFile();
+
                 return true;
             }
         }
@@ -232,5 +241,9 @@ public class ACDataContainer {
 
     private void log(String msg) {
         Log.d(TAG, "[" + mSubId + "] " + msg);
+    }
+
+    private void loge(String msg) {
+        Log.e(TAG, "[" + mSubId + "] " + msg);
     }
 }
