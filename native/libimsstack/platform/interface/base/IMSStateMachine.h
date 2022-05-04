@@ -23,7 +23,7 @@ class IMSStateMachine
     DECLARE_STATE_MAP()
 
 public:
-    IMSStateMachine(IN IMS_UINT32 nState = INVALID_STATE);
+    IMSStateMachine(IN IMS_UINT32 nState = IMS_INVALID_STATE);
     virtual ~IMSStateMachine();
     IMS_BOOL OnStateMessage(IN ImsMessage &objMSG);
 

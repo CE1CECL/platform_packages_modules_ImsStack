@@ -19,7 +19,7 @@
 PUBLIC
 IMSStateMachine::IMSStateMachine(IN IMS_UINT32 nState_)
     : nState(nState_)
-    , nOldState(INVALID_STATE)
+    , nOldState(IMS_INVALID_STATE)
 {
 }
 
@@ -37,7 +37,7 @@ IMS_BOOL IMSStateMachine::OnStateMessage(IN IMSMSG &objMSG)
     IMS_UINT32 nMsgIndex = 0;
     IMS_BOOL bStateFound = IMS_FALSE;
 
-    while (pstStateMap[nStateIndex].nState != INVALID_STATE)
+    while (pstStateMap[nStateIndex].nState != IMS_INVALID_STATE)
     {
         if (pstStateMap[nStateIndex].nState == nState)
         {
@@ -52,7 +52,7 @@ IMS_BOOL IMSStateMachine::OnStateMessage(IN IMSMSG &objMSG)
         const StateMsgMap *pstStateMsgMap = (pstStateMap[nStateIndex].pfnGetStateMsgMap)();
         if (pstStateMsgMap != IMS_NULL)
         {
-            while (pstStateMsgMap[nMsgIndex].nMsg != INVALID_MSG)
+            while (pstStateMsgMap[nMsgIndex].nMsg != IMS_INVALID_MSG)
             {
                 if (pstStateMsgMap[nMsgIndex].nMsg == static_cast<IMS_UINT32>(objMSG.GetName()))
                 {
