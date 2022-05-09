@@ -1,8 +1,6 @@
 package com.android.imsstack.core.agents;
 
 import android.content.Context;
-import android.net.NetworkCapabilities;
-import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -17,14 +15,14 @@ import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 
 import com.android.imsstack.core.agents.AgentFactory;
-import com.android.imsstack.core.agents.agentif.ImsPhoneStateListener;
 import com.android.imsstack.core.agents.agentif.IPhoneState;
 import com.android.imsstack.core.agents.agentif.IPhoneStateNotifier;
 import com.android.imsstack.core.agents.agentif.ISubscription;
+import com.android.imsstack.core.agents.agentif.ImsPhoneStateListener;
 import com.android.imsstack.core.agents.agentif.PhoneCallState;
 import com.android.imsstack.core.agents.agentif.SubscriptionListener;
-import com.android.imsstack.core.agents.internal.PhoneStateNotifier;
 import com.android.imsstack.core.agents.internal.PhoneStateEvents;
+import com.android.imsstack.core.agents.internal.PhoneStateNotifier;
 import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.ImsProperties;
@@ -823,10 +821,9 @@ public final class PhoneStateAgent implements IPhoneState,
                 NetworkRegistrationInfo networkRegInfo = serviceState.getNetworkRegistrationInfo(
                     NetworkRegistrationInfo.DOMAIN_PS, AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
 
-                mCellularDataRAT = (networkRegInfo == null)
-                    ? TelephonyManager.NETWORK_TYPE_UNKNOWN
-                    : serviceState.networkTypeToRilRadioTechnology(
-                        networkRegInfo.getAccessNetworkTechnology());
+                mCellularDataRAT = (networkRegInfo == null || !networkRegInfo.isRegistered())
+                        ? TelephonyManager.NETWORK_TYPE_UNKNOWN
+                        : networkRegInfo.getAccessNetworkTechnology();
             }
         }
 
