@@ -1109,6 +1109,8 @@ const IMS_CHAR CarrierConfig::Assets::KEY_VIDEO_CODEC_EMPTY_REDUNDANT_BOOL[] =
         "text_codec_empty_redundant_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_MULTI_CONFIG_IN_EARLY_SESSION_BOOL[] =
         "support_multi_config_in_early_session_bool";
+const IMS_CHAR CarrierConfig::Assets::KEY_AUDIO_MAXRED_INT[] = "audio_maxred_int";
+const IMS_CHAR CarrierConfig::Assets::KEY_SDP_REOFFER_FULLCAPA[] = "sdp_reoffer_fullcapa";
 // Uce
 const IMS_CHAR CarrierConfig::Assets::KEY_ADD_VIDEO_TAG_CONTACT_HEADER_IN_PUBLISH_BOOL[] =
         "add_video_tag_contact_header_in_publish_bool";
