@@ -41,6 +41,7 @@ public:
     CallStateName SessionEarlyMediaUpdateFailed(IN ISession* piSession) override;
     CallStateName SessionEarlyMediaUpdateReceived(IN ISession* piSession) override;
     CallStateName SessionPRAckReceived(IN ISession* piSession) override;
+    CallStateName SessionRPRDeliveryFailed(IN ISession* piSession) override;
 
 private:
     void UpdateCallTypeFromMessage(IN IMessage* piMessage, IN ISession* piSession);

@@ -114,7 +114,6 @@ protected:
         TIMER_MO_1XX_WAIT,
         TIMER_MO_NOANSWER,
         TIMER_MT_ALERTING,
-        TIMER_MT_PRACK_WAIT,
 
         TIMER_RETRY_AFTER,
 

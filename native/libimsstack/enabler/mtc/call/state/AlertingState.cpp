@@ -34,8 +34,7 @@ PUBLIC VIRTUAL CallStateName AlertingState::HandleUserAlert()
     {
         return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_SESSION_FAIL));
     }
-    // m_objContext.GetTimer().Start(TIMER_MT_ALERTING,
-    //         UCCONFIG_GET_INT(m_nSlotID, SESSION_TIME_MT_ALERTING) * 1000);
+    StartTimer(TIMER_MT_ALERTING);
 
     return GetStateName();
 }
@@ -89,9 +88,7 @@ PUBLIC VIRTUAL CallStateName AlertingState::OnTimerExpired(IN IMS_SINT32 nType)
     switch (nType)
     {
         case TIMER_MT_ALERTING:
-            // TODO: reject w/ REJECT_REASON_TO_MT_NOANSWER and terminate
-            // m_objContext.GetUiNotifier().SendStartFailed(objReason);
-            return GetStateName();
+            return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_TO_MT_NOANSWER));
         default:
             break;
     }
@@ -225,8 +222,6 @@ PUBLIC VIRTUAL CallStateName AlertingState::SessionPRAckReceived(IN ISession* pi
     IMS_TRACE_D("SessionPRAckReceived", 0, 0, 0);
     // FIXME: It's same as IncomingState except QoS check and UI notifying
 
-    m_objContext.GetTimer().Stop(TIMER_MT_PRACK_WAIT);
-
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_PRACK);
 
     UpdateCallTypeFromMessage(piMessage, piSession);
@@ -243,6 +238,12 @@ PUBLIC VIRTUAL CallStateName AlertingState::SessionPRAckReceived(IN ISession* pi
         return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_SESSION_FAIL));
     }
     return CallStateName::ALERTING;
+}
+
+PUBLIC VIRTUAL CallStateName AlertingState::SessionRPRDeliveryFailed(IN ISession* /* piSession*/)
+{
+    IMS_TRACE_D("SessionRPRDeliveryFailed", 0, 0, 0);
+    return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_TO_MT_PRACK));
 }
 
 PRIVATE

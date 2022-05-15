@@ -930,10 +930,6 @@ IMS_SINT32 MtcCallState::GetTimeInMilliseconds(IN IMS_UINT32 nType) const
         case TIMER_MT_ALERTING:
             eFeature = Feature::RINGING_TIMER;
             break;
-        case TIMER_MT_PRACK_WAIT:
-            // TODO: different purpose, but seems we can share. Or, any requirement exists?
-            eFeature = Feature::PRACK_UPDATE_RESPONSE_WAIT_TIMER;
-            break;
         case TIMER_RETRY_AFTER:
             // TODO: value must be millisec
             // if silent redial uses 'Retry-After' header, it mustn't call StartTimer() here.

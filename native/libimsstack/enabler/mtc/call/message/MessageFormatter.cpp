@@ -667,7 +667,8 @@ IMS_SINT32 MessageFormatter::GetRejectStatusCode(IN const FailReason& objReason)
             eStatusCode = SipStatusCode::SC_480;
             break;
         case REJECT_REASON_DECLINE_USER:
-            eStatusCode = SipStatusCode::SC_603;
+            eStatusCode = m_objContext.GetConfigurationProxy().GetInt(
+                    Feature::INCOMING_CALL_REJECT_CODE_FOR_USER_DECLINE);
             break;
         case REJECT_REASON_DECLINE_NOANSWER:
             eStatusCode = SipStatusCode::SC_603;
@@ -786,7 +787,8 @@ IMS_SINT32 MessageFormatter::GetRejectStatusCode(IN const FailReason& objReason)
             eStatusCode = SipStatusCode::SC_603;
             break;
         case REJECT_REASON_TO_MT_NOANSWER:
-            eStatusCode = SipStatusCode::SC_603;
+            eStatusCode = m_objContext.GetConfigurationProxy().GetInt(
+                    Feature::INCOMING_CALL_REJECT_CODE_FOR_NO_ANSWER);
             break;
         case REJECT_REASON_TO_MT_UPDATE:
             eStatusCode = SipStatusCode::SC_603;
