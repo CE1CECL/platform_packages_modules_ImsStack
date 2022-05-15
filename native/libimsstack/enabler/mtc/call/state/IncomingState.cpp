@@ -41,11 +41,7 @@ PUBLIC VIRTUAL CallStateName IncomingState::OnTimerExpired(IN IMS_SINT32 nType)
 {
     switch (nType)
     {
-        case TIMER_MT_PRACK_WAIT:
-            // TODO: reject w/ REJECT_REASON_TO_MT_PRACK
-            m_objContext.GetMediaManager().Terminate();
-            m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
-            return CallStateName::TERMINATING;
+        // TODO: introduce a new guard timer just in case? otherwise, delete this function.
         default:
             break;
     }
@@ -217,7 +213,6 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionEarlyMediaUpdateReceived(IN I
 PUBLIC VIRTUAL CallStateName IncomingState::SessionPRAckReceived(IN ISession* piSession)
 {
     IMS_TRACE_D("SessionPRAckReceived", 0, 0, 0);
-    m_objContext.GetTimer().Stop(TIMER_MT_PRACK_WAIT);
 
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_PRACK);
 
@@ -254,6 +249,12 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionPRAckReceived(IN ISession* pi
 
     SendIncomingCallReceived();
     return CallStateName::ALERTING;
+}
+
+PUBLIC VIRTUAL CallStateName IncomingState::SessionRPRDeliveryFailed(IN ISession* /* piSession*/)
+{
+    IMS_TRACE_D("SessionRPRDeliveryFailed", 0, 0, 0);
+    return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_TO_MT_PRACK));
 }
 
 PRIVATE
