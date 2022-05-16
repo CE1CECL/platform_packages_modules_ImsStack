@@ -23,10 +23,9 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import java.util.StringTokenizer;
-
 import com.android.imsstack.util.AppContext;
-import com.android.imsstack.util.ImsPrivateProperties;
+
+import java.util.StringTokenizer;
 
 public class CarrierConfig {
     // Assets path / files
@@ -827,6 +826,10 @@ public class CarrierConfig {
                 "text_codec_empty_redundant_bool";
         public static final String KEY_SUPPORT_MULTI_CONFIG_IN_EARLY_SESSION_BOOL =
                 "support_multi_config_in_early_session_bool";
+        public static final String KEY_AUDIO_MAXRED_INT =
+                "audio_maxred_int";
+        public static final String KEY_SDP_REOFFER_FULLCAPA =
+                "sdp_reoffer_fullcapa";
         // Ut/Xcap
         public static final String KEY_UT_SUPPORT_CF_ACTION_ERASURE_BOOL =
                 "ut_support_cf_action_erasure_bool";

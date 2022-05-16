@@ -41,9 +41,8 @@ PUBLIC VIRTUAL IMS_BOOL CodecTelephoneEventConfig::Create(IN ICarrierConfig* piC
 
     m_strEvents = DEFAULT_EVENT;
     m_nRedundancyCount = DEFAULT_REDUNDANT_COUNT;
-    m_nSamplingRate = (GetPayloadType() == ImsCodec::AUDIO_TELEPHONE_EVENT)
-            ? DEFAULT_SAMPLING_RATE
-            : DEFAULT_SAMPLING_RATE_WB;
+    m_nSamplingRate = (GetCodec() == ImsCodec::AUDIO_TELEPHONE_EVENT) ? DEFAULT_SAMPLING_RATE
+                                                                      : DEFAULT_SAMPLING_RATE_WB;
 
     return IMS_TRUE;
 }

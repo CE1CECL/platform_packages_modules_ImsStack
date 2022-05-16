@@ -217,7 +217,10 @@ PUBLIC GLOBAL IMS_BOOL AudioProfileConfigurer::CreateAudioProfile(OUT AudioProfi
                 pAmrFmtp->nMaxRed = pConfig->GetMaxRed();
                 pAmrFmtp->bShowMaxRed = IMS_TRUE;
             }
-            if (pConfig->GetPtime() != -1)
+            // TODO_MEDIA 26.114 mentioned it is needed, but no carrier wants this. so block these
+            // for now
+            /*
+            if (pAmrConfig->GetPtime() != -1)
             {
                 pAmrFmtp->nPtime = pConfig->GetPtime();
                 pAmrFmtp->bShowPtime = IMS_TRUE;
@@ -227,7 +230,7 @@ PUBLIC GLOBAL IMS_BOOL AudioProfileConfigurer::CreateAudioProfile(OUT AudioProfi
                 pAmrFmtp->nMaxPtime = pConfig->GetMaxPtime();
                 pAmrFmtp->bShowMaxPtime = IMS_TRUE;
             }
-
+            */
             pAmrFmtp->bSCREnable = pAmrConfig->GetDtx();
 
             if (pAmrConfig->GetSamplingRate() == 8000)

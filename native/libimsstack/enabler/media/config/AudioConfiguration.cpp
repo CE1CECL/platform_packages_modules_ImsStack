@@ -82,8 +82,8 @@ PUBLIC VIRTUAL IMS_BOOL AudioConfiguration::Create(IN ICarrierConfig* piCc)
 
     // m_nAudioPtime = DEFAULT_PTIME;    // already set by default at creator
     m_nAudioMaxPtime = piCc->GetInt(CarrierConfig::ImsVoice::KEY_AUDIO_MAXPTIME_INT);
+    m_nAudioMaxRed = piCc->GetInt(CarrierConfig::Assets::KEY_AUDIO_MAXRED_INT);
 
-    m_nAudioMaxRed = m_nAudioMaxPtime - m_nAudioPtime;
     m_bAudioBwNegoOptionEnabled =
             piCc->GetBoolean(CarrierConfig::Assets::KEY_AUDIO_BW_NEGO_OPTION_BOOL);
     // m_nAudioRtpDscp = DEFAULT_AUDIO_DSCP;      // already set by default at creator

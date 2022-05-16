@@ -1052,6 +1052,8 @@ public:
         static const IMS_CHAR KEY_VIDEO_CODEC_HEVC_MAX_BR_INT[];
         static const IMS_CHAR KEY_VIDEO_CODEC_EMPTY_REDUNDANT_BOOL[];
         static const IMS_CHAR KEY_SUPPORT_MULTI_CONFIG_IN_EARLY_SESSION_BOOL[];
+        static const IMS_CHAR KEY_AUDIO_MAXRED_INT[];
+        static const IMS_CHAR KEY_SDP_REOFFER_FULLCAPA[];
         // Uce
         static const IMS_CHAR KEY_ADD_VIDEO_TAG_CONTACT_HEADER_IN_PUBLISH_BOOL[];
 
