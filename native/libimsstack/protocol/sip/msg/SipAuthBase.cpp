@@ -43,50 +43,21 @@ SipAuthBase::~SipAuthBase()
     }
 }
 
-SIP_BOOL SipAuthBase::EncodeAuthList(SIP_CHAR** ppCurrPos, SIP_CHAR cDelimiter)
-{
-    SIP_UINT32 nIndex = SIP_ZERO;
-    SIP_UINT32 nCount = m_objAuthList.GetSize();
-
-    //  enc for *( ";" uri-parameter )
-    while (nIndex < nCount)
-    {
-        SipNameValue* pParamNamValue = m_objAuthList.GetAt(nIndex);
-
-        if (nIndex > 0)
-        {
-            *(*ppCurrPos) = cDelimiter;
-            (*ppCurrPos)++;
-        }
-
-        if (pParamNamValue->EncodeFromList(ppCurrPos) == SIP_FALSE)
-        {
-            return SIP_FALSE;
-        }
-
-        nIndex++;
-    }
-    return SIP_TRUE;
-}
-
 /*virtual methods*/
 SIP_BOOL SipAuthBase::Encode(AStringBuffer& objBuffer, SIP_BOOL /*bParams*/) const
 {
-    const SIP_CHAR* pszValue = GetValue();
-
-    if (pszValue == SIP_NULL)
+    if (IsValidHeader() == SIP_FALSE)
     {
-        SIP_DEBUG_WARNING(ESIPTRACE_MODENCODER, "Missing scheme", SIP_ZERO, SIP_ZERO);
         return SIP_FALSE;
     }
 
+    const SIP_CHAR* pszValue = GetValue();
     objBuffer += pszValue;
     objBuffer += SPACE;
 
     SIP_UINT32 nIndex = SIP_ZERO;
     SIP_UINT32 nSize = m_objAuthList.GetSize();
 
-    // *( ";" uri-parameter )
     while (nIndex < nSize)
     {
         SipNameValue* pNameValue = m_objAuthList.GetAt(nIndex);
@@ -110,20 +81,39 @@ SIP_BOOL SipAuthBase::Encode(AStringBuffer& objBuffer, SIP_BOOL /*bParams*/) con
 /*Function for encoding of headers*/
 SIP_BOOL SipAuthBase::EncodeHdr(SIP_CHAR** ppCurrPos, SIP_BOOL /*bParams = SIP_TRUE*/)
 {
-    const SIP_CHAR* pszValue = GetValue();
-    if (pszValue == SIP_NULL)
+    if (IsValidHeader() == SIP_FALSE)
     {
-        SIP_DEBUG_WARNING(ESIPTRACE_MODENCODER, "Missing Scheme", SIP_ZERO, SIP_ZERO);
         return SIP_FALSE;
     }
 
+    const SIP_CHAR* pszValue = GetValue();
     SipPf_Strcpy(*ppCurrPos, pszValue);
     SipEnc_UpdateCurrPos(ppCurrPos);
 
     /*Encode space*/
     **ppCurrPos = SPACE;
     (*ppCurrPos)++;
-    EncodeAuthList(ppCurrPos, COMMA);
+
+    SIP_UINT32 nIndex = SIP_ZERO;
+    SIP_UINT32 nCount = m_objAuthList.GetSize();
+
+    while (nIndex < nCount)
+    {
+        SipNameValue* pParamNamValue = m_objAuthList.GetAt(nIndex);
+
+        if (nIndex > 0)
+        {
+            *(*ppCurrPos) = COMMA;
+            (*ppCurrPos)++;
+        }
+
+        if (pParamNamValue->EncodeFromList(ppCurrPos) == SIP_FALSE)
+        {
+            return SIP_FALSE;
+        }
+
+        nIndex++;
+    }
 
     return SIP_TRUE;
 }
@@ -237,6 +227,12 @@ SIP_CHAR* SipAuthBase::GetAuthValue(const SIP_CHAR* pszName)
  *****************************************************************************/
 SIP_BOOL SipAuthBase::DecodeHdr(SIP_CHAR* pStartPt, SIP_UINT32 nDecLen)
 {
+    if (nDecLen == SIP_ZERO)
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "Empty buffer", SIP_ZERO, SIP_ZERO);
+        return SIP_FALSE;
+    }
+
     SIP_CHAR* pEndPt = pStartPt + nDecLen - SIP_ONE;
     SIP_CHAR* pTempPre = SIP_NULL;
 
@@ -296,6 +292,17 @@ SIP_BOOL SipAuthBase::DecodeHdr(SIP_CHAR* pStartPt, SIP_UINT32 nDecLen)
         /*Update the Start point to the start of next Name Value Pair*/
         pStartPt = pTempNext;
         pTempPre = SIP_NULL;
+    }
+
+    return SIP_TRUE;
+}
+
+SIP_BOOL SipAuthBase::IsValidHeader() const
+{
+    if ((GetValue() == SIP_NULL) || (m_objAuthList.IsEmpty() == SIP_TRUE))
+    {
+        SIP_DEBUG_WARNING(ESIPTRACE_MODENCODER, "Invalid header", SIP_ZERO, SIP_ZERO);
+        return SIP_FALSE;
     }
 
     return SIP_TRUE;

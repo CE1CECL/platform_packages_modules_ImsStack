@@ -4,8 +4,6 @@
 #include "msg/sip_msgutil.h"
 #include "platform/sip_pf_string.h"
 
-extern SIP_CHAR gaszSipHdr[][SIP_MAX_HDR_LEN];
-
 SipInfoBase::SipInfoBase(SIP_INT32 eHdrType) :
         SipHeaderBase(eHdrType)
 {

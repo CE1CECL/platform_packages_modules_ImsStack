@@ -10,8 +10,6 @@ protected:
     /*Credential*/
     SipVector<SipNameValue*> m_objAuthList;
 
-    SIP_BOOL EncodeAuthList(SIP_CHAR** ppCurrPos, SIP_CHAR cDelimiter);
-
 public:
     /*constructor*/
     SipAuthBase(SIP_INT32 eHdrType);
@@ -33,6 +31,8 @@ public:
     SIP_BOOL FindElement(const SIP_CHAR* pszName, SipNameValue*& pNmvl, SIP_UINT32& nPos);
 
     SIP_CHAR* GetAuthValue(const SIP_CHAR* pszName);
+
+    SIP_BOOL IsValidHeader() const;
 
     static SipHeaderBase* GetNewObj(SIP_INT32 eHeaderType, SipHeaderBase* pHeader);
 };
