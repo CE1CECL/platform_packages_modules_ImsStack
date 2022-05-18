@@ -3,6 +3,7 @@ package com.android.imsstack.imsservice.mmtel;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.net.Uri;
+import android.telephony.DataFailCause;
 import android.telephony.ims.ImsReasonInfo;
 import android.telephony.ims.ImsRegistrationAttributes;
 import android.telephony.ims.stub.ImsRegistrationImplBase;
@@ -64,8 +65,15 @@ public final class ImsRegistrationImpl extends ImsRegistrationImplBase
     }
 
     private ImsReasonInfo getReasonInfo(int reason) {
-        return new ImsReasonInfo(reason,
-                ImsReasonInfo.CODE_UNSPECIFIED);
+        if (reason == DataFailCause.IWLAN_IKEV2_AUTH_FAILURE) {
+            return new ImsReasonInfo(
+                    ImsReasonInfo.CODE_EPDG_TUNNEL_ESTABLISH_FAILURE,
+                    ImsReasonInfo.CODE_IKEV2_AUTH_FAILURE);
+        } else {
+            return new ImsReasonInfo(
+                    ImsReasonInfo.CODE_REGISTRATION_ERROR,
+                    ImsReasonInfo.CODE_UNSPECIFIED);
+        }
     }
     /**
      * Sip Delegate feature tag configuration is changed hence requested network registration for
