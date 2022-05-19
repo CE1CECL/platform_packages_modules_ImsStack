@@ -49,8 +49,6 @@ public class ImsCallProfileEx {
      */
     public static final String EXTRA_CONFERENCE_EVENT = "conference_event";
     public static final String EXTRA_GTT = "gtt";
-    public static final String EXTRA_HD_VOICE = "hd_voice";
-    public static final String EXTRA_UHD_VOICE = "uhd_voice";
     public static final String EXTRA_WIFI_CALL = "wifi_call";
     public static final String EXTRA_MO_ALERTING = "mo_alerting";
     public static final String EXTRA_RAT_CHANGED = "rat_changed";

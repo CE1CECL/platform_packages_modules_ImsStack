@@ -11,9 +11,6 @@
 
 package com.android.imsstack.imsservice.mmtel.internal;
 
-import android.os.Handler;
-
-import com.android.imsstack.enabler.mtc.CallFeature;
 import com.android.imsstack.enabler.mtc.CallInfo;
 import com.android.imsstack.enabler.mtc.FailInfo;
 import com.android.imsstack.enabler.mtc.MediaInfo;
@@ -23,9 +20,6 @@ import com.android.imsstack.enabler.mtc.MtcConference;
 import com.android.imsstack.enabler.mtc.SuppInfo;
 import com.android.imsstack.enabler.mtc.conf.UsersInfo;
 import com.android.imsstack.imsservice.mmtel.base.ICallContext;
-import com.android.imsstack.util.ImsLog;
-
-import java.util.concurrent.Executor;
 
 public class MergeProxy extends ConferenceProxy {
     private static final int FLAG_RECOVER_FOREGROUND_CALL = 0x01;
@@ -115,15 +109,17 @@ public class MergeProxy extends ConferenceProxy {
             // hold -> merge
             setState(STATE_HOLDING);
             executeHold(mForegroundCall);
-        } else if (confCall.isOnHold()
-                && !CallFeature.isCallMergeableOnConferenceOnHold(slotId)) {
+        } else if (confCall.isOnHold()) {
             // hold -> resume -> merge
             setState(STATE_SWAP_HOLDING);
             executeHold(mForegroundCall);
-        } else {
+        }
+        //Based on the test result for VZW we can keep the configuration or can be removable
+        //CallFeature.isCallMergeableOnConferenceOnHold(slotId)
+        /*else {
             setState(STATE_MERGE_WAITING);
             executeMerge();
-        }
+        }*/
 
         return true;
     }

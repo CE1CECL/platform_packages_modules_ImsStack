@@ -46,8 +46,6 @@ public class Call implements Closeable {
     // extensions
     public static final String EXTRA_MMC = "mmc";
     public static final String EXTRA_GTT = "gtt";
-    public static final String EXTRA_HD_VOICE = "hd_voice";
-    public static final String EXTRA_UHD_VOICE = "uhd_voice";
     public static final String EXTRA_CONFERENCE_EVENT = "conference_event";
     /** MO e-call only. It indicates that MO e-call is created via WiFi bearer. */
     public static final String EXTRA_WIFI_E_CALL = "wifi_e_call";
@@ -340,9 +338,7 @@ public class Call implements Closeable {
                 || name.equalsIgnoreCase(EXTRA_CONFERENCE_AVAIL)
                 || name.equalsIgnoreCase(EXTRA_MMC)
                 || name.equalsIgnoreCase(EXTRA_GTT)
-                || name.equalsIgnoreCase(EXTRA_HD_VOICE)
-                || name.equalsIgnoreCase(EXTRA_CONFERENCE_EVENT)
-                || name.equalsIgnoreCase(EXTRA_UHD_VOICE));
+                || name.equalsIgnoreCase(EXTRA_CONFERENCE_EVENT));
     }
 
     public static boolean isCallExtraInt(String name) {

@@ -603,14 +603,6 @@ public final class ConferenceInfo {
         return false;
     }
 
-    public boolean isUserChangeable() {
-        // O-OS requirement:
-        // Telecom uses the key as the composition of user & endpoint
-        // to identify the conference participant, so, user (user-entity) information
-        // SHOULD not be changed when it's passed to Call UI.
-        return CallFeature.isUuidUsedForEndpointInConferenceState(mSlotId) ? false : true;
-    }
-
     public void notifyUserStatusIfChanged() {
         synchronized(mUsers) {
             for (User user : mUsers) {
@@ -669,17 +661,8 @@ public final class ConferenceInfo {
                 || (user.isInterim()
                     && !isInterimUser(callId, uid, userEntity, endpointEntity))) {
             String oldUid = user.getId();
-
-            // FIXME: is it correct to change the uid?
-            if (isUserChangeable() && (oldUid != null) && !oldUid.equalsIgnoreCase(uid)) {
-                user.init(uid, userEntity, endpointEntity, displayText, status);
-
-                logi("updateUser :: uid is replaced; "
-                        + dbgLog(oldUid) + " >> " + dbgLog(uid));
-            } else {
-                user.updateIdForNative(uid);
-                user.init(userEntity, endpointEntity, displayText, status);
-            }
+            user.updateIdForNative(uid);
+            user.init(userEntity, endpointEntity, displayText, status);
         } else {
             user.updateStatus(status);
         }

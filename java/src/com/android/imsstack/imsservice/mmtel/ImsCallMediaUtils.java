@@ -69,24 +69,23 @@ public class ImsCallMediaUtils {
 
     // FIXME: May we use MediaInfo instead of ImsCallProfile?
     public static MediaInfo createMediaInfoForCallAccept(final ImsCallProfile profile,
-            final int callType, final int audioCapabilities, final int videoCapabilities,
-            final boolean directionNegoRequired) {
+            final int callType, final int audioCapabilities, final int videoCapabilities) {
         switch (callType) {
-        case ImsCallProfile.CALL_TYPE_VOICE: // FALL-THROUGH
-        case ImsCallProfile.CALL_TYPE_VOICE_N_VIDEO:
-            return createMediaInfoForVoiceCallOnCallAccept(profile, callType,
-                    audioCapabilities, videoCapabilities, directionNegoRequired);
+            case ImsCallProfile.CALL_TYPE_VOICE: // FALL-THROUGH
+            case ImsCallProfile.CALL_TYPE_VOICE_N_VIDEO:
+                return createMediaInfoForVoiceCallOnCallAccept(profile, callType, audioCapabilities,
+                        videoCapabilities);
 
-        case ImsCallProfile.CALL_TYPE_VIDEO_N_VOICE: // FALL-THROUGH
-        case ImsCallProfile.CALL_TYPE_VT: // FALL-THROUGH
-        case ImsCallProfile.CALL_TYPE_VT_TX: // FALL-THROUGH
-        case ImsCallProfile.CALL_TYPE_VT_RX: // FALL-THROUGH
-        case ImsCallProfile.CALL_TYPE_VT_NODIR:
-            return createMediaInfoForVideoCallOnCallAccept(profile, callType,
-                    audioCapabilities, videoCapabilities, directionNegoRequired);
+            case ImsCallProfile.CALL_TYPE_VIDEO_N_VOICE: // FALL-THROUGH
+            case ImsCallProfile.CALL_TYPE_VT: // FALL-THROUGH
+            case ImsCallProfile.CALL_TYPE_VT_TX: // FALL-THROUGH
+            case ImsCallProfile.CALL_TYPE_VT_RX: // FALL-THROUGH
+            case ImsCallProfile.CALL_TYPE_VT_NODIR:
+                return createMediaInfoForVideoCallOnCallAccept(profile, callType, audioCapabilities,
+                        videoCapabilities);
 
-        default:
-            break;
+            default:
+                break;
         }
 
         return new MediaInfo(
@@ -503,22 +502,11 @@ public class ImsCallMediaUtils {
     }
 
     private static MediaInfo createMediaInfoForVideoCallOnCallAccept(
-            ImsCallProfile profile, int callType, int audioCapabilities, int videoCapabilities,
-            boolean directionNegoRequired) {
+            ImsCallProfile profile, int callType, int audioCapabilities, int videoCapabilities) {
         int audioQuality = getNegotiatedAudioQuality(profile, audioCapabilities);
         int videoQuality = VideoCallUtils.getNegotiatedVideoQuality(profile, videoCapabilities);
-        int audioDirection = MediaInfo.DIRECTION_SEND_RECEIVE;
-        int videoDirection = MediaInfo.DIRECTION_INVALID;
-
-        if (directionNegoRequired) {
-            audioDirection = getNegotiatedDirection(profile, true);
-            videoDirection = getNegotiatedDirection(profile, false);
-        } else {
-            audioDirection = getDirectionFromMediaProfileForMediaInfo(
-                    profile.getMediaProfile().getAudioDirection());
-            videoDirection = getDirectionFromMediaProfileForMediaInfo(
-                    profile.getMediaProfile().getVideoDirection());
-        }
+        int audioDirection = getNegotiatedDirection(profile, true);
+        int videoDirection = getNegotiatedDirection(profile, false);
 
         if (FEATURE_OVERRIDE_VIDEO_DIRECTION_FROM_CALL_TYPE) {
             int videoDir = getVideoDirectionFromCallType(callType);
@@ -535,17 +523,9 @@ public class ImsCallMediaUtils {
     }
 
     private static MediaInfo createMediaInfoForVoiceCallOnCallAccept(
-            ImsCallProfile profile, int callType, int audioCapabilities, int videoCapabilities,
-            boolean directionNegoRequired) {
+            ImsCallProfile profile, int callType, int audioCapabilities, int videoCapabilities) {
         int audioQuality = getNegotiatedAudioQuality(profile, audioCapabilities);
-        int audioDirection = MediaInfo.DIRECTION_SEND_RECEIVE;
-
-        if (directionNegoRequired) {
-            audioDirection = getNegotiatedDirection(profile, true);
-        } else {
-            audioDirection = getDirectionFromMediaProfileForMediaInfo(
-                    profile.getMediaProfile().getAudioDirection());
-        }
+        int audioDirection = getNegotiatedDirection(profile, true);
 
         return new MediaInfo(audioQuality, MediaInfo.VIDEO_QUALITY_NONE,
                 audioDirection, MediaInfo.DIRECTION_INVALID,

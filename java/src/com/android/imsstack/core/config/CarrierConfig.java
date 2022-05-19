@@ -787,6 +787,11 @@ public class CarrierConfig {
                 "ignore_p_early_media_header_bool";
         public static final String KEY_INFORMATION_LEVEL_OF_GEOLOCATION_PIDF_INT_ARRAY =
                 "information_level_of_geolocation_pidf_int_array";
+        public static final String KEY_INCOMING_RESUME_EVENT_SUPPORT_BOOL =
+                "incoming_resume_event_support_bool";
+        public static final String KEY_SIP_STATUS_CODE_FOR_REJECTING_CALL_TYPE_CHANGE_INT =
+                "sip_status_code_for_rejecting_call_type_change_int";
+
         // Media
         public static final String KEY_AUDIO_BW_NEGO_OPTION_BOOL =
                 "audio_bw_nego_option_bool";
@@ -794,6 +799,8 @@ public class CarrierConfig {
                 "video_drop_p_frame_bool";
         public static final String KEY_AUDIO_SDP_ANSWER_FULL_CAPABILITY_BOOL =
                 "audio_sdp_answer_full_capability_bool";
+        public static final String KEY_AUDIO_HOLD_WITH_DIRECTION_INACTIVE_BOOL =
+                "audio_hold_with_direction_inactive_bool";
         public static final String KEY_AUDIO_RTP_DSCP_INT =
                 "audio_rtp_dscp_int";
         public static final String KEY_AUDIO_TELEPHONE_EVENT_DURATION_INT_ARRAY =
@@ -802,6 +809,8 @@ public class CarrierConfig {
                 "video_codec_h264_sprop_parameter_sets_bool";
         public static final String KEY_VIDEO_CODEC_HEVC_SPROP_PARAMETER_SETS_BOOL =
                 "video_codec_hevc_sprop_parameter_sets_bool";
+        public static final String KEY_VIDEO_HOLD_WITH_DIRECTION_INACTIVE_BOOL =
+                "video_hold_with_direction_inactive_bool";
         public static final String KEY_VIDEO_CODEC_H264_MAX_MBPS_INT =
                 "video_codec_h264_max_mbps_int";
         public static final String KEY_VIDEO_CODEC_H264_MAX_FS_INT =
@@ -830,6 +839,8 @@ public class CarrierConfig {
                 "audio_maxred_int";
         public static final String KEY_SDP_REOFFER_FULLCAPA =
                 "sdp_reoffer_fullcapa";
+        public static final String KEY_TEXT_HOLD_WITH_DIRECTION_INACTIVE_BOOL =
+                "text_hold_with_direction_inactive_bool";
         // Ut/Xcap
         public static final String KEY_UT_SUPPORT_CF_ACTION_ERASURE_BOOL =
                 "ut_support_cf_action_erasure_bool";
