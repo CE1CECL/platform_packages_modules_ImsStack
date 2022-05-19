@@ -152,8 +152,8 @@ IMS_BOOL MtcConfigurationProxy::Is(IN Feature eFeature) const
             return m_objManager.IsStopRingbackTimerBy183WithSdpBody();
         case Feature::ENABLE_VOICE_MAIL_SERVICE_BY_PAID_HEADER:
             return m_objManager.IsEnableVoiceMailServiceByPaidHeader();
-        case Feature::IGNORE_PEM_HEADER:
-            return m_objManager.IsIgnorePemHeader();
+        case Feature::INITIALIZE_PEM_WHEN_NO_HEADER:
+            return m_objManager.IsInitializePemWhenNoHeader();
         default:
             IMS_TRACE_E(0, "invalid feature [%d]", eFeature, 0, 0);
             return IMS_FALSE;
@@ -300,6 +300,8 @@ IMS_SINT32 MtcConfigurationProxy::GetInt(IN Feature eFeature) const
             return m_objManager.GetWifiEmergency18xTimer();
         case Feature::MAXIMUM_WAIT_TIMER_FOR_GEOLOCATION_PIDF_INFO:
             return m_objManager.GetMaximumWaitTimerForGeolocationPidfInfo();
+        case Feature::POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE:
+            return m_objManager.GetPolicyForLocalRingbackToneWith180Response();
         default:
             IMS_TRACE_E(0, "invalid feature [%d]", eFeature, 0, 0);
             return IMS_FALSE;

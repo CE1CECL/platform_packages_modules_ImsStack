@@ -447,11 +447,13 @@ IMS_SINT32 MtcCallState::OnSdpReceived(IN ISession* piSession, IN IMessage* piMe
             IMS_TRACE_E(0, "Answer must be included.", 0, 0, 0);
             return FAIL_REASON_MEDIA_NEGOFAIL;
         }
+        RunMedia(piSession, piMessage, IMS_FALSE);
         return FAIL_REASON_NONE;
     }
 
     if (IsNeedToIgnore(piSession, piMessage) == IMS_TRUE)
     {
+        RunMedia(piSession, piMessage, IMS_FALSE);
         return FAIL_REASON_NONE;
     }
 
@@ -515,13 +517,11 @@ ResultSetSdp MtcCallState::SetSdpToSend(
 }
 
 PROTECTED
-void MtcCallState::RunMedia(IN ISession* piSession, IN IMessage* piMessage)
+void MtcCallState::RunMedia(
+        IN ISession* piSession, IN IMessage* piMessage, IN IMS_BOOL bNegoUpdated /*= IMS_TRUE*/)
 {
     IMS_BOOL bEarly = !MessageUtil::IsResponseExist(piSession, SipStatusCode::SC_200);
-    IMS_BOOL b180Received = m_objContext.GetCallInfo().ePeerType == PeerType::MO &&
-            MessageUtil::IsResponseExist(piSession, SipStatusCode::SC_180);
-
-    m_objContext.GetMediaManager().Run(piSession, piMessage, bEarly, b180Received);
+    m_objContext.GetMediaManager().Run(piSession, piMessage, bEarly, bNegoUpdated);
 }
 
 PROTECTED

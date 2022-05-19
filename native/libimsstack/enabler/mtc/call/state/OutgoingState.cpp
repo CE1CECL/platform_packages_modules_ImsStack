@@ -183,11 +183,6 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionStarted(IN ISession* piSessio
         return CallStateName::TERMINATING;
     }
 
-    if (MessageUtil::HasSdp(piMessage) == IMS_FALSE)
-    {
-        RunMedia(piSession, piMessage);
-    }
-
     UpdatePreconditionCapability(piSession, piMessage);
     m_objContext.GetPreconditionManager().SetRemoteResourceAvailable(piSession);
 
@@ -245,7 +240,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionEarlyMediaUpdated(IN ISession
             IMessage::SESSION_EARLY_UPDATE, *piMessage);
 
     IMtcMediaManager& objMediaManager = m_objContext.GetMediaManager();
-    objMediaManager.HandleRingBackTone(piSession, piMessage);
+    objMediaManager.UpdatePemType(piSession, piMessage);
 
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
     {
@@ -289,7 +284,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionEarlyMediaUpdateReceived(IN I
     // TODO: which operator requires this?
     // m_objContext.GetTimer().Start(TIMER_MO_NOANSWER, 60000);
 
-    m_objContext.GetMediaManager().HandleRingBackTone(piSession, piMessage);
+    m_objContext.GetMediaManager().UpdatePemType(piSession, piMessage);
 
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
     {
@@ -454,7 +449,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionProvisionalResponseReceived(
 
     UpdateCallType(piSession, piMessage, IMS_FALSE);
 
-    m_objContext.GetMediaManager().HandleRingBackTone(piSession, piMessage);
+    m_objContext.GetMediaManager().UpdatePemType(piSession, piMessage);
 
     // TODO: not to update precondition attributes?
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
@@ -514,7 +509,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionRPRReceived(
     UpdateCallType(piSession, piMessage, IMS_FALSE);
 
     IMtcMediaManager& objMediaManager = m_objContext.GetMediaManager();
-    objMediaManager.HandleRingBackTone(piSession, piMessage);
+    objMediaManager.UpdatePemType(piSession, piMessage);
 
     if (OnSdpReceived(piSession, piMessage) != FAIL_REASON_NONE)
     {
@@ -761,8 +756,11 @@ void OutgoingState::HandleCountrySpecificServiceUrn(IN IMessage* piMessage)
 PRIVATE
 void OutgoingState::SendProgressing()
 {
+    IMtcMediaManager& objMediaManager = m_objContext.GetMediaManager();
+
     MediaInfo objMediaInfo;
-    m_objContext.GetMediaManager().GetMediaInfo(objMediaInfo);
+    objMediaManager.GetMediaInfo(objMediaInfo);
+
     m_objContext.GetUiNotifier().SendProgressing(&m_objContext.GetCallInfo(), &objMediaInfo,
             m_objContext.GetSupplementaryService().GetServices(), m_bRemoteAlerted);
 }

@@ -83,6 +83,7 @@ public:
             IN ISession* piConfirmedSession, IN IMediaSession* piMediaSession);
 
     ISession* GetSessionWithNegoId(IN IMS_UINTP nNegoId);
+    ISession* GetActiveSession();
 
 private:
     IMS_BOOL IsMediaProfilePresent(IN ISession* piSession);

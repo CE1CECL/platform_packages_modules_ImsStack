@@ -71,15 +71,13 @@ public:
     virtual void RestoreSdp(IN ISession* piSession) override;
     void FinalizeSdp(IN ISession* piSession);
 
-    /* RBT & Network Tone */
-    virtual void HandleRingBackTone(IN ISession* piSession, IN IMessage* piMessage) override;
-    void HandleDynamicNetworkTone(
-            IN ISession* piSession, IN IMS_BOOL b180Received, OUT IMS_UINT32& nDuration);
-    void SetNetworkToneRtpTimer(IN IMS_UINT32 eMediaTypes, IN IMS_UINT32 nDuration);  // TBD
+    /* P-Early-Media */
+    virtual void UpdatePemType(IN ISession* piSession, IN IMessage* piMessage) override;
 
     /* Media Operations */
     virtual void Run(IN ISession* piSession, IN IMessage* piMessage, IN IMS_BOOL bEarly,
-            IN IMS_BOOL b180Received) override;
+            IN IMS_BOOL bNegoUpdated = IMS_TRUE) override;
+
     virtual void Terminate() override;
 
     // tMediaValueInfo GetNegotiatedMediaValue(IN ISession* piSession, IN IMS_UINT32 eMediaTypes);
@@ -107,18 +105,19 @@ public:
 
     /* Provide information of MtcMediaManager */
     virtual IMS_BOOL IsAudioQualityHd() override;
-    virtual PemType GetPemType(IN ISession* piSession) override;
+    virtual PemType GetPemType(IN ISession* piSession) override;  // remove..?
     virtual IMS_BOOL IsAudioMediaActivated() override;
 
 private:
     void SetState(IN MediaState eState);
     void FinalizeMediaInfo(IN IMS_UINTP nNegoId);
-    void UpdatePemType(IN ISession* piSession, IN IMessage* piMessage);
-    void UpdateLocalTone(IN ISession* piSession);
+    void UpdateLocalTone(IN ISession* piSession, IN IMessage* piMessage);
+    void SetNetworkToneRtpTimer(IN IMS_UINT32 eMediaTypes, IN IMS_UINT32 nDuration);  // TBD
     void SendAudioInfoToJava(IN ISession* piSession);
 
     IMS_BOOL IsNecessaryToRunMedia(IN ISession* piSession, IN IMessage* piMessage);
     IMS_UINTP GetMediaNegoId(IN ISession* piSession);
+    IMS_UINT32 GetDurationWaitingNetworkTone(IN ISession* piSession, IN IMessage* piMessage);
 
     void HandleMediaSuccess();
     void HandleReceivingRtpDataStarted();
@@ -140,6 +139,16 @@ private:
     IMediaSession* m_piMediaSession;
     MediaState m_eState;
     MediaState m_eOldState;
+
+    static const IMS_UINT32 TIME_WAIT_NW_TONE_RTP = 1000;
+    static const IMS_UINT32 TIME_NO_WAIT_NW_TONE_RTP = 0;
+
+    enum
+    {
+        USE_DYNAMIC_NW_TONE_TIMER = 0,
+        NOT_USE_DYNAMIC_NW_TONE_TIMER,
+        LOCAL_TONE_WITH_180_BY_FORCE
+    };
 };
 
 #endif
