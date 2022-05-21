@@ -311,7 +311,7 @@ CallStateName UpdatingState::HandleModificationSucceeded()
     if (eCallStateName == CallStateName::ESTABLISHED)
     {
         m_objContext.GetMediaManager().Run(
-                &m_objContext.GetSession()->GetISession(), IMS_NULL, IMS_FALSE, IMS_FALSE);
+                &m_objContext.GetSession()->GetISession(), IMS_NULL, IMS_FALSE);
     }
 
     return eCallStateName;

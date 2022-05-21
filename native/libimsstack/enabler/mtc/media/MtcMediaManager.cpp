@@ -10,6 +10,7 @@
 #include "media/IMediaQosEventListener.h"
 #include "precondition/IMtcPreconditionManager.h"
 #include "precondition/QosDef.h"
+#include "configuration/MtcConfigurationProxy.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
@@ -169,6 +170,12 @@ PUBLIC VIRTUAL void MtcMediaManager::UpdateMediaQuality(
 PUBLIC VIRTUAL void MtcMediaManager::GetMediaInfo(OUT MediaInfo& objInfo)
 {
     objInfo = *m_pMediaInfo;
+
+    if (!m_objProfileManager.IsConfirmedDialogState() &&
+            m_objContext.GetCallInfo().ePeerType == PeerType::MO && IsLocalTone())
+    {
+        objInfo.eADir = DIRECTION_INACTIVE;
+    }
 }
 
 PUBLIC VIRTUAL void MtcMediaManager::GetOldMediaInfo(OUT MediaInfo& objInfo)
@@ -365,54 +372,51 @@ void MtcMediaManager::FinalizeSdp(IN ISession* piSession)
     m_piMediaSession->FinalizeSDP(GetMediaNegoId(piSession), piSession);
 }
 
-PUBLIC VIRTUAL void MtcMediaManager::HandleRingBackTone(
-        IN ISession* piSession, IN IMessage* piMessage)
+PUBLIC VIRTUAL void MtcMediaManager::UpdatePemType(IN ISession* piSession, IN IMessage* piMessage)
 {
-    IMS_TRACE_D("HandleRingBackTone", 0, 0, 0);
+    IMSList<AString> lstHeaders;
+    MessageUtil::GetHeaders(piMessage, ISipHeader::P_EARLY_MEDIA, lstHeaders);
 
-    UpdatePemType(piSession, piMessage);
-    UpdateLocalTone(piSession);
-}
+    PemType ePemType = PemType::NONE;
 
-PUBLIC
-void MtcMediaManager::HandleDynamicNetworkTone(
-        IN ISession* piSession, IN IMS_BOOL b180Received, OUT IMS_UINT32& nDuration)
-{
-    if (m_objProfileManager.IsConfirmed(piSession))  // Confirmed Dialog State
+    for (IMS_UINT32 i = 0; i < lstHeaders.GetSize(); i++)
     {
-        if (m_pMediaInfo->eADir != DIRECTION_RECEIVE)
+        AString strPemHeader = lstHeaders.GetAt(i);
+
+        if (strPemHeader.Contains("sendrecv"))
         {
-            nDuration = 0;
-            // TODO: detach ENFORCE_LT from the MtcSupplementaryService
-            m_objContext.GetSupplementaryService().Delete(SuppType::ENFORCE_LT);
+            ePemType = PemType::SENDRECV;
         }
-    }
-    else  // Early Dialog State
-    {
-        // if (KEY_IGNORE_P_EARLY_MEDIA_HEADER_BOOL == TRUE && vzw case) return;
-        // else ..
-        PemType ePemType = GetPemType(piSession);
-        if ((ePemType == PemType::SENDRECV || ePemType == PemType::SENDONLY) || !b180Received)
+        else if (strPemHeader.Contains("sendonly"))
         {
-            nDuration = 0;
+            ePemType = PemType::SENDONLY;
         }
+        else if (strPemHeader.Contains("recvonly"))
+        {
+            ePemType = PemType::RECVONLY;
+        }
+        else if (strPemHeader.Contains("inactive"))
+        {
+            ePemType = PemType::INACTIVE;
+        }
+        // When UE receives P-Early-Media header with "gated", PemType will be keep the value.
     }
 
-    IMS_TRACE_D("HandleDynamicNetworkTone : Duration[%d]", nDuration, 0, 0);
-}
+    if (ePemType != PemType::NONE ||
+            m_objContext.GetConfigurationProxy().Is(Feature::INITIALIZE_PEM_WHEN_NO_HEADER))
+    {
+        m_objProfileManager.SetPemType(piSession, ePemType);
+    }
+    else
+    {
+        IMS_TRACE_D("UpdatePemType : no update for P-Early-Media value.", 0, 0, 0);
+    }
 
-PUBLIC
-void MtcMediaManager::SetNetworkToneRtpTimer(IN IMS_UINT32 eMediaTypes, IN IMS_UINT32 nDuration)
-{
-    MEDIA_CONTENT_TYPE eContents = MtcMediaUtil::GetMediaContentsFromMediaTypes(eMediaTypes);
-
-    IMS_TRACE_D("SetNetworkToneRtpTimer : MediaType[%d] Duration[%d]", eMediaTypes, nDuration, 0);
-
-    m_piMediaSession->SetNetworkToneRTPTimer(eContents, nDuration);
+    IMS_TRACE_D("UpdatePemType : %d", GetPemType(piSession), 0, 0);
 }
 
 PUBLIC VIRTUAL void MtcMediaManager::Run(IN ISession* piSession, IN IMessage* piMessage,
-        IN IMS_BOOL bEarly, IN IMS_BOOL b180Received)
+        IN IMS_BOOL bEarly, IN IMS_BOOL bNegoUpdated /*= IMS_TRUE*/)
 {
     if (GetNegotiationState(piSession) != NegotiationState::STATE_NEGOTIATED)
     {
@@ -425,41 +429,33 @@ PUBLIC VIRTUAL void MtcMediaManager::Run(IN ISession* piSession, IN IMessage* pi
         SetConfirmedSession(piSession);
         FinalizeSdp(piSession);
     }
+    else if (m_objContext.GetCallInfo().ePeerType == PeerType::MO)
+    {
+        UpdateLocalTone(piSession, piMessage);
+    }
+
+    IMS_UINT32 nTimeWaitingNetworkTone = GetDurationWaitingNetworkTone(piSession, piMessage);
+    IMS_TRACE_D("Run : duration for waiting network tone[%d]", nTimeWaitingNetworkTone, 0, 0);
 
     if (!IsNecessaryToRunMedia(piSession, piMessage))
     {
+        if (IsLocalTone())
+        {
+            SetNetworkToneRtpTimer(MEDIATYPE_AUDIO, nTimeWaitingNetworkTone);
+        }
+
+        return;
+    }
+    else if (!bNegoUpdated && (m_objProfileManager.GetActiveSession() == piSession))
+    {
+        IMS_TRACE_D("Run : there is no update about media negotiation.", 0, 0, 0);
+        IMS_TRACE_D("Run : the media is already running.", 0, 0, 0);
+
+        SetNetworkToneRtpTimer(MEDIATYPE_AUDIO, nTimeWaitingNetworkTone);
         return;
     }
 
-    IMS_UINT32 nNetworkToneTimerDuration = 2000;  // 2 sec
-
-    // TODO: temp code? is this going to move to Mtc Enablers?
-    // will modify to check 180 response from all early dialogs
-    b180Received = IMS_FALSE;
-    IMSList<IMessage*> objResponses = piSession->GetPreviousResponses(IMessage::SESSION_START);
-
-    for (IMS_UINT32 index = 0; index < objResponses.GetSize(); index++)
-    {
-        if (objResponses.GetAt(index)->GetStatusCode() == SipStatusCode::SC_180)
-        {
-            b180Received = IMS_TRUE;
-            break;
-        }
-    }
-
-    HandleDynamicNetworkTone(piSession, b180Received, nNetworkToneTimerDuration);
-
-    /* IR.92 - 2.2.7 Early media and announcements
-     * For SIP response 181 and 182 to the SIP INVITE, the UE must not locally render tones to
-     * indicate diversion or queueing of calls. */
-    IMS_SINT32 nStatusCode = (!piMessage) ? SipStatusCode::SC_INVALID : piMessage->GetStatusCode();
-    if (nStatusCode == SipStatusCode::SC_181 || nStatusCode == SipStatusCode::SC_182)
-    {
-        nNetworkToneTimerDuration = 0;
-    }
-
-    IMS_TRACE_D(
-            "Run EarlyDialog[%s] 180-Received[%s]", _TRACE_B_(bEarly), _TRACE_B_(b180Received), 0);
+    IMS_TRACE_D("Run : EarlyDialog[%s]", _TRACE_B_(bEarly), 0, 0);
 
     if (!m_piMediaSession->Run(GetMediaNegoId(piSession)))
     {
@@ -467,7 +463,7 @@ PUBLIC VIRTUAL void MtcMediaManager::Run(IN ISession* piSession, IN IMessage* pi
     }
 
     SetState(MediaState::STARTING);
-    SetNetworkToneRtpTimer(MEDIATYPE_AUDIO, nNetworkToneTimerDuration);
+    SetNetworkToneRtpTimer(MEDIATYPE_AUDIO, nTimeWaitingNetworkTone);
     m_objProfileManager.UpdateProfileForMediaActivation(piSession);
 }
 
@@ -687,79 +683,64 @@ void MtcMediaManager::FinalizeMediaInfo(IN IMS_UINTP nNegoId)
 }
 
 PRIVATE
-void MtcMediaManager::UpdatePemType(IN ISession* piSession, IN IMessage* piMessage)
+void MtcMediaManager::UpdateLocalTone(IN ISession* piSession, IN IMessage* piMessage)
 {
-    // if (KEY_IGNORE_P_EARLY_MEDIA_HEADER_BOOL == IMS_TRUE) return;
-
-    AString strPemValue;
-    IMS_RESULT nResult =
-            MessageUtil::GetHeaderValue(piMessage, ISipHeader::P_EARLY_MEDIA, strPemValue);
-
-    if (nResult == IMS_FAILURE)  // no P-Early-Media header or no value
-    {
-        // TMUS : Set PemType::NONE after UE receives 180 response
-        return;
-    }
-
-    PemType ePemType = GetPemType(piSession);
-
-    if (strPemValue.Contains("sendrecv"))
-    {
-        ePemType = PemType::SENDRECV;
-    }
-    else if (strPemValue.Contains("sendonly"))
-    {
-        ePemType = PemType::SENDONLY;
-    }
-    else if (strPemValue.Contains("recvonly"))
-    {
-        ePemType = PemType::RECVONLY;
-    }
-    else if (strPemValue.Contains("inactive"))
-    {
-        ePemType = PemType::INACTIVE;
-    }
-
-    // When UE receives P-Early-Media header with "gated", PemType will be keep the value.
-    IMS_TRACE_D("UpdatePemType : %d", ePemType, 0, 0);
-
-    m_objProfileManager.SetPemType(piSession, ePemType);
-}
-
-PRIVATE
-void MtcMediaManager::UpdateLocalTone(IN ISession* piSession)
-{
-    if (GetNegotiationState(piSession) != NegotiationState::STATE_NEGOTIATED)
-    {
-        return;
-    }
-
     IMS_TRACE_D("UpdateLocalTone", 0, 0, 0);
+    IMS_BOOL bUseLocalTone = IMS_FALSE;
 
     /* 3GPP 24.628 - 4.7.2.1
      * NOTE 1 : In-band information received from the network overrides any locally generated
      * communication progress information also when the most recently received P-Early-Media header
      * fields of all early dialogs contain "inactive" or "recvonly".
      */
-    SetLocalTone(IMS_FALSE);
+    if (!MessageUtil::IsResponseExist(piSession, SipStatusCode::SC_180))
+    {
+        bUseLocalTone = IMS_FALSE;
+    }
+    else
+    {
+        IMS_SINT32 nLocalRbtPolicy = m_objContext.GetConfigurationProxy().GetInt(
+                Feature::POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE);
 
-    // Add asset to distinguish the way playing local tone with P-Early-Media value.
-    // 1) UE has never received a P-Early-Media header :
-    //      play the local RBT for AT&T. Standard - local policy.
-    // 2) UE receives P-Ealry-Media with inactive :
-    //      play local tone after receiving 180. or don't play any media stream. - TMUS
+        IMS_TRACE_D("UpdateLocalTone : local RBT policy[%d]", nLocalRbtPolicy, 0, 0);
 
-    // KEY_IGNORE_P_EARLY_MEDIA_HEADER_BOOL == true && vzw case
-    // SetLocalTone(IMS_FALSE);
-    // if (StatusCode == 183)
-    // {
-    //      if (m_pMediaInfo->eADir == DIRECTION_INVALID) SetEnforcedDirection(AUDIO, SENDRECV);
-    // }
-    // else if (StatusCode == 180)
-    // {
-    //      if (!HasSdp()) SetLocalTone(IMS_TRUE);
-    //      SetEnforcedDirection(AUDIO, INVALID);
-    // }
+        switch (nLocalRbtPolicy)
+        {
+            case USE_DYNAMIC_NW_TONE_TIMER:
+                bUseLocalTone = IMS_FALSE;
+                break;
+            case NOT_USE_DYNAMIC_NW_TONE_TIMER:
+            {
+                // AT&T, T-Mobile US
+                PemType eType = GetPemType(piSession);
+                bUseLocalTone = (eType != PemType::SENDONLY && eType != PemType::SENDRECV);
+                break;
+            }
+            case LOCAL_TONE_WITH_180_BY_FORCE:
+            {
+                // Verizon
+                IMS_SINT32 nStatusCode =
+                        (piMessage) ? piMessage->GetStatusCode() : SipStatusCode::SC_INVALID;
+                bUseLocalTone = (nStatusCode == SipStatusCode::SC_180);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    SetLocalTone(bUseLocalTone);
+    IMS_TRACE_D("UpdateLocalTone : use local ringback tone [%s]", _TRACE_B_(bUseLocalTone), 0, 0);
+}
+
+PRIVATE
+void MtcMediaManager::SetNetworkToneRtpTimer(IN IMS_UINT32 eMediaTypes, IN IMS_UINT32 nDuration)
+{
+    MEDIA_CONTENT_TYPE eContents = MtcMediaUtil::GetMediaContentsFromMediaTypes(eMediaTypes);
+
+    IMS_TRACE_D("SetNetworkToneRtpTimer : MediaType[%d] Duration[%d]", eMediaTypes, nDuration, 0);
+
+    m_piMediaSession->SetNetworkToneRTPTimer(eContents, nDuration);
 }
 
 PRIVATE
@@ -774,30 +755,47 @@ IMS_BOOL MtcMediaManager::IsNecessaryToRunMedia(IN ISession* piSession, IN IMess
 {
     if (m_objProfileManager.IsConfirmed(piSession))
     {
-        IMS_TRACE_D("IsNecessaryToRunMedia : it is confirmed session.", 0, 0, 0);
+        IMS_TRACE_D("IsNecessaryToRunMedia it is confirmed session.", 0, 0, 0);
         return IMS_TRUE;
     }
 
-    if (!MessageUtil::HasSdp(piMessage) || IsLocalTone())
+    if (m_objContext.GetCallInfo().ePeerType == PeerType::MT)
     {
-        IMS_TRACE_D("IsNecessaryToRunMedia : no SDP body or local tone should be played.", 0, 0, 0);
+        IMS_TRACE_D("IsNecessaryToRunMedia MT case - run the media on confirmed state.", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    PemType ePemType = m_objProfileManager.GetPemType(piSession);
+    if (IsLocalTone())
+    {
+        IMS_TRACE_D("IsNecessaryToRunMedia local tone should be played.", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    /* IR.92 - 2.2.7 Early media and announcements
+     * For SIP response 181 and 182 to the SIP INVITE, the UE must not locally render tones to
+     * indicate diversion or queueing of calls.
+     */
+    IMS_SINT32 nStatusCode = (piMessage) ? piMessage->GetStatusCode() : SipStatusCode::SC_INVALID;
+    if (nStatusCode == SipStatusCode::SC_181 || nStatusCode == SipStatusCode::SC_182)
+    {
+        IMS_TRACE_D("IsNecessaryToRunMedia Run the media in 181/182 response case.", 0, 0, 0);
+        return IMS_TRUE;
+    }
+
+    PemType ePemType = GetPemType(piSession);
     if (ePemType == PemType::SENDONLY || ePemType == PemType::SENDRECV)
     {
-        IMS_TRACE_D("IsNecessaryToRunMedia : should play network RBT.", 0, 0, 0);
+        IMS_TRACE_D("IsNecessaryToRunMedia should play network RBT.", 0, 0, 0);
         return IMS_TRUE;
     }
 
     if (m_objProfileManager.IsPemSendInOtherEarlySession(piSession))
     {
-        IMS_TRACE_D("IsNecessaryToRunMedia : there's other session playing RBT.", 0, 0, 0);
+        IMS_TRACE_D("IsNecessaryToRunMedia there's other session playing RBT.", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    IMS_TRACE_D("IsNecessaryToRunMedia : Run the media.", 0, 0, 0);
+    IMS_TRACE_D("IsNecessaryToRunMedia Run the media.", 0, 0, 0);
     return IMS_TRUE;
 }
 
@@ -805,6 +803,50 @@ PRIVATE
 IMS_UINTP MtcMediaManager::GetMediaNegoId(IN ISession* piSession)
 {
     return m_objProfileManager.GetNegoId(piSession);
+}
+
+PRIVATE
+IMS_UINT32 MtcMediaManager::GetDurationWaitingNetworkTone(
+        IN ISession* piSession, IN IMessage* piMessage)
+{
+    if (m_objProfileManager.IsConfirmed(piSession))
+    {
+        if (m_pMediaInfo->eADir != DIRECTION_RECEIVE)
+        {
+            return TIME_NO_WAIT_NW_TONE_RTP;
+        }
+
+        return TIME_WAIT_NW_TONE_RTP;
+    }
+
+    if (m_objContext.GetCallInfo().ePeerType == PeerType::MT)
+    {
+        return TIME_NO_WAIT_NW_TONE_RTP;
+    }
+
+    if (IsLocalTone())
+    {
+        return TIME_NO_WAIT_NW_TONE_RTP;
+    }
+
+    IMS_SINT32 nStatusCode = (piMessage) ? piMessage->GetStatusCode() : SipStatusCode::SC_INVALID;
+    if (nStatusCode == SipStatusCode::SC_181 || nStatusCode == SipStatusCode::SC_182)
+    {
+        return TIME_NO_WAIT_NW_TONE_RTP;
+    }
+
+    PemType ePemType = GetPemType(piSession);
+    if (ePemType == PemType::SENDONLY || ePemType == PemType::SENDRECV)
+    {
+        return TIME_NO_WAIT_NW_TONE_RTP;
+    }
+
+    if (m_objProfileManager.IsPemSendInOtherEarlySession(piSession))
+    {
+        return TIME_NO_WAIT_NW_TONE_RTP;
+    }
+
+    return TIME_WAIT_NW_TONE_RTP;
 }
 
 PRIVATE

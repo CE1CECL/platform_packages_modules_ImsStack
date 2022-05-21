@@ -52,8 +52,9 @@ public:
             bMaintainMultipleEarlySessionsByForking(IMS_TRUE),
             bStopRingbackTimerBy183WithSdpBody(IMS_FALSE),
             bEnableVoiceMailServiceByPaidHeader(IMS_FALSE),
-            bIgnorePemHeader(IMS_FALSE),
-            objInformationLevelOfGeolocationPidfs(IMSVector<IMS_SINT32>())
+            objInformationLevelOfGeolocationPidfs(IMSVector<IMS_SINT32>()),
+            bInitializePemWhenNoHeader(IMS_FALSE),
+            nPolicyForLocalRingbackToneWith180Response(0)
     {
     }
     ~AssetItems()
@@ -113,8 +114,9 @@ public:
     IMS_BOOL bMaintainMultipleEarlySessionsByForking;
     IMS_BOOL bStopRingbackTimerBy183WithSdpBody;
     IMS_BOOL bEnableVoiceMailServiceByPaidHeader;
-    IMS_BOOL bIgnorePemHeader;
     IMSVector<IMS_SINT32> objInformationLevelOfGeolocationPidfs;
+    IMS_BOOL bInitializePemWhenNoHeader;
+    IMS_SINT32 nPolicyForLocalRingbackToneWith180Response;
 };
 
 #endif

@@ -374,6 +374,23 @@ ISession* MtcMediaProfileManager::GetSessionWithNegoId(IN IMS_UINTP nNegoId)
     return IMS_NULL;
 }
 
+PUBLIC
+ISession* MtcMediaProfileManager::GetActiveSession()
+{
+    for (IMS_UINT32 index = 0; index < m_objMediaProfiles.GetSize(); index++)
+    {
+        ISession* piSession = m_objMediaProfiles.GetKeyAt(index);
+
+        if (IsActive(piSession))
+        {
+            return piSession;
+        }
+    }
+
+    IMS_TRACE_D("GetActiveSession : There is no active session.", 0, 0, 0);
+    return IMS_NULL;
+}
+
 PRIVATE
 IMS_BOOL MtcMediaProfileManager::IsMediaProfilePresent(IN ISession* piSession)
 {

@@ -153,9 +153,10 @@ public:
     IMS_BOOL IsMaintainMultipleEarlySessionsByForking() const;
     IMS_BOOL IsStopRingbackTimerBy183WithSdpBody() const;
     IMS_BOOL IsEnableVoiceMailServiceByPaidHeader() const;
-    IMS_BOOL IsIgnorePemHeader() const;
     IMS_SINT32 GetInformationLevelOfGeolocationPidf(
             IN IMS_BOOL bEmergency, IN IMS_BOOL bWifi) const;
+    IMS_BOOL IsInitializePemWhenNoHeader() const;
+    IMS_SINT32 GetPolicyForLocalRingbackToneWith180Response() const;
 
 private:
     CarrierConfigItems m_objCarrierConfig;

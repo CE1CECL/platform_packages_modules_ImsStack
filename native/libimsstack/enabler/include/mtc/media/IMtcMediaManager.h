@@ -109,7 +109,7 @@ public:
      *                  used for finding NegoId to check negotiation state.
      * @param piMessage To get P-Early-Media value from the SIP Message.
      */
-    virtual void HandleRingBackTone(IN ISession* piSession, IN IMessage* piMessage) = 0;
+    virtual void UpdatePemType(IN ISession* piSession, IN IMessage* piMessage) = 0;
 
     /**
      * @brief Start or update the media session. In early dialog state, it checks PemType and local
@@ -126,7 +126,7 @@ public:
      *                     Otherwise set to IMS_FALSE.
      */
     virtual void Run(IN ISession* piSession, IN IMessage* piMessage, IN IMS_BOOL bEarly,
-            IN IMS_BOOL b180Received) = 0;
+            IN IMS_BOOL bNegoUpdated = IMS_TRUE) = 0;
 
     /**
      * @brief Terminate the media session when the call is terminated.

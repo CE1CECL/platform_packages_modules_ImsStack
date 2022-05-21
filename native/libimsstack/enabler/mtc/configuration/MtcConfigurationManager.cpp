@@ -818,12 +818,6 @@ IMS_BOOL MtcConfigurationManager::IsEnableVoiceMailServiceByPaidHeader() const
 }
 
 PUBLIC
-IMS_BOOL MtcConfigurationManager::IsIgnorePemHeader() const
-{
-    return m_objAsset.bIgnorePemHeader;
-}
-
-PUBLIC
 IMS_SINT32 MtcConfigurationManager::GetInformationLevelOfGeolocationPidf(
         IN IMS_BOOL bEmergency, IN IMS_BOOL bWifi) const
 {
@@ -843,4 +837,16 @@ IMS_SINT32 MtcConfigurationManager::GetInformationLevelOfGeolocationPidf(
     {
         return m_objAsset.objInformationLevelOfGeolocationPidfs.GetAt(3);
     }
+}
+
+PUBLIC
+IMS_BOOL MtcConfigurationManager::IsInitializePemWhenNoHeader() const
+{
+    return m_objAsset.bInitializePemWhenNoHeader;
+}
+
+PUBLIC
+IMS_SINT32 MtcConfigurationManager::GetPolicyForLocalRingbackToneWith180Response() const
+{
+    return m_objAsset.nPolicyForLocalRingbackToneWith180Response;
 }
