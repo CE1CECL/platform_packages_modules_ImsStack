@@ -8,8 +8,8 @@
 #include "IUce.h"
 #include "ImsMessageDef.h"
 #include "def/UceDef.h"
-#include "interface/aos/IImsAosListener.h"
-#include "interface/aos/IImsAosMonitor.h"
+#include "aos/IImsAosListener.h"
+#include "aos/IImsAosMonitor.h"
 
 class IImsAos;
 class IMSService;
@@ -29,6 +29,7 @@ class UceApp :
   */
 public:
     UceApp(IN CONST IMS_SINT32 nSlotId, IN CONST AString& strAppName);
+    UceApp(IN CONST IMS_SINT32 nSlotId);
     virtual ~UceApp();
     /* ------------------------------------------------------------------------------------------
         Methods
@@ -62,6 +63,8 @@ protected:
     virtual void ImsAosMonitor_Connected(IN IMS_UINT32 nServices, IN IMS_UINT32 nIpcan) override;
     virtual void ImsAosMonitor_Notify(IN IMS_UINT32 nType, IN IMS_UINT32 nState) override;
 
+    ITimer* GetTimer();
+
 private:
     void EnableUceService(void);
     void DisableUceService(void);
@@ -94,6 +97,7 @@ protected:
     AString m_strAppName;
     AString m_strAppID;
     AString m_strServiceID;
+    IMS_SINT32 m_eAoSStatus;
 
 private:
     enum
@@ -106,7 +110,7 @@ private:
     };
 
     IImsAos* m_piImsAos;
-    IMS_SINT32 m_eAoSStatus;
+
     INetworkWatcher* m_piNetWatcherInfo;
     ITimer* m_piDeBounceTimer;
     IMS_SINT32 m_RegisteredNetwork;

@@ -27,8 +27,8 @@ UceApp::UceApp(IN CONST IMS_SINT32 nSlotId, IN CONST AString& strAppName) :
         IMSApp(strAppName),
         m_nSlotId(nSlotId),
         m_strAppName(strAppName),
-        m_piImsAos(IMS_NULL),
         m_eAoSStatus(AOS_DISCONNECTED),
+        m_piImsAos(IMS_NULL),
         m_piNetWatcherInfo(IMS_NULL),
         m_piDeBounceTimer(IMS_NULL),
         m_RegisteredNetwork(eUCE_RAT_INVALID),
@@ -53,6 +53,24 @@ UceApp::UceApp(IN CONST IMS_SINT32 nSlotId, IN CONST AString& strAppName) :
             ImsServiceConfig::GetAppName(ImsAppId::UCE), m_nSlotId);
 
     PostMessage(AMSG_CREATE_SERVICE, 0, 0);
+}
+
+UceApp::UceApp(IN CONST IMS_SINT32 nSlotId) :
+        IMSApp("UceApp"),
+        m_nSlotId(nSlotId),
+        m_strAppName("UceApp"),
+        m_eAoSStatus(AOS_DISCONNECTED),
+        m_piImsAos(IMS_NULL),
+        m_piNetWatcherInfo(IMS_NULL),
+        m_piDeBounceTimer(IMS_NULL),
+        m_RegisteredNetwork(eUCE_RAT_INVALID),
+        m_eCurrentNetwork(eUCE_RAT_INVALID),
+        m_pUceService(IMS_NULL)
+{
+    IMS_TRACE_D("UCE_M : UceApp = %" PFLS_u, sizeof(UceApp), 0, 0);
+    IMS_TRACE_I("UceApp - strName UceApp", 0, 0, 0);
+    m_strAppID = ImsServiceConfig::GetAppName(ImsAppId::UCE);
+    m_strServiceID = ImsServiceConfig::GetServiceName(ImsServiceId::UCE);
 }
 
 PUBLIC VIRTUAL UceApp::~UceApp()
@@ -412,6 +430,11 @@ void UceApp::ImsAosMonitor_Connected(IN IMS_UINT32 nServices, IN IMS_UINT32 nIpc
 void UceApp::ImsAosMonitor_Notify(IN IMS_UINT32 nType, IN IMS_UINT32 nState)
 {
     IMS_TRACE_I("ImsAosMonitor_Notify:nType [ %d ], nInfo [ %d ]", nType, nState, 0);
+}
+
+ITimer* UceApp::GetTimer()
+{
+    return m_piDeBounceTimer;
 }
 
 PRIVATE
