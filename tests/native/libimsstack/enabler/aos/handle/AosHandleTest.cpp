@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "AoSReason.h"
 #include "ImsAosParameter.h"
 
 #include "handle/AosHandle.h"
@@ -24,7 +25,9 @@
 #include "interface/IAosHandle.h"
 #include "interface/MockIAosAppContext.h"
 #include "interface/MockIAosApplication.h"
+#include "../../interface/aos/MockIImsAosInfo.h"
 #include "../../interface/aos/MockIImsAosListener.h"
+#include "../../interface/aos/MockIImsAosMonitor.h"
 
 using ::testing::_;
 using ::testing::AnyNumber;
@@ -109,6 +112,11 @@ protected:
         m_pAosHandle->m_objBindedFeatureTagList.AddFeature(nFeature);
     }
 
+    void AddUnavailableFeature(IN IMS_UINT32 nFeature)
+    {
+        m_pAosHandle->m_objBindedFeatureTagList.AddUnavailableFeature(nFeature);
+    }
+
     void SetHandleState(IN IMS_UINT32 nState) { m_pAosHandle->SetHandleState(nState); }
 
     IImsAosListener* GetListener() { return m_pAosHandle->m_piListener; }
@@ -116,6 +124,12 @@ protected:
     void SetNotify(IN IMS_BOOL bNotify) { m_pAosHandle->m_bNotify = bNotify; }
 
     IMS_BOOL GetNotify() { return m_pAosHandle->m_bNotify; }
+
+    void SetAosInfo(IImsAosInfo* piAosInfo) { m_pAosHandle->m_piInfo = piAosInfo; }
+
+    void SetSuspendedReason(IN IMS_UINT32 nReason) { m_pAosHandle->SetSuspendedReason(nReason); }
+
+    IImsAosMonitor* GetMonitor() { return m_pAosHandle->m_piMonitor; }
 };
 
 TEST_F(AosHandleTest, Constructor)
@@ -414,4 +428,125 @@ TEST_F(AosHandleTest, App_Notify_STATE_DISCONNECTING)
     SetHandleState(AosHandle::STATE_DISCONNECTING);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Disconnecting(_)).Times(1);
     EXPECT_TRUE(m_pAosHandle->App_Notify());
+}
+
+TEST_F(AosHandleTest, Control_)
+{
+    EXPECT_CALL(m_objMockIAosApplication, RequestCmd(_, _)).Times(1);
+    m_pAosHandle->Control(0);
+}
+
+TEST_F(AosHandleTest, GetAosInfo_)
+{
+    MockIImsAosInfo objMockIImsAosInfo;
+    IImsAosInfo* piAosInfo = static_cast<IImsAosInfo*>(&objMockIImsAosInfo);
+    SetAosInfo(piAosInfo);
+    EXPECT_EQ(m_pAosHandle->GetAosInfo(), piAosInfo);
+}
+
+TEST_F(AosHandleTest, GetFeatures_IsImsConnected_False)
+{
+    SetHandleState(AosHandle::STATE_DISCONNECTED);
+    EXPECT_EQ(m_pAosHandle->GetFeatures(), ImsAosFeature::NONE);
+}
+
+TEST_F(AosHandleTest, GetFeatures_Mmtel_Video_Binded_And_No_Unavailable)
+{
+    SetHandleState(AosHandle::STATE_CONNECTED);
+
+    AddBindedFeature(ImsAosFeature::MMTEL);
+    AddBindedFeature(ImsAosFeature::VIDEO);
+
+    EXPECT_EQ(m_pAosHandle->GetFeatures(), (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO));
+}
+
+TEST_F(AosHandleTest, GetFeatures_Mmtel_Video_Binded_And_Mmtel_Unavailable)
+{
+    SetHandleState(AosHandle::STATE_CONNECTED);
+
+    AddBindedFeature(ImsAosFeature::MMTEL);
+    AddBindedFeature(ImsAosFeature::VIDEO);
+    AddUnavailableFeature(ImsAosFeature::MMTEL);
+
+    EXPECT_EQ(m_pAosHandle->GetFeatures(), ImsAosFeature::VIDEO);
+}
+
+TEST_F(AosHandleTest, GetFeatures_Mmtel_Binded_And_Mmtel_Unavailable)
+{
+    SetHandleState(AosHandle::STATE_CONNECTED);
+
+    AddBindedFeature(ImsAosFeature::MMTEL);
+    AddUnavailableFeature(ImsAosFeature::MMTEL);
+
+    EXPECT_EQ(m_pAosHandle->GetFeatures(), ImsAosFeature::NONE);
+}
+
+TEST_F(AosHandleTest, SetSuspendedReason_GetSuspendedReason)
+{
+    SetSuspendedReason(AoSReason::SUSPEND_CS_CALL);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NONE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_LOW_BATTERY);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NONE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_NO_LTE_COVERAGE);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NONE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_INSTANTANEOUS_OFFLINE);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NONE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_NO_SERVICE);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NO_SERVICE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_CS_CALL);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NO_SERVICE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_LOW_BATTERY);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NO_SERVICE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_NO_LTE_COVERAGE);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NO_SERVICE);
+
+    SetSuspendedReason(AoSReason::SUSPEND_INSTANTANEOUS_OFFLINE);
+    EXPECT_EQ(m_pAosHandle->GetSuspendedReason(), AoSReason::SUSPEND_NO_SERVICE);
+}
+
+TEST_F(AosHandleTest, IsFeatureConnected_)
+{
+    SetHandleState(AosHandle::STATE_CONNECTED);
+    AddBindedFeature(ImsAosFeature::MMTEL);
+
+    EXPECT_TRUE(m_pAosHandle->IsFeatureConnected(ImsAosFeature::MMTEL));
+    EXPECT_FALSE(m_pAosHandle->IsFeatureConnected(ImsAosFeature::VIDEO));
+}
+
+TEST_F(AosHandleTest, IsImsConnected_)
+{
+    SetHandleState(AosHandle::STATE_DISCONNECTED);
+    EXPECT_FALSE(m_pAosHandle->IsImsConnected());
+
+    SetHandleState(AosHandle::STATE_CONNECTING);
+    EXPECT_FALSE(m_pAosHandle->IsImsConnected());
+
+    SetHandleState(AosHandle::STATE_CONNECTED);
+    EXPECT_TRUE(m_pAosHandle->IsImsConnected());
+
+    SetHandleState(AosHandle::STATE_DISCONNECTING);
+    EXPECT_FALSE(m_pAosHandle->IsImsConnected());
+}
+
+TEST_F(AosHandleTest, IsImsSuspended_)
+{
+    EXPECT_FALSE(m_pAosHandle->IsImsSuspended());
+
+    SetSuspendedReason(AoSReason::SUSPEND_NO_SERVICE);
+    EXPECT_TRUE(m_pAosHandle->IsImsSuspended());
+}
+
+TEST_F(AosHandleTest, SetMonitor_)
+{
+    MockIImsAosMonitor objMockIImsAosMonitor;
+    IImsAosMonitor* piMonitor = static_cast<IImsAosMonitor*>(&objMockIImsAosMonitor);
+    m_pAosHandle->SetMonitor(piMonitor);
+    EXPECT_EQ(GetMonitor(), piMonitor);
 }
