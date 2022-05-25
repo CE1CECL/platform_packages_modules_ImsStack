@@ -1,16 +1,17 @@
-#include "mtc/media/MtcMediaManager.h"
-#include "media/MediaManager.h"
-#include "utility/MessageUtil.h"
-#include "ISipHeader.h"
-#include "media/MtcMediaUtil.h"
-#include "media/IMtcMediaManager.h"
+#include "call/MtcSession.h"
 #include "configuration/ConfigDef.h"
-#include "SipStatusCode.h"
+#include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcSupplementaryService.h"
+#include "ISipHeader.h"
 #include "media/IMediaQosEventListener.h"
+#include "media/IMtcMediaManager.h"
+#include "media/MediaManager.h"
+#include "media/MtcMediaUtil.h"
+#include "mtc/media/MtcMediaManager.h"
 #include "precondition/IMtcPreconditionManager.h"
 #include "precondition/QosDef.h"
-#include "configuration/MtcConfigurationProxy.h"
+#include "SipStatusCode.h"
+#include "utility/MessageUtil.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
@@ -257,7 +258,10 @@ PUBLIC VIRTUAL void MtcMediaManager::CreateMediaProfile(
         IN ISession* piSession, IN IMS_BOOL bForked, IN IMS_BOOL bOrigin)
 {
     IMS_TRACE_D("CreateMediaProfile", 0, 0, 0);
-    m_objProfileManager.CreateMediaProfile(piSession, bForked, bOrigin, m_piMediaSession);
+    MEDIA_CONTENT_TYPE eMediaContents =
+            MtcMediaUtil::GetMediaContentsFromCallType(m_objContext.GetSession()->GetCallType());
+    m_objProfileManager.CreateMediaProfile(
+            piSession, bForked, bOrigin, eMediaContents, m_piMediaSession);
 }
 
 PUBLIC VIRTUAL void MtcMediaManager::DestroyMediaProfile(IN ISession* piSession)

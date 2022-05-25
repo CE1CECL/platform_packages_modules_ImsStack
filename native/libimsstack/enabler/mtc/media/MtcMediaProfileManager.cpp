@@ -27,7 +27,8 @@ PUBLIC VIRTUAL MtcMediaProfileManager::~MtcMediaProfileManager()
 
 PUBLIC
 void MtcMediaProfileManager::CreateMediaProfile(IN ISession* piSession, IN IMS_BOOL bForked,
-        IMS_BOOL bOriginalProfile, IN IMediaSession* piMediaSession)
+        IN IMS_BOOL bOriginalProfile, IN MEDIA_CONTENT_TYPE eMediaContents,
+        IN IMediaSession* piMediaSession)
 {
     IMS_TRACE_D("CreateMediaProfile", 0, 0, 0);
 
@@ -75,7 +76,7 @@ void MtcMediaProfileManager::CreateMediaProfile(IN ISession* piSession, IN IMS_B
     }
 
     MediaProfile* pProfile = new MediaProfile();
-    pProfile->nNegoId = piMediaSession->CreateProfile(nParamId);
+    pProfile->nNegoId = piMediaSession->CreateProfile(nParamId, eMediaContents);
     pProfile->bForked = bForked;
     pProfile->bOriginalProfile = bOriginalProfile;
 

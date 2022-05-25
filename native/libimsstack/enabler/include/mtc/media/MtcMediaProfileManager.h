@@ -58,7 +58,8 @@ public:
     virtual ~MtcMediaProfileManager();
 
 public:
-    void CreateMediaProfile(IN ISession* piSession, IN IMS_BOOL bForked, IMS_BOOL bOriginalProfile,
+    void CreateMediaProfile(IN ISession* piSession, IN IMS_BOOL bForked,
+            IN IMS_BOOL bOriginalProfile, IN MEDIA_CONTENT_TYPE eMediaContents,
             IN IMediaSession* piMediaSession);
     void DestroyMediaProfile(IN ISession* piSession, IN IMediaSession* piMediaSession);
     void DestroyAllMediaProfiles(IN IMediaSession* piMediaSession);
