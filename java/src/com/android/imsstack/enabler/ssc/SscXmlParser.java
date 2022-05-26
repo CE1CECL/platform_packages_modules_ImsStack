@@ -1024,7 +1024,7 @@ public class SscXmlParser {
 
     private String getTargetNumberInForwardTo(int slotId, Element forwardToElement) {
         NodeList targetNodes = forwardToElement.getElementsByTagName(
-                SscXmlFormat.getCpElement(slotId, SscXmlFormat.TARGET));
+                SscXmlFormat.getSsElement(slotId, SscXmlFormat.TARGET));
         if (targetNodes.getLength() > 0) {
             return getNumberInTargetTo(targetNodes.item(0).getTextContent().trim());
         }

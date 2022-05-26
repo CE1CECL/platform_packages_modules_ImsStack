@@ -354,11 +354,26 @@ public class SscXmlCreator {
             if (data.getState() == SscConstant.ACTION_REGISTRATION ||
                     data.getState() == SscConstant.ACTION_ERASURE) {
                 String targetTag = SscXmlFormat.getSsElement(slotId, SscXmlFormat.TARGET);
-                Element targetELement = getElementByTagName(cfRuleElement, targetTag);
-                if (targetELement != null) {
-                    targetELement.setTextContent(
-                            makeValueInTargetTo(slotId, cfData.getForwardToNumber()));
+                Element targetElement = getElementByTagName(cfRuleElement, targetTag);
+                if (targetElement == null) {
+                    targetElement = doc.createElement(targetTag);
+                    String forwrdToTag = SscXmlFormat.getSsElement(slotId, SscXmlFormat.FORWARD_TO);
+                    Element forwrdToElement = getElementByTagName(cfRuleElement, forwrdToTag);
+                    if (forwrdToElement == null) {
+                        forwrdToElement = doc.createElement(forwrdToTag);
+                        String actionsTag = SscXmlFormat.getCpElement(slotId, SscXmlFormat.ACTIONS);
+                        Element actionsElement = getElementByTagName(cfRuleElement, actionsTag);
+                        if (actionsElement == null) {
+                            actionsElement = doc.createElement(actionsTag);
+                            cfRuleElement.appendChild(actionsElement);
+                        }
+                        actionsElement.appendChild(forwrdToElement);
+
+                    }
+                    forwrdToElement.appendChild(targetElement);
                 }
+                targetElement.setTextContent(makeValueInTargetTo(slotId,
+                        cfData.getForwardToNumber()));
             }
 
             // Set Timer only when CFNR timer is in rule
