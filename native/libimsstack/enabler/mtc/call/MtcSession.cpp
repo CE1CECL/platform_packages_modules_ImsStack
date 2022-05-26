@@ -53,7 +53,7 @@ PUBLIC VIRTUAL MtcSession::~MtcSession()
 
 PUBLIC IMS_RESULT MtcSession::SendStart()
 {
-    if (m_objContext.GetMediaManager().FormSdp(&m_objSession, CallType::VOIP) == IMS_FAILURE)
+    if (m_objContext.GetMediaManager().FormSdp(&m_objSession, m_eCallType) == IMS_FAILURE)
     {
         return IMS_FAILURE;
     }
