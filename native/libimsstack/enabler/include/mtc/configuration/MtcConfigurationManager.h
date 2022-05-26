@@ -26,6 +26,7 @@ public:
 
     // ims public carrier-configs ==> can be obtained by engine config.
     IMS_SINT32 GetRequestUriType() const;          // KEY_REQUEST_URI_TYPE_INT // tel = 0, sip = 1
+    IMS_BOOL IsSupportGeolocationPidfInSipInvite(IN IMS_SINT32 nType) const;
     IMS_BOOL IsSupportSipSessionIdHeader() const;  // KEY_SUPPORT_SIP_SESSION_ID_HEADER_BOOL
 
     // voice configurations

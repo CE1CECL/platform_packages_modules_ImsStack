@@ -58,6 +58,20 @@ IMS_SINT32 MtcConfigurationManager::GetRequestUriType() const
 }
 
 PUBLIC
+IMS_BOOL MtcConfigurationManager::IsSupportGeolocationPidfInSipInvite(IN IMS_SINT32 nType) const
+{
+    for (IMS_UINT32 i = 0; i < m_objCarrierConfig.objSupportGeolocationPidfInSipInvite.GetSize();
+            i++)
+    {
+        if (m_objCarrierConfig.objSupportGeolocationPidfInSipInvite.GetAt(i) == nType)
+        {
+            return IMS_TRUE;
+        }
+    }
+    return IMS_FALSE;
+}
+
+PUBLIC
 IMS_BOOL MtcConfigurationManager::IsSupportSipSessionIdHeader() const
 {
     return m_objCarrierConfig.bSupportSipSessionIdHeader;
