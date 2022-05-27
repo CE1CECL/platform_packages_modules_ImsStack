@@ -219,7 +219,7 @@ public class SscUrl {
 
     private String getCfnrTimerUri(SscServiceData data) {
         String uri = getServiceUri(data);
-        uri += "/" + SscXmlFormat.getCpElement(data.getSlotId(), SscXmlFormat.NOREPLYTIMER);
+        uri += "/" + SscXmlFormat.getSsElement(data.getSlotId(), SscXmlFormat.NOREPLYTIMER);
 
         return uri;
     }
