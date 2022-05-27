@@ -25,12 +25,27 @@ PUBLIC
 void CallStateProxy::AddListener(IN IMtcCallStateListener* pListener)
 {
     IMS_TRACE_D("+AddListener", 0, 0, 0);
+
     if (pListener->IsSynchronousCallRequired())
     {
+        for (IMS_UINT32 i = 0; i < m_objSynchronousListeners.GetSize(); i++)
+        {
+            if (pListener == m_objSynchronousListeners.GetAt(i))
+            {
+                return;
+            }
+        }
         m_objSynchronousListeners.Append(pListener);
     }
     else
     {
+        for (IMS_UINT32 i = 0; i < m_objAsynchronousListeners.GetSize(); i++)
+        {
+            if (pListener == m_objAsynchronousListeners.GetAt(i))
+            {
+                return;
+            }
+        }
         m_objAsynchronousListeners.Append(pListener);
     }
 }
