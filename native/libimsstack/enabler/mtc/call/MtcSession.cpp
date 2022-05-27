@@ -160,12 +160,23 @@ void MtcSession::UpdateCallTypeFromMessage(IN const IMessage& objMessage)
 PRIVATE
 void MtcSession::UpdateCapabilityFromMessage(IN const IMessage& objMessage)
 {
-    m_bVideoCapable = IsRegisteredFeature(ImsAosFeature::MMTEL) &&
-            IsRegisteredFeature(ImsAosFeature::VIDEO) &&
-            MessageUtil::IsVideoFeatureIncluded(&objMessage);
-    m_bRttCapable = IsRegisteredFeature(ImsAosFeature::MMTEL) &&
-            IsRegisteredFeature(ImsAosFeature::TEXT) &&
-            MessageUtil::IsTextFeatureIncluded(&objMessage);
+    if (GetConfigurationProxy().Is(
+                Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_P_TTA_VOLTE_INFO))
+    {
+        AString strAvchange;
+        MessageUtil::GetHeader(
+                &objMessage, ISipHeader::UNKNOWN, strAvchange, MessageUtil::STR_P_TTA_VOLTE_INFO);
+        m_bVideoCapable = strAvchange.Equals(MessageUtil::STR_AVCHANGE);
+    }
+    else
+    {
+        m_bVideoCapable = IsRegisteredFeature(ImsAosFeature::MMTEL) &&
+                IsRegisteredFeature(ImsAosFeature::VIDEO) &&
+                MessageUtil::IsVideoFeatureIncluded(&objMessage);
+        m_bRttCapable = IsRegisteredFeature(ImsAosFeature::MMTEL) &&
+                IsRegisteredFeature(ImsAosFeature::TEXT) &&
+                MessageUtil::IsTextFeatureIncluded(&objMessage);
+    }
 
     IMS_TRACE_D("UpdateCapabilityFromMessage : Video[%s] Rtt[%s]", _TRACE_B_(m_bVideoCapable),
             _TRACE_B_(m_bRttCapable), 0);
