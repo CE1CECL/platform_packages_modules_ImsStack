@@ -199,7 +199,6 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormUpdateMessage(
     SetAlertInfoHeader(bIncludeAlertInfo);
     SetSupportedHeader();
     SetPreconditionHeader();
-    SetPEarlyMediaHeader();
 
     return IMS_SUCCESS;
 }
@@ -614,8 +613,6 @@ void MessageFormatter::SetPreconditionHeader()
 PRIVATE
 void MessageFormatter::SetPEarlyMediaHeader()
 {
-    // TODO : check condition
-
     MessageUtil::AddValueIfNotExists(
             m_piNextMessage, MessageUtil::STR_SUPPORTED, ISipHeader::P_EARLY_MEDIA);
 }
