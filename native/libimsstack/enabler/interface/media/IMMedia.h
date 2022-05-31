@@ -92,6 +92,7 @@ public:
     static const IMS_SINT32 MEDIA_MESSAGE_IDX_START = IMMEDIA + 0;
 
     // Requests
+    static const IMS_SINT32 MEDIA_MESSAGE_AUDIO_COMMON_IDX_START = IMMEDIA + 0;
     static const IMS_SINT32 REQUEST_OPEN_SESSION = IMMEDIA + 1;
     static const IMS_SINT32 REQUEST_CLOSE_SESSION = IMMEDIA + 2;
     static const IMS_SINT32 REQUEST_MODIFY_SESSION = IMMEDIA + 3;
@@ -101,17 +102,25 @@ public:
     static const IMS_SINT32 REQUEST_SEND_DTMF = IMMEDIA + 7;
     static const IMS_SINT32 REQUEST_SET_MEDIA_QUALITY = IMMEDIA + 8;
     static const IMS_SINT32 REQUEST_HEADER_EXTENSION = IMMEDIA + 9;
+    static const IMS_SINT32 MEDIA_MESSAGE_AUDIO_COMMON_IDX_END = IMMEDIA + 49;
 
     // Requests for video
     static const IMS_SINT32 MEDIA_MESSAGE_VIDEO_IDX_START = IMMEDIA + 50;
     static const IMS_SINT32 REQUEST_SET_PREVIEW_SURFACE = MEDIA_MESSAGE_VIDEO_IDX_START + 1;
     static const IMS_SINT32 REQUEST_SET_DISPLAY_SURFACE = MEDIA_MESSAGE_VIDEO_IDX_START + 2;
     static const IMS_SINT32 REQUEST_VIDEO_DATA_USAGE = MEDIA_MESSAGE_VIDEO_IDX_START + 3;
+    static const IMS_SINT32 MEDIA_MESSAGE_VIDEO_IDX_END = IMMEDIA + 79;
 
-    static const IMS_SINT32 MEDIA_MESSAGE_IDX_END = IMMEDIA + 99;
+    // Requests for text
+    static const IMS_SINT32 MEDIA_MESSAGE_TEXT_IDX_START = IMMEDIA + 80;
+    static const IMS_SINT32 MEDIA_MESSAGE_TEXT_IDX_END = IMMEDIA + 99;
 
+    static const IMS_SINT32 MEDIA_MESSAGE_IDX_END = MEDIA_MESSAGE_TEXT_IDX_END;
+
+    // Response & Notification
     static const IMS_SINT32 MEDIA_MESSAGE_IND_IDX_START = IMMEDIA_IND + 0;
 
+    static const IMS_SINT32 MEDIA_MESSAGE_AUDIO_COMMON_IND_IDX_START = IMMEDIA_IND + 0;
     static const IMS_SINT32 RESPONSE_OPEN_SESSION = IMMEDIA_IND + 1;
     static const IMS_SINT32 RESPONSE_SESSION_CHANGED = IMMEDIA_IND + 2;
     static const IMS_SINT32 RESPONSE_MODIFY_SESSION = IMMEDIA_IND + 3;
@@ -125,6 +134,7 @@ public:
     static const IMS_SINT32 NOTIFY_MEDIA_QUALITY_CHANGE = IMMEDIA_IND + 11;
 
     static const IMS_SINT32 NOTIFY_QOS_INFO = IMMEDIA_IND + 20;
+    static const IMS_SINT32 MEDIA_MESSAGE_AUDIO_COMMON_IND_IDX_END = IMMEDIA_IND + 49;
 
     // Notifications for video
     static const IMS_SINT32 MEDIA_MESSAGE_VIDEO_IND_IDX_START = IMMEDIA_IND + 50;
@@ -133,15 +143,20 @@ public:
     static const IMS_SINT32 CHANGE_CAMERA_ZOOM_CMD = MEDIA_MESSAGE_VIDEO_IND_IDX_START + 3;
     static const IMS_SINT32 SET_PAUSE_IMAGE_CMD = MEDIA_MESSAGE_VIDEO_IND_IDX_START + 4;
     static const IMS_SINT32 CHANGE_ORIENTATION_CMD = MEDIA_MESSAGE_VIDEO_IND_IDX_START + 5;
+    static const IMS_SINT32 MEDIA_MESSAGE_VIDEO_IND_IDX_END = IMMEDIA_IND + 79;
 
-    static const IMS_SINT32 MEDIA_MESSAGE_IND_IDX_END = IMMEDIA_IND + 99;
+    static const IMS_SINT32 MEDIA_MESSAGE_TEXT_IND_IDX_START = IMMEDIA_IND + 80;
+    static const IMS_SINT32 MEDIA_MESSAGE_TEXT_IND_IDX_END = IMMEDIA_IND + 99;
+
+    static const IMS_SINT32 MEDIA_MESSAGE_IND_IDX_END = MEDIA_MESSAGE_TEXT_IND_IDX_END;
 
 public:
     static MessageType CategorizeMessageType(IN IMS_SINT32 nMsg)
     {
         MessageType nMsgType = MSG_NONE;
 
-        if (nMsg >= REQUEST_OPEN_SESSION && nMsg <= REQUEST_HEADER_EXTENSION)
+        if (nMsg > MEDIA_MESSAGE_AUDIO_COMMON_IDX_START &&
+                nMsg < MEDIA_MESSAGE_AUDIO_COMMON_IDX_END)
         {
             nMsgType = MSG_REQUEST;
 
@@ -151,7 +166,8 @@ public:
                 nMsgType = MSG_REQUEST_SET_WAIT;
             }
         }
-        else if (nMsg >= RESPONSE_OPEN_SESSION && nMsg <= NOTIFY_FIRST_PACKET)
+        else if (nMsg > MEDIA_MESSAGE_AUDIO_COMMON_IND_IDX_START &&
+                nMsg < MEDIA_MESSAGE_AUDIO_COMMON_IND_IDX_END)
         {
             nMsgType = MSG_RESPONSE;
 
@@ -161,15 +177,11 @@ public:
                 nMsgType = MSG_RESPONSE_RELEASE_WAIT;
             }
         }
-        else if (nMsg >= NOTIFY_HEADER_EXTENSION && nMsg <= NOTIFY_QOS_INFO)
-        {
-            nMsgType = MSG_NOTIFICATION;
-        }
-        else if (nMsg >= REQUEST_SET_PREVIEW_SURFACE && nMsg <= REQUEST_VIDEO_DATA_USAGE)
+        else if (nMsg > MEDIA_MESSAGE_VIDEO_IDX_START && nMsg < MEDIA_MESSAGE_VIDEO_IDX_END)
         {
             nMsgType = MSG_VIDEO_REQUEST;
         }
-        else if (nMsg >= SETSURFACE_CMD && nMsg <= CHANGE_ORIENTATION_CMD)
+        else if (nMsg > MEDIA_MESSAGE_VIDEO_IND_IDX_START && nMsg < MEDIA_MESSAGE_VIDEO_IND_IDX_END)
         {
             nMsgType = MSG_VIDEO_NOTIFICATION;
         }
