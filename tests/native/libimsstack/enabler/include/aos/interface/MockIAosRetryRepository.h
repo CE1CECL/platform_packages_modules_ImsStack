@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_I_AOS_CONNECTION_LISTENER_H_
-#define MOCK_I_AOS_CONNECTION_LISTENER_H_
+#ifndef MOCK_I_AOS_RETRY_REPOSITORY_H_
+#define MOCK_I_AOS_RETRY_REPOSITORY_H_
 
 #include <gmock/gmock.h>
 
-#include "IMSTypeDef.h"
+#include "interface/IAosRetryRepository.h"
 
-#include "interface/IAosConnectionListener.h"
-
-class MockIAosConnectionListener : public IAosConnectionListener
+class MockIAosRetryRepository : public IAosRetryRepository
 {
 public:
-    MOCK_METHOD(void, AosConnection_StateChanged, (IN IMS_UINT32 nState), (override));
-    MOCK_METHOD(void, AosConnection_IpChanged, (), (override));
-    MOCK_METHOD(void, AosConnection_IpcanCatChanged, (), (override));
-    MOCK_METHOD(void, AosConnection_PcscfChanged, (), (override));
-    MOCK_METHOD(void, AosConnection_ConnectionFailed, (), (override));
+    MOCK_METHOD(IMS_BOOL, IncreaseRetryCount, (IN IMS_UINT32 nType), (override));
+    MOCK_METHOD(void, ResetRetryCount, (IN IMS_UINT32 nType), (override));
 };
 
-#endif  // MOCK_I_AOS_CONNECTION_LISTENER_H_
+#endif  // MOCK_I_AOS_RETRY_REPOSITORY_H_

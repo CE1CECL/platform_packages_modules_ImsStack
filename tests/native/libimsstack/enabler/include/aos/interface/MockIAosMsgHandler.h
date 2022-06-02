@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_I_AOS_SUBSCRIBER_LISTENER_H_
-#define MOCK_I_AOS_SUBSCRIBER_LISTENER_H_
+#ifndef MOCK_I_AOS_MSG_HANDLER_H_
+#define MOCK_I_AOS_MSG_HANDLER_H_
 
 #include <gmock/gmock.h>
+#include "interface/IAosMsgHandler.h"
 
-#include "IMSTypeDef.h"
-#include "interface/IAosSubscriberListener.h"
-
-class MockIAosSubscriberListener : public IAosSubscriberListener {
+class MockIAosMsgHandler : public IAosMsgHandler
+{
 public:
-    MOCK_METHOD(void, Subscriber_StateChanged, (IN IMS_UINT32 nState, IN IMS_UINT32 nParam),
+    MOCK_METHOD(IMS_BOOL, SendEmptyMessageDelayed,
+            (IN CONST IAosMsgHandlerListener * piListener, IN IMS_SINT32 nMessage,
+                    IN IMS_SINT32 nDuration),
             (override));
+    MOCK_METHOD(void, RemoveMessages,
+            (IN CONST IAosMsgHandlerListener * piListener, IN IMS_SINT32 nMessage), (override));
+    MOCK_METHOD(IMS_BOOL, HasMessages,
+            (IN CONST IAosMsgHandlerListener * piListener, IN IMS_SINT32 nMessage), (override));
 };
 
-#endif // MOCK_I_AOS_SUBSCRIBER_LISTENER_H_
+#endif  // MOCK_I_AOS_MSG_HANDLER_H_
