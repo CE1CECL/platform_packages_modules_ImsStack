@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_SIP_STREAM_SOCKET_LISTENER_H_
 #define _INTERFACE_SIP_STREAM_SOCKET_LISTENER_H_
 
-class SIPSocket;
+class SipSocket;
 
 /*
 SIP stream socket listener interface
@@ -21,9 +21,9 @@ SIP stream socket listener interface
 Example
 
 See Also
-SIPSocket, ByteArray
+SipSocket, ByteArray
 */
-class ISIPStreamSocketListener
+class ISipStreamSocketListener
 {
 public:
     /*
@@ -42,7 +42,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void StreamSocket_ConnectionReceived(IN SIPSocket* pSocket) = 0;
+    virtual void StreamSocket_ConnectionReceived(IN SipSocket* pSocket) = 0;
 
     /*
 
@@ -60,7 +60,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void StreamSocket_DataReceived(IN SIPSocket* pSocket, IN_OUT ByteArray& objBuffer) = 0;
+    virtual void StreamSocket_DataReceived(IN SipSocket* pSocket, IN_OUT ByteArray& objBuffer) = 0;
 
     /*
 
@@ -78,7 +78,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void StreamSocket_KeepAliveExpired(IN SIPSocket* pSocket) = 0;
+    virtual void StreamSocket_KeepAliveExpired(IN SipSocket* pSocket) = 0;
 
     /*
 
@@ -96,7 +96,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void StreamSocket_PassiveClosed(IN SIPSocket* pSocket) = 0;
+    virtual void StreamSocket_PassiveClosed(IN SipSocket* pSocket) = 0;
 };
 
 #endif  // _INTERFACE_SIP_STREAM_SOCKET_LISTENER_H_

@@ -18,7 +18,7 @@
 Remarks
 
 */
-PUBLIC GLOBAL void SIPWakeLock::Acquire(
+PUBLIC GLOBAL void SipWakeLock::Acquire(
         IN CONST SipMethod& objMethod, IN IMS_UINT32 /* nTimeout = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ PUBLIC GLOBAL void SIPWakeLock::Acquire(
 Remarks
 
 */
-PUBLIC GLOBAL IMS_BOOL SIPWakeLock::IsSupported()
+PUBLIC GLOBAL IMS_BOOL SipWakeLock::IsSupported()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ PUBLIC GLOBAL IMS_BOOL SIPWakeLock::IsSupported()
 Remarks
 
 */
-PUBLIC GLOBAL void SIPWakeLock::Release()
+PUBLIC GLOBAL void SipWakeLock::Release()
 {
     //---------------------------------------------------------------------------------------------
 }

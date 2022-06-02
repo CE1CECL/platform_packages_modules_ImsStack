@@ -16,30 +16,30 @@
 #include "SipStackHeaders.h"
 #include "RCObject.h"
 
-class SIPClientTransactionState;
+class SipClientTransactionState;
 
-class SIPForkedTransactionManager : public RCObject
+class SipForkedTransactionManager : public RCObject
 {
 public:
-    SIPForkedTransactionManager();
-    SIPForkedTransactionManager(IN const SIPForkedTransactionManager& objRHS);
-    virtual ~SIPForkedTransactionManager();
+    SipForkedTransactionManager();
+    SipForkedTransactionManager(IN const SipForkedTransactionManager& objRHS);
+    virtual ~SipForkedTransactionManager();
 
 private:
-    SIPForkedTransactionManager& operator=(IN CONST SIPForkedTransactionManager& objRHS);
+    SipForkedTransactionManager& operator=(IN CONST SipForkedTransactionManager& objRHS);
 
 public:
-    IMS_BOOL Add(IN SIPClientTransactionState* pCTState);
+    IMS_BOOL Add(IN SipClientTransactionState* pCTState);
     IMS_BOOL IsEmpty() const;
     IMS_BOOL IsTransactionCompleted() const;
-    SIPClientTransactionState* Lookup(IN SipMessage* pstMessage) const;
-    void Remove(IN SIPClientTransactionState* pCTState);
+    SipClientTransactionState* Lookup(IN ::SipMessage* pstMessage) const;
+    void Remove(IN SipClientTransactionState* pCTState);
     void SetTransactionCompleted(IN IMS_SINT32 nStatusCode);
 
 private:
     // FIX_NO_ACK_RETRANSMISSION :: this will be used for 2xx response received case only
     IMS_SINT32 nStatusCode;
-    IMSList<RCPtr<SIPClientTransactionState>> objTxnStates;
+    IMSList<RCPtr<SipClientTransactionState>> objTxnStates;
 };
 
 #endif  // _SIP_FORKED_TRANSACTION_MANAGER_H_

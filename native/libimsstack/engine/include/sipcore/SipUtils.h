@@ -15,7 +15,7 @@
 
 #include "AString.h"
 
-class SIPUtil
+class SipUtils
 {
 public:
     static AString GenerateBoundary();

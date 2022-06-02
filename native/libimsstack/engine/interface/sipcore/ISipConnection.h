@@ -244,7 +244,7 @@ public:
     /**
      * @brief Gets the current SIP message instance of SIP transaction.
      *
-     * @return Pointer to SIPMessage object.
+     * @return Pointer to ISipMessage object.
      */
     virtual ISipMessage* GetMessage() const = 0;
 

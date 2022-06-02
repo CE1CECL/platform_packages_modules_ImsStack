@@ -25,7 +25,7 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPConnection::SIPConnection() :
+SipConnection::SipConnection() :
         Connection(),
         piErrorListener(IMS_NULL),
         pDialog(IMS_NULL),
@@ -34,7 +34,7 @@ SIPConnection::SIPConnection() :
 {
 }
 
-PUBLIC VIRTUAL SIPConnection::~SIPConnection()
+PUBLIC VIRTUAL SipConnection::~SipConnection()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ PUBLIC VIRTUAL SIPConnection::~SIPConnection()
 Remarks
 
 */
-PUBLIC VIRTUAL void SIPConnection::Close()
+PUBLIC VIRTUAL void SipConnection::Close()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ PUBLIC VIRTUAL void SIPConnection::Close()
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_RESULT SIPConnection::AddHeader(
+PUBLIC VIRTUAL IMS_RESULT SipConnection::AddHeader(
         IN CONST AString& strName, IN CONST AString& strValue)
 {
     AString strHValue;
@@ -74,16 +74,16 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::AddHeader(
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
-    IMS_SINT32 nHType = SIPStack::GetHeaderTypeFromName(strName);
+    IMS_SINT32 nHType = SipStack::GetHeaderTypeFromName(strName);
 
-    if (SIPConnection::IsReadOnlyHeader(nHType, strName) ||
-            SIPConnection::IsInaccessibleHeader(nHType, strName))
+    if (SipConnection::IsReadOnlyHeader(nHType, strName) ||
+            SipConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -104,7 +104,7 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::AddHeader(
          */
         AStringArray objTokens;
 
-        if (SIPConnection::IsCommaSeparatedListHeader(nHType, strName))
+        if (SipConnection::IsCommaSeparatedListHeader(nHType, strName))
         {
             objTokens = strHValue.Split(TextParser::CHAR_COMMA);
         }
@@ -129,7 +129,7 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::AddHeader(
 Remarks
 
 */
-PUBLIC VIRTUAL SIPDialog* SIPConnection::GetDialog() const
+PUBLIC VIRTUAL SipDialog* SipConnection::GetDialog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -157,22 +157,22 @@ PUBLIC VIRTUAL SIPDialog* SIPConnection::GetDialog() const
 Remarks
 
 */
-PUBLIC VIRTUAL AString SIPConnection::GetHeader(
+PUBLIC VIRTUAL AString SipConnection::GetHeader(
         IN CONST AString& strName, IN IMS_SINT32 nIndex /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return AString::ConstNull();
     }
 
-    IMS_SINT32 nHType = SIPStack::GetHeaderTypeFromName(strName);
+    IMS_SINT32 nHType = SipStack::GetHeaderTypeFromName(strName);
 
-    if (SIPConnection::IsInaccessibleHeader(nHType, strName))
+    if (SipConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return AString::ConstNull();
     }
 
@@ -184,21 +184,21 @@ PUBLIC VIRTUAL AString SIPConnection::GetHeader(
 Remarks
 
 */
-PUBLIC VIRTUAL IMSList<AString> SIPConnection::GetHeaders(IN CONST AString& strName)
+PUBLIC VIRTUAL IMSList<AString> SipConnection::GetHeaders(IN CONST AString& strName)
 {
     //---------------------------------------------------------------------------------------------
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMSList<AString>();
     }
 
-    IMS_SINT32 nHType = SIPStack::GetHeaderTypeFromName(strName);
+    IMS_SINT32 nHType = SipStack::GetHeaderTypeFromName(strName);
 
-    if (SIPConnection::IsInaccessibleHeader(nHType, strName))
+    if (SipConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMSList<AString>();
     }
 
@@ -210,7 +210,7 @@ PUBLIC VIRTUAL IMSList<AString> SIPConnection::GetHeaders(IN CONST AString& strN
 Remarks
 
 */
-PUBLIC VIRTUAL const SipMethod& SIPConnection::GetMethod() const
+PUBLIC VIRTUAL const SipMethod& SipConnection::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -222,7 +222,7 @@ PUBLIC VIRTUAL const SipMethod& SIPConnection::GetMethod() const
 Remarks
 
 */
-PUBLIC VIRTUAL const AString& SIPConnection::GetReasonPhrase() const
+PUBLIC VIRTUAL const AString& SipConnection::GetReasonPhrase() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ PUBLIC VIRTUAL const AString& SIPConnection::GetReasonPhrase() const
 Remarks
 
 */
-PUBLIC VIRTUAL const AString& SIPConnection::GetRequestURI() const
+PUBLIC VIRTUAL const AString& SipConnection::GetRequestUri() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -246,7 +246,7 @@ PUBLIC VIRTUAL const AString& SIPConnection::GetRequestURI() const
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_SINT32 SIPConnection::GetStatusCode() const
+PUBLIC VIRTUAL IMS_SINT32 SipConnection::GetStatusCode() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -258,22 +258,22 @@ PUBLIC VIRTUAL IMS_SINT32 SIPConnection::GetStatusCode() const
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_RESULT SIPConnection::RemoveHeader(IN CONST AString& strName)
+PUBLIC VIRTUAL IMS_RESULT SipConnection::RemoveHeader(IN CONST AString& strName)
 {
     //---------------------------------------------------------------------------------------------
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
-    IMS_SINT32 nHType = SIPStack::GetHeaderTypeFromName(strName);
+    IMS_SINT32 nHType = SipStack::GetHeaderTypeFromName(strName);
 
-    if (SIPConnection::IsReadOnlyHeader(nHType, strName) ||
-            SIPConnection::IsInaccessibleHeader(nHType, strName))
+    if (SipConnection::IsReadOnlyHeader(nHType, strName) ||
+            SipConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -287,7 +287,7 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::RemoveHeader(IN CONST AString& strName)
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_RESULT SIPConnection::Send()
+PUBLIC VIRTUAL IMS_RESULT SipConnection::Send()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -299,7 +299,7 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::Send()
 Remarks
 
 */
-PUBLIC VIRTUAL void SIPConnection::SetErrorListener(IN IOnSIPErrorListener* piListener)
+PUBLIC VIRTUAL void SipConnection::SetErrorListener(IN IOnSipErrorListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -311,7 +311,7 @@ PUBLIC VIRTUAL void SIPConnection::SetErrorListener(IN IOnSIPErrorListener* piLi
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetHeader(
+PUBLIC VIRTUAL IMS_RESULT SipConnection::SetHeader(
         IN CONST AString& strName, IN CONST AString& strValue)
 {
     AString strHValue;
@@ -320,16 +320,16 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetHeader(
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
-    IMS_SINT32 nHType = SIPStack::GetHeaderTypeFromName(strName);
+    IMS_SINT32 nHType = SipStack::GetHeaderTypeFromName(strName);
 
-    if (SIPConnection::IsReadOnlyHeader(nHType, strName) ||
-            SIPConnection::IsInaccessibleHeader(nHType, strName))
+    if (SipConnection::IsReadOnlyHeader(nHType, strName) ||
+            SipConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_FAILURE;
     }
 
@@ -350,7 +350,7 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetHeader(
          */
         AStringArray objTokens;
 
-        if (SIPConnection::IsCommaSeparatedListHeader(nHType, strName))
+        if (SipConnection::IsCommaSeparatedListHeader(nHType, strName))
         {
             objTokens = strHValue.Split(TextParser::CHAR_COMMA);
         }
@@ -383,9 +383,9 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetHeader(
 Remarks
 
 */
-PUBLIC VIRTUAL const ByteArray& SIPConnection::GetContent() const
+PUBLIC VIRTUAL const ByteArray& SipConnection::GetContent() const
 {
-    SIPMessageBodyPart* pBodyPart = pMessage->GetBodyPart();
+    SipMessageBodyPart* pBodyPart = pMessage->GetBodyPart();
 
     //---------------------------------------------------------------------------------------------
 
@@ -400,9 +400,9 @@ PUBLIC VIRTUAL const ByteArray& SIPConnection::GetContent() const
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetContent(IN CONST ByteArray& objContent)
+PUBLIC VIRTUAL IMS_RESULT SipConnection::SetContent(IN CONST ByteArray& objContent)
 {
-    SIPMessageBodyPart* pBodyPart = pMessage->GetBodyPart();
+    SipMessageBodyPart* pBodyPart = pMessage->GetBodyPart();
 
     //---------------------------------------------------------------------------------------------
 
@@ -410,11 +410,11 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetContent(IN CONST ByteArray& objConte
 
     if (pBodyPart == IMS_NULL)
     {
-        pBodyPart = DYNAMIC_CAST(SIPMessageBodyPart*, pMessage->CreateBodyPart());
+        pBodyPart = DYNAMIC_CAST(SipMessageBodyPart*, pMessage->CreateBodyPart());
 
         if (pBodyPart == IMS_NULL)
         {
-            SIPPrivate::SetLastError(SipError::NO_MEMORY);
+            SipPrivate::SetLastError(SipError::NO_MEMORY);
             return IMS_FAILURE;
         }
     }
@@ -429,21 +429,21 @@ PUBLIC VIRTUAL IMS_RESULT SIPConnection::SetContent(IN CONST ByteArray& objConte
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_SINT32 SIPConnection::GetHeaderCount(IN CONST AString& strName) const
+PUBLIC VIRTUAL IMS_SINT32 SipConnection::GetHeaderCount(IN CONST AString& strName) const
 {
     //---------------------------------------------------------------------------------------------
 
     if (strName.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return 0;
     }
 
-    IMS_SINT32 nHType = SIPStack::GetHeaderTypeFromName(strName);
+    IMS_SINT32 nHType = SipStack::GetHeaderTypeFromName(strName);
 
-    if (SIPConnection::IsInaccessibleHeader(nHType, strName))
+    if (SipConnection::IsInaccessibleHeader(nHType, strName))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return 0;
     }
 
@@ -455,7 +455,7 @@ PUBLIC VIRTUAL IMS_SINT32 SIPConnection::GetHeaderCount(IN CONST AString& strNam
 Remarks
  MULTI_REG_SIP_PROFILE
 */
-PUBLIC VIRTUAL void SIPConnection::SetSIPProfile(IN SipProfile* /*pProfile*/)
+PUBLIC VIRTUAL void SipConnection::SetSipProfile(IN SipProfile* /*pProfile*/)
 {
     // no-op
 }
@@ -466,7 +466,7 @@ Remarks
 
 */
 PUBLIC
-void SIPConnection::SetTransactionTimerValues(IN CONST SipTimerValues& objTV)
+void SipConnection::SetTransactionTimerValues(IN CONST SipTimerValues& objTV)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -488,17 +488,17 @@ void SIPConnection::SetTransactionTimerValues(IN CONST SipTimerValues& objTV)
 Remarks
 
 */
-PROTECTED VIRTUAL void SIPConnection::TransactionState_TimerExpired()
+PROTECTED VIRTUAL void SipConnection::TransactionState_TimerExpired()
 {
     //---------------------------------------------------------------------------------------------
 
     // SIP_MESSAGE_TRACKER
-    SIPFactoryProxy* pFactoryProxy = SIPFactoryProxy::GetInstance();
+    SipFactoryProxy* pFactoryProxy = SipFactoryProxy::GetInstance();
 
     if (pFactoryProxy->IsMessageTrackerEnabled(GetSlotId()))
     {
-        SIPMessageTracker* pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
-        const SipMethod& objMethod = SIPConnection::GetMethod();
+        SipMessageTracker* pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
+        const SipMethod& objMethod = SipConnection::GetMethod();
 
         if (pDialog != IMS_NULL)
         {
@@ -517,9 +517,9 @@ PROTECTED VIRTUAL void SIPConnection::TransactionState_TimerExpired()
     }
 
     // SIP_IPSEC_STATE
-    if (pFactoryProxy->IsIPSecStateEnabled(GetSlotId()) && (pMessage != IMS_NULL))
+    if (pFactoryProxy->IsIpSecStateEnabled(GetSlotId()) && (pMessage != IMS_NULL))
     {
-        SIPIPSecState* pIPSecState = pFactoryProxy->GetIPSecState(GetSlotId());
+        SipIpSecState* pIPSecState = pFactoryProxy->GetIpSecState(GetSlotId());
         pIPSecState->NotifyMessageSentFailed(pMessage->GetMessage());
     }
 
@@ -531,7 +531,7 @@ PROTECTED VIRTUAL void SIPConnection::TransactionState_TimerExpired()
 Remarks
 
 */
-PROTECTED VIRTUAL void SIPConnection::TransportError_NotifyError(
+PROTECTED VIRTUAL void SipConnection::TransportError_NotifyError(
         IN IMS_SINT32 nCode, IN CONST AString& strMessage)
 {
     //---------------------------------------------------------------------------------------------
@@ -545,22 +545,22 @@ PROTECTED VIRTUAL void SIPConnection::TransportError_NotifyError(
     }
 
     // SIP_MESSAGE_TRACKER
-    SIPFactoryProxy* pFactoryProxy = SIPFactoryProxy::GetInstance();
+    SipFactoryProxy* pFactoryProxy = SipFactoryProxy::GetInstance();
 
     if (pFactoryProxy->IsMessageTrackerEnabled(GetSlotId()))
     {
-        SIPMessageTracker* pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
+        SipMessageTracker* pMessageTracker = pFactoryProxy->GetMessageTracker(GetSlotId());
 
         if (pDialog != IMS_NULL)
         {
             pMessageTracker->NotifyMessageSent(
-                    SIPConnection::GetMethod(), GetStatusCode(), pDialog->GetCallId(), nCode);
+                    SipConnection::GetMethod(), GetStatusCode(), pDialog->GetCallId(), nCode);
         }
         else
         {
             ISipMessage* piSIPMsg = GetMessage();
 
-            pMessageTracker->NotifyMessageSent(SIPConnection::GetMethod(), GetStatusCode(),
+            pMessageTracker->NotifyMessageSent(SipConnection::GetMethod(), GetStatusCode(),
                     (piSIPMsg != IMS_NULL) ? piSIPMsg->GetHeader(ISipHeader::CALL_ID)
                                            : AString::ConstNull(),
                     nCode);
@@ -568,9 +568,9 @@ PROTECTED VIRTUAL void SIPConnection::TransportError_NotifyError(
     }
 
     // SIP_IPSEC_STATE
-    if (pFactoryProxy->IsIPSecStateEnabled(GetSlotId()) && (pMessage != IMS_NULL))
+    if (pFactoryProxy->IsIpSecStateEnabled(GetSlotId()) && (pMessage != IMS_NULL))
     {
-        SIPIPSecState* pIPSecState = pFactoryProxy->GetIPSecState(GetSlotId());
+        SipIpSecState* pIPSecState = pFactoryProxy->GetIpSecState(GetSlotId());
         pIPSecState->NotifyMessageSentFailed(pMessage->GetMessage());
     }
 
@@ -585,7 +585,7 @@ PROTECTED VIRTUAL void SIPConnection::TransportError_NotifyError(
 Remarks
  SIP_TRANSPORT_ERROR_REPORT_ON_TXN
 */
-PROTECTED VIRTUAL IMS_BOOL SIPConnection::IsTransportErrorReportRequired(
+PROTECTED VIRTUAL IMS_BOOL SipConnection::IsTransportErrorReportRequired(
         IN IMS_SINT32 nCode, IN CONST AString& strMessage) const
 {
     //---------------------------------------------------------------------------------------------
@@ -613,7 +613,7 @@ Remarks
 
 */
 PROTECTED
-SipTimerValues* SIPConnection::GetTransactionTimerValues() const
+SipTimerValues* SipConnection::GetTransactionTimerValues() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -627,8 +627,8 @@ Remarks
 
 */
 PROTECTED
-void SIPConnection::InitMessage(IN SIPMessage* pMessage_ /* = IMS_NULL */,
-        IN IMS_SINT32 nType_ /* = SIPMessage::TYPE_REQUEST */)
+void SipConnection::InitMessage(IN sipcore::SipMessage* pMessage_ /* = IMS_NULL */,
+        IN IMS_SINT32 nType_ /* = sipcore::SipMessage::TYPE_REQUEST */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -641,7 +641,7 @@ void SIPConnection::InitMessage(IN SIPMessage* pMessage_ /* = IMS_NULL */,
     if (pMessage_ != IMS_NULL)
         pMessage = pMessage_;
     else
-        pMessage = new SIPMessage(nType_);
+        pMessage = new sipcore::SipMessage(nType_);
 }
 
 /*
@@ -650,7 +650,7 @@ Remarks
 
 */
 PROTECTED
-void SIPConnection::NotifyError(IN IMS_SINT32 nCode, IN CONST AString& strMessage)
+void SipConnection::NotifyError(IN IMS_SINT32 nCode, IN CONST AString& strMessage)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -666,7 +666,7 @@ Remarks
 
 */
 PRIVATE
-IMS_BOOL SIPConnection::IsCommaSeparatedListHeader(IN IMS_SINT32 nHType, IN CONST AString& strHName)
+IMS_BOOL SipConnection::IsCommaSeparatedListHeader(IN IMS_SINT32 nHType, IN CONST AString& strHName)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -693,7 +693,7 @@ Remarks
 
 */
 PRIVATE
-IMS_BOOL SIPConnection::IsInaccessibleHeader(IN IMS_SINT32 nHType, IN CONST AString& strHName)
+IMS_BOOL SipConnection::IsInaccessibleHeader(IN IMS_SINT32 nHType, IN CONST AString& strHName)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -733,7 +733,7 @@ Remarks
 
 */
 PRIVATE
-IMS_BOOL SIPConnection::IsReadOnlyHeader(IN IMS_SINT32 nHType, IN CONST AString& /* strHName */)
+IMS_BOOL SipConnection::IsReadOnlyHeader(IN IMS_SINT32 nHType, IN CONST AString& /* strHName */)
 {
     //---------------------------------------------------------------------------------------------
 

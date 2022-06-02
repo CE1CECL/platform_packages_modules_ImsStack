@@ -15,11 +15,11 @@
 
 #include "SipStackHeaders.h"
 
-class SIPMessageInfo
+class SipMessageInfo
 {
 public:
-    inline SIPMessageInfo(IN IMS_SINT32 nSlotId_, IN CONST SipMethod& objMethod_,
-            IN SipMessage* pstMessage_, IN IMS_SINT32 nDirection_) :
+    inline SipMessageInfo(IN IMS_SINT32 nSlotId_, IN CONST SipMethod& objMethod_,
+            IN ::SipMessage* pstMessage_, IN IMS_SINT32 nDirection_) :
             nSlotId(nSlotId_),
             objMethod(objMethod_),
             nDirection(nDirection_),
@@ -27,12 +27,12 @@ public:
     {
     }
 
-    inline ~SIPMessageInfo() {}
+    inline ~SipMessageInfo() {}
 
 public:
     inline IMS_SINT32 GetDirection() const { return nDirection; }
 
-    inline SipMessage* GetMessage() const { return pstMessage; }
+    inline ::SipMessage* GetMessage() const { return pstMessage; }
 
     inline const SipMethod& GetMethod() const { return objMethod; }
 
@@ -53,7 +53,7 @@ private:
     const SipMethod& objMethod;
     IMS_SINT32 nDirection;
 
-    SipMessage* pstMessage;
+    ::SipMessage* pstMessage;
 };
 
 #endif  // _SIP_MESSAGE_INFO_H_

@@ -15,15 +15,15 @@
 
 #include "ISipMessageTracker.h"
 
-class SIPMessageTracker : public ISipMessageTracker
+class SipMessageTracker : public ISipMessageTracker
 {
 public:
-    SIPMessageTracker();
-    virtual ~SIPMessageTracker();
+    SipMessageTracker();
+    virtual ~SipMessageTracker();
 
 private:
-    SIPMessageTracker(IN CONST SIPMessageTracker& objRHS);
-    SIPMessageTracker& operator=(IN CONST SIPMessageTracker& objRHS);
+    SipMessageTracker(IN CONST SipMessageTracker& objRHS);
+    SipMessageTracker& operator=(IN CONST SipMessageTracker& objRHS);
 
 public:
     IMS_BOOL IsMessageTrackerEnabled() const;

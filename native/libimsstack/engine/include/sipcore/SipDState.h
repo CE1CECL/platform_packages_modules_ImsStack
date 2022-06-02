@@ -21,7 +21,7 @@ Example
 
 See Also
 */
-class SIPDState
+class SipDState
 {
 public:
     /*

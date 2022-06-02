@@ -530,7 +530,7 @@ PRIVATE VIRTUAL void Registration::ClientConnection_NotifyResponse(
             piOngoingSCC = IMS_NULL;
         }
 
-        // 3 Do not close SIPConnection in here
+        // 3 Do not close SipConnection in here
         return;
     }
 
@@ -1997,7 +1997,7 @@ PRIVATE VIRTUAL void Registration::Refreshable_RefreshCompleted(
                 pRefreshHelper->AbortConnection();
             }
 
-            // 3 Do not close SIPConnection in here
+            // 3 Do not close SipConnection in here
             return;
         }
 

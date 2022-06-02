@@ -23,7 +23,7 @@ PUBLIC GLOBAL void EngineLoader::Initialize(IN IMS_SINT32 nSlotId)
     SubscriberTracker::GetInstance()->InitForSlot(nSlotId);
 
     // J180
-    StaticSIP::InitializeForSlot(nSlotId);
+    StaticSip::InitializeForSlot(nSlotId);
 
     // J281
     IMS::Init(nSlotId);
@@ -33,5 +33,5 @@ PUBLIC GLOBAL void EngineLoader::Initialize(IN IMS_SINT32 nSlotId)
 PUBLIC GLOBAL void EngineLoader::Uninitialize(IN IMS_SINT32 nSlotId)
 {
     // J180
-    StaticSIP::UninitializeForSlot(nSlotId);
+    StaticSip::UninitializeForSlot(nSlotId);
 }

@@ -35,7 +35,7 @@
 
 __IMS_TRACE_TAG_SIP__;
 
-extern void SIPStackTxnLayer_Initialize();
+extern void SipStackTxnLayer_Initialize();
 extern SIP_VOID sip_cbk_onTimerExpired(IN ISipUserData* pUserData, IN IMS_SINT32 eTimerType);
 
 class SipNetworkUtil : public ISipNetworkUtil
@@ -61,19 +61,19 @@ public:
             return SIP_FALSE;
         }
 
-        SIPTxnContextData* pTxnContextData = (SIPTxnContextData*)pTxnContext->pTxnContextData;
+        SipTxnContextData* pTxnContextData = (SipTxnContextData*)pTxnContext->pTxnContextData;
 
         if (pTxnContextData == IMS_NULL)
         {
-            IMS_TRACE_E(0, "User data does not contains SIPTxnContextData", 0, 0, 0);
+            IMS_TRACE_E(0, "User data does not contains SipTxnContextData", 0, 0, 0);
             return SIP_FALSE;
         }
 
-        SIPTransactionState* pTxnState = pTxnContextData->GetTxnState();
+        SipTransactionState* pTxnState = pTxnContextData->GetTxnState();
 
         if (pTxnState == SIP_NULL)
         {
-            IMS_TRACE_E(0, "SIPTxnContextData does not contain TxnState", 0, 0, 0);
+            IMS_TRACE_E(0, "SipTxnContextData does not contain TxnState", 0, 0, 0);
             return SIP_FALSE;
         }
 
@@ -116,7 +116,7 @@ public:
                 if (pTxnContext != SIP_NULL)
                 {
                     IMS_TRACE_D("Destroy::SipTxnContext", 0, 0, 0);
-                    SIPStack::DestroyTxnContext(pTxnContext);
+                    SipStack::DestroyTxnContext(pTxnContext);
                     pUserData->SetUserData(SIP_NULL);
                 }
             }
@@ -126,7 +126,7 @@ public:
     }
 };
 
-namespace SIPStack
+namespace SipStack
 {
 
 SipParameters* GetParameters(SipHeaderBase* pHeader, IMS_BOOL bCreateIfNotPresent);
@@ -235,7 +235,7 @@ GLOBAL void Initialize()
     }
 
     // Register SIP transaction layer's callback functions
-    SIPStackTxnLayer_Initialize();
+    SipStackTxnLayer_Initialize();
 }
 
 GLOBAL void SetTransactionTimerValues(
@@ -263,7 +263,7 @@ GLOBAL SipEn_ErrorTypes GetLastError()
     return s_eError;
 }
 
-GLOBAL IMS_BOOL AppendHeader(IN SipHeaderBase* pHeader, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL AppendHeader(IN SipHeaderBase* pHeader, IN_OUT ::SipMessage*& pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -281,7 +281,7 @@ GLOBAL IMS_BOOL AppendHeader(IN SipHeaderBase* pHeader, IN_OUT SipMessage*& pMes
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL AppendMessageBody(IN SipMsgBody* pMsgBody, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL AppendMessageBody(IN SipMsgBody* pMsgBody, IN_OUT ::SipMessage*& pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -293,7 +293,7 @@ GLOBAL IMS_BOOL AppendMessageBody(IN SipMsgBody* pMsgBody, IN_OUT SipMessage*& p
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL PrependHeader(IN SipHeaderBase* pHeader, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL PrependHeader(IN SipHeaderBase* pHeader, IN_OUT ::SipMessage*& pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -312,7 +312,7 @@ GLOBAL IMS_BOOL PrependHeader(IN SipHeaderBase* pHeader, IN_OUT SipMessage*& pMe
 }
 
 GLOBAL IMS_BOOL PrependUnknownHeader(
-        IN const AString& strName, IN const AString& strValue, IN_OUT SipMessage*& pMessage)
+        IN const AString& strName, IN const AString& strValue, IN_OUT ::SipMessage*& pMessage)
 {
     SipHeaderBase* pHeader = DecodeHeader(SipHeaderBase::UNKNOWN, strName, strValue);
 
@@ -345,7 +345,7 @@ GLOBAL SipHeaderBase* CloneHeader(IN SipHeaderBase* pHeader)
     return SipHeaders::CloneHdrObj(pHeader);
 }
 
-GLOBAL SipMessage* CloneMessage(IN SipMessage* pMessage)
+GLOBAL ::SipMessage* CloneMessage(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -355,7 +355,7 @@ GLOBAL SipMessage* CloneMessage(IN SipMessage* pMessage)
         return IMS_NULL;
     }
 
-    return new SipMessage(*pMessage);
+    return new ::SipMessage(*pMessage);
 }
 
 GLOBAL SipMsgBody* CloneMessageBody(IN SipMsgBody* pMsgBody)
@@ -403,7 +403,7 @@ GLOBAL SipHeaderBase* CopyHeader(IN SipHeaderBase* pDstHeader, IN SipHeaderBase*
     return pDstHeader;
 }
 
-GLOBAL IMS_BOOL CorrectMessageBody(IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL CorrectMessageBody(IN_OUT ::SipMessage*& pMessage)
 {
     IMS_UINT32 nMsgBodyCount = pMessage->GetMsgBodyCount();
 
@@ -455,7 +455,7 @@ GLOBAL IMS_BOOL CorrectMessageBody(IN_OUT SipMessage*& pMessage)
             }
 
             AString strName(Sip::STR_BOUNDARY);
-            AString strBoundary = SIPUtil::GenerateBoundary();
+            AString strBoundary = SipUtils::GenerateBoundary();
 
             if (!SetParameter(pContentType, strName, strBoundary))
             {
@@ -481,7 +481,7 @@ GLOBAL IMS_BOOL CorrectMessageBody(IN_OUT SipMessage*& pMessage)
             if (GetLastError() == EERR_NOEXISTS)
             {
                 // Insert a boundary parameter
-                AString strBoundary = SIPUtil::GenerateBoundary();
+                AString strBoundary = SipUtils::GenerateBoundary();
 
                 if (!SetParameter(pHeader, strName, strBoundary))
                 {
@@ -525,9 +525,9 @@ GLOBAL SipHeaderBase* CreateHeader(IN IMS_SINT32 nType, IN SipAddrSpec* pAddrSpe
     return pNewHeader;
 }
 
-GLOBAL SipMessage* CreateMessage(IN IMS_SINT32 nType)
+GLOBAL ::SipMessage* CreateMessage(IN IMS_SINT32 nType)
 {
-    SipMessage* pMessage = new SipMessage();
+    ::SipMessage* pMessage = new ::SipMessage();
 
     if (pMessage == IMS_NULL)
     {
@@ -536,7 +536,7 @@ GLOBAL SipMessage* CreateMessage(IN IMS_SINT32 nType)
 
     pMessage->SetMessageType(nType);
 
-    if (nType == SipMessage::REQ_TYPE)
+    if (nType == ::SipMessage::REQ_TYPE)
     {
         SipRequestLine* pReqLine = new SipRequestLine();
 
@@ -776,13 +776,13 @@ GLOBAL SipHeaderBase* DecodeHeader(
 }
 
 GLOBAL IMS_BOOL DecodeMessage(IN const IMS_BYTE* pBuffer, IN IMS_SINT32 nBuffLen,
-        IN IMS_SINT32 nOptions, OUT SipMessage*& pMessage)
+        IN IMS_SINT32 nOptions, OUT ::SipMessage*& pMessage)
 {
     (void)nOptions;
 
     if (pMessage == IMS_NULL)
     {
-        pMessage = new SipMessage();
+        pMessage = new ::SipMessage();
     }
 
     if (pMessage->DecCompleteMsg((SIP_CHAR*)pBuffer, nBuffLen) == SIP_FALSE)
@@ -795,7 +795,7 @@ GLOBAL IMS_BOOL DecodeMessage(IN const IMS_BYTE* pBuffer, IN IMS_SINT32 nBuffLen
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL DecodeMessageBody(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL DecodeMessageBody(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -926,12 +926,12 @@ GLOBAL IMS_BOOL EncodeHeaderBody(
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL EncodeMessage(IN SipMessage* pMessage, IN IMS_SINT32 nOptions,
+GLOBAL IMS_BOOL EncodeMessage(IN ::SipMessage* pMessage, IN IMS_SINT32 nOptions,
         OUT IMS_BYTE*& pBuffer, OUT IMS_SINT32& nBuffLen)
 {
     IMS_UINT32 nMsgOptions = ESIPMSGOPT_NONE;
 
-    if ((nOptions & SIPPrivate::OPT_E_SHORTFORM) != 0)
+    if ((nOptions & SipPrivate::OPT_E_SHORTFORM) != 0)
     {
         nMsgOptions |= ESIPMSGOPT_ENCSHORTFORM;
     }
@@ -947,7 +947,7 @@ GLOBAL IMS_BOOL EncodeMessage(IN SipMessage* pMessage, IN IMS_SINT32 nOptions,
 }
 
 GLOBAL IMS_BOOL EncodePartialMessage(
-        IN SipMessage* pMessage, IN IMS_SINT32 nOptions, OUT ByteArray& objMessage)
+        IN ::SipMessage* pMessage, IN IMS_SINT32 nOptions, OUT ByteArray& objMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -963,14 +963,14 @@ GLOBAL IMS_BOOL EncodePartialMessage(
         return IMS_FALSE;
     }
 
-    IMS_CHAR szBuffer[SIPMessageBuffer::MAX_MSG_SIZE];
+    IMS_CHAR szBuffer[SipMessageBuffer::MAX_MSG_SIZE];
     IMS_CHAR* pszBuffer = szBuffer;
     SIP_BOOL bStatus = SIP_FALSE;
 
     // Check start-line
     if ((nOptions & OPT_START_LINE) == OPT_START_LINE)
     {
-        if (pMessage->GetMsgType() == SipMessage::REQ_TYPE)
+        if (pMessage->GetMsgType() == ::SipMessage::REQ_TYPE)
         {
             SipRequestLine* pRequestLine = pMessage->GetReqLine();
 
@@ -980,7 +980,7 @@ GLOBAL IMS_BOOL EncodePartialMessage(
                 pRequestLine->SipDelete();
             }
         }
-        else if (pMessage->GetMsgType() == SipMessage::RESP_TYPE)
+        else if (pMessage->GetMsgType() == ::SipMessage::RESP_TYPE)
         {
             SipStatusLine* pStatusLine = pMessage->GetStatusLine();
 
@@ -1234,7 +1234,7 @@ GLOBAL IMSList<SipParameter*> ExtractParameters(IN SipAddrSpec* pAddrSpec)
 
     if (pSipUri == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+        SipPrivate::SetLastError(SipError::PARSING_ERROR);
         return objParams;
     }
 
@@ -1259,7 +1259,7 @@ GLOBAL IMSList<SipParameter*> ExtractParameters(IN SipAddrSpec* pAddrSpec)
             {
                 pUriParamList->SipDelete();
                 pSipUri->SipDelete();
-                SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+                SipPrivate::SetLastError(SipError::PARSING_ERROR);
                 return objParams;
             }
 
@@ -1369,7 +1369,7 @@ GLOBAL void FreeHeaderEx(IN SipHeaderBase*& pHeader)
     }
 }
 
-GLOBAL void FreeMessage(IN SipMessage*& pMessage)
+GLOBAL void FreeMessage(IN ::SipMessage*& pMessage)
 {
     if (pMessage != IMS_NULL)
     {
@@ -1466,7 +1466,7 @@ GLOBAL const IMS_CHAR* GetHeaderName(
             break;
     }
 
-    return SIPHeader::NAME[nType];
+    return SipHeader::NAME[nType];
 }
 
 GLOBAL const IMS_CHAR* GetHeaderNameFromType(IN IMS_SINT32 nType)
@@ -1483,7 +1483,7 @@ GLOBAL const IMS_CHAR* GetHeaderNameFromType(IN IMS_SINT32 nType)
             return "";
 
         default:
-            return SIPHeader::NAME[nType];
+            return SipHeader::NAME[nType];
     }
 }
 
@@ -2120,7 +2120,7 @@ GLOBAL SipAddrSpec* GetAddrSpec(IN SipHeaderBase* pHeader)
 }
 
 GLOBAL SipAddrSpec* GetAddrSpec(
-        IN SipMessage* pMessage, IN IMS_SINT32 nType, IN IMS_UINT32 nIndex /*= 0*/)
+        IN ::SipMessage* pMessage, IN IMS_SINT32 nType, IN IMS_UINT32 nIndex /*= 0*/)
 {
     SIPStackError(EERR_NOERR);
 
@@ -2214,7 +2214,7 @@ GLOBAL IMS_BOOL GetContent(
     return IMS_TRUE;
 }
 
-GLOBAL IMS_UINT32 GetCSeqNumber(IN SipMessage* pMessage)
+GLOBAL IMS_UINT32 GetCSeqNumber(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -2222,7 +2222,7 @@ GLOBAL IMS_UINT32 GetCSeqNumber(IN SipMessage* pMessage)
     {
         IMS_TRACE_D("GetCSeqNumber: Message is null", 0, 0, 0);
         SIPStackError(EERR_INVALIDPARAM);
-        return SIPPrivate::INVALID_SEQ_NUM;
+        return SipPrivate::INVALID_SEQ_NUM;
     }
 
     SipCSeqHeader* pCseqHeader =
@@ -2231,7 +2231,7 @@ GLOBAL IMS_UINT32 GetCSeqNumber(IN SipMessage* pMessage)
     if (pCseqHeader == IMS_NULL)
     {
         IMS_TRACE_D("GetCSeqNumber: CSeq header is null", 0, 0, 0);
-        return SIPPrivate::INVALID_SEQ_NUM;
+        return SipPrivate::INVALID_SEQ_NUM;
     }
 
     IMS_UINT32 nSeqNum = pCseqHeader->GetCSeq();
@@ -2241,7 +2241,7 @@ GLOBAL IMS_UINT32 GetCSeqNumber(IN SipMessage* pMessage)
     return nSeqNum;
 }
 
-GLOBAL IMS_BOOL GetRAckHeader(IN SipMessage* pMessage, OUT IMS_UINT32& nResponseNum,
+GLOBAL IMS_BOOL GetRAckHeader(IN ::SipMessage* pMessage, OUT IMS_UINT32& nResponseNum,
         OUT IMS_UINT32& nCseqNum, OUT SipMethod& objMethod)
 {
     SIPStackError(EERR_NOERR);
@@ -2252,7 +2252,7 @@ GLOBAL IMS_BOOL GetRAckHeader(IN SipMessage* pMessage, OUT IMS_UINT32& nResponse
         return IMS_FALSE;
     }
 
-    SipHeaderBase* pHeader = SIPStack::GetHeader(pMessage, SipHeaderBase::RACK);
+    SipHeaderBase* pHeader = SipStack::GetHeader(pMessage, SipHeaderBase::RACK);
 
     if ((pHeader == IMS_NULL) || (pHeader->GetHdrType() != SipHeaderBase::RACK))
     {
@@ -2274,7 +2274,7 @@ GLOBAL IMS_BOOL GetRAckHeader(IN SipMessage* pMessage, OUT IMS_UINT32& nResponse
     return IMS_TRUE;
 }
 
-GLOBAL IMS_SINT32 GetDestinationTransport(IN SipMessage* pMessage)
+GLOBAL IMS_SINT32 GetDestinationTransport(IN ::SipMessage* pMessage)
 {
     // Check if the addr-spec which is set in the topmost Route header contains SIPS URI
     SipAddrSpec* pAddrSpec = GetAddrSpec(pMessage, SipHeaderBase::ROUTE, 0);
@@ -2308,7 +2308,7 @@ GLOBAL IMS_SINT32 GetDestinationTransport(IN SipMessage* pMessage)
 }
 
 GLOBAL IMS_BOOL GetEventHeader(
-        IN SipMessage* pMessage, OUT AString& strEvent, OUT AString& strEventId)
+        IN ::SipMessage* pMessage, OUT AString& strEvent, OUT AString& strEventId)
 {
     SipEventHeader* pHeader = (SipEventHeader*)GetHeader(pMessage, SipHeaderBase::EVENT);
 
@@ -2327,7 +2327,7 @@ GLOBAL IMS_BOOL GetEventHeader(
 }
 
 GLOBAL SipHeaderBase* GetHeader(
-        IN SipMessage* pMessage, IN IMS_SINT32 nType, IN IMS_UINT32 nIndex /*= 0*/)
+        IN ::SipMessage* pMessage, IN IMS_SINT32 nType, IN IMS_UINT32 nIndex /*= 0*/)
 {
     nType = GetHdrEnumType(nType);
 
@@ -2348,7 +2348,7 @@ GLOBAL SipHeaderBase* GetHeader(
     return pHeader;
 }
 
-GLOBAL AString GetHeaderAsString(IN SipMessage* pMessage, IN IMS_SINT32 nType,
+GLOBAL AString GetHeaderAsString(IN ::SipMessage* pMessage, IN IMS_SINT32 nType,
         IN IMS_BOOL bParams /*= IMS_FALSE*/, IN IMS_UINT32 nIndex /*= 0*/)
 {
     SipHeaderBase* pHeader = GetHeader(pMessage, nType, nIndex);
@@ -2371,7 +2371,7 @@ GLOBAL AString GetHeaderAsString(IN SipMessage* pMessage, IN IMS_SINT32 nType,
     return strHeaderBody;
 }
 
-GLOBAL IMS_SINT32 GetHeaderCount(IN SipMessage* pMessage, IN IMS_SINT32 nType)
+GLOBAL IMS_SINT32 GetHeaderCount(IN ::SipMessage* pMessage, IN IMS_SINT32 nType)
 {
     nType = GetHdrEnumType(nType);
 
@@ -2431,7 +2431,7 @@ GLOBAL IMS_BOOL GetHostAndPort(
 }
 
 GLOBAL IMS_BOOL GetHostNPortFromViaHeader(
-        IN SipMessage* pMessage, OUT AString& strHost, OUT IMS_SINT32& nPort)
+        IN ::SipMessage* pMessage, OUT AString& strHost, OUT IMS_SINT32& nPort)
 {
     strHost = AString::ConstNull();
     nPort = Sip::PORT_UNSPECIFIED;
@@ -2478,7 +2478,7 @@ GLOBAL IMS_BOOL GetHostNPortFromViaHeader(
     return IMS_TRUE;
 }
 
-GLOBAL SipMethod GetMethod(IN SipMessage* pMessage)
+GLOBAL SipMethod GetMethod(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -2493,12 +2493,12 @@ GLOBAL SipMethod GetMethod(IN SipMessage* pMessage)
     return objSipMethod;
 }
 
-GLOBAL IMS_SINT32 GetMessageBodyCount(IN SipMessage* pMessage)
+GLOBAL IMS_SINT32 GetMessageBodyCount(IN ::SipMessage* pMessage)
 {
     return pMessage->GetMsgBodyCount();
 }
 
-GLOBAL SipMsgBody* GetMessageBody(IN SipMessage* pMessage, IN IMS_SINT32 nIndex /*= 0*/)
+GLOBAL SipMsgBody* GetMessageBody(IN ::SipMessage* pMessage, IN IMS_SINT32 nIndex /*= 0*/)
 {
     return pMessage->GetMsgBody(nIndex);
 }
@@ -2520,20 +2520,20 @@ GLOBAL AString GetMimeHeader(
 
     switch (nType)
     {
-        case SIPMessageBodyPart::CONTENT_TYPE:
-            IMS_TRACE_D("SIPMessageBodyPart::CONTENT_TYPE", 0, 0, 0);
+        case SipMessageBodyPart::CONTENT_TYPE:
+            IMS_TRACE_D("SipMessageBodyPart::CONTENT_TYPE", 0, 0, 0);
             pHeader = pMsgBody->GetContentType();
             break;
-        case SIPMessageBodyPart::CONTENT_DISPOSITION:
+        case SipMessageBodyPart::CONTENT_DISPOSITION:
             pHeader = pMsgBody->GetContentDisposition();
             break;
-        case SIPMessageBodyPart::CONTENT_TRANSFER_ENCODING:
+        case SipMessageBodyPart::CONTENT_TRANSFER_ENCODING:
             pHeader = pMsgBody->GetContentEncoding();
             break;
-        case SIPMessageBodyPart::CONTENT_UNKNOWN:
+        case SipMessageBodyPart::CONTENT_UNKNOWN:
             pHeader = pMsgBody->GetMimeHdr(SipHeaderBase::UNKNOWN, nIndex);
             break;
-        case SIPMessageBodyPart::CONTENT_ID:
+        case SipMessageBodyPart::CONTENT_ID:
         {
             IMS_UINT32 nCount = pMsgBody->GetUnknownHdrCount();
 
@@ -2554,7 +2554,7 @@ GLOBAL AString GetMimeHeader(
             }
             break;
         }
-        case SIPMessageBodyPart::CONTENT_DESCRIPTION:
+        case SipMessageBodyPart::CONTENT_DESCRIPTION:
         {
             IMS_UINT32 nCount = pMsgBody->GetUnknownHdrCount();
 
@@ -2608,18 +2608,18 @@ GLOBAL IMS_SINT32 GetMimeHeaderCount(IN SipMsgBody* pMsgBody, IN IMS_SINT32 nTyp
 
     switch (nType)
     {
-        case SIPMessageBodyPart::CONTENT_TYPE:
+        case SipMessageBodyPart::CONTENT_TYPE:
             pHeader = pMsgBody->GetContentType();
             break;
-        case SIPMessageBodyPart::CONTENT_DISPOSITION:
+        case SipMessageBodyPart::CONTENT_DISPOSITION:
             pHeader = pMsgBody->GetContentDisposition();
             break;
-        case SIPMessageBodyPart::CONTENT_TRANSFER_ENCODING:
+        case SipMessageBodyPart::CONTENT_TRANSFER_ENCODING:
             pHeader = pMsgBody->GetContentEncoding();
             break;
-        case SIPMessageBodyPart::CONTENT_UNKNOWN:
+        case SipMessageBodyPart::CONTENT_UNKNOWN:
             return pMsgBody->GetUnknownHdrCount();
-        case SIPMessageBodyPart::CONTENT_ID:
+        case SipMessageBodyPart::CONTENT_ID:
         {
             IMS_UINT32 nCount = pMsgBody->GetUnknownHdrCount();
 
@@ -2639,7 +2639,7 @@ GLOBAL IMS_SINT32 GetMimeHeaderCount(IN SipMsgBody* pMsgBody, IN IMS_SINT32 nTyp
             }
             break;
         }
-        case SIPMessageBodyPart::CONTENT_DESCRIPTION:
+        case SipMessageBodyPart::CONTENT_DESCRIPTION:
         {
             IMS_UINT32 nCount = pMsgBody->GetUnknownHdrCount();
 
@@ -2815,11 +2815,11 @@ GLOBAL IMS_SINT32 GetParameterCount(IN SipHeaderBase* pHeader)
     return pParams->GetParamCount();
 }
 
-GLOBAL SipAddrSpec* GetRequestUri(IN SipMessage* pMessage)
+GLOBAL SipAddrSpec* GetRequestUri(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
-    if (pMessage->GetMsgType() != SipMessage::REQ_TYPE)
+    if (pMessage->GetMsgType() != ::SipMessage::REQ_TYPE)
     {
         SIPStackError(EERR_INVALIDPARAM);
         return IMS_NULL;
@@ -2915,7 +2915,7 @@ GLOBAL AString GetSentProtocolFromVia(IN SipHeaderBase* pHeader)
     return strSentProtocol;
 }
 
-GLOBAL AString GetSipVersion(IN SipMessage* pMessage)
+GLOBAL AString GetSipVersion(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -2925,7 +2925,7 @@ GLOBAL AString GetSipVersion(IN SipMessage* pMessage)
         return AString::ConstNull();
     }
 
-    if (pMessage->GetMsgType() == SipMessage::REQ_TYPE)
+    if (pMessage->GetMsgType() == ::SipMessage::REQ_TYPE)
     {
         SipRequestLine* pReqLine = pMessage->GetReqLine();
 
@@ -2957,7 +2957,7 @@ GLOBAL AString GetSipVersion(IN SipMessage* pMessage)
     }
 }
 
-GLOBAL IMS_SINT32 GetStatusCode(IN SipMessage* pMessage)
+GLOBAL IMS_SINT32 GetStatusCode(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -2967,7 +2967,7 @@ GLOBAL IMS_SINT32 GetStatusCode(IN SipMessage* pMessage)
         return SipStatusCode::SC_INVALID;
     }
 
-    if (pMessage->GetMsgType() != SipMessage::RESP_TYPE)
+    if (pMessage->GetMsgType() != ::SipMessage::RESP_TYPE)
     {
         SIPStackError(EERR_INVALIDPARAM);
         return SipStatusCode::SC_INVALID;
@@ -2989,7 +2989,7 @@ GLOBAL IMS_SINT32 GetStatusCode(IN SipMessage* pMessage)
     return nStatusCode;
 }
 
-GLOBAL SipStatusCode GetStatusCodeEx(IN SipMessage* pMessage)
+GLOBAL SipStatusCode GetStatusCodeEx(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3023,7 +3023,7 @@ GLOBAL SipStatusCode GetStatusCodeEx(IN SipMessage* pMessage)
     return objStatusCode;
 }
 
-GLOBAL IMS_BOOL GetSubscriptionStateHeader(IN SipMessage* pMessage, OUT AString& strSubsState,
+GLOBAL IMS_BOOL GetSubscriptionStateHeader(IN ::SipMessage* pMessage, OUT AString& strSubsState,
         OUT IMS_SINT32* pnExpires /*= IMS_NULL*/)
 {
     SipHeaderBase* pSubState = GetHeader(pMessage, SipHeaderBase::SUBSCRIPTION_STATE);
@@ -3075,7 +3075,7 @@ GLOBAL IMS_BOOL GetSubscriptionStateHeader(IN SipMessage* pMessage, OUT AString&
 }
 
 GLOBAL SipHeaderBase* GetUnknownHeader(
-        IN SipMessage* pMessage, IN const AString& strName, IN IMS_UINT32 nIndex /*= 0*/)
+        IN ::SipMessage* pMessage, IN const AString& strName, IN IMS_UINT32 nIndex /*= 0*/)
 {
     IMS_SINT32 nType = sipGetHdrType(strName.GetStr());
     return GetHeader(pMessage, nType, nIndex);
@@ -3125,7 +3125,7 @@ GLOBAL AString GetUnknownHeaderBody(IN SipHeaderBase* pHeader)
     return strValue;
 }
 
-GLOBAL AString GetViaBranchParameter(IN SipMessage* pMessage)
+GLOBAL AString GetViaBranchParameter(IN ::SipMessage* pMessage)
 {
     SipHeaderBase* pHeader = GetHeader(pMessage, SipHeaderBase::VIA);
 
@@ -3245,7 +3245,7 @@ GLOBAL IMS_BOOL HasParameter(IN SipAddrSpec* pAddrSpec, IN const AString& strNam
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL HasMimeMessageBody(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL HasMimeMessageBody(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3258,7 +3258,7 @@ GLOBAL IMS_BOOL HasMimeMessageBody(IN SipMessage* pMessage)
     return pMessage->HasMIMEMessageBody();
 }
 
-GLOBAL IMS_BOOL HasSdpMessageBody(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL HasSdpMessageBody(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3272,7 +3272,7 @@ GLOBAL IMS_BOOL HasSdpMessageBody(IN SipMessage* pMessage)
 }
 
 GLOBAL IMS_BOOL InsertHeader(
-        IN SipHeaderBase* pHeader, IN IMS_UINT32 nIndex, IN_OUT SipMessage*& pMessage)
+        IN SipHeaderBase* pHeader, IN IMS_UINT32 nIndex, IN_OUT ::SipMessage*& pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3328,7 +3328,7 @@ GLOBAL IMS_BOOL IsCompactHeaderNameSupported(
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL IsHeaderPresent(IN SipMessage* pMessage, IN IMS_SINT32 nType)
+GLOBAL IMS_BOOL IsHeaderPresent(IN ::SipMessage* pMessage, IN IMS_SINT32 nType)
 {
     SipHeaderBase* pHeader = GetHeader(pMessage, nType);
 
@@ -3355,7 +3355,7 @@ GLOBAL IMS_BOOL IsMessageBodySdp(IN SipMsgBody* pMsgBody)
     return pMsgBody->IsMessageBodySDP();
 }
 
-GLOBAL IMS_BOOL IsMessageRpr(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL IsMessageRpr(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3365,7 +3365,7 @@ GLOBAL IMS_BOOL IsMessageRpr(IN SipMessage* pMessage)
     }
 
     // If the message is not of type response, return FALSE
-    if (pMessage->GetMsgType() != SipMessage::RESP_TYPE)
+    if (pMessage->GetMsgType() != ::SipMessage::RESP_TYPE)
     {
         return IMS_FALSE;
     }
@@ -3422,7 +3422,7 @@ GLOBAL IMS_BOOL IsMessageRpr(IN SipMessage* pMessage)
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL IsOptionRequired(IN SipMessage* pMessage, IN const AString& strOption)
+GLOBAL IMS_BOOL IsOptionRequired(IN ::SipMessage* pMessage, IN const AString& strOption)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3455,7 +3455,7 @@ GLOBAL IMS_BOOL IsOptionRequired(IN SipMessage* pMessage, IN const AString& strO
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL IsOptionSupported(IN SipMessage* pMessage, IN const AString& strOption)
+GLOBAL IMS_BOOL IsOptionSupported(IN ::SipMessage* pMessage, IN const AString& strOption)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3488,9 +3488,9 @@ GLOBAL IMS_BOOL IsOptionSupported(IN SipMessage* pMessage, IN const AString& str
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL IsRequestMessage(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL IsRequestMessage(IN ::SipMessage* pMessage)
 {
-    return (pMessage != IMS_NULL) ? (pMessage->GetMsgType() == SipMessage::REQ_TYPE) : IMS_FALSE;
+    return (pMessage != IMS_NULL) ? (pMessage->GetMsgType() == ::SipMessage::REQ_TYPE) : IMS_FALSE;
 }
 
 GLOBAL IMS_BOOL IsAddressFormatHeader(IN IMS_SINT32 nType, IN const AString& strName)
@@ -3549,7 +3549,7 @@ GLOBAL IMS_BOOL IsAquotRequiredForAddressFormat(IN IMS_SINT32 nType, IN const AS
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL OverwriteHeaders(IN SipMessage* pSrcMessage, IN_OUT SipMessage*& pDstMessage)
+GLOBAL IMS_BOOL OverwriteHeaders(IN ::SipMessage* pSrcMessage, IN_OUT ::SipMessage*& pDstMessage)
 {
     SipHeaders* pDstHeaders = pDstMessage->GetMsgHdrs();
 
@@ -3613,7 +3613,7 @@ GLOBAL void ParseHostNPort(
     }
 }
 
-GLOBAL IMS_BOOL RemoveAllMessageBodies(IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL RemoveAllMessageBodies(IN_OUT ::SipMessage*& pMessage)
 {
     if (pMessage == IMS_NULL)
     {
@@ -3625,7 +3625,7 @@ GLOBAL IMS_BOOL RemoveAllMessageBodies(IN_OUT SipMessage*& pMessage)
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL RemoveHeader(IN IMS_SINT32 nType, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL RemoveHeader(IN IMS_SINT32 nType, IN_OUT ::SipMessage*& pMessage)
 {
     nType = GetHdrEnumType(nType);
 
@@ -3766,7 +3766,7 @@ GLOBAL IMS_BOOL SetContent(
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL SetHeader(IN SipHeaderBase* pHeader, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL SetHeader(IN SipHeaderBase* pHeader, IN_OUT ::SipMessage*& pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -3794,14 +3794,14 @@ GLOBAL IMS_BOOL SetHeader(IN SipHeaderBase* pHeader, IN_OUT SipMessage*& pMessag
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL SetMethod(IN const SipMethod& objMethod, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL SetMethod(IN const SipMethod& objMethod, IN_OUT ::SipMessage*& pMessage)
 {
     if (pMessage == IMS_NULL)
     {
         return IMS_FALSE;
     }
 
-    if (pMessage->GetMsgType() == SipMessage::REQ_TYPE)
+    if (pMessage->GetMsgType() == ::SipMessage::REQ_TYPE)
     {
         SipRequestLine* pReqLine = pMessage->GetReqLine();
 
@@ -3902,14 +3902,14 @@ GLOBAL IMS_BOOL SetMimeHeader(IN IMS_SINT32 nType, IN const AString& strName,
 
     if (pHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+        SipPrivate::SetLastError(SipError::PARSING_ERROR);
         return IMS_FALSE;
     }
 
     if (pMsgBody->SetMimeHdr(pHeader) == SIP_FALSE)
     {
         FreeHeader(pHeader);
-        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+        SipPrivate::SetLastError(SipError::PARSING_ERROR);
         return IMS_FALSE;
     }
 
@@ -3969,7 +3969,7 @@ GLOBAL IMS_BOOL SetParameter(
 }
 
 GLOBAL IMS_BOOL SetRequestLine(
-        IN const AString& strMethod, IN const AString& strUri, IN_OUT SipMessage*& pMessage)
+        IN const AString& strMethod, IN const AString& strUri, IN_OUT ::SipMessage*& pMessage)
 {
     SipAddrSpec* pAddrSpec = new SipAddrSpec();
 
@@ -3983,7 +3983,7 @@ GLOBAL IMS_BOOL SetRequestLine(
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL SetRequestUri(IN SipAddrSpec* pAddrSpec, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL SetRequestUri(IN SipAddrSpec* pAddrSpec, IN_OUT ::SipMessage*& pMessage)
 {
     SipRequestLine* pReqLine = pMessage->GetReqLine();
 
@@ -3993,13 +3993,13 @@ GLOBAL IMS_BOOL SetRequestUri(IN SipAddrSpec* pAddrSpec, IN_OUT SipMessage*& pMe
         pReqLine->SipDelete();
     }
 
-    pMessage->SetMessageType(SipMessage::REQ_TYPE);
+    pMessage->SetMessageType(::SipMessage::REQ_TYPE);
 
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL SetStatusLine(
-        IN IMS_SINT32 nStatusCode, IN const AString& strReasonPhrase, IN_OUT SipMessage*& pMessage)
+GLOBAL IMS_BOOL SetStatusLine(IN IMS_SINT32 nStatusCode, IN const AString& strReasonPhrase,
+        IN_OUT ::SipMessage*& pMessage)
 {
     AString strStatusCode;
 
@@ -4014,7 +4014,7 @@ GLOBAL IMS_BOOL SetStatusLine(
 }
 
 GLOBAL IMS_BOOL SetUnknownHeader(
-        IN SipHeaderBase* pHeader, IN const AString& strName, IN_OUT SipMessage*& pMessage)
+        IN SipHeaderBase* pHeader, IN const AString& strName, IN_OUT ::SipMessage*& pMessage)
 {
     if (pHeader == IMS_NULL)
     {
@@ -4026,7 +4026,7 @@ GLOBAL IMS_BOOL SetUnknownHeader(
     return SetHeader(pHeader, pMessage);
 }
 
-GLOBAL IMS_BOOL IsMessageBodyCompressed(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL IsMessageBodyCompressed(IN ::SipMessage* pMessage)
 {
     // 4 Check if the Content-Encoding contains the compression algorithm or not
     // 4 As default, consider it to 'gzip'. It needs to be consider other compression algorithm.
@@ -4049,7 +4049,7 @@ GLOBAL IMS_BOOL IsMessageBodyCompressed(IN SipMessage* pMessage)
     return IMS_FALSE;
 }
 
-GLOBAL IMS_BOOL UncompressMessageBody(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL UncompressMessageBody(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -4148,7 +4148,7 @@ GLOBAL IMS_BOOL UncompressMessageBody(IN SipMessage* pMessage)
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL UpdateSentProtocol(IN SipMessage* pMessage, IN const AString& strSentProtocol)
+GLOBAL IMS_BOOL UpdateSentProtocol(IN ::SipMessage* pMessage, IN const AString& strSentProtocol)
 {
     SipViaHeader* pViaHeader = DYNAMIC_CAST(SipViaHeader*, GetHeader(pMessage, SipHeaderBase::VIA));
     const IMS_CHAR* pszProtocol = strSentProtocol.GetStr();
@@ -4171,7 +4171,7 @@ GLOBAL IMS_BOOL UpdateSentProtocol(IN SipMessage* pMessage, IN const AString& st
     return IMS_TRUE;
 }
 
-GLOBAL void DisplayBadHeaders(IN SipMessage* pMessage)
+GLOBAL void DisplayBadHeaders(IN ::SipMessage* pMessage)
 {
 #ifdef SIP_BADMESSAGE_PARSING
     SIPStackError(EERR_NOERR);
@@ -4207,7 +4207,7 @@ GLOBAL void DisplayBadHeaders(IN SipMessage* pMessage)
 #endif
 }
 
-GLOBAL IMS_SINT32 GetBadHeaderCount(IN SipMessage* pMessage)
+GLOBAL IMS_SINT32 GetBadHeaderCount(IN ::SipMessage* pMessage)
 {
 #ifdef SIP_BADMESSAGE_PARSING
     return pMessage->GetBadHeaderCount();
@@ -4217,7 +4217,7 @@ GLOBAL IMS_SINT32 GetBadHeaderCount(IN SipMessage* pMessage)
 #endif
 }
 
-GLOBAL IMS_BOOL HasMandatoryHeaders(IN SipMessage* pMessage)
+GLOBAL IMS_BOOL HasMandatoryHeaders(IN ::SipMessage* pMessage)
 {
 #ifdef SIP_BADMESSAGE_PARSING
     return pMessage->HasMandatoryHdrs();
@@ -4228,11 +4228,11 @@ GLOBAL IMS_BOOL HasMandatoryHeaders(IN SipMessage* pMessage)
 }
 
 /// APIs for SIP authentication
-GLOBAL IMS_BOOL GetEntityBody(IN SipMessage* pMessage, OUT AString& strEntityBody)
+GLOBAL IMS_BOOL GetEntityBody(IN ::SipMessage* pMessage, OUT AString& strEntityBody)
 {
 #ifdef SIP_TOBEPORTED
     IMS_UINT32 nMsgBodyCount = 0;
-    RCPtr<SIPMessageBuffer> pMessageBuffer = SIPMessageBuffer::GetInstance();
+    RCPtr<SipMessageBuffer> pMessageBuffer = SipMessageBuffer::GetInstance();
     IMS_UINT32 nBuffLen = pMessageBuffer->GetLength();
     IMS_CHAR* pTmpBuffer = reinterpret_cast<IMS_CHAR*>(pMessageBuffer->GetBuffer());
 
@@ -4280,7 +4280,7 @@ GLOBAL IMS_BOOL GetEntityBody(IN SipMessage* pMessage, OUT AString& strEntityBod
 }
 
 /// APIs for SIP transaction layer
-GLOBAL SIPTxnKey* CreateTxnKey(IN SipMessage* pMessage)
+GLOBAL sipcore::SipTxnKey* CreateTxnKey(IN ::SipMessage* pMessage)
 {
     SIPStackError(EERR_NOERR);
 
@@ -4316,10 +4316,10 @@ GLOBAL SIPTxnKey* CreateTxnKey(IN SipMessage* pMessage)
         nStatusCode = GetStatusCode(pMessage);
     }
 
-    return new SIPTxnKey(objMethod, nStatusCode, strViaBranch, nCseqNum);
+    return new sipcore::SipTxnKey(objMethod, nStatusCode, strViaBranch, nCseqNum);
 }
 
-GLOBAL SipTxnKey* CreateTxnKey(IN SipMessage* pMessage, IN IMS_SINT32 /*nApiCalled*/)
+GLOBAL ::SipTxnKey* CreateTxnKey(IN ::SipMessage* pMessage, IN IMS_SINT32 /*nApiCalled*/)
 {
     SIPStackError(EERR_NOERR);
 
@@ -4331,10 +4331,10 @@ GLOBAL SipTxnKey* CreateTxnKey(IN SipMessage* pMessage, IN IMS_SINT32 /*nApiCall
 
     IMS_UINT16 nError = 0;
 
-    return new SipTxnKey(pMessage, &nError);
+    return new ::SipTxnKey(pMessage, &nError);
 }
 
-GLOBAL SIPTxnKey* CreateTxnKeyFromKey(IN SipTxnKey* pTxnKey)
+GLOBAL sipcore::SipTxnKey* CreateTxnKeyFromKey(IN ::SipTxnKey* pTxnKey)
 {
     if (pTxnKey == IMS_NULL)
     {
@@ -4344,10 +4344,11 @@ GLOBAL SIPTxnKey* CreateTxnKeyFromKey(IN SipTxnKey* pTxnKey)
     SipMethod objMethod(static_cast<const IMS_CHAR*>(pTxnKey->GetMethod()));
     AString strViaBranch(TxnKey_GetViaBranch(pTxnKey));
 
-    return new SIPTxnKey(objMethod, pTxnKey->GetRespCode(), strViaBranch, pTxnKey->GetCSeqNum());
+    return new sipcore::SipTxnKey(
+            objMethod, pTxnKey->GetRespCode(), strViaBranch, pTxnKey->GetCSeqNum());
 }
 
-GLOBAL IMS_BOOL CompareTxnKeys(IN SipTxnKey* pTxnKey1, IN SipTxnKey* pTxnKey2)
+GLOBAL IMS_BOOL CompareTxnKeys(IN ::SipTxnKey* pTxnKey1, IN ::SipTxnKey* pTxnKey2)
 {
     if (pTxnKey1 == SIP_NULL)
     {
@@ -4362,7 +4363,7 @@ GLOBAL IMS_BOOL CompareTxnKeys(IN SipTxnKey* pTxnKey1, IN SipTxnKey* pTxnKey2)
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL CompareTxnKeysForAck(IN SipTxnKey* pTxnKey1, IN SipTxnKey* pTxnKey2)
+GLOBAL IMS_BOOL CompareTxnKeysForAck(IN ::SipTxnKey* pTxnKey1, IN ::SipTxnKey* pTxnKey2)
 {
     if ((pTxnKey1 == IMS_NULL) || (pTxnKey2 == IMS_NULL))
     {
@@ -4381,7 +4382,7 @@ GLOBAL IMS_BOOL CompareTxnKeysForAck(IN SipTxnKey* pTxnKey1, IN SipTxnKey* pTxnK
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL CompareTxnKeysForCancel(IN SipTxnKey* pCancelKey, IN SipTxnKey* pTxnKey)
+GLOBAL IMS_BOOL CompareTxnKeysForCancel(IN ::SipTxnKey* pCancelKey, IN ::SipTxnKey* pTxnKey)
 {
     // Compares these values : CSeq number, Call-ID, From-Tag, Via branch parameter
 
@@ -4465,7 +4466,7 @@ GLOBAL IMS_BOOL CompareTxnKeysForCancel(IN SipTxnKey* pCancelKey, IN SipTxnKey* 
     return IMS_TRUE;
 }
 
-GLOBAL IMS_BOOL AbortTransaction(IN SipTxnKey* pTxnKey, IN SipTxnContext* pTxnContext)
+GLOBAL IMS_BOOL AbortTransaction(IN ::SipTxnKey* pTxnKey, IN SipTxnContext* pTxnContext)
 {
     (void)pTxnContext;
 
@@ -4483,8 +4484,8 @@ GLOBAL void DestroyTxnContext(IN SipTxnContext* pContext)
 {
     if (pContext != IMS_NULL)
     {
-        SIPTxnContextData* pTxnContextData =
-                static_cast<SIPTxnContextData*>(pContext->pTxnContextData);
+        SipTxnContextData* pTxnContextData =
+                static_cast<SipTxnContextData*>(pContext->pTxnContextData);
 
         if (pTxnContextData != IMS_NULL)
         {
@@ -4496,7 +4497,7 @@ GLOBAL void DestroyTxnContext(IN SipTxnContext* pContext)
     }
 }
 
-GLOBAL void DisplayTxnKey(IN const SipTxnKey* pTxnKey)
+GLOBAL void DisplayTxnKey(IN const ::SipTxnKey* pTxnKey)
 {
     if (pTxnKey == IMS_NULL)
     {
@@ -4516,7 +4517,7 @@ GLOBAL void DisplayTxnKey(IN const SipTxnKey* pTxnKey)
     IMS_TRACE_D("___ TRANSACTION INFO. - E ___\r\n", 0, 0, 0);
 }
 
-GLOBAL void FreeTxnKey(IN SipTxnKey*& pTxnKey)
+GLOBAL void FreeTxnKey(IN ::SipTxnKey*& pTxnKey)
 {
     if (pTxnKey != SIP_NULL)
     {
@@ -4534,7 +4535,7 @@ GLOBAL void FreeTxn(IN SipTxn*& pTxn)
     }
 }
 
-GLOBAL void TerminateTransaction(IN SipTxnKey* pTxnKey)
+GLOBAL void TerminateTransaction(IN ::SipTxnKey* pTxnKey)
 {
     SipStackManager::GetInstance()->TerminateTxn(pTxnKey);
 }
@@ -4665,7 +4666,7 @@ GLOBAL void SetTimerValues(IN SipTimerValues* pTv, IN_OUT SipTxnContext*& pTxnCo
     pTxnContext->pSipTimerContext->pTxnSipTxnTimers = pTxnTimerValues;
 }
 
-GLOBAL void DisplayUnknownHeaders(IN SipMessage* pMessage)
+GLOBAL void DisplayUnknownHeaders(IN ::SipMessage* pMessage)
 {
     IMS_TRACE_I("___ SIP unknown headers - S ___", 0, 0, 0);
 
@@ -4799,4 +4800,4 @@ GLOBAL const IMS_CHAR* GetLogString(IN const IMS_CHAR* pszInput, IN_OUT IMS_CHAR
     return pszOutput;
 }
 
-}  // namespace SIPStack
+}  // namespace SipStack

@@ -1,19 +1,19 @@
 #include "IMSTypeDef.h"
 #include "SipStackCallback.h"
 
-static SIPStackCallbacks gstSIPStackCallbacks = {
-        IMS_NULL,  // SIPStack_FetchTransaction
-        IMS_NULL,  // SIPStack_ReleaseTransaction
-        IMS_NULL,  // SIPStack_StartTimer
-        IMS_NULL,  // SIPStack_StopTimer
-        IMS_NULL,  // SIPStack_OnTimerExpired
-        IMS_NULL,  // SIPStack_CreateAckRequest
-        IMS_NULL,  // SIPStack_PreProcessMessageSentByStack
-        IMS_NULL,  // SIPStack_PostProcessMessageSentByStack
-        IMS_NULL   // SIPStack_DisplayTxnKey
+static SipStackCallbacks gstSIPStackCallbacks = {
+        IMS_NULL,  // SipStack_FetchTransaction
+        IMS_NULL,  // SipStack_ReleaseTransaction
+        IMS_NULL,  // SipStack_StartTimer
+        IMS_NULL,  // SipStack_StopTimer
+        IMS_NULL,  // SipStack_OnTimerExpired
+        IMS_NULL,  // SipStack_CreateAckRequest
+        IMS_NULL,  // SipStack_PreProcessMessageSentByStack
+        IMS_NULL,  // SipStack_PostProcessMessageSentByStack
+        IMS_NULL   // SipStack_DisplayTxnKey
 };
 
-GLOBAL void SIPStackCallback_SetCallbacks(IN const SIPStackCallbacks& objCallbacks)
+GLOBAL void SipStackCallback_SetCallbacks(IN const SipStackCallbacks& objCallbacks)
 {
     //---------------------------------------------------------------------------------------------
 

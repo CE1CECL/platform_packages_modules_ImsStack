@@ -29,14 +29,14 @@
 __IMS_TRACE_TAG_SIP__;
 
 PRIVATE
-SIPManager::SIPManager() :
+SipManager::SipManager() :
         nState(STATE_INACTIVE)
 {
-    SIPPrivate::Init();
+    SipPrivate::Init();
 }
 
 PRIVATE
-SIPManager::~SIPManager()
+SipManager::~SipManager()
 {
     CleanUp();
 }
@@ -47,7 +47,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPManager::AttachDialogState(IN SIPDialogState* pDState)
+IMS_BOOL SipManager::AttachDialogState(IN SipDialogState* pDState)
 {
     if (nState != STATE_ACTIVE)
     {
@@ -72,7 +72,7 @@ Remarks
 
 */
 PUBLIC
-void SIPManager::DetachDialogState(IN SIPDialogState* pDState)
+void SipManager::DetachDialogState(IN SipDialogState* pDState)
 {
     if (nState != STATE_ACTIVE)
     {
@@ -82,7 +82,7 @@ void SIPManager::DetachDialogState(IN SIPDialogState* pDState)
 
     for (IMS_UINT32 i = 0; i < objDialogStates.GetSize(); ++i)
     {
-        SIPDialogState* pTempDState = objDialogStates.GetAt(i);
+        SipDialogState* pTempDState = objDialogStates.GetAt(i);
 
         if (pTempDState != IMS_NULL)
         {
@@ -100,7 +100,7 @@ void SIPManager::DetachDialogState(IN SIPDialogState* pDState)
 
             switch (nComparisonResult)
             {
-                case SIPDialogState::MATCHED:
+                case SipDialogState::MATCHED:
                     IMS_TRACE_I("___ Detach::DialogState (%s)",
                             pExistingDState->GetCallId().GetStr(), 0, 0);
                     objDialogStates.RemoveAt(n);
@@ -117,8 +117,8 @@ Remarks
 
 */
 PUBLIC
-RCPtr<SIPDialogState> SIPManager::LookupDialogState(IN SIPDialogState* pDState,
-        IN SipMessage* pstMessage, IN IMS_BOOL bCheckForked /* = IMS_FALSE */,
+RCPtr<SipDialogState> SipManager::LookupDialogState(IN SipDialogState* pDState,
+        IN ::SipMessage* pstMessage, IN IMS_BOOL bCheckForked /* = IMS_FALSE */,
         OUT IMS_BOOL* pbIsForked /* = IMS_NULL */)
 {
     if (nState != STATE_ACTIVE)
@@ -134,7 +134,7 @@ RCPtr<SIPDialogState> SIPManager::LookupDialogState(IN SIPDialogState* pDState,
 
     for (IMS_UINT32 i = 0; i < objDialogStates.GetSize(); ++i)
     {
-        SIPDialogState* pTempDState = objDialogStates.GetAt(i);
+        SipDialogState* pTempDState = objDialogStates.GetAt(i);
 
         if (pTempDState != IMS_NULL)
         {
@@ -143,16 +143,16 @@ RCPtr<SIPDialogState> SIPManager::LookupDialogState(IN SIPDialogState* pDState,
 
             switch (nComparisonResult)
             {
-                case SIPDialogState::MATCHED:
+                case SipDialogState::MATCHED:
                     return pTempDState;
 
-                case SIPDialogState::NOT_MATCHED:
+                case SipDialogState::NOT_MATCHED:
                     break;
 
-                case SIPDialogState::MATCHED_DIFFERENT:
+                case SipDialogState::MATCHED_DIFFERENT:
                     break;
 
-                case SIPDialogState::MATCHED_FORKED_SUBSCRIBE:
+                case SipDialogState::MATCHED_FORKED_SUBSCRIBE:
                     if (pbIsForked != IMS_NULL)
                     {
                         (*pbIsForked) = IMS_TRUE;
@@ -161,11 +161,11 @@ RCPtr<SIPDialogState> SIPManager::LookupDialogState(IN SIPDialogState* pDState,
                     IMS_TRACE_I("___ FORKED NOTIFY RECEIVED ___", 0, 0, 0);
                     return pTempDState;
 
-                case SIPDialogState::MATCHED_EARLY_NOTIFY:
+                case SipDialogState::MATCHED_EARLY_NOTIFY:
                     IMS_TRACE_I("___ EARLY NOTIFY RECEIVED ___", 0, 0, 0);
                     return pTempDState;
 
-                case SIPDialogState::MATCHED_OVERLAP_DIALING:
+                case SipDialogState::MATCHED_OVERLAP_DIALING:
                     break;
 
                 default:
@@ -183,7 +183,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPManager::AttachConnectionNotifier(IN SIPConnectionNotifier* pSCN)
+IMS_BOOL SipManager::AttachConnectionNotifier(IN SipConnectionNotifier* pSCN)
 {
     if (nState != STATE_ACTIVE)
     {
@@ -200,7 +200,7 @@ Remarks
 
 */
 PUBLIC
-void SIPManager::DetachConnectionNotifier(IN SIPConnectionNotifier* pSCN)
+void SipManager::DetachConnectionNotifier(IN SipConnectionNotifier* pSCN)
 {
     if (nState != STATE_ACTIVE)
     {
@@ -210,7 +210,7 @@ void SIPManager::DetachConnectionNotifier(IN SIPConnectionNotifier* pSCN)
 
     for (IMS_UINT32 i = 0; i < objSCNs.GetSize(); ++i)
     {
-        SIPConnectionNotifier* pTempSCN = objSCNs.GetAt(i);
+        SipConnectionNotifier* pTempSCN = objSCNs.GetAt(i);
 
         if (pTempSCN != IMS_NULL)
         {
@@ -229,7 +229,7 @@ Remarks
 
 */
 PUBLIC
-SIPConnectionNotifier* SIPManager::LookupConnectionNotifier(IN CONST SIPTransportAddress& objTA,
+SipConnectionNotifier* SipManager::LookupConnectionNotifier(IN CONST SipTransportAddress& objTA,
         IN CONST AString& strFilter /* = AString::ConstNull() */)
 {
     (void)strFilter;
@@ -242,7 +242,7 @@ SIPConnectionNotifier* SIPManager::LookupConnectionNotifier(IN CONST SIPTranspor
 
     for (IMS_UINT32 i = 0; i < objSCNs.GetSize(); ++i)
     {
-        SIPConnectionNotifier* pTempSCN = objSCNs.GetAt(i);
+        SipConnectionNotifier* pTempSCN = objSCNs.GetAt(i);
 
         if (pTempSCN != IMS_NULL)
         {
@@ -261,13 +261,13 @@ SIPConnectionNotifier* SIPManager::LookupConnectionNotifier(IN CONST SIPTranspor
 Remarks
 
 */
-PUBLIC GLOBAL SIPManager* SIPManager::GetInstance()
+PUBLIC GLOBAL SipManager* SipManager::GetInstance()
 {
-    static SIPManager* pSIPMngr = IMS_NULL;
+    static SipManager* pSIPMngr = IMS_NULL;
 
     if (pSIPMngr == IMS_NULL)
     {
-        pSIPMngr = new SIPManager();
+        pSIPMngr = new SipManager();
     }
 
     return pSIPMngr;
@@ -279,7 +279,7 @@ Remarks
 
 */
 PRIVATE
-IMS_BOOL SIPManager::StartUp()
+IMS_BOOL SipManager::StartUp()
 {
     if (nState == STATE_ACTIVE)
     {
@@ -293,10 +293,10 @@ IMS_BOOL SIPManager::StartUp()
     }
 
     // Initialize the SIP stack & transaction layer
-    SIPStackState::GetInstance()->StartUp();
+    SipStackState::GetInstance()->StartUp();
 
     // For ACK retransmission for 2xx response to INVITE
-    SIPAckPackage::Init();
+    SipAckPackage::Init();
 
     SipDebug::InitLogging();
 
@@ -311,7 +311,7 @@ Remarks
 
 */
 PRIVATE
-void SIPManager::CleanUp()
+void SipManager::CleanUp()
 {
     if ((nState == STATE_INACTIVE) || (nState == STATE_PENDING))
     {
@@ -328,7 +328,7 @@ void SIPManager::CleanUp()
     {
         for (IMS_UINT32 i = 0; i < objDialogStates.GetSize(); ++i)
         {
-            SIPDialogState* pDState = objDialogStates.GetAt(i);
+            SipDialogState* pDState = objDialogStates.GetAt(i);
 
             if (pDState != IMS_NULL)
             {
@@ -345,7 +345,7 @@ void SIPManager::CleanUp()
     {
         for (IMS_UINT32 i = 0; i < objSCNs.GetSize(); ++i)
         {
-            SIPConnectionNotifier* pSCN = objSCNs.GetAt(i);
+            SipConnectionNotifier* pSCN = objSCNs.GetAt(i);
 
             if (pSCN != IMS_NULL)
             {
@@ -356,7 +356,7 @@ void SIPManager::CleanUp()
         objSCNs.Clear();
     }
 
-    SIPStackState::GetInstance()->CleanUp();
+    SipStackState::GetInstance()->CleanUp();
 
     nState = STATE_INACTIVE;
 }
@@ -366,9 +366,9 @@ void SIPManager::CleanUp()
 Remarks
 
 */
-PUBLIC GLOBAL IMS_BOOL StaticSIP::Initialize()
+PUBLIC GLOBAL IMS_BOOL StaticSip::Initialize()
 {
-    if (!SIPManager::GetInstance()->StartUp())
+    if (!SipManager::GetInstance()->StartUp())
     {
         return IMS_FALSE;  // throw exception
     }
@@ -383,9 +383,9 @@ PUBLIC GLOBAL IMS_BOOL StaticSIP::Initialize()
 Remarks
 
 */
-PUBLIC GLOBAL void StaticSIP::Uninitialize()
+PUBLIC GLOBAL void StaticSip::Uninitialize()
 {
-    SIPManager::GetInstance()->CleanUp();
+    SipManager::GetInstance()->CleanUp();
 
     IMS_TRACE_D(">>> SIP ENGINE IS SUCCESSFULLY UNLOADED <<<", 0, 0, 0);
 }
@@ -395,30 +395,30 @@ PUBLIC GLOBAL void StaticSIP::Uninitialize()
 Remarks
 
 */
-PUBLIC GLOBAL void StaticSIP::InitializeForSlot(IN IMS_SINT32 nSlotId)
+PUBLIC GLOBAL void StaticSip::InitializeForSlot(IN IMS_SINT32 nSlotId)
 {
     IMS_TRACE_D("InitializeForSlot :: slotId=%d", nSlotId, 0, 0);
 
-    IMS_SINT32 nOptions = SIPPrivate::OPTIONS_E;
+    IMS_SINT32 nOptions = SipPrivate::OPTIONS_E;
 
     if (SipConfigProxy::IsCompactFormConfigured(nSlotId))
     {
-        nOptions |= SIPPrivate::OPT_E_SHORTFORM;
+        nOptions |= SipPrivate::OPT_E_SHORTFORM;
     }
     else
     {
-        nOptions |= SIPPrivate::OPT_E_FULLFORM;
+        nOptions |= SipPrivate::OPT_E_FULLFORM;
     }
 
-    SIPPrivate::Init(nSlotId, nOptions);
+    SipPrivate::Init(nSlotId, nOptions);
 
-    SIPUtil::Init(nSlotId);
+    SipUtils::Init(nSlotId);
 
-    SIPTransportHelper* pTransportHelper =
-            SIPFactoryProxy::GetInstance()->GetTransportHelper(nSlotId);
+    SipTransportHelper* pTransportHelper =
+            SipFactoryProxy::GetInstance()->GetTransportHelper(nSlotId);
 
     // Attach the message handler from the network
-    pTransportHelper->SetListener(SIPMessageHandler::GetInstance());
+    pTransportHelper->SetListener(SipMessageHandler::GetInstance());
 }
 
 /*
@@ -426,7 +426,7 @@ PUBLIC GLOBAL void StaticSIP::InitializeForSlot(IN IMS_SINT32 nSlotId)
 Remarks
 
 */
-PUBLIC GLOBAL void StaticSIP::UninitializeForSlot(IN IMS_SINT32 nSlotId)
+PUBLIC GLOBAL void StaticSip::UninitializeForSlot(IN IMS_SINT32 nSlotId)
 {
     (void)nSlotId;
 

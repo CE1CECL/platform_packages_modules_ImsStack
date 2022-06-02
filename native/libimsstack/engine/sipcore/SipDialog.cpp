@@ -7,19 +7,19 @@
     </table>
 
     Description
-     This class represents one SIP dialog. The SIPDialog can be retrieved from a SIPConnection
+     This class represents one SIP dialog. The SipDialog can be retrieved from a SipConnection
     object, when it is available (at earliest after provisional 101~199 response).
     Three SIP requests can open a dialog: INVITE, SUBSCRIBE/NOTIFY and REFER/NOTIFY.
     An implementation compliant to this specification must support all of the following ways
     of creating dialogs:
-    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when the transaction BYE-200 OK is completed.
-    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SIPClientConnection
+    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SipClientConnection
     in the same dialog can be obtained by calling GetNewClientConnection(...) method.
     The dialog is terminated when a notifier sends a NOTIFY request with a "Subscription-State"
     of "terminated" and there are no other subscriptions alive in this dialog.
-    - REFER-matching NOTIFY will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - REFER-matching NOTIFY will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when a notifier sends a NOTIFY request with a "Subscription-State" of "terminated"
     and there are no other subscriptions alive in this dialog.
@@ -34,26 +34,26 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPDialog::SIPDialog(IN SIPDialogEx* pDialogEx_) :
+SipDialog::SipDialog(IN SipDialogEx* pDialogEx_) :
         pDialogEx(pDialogEx_)
 {
 }
 
 PUBLIC
-SIPDialog::SIPDialog(IN CONST SIPDialog& objRHS) :
+SipDialog::SipDialog(IN CONST SipDialog& objRHS) :
         pDialogEx(objRHS.pDialogEx)
 {
 }
 
 PUBLIC
-SIPDialog::~SIPDialog()
+SipDialog::~SipDialog()
 {
-    IMS_TRACE_D("Destructor :: SIPDialog (%s)",
+    IMS_TRACE_D("Destructor :: SipDialog (%s)",
             SipDebug::GetCharA1(pDialogEx->GetDialogState()->GetCallId().GetStr(), 8, '@'), 0, 0);
 }
 
 PUBLIC
-SIPDialog& SIPDialog::operator=(IN CONST SIPDialog& objRHS)
+SipDialog& SipDialog::operator=(IN CONST SipDialog& objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ SIPDialog& SIPDialog::operator=(IN CONST SIPDialog& objRHS)
 }
 
 /*
- Returns a new SIPClientConnection in this dialog. The returned SIPClientConnection will be
+ Returns a new SipClientConnection in this dialog. The returned SipClientConnection will be
 in STATE_INITIALIZED state. The object is initialized with the given method and default headers.
 
 Remarks
@@ -81,7 +81,7 @@ Remarks
     Max-Forwards
 */
 PUBLIC
-SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString& strMethod)
+SipClientConnection* SipDialog::CreateClientConnection(IN CONST AString& strMethod)
 {
     IMS_SINT32 nState = GetState();
 
@@ -96,20 +96,20 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString& strMeth
         }
         else
         {
-            SIPPrivate::SetLastError(SipError::INVALID_STATE);
+            SipPrivate::SetLastError(SipError::INVALID_STATE);
             return IMS_NULL;
         }
     }
 
     if (strMethod.IsNULL())
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
     if (strMethod.IsEmpty())
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
@@ -118,24 +118,24 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString& strMeth
     // Check the method validity for the current dialog
     if (!CheckMethodValidity(objMethod))
     {
-        SIPPrivate::SetLastError(SipError::INVALID_OPERATION);
+        SipPrivate::SetLastError(SipError::INVALID_OPERATION);
         return IMS_NULL;
     }
 
     // Get or create a proper dialog
-    RCPtr<SIPDialogEx> pNewDialogEx = GetOptimumDialog(objMethod);
+    RCPtr<SipDialogEx> pNewDialogEx = GetOptimumDialog(objMethod);
 
     if (pNewDialogEx.IsNull())
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
-    SIPClientConnection* pSCC = new SIPClientConnection();
+    SipClientConnection* pSCC = new SipClientConnection();
 
     if (pSCC == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -143,7 +143,7 @@ SIPClientConnection* SIPDialog::CreateClientConnection(IN CONST AString& strMeth
     {
         delete pSCC;
 
-        SIPPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
+        SipPrivate::SetLastError(SipError::TRANSACTION_UNAVAILABLE);
         return IMS_NULL;
     }
 
@@ -157,7 +157,7 @@ Remarks
 
 */
 PUBLIC
-const AString& SIPDialog::GetCallId() const
+const AString& SipDialog::GetCallId() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -171,7 +171,7 @@ Remarks
 
 */
 PUBLIC
-const ISipHeader* SIPDialog::GetContactHeader() const
+const ISipHeader* SipDialog::GetContactHeader() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ Remarks
 
 */
 PUBLIC
-AString SIPDialog::GetLocalTag() const
+AString SipDialog::GetLocalTag() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ Remarks
 
 */
 PUBLIC
-AString SIPDialog::GetRemoteTag() const
+AString SipDialog::GetRemoteTag() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -226,7 +226,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 SIPDialog::GetState() const
+IMS_SINT32 SipDialog::GetState() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -236,13 +236,13 @@ IMS_SINT32 SIPDialog::GetState() const
 
     switch (pDialogEx->GetState())
     {
-        case SIPDState::STATE_TERMINATED:
+        case SipDState::STATE_TERMINATED:
             return STATE_TERMINATED;
 
-        case SIPDState::STATE_EARLY:
+        case SipDState::STATE_EARLY:
             return STATE_EARLY;
 
-        case SIPDState::STATE_CONFIRMED:
+        case SipDState::STATE_CONFIRMED:
             return STATE_CONFIRMED;
 
         default:
@@ -251,21 +251,21 @@ IMS_SINT32 SIPDialog::GetState() const
 }
 
 /*
- Compares if the given SIPDialog equals or not.
+ Compares if the given SipDialog equals or not.
 
 Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPDialog::IsSameDialog(IN CONST SIPDialog* pDialog)
+IMS_BOOL SipDialog::IsSameDialog(IN CONST SipDialog* pDialog)
 {
     //---------------------------------------------------------------------------------------------
 
     if (pDialog == IMS_NULL)
         return IMS_FALSE;
 
-    SIPDialogState* pDState = pDialogEx->GetDialogState();
-    SIPDialogState* pOtherDState = pDialog->pDialogEx->GetDialogState();
+    SipDialogState* pDState = pDialogEx->GetDialogState();
+    SipDialogState* pOtherDState = pDialog->pDialogEx->GetDialogState();
 
     if (!pDState->Equals(pOtherDState))
     {
@@ -283,7 +283,7 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT SIPDialog::SetContactParameter(
+IMS_RESULT SipDialog::SetContactParameter(
         IN CONST AString& strParameter, IN IMS_SINT32 nOperation /* = 0 (0: ADD, 1: REMOVE) */)
 {
     //---------------------------------------------------------------------------------------------
@@ -297,7 +297,7 @@ Remarks
 
 */
 PUBLIC
-void SIPDialog::TerminateDialogUsage()
+void SipDialog::TerminateDialogUsage()
 {
     pDialogEx->TerminateDialogUsage();
 }
@@ -308,7 +308,7 @@ Remarks
 
 */
 PRIVATE
-void SIPDialog::UpdateDialog(IN SIPDialogEx* pDialogEx)
+void SipDialog::UpdateDialog(IN SipDialogEx* pDialogEx)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -321,7 +321,7 @@ Remarks
 
 */
 PRIVATE
-IMS_BOOL SIPDialog::CheckMethodValidity(IN CONST SipMethod& objMethod) const
+IMS_BOOL SipDialog::CheckMethodValidity(IN CONST SipMethod& objMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -352,7 +352,7 @@ Remarks
 
 */
 PRIVATE
-SIPDialogEx* SIPDialog::GetOptimumDialog(IN CONST SipMethod& objMethod) const
+SipDialogEx* SipDialog::GetOptimumDialog(IN CONST SipMethod& objMethod) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -380,6 +380,6 @@ SIPDialogEx* SIPDialog::GetOptimumDialog(IN CONST SipMethod& objMethod) const
     else
     {
         // After the request is sent, it will be updated by the client transaction
-        return SIPDialogEx::CreateDialog(pDialogEx->GetDialogState(), objMethod);
+        return SipDialogEx::CreateDialog(pDialogEx->GetDialogState(), objMethod);
     }
 }

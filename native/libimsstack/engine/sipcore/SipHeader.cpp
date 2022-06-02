@@ -8,7 +8,7 @@
 
     Description
      This class provides generic SIP header parser helper. It can be used to parse base string
-    header values that are read from SIP message using e.g. SIPConnection::GetHeader() method.
+    header values that are read from SIP message using e.g. SipConnection::GetHeader() method.
     It uses generic format to parse the header value and parameters following the syntax given
     in RFC 3261.
     - field-name: field-value *(;parameter-name=parameter-value)
@@ -24,7 +24,7 @@
 #include "SipHeader.h"
 
 // Constant Header Names
-PUBLIC GLOBAL const IMS_CHAR* SIPHeader::NAME[] = {
+PUBLIC GLOBAL const IMS_CHAR* SipHeader::NAME[] = {
         SipHeaderName::ALLOW,
         SipHeaderName::ALLOW_EVENTS,
         SipHeaderName::AUTHORIZATION,
@@ -99,7 +99,7 @@ PUBLIC GLOBAL const IMS_CHAR* SIPHeader::NAME[] = {
 };
 
 /*
- Constructs a new SIPHeader without any values.
+ Constructs a new SipHeader without any values.
 
 Remarks
 
@@ -116,7 +116,7 @@ return                  description
 </table>
 */
 PUBLIC
-SIPHeader::SIPHeader() :
+SipHeader::SipHeader() :
         nType(ISipHeader::ANY),
         strName(AString::ConstNull()),
         strBody(AString::ConstNull()),
@@ -143,9 +143,9 @@ return                  description
 </table>
 */
 PUBLIC
-SIPHeader::SIPHeader(IN IMS_SINT32 nType_) :
+SipHeader::SipHeader(IN IMS_SINT32 nType_) :
         nType(nType_),
-        strName(SIPStack::GetHeaderNameFromType(nType_)),
+        strName(SipStack::GetHeaderNameFromType(nType_)),
         strBody(AString::ConstNull()),
         pAddress(IMS_NULL)
 {
@@ -170,7 +170,7 @@ return                  description
 </table>
 */
 PUBLIC
-SIPHeader::SIPHeader(IN CONST AString& strName_) :
+SipHeader::SipHeader(IN CONST AString& strName_) :
         nType(ISipHeader::ANY),
         strName(strName_),
         strBody(AString::ConstNull()),
@@ -178,11 +178,11 @@ SIPHeader::SIPHeader(IN CONST AString& strName_) :
 {
     //---------------------------------------------------------------------------------------------
 
-    nType = SIPStack::GetHeaderTypeFromName(strName);
+    nType = SipStack::GetHeaderTypeFromName(strName);
 }
 
 /*
- Constructs a new SIPHeader from the pointer to SipHeaderBase structure.
+ Constructs a new SipHeader from the pointer to SipHeaderBase structure.
 
 Remarks
 
@@ -200,7 +200,7 @@ return                  description
 </table>
 */
 PUBLIC
-SIPHeader::SIPHeader(IN CONST SipHeaderBase* pstHeader) :
+SipHeader::SipHeader(IN CONST SipHeaderBase* pstHeader) :
         nType(ISipHeader::ANY),
         strName(AString::ConstNull()),
         strBody(AString::ConstNull()),
@@ -208,18 +208,18 @@ SIPHeader::SIPHeader(IN CONST SipHeaderBase* pstHeader) :
 {
     //---------------------------------------------------------------------------------------------
 
-    nType = SIPStack::GetHeaderType(pstHeader);
+    nType = SipStack::GetHeaderType(pstHeader);
 
     if (nType == ISipHeader::UNKNOWN)
     {
-        strName = SIPStack::GetUnknownHeaderName(const_cast<SipHeaderBase*>(pstHeader));
+        strName = SipStack::GetUnknownHeaderName(const_cast<SipHeaderBase*>(pstHeader));
     }
     else
     {
-        strName = SIPStack::GetHeaderNameFromType(nType);
+        strName = SipStack::GetHeaderNameFromType(nType);
     }
 
-    SIPStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strBody);
+    SipStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strBody);
 
     // If the header type is unknown, decode the body according to the general syntax rule...
     if (nType == ISipHeader::UNKNOWN)
@@ -227,7 +227,7 @@ SIPHeader::SIPHeader(IN CONST SipHeaderBase* pstHeader) :
         ParseUnknownBody(strBody);
     }
 
-    if (SIPStack::IsAddressFormatHeader(nType, strName))
+    if (SipStack::IsAddressFormatHeader(nType, strName))
     {
         pAddress = new SipAddress(strBody);
     }
@@ -237,12 +237,12 @@ SIPHeader::SIPHeader(IN CONST SipHeaderBase* pstHeader) :
     if ((nType != ISipHeader::P_PREFERRED_IDENTITY) && (nType != ISipHeader::P_ASSERTED_IDENTITY) &&
             (nType != ISipHeader::UNKNOWN))
     {
-        objParams = SIPStack::ExtractParameters(const_cast<SipHeaderBase*>(pstHeader));
+        objParams = SipStack::ExtractParameters(const_cast<SipHeaderBase*>(pstHeader));
     }
 }
 
 /*
- Destructs a SIPHeader instance.
+ Destructs a SipHeader instance.
 
 Remarks
 
@@ -258,7 +258,7 @@ return                  description
 ----------              ----------
 </table>
 */
-PUBLIC VIRTUAL SIPHeader::~SIPHeader()
+PUBLIC VIRTUAL SipHeader::~SipHeader()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -280,7 +280,7 @@ PUBLIC VIRTUAL SIPHeader::~SIPHeader()
 }
 
 /*
- Destroys the SIPHeader instance.
+ Destroys the SipHeader instance.
 
 Remarks
 
@@ -296,7 +296,7 @@ return                  description
 ----------              ----------
 </table>
 */
-PUBLIC VIRTUAL void SIPHeader::Destroy()
+PUBLIC VIRTUAL void SipHeader::Destroy()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -304,7 +304,7 @@ PUBLIC VIRTUAL void SIPHeader::Destroy()
 }
 
 /*
- Clones and returns a SIPHeader.
+ Clones and returns a SipHeader.
 
 Remarks
 
@@ -318,12 +318,12 @@ Returns
 <table>
 return                  description
 ----------              ----------
-new SIPHeader           Pointer to a new SIPHeader
+new SipHeader           Pointer to a new SipHeader
 </table>
 */
-PUBLIC VIRTUAL ISipHeader* SIPHeader::Clone() const
+PUBLIC VIRTUAL ISipHeader* SipHeader::Clone() const
 {
-    SIPHeader* pHeader = new SIPHeader(nType);
+    SipHeader* pHeader = new SipHeader(nType);
 
     //---------------------------------------------------------------------------------------------
 
@@ -353,7 +353,7 @@ PUBLIC VIRTUAL ISipHeader* SIPHeader::Clone() const
 }
 
 /*
- Checks if the given SIPHeader is the same.
+ Checks if the given SipHeader is the same.
 
 Remarks
 
@@ -372,9 +372,9 @@ IMS_TRUE                If both SIP headers matched, this value returns
 IMS_FALSE               If both SIP headers are not matched, this value returns
 </table>
 */
-PUBLIC VIRTUAL IMS_BOOL SIPHeader::Equals(IN CONST ISipHeader* piHeader) const
+PUBLIC VIRTUAL IMS_BOOL SipHeader::Equals(IN CONST ISipHeader* piHeader) const
 {
-    const SIPHeader* pHeader = DYNAMIC_CAST(const SIPHeader*, piHeader);
+    const SipHeader* pHeader = DYNAMIC_CAST(const SipHeader*, piHeader);
 
     //---------------------------------------------------------------------------------------------
 
@@ -386,15 +386,15 @@ PUBLIC VIRTUAL IMS_BOOL SIPHeader::Equals(IN CONST ISipHeader* piHeader) const
 
     if ((nType == ISipHeader::UNKNOWN) && (pHeader->nType == ISipHeader::UNKNOWN))
     {
-        const IMS_CHAR* pszFName = SIPStack::GetHeaderName(nType, strName);
-        const IMS_CHAR* pszOtherFName = SIPStack::GetHeaderName(pHeader->nType, pHeader->strName);
+        const IMS_CHAR* pszFName = SipStack::GetHeaderName(nType, strName);
+        const IMS_CHAR* pszOtherFName = SipStack::GetHeaderName(pHeader->nType, pHeader->strName);
 
         if (AString::CompareIgnoreCase(pszFName, pszOtherFName) != 0)
             return IMS_FALSE;
     }
 
     // Compare the header value field
-    if (SIPStack::IsAddressFormatHeader(nType, strName))
+    if (SipStack::IsAddressFormatHeader(nType, strName))
     {
         SipAddress objAddress(strBody);
         SipAddress objOtherAddress(pHeader->strBody);
@@ -436,7 +436,7 @@ SipAddress*             If the header is a format of SIP address, it returns thi
 NULL pointer            If the header is not a format of SIP address, it returns NULL pointer
 </table>
 */
-PUBLIC VIRTUAL const SipAddress* SIPHeader::GetSipAddress() const
+PUBLIC VIRTUAL const SipAddress* SipHeader::GetSipAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -464,7 +464,7 @@ Non-NULL                The full header value including the header parameters
 Empty or NULL           If the header has only a header name
 </table>
 */
-PUBLIC VIRTUAL AString SIPHeader::GetHeaderValue() const
+PUBLIC VIRTUAL AString SipHeader::GetHeaderValue() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -487,7 +487,7 @@ PUBLIC VIRTUAL AString SIPHeader::GetHeaderValue() const
 }
 
 /*
- Returns the header name of this SIPHeader.
+ Returns the header name of this SipHeader.
 
 Remarks
 
@@ -501,10 +501,10 @@ Returns
 <table>
 return                  description
 ----------              ----------
-String                  The header name of this SIPHeader
+String                  The header name of this SipHeader
 </table>
 */
-PUBLIC VIRTUAL const AString& SIPHeader::GetName() const
+PUBLIC VIRTUAL const AString& SipHeader::GetName() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -530,7 +530,7 @@ return                  description
 SipParameter*           Parameter to the specified parameter name
 </table>
 */
-PUBLIC VIRTUAL const SipParameter* SIPHeader::GetParameter(IN CONST AString& strName) const
+PUBLIC VIRTUAL const SipParameter* SipHeader::GetParameter(IN CONST AString& strName) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -566,7 +566,7 @@ IMS_SUCCESS             The operation is successfully done
 IMS_FAILURE             An error occurs
 </table>
 */
-PUBLIC VIRTUAL IMS_RESULT SIPHeader::GetParameterNames(OUT IMSList<AString>& objPNames) const
+PUBLIC VIRTUAL IMS_RESULT SipHeader::GetParameterNames(OUT IMSList<AString>& objPNames) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -576,17 +576,17 @@ PUBLIC VIRTUAL IMS_RESULT SIPHeader::GetParameterNames(OUT IMSList<AString>& obj
 
         if (!objPNames.Append(pParameter->GetName()))
         {
-            SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
+            SipPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
             return IMS_FAILURE;
         }
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
 /*
- Returns the list of all the header parameters in this SIPHeader.
+ Returns the list of all the header parameters in this SipHeader.
 
 Remarks
 
@@ -600,10 +600,10 @@ Returns
 <table>
 return                  description
 ----------              ----------
-List of SipParameter    The list of SipParameter for this SIPHeader
+List of SipParameter    The list of SipParameter for this SipHeader
 </table>
 */
-PUBLIC VIRTUAL const IMSList<SipParameter*>& SIPHeader::GetParameters() const
+PUBLIC VIRTUAL const IMSList<SipParameter*>& SipHeader::GetParameters() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -611,7 +611,7 @@ PUBLIC VIRTUAL const IMSList<SipParameter*>& SIPHeader::GetParameters() const
 }
 
 /*
- Returns the enumeration type of this SIPHeader which corresponds to the header name.
+ Returns the enumeration type of this SipHeader which corresponds to the header name.
 
 Remarks
 
@@ -625,10 +625,10 @@ Returns
 <table>
 return                  description
 ----------              ----------
-Type of header          Enumeration type of this SIPHeader
+Type of header          Enumeration type of this SipHeader
 </table>
 */
-PUBLIC VIRTUAL IMS_SINT32 SIPHeader::GetType() const
+PUBLIC VIRTUAL IMS_SINT32 SipHeader::GetType() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -658,7 +658,7 @@ Header body             The header value without header parameters
                         It is an empty string if the value was set to be NULL or empty string
 </table>
 */
-PUBLIC VIRTUAL const AString& SIPHeader::GetValue() const
+PUBLIC VIRTUAL const AString& SipHeader::GetValue() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -685,7 +685,7 @@ Header body             The header value without header parameters
                         It is -1 if the value cannot have an integer value
 </table>
 */
-PUBLIC VIRTUAL IMS_SINT32 SIPHeader::GetValueInt() const
+PUBLIC VIRTUAL IMS_SINT32 SipHeader::GetValueInt() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -720,7 +720,7 @@ PUBLIC VIRTUAL IMS_SINT32 SIPHeader::GetValueInt() const
 }
 
 /*
- Removes the header parameter if it is found in this SIPHeader.
+ Removes the header parameter if it is found in this SipHeader.
 
 Remarks
 
@@ -737,7 +737,7 @@ return                  description
 ----------              ----------
 </table>
 */
-PUBLIC VIRTUAL void SIPHeader::RemoveParameter(IN CONST AString& strName)
+PUBLIC VIRTUAL void SipHeader::RemoveParameter(IN CONST AString& strName)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -776,13 +776,13 @@ return                  description
 ----------              ----------
 </table>
 */
-PUBLIC VIRTUAL void SIPHeader::SetName(IN CONST AString& strName)
+PUBLIC VIRTUAL void SipHeader::SetName(IN CONST AString& strName)
 {
     //---------------------------------------------------------------------------------------------
 
     this->strName = strName.Trim();
 
-    nType = SIPStack::GetHeaderTypeFromName(this->strName);
+    nType = SipStack::GetHeaderTypeFromName(this->strName);
 }
 
 /*
@@ -811,7 +811,7 @@ IMS_SUCCESS             The header parameter is successfully set
 IMS_FAILURE             An error occurs
 </table>
 */
-PUBLIC VIRTUAL IMS_RESULT SIPHeader::SetParameter(
+PUBLIC VIRTUAL IMS_RESULT SipHeader::SetParameter(
         IN CONST AString& strName, IN CONST AString& strValue)
 {
     //---------------------------------------------------------------------------------------------
@@ -832,7 +832,7 @@ PUBLIC VIRTUAL IMS_RESULT SIPHeader::SetParameter(
 
     if (pParameter == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_FAILURE;
     }
 
@@ -840,11 +840,11 @@ PUBLIC VIRTUAL IMS_RESULT SIPHeader::SetParameter(
     {
         delete pParameter;
 
-        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
+        SipPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_FAILURE;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -869,7 +869,7 @@ IMS_SUCCESS             The full header value is successfully set
 IMS_FAILURE             An error occurs
 </table>
 */
-PUBLIC VIRTUAL IMS_RESULT SIPHeader::SetHeaderValue(IN CONST AString& strHeaderValue)
+PUBLIC VIRTUAL IMS_RESULT SipHeader::SetHeaderValue(IN CONST AString& strHeaderValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -905,7 +905,7 @@ IMS_SUCCESS             The header value is successfully set
 IMS_FAILURE             An error occurs
 </table>
 */
-PUBLIC VIRTUAL IMS_RESULT SIPHeader::SetValue(IN CONST AString& strValue)
+PUBLIC VIRTUAL IMS_RESULT SipHeader::SetValue(IN CONST AString& strValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -937,7 +937,7 @@ IMS_SUCCESS             The header value is successfully set
 IMS_FAILURE             An error occurs
 </table>
 */
-PUBLIC VIRTUAL IMS_RESULT SIPHeader::SetValueInt(IN IMS_SINT32 nValue)
+PUBLIC VIRTUAL IMS_RESULT SipHeader::SetValueInt(IN IMS_SINT32 nValue)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -986,10 +986,10 @@ Returns
 <table>
 return                  description
 ----------              ----------
-String                  String representation of this SIPHeader
+String                  String representation of this SipHeader
 </table>
 */
-PUBLIC VIRTUAL AString SIPHeader::ToString() const
+PUBLIC VIRTUAL AString SipHeader::ToString() const
 {
     AString strHeader;
 
@@ -1028,10 +1028,10 @@ Returns
 <table>
 return                  description
 ----------              ----------
-String                  String representation of this SIPHeader without header name
+String                  String representation of this SipHeader without header name
 </table>
 */
-PUBLIC VIRTUAL AString SIPHeader::ToStringWithoutName() const
+PUBLIC VIRTUAL AString SipHeader::ToStringWithoutName() const
 {
     AStringBuffer objHeaderValue(512);
 
@@ -1103,7 +1103,7 @@ IMS_TRUE                The header type is valid
 IMS_FALSE               The header type is not valid
 </table>
 */
-PUBLIC GLOBAL IMS_BOOL SIPHeader::IsValidType(IN IMS_SINT32 nType)
+PUBLIC GLOBAL IMS_BOOL SipHeader::IsValidType(IN IMS_SINT32 nType)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1135,7 +1135,7 @@ IMS_FALSE               An error occurs during parsing
 </table>
 */
 PRIVATE
-IMS_BOOL SIPHeader::Decode(IN CONST AString& strBody_, IN IMS_BOOL bParseParameter /* = IMS_TRUE */)
+IMS_BOOL SipHeader::Decode(IN CONST AString& strBody_, IN IMS_BOOL bParseParameter /* = IMS_TRUE */)
 {
     AString strTrimmedBody = strBody_.Trim();
 
@@ -1145,22 +1145,22 @@ IMS_BOOL SIPHeader::Decode(IN CONST AString& strBody_, IN IMS_BOOL bParseParamet
     {
         strBody = strTrimmedBody;
 
-        SIPPrivate::SetLastError(SipError::NO_ERROR);
+        SipPrivate::SetLastError(SipError::NO_ERROR);
         return IMS_TRUE;
     }
 
-    SipHeaderBase* pstHeader = SIPStack::DecodeHeader(nType, strName, strTrimmedBody);
+    SipHeaderBase* pstHeader = SipStack::DecodeHeader(nType, strName, strTrimmedBody);
 
     if (pstHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+        SipPrivate::SetLastError(SipError::PARSING_ERROR);
         return IMS_FALSE;
     }
 
     // Process the header type which has an ANY type: Contact, Expires, Retry-After
-    nType = SIPStack::GetHeaderType(pstHeader);
+    nType = SipStack::GetHeaderType(pstHeader);
 
-    SIPStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strBody);
+    SipStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strBody);
 
     // If the header type is unknown, decode the body according to the general syntax rule...
     if (nType == ISipHeader::UNKNOWN)
@@ -1174,11 +1174,11 @@ IMS_BOOL SIPHeader::Decode(IN CONST AString& strBody_, IN IMS_BOOL bParseParamet
         pAddress = IMS_NULL;
     }
 
-    if (SIPStack::IsAddressFormatHeader(nType, strName))
+    if (SipStack::IsAddressFormatHeader(nType, strName))
     {
         pAddress = new SipAddress(strBody);
 
-        if (SIPStack::IsAquotRequiredForAddressFormat(nType, strName))
+        if (SipStack::IsAquotRequiredForAddressFormat(nType, strName))
         {
             pAddress->SetAquotRequired(IMS_TRUE);
         }
@@ -1189,12 +1189,12 @@ IMS_BOOL SIPHeader::Decode(IN CONST AString& strBody_, IN IMS_BOOL bParseParamet
     if ((bParseParameter == IMS_TRUE) && (nType != ISipHeader::P_PREFERRED_IDENTITY) &&
             (nType != ISipHeader::P_ASSERTED_IDENTITY) && (nType != ISipHeader::UNKNOWN))
     {
-        objParams = SIPStack::ExtractParameters(pstHeader);
+        objParams = SipStack::ExtractParameters(pstHeader);
     }
 
-    SIPStack::FreeHeaderEx(pstHeader);
+    SipStack::FreeHeaderEx(pstHeader);
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_TRUE;
 }
 
@@ -1219,7 +1219,7 @@ IMS_FALSE               An error occurs during parsing
 </table>
 */
 PRIVATE
-IMS_BOOL SIPHeader::ParseUnknownBody(IN CONST AString& strBody_)
+IMS_BOOL SipHeader::ParseUnknownBody(IN CONST AString& strBody_)
 {
     // Find ';'
     IMS_SINT32 nSemiColon = TextParser::GetIndexOfDelimiter(strBody_, TextParser::CHAR_SEMICOLON);
@@ -1233,7 +1233,7 @@ IMS_BOOL SIPHeader::ParseUnknownBody(IN CONST AString& strBody_)
         return IMS_TRUE;
     }
 
-    objParams = SIPStack::ExtractParameters(
+    objParams = SipStack::ExtractParameters(
             strBody_.GetSubStr(nSemiColon + 1), TextParser::CHAR_SEMICOLON);
 
     strBody = strBody_.GetSubStr(0, nSemiColon).Trim();

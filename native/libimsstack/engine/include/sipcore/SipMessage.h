@@ -17,19 +17,22 @@
 #include "SipHeader.h"
 #include "SipMessageBodyPart.h"
 
-class SIPMessage : public ISipMessage
+namespace sipcore
+{
+
+class SipMessage : public ISipMessage
 {
 public:
-    explicit SIPMessage(IN IMS_SINT32 nType_ = ISipMessage::TYPE_REQUEST);
-    explicit SIPMessage(IN SipMessage* pstMessage_);
-    explicit SIPMessage(IN SipMessage* pstMessage_, IN IMS_BOOL bMessageClone);
-    virtual ~SIPMessage();
+    explicit SipMessage(IN IMS_SINT32 nType_ = ISipMessage::TYPE_REQUEST);
+    explicit SipMessage(IN ::SipMessage* pstMessage_);
+    explicit SipMessage(IN ::SipMessage* pstMessage_, IN IMS_BOOL bMessageClone);
+    virtual ~SipMessage();
 
 private:
-    SIPMessage(IN CONST SIPMessage& objRHS);
+    SipMessage(IN CONST SipMessage& objRHS);
 
 public:
-    SIPMessage& operator=(IN CONST SIPMessage& objRHS);
+    SipMessage& operator=(IN CONST SipMessage& objRHS);
 
 public:
     // ISipObject interface
@@ -79,11 +82,11 @@ public:
     virtual ByteArray ToByteArray(IN IMS_SINT32 nOptions = OPT_ALL) const;
 
     // ISipConnection interface
-    SIPMessageBodyPart* GetBodyPart() const;
+    SipMessageBodyPart* GetBodyPart() const;
 
     // ISipClientConnection interface
-    IMS_RESULT SetRequestURI(IN CONST AString& strURI);
-    void UpdateRequestURI();
+    IMS_RESULT SetRequestUri(IN CONST AString& strURI);
+    void UpdateRequestUri();
 
     // ISipServerConnection interface
     inline void SetStatusCode(IN IMS_SINT32 nStatusCode) { objStatusCode = nStatusCode; }
@@ -94,10 +97,10 @@ public:
     IMS_BOOL FormMessage();
     IMS_BOOL FormMessageOnChallenge();
     IMS_BOOL FormMessageOnRetransmission();
-    inline SipMessage* GetMessage() const { return pstMessage; }
+    inline ::SipMessage* GetMessage() const { return pstMessage; }
     inline void SetMethod(IN CONST SipMethod& objMethod) { this->objMethod = objMethod; }
 
-    static SIPMessage* CreateMessage(IN CONST ByteArray& objMessage);
+    static SipMessage* CreateMessage(IN CONST ByteArray& objMessage);
 
 private:
     void Init(IN IMS_BOOL bMessageClone);
@@ -113,11 +116,13 @@ private:
     AString strRequestURI;
     SipStatusCode objStatusCode;
 
-    SIPUnknownHeaders objUnknownHeaders;
+    SipUnknownHeaders objUnknownHeaders;
     IMS_BOOL bBodyPartParsed;
-    IMSList<SIPMessageBodyPart*> objBodyParts;
+    IMSList<SipMessageBodyPart*> objBodyParts;
 
-    SipMessage* pstMessage;
+    ::SipMessage* pstMessage;
 };
+
+}  // namespace sipcore
 
 #endif  // _SIP_MESSAGE_H_

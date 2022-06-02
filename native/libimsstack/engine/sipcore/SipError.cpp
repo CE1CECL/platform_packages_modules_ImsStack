@@ -23,5 +23,5 @@
  */
 PUBLIC GLOBAL IMS_SINT32 SipError::GetLastError()
 {
-    return SIPPrivate::GetLastError();
+    return SipPrivate::GetLastError();
 }

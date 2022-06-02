@@ -36,7 +36,7 @@ LOCAL inline void StripTrailingLWS(IN CONST IMS_CHAR* pszStart, IN_OUT IMS_CHAR*
 }
 
 PUBLIC
-SIPMessageFraming::SIPMessageFraming() :
+SipMessageFraming::SipMessageFraming() :
         nState(STATE_IDLE),
         nContentLength(0),
         nOffset(0),
@@ -46,7 +46,7 @@ SIPMessageFraming::SIPMessageFraming() :
 }
 
 PUBLIC
-SIPMessageFraming::~SIPMessageFraming() {}
+SipMessageFraming::~SipMessageFraming() {}
 
 /*
 
@@ -54,7 +54,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPMessageFraming::AppendPacket(IN CONST IMS_BYTE* pBuffer, IN IMS_SINT32 nBuffLen)
+IMS_BOOL SipMessageFraming::AppendPacket(IN CONST IMS_BYTE* pBuffer, IN IMS_SINT32 nBuffLen)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPMessageFraming::CheckCompleteMessage()
+IMS_BOOL SipMessageFraming::CheckCompleteMessage()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPMessageFraming::GetCompleteMessage(OUT ByteArray& objMessage) const
+IMS_BOOL SipMessageFraming::GetCompleteMessage(OUT ByteArray& objMessage) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -138,7 +138,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPMessageFraming::IgnoreCRLF()
+IMS_BOOL SipMessageFraming::IgnoreCrlf()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPMessageFraming::IsEmpty() const
+IMS_BOOL SipMessageFraming::IsEmpty() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -179,7 +179,7 @@ Remarks
 
 */
 PUBLIC
-void SIPMessageFraming::UpdateState()
+void SipMessageFraming::UpdateState()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -243,7 +243,7 @@ Remarks
 
 */
 PRIVATE
-void SIPMessageFraming::ParseContentLength()
+void SipMessageFraming::ParseContentLength()
 {
     const IMS_CHAR acCF_CLEN[2] = {SipHeaderName::CF_CONTENT_LENGTH, '\0'};
 
@@ -467,7 +467,7 @@ Remarks
 
 */
 PRIVATE
-void SIPMessageFraming::ParseMessageBody()
+void SipMessageFraming::ParseMessageBody()
 {
     IMS_CHAR* pBodyStart = (IMS_CHAR*)(objMessageBuffer.GetData() + nOffset);
     IMS_CHAR* pBodyEnd = (IMS_CHAR*)(objMessageBuffer.GetData() + objMessageBuffer.GetLength());

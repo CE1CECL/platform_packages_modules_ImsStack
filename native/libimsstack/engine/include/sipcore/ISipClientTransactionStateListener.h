@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_SIP_CLIENT_TRANSACTION_STATE_LISTENER_H_
 #define _INTERFACE_SIP_CLIENT_TRANSACTION_STATE_LISTENER_H_
 
-class SIPClientTransactionState;
+class SipClientTransactionState;
 
 /*
 SIP client transaction state listener interface
@@ -23,7 +23,7 @@ Example
 See Also
 
 */
-class ISIPClientTransactionStateListener
+class ISipClientTransactionStateListener
 {
 public:
     /*
@@ -43,7 +43,7 @@ public:
     </table>
     */
     virtual void ClientTransactionState_ForkedResponseReceived(
-            IN SIPClientTransactionState* pCTState) = 0;
+            IN SipClientTransactionState* pCTState) = 0;
 
     /*
 
@@ -61,7 +61,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void ClientTransactionState_ResponseReceived(IN SipMessage* pstMessage) = 0;
+    virtual void ClientTransactionState_ResponseReceived(IN ::SipMessage* pstMessage) = 0;
 };
 
 #endif  // _INTERFACE_SIP_CLIENT_TRANSACTION_STATE_LISTENER_H_

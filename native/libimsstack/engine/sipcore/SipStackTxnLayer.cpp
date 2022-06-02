@@ -22,13 +22,13 @@
 LOCAL SIP_BOOL SIPStackTxnLayer_FetchTransaction(IN SIP_VOID* pvTxnKey, IN SIP_INT32 nOption,
         OUT SIP_VOID** ppvOutTxnKey, OUT SIP_VOID** ppvTxn)
 {
-    SipTxnKey* pOutKey = IMS_NULL;
+    ::SipTxnKey* pOutKey = IMS_NULL;
     SipTxn* pOutTxn = IMS_NULL;
-    SIPStackState* pStackState = SIPStackState::GetInstance();
+    SipStackState* pStackState = SipStackState::GetInstance();
 
     if (ppvOutTxnKey != IMS_NULL)
     {
-        pOutKey = static_cast<SipTxnKey*>(*ppvOutTxnKey);
+        pOutKey = static_cast<::SipTxnKey*>(*ppvOutTxnKey);
     }
 
     if (ppvTxn != IMS_NULL)
@@ -36,7 +36,8 @@ LOCAL SIP_BOOL SIPStackTxnLayer_FetchTransaction(IN SIP_VOID* pvTxnKey, IN SIP_I
         pOutTxn = static_cast<SipTxn*>(*ppvTxn);
     }
 
-    if (pStackState->FetchTransaction(static_cast<SipTxnKey*>(pvTxnKey), nOption, pOutKey, pOutTxn))
+    if (pStackState->FetchTransaction(
+                static_cast<::SipTxnKey*>(pvTxnKey), nOption, pOutKey, pOutTxn))
     {
         if (ppvOutTxnKey != IMS_NULL)
         {
@@ -57,13 +58,13 @@ LOCAL SIP_BOOL SIPStackTxnLayer_FetchTransaction(IN SIP_VOID* pvTxnKey, IN SIP_I
 LOCAL SIP_BOOL SIPStackTxnLayer_ReleaseTransaction(IN SIP_VOID* pvInTxnKey, IN SIP_INT32 nOption,
         OUT SIP_VOID** ppvOutTxnKey, OUT SIP_VOID** ppvTxn)
 {
-    SipTxnKey* pOutKey = IMS_NULL;
+    ::SipTxnKey* pOutKey = IMS_NULL;
     SipTxn* pOutTxn = IMS_NULL;
-    SIPStackState* pStackState = SIPStackState::GetInstance();
+    SipStackState* pStackState = SipStackState::GetInstance();
 
     if (ppvOutTxnKey != IMS_NULL)
     {
-        pOutKey = static_cast<SipTxnKey*>(*ppvOutTxnKey);
+        pOutKey = static_cast<::SipTxnKey*>(*ppvOutTxnKey);
     }
 
     if (ppvTxn != IMS_NULL)
@@ -72,7 +73,7 @@ LOCAL SIP_BOOL SIPStackTxnLayer_ReleaseTransaction(IN SIP_VOID* pvInTxnKey, IN S
     }
 
     if (pStackState->ReleaseTransaction(
-                static_cast<SipTxnKey*>(pvInTxnKey), nOption, pOutKey, pOutTxn))
+                static_cast<::SipTxnKey*>(pvInTxnKey), nOption, pOutKey, pOutTxn))
     {
         if (ppvOutTxnKey != IMS_NULL)
         {
@@ -94,11 +95,11 @@ LOCAL SIP_VOID* SIPStackTxnLayer_CreateAckRequest(
         IN SIP_VOID* pvRespMsg, IN ISipUserData* pUserData)
 {
     SipTxnContext* pTC = reinterpret_cast<SipTxnContext*>(pUserData->GetUserData());
-    SIPTxnContextData* pTCD = (pTC != IMS_NULL)
-            ? reinterpret_cast<SIPTxnContextData*>(pTC->pTxnContextData)
+    SipTxnContextData* pTCD = (pTC != IMS_NULL)
+            ? reinterpret_cast<SipTxnContextData*>(pTC->pTxnContextData)
             : IMS_NULL;
-    SIPClientTransactionState* pCTState = (pTCD != IMS_NULL)
-            ? reinterpret_cast<SIPClientTransactionState*>(pTCD->GetTxnState())
+    SipClientTransactionState* pCTState = (pTCD != IMS_NULL)
+            ? reinterpret_cast<SipClientTransactionState*>(pTCD->GetTxnState())
             : IMS_NULL;
 
     if (pCTState == IMS_NULL)
@@ -107,34 +108,34 @@ LOCAL SIP_VOID* SIPStackTxnLayer_CreateAckRequest(
     }
 
     return reinterpret_cast<void*>(
-            pCTState->CreateAckRequest(reinterpret_cast<SipMessage*>(pvRespMsg)));
+            pCTState->CreateAckRequest(reinterpret_cast<::SipMessage*>(pvRespMsg)));
 }
 
 LOCAL SIP_VOID SIPStackTxnLayer_PreProcessMessageSentByStack(
         IN SIP_VOID* pvSipMsg, IN ISipUserData* pUserData)
 {
     SipTxnContext* pTC = reinterpret_cast<SipTxnContext*>(pUserData->GetUserData());
-    SIPTxnContextData* pTCD = (pTC != IMS_NULL)
-            ? reinterpret_cast<SIPTxnContextData*>(pTC->pTxnContextData)
+    SipTxnContextData* pTCD = (pTC != IMS_NULL)
+            ? reinterpret_cast<SipTxnContextData*>(pTC->pTxnContextData)
             : IMS_NULL;
-    SIPTransactionState* pTState = (pTCD != IMS_NULL) ? pTCD->GetTxnState() : IMS_NULL;
+    SipTransactionState* pTState = (pTCD != IMS_NULL) ? pTCD->GetTxnState() : IMS_NULL;
 
     if (pTState == IMS_NULL)
     {
         return;
     }
 
-    pTState->PreProcessMessageSentByStack(reinterpret_cast<SipMessage*>(pvSipMsg));
+    pTState->PreProcessMessageSentByStack(reinterpret_cast<::SipMessage*>(pvSipMsg));
 }
 
 LOCAL SIP_VOID SIPStackTxnLayer_PostProcessMessageSentByStack(IN SIP_VOID* pvSipMsg,
         IN SIP_CHAR* pcBuffer, IN SIP_UINT32 uiBufferLen, IN ISipUserData* pUserData)
 {
     SipTxnContext* pTC = reinterpret_cast<SipTxnContext*>(pUserData->GetUserData());
-    SIPTxnContextData* pTCD = (pTC != IMS_NULL)
-            ? reinterpret_cast<SIPTxnContextData*>(pTC->pTxnContextData)
+    SipTxnContextData* pTCD = (pTC != IMS_NULL)
+            ? reinterpret_cast<SipTxnContextData*>(pTC->pTxnContextData)
             : IMS_NULL;
-    SIPTransactionState* pTState = (pTCD != IMS_NULL) ? pTCD->GetTxnState() : IMS_NULL;
+    SipTransactionState* pTState = (pTCD != IMS_NULL) ? pTCD->GetTxnState() : IMS_NULL;
 
     if (pTState == IMS_NULL)
     {
@@ -143,12 +144,12 @@ LOCAL SIP_VOID SIPStackTxnLayer_PostProcessMessageSentByStack(IN SIP_VOID* pvSip
 
     ByteArray objBuffer(reinterpret_cast<const IMS_BYTE*>(pcBuffer), uiBufferLen);
 
-    pTState->PostProcessMessageSentByStack(reinterpret_cast<SipMessage*>(pvSipMsg), objBuffer);
+    pTState->PostProcessMessageSentByStack(reinterpret_cast<::SipMessage*>(pvSipMsg), objBuffer);
 }
 
 LOCAL SIP_VOID SIPStackTxnLayer_DisplayTxnKey(IN SIP_VOID* pvTxnKey)
 {
-    SIPStack::DisplayTxnKey((SipTxnKey*)pvTxnKey);
+    SipStack::DisplayTxnKey((::SipTxnKey*)pvTxnKey);
 }
 
 LOCAL SIP_VOID SIPStackTxnLayer_OnTimerExpired(IN ISipUserData* pUserData, IN IMS_SINT32 nTimerType)
@@ -169,19 +170,19 @@ LOCAL SIP_VOID SIPStackTxnLayer_OnTimerExpired(IN ISipUserData* pUserData, IN IM
     {
         // CSM moving from "Completed" to "Terminated".
         // This is a normal case and ignore these cases.
-        SIPStack::DestroyTxnContext(pTC);
+        SipStack::DestroyTxnContext(pTC);
         return;
     }
 
-    SIPTransactionTimer::TimerExpired(enTimerType);
+    SipTransactionTimer::TimerExpired(enTimerType);
 
     if (pTC != IMS_NULL)
     {
-        SIPTxnContextData* pTxnContextData = (SIPTxnContextData*)pTC->pTxnContextData;
+        SipTxnContextData* pTxnContextData = (SipTxnContextData*)pTC->pTxnContextData;
 
         if (pTxnContextData != IMS_NULL)
         {
-            SIPTransactionState* pTState = pTxnContextData->GetTxnState();
+            SipTransactionState* pTState = pTxnContextData->GetTxnState();
 
             if (pTState != IMS_NULL)
             {
@@ -191,14 +192,14 @@ LOCAL SIP_VOID SIPStackTxnLayer_OnTimerExpired(IN ISipUserData* pUserData, IN IM
     }
 
     // Free the event context
-    SIPStack::DestroyTxnContext(pTC);
+    SipStack::DestroyTxnContext(pTC);
 }
 
 LOCAL SIP_BOOL SIPStackTxnLayer_StartTimer(IN SIP_UINT32 nDuration,
         IN SipTimerCallback pfnTimerCallback, IN SIP_VOID* pvData, OUT SIP_VOID** ppvHandle)
 {
     SipTimeoutData* pTimeoutData = reinterpret_cast<SipTimeoutData*>(pvData);
-    SIPTransactionTimer* pTimer = new SIPTransactionTimer(pTimeoutData, pfnTimerCallback);
+    SipTransactionTimer* pTimer = new SipTransactionTimer(pTimeoutData, pfnTimerCallback);
 
     if (pTimer == IMS_NULL)
     {
@@ -217,7 +218,7 @@ LOCAL SIP_BOOL SIPStackTxnLayer_StartTimer(IN SIP_UINT32 nDuration,
 
 LOCAL SIP_BOOL SIPStackTxnLayer_StopTimer(IN SIP_VOID* pvHandle, OUT SIP_VOID** ppvData)
 {
-    SIPTransactionTimer* pTimer = static_cast<SIPTransactionTimer*>(pvHandle);
+    SipTransactionTimer* pTimer = static_cast<SipTransactionTimer*>(pvHandle);
 
     if (pTimer == IMS_NULL)
     {
@@ -232,9 +233,9 @@ LOCAL SIP_BOOL SIPStackTxnLayer_StopTimer(IN SIP_VOID* pvHandle, OUT SIP_VOID** 
 }
 
 // Initialization function for SIP transaction layer
-GLOBAL void SIPStackTxnLayer_Initialize()
+GLOBAL void SipStackTxnLayer_Initialize()
 {
-    static const SIPStackCallbacks stCallbacks = {&SIPStackTxnLayer_FetchTransaction,
+    static const SipStackCallbacks stCallbacks = {&SIPStackTxnLayer_FetchTransaction,
             &SIPStackTxnLayer_ReleaseTransaction, &SIPStackTxnLayer_StartTimer,
             &SIPStackTxnLayer_StopTimer, &SIPStackTxnLayer_OnTimerExpired,
             &SIPStackTxnLayer_CreateAckRequest, &SIPStackTxnLayer_PreProcessMessageSentByStack,
@@ -242,5 +243,5 @@ GLOBAL void SIPStackTxnLayer_Initialize()
 
     //---------------------------------------------------------------------------------------------
 
-    SIPStackCallback_SetCallbacks(stCallbacks);
+    SipStackCallback_SetCallbacks(stCallbacks);
 }

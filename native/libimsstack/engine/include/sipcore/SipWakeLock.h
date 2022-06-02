@@ -14,14 +14,14 @@
 
 #include "SipMethod.h"
 
-class SIPWakeLock
+class SipWakeLock
 {
 private:
-    SIPWakeLock();
+    SipWakeLock();
 
 private:
-    SIPWakeLock(IN CONST SIPWakeLock& objRHS);
-    SIPWakeLock& operator=(IN CONST SIPWakeLock& objRHS);
+    SipWakeLock(IN CONST SipWakeLock& objRHS);
+    SipWakeLock& operator=(IN CONST SipWakeLock& objRHS);
 
 public:
     static void Acquire(IN CONST SipMethod& objMethod, IN IMS_UINT32 nTimeout = 0);

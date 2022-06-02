@@ -288,7 +288,7 @@ IMS_RESULT SipParameter::SetValue(IN const AString& strValue)
 {
     if (strValue.IsEmpty())
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -296,13 +296,13 @@ IMS_RESULT SipParameter::SetValue(IN const AString& strValue)
 
     if (strValue.IsNULL())
     {
-        SIPPrivate::SetLastError(SipError::NO_ERROR);
+        SipPrivate::SetLastError(SipError::NO_ERROR);
         return IMS_SUCCESS;
     }
 
     m_objValues.AddElement(strValue);
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -311,7 +311,7 @@ IMS_RESULT SipParameter::SetValues(IN const AString& strValues)
 {
     if (strValues.IsEmpty())
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -319,7 +319,7 @@ IMS_RESULT SipParameter::SetValues(IN const AString& strValues)
 
     if (strValues.IsNULL())
     {
-        SIPPrivate::SetLastError(SipError::NO_ERROR);
+        SipPrivate::SetLastError(SipError::NO_ERROR);
         return IMS_SUCCESS;
     }
 
@@ -347,7 +347,7 @@ IMS_RESULT SipParameter::SetValues(IN const AString& strValues)
         m_objValues.AddElement(strValues);
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 

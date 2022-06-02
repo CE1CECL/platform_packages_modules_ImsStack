@@ -21,17 +21,17 @@
 
 PUBLIC GLOBAL ISipHeader* SipParsingHelper::CreateHeader(IN const AString& strName)
 {
-    return new SIPHeader(strName);
+    return new SipHeader(strName);
 }
 
 PUBLIC GLOBAL ISipHeader* SipParsingHelper::CreateHeader(
         IN const AString& strName, IN const AString& strValue)
 {
-    SIPHeader* pHeader = new SIPHeader(strName);
+    SipHeader* pHeader = new SipHeader(strName);
 
     if (pHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -48,17 +48,17 @@ PUBLIC GLOBAL ISipHeader* SipParsingHelper::CreateHeader(
 PUBLIC GLOBAL ISipHeader* SipParsingHelper::CreateHeader(
         IN IMS_SINT32 nType, IN const AString& strValue)
 {
-    if (!SIPHeader::IsValidType(nType))
+    if (!SipHeader::IsValidType(nType))
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
-    SIPHeader* pHeader = new SIPHeader(nType);
+    SipHeader* pHeader = new SipHeader(nType);
 
     if (pHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_NULL;
     }
 
@@ -76,30 +76,30 @@ PUBLIC GLOBAL ISipMessage* SipParsingHelper::CreateMessage(IN IMS_SINT32 nType)
 {
     if ((nType != ISipMessage::TYPE_REQUEST) && (nType != ISipMessage::TYPE_RESPONSE))
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_NULL;
     }
 
-    return new SIPMessage(nType);
+    return new sipcore::SipMessage(nType);
 }
 
 PUBLIC GLOBAL ISipMessage* SipParsingHelper::CreateMessage(IN const ByteArray& objMessage)
 {
-    return SIPMessage::CreateMessage(objMessage);
+    return sipcore::SipMessage::CreateMessage(objMessage);
 }
 
 PUBLIC GLOBAL ISipMessageBodyPart* SipParsingHelper::CreateMessageBodyPart()
 {
-    return new SIPMessageBodyPart();
+    return new SipMessageBodyPart();
 }
 
 PUBLIC GLOBAL IMS_BOOL SipParsingHelper::CreateMessageBodyParts(IN_OUT ISipMessage* piSipMsg)
 {
-    SIPMessage* pSipMsg = DYNAMIC_CAST(SIPMessage*, piSipMsg);
+    sipcore::SipMessage* pSipMsg = DYNAMIC_CAST(sipcore::SipMessage*, piSipMsg);
 
     if (pSipMsg == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FALSE;
     }
 

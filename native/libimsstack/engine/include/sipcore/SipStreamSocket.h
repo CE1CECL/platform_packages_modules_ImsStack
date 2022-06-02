@@ -18,18 +18,18 @@
 #include "SipSocket.h"
 #include "SipMessageFraming.h"
 
-class ISIPStreamSocketListener;
+class ISipStreamSocketListener;
 
-class SIPStreamSocket : public SIPSocket, public ITimerListener
+class SipStreamSocket : public SipSocket, public ITimerListener
 {
 public:
-    explicit SIPStreamSocket(IN IMS_SINT32 nSlotId);
-    SIPStreamSocket(IN IMS_SINT32 nSlotId, IN ISocket* piSocket_);
-    virtual ~SIPStreamSocket();
+    explicit SipStreamSocket(IN IMS_SINT32 nSlotId);
+    SipStreamSocket(IN IMS_SINT32 nSlotId, IN ISocket* piSocket_);
+    virtual ~SipStreamSocket();
 
 private:
-    SIPStreamSocket(IN CONST SIPStreamSocket& objRHS);
-    SIPStreamSocket& operator=(IN CONST SIPStreamSocket& objRHS);
+    SipStreamSocket(IN CONST SipStreamSocket& objRHS);
+    SipStreamSocket& operator=(IN CONST SipStreamSocket& objRHS);
 
 public:
     virtual void ApplyIpSec(IN ISocket* piAcceptedSocket = IMS_NULL);
@@ -46,10 +46,10 @@ public:
     IMS_BOOL IsKeepAlivePermanent() const;
     IMS_BOOL IsSecureSocket() const;
     void ReuseSocket();
-    void SetConfigForSIPKeepAlive(IN IMS_BOOL bSIPKeepAlive);
+    void SetConfigForSipKeepAlive(IN IMS_BOOL bSIPKeepAlive);
     void SetFarEnd(IN CONST IPAddress& objIPA, IN IMS_UINT32 nPort);
     void SetKeepAlivePolicy(IN IMS_SINT32 nPolicy);
-    void SetListener(IN ISIPStreamSocketListener* piListener);
+    void SetListener(IN ISipStreamSocketListener* piListener);
 
 protected:
     // ITimerListener interface
@@ -83,7 +83,7 @@ private:
     };
 
     SipConfig::TcpTimerValues objTV_TCP;
-    SIPMessageFraming objMFraming;
+    SipMessageFraming objMFraming;
 
     IMS_BOOL bSecure;
     IMS_BOOL bSIPKeepAliveConfigured;
@@ -91,7 +91,7 @@ private:
     ITimer* piTxTimer;
     IMS_UINT32 nLastAliveTime;
     ITimer* piKeepAliveTimer;
-    ISIPStreamSocketListener* piListener;
+    ISipStreamSocketListener* piListener;
 };
 
 #endif  // _SIP_STREAM_SOCKET_H_

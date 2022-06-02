@@ -15,11 +15,11 @@
 
 #include "IPAddress.h"
 
-class SIPPortManager
+class SipPortManager
 {
 private:
-    SIPPortManager();
-    ~SIPPortManager();
+    SipPortManager();
+    ~SipPortManager();
 
 public:
     void Clear();
@@ -27,7 +27,7 @@ public:
     IMS_BOOL IsPortCProvisioned() const;
     void SetPortC(IN IMS_SINT32 nPortStart, IN IMS_SINT32 nPortEnd);
 
-    static SIPPortManager* GetInstance();
+    static SipPortManager* GetInstance();
 
 private:
     IMS_SINT32 GetNextPortC() const;

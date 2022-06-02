@@ -21,21 +21,21 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPForkedTransactionManager::SIPForkedTransactionManager() :
+SipForkedTransactionManager::SipForkedTransactionManager() :
         RCObject(),
         nStatusCode(SipStatusCode::SC_INVALID)
 {
 }
 
 PUBLIC
-SIPForkedTransactionManager::SIPForkedTransactionManager(
-        IN const SIPForkedTransactionManager& objRHS) :
+SipForkedTransactionManager::SipForkedTransactionManager(
+        IN const SipForkedTransactionManager& objRHS) :
         RCObject(objRHS),
         nStatusCode(objRHS.nStatusCode)
 {
 }
 
-PUBLIC VIRTUAL SIPForkedTransactionManager::~SIPForkedTransactionManager() {}
+PUBLIC VIRTUAL SipForkedTransactionManager::~SipForkedTransactionManager() {}
 
 /*
 
@@ -43,13 +43,13 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPForkedTransactionManager::Add(IN SIPClientTransactionState* pCTState)
+IMS_BOOL SipForkedTransactionManager::Add(IN SipClientTransactionState* pCTState)
 {
     //---------------------------------------------------------------------------------------------
 
     for (IMS_UINT32 i = 0; i < objTxnStates.GetSize(); ++i)
     {
-        const RCPtr<SIPClientTransactionState>& pTmpCTState = objTxnStates.GetAt(i);
+        const RCPtr<SipClientTransactionState>& pTmpCTState = objTxnStates.GetAt(i);
 
         if (pTmpCTState.Get() == pCTState)
         {
@@ -72,7 +72,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPForkedTransactionManager::IsEmpty() const
+IMS_BOOL SipForkedTransactionManager::IsEmpty() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPForkedTransactionManager::IsTransactionCompleted() const
+IMS_BOOL SipForkedTransactionManager::IsTransactionCompleted() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ Remarks
 
 */
 PUBLIC
-SIPClientTransactionState* SIPForkedTransactionManager::Lookup(IN SipMessage* pstMessage) const
+SipClientTransactionState* SipForkedTransactionManager::Lookup(IN ::SipMessage* pstMessage) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ SIPClientTransactionState* SIPForkedTransactionManager::Lookup(IN SipMessage* ps
     // Not forked case
     if (objTxnStates.GetSize() == 1)
     {
-        const RCPtr<SIPClientTransactionState>& pCTState = objTxnStates.GetAt(0);
+        const RCPtr<SipClientTransactionState>& pCTState = objTxnStates.GetAt(0);
 
         return pCTState.Get();
     }
@@ -126,43 +126,43 @@ SIPClientTransactionState* SIPForkedTransactionManager::Lookup(IN SipMessage* ps
     AString strCallId;
 
     // Call Id
-    pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::CALL_ID);
-    SIPStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strCallId);
-    SIPStack::FreeHeaderEx(pstHeader);
+    pstHeader = SipStack::GetHeader(pstMessage, ISipHeader::CALL_ID);
+    SipStack::EncodeHeaderBody(pstHeader, IMS_FALSE, strCallId);
+    SipStack::FreeHeaderEx(pstHeader);
 
-    if (SIPStack::IsRequestMessage(pstMessage))
+    if (SipStack::IsRequestMessage(pstMessage))
     {
         // Get local tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
+        pstHeader = SipStack::GetHeader(pstMessage, ISipHeader::TO);
 
-        strNewLocalTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
-        SIPStack::FreeHeaderEx(pstHeader);
+        strNewLocalTag = SipStack::GetParameter(pstHeader, Sip::STR_TAG);
+        SipStack::FreeHeaderEx(pstHeader);
 
         // Get remote tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
+        pstHeader = SipStack::GetHeader(pstMessage, ISipHeader::FROM);
 
-        strNewRemoteTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
-        SIPStack::FreeHeaderEx(pstHeader);
+        strNewRemoteTag = SipStack::GetParameter(pstHeader, Sip::STR_TAG);
+        SipStack::FreeHeaderEx(pstHeader);
     }
     else
     {
         // Get local tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::FROM);
+        pstHeader = SipStack::GetHeader(pstMessage, ISipHeader::FROM);
 
-        strNewLocalTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
-        SIPStack::FreeHeaderEx(pstHeader);
+        strNewLocalTag = SipStack::GetParameter(pstHeader, Sip::STR_TAG);
+        SipStack::FreeHeaderEx(pstHeader);
 
         // Get remote tag
-        pstHeader = SIPStack::GetHeader(pstMessage, ISipHeader::TO);
+        pstHeader = SipStack::GetHeader(pstMessage, ISipHeader::TO);
 
-        strNewRemoteTag = SIPStack::GetParameter(pstHeader, Sip::STR_TAG);
-        SIPStack::FreeHeaderEx(pstHeader);
+        strNewRemoteTag = SipStack::GetParameter(pstHeader, Sip::STR_TAG);
+        SipStack::FreeHeaderEx(pstHeader);
     }
 
     for (IMS_UINT32 i = 0; i < objTxnStates.GetSize(); ++i)
     {
-        const RCPtr<SIPClientTransactionState>& pCTState = objTxnStates.GetAt(i);
-        SIPDialogState* pDState = pCTState->GetDialog()->GetDialogState();
+        const RCPtr<SipClientTransactionState>& pCTState = objTxnStates.GetAt(i);
+        SipDialogState* pDState = pCTState->GetDialog()->GetDialogState();
 
         AString strLocalTag = pDState->GetLocalTag();
         AString strRemoteTag = pDState->GetRemoteTag();
@@ -178,7 +178,7 @@ SIPClientTransactionState* SIPForkedTransactionManager::Lookup(IN SipMessage* ps
         }
     }
 
-    const RCPtr<SIPClientTransactionState>& pCTState =
+    const RCPtr<SipClientTransactionState>& pCTState =
             objTxnStates.GetAt(objTxnStates.GetSize() - 1);
 
     return pCTState.Get();
@@ -190,13 +190,13 @@ Remarks
 
 */
 PUBLIC
-void SIPForkedTransactionManager::Remove(IN SIPClientTransactionState* pCTState)
+void SipForkedTransactionManager::Remove(IN SipClientTransactionState* pCTState)
 {
     //---------------------------------------------------------------------------------------------
 
     for (IMS_UINT32 i = 0; i < objTxnStates.GetSize(); ++i)
     {
-        const RCPtr<SIPClientTransactionState>& pTmpCTState = objTxnStates.GetAt(i);
+        const RCPtr<SipClientTransactionState>& pTmpCTState = objTxnStates.GetAt(i);
 
         if (pTmpCTState.Get() == pCTState)
         {
@@ -213,7 +213,7 @@ Remarks
 
 */
 PUBLIC
-void SIPForkedTransactionManager::SetTransactionCompleted(IN IMS_SINT32 nStatusCode)
+void SipForkedTransactionManager::SetTransactionCompleted(IN IMS_SINT32 nStatusCode)
 {
     //---------------------------------------------------------------------------------------------
 

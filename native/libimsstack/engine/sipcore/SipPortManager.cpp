@@ -19,7 +19,7 @@
 __IMS_TRACE_TAG_SIP__;
 
 PRIVATE
-SIPPortManager::SIPPortManager() :
+SipPortManager::SipPortManager() :
         nPortC_Start(0),
         nPortC_End(CLIENT_PORT_END),
         nNextPortC(0)
@@ -27,10 +27,10 @@ SIPPortManager::SIPPortManager() :
 }
 
 PRIVATE
-SIPPortManager::~SIPPortManager() {}
+SipPortManager::~SipPortManager() {}
 
 PUBLIC
-void SIPPortManager::Clear()
+void SipPortManager::Clear()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ void SIPPortManager::Clear()
 }
 
 PUBLIC
-IMS_SINT32 SIPPortManager::GetPortC(IN CONST IPAddress& objIP) const
+IMS_SINT32 SipPortManager::GetPortC(IN CONST IPAddress& objIP) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ IMS_SINT32 SIPPortManager::GetPortC(IN CONST IPAddress& objIP) const
 }
 
 PUBLIC
-IMS_BOOL SIPPortManager::IsPortCProvisioned() const
+IMS_BOOL SipPortManager::IsPortCProvisioned() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ IMS_BOOL SIPPortManager::IsPortCProvisioned() const
 }
 
 PUBLIC
-void SIPPortManager::SetPortC(IN IMS_SINT32 nPortStart, IN IMS_SINT32 nPortEnd)
+void SipPortManager::SetPortC(IN IMS_SINT32 nPortStart, IN IMS_SINT32 nPortEnd)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -84,22 +84,22 @@ void SIPPortManager::SetPortC(IN IMS_SINT32 nPortStart, IN IMS_SINT32 nPortEnd)
     SetNextPortC(nStartingPort);
 }
 
-PUBLIC GLOBAL SIPPortManager* SIPPortManager::GetInstance()
+PUBLIC GLOBAL SipPortManager* SipPortManager::GetInstance()
 {
-    static SIPPortManager* pPortManager = IMS_NULL;
+    static SipPortManager* pPortManager = IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
     if (pPortManager == IMS_NULL)
     {
-        pPortManager = new SIPPortManager();
+        pPortManager = new SipPortManager();
     }
 
     return pPortManager;
 }
 
 PRIVATE
-IMS_SINT32 SIPPortManager::GetNextPortC() const
+IMS_SINT32 SipPortManager::GetNextPortC() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -107,7 +107,7 @@ IMS_SINT32 SIPPortManager::GetNextPortC() const
 }
 
 PRIVATE
-IMS_BOOL SIPPortManager::IsPortAvailable(IN CONST IPAddress& objIP, IN IMS_SINT32 nPort) const
+IMS_BOOL SipPortManager::IsPortAvailable(IN CONST IPAddress& objIP, IN IMS_SINT32 nPort) const
 {
     NetworkService* pNetworkService = NetworkService::GetNetworkService();
 
@@ -122,7 +122,7 @@ IMS_BOOL SIPPortManager::IsPortAvailable(IN CONST IPAddress& objIP, IN IMS_SINT3
 }
 
 PRIVATE
-IMS_SINT32 SIPPortManager::SelectNextPortC(IN CONST IPAddress& objIP) const
+IMS_SINT32 SipPortManager::SelectNextPortC(IN CONST IPAddress& objIP) const
 {
     IMS_SINT32 nSelectedPort = 0;
     IMS_SINT32 nCurrentPort = GetNextPortC();
@@ -161,7 +161,7 @@ IMS_SINT32 SIPPortManager::SelectNextPortC(IN CONST IPAddress& objIP) const
 }
 
 PRIVATE
-void SIPPortManager::SetNextPortC(IN IMS_SINT32 nPort) const
+void SipPortManager::SetNextPortC(IN IMS_SINT32 nPort) const
 {
     //---------------------------------------------------------------------------------------------
 

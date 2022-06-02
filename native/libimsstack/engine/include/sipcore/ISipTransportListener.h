@@ -21,9 +21,9 @@ SIP transport listener interface
 Example
 
 See Also
-SIPTransportAddress
+SipTransportAddress
 */
-class ISIPTransportListener
+class ISipTransportListener
 {
 public:
     /*
@@ -43,7 +43,7 @@ public:
     </table>
     */
     virtual void Transport_PacketReceived(IN IMS_SINT32 nSlotId, IN CONST ByteArray& objBuffer,
-            IN CONST SIPTransportAddress& objNearEnd, IN CONST SIPTransportAddress& objFarEnd) = 0;
+            IN CONST SipTransportAddress& objNearEnd, IN CONST SipTransportAddress& objFarEnd) = 0;
 };
 
 #endif  // _INTERFACE_SIP_TRANSPORT_LISTENER_H_

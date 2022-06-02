@@ -17,22 +17,22 @@
 #include "IOnSipErrorListener.h"
 #include "IOnSipClientConnectionListener.h"
 
-class SIPDialogImpl;
-class SIPClientConnection;
+class SipDialogImpl;
+class SipClientConnection;
 
-class SIPClientConnectionImpl :
+class SipClientConnectionImpl :
         public ISipClientConnection,
-        public IOnSIPErrorListener,
-        public IOnSIPClientConnectionListener
+        public IOnSipErrorListener,
+        public IOnSipClientConnectionListener
 {
 public:
-    explicit SIPClientConnectionImpl(IN SIPClientConnection* pSCC_);
-    virtual ~SIPClientConnectionImpl();
+    explicit SipClientConnectionImpl(IN SipClientConnection* pSCC_);
+    virtual ~SipClientConnectionImpl();
 
 private:
-    SIPClientConnectionImpl();
-    SIPClientConnectionImpl(IN CONST SIPClientConnectionImpl& objRHS);
-    SIPClientConnectionImpl& operator=(IN CONST SIPClientConnectionImpl& objRHS);
+    SipClientConnectionImpl();
+    SipClientConnectionImpl(IN CONST SipClientConnectionImpl& objRHS);
+    SipClientConnectionImpl& operator=(IN CONST SipClientConnectionImpl& objRHS);
 
 public:
     IMS_RESULT InitDialogRequest();
@@ -84,21 +84,21 @@ private:
             IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFC = 0xFFFF,
             IN IMS_SINT32 nTransportExt = 0 /* ANY */);
 
-    // IOnSIPErrorListener interface
+    // IOnSipErrorListener interface
     virtual void OnError_NotifyError(
-            IN SIPConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage);
+            IN SipConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage);
 
-    // IOnSIPClientConnectionListener interface
-    virtual void OnClientConnection_NotifyResponse(IN SIPClientConnection* pSCC);
+    // IOnSipClientConnectionListener interface
+    virtual void OnClientConnection_NotifyResponse(IN SipClientConnection* pSCC);
     virtual void OnClientConnection_NotifyForkedResponse(
-            IN SIPClientConnection* pSCC, IN SIPClientConnection* pForkedSCC);
+            IN SipClientConnection* pSCC, IN SipClientConnection* pForkedSCC);
 
 private:
     ISipErrorListener* piErrorListener;
     ISipClientConnectionListener* piListener;
 
-    SIPDialogImpl* pDialogImpl;
-    SIPClientConnection* pSCC;
+    SipDialogImpl* pDialogImpl;
+    SipClientConnection* pSCC;
 };
 
 #endif  // _SIP_CLIENT_CONNECTION_IMPL_H_

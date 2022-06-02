@@ -17,24 +17,24 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPTxnContextData::SIPTxnContextData() :
+SipTxnContextData::SipTxnContextData() :
         pTxnState(IMS_NULL)
 {
 }
 
 PUBLIC
-SIPTxnContextData::~SIPTxnContextData()
+SipTxnContextData::~SipTxnContextData()
 {
     //---------------------------------------------------------------------------------------------
 
-    IMS_TRACE_D("Destructor :: SIPTxnContextData (%" PFLS_x ")",
+    IMS_TRACE_D("Destructor :: SipTxnContextData (%" PFLS_x ")",
             pTxnState.IsNull() ? 0 : pTxnState.Get(), 0, 0);
 
     pTxnState = IMS_NULL;
 }
 
 PUBLIC
-const SipMethod& SIPTxnContextData::GetMethod() const
+const SipMethod& SipTxnContextData::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ const SipMethod& SIPTxnContextData::GetMethod() const
 }
 
 PUBLIC
-SIPTransactionState* SIPTxnContextData::GetTxnState() const
+SipTransactionState* SipTxnContextData::GetTxnState() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ SIPTransactionState* SIPTxnContextData::GetTxnState() const
 }
 
 PUBLIC
-void SIPTxnContextData::SetMethod(IN CONST SipMethod& objMethod)
+void SipTxnContextData::SetMethod(IN CONST SipMethod& objMethod)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ void SIPTxnContextData::SetMethod(IN CONST SipMethod& objMethod)
 }
 
 PUBLIC
-void SIPTxnContextData::SetTxnState(IN SIPTransactionState* pTxnState)
+void SipTxnContextData::SetTxnState(IN SipTransactionState* pTxnState)
 {
     //---------------------------------------------------------------------------------------------
 

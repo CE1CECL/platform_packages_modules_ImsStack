@@ -16,33 +16,33 @@
 #include "IMSTypeDef.h"
 
 class ISipTokenGenerator;
-class SIPIPSecState;
-class SIPMessageTracker;
-class SIPPacketTracker;
+class SipIpSecState;
+class SipMessageTracker;
+class SipPacketTracker;
 class SipRoutingRejectNotifier;
-class SIPRTConfigHelper;
-class SIPTransportHelper;
+class SipRtConfigHelper;
+class SipTransportHelper;
 class SIPFactoryProxyPrivate;
 
-class SIPFactoryProxy
+class SipFactoryProxy
 {
 private:
-    SIPFactoryProxy();
-    ~SIPFactoryProxy();
+    SipFactoryProxy();
+    ~SipFactoryProxy();
 
-    SIPFactoryProxy(IN const SIPFactoryProxy& objRHS);
-    SIPFactoryProxy& operator=(IN const SIPFactoryProxy& objRHS);
+    SipFactoryProxy(IN const SipFactoryProxy& objRHS);
+    SipFactoryProxy& operator=(IN const SipFactoryProxy& objRHS);
 
 public:
-    SIPIPSecState* GetIPSecState(IN IMS_SINT32 nSlotId);
-    SIPMessageTracker* GetMessageTracker(IN IMS_SINT32 nSlotId);
-    SIPPacketTracker* GetPacketTracker(IN IMS_SINT32 nSlotId);
+    SipIpSecState* GetIpSecState(IN IMS_SINT32 nSlotId);
+    SipMessageTracker* GetMessageTracker(IN IMS_SINT32 nSlotId);
+    SipPacketTracker* GetPacketTracker(IN IMS_SINT32 nSlotId);
     SipRoutingRejectNotifier* GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId);
-    SIPRTConfigHelper* GetRtConfigHelper(IN IMS_SINT32 nSlotId);
-    SIPTransportHelper* GetTransportHelper(IN IMS_SINT32 nSlotId);
+    SipRtConfigHelper* GetRtConfigHelper(IN IMS_SINT32 nSlotId);
+    SipTransportHelper* GetTransportHelper(IN IMS_SINT32 nSlotId);
     void SetTokenGenerator(IN IMS_SINT32 nSlotId, IN ISipTokenGenerator* piTokenGenerator);
 
-    IMS_BOOL IsIPSecStateEnabled(IN IMS_SINT32 nSlotId) const;
+    IMS_BOOL IsIpSecStateEnabled(IN IMS_SINT32 nSlotId) const;
     IMS_BOOL IsMessageTrackerEnabled(IN IMS_SINT32 nSlotId) const;
     IMS_BOOL IsPacketTrackerEnabled(IN IMS_SINT32 nSlotId) const;
     IMS_BOOL IsRoutingRejectNotifierEnabled(IN IMS_SINT32 nSlotId) const;
@@ -50,10 +50,10 @@ public:
 public:
     static void CreateInstance();
     static void DestroyInstance();
-    static SIPFactoryProxy* GetInstance();
+    static SipFactoryProxy* GetInstance();
 
 private:
-    static SIPFactoryProxy* pFactoryProxy;
+    static SipFactoryProxy* pFactoryProxy;
 
     SIPFactoryProxyPrivate* pPrivate;
 };

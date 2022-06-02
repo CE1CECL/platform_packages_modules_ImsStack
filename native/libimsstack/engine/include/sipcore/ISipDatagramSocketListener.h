@@ -15,7 +15,7 @@
 
 #include "IPAddress.h"
 
-class SIPSocket;
+class SipSocket;
 
 /*
 SIP datagram socket listener interface
@@ -23,9 +23,9 @@ SIP datagram socket listener interface
 Example
 
 See Also
-SIPSocket
+SipSocket
 */
-class ISIPDatagramSocketListener
+class ISipDatagramSocketListener
 {
 public:
     /*
@@ -44,7 +44,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void DatagramSocket_DataReceived(IN SIPSocket* pSocket, IN CONST ByteArray& objBuffer,
+    virtual void DatagramSocket_DataReceived(IN SipSocket* pSocket, IN CONST ByteArray& objBuffer,
             IN CONST IPAddress& objIPA, IN IMS_SINT32 nPort) = 0;
 };
 

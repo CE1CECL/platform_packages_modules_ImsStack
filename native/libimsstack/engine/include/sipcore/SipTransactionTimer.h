@@ -18,14 +18,14 @@
 
 #include "ITimer.h"
 
-class SIPTransactionTimer : public ITimerListener
+class SipTransactionTimer : public ITimerListener
 {
 public:
-    SIPTransactionTimer(IN SipTimeoutData* pData, IN SipTimerCallback pfnTimerCallback);
-    virtual ~SIPTransactionTimer();
+    SipTransactionTimer(IN SipTimeoutData* pData, IN SipTimerCallback pfnTimerCallback);
+    virtual ~SipTransactionTimer();
 
-    SIPTransactionTimer(IN const SIPTransactionTimer&) = delete;
-    SIPTransactionTimer& operator=(IN const SIPTransactionTimer&) = delete;
+    SipTransactionTimer(IN const SipTransactionTimer&) = delete;
+    SipTransactionTimer& operator=(IN const SipTransactionTimer&) = delete;
 
 public:
     IMS_BOOL Start(IN IMS_SINT32 nDuration);

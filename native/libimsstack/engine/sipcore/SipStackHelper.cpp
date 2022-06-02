@@ -19,7 +19,7 @@
 #include "SipHeader.h"
 #include "SipStackHelper.h"
 
-namespace SIPStack
+namespace SipStack
 {
 
 /*
@@ -70,7 +70,7 @@ GLOBAL IMS_BOOL DecodeHeaderComponent(
             return IMS_FALSE;
         }
 
-        SIPHeader* pHeader = new SIPHeader();
+        SipHeader* pHeader = new SipHeader();
 
         if (pHeader != IMS_NULL)
         {
@@ -132,7 +132,7 @@ GLOBAL IMS_BOOL DecodeHeaderComponent(
             return IMS_FALSE;
         }
 
-        SIPHeader* pHeader = new SIPHeader();
+        SipHeader* pHeader = new SipHeader();
 
         if (pHeader != IMS_NULL)
         {
@@ -151,4 +151,4 @@ GLOBAL IMS_BOOL DecodeHeaderComponent(
     return IMS_TRUE;
 }
 
-}  // namespace SIPStack
+}  // namespace SipStack

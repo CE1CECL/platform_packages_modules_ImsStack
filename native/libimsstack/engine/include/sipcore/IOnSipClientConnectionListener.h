@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_ON_SIP_CLIENT_CONNECTION_LISTENER_H_
 #define _INTERFACE_ON_SIP_CLIENT_CONNECTION_LISTENER_H_
 
-class SIPClientConnection;
+class SipClientConnection;
 
 /*
 SIP client connection listener interface
@@ -21,16 +21,16 @@ SIP client connection listener interface
 Example
 
 See Also
-SIPClientConnection
+SipClientConnection
 
 */
-class IOnSIPClientConnectionListener
+class IOnSipClientConnectionListener
 {
 public:
     /*
-     This method gives the SIPClientConnection instance, which has received a new SIP response.
-    The application implementing this listener interface has to call SIPClientConnection::Receive()
-    to initialize the SIPClientConnection object with the new response.
+     This method gives the SipClientConnection instance, which has received a new SIP response.
+    The application implementing this listener interface has to call SipClientConnection::Receive()
+    to initialize the SipClientConnection object with the new response.
 
     Remarks
 
@@ -38,7 +38,7 @@ public:
     <table>
     parameter               description
     ----------              ----------
-    pSCC                    Pointer to SIPClientConnection object carrying the response
+    pSCC                    Pointer to SipClientConnection object carrying the response
     </table>
 
     Returns
@@ -47,14 +47,14 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void OnClientConnection_NotifyResponse(IN SIPClientConnection* pSCC) = 0;
+    virtual void OnClientConnection_NotifyResponse(IN SipClientConnection* pSCC) = 0;
 
     //// IMS extensions
 
     /*
-     This method gives the SIPClientConnection instance, which has received a new SIP response.
-    The application implementing this listener interface has to call SIPClientConnection::Receive()
-    to initialize the SIPClientConnection object with the new response.
+     This method gives the SipClientConnection instance, which has received a new SIP response.
+    The application implementing this listener interface has to call SipClientConnection::Receive()
+    to initialize the SipClientConnection object with the new response.
 
     Remarks
 
@@ -62,8 +62,8 @@ public:
     <table>
     parameter               description
     ----------              ----------
-    pSCC                    Pointer to SIPClientConnection object carrying the response
-    pForkedSCC              Pointer to SIPClientConnection object carrying the forked response
+    pSCC                    Pointer to SipClientConnection object carrying the response
+    pForkedSCC              Pointer to SipClientConnection object carrying the forked response
     IMS extensions
     </table>
 
@@ -74,7 +74,7 @@ public:
     </table>
     */
     virtual void OnClientConnection_NotifyForkedResponse(
-            IN SIPClientConnection* pSCC, IN SIPClientConnection* pForkedSCC) = 0;
+            IN SipClientConnection* pSCC, IN SipClientConnection* pForkedSCC) = 0;
 };
 
 #endif  // _INTERFACE_ON_SIP_CLIENT_CONNECTION_LISTENER_H_

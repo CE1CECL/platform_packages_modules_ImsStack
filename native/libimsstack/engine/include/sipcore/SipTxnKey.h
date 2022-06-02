@@ -15,20 +15,23 @@
 
 #include "SipMethod.h"
 
-class SIPTxnKey
+namespace sipcore
+{
+
+class SipTxnKey
 {
 public:
-    SIPTxnKey();
-    SIPTxnKey(IN CONST SipMethod& objMethod_, IN IMS_SINT32 nStatusCode_,
+    SipTxnKey();
+    SipTxnKey(IN CONST SipMethod& objMethod_, IN IMS_SINT32 nStatusCode_,
             IN CONST AString& strViaBranch_, IN IMS_UINT32 nCSeq_);
-    SIPTxnKey(IN CONST SIPTxnKey& objRHS);
-    ~SIPTxnKey();
+    SipTxnKey(IN CONST SipTxnKey& objRHS);
+    ~SipTxnKey();
 
 public:
-    SIPTxnKey& operator=(IN CONST SIPTxnKey& objRHS);
+    SipTxnKey& operator=(IN CONST SipTxnKey& objRHS);
 
 public:
-    IMS_BOOL Equals(IN CONST SIPTxnKey* pKey) const;
+    IMS_BOOL Equals(IN CONST SipTxnKey* pKey) const;
     IMS_SINT32 GetExtraInt() const;
     const AString& GetExtraString() const;
     const SipMethod& GetMethod() const;
@@ -48,5 +51,7 @@ private:
     IMS_SINT32 nExtraInt;
     AString strExtraString;
 };
+
+}  // namespace sipcore
 
 #endif  // _SIP_TXN_KEY_H_

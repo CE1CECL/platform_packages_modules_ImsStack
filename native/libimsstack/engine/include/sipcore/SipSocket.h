@@ -18,27 +18,27 @@
 #include "SipSocketAddress.h"
 
 class INetworkConnection;
-class ISIPSocketListener;
-class ISIPKeepAliveListener;
+class ISipSocketListener;
+class ISipKeepAliveListener;
 
-class SIPSocket : public ImsSlot, public ISocketListener
+class SipSocket : public ImsSlot, public ISocketListener
 {
 public:
-    explicit SIPSocket(IN IMS_SINT32 nSlotId, IN IMS_SINT32 nType_ = SIPSocketAddress::SOCKET_UDP);
-    virtual ~SIPSocket();
+    explicit SipSocket(IN IMS_SINT32 nSlotId, IN IMS_SINT32 nType_ = SipSocketAddress::SOCKET_UDP);
+    virtual ~SipSocket();
 
 private:
-    SIPSocket(IN CONST SIPSocket& objRHS);
-    SIPSocket& operator=(IN CONST SIPSocket& objRHS);
+    SipSocket(IN CONST SipSocket& objRHS);
+    SipSocket& operator=(IN CONST SipSocket& objRHS);
 
 public:
-    virtual SIPSocket* Accept();
+    virtual SipSocket* Accept();
     virtual void ApplyIpSec(IN ISocket* piAcceptedSocket = IMS_NULL);
     virtual IMS_BOOL Connect();
     virtual IMS_BOOL Create(
             IN CONST IPAddress& objIPA, IN IMS_UINT32 nPort = 0, IN IMS_BOOL bSecure = IMS_FALSE);
-    virtual IMS_BOOL Equals(IN CONST SIPSocketAddress& objSA);
-    virtual IMS_BOOL Equals(IN CONST SIPSocket& objSocket);
+    virtual IMS_BOOL Equals(IN CONST SipSocketAddress& objSA);
+    virtual IMS_BOOL Equals(IN CONST SipSocket& objSocket);
     virtual void GetSockName(OUT IPAddress& objIPA, OUT IMS_UINT32& nPort);
     virtual IMS_SINT32 Send(IN CONST IMS_BYTE* pBuffer, IN IMS_SINT32 nBuffLen,
             IN IMS_UINT32 nPort = 0, IN CONST IPAddress& objIPA = IPAddress::NONE);
@@ -46,9 +46,9 @@ public:
     virtual void NotifyForceClosed();
 
     void GetPeerName(OUT IPAddress& objIPA, OUT IMS_UINT32& nPort);
-    IMS_SINT32 RemoveListener(IN ISIPSocketListener* piListener_);
-    void SetKeepAliveListener(IN ISIPKeepAliveListener* piKeepAliveListener);
-    void SetListener(IN ISIPSocketListener* piListener_);
+    IMS_SINT32 RemoveListener(IN ISipSocketListener* piListener_);
+    void SetKeepAliveListener(IN ISipKeepAliveListener* piKeepAliveListener);
+    void SetListener(IN ISipSocketListener* piListener_);
     /** Same as ISocket::SetOption(...) */
     void SetOption(IN IMS_SINT32 nOption, IN IMS_SINT32 nOptionValue);
 
@@ -117,11 +117,11 @@ protected:
     // In case of TCP client socket, this information is set to the peer socket information.
     //    1) Connected by UA : Set at the calling time of Connect(...).
     //    2) Accepted by UA : Set at the calling time of Accept(...) using GetPeerName(...).
-    SIPSocketAddress objSA;
+    SipSocketAddress objSA;
 
     ISocket* piSocket;
-    IMSList<ISIPSocketListener*> objListeners;
-    ISIPKeepAliveListener* piKeepAliveListener;
+    IMSList<ISipSocketListener*> objListeners;
+    ISipKeepAliveListener* piKeepAliveListener;
 
 private:
     IMS_SINT32 nState;

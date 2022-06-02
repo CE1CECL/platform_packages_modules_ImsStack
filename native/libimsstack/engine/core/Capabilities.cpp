@@ -216,7 +216,7 @@ IMS_RESULT Capabilities::QueryCapabilities(IN IMS_BOOL bSDPInRequest,
         return IMS_FAILURE;
     }
 
-    // Create new connection and get SIPMessage
+    // Create new connection and get SipMessage
     ISipDialog* piDialog = GetDialog();
     ISipClientConnection* piSCC = IMS_NULL;
 
@@ -331,7 +331,7 @@ IMS_RESULT Capabilities::QueryCapabilitiesEx()
         return IMS_FAILURE;
     }
 
-    // Create new connection and get SIPMessage
+    // Create new connection and get SipMessage
     ISipDialog* piDialog = GetDialog();
     ISipClientConnection* piSCC = IMS_NULL;
 

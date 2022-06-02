@@ -27,35 +27,35 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPDialogUsage::SIPDialogUsage(IN SIPDialogBase* pDialogBase_) :
+SipDialogUsage::SipDialogUsage(IN SipDialogBase* pDialogBase_) :
         nType(TYPE_EPHEMERAL),
         pDialogBase(pDialogBase_)
 {
 }
 
 PUBLIC
-SIPDialogUsage::SIPDialogUsage(IN IMS_SINT32 nType_, IN SIPDialogBase* pDialogBase_) :
+SipDialogUsage::SipDialogUsage(IN IMS_SINT32 nType_, IN SipDialogBase* pDialogBase_) :
         nType(nType_),
         pDialogBase(pDialogBase_)
 {
 }
 
 PUBLIC
-SIPDialogUsage::SIPDialogUsage(IN CONST SIPDialogUsage& objRHS) :
+SipDialogUsage::SipDialogUsage(IN CONST SipDialogUsage& objRHS) :
         nType(objRHS.nType),
         pDialogBase(objRHS.pDialogBase)
 {
 }
 
-PUBLIC VIRTUAL SIPDialogUsage::~SIPDialogUsage()
+PUBLIC VIRTUAL SipDialogUsage::~SipDialogUsage()
 {
-    IMS_TRACE_D("Destructor :: SIPDialogUsage (%s)",
+    IMS_TRACE_D("Destructor :: SipDialogUsage (%s)",
             (nType == TYPE_EPHEMERAL) ? "EPHEMERAL"
                                       : ((nType == TYPE_INVITE) ? "INVITE" : "SUBSCRIBE"),
             0, 0);
 }
 
-PUBLIC VIRTUAL IMS_BOOL SIPDialogUsage::InitDialogUsage(IN CONST SIPMessageInfo& /* objMInfo */)
+PUBLIC VIRTUAL IMS_BOOL SipDialogUsage::InitDialogUsage(IN CONST SipMessageInfo& /* objMInfo */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -68,21 +68,21 @@ PUBLIC VIRTUAL IMS_BOOL SIPDialogUsage::InitDialogUsage(IN CONST SIPMessageInfo&
     return IMS_TRUE;
 }
 
-PUBLIC VIRTUAL SIPDialogUsage* SIPDialogUsage::Clone() const
+PUBLIC VIRTUAL SipDialogUsage* SipDialogUsage::Clone() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return new SIPDialogUsage(*this);
+    return new SipDialogUsage(*this);
 }
 
-PUBLIC VIRTUAL IMS_BOOL SIPDialogUsage::CompareTo(IN CONST SIPMessageInfo& /* objMInfo */) const
+PUBLIC VIRTUAL IMS_BOOL SipDialogUsage::CompareTo(IN CONST SipMessageInfo& /* objMInfo */) const
 {
     //---------------------------------------------------------------------------------------------
 
     return IMS_TRUE;
 }
 
-PUBLIC VIRTUAL IMS_BOOL SIPDialogUsage::Equals(IN SIPDialogUsage* pDUsage) const
+PUBLIC VIRTUAL IMS_BOOL SipDialogUsage::Equals(IN SipDialogUsage* pDUsage) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ PUBLIC VIRTUAL IMS_BOOL SIPDialogUsage::Equals(IN SIPDialogUsage* pDUsage) const
     return IMS_TRUE;
 }
 
-PUBLIC VIRTUAL AString SIPDialogUsage::ToString() const
+PUBLIC VIRTUAL AString SipDialogUsage::ToString() const
 {
     AString strValue;
 
@@ -106,9 +106,9 @@ PUBLIC VIRTUAL AString SIPDialogUsage::ToString() const
     return strValue;
 }
 
-PUBLIC VIRTUAL IMS_SINT32 SIPDialogUsage::UpdateUsageDetails(IN CONST SIPMessageInfo& objMInfo)
+PUBLIC VIRTUAL IMS_SINT32 SipDialogUsage::UpdateUsageDetails(IN CONST SipMessageInfo& objMInfo)
 {
-    IMS_SINT32 nTrigger = SIPDState::TRIGGER_INIT;
+    IMS_SINT32 nTrigger = SipDState::TRIGGER_INIT;
     IMS_SINT32 nAction = GetActionNTrigger(objMInfo, nTrigger);
 
     //---------------------------------------------------------------------------------------------
@@ -117,8 +117,8 @@ PUBLIC VIRTUAL IMS_SINT32 SIPDialogUsage::UpdateUsageDetails(IN CONST SIPMessage
     if (nType != TYPE_EPHEMERAL)
     {
         if (IsUsageTerminated(pDialogBase->GetState(), nTrigger) ||
-                (nAction == SIPDState::ACTION_DESTROY_USAGE) ||
-                (nAction == SIPDState::ACTION_DESTROY_DIALOG))
+                (nAction == SipDState::ACTION_DESTROY_USAGE) ||
+                (nAction == SipDState::ACTION_DESTROY_DIALOG))
         {
             pDialogBase->OnTerminated();
         }
@@ -130,17 +130,17 @@ PUBLIC VIRTUAL IMS_SINT32 SIPDialogUsage::UpdateUsageDetails(IN CONST SIPMessage
     return pDialogBase->OnUpdateDialogDetails(objMInfo, nType, nAction, nTrigger);
 }
 
-PROTECTED VIRTUAL IMS_SINT32 SIPDialogUsage::GetActionNTrigger(
-        IN CONST SIPMessageInfo& /* objMInfo */, OUT IMS_SINT32& nTrigger)
+PROTECTED VIRTUAL IMS_SINT32 SipDialogUsage::GetActionNTrigger(
+        IN CONST SipMessageInfo& /* objMInfo */, OUT IMS_SINT32& nTrigger)
 {
     //---------------------------------------------------------------------------------------------
 
-    nTrigger = SIPDState::TRIGGER_INIT;
+    nTrigger = SipDState::TRIGGER_INIT;
 
-    return SIPDState::ACTION_IGNORE;
+    return SipDState::ACTION_IGNORE;
 }
 
-PROTECTED VIRTUAL IMS_BOOL SIPDialogUsage::IsUsageTerminated(
+PROTECTED VIRTUAL IMS_BOOL SipDialogUsage::IsUsageTerminated(
         IN IMS_SINT32 /* nState */, IN IMS_SINT32 /* nTrigger */) const
 {
     //---------------------------------------------------------------------------------------------
@@ -149,17 +149,17 @@ PROTECTED VIRTUAL IMS_BOOL SIPDialogUsage::IsUsageTerminated(
 }
 
 PROTECTED
-IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInfo)
+IMS_SINT32 SipDialogUsage::GetActionForResponse(IN CONST SipMessageInfo& objMInfo)
 {
     // Base class's method takes an action by the response message only.
-    SipMessage* pstMessage = objMInfo.GetMessage();
+    ::SipMessage* pstMessage = objMInfo.GetMessage();
 
     //---------------------------------------------------------------------------------------------
 
-    if (!SIPStack::IsRequestMessage(pstMessage))
+    if (!SipStack::IsRequestMessage(pstMessage))
     {
-        IMS_SINT32 nStatusCode = SIPStack::GetStatusCode(pstMessage);
-        SIPDialogState* pDialogState = pDialogBase->GetDialogState();
+        IMS_SINT32 nStatusCode = SipStack::GetStatusCode(pstMessage);
+        SipDialogState* pDialogState = pDialogBase->GetDialogState();
 
         switch (nStatusCode)
         {
@@ -168,14 +168,14 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                 if (objMInfo.IsOutgoingMessage() && objMInfo.GetMethod().Equals(SipMethod::PRACK))
                 {
                     IMS_TRACE_D("481-PRACK is ignored on dialog transition", 0, 0, 0);
-                    return SIPDState::ACTION_IGNORE;
+                    return SipDState::ACTION_IGNORE;
                 }
 
-                return SIPDState::ACTION_DESTROY_USAGE;
+                return SipDState::ACTION_DESTROY_USAGE;
 
             case SipStatusCode::SC_405:
             case SipStatusCode::SC_501:
-                if (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED)
+                if (pDialogBase->GetState() == SipDState::STATE_CONFIRMED)
                 {
                     const SipMethod& objMethod = objMInfo.GetMethod();
 
@@ -186,7 +186,7 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                                 !objMethod.Equals(SipMethod::PRACK) &&
                                 !objMethod.Equals(SipMethod::BYE))
                         {
-                            return SIPDState::ACTION_IGNORE;
+                            return SipDState::ACTION_IGNORE;
                         }
                     }
                     else if (nType == TYPE_SUBSCRIBE)
@@ -194,7 +194,7 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                         if (!objMethod.Equals(SipMethod::SUBSCRIBE) &&
                                 !objMethod.Equals(SipMethod::NOTIFY))
                         {
-                            return SIPDState::ACTION_IGNORE;
+                            return SipDState::ACTION_IGNORE;
                         }
                     }
                 }
@@ -203,30 +203,30 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                             objMInfo.GetSlotId()) ||
                         ((pDialogState != IMS_NULL) && pDialogState->HasMultipleDialogUsages()))
                 {
-                    return SIPDState::ACTION_DESTROY_USAGE;
+                    return SipDState::ACTION_DESTROY_USAGE;
                 }
 
-                if (pDialogBase->GetState() != SIPDState::STATE_CONFIRMED)
+                if (pDialogBase->GetState() != SipDState::STATE_CONFIRMED)
                 {
-                    return SIPDState::ACTION_TRANSIT_STATE;
+                    return SipDState::ACTION_TRANSIT_STATE;
                 }
                 break;
 
             case SipStatusCode::SC_489:
                 if ((nType != TYPE_SUBSCRIBE) &&
-                        (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED))
+                        (pDialogBase->GetState() == SipDState::STATE_CONFIRMED))
                 {
-                    return SIPDState::ACTION_IGNORE;
+                    return SipDState::ACTION_IGNORE;
                 }
 
-                return SIPDState::ACTION_DESTROY_USAGE;
+                return SipDState::ACTION_DESTROY_USAGE;
 
             case SipStatusCode::SC_480:
-                if (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED)
+                if (pDialogBase->GetState() == SipDState::STATE_CONFIRMED)
                 {
-                    if (SIPStack::IsHeaderPresent(pstMessage, ISipHeader::RETRY_AFTER_ANY))
+                    if (SipStack::IsHeaderPresent(pstMessage, ISipHeader::RETRY_AFTER_ANY))
                     {
-                        return SIPDState::ACTION_IGNORE;
+                        return SipDState::ACTION_IGNORE;
                     }
                 }
 
@@ -234,12 +234,12 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                             objMInfo.GetSlotId()) ||
                         ((pDialogState != IMS_NULL) && pDialogState->HasMultipleDialogUsages()))
                 {
-                    return SIPDState::ACTION_DESTROY_USAGE;
+                    return SipDState::ACTION_DESTROY_USAGE;
                 }
 
-                if (pDialogBase->GetState() != SIPDState::STATE_CONFIRMED)
+                if (pDialogBase->GetState() != SipDState::STATE_CONFIRMED)
                 {
-                    return SIPDState::ACTION_TRANSIT_STATE;
+                    return SipDState::ACTION_TRANSIT_STATE;
                 }
                 break;
 
@@ -258,26 +258,26 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                             objMInfo.GetSlotId()) ||
                         ((pDialogState != IMS_NULL) && pDialogState->HasMultipleDialogUsages()))
                 {
-                    return SIPDState::ACTION_DESTROY_DIALOG;
+                    return SipDState::ACTION_DESTROY_DIALOG;
                 }
 
-                if (pDialogBase->GetState() != SIPDState::STATE_CONFIRMED)
+                if (pDialogBase->GetState() != SipDState::STATE_CONFIRMED)
                 {
-                    return SIPDState::ACTION_TRANSIT_STATE;
+                    return SipDState::ACTION_TRANSIT_STATE;
                 }
                 break;
 
                 // Impacts on transaction only
             default:
                 // In this case, the state will not be changed ...
-                if (pDialogBase->GetState() == SIPDState::STATE_CONFIRMED)
+                if (pDialogBase->GetState() == SipDState::STATE_CONFIRMED)
                 {
                     if (nStatusCode == SipStatusCode::SC_408)
                     {
                         if (nType == TYPE_INVITE)
                         {
                             // It should be verified in the commercial networks...
-                            // return SIPDState::ACTION_DESTROY_USAGE;
+                            // return SipDState::ACTION_DESTROY_USAGE;
                         }
                         else if (nType == TYPE_SUBSCRIBE)
                         {
@@ -285,59 +285,59 @@ IMS_SINT32 SIPDialogUsage::GetActionForResponse(IN CONST SIPMessageInfo& objMInf
                             // it does not terminate the dialog usage.
                             // if (objMInfo.GetMethod().Equals(SipMethod::NOTIFY))
                             //{
-                            //    return SIPDState::ACTION_DESTROY_USAGE;
+                            //    return SipDState::ACTION_DESTROY_USAGE;
                             //}
                         }
                     }
                     break;
                 }
 
-                return SIPDState::ACTION_TRANSIT_STATE;
+                return SipDState::ACTION_TRANSIT_STATE;
         }
     }
 
-    return SIPDState::ACTION_IGNORE;
+    return SipDState::ACTION_IGNORE;
 }
 
 PROTECTED
-IMS_SINT32 SIPDialogUsage::GetState() const
+IMS_SINT32 SipDialogUsage::GetState() const
 {
     //---------------------------------------------------------------------------------------------
 
     if (pDialogBase == IMS_NULL)
     {
-        return SIPDState::STATE_INIT;
+        return SipDState::STATE_INIT;
     }
 
     return pDialogBase->GetState();
 }
 
-PROTECTED VIRTUAL const IMS_CHAR* SIPDialogUsage::TriggerToString(IN IMS_SINT32 nTrigger) const
+PROTECTED VIRTUAL const IMS_CHAR* SipDialogUsage::TriggerToString(IN IMS_SINT32 nTrigger) const
 {
     //---------------------------------------------------------------------------------------------
 
     switch (nTrigger)
     {
-        case SIPDState::TRIGGER_INIT:
+        case SipDState::TRIGGER_INIT:
             return "TRIGGER_INIT";
         default:
             return "__INVALID__";
     }
 }
 
-PROTECTED GLOBAL const IMS_CHAR* SIPDialogUsage::ActionToString(IN IMS_SINT32 nAction)
+PROTECTED GLOBAL const IMS_CHAR* SipDialogUsage::ActionToString(IN IMS_SINT32 nAction)
 {
     //---------------------------------------------------------------------------------------------
 
     switch (nAction)
     {
-        case SIPDState::ACTION_IGNORE:
+        case SipDState::ACTION_IGNORE:
             return "ACTION_IGNORE";
-        case SIPDState::ACTION_TRANSIT_STATE:
+        case SipDState::ACTION_TRANSIT_STATE:
             return "ACTION_TRANSIT_STATE";
-        case SIPDState::ACTION_DESTROY_USAGE:
+        case SipDState::ACTION_DESTROY_USAGE:
             return "ACTION_DESTROY_USAGE";
-        case SIPDState::ACTION_DESTROY_DIALOG:
+        case SipDState::ACTION_DESTROY_DIALOG:
             return "ACTION_DESTROY_DIALOG";
         default:
             return "__INVALID__";

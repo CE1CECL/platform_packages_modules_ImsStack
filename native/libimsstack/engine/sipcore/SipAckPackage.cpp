@@ -27,7 +27,7 @@ public:
     {
         for (IMS_UINT32 i = 0; i < objAckPackages.GetSize(); ++i)
         {
-            SIPAckPackage* pPackage = objAckPackages.GetAt(i);
+            SipAckPackage* pPackage = objAckPackages.GetAt(i);
 
             if (pPackage != IMS_NULL)
             {
@@ -39,22 +39,22 @@ public:
     }
 
 public:
-    IMSList<SIPAckPackage*> objAckPackages;
+    IMSList<SipAckPackage*> objAckPackages;
 };
 
-PRIVATE GLOBAL SIPAckPackagePrivate* SIPAckPackage::pAckPackageP = IMS_NULL;
+PRIVATE GLOBAL SIPAckPackagePrivate* SipAckPackage::pAckPackageP = IMS_NULL;
 
 PRIVATE
-SIPAckPackage::SIPAckPackage(IN CONST AString& strCallId_) :
+SipAckPackage::SipAckPackage(IN CONST AString& strCallId_) :
         strCallId(strCallId_)
 {
 }
 
-PUBLIC VIRTUAL SIPAckPackage::~SIPAckPackage()
+PUBLIC VIRTUAL SipAckPackage::~SipAckPackage()
 {
     for (IMS_UINT32 i = 0; i < objAcks.GetSize(); ++i)
     {
-        SIPAck* pAck = objAcks.GetAt(i);
+        SipAck* pAck = objAcks.GetAt(i);
 
         if (pAck != IMS_NULL)
         {
@@ -71,7 +71,7 @@ Remarks
 
 */
 PUBLIC
-void SIPAckPackage::AddAck(IN SIPClientTransactionState* pCTState, IN IMS_SINT32 nAliveInterval)
+void SipAckPackage::AddAck(IN SipClientTransactionState* pCTState, IN IMS_SINT32 nAliveInterval)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -80,17 +80,17 @@ void SIPAckPackage::AddAck(IN SIPClientTransactionState* pCTState, IN IMS_SINT32
         return;
     }
 
-    SipTxnKey* pstTxnKey = pCTState->GetTxnKey();
+    ::SipTxnKey* pstTxnKey = pCTState->GetTxnKey();
 
     if (pstTxnKey == IMS_NULL)
     {
-        IMS_TRACE_E(0, "SIPAckPackage :: no txn key", 0, 0, 0);
+        IMS_TRACE_E(0, "SipAckPackage :: no txn key", 0, 0, 0);
         return;
     }
 
     for (IMS_UINT32 i = 0; i < objAcks.GetSize(); ++i)
     {
-        SIPAck* pAck = objAcks.GetAt(i);
+        SipAck* pAck = objAcks.GetAt(i);
 
         if (pAck == IMS_NULL)
         {
@@ -100,16 +100,16 @@ void SIPAckPackage::AddAck(IN SIPClientTransactionState* pCTState, IN IMS_SINT32
         if (pAck->IsSameTransaction(pstTxnKey))
         {
             // ACK already exists in the ACK package
-            IMS_TRACE_D("SIPAckPackage :: SIPAck already exists (%s)",
-                    SIPStack::TxnKey_GetViaBranch(pstTxnKey), 0, 0);
+            IMS_TRACE_D("SipAckPackage :: SipAck already exists (%s)",
+                    SipStack::TxnKey_GetViaBranch(pstTxnKey), 0, 0);
             return;
         }
     }
 
-    IMS_TRACE_D("SIPAckPackage :: SIPAck (%s, %d)", SIPStack::TxnKey_GetViaBranch(pstTxnKey),
+    IMS_TRACE_D("SipAckPackage :: SipAck (%s, %d)", SipStack::TxnKey_GetViaBranch(pstTxnKey),
             nAliveInterval, 0);
 
-    objAcks.Append(new SIPAck(pCTState, nAliveInterval));
+    objAcks.Append(new SipAck(pCTState, nAliveInterval));
 }
 
 /*
@@ -118,7 +118,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPAckPackage::IsSamePackage(IN CONST AString& strCallId) const
+IMS_BOOL SipAckPackage::IsSamePackage(IN CONST AString& strCallId) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -131,13 +131,13 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPAckPackage::NotifyStray2xx(IN SipTxnKey* pstTxnKey)
+IMS_BOOL SipAckPackage::NotifyStray2xx(IN ::SipTxnKey* pstTxnKey)
 {
     //---------------------------------------------------------------------------------------------
 
     for (IMS_UINT32 i = 0; i < objAcks.GetSize(); ++i)
     {
-        SIPAck* pAck = objAcks.GetAt(i);
+        SipAck* pAck = objAcks.GetAt(i);
 
         if (pAck == IMS_NULL)
         {
@@ -164,13 +164,13 @@ IMS_BOOL SIPAckPackage::NotifyStray2xx(IN SipTxnKey* pstTxnKey)
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPAckPackage::Destroy()
+PRIVATE VIRTUAL void SipAckPackage::Destroy()
 {
     //---------------------------------------------------------------------------------------------
 
     if (pAckPackageP == IMS_NULL)
     {
-        IMS_TRACE_D("SIPAckPackage (%s) is destroyed",
+        IMS_TRACE_D("SipAckPackage (%s) is destroyed",
                 SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
         delete this;
         return;
@@ -178,7 +178,7 @@ PRIVATE VIRTUAL void SIPAckPackage::Destroy()
 
     for (IMS_UINT32 i = 0; i < pAckPackageP->objAckPackages.GetSize(); ++i)
     {
-        SIPAckPackage* pPackage = pAckPackageP->objAckPackages.GetAt(i);
+        SipAckPackage* pPackage = pAckPackageP->objAckPackages.GetAt(i);
 
         if (pPackage == IMS_NULL)
         {
@@ -187,7 +187,7 @@ PRIVATE VIRTUAL void SIPAckPackage::Destroy()
 
         if (pPackage->IsSamePackage(strCallId))
         {
-            IMS_TRACE_D("SIPAckPackage (%s) is destroyed",
+            IMS_TRACE_D("SipAckPackage (%s) is destroyed",
                     SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
 
             pAckPackageP->objAckPackages.RemoveAt(i);
@@ -196,7 +196,7 @@ PRIVATE VIRTUAL void SIPAckPackage::Destroy()
         }
     }
 
-    IMS_TRACE_D("SIPAckPackage :: size=%d", pAckPackageP->objAckPackages.GetSize(), 0, 0);
+    IMS_TRACE_D("SipAckPackage :: size=%d", pAckPackageP->objAckPackages.GetSize(), 0, 0);
 }
 
 /*
@@ -204,7 +204,7 @@ PRIVATE VIRTUAL void SIPAckPackage::Destroy()
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPAckPackage::RemoveStrayAcks()
+PRIVATE VIRTUAL void SipAckPackage::RemoveStrayAcks()
 {
     IMS_UINT32 nTotalCount = objAcks.GetSize();
 
@@ -212,7 +212,7 @@ PRIVATE VIRTUAL void SIPAckPackage::RemoveStrayAcks()
 
     for (IMS_UINT32 i = 0; i < objAcks.GetSize();)
     {
-        SIPAck* pAck = objAcks.GetAt(i);
+        SipAck* pAck = objAcks.GetAt(i);
 
         if (pAck == IMS_NULL)
         {
@@ -233,7 +233,7 @@ PRIVATE VIRTUAL void SIPAckPackage::RemoveStrayAcks()
 
     if (objAcks.GetSize() < nTotalCount)
     {
-        IMS_TRACE_D("SIPAckPackage :: ACK (%d >> %d)", nTotalCount, objAcks.GetSize(), 0);
+        IMS_TRACE_D("SipAckPackage :: ACK (%d >> %d)", nTotalCount, objAcks.GetSize(), 0);
     }
 }
 
@@ -242,13 +242,13 @@ PRIVATE VIRTUAL void SIPAckPackage::RemoveStrayAcks()
 Remarks
 
 */
-PUBLIC GLOBAL SIPAckPackage* SIPAckPackage::CreateAckPackage(IN CONST AString& strCallId)
+PUBLIC GLOBAL SipAckPackage* SipAckPackage::CreateAckPackage(IN CONST AString& strCallId)
 {
     //---------------------------------------------------------------------------------------------
 
     for (IMS_UINT32 i = 0; i < pAckPackageP->objAckPackages.GetSize(); ++i)
     {
-        SIPAckPackage* pPackage = pAckPackageP->objAckPackages.GetAt(i);
+        SipAckPackage* pPackage = pAckPackageP->objAckPackages.GetAt(i);
 
         if (pPackage == IMS_NULL)
         {
@@ -257,18 +257,18 @@ PUBLIC GLOBAL SIPAckPackage* SIPAckPackage::CreateAckPackage(IN CONST AString& s
 
         if (pPackage->IsSamePackage(strCallId))
         {
-            IMS_TRACE_D("SIPAckPackage :: RE-USE (%s)",
+            IMS_TRACE_D("SipAckPackage :: RE-USE (%s)",
                     SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
             return pPackage;
         }
     }
 
-    SIPAckPackage* pNewPackage = new SIPAckPackage(strCallId);
+    SipAckPackage* pNewPackage = new SipAckPackage(strCallId);
 
     pAckPackageP->objAckPackages.Append(pNewPackage);
 
     IMS_TRACE_D(
-            "SIPAckPackage (%s) is created", SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
+            "SipAckPackage (%s) is created", SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
 
     return pNewPackage;
 }
@@ -278,7 +278,7 @@ PUBLIC GLOBAL SIPAckPackage* SIPAckPackage::CreateAckPackage(IN CONST AString& s
 Remarks
 
 */
-PUBLIC GLOBAL void SIPAckPackage::Init()
+PUBLIC GLOBAL void SipAckPackage::Init()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -293,7 +293,7 @@ PUBLIC GLOBAL void SIPAckPackage::Init()
 Remarks
 
 */
-PUBLIC GLOBAL IMS_BOOL SIPAckPackage::HandleStray2xx(IN SipMessage* pstMessage)
+PUBLIC GLOBAL IMS_BOOL SipAckPackage::HandleStray2xx(IN ::SipMessage* pstMessage)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -302,20 +302,20 @@ PUBLIC GLOBAL IMS_BOOL SIPAckPackage::HandleStray2xx(IN SipMessage* pstMessage)
         return IMS_FALSE;
     }
 
-    SipTxnKey* pstTxnKey = SIPStack::CreateTxnKey(pstMessage, SIPStack::SIP_TXN_MSG_RECEIVED);
+    ::SipTxnKey* pstTxnKey = SipStack::CreateTxnKey(pstMessage, SipStack::SIP_TXN_MSG_RECEIVED);
 
     if (pstTxnKey == IMS_NULL)
     {
-        IMS_TRACE_D("SIPAckPackage :: Stray 2xx is discarded", 0, 0, 0);
+        IMS_TRACE_D("SipAckPackage :: Stray 2xx is discarded", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    AString strCallId(SIPStack::TxnKey_GetCallId(pstTxnKey));
+    AString strCallId(SipStack::TxnKey_GetCallId(pstTxnKey));
     IMS_BOOL bStray2xxHandled = IMS_FALSE;
 
     for (IMS_UINT32 i = 0; i < pAckPackageP->objAckPackages.GetSize(); ++i)
     {
-        SIPAckPackage* pPackage = pAckPackageP->objAckPackages.GetAt(i);
+        SipAckPackage* pPackage = pAckPackageP->objAckPackages.GetAt(i);
 
         if (pPackage == IMS_NULL)
         {
@@ -328,14 +328,14 @@ PUBLIC GLOBAL IMS_BOOL SIPAckPackage::HandleStray2xx(IN SipMessage* pstMessage)
 
             if (!bStray2xxHandled)
             {
-                IMS_TRACE_D("SIPAckPackage :: ACK (%s) is not handled",
+                IMS_TRACE_D("SipAckPackage :: ACK (%s) is not handled",
                         SipDebug::GetCharA1(strCallId.GetStr(), 8, '@'), 0, 0);
             }
             break;
         }
     }
 
-    SIPStack::FreeTxnKey(pstTxnKey);
+    SipStack::FreeTxnKey(pstTxnKey);
 
     return bStray2xxHandled;
 }

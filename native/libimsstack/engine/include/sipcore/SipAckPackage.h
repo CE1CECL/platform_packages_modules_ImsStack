@@ -17,22 +17,22 @@
 #include "SipStackHeaders.h"
 #include "ISipAckPackage.h"
 
-class SIPClientTransactionState;
-class SIPAck;
+class SipClientTransactionState;
+class SipAck;
 class SIPAckPackagePrivate;
 
-class SIPAckPackage : public ISipAckPackage
+class SipAckPackage : public ISipAckPackage
 {
 private:
-    SIPAckPackage(IN CONST AString& strCallId_);
+    SipAckPackage(IN CONST AString& strCallId_);
 
 public:
-    virtual ~SIPAckPackage();
+    virtual ~SipAckPackage();
 
 public:
-    void AddAck(IN SIPClientTransactionState* pCTState, IN IMS_SINT32 nAliveInterval);
+    void AddAck(IN SipClientTransactionState* pCTState, IN IMS_SINT32 nAliveInterval);
     IMS_BOOL IsSamePackage(IN CONST AString& strCallId) const;
-    IMS_BOOL NotifyStray2xx(IN SipTxnKey* pstTxnKey);
+    IMS_BOOL NotifyStray2xx(IN ::SipTxnKey* pstTxnKey);
 
 private:
     // ISipObject class
@@ -42,13 +42,13 @@ private:
     virtual void RemoveStrayAcks();
 
 public:
-    static SIPAckPackage* CreateAckPackage(IN CONST AString& strCallId);
-    static IMS_BOOL HandleStray2xx(IN SipMessage* pstMessage);
+    static SipAckPackage* CreateAckPackage(IN CONST AString& strCallId);
+    static IMS_BOOL HandleStray2xx(IN ::SipMessage* pstMessage);
     static void Init();
 
 private:
     AString strCallId;
-    IMSList<SIPAck*> objAcks;
+    IMSList<SipAck*> objAcks;
 
     static SIPAckPackagePrivate* pAckPackageP;
 };

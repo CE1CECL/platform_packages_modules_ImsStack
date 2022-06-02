@@ -16,34 +16,34 @@
 #include "SipDialogState.h"
 #include "SipConnectionNotifier.h"
 
-class SIPManager
+class SipManager
 {
 private:
-    SIPManager();
-    SIPManager(IN CONST SIPManager& objRHS);
+    SipManager();
+    SipManager(IN CONST SipManager& objRHS);
 
 public:
-    ~SIPManager();
+    ~SipManager();
 
 public:
-    IMS_BOOL AttachDialogState(IN SIPDialogState* pDState);
-    void DetachDialogState(IN SIPDialogState* pDState);
-    RCPtr<SIPDialogState> LookupDialogState(IN SIPDialogState* pDState, IN SipMessage* pstMessage,
+    IMS_BOOL AttachDialogState(IN SipDialogState* pDState);
+    void DetachDialogState(IN SipDialogState* pDState);
+    RCPtr<SipDialogState> LookupDialogState(IN SipDialogState* pDState, IN ::SipMessage* pstMessage,
             IN IMS_BOOL bCheckForked = IMS_FALSE, OUT IMS_BOOL* pbIsForked = IMS_NULL);
 
-    IMS_BOOL AttachConnectionNotifier(IN SIPConnectionNotifier* pSCN);
-    void DetachConnectionNotifier(IN SIPConnectionNotifier* pSCN);
-    SIPConnectionNotifier* LookupConnectionNotifier(IN CONST SIPTransportAddress& objTA,
+    IMS_BOOL AttachConnectionNotifier(IN SipConnectionNotifier* pSCN);
+    void DetachConnectionNotifier(IN SipConnectionNotifier* pSCN);
+    SipConnectionNotifier* LookupConnectionNotifier(IN CONST SipTransportAddress& objTA,
             IN CONST AString& strFilter = AString::ConstNull());
 
-    static SIPManager* GetInstance();
+    static SipManager* GetInstance();
 
 private:
     IMS_BOOL StartUp();
     void CleanUp();
 
 private:
-    friend class StaticSIP;
+    friend class StaticSip;
 
     enum
     {
@@ -53,12 +53,12 @@ private:
     };
 
     IMS_SINT32 nState;
-    IMSList<SIPDialogState*> objDialogStates;
-    IMSList<SIPConnectionNotifier*> objSCNs;
+    IMSList<SipDialogState*> objDialogStates;
+    IMSList<SipConnectionNotifier*> objSCNs;
 
     // IMSList<SIPSLSubscription*> objSubscriptions;
-    // IMSList<SIPConnection*> objTransactions;
-    // IMSList<SIPDialogImpl*> objDialogs;
+    // IMSList<SipConnection*> objTransactions;
+    // IMSList<SipDialogImpl*> objDialogs;
     // IMSList<SIPRefresher*> objRefreshers;
 };
 

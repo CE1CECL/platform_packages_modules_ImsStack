@@ -395,7 +395,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierManagerPrivate::ServerConnection_Notif
 {
     if (!IsConnectionNotifierPresent(piSCN))
     {
-        IMS_TRACE_E(0, "SIPConnectionNotifier(%" PFLS_X ") is not present", piSCN, 0, 0);
+        IMS_TRACE_E(0, "SipConnectionNotifier(%" PFLS_X ") is not present", piSCN, 0, 0);
         return;
     }
 
@@ -812,7 +812,7 @@ PRIVATE GLOBAL void SIPConnectionNotifierManagerPrivate::GetRejectCode(
 
     objStatusCode = nStatusCode;
 
-    SIPFactoryProxy* pFactoryProxy = SIPFactoryProxy::GetInstance();
+    SipFactoryProxy* pFactoryProxy = SipFactoryProxy::GetInstance();
 
     if (pFactoryProxy->IsRoutingRejectNotifierEnabled(piSSC->GetSlotId()))
     {

@@ -4,7 +4,7 @@
 #include "SipMessageBuffer.h"
 
 PUBLIC
-SIPMessageBuffer::SIPMessageBuffer() :
+SipMessageBuffer::SipMessageBuffer() :
         RCObject(),
         ppBuffer(IMS_NULL)
 {
@@ -27,7 +27,7 @@ SIPMessageBuffer::SIPMessageBuffer() :
 }
 
 PUBLIC
-SIPMessageBuffer::SIPMessageBuffer(IN const SIPMessageBuffer& objRHS) :
+SipMessageBuffer::SipMessageBuffer(IN const SipMessageBuffer& objRHS) :
         RCObject(objRHS),
         ppBuffer(IMS_NULL)
 {
@@ -36,7 +36,7 @@ SIPMessageBuffer::SIPMessageBuffer(IN const SIPMessageBuffer& objRHS) :
     // NOTE: If reference count is not used, you MUST implement this copy constructor
 }
 
-PUBLIC VIRTUAL SIPMessageBuffer::~SIPMessageBuffer()
+PUBLIC VIRTUAL SipMessageBuffer::~SipMessageBuffer()
 {
     if (ppBuffer != IMS_NULL)
     {
@@ -64,7 +64,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BYTE* SIPMessageBuffer::GetBuffer()
+IMS_BYTE* SipMessageBuffer::GetBuffer()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BYTE* SIPMessageBuffer::GetBuffer(IN IMS_SINT32 nSlotId)
+IMS_BYTE* SipMessageBuffer::GetBuffer(IN IMS_SINT32 nSlotId)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -112,15 +112,15 @@ IMS_BYTE* SIPMessageBuffer::GetBuffer(IN IMS_SINT32 nSlotId)
 Remarks
 
 */
-PUBLIC GLOBAL RCPtr<SIPMessageBuffer> SIPMessageBuffer::GetInstance()
+PUBLIC GLOBAL RCPtr<SipMessageBuffer> SipMessageBuffer::GetInstance()
 {
-    static SIPMessageBuffer* pBuffer = IMS_NULL;
+    static SipMessageBuffer* pBuffer = IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
     if (pBuffer == IMS_NULL)
     {
-        pBuffer = new SIPMessageBuffer();
+        pBuffer = new SipMessageBuffer();
 
         pBuffer->AddReference();
     }

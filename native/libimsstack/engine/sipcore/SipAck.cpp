@@ -17,7 +17,7 @@
 #include "SipAck.h"
 
 PUBLIC
-SIPAck::SIPAck(IN SIPClientTransactionState* pCTState_, IN IMS_SINT32 nAliveInterval) :
+SipAck::SipAck(IN SipClientTransactionState* pCTState_, IN IMS_SINT32 nAliveInterval) :
         pCTState(pCTState_),
         piTimer(IMS_NULL)
 {
@@ -32,7 +32,7 @@ SIPAck::SIPAck(IN SIPClientTransactionState* pCTState_, IN IMS_SINT32 nAliveInte
     }
 }
 
-PUBLIC VIRTUAL SIPAck::~SIPAck()
+PUBLIC VIRTUAL SipAck::~SipAck()
 {
     if (piTimer != IMS_NULL)
     {
@@ -50,7 +50,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPAck::IsSameTransaction(IN SipTxnKey* pstTxnKey) const
+IMS_BOOL SipAck::IsSameTransaction(IN ::SipTxnKey* pstTxnKey) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ IMS_BOOL SIPAck::IsSameTransaction(IN SipTxnKey* pstTxnKey) const
         return IMS_FALSE;
     }
 
-    return SIPStack::CompareTxnKeysForAck(pCTState->GetTxnKey(), pstTxnKey);
+    return SipStack::CompareTxnKeysForAck(pCTState->GetTxnKey(), pstTxnKey);
 }
 
 /*
@@ -68,7 +68,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPAck::IsStrayAck() const
+IMS_BOOL SipAck::IsStrayAck() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Remarks
 
 */
 PUBLIC
-void SIPAck::RetransmitMessage()
+void SipAck::RetransmitMessage()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ void SIPAck::RetransmitMessage()
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPAck::Timer_TimerExpired(IN ITimer* piTimer)
+PRIVATE VIRTUAL void SipAck::Timer_TimerExpired(IN ITimer* piTimer)
 {
     //---------------------------------------------------------------------------------------------
 

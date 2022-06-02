@@ -13,20 +13,20 @@
 #include "SipDialogBase.h"
 
 PUBLIC
-SIPDialogBase::SIPDialogBase(IN SIPDialogState* pDState_) :
+SipDialogBase::SipDialogBase(IN SipDialogState* pDState_) :
         RCObject(),
         pDState(pDState_)
 {
 }
 
 PUBLIC
-SIPDialogBase::SIPDialogBase(IN CONST SIPDialogBase& objRHS) :
+SipDialogBase::SipDialogBase(IN CONST SipDialogBase& objRHS) :
         RCObject(objRHS),
         pDState(objRHS.pDState)
 {
 }
 
-PUBLIC VIRTUAL SIPDialogBase::~SIPDialogBase() {}
+PUBLIC VIRTUAL SipDialogBase::~SipDialogBase() {}
 
 /*
 
@@ -34,7 +34,7 @@ Remarks
 
 */
 PUBLIC
-SIPDialogBase& SIPDialogBase::operator=(IN CONST SIPDialogBase& objRHS)
+SipDialogBase& SipDialogBase::operator=(IN CONST SipDialogBase& objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ Remarks
 
 */
 PUBLIC
-SIPDialogState* SIPDialogBase::GetDialogState() const
+SipDialogState* SipDialogBase::GetDialogState() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 SIPDialogBase::GetState() const
+IMS_SINT32 SipDialogBase::GetState() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ IMS_SINT32 SIPDialogBase::GetState() const
 Remarks
 
 */
-PUBLIC GLOBAL IMS_BOOL SIPDialogBase::IsDialogCreatable(IN CONST SipMethod& objMethod)
+PUBLIC GLOBAL IMS_BOOL SipDialogBase::IsDialogCreatable(IN CONST SipMethod& objMethod)
 {
     //---------------------------------------------------------------------------------------------
 

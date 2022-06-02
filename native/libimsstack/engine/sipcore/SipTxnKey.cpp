@@ -13,8 +13,11 @@
 #include "ServiceMemory.h"
 #include "SipTxnKey.h"
 
+namespace sipcore
+{
+
 PUBLIC
-SIPTxnKey::SIPTxnKey() :
+SipTxnKey::SipTxnKey() :
         objMethod(SipMethod::INVALID),
         nStatusCode(0),
         strViaBranch(AString::ConstNull()),
@@ -25,7 +28,7 @@ SIPTxnKey::SIPTxnKey() :
 }
 
 PUBLIC
-SIPTxnKey::SIPTxnKey(IN CONST SipMethod& objMethod_, IN IMS_SINT32 nStatusCode_,
+SipTxnKey::SipTxnKey(IN CONST SipMethod& objMethod_, IN IMS_SINT32 nStatusCode_,
         IN CONST AString& strViaBranch_, IN IMS_UINT32 nCSeq_) :
         objMethod(objMethod_),
         nStatusCode(nStatusCode_),
@@ -37,7 +40,7 @@ SIPTxnKey::SIPTxnKey(IN CONST SipMethod& objMethod_, IN IMS_SINT32 nStatusCode_,
 }
 
 PUBLIC
-SIPTxnKey::SIPTxnKey(IN CONST SIPTxnKey& objRHS) :
+SipTxnKey::SipTxnKey(IN CONST SipTxnKey& objRHS) :
         objMethod(objRHS.objMethod),
         nStatusCode(objRHS.nStatusCode),
         strViaBranch(objRHS.strViaBranch),
@@ -48,10 +51,10 @@ SIPTxnKey::SIPTxnKey(IN CONST SIPTxnKey& objRHS) :
 }
 
 PUBLIC
-SIPTxnKey::~SIPTxnKey() {}
+SipTxnKey::~SipTxnKey() {}
 
 PUBLIC
-SIPTxnKey& SIPTxnKey::operator=(IN CONST SIPTxnKey& objRHS)
+SipTxnKey& SipTxnKey::operator=(IN CONST SipTxnKey& objRHS)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -75,7 +78,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPTxnKey::Equals(IN CONST SIPTxnKey* pKey) const
+IMS_BOOL SipTxnKey::Equals(IN CONST SipTxnKey* pKey) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -99,7 +102,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 SIPTxnKey::GetExtraInt() const
+IMS_SINT32 SipTxnKey::GetExtraInt() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -112,7 +115,7 @@ Remarks
 
 */
 PUBLIC
-const AString& SIPTxnKey::GetExtraString() const
+const AString& SipTxnKey::GetExtraString() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -125,7 +128,7 @@ Remarks
 
 */
 PUBLIC
-const SipMethod& SIPTxnKey::GetMethod() const
+const SipMethod& SipTxnKey::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -138,7 +141,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 SIPTxnKey::GetCSeq() const
+IMS_SINT32 SipTxnKey::GetCSeq() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -151,7 +154,7 @@ Remarks
 
 */
 PUBLIC
-IMS_SINT32 SIPTxnKey::GetStatusCode() const
+IMS_SINT32 SipTxnKey::GetStatusCode() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -164,7 +167,7 @@ Remarks
 
 */
 PUBLIC
-const AString& SIPTxnKey::GetViaBranch() const
+const AString& SipTxnKey::GetViaBranch() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -177,7 +180,7 @@ Remarks
 
 */
 PUBLIC
-void SIPTxnKey::SetExtraInt(IN IMS_SINT32 nExtraInt)
+void SipTxnKey::SetExtraInt(IN IMS_SINT32 nExtraInt)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -190,9 +193,11 @@ Remarks
 
 */
 PUBLIC
-void SIPTxnKey::SetExtraString(IN CONST AString& strExtraString)
+void SipTxnKey::SetExtraString(IN CONST AString& strExtraString)
 {
     //---------------------------------------------------------------------------------------------
 
     this->strExtraString = strExtraString;
 }
+
+}  // namespace sipcore
