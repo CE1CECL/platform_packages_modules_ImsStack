@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_SIP_TRANSACTION_STATE_LISTENER_H_
 #define _INTERFACE_SIP_TRANSACTION_STATE_LISTENER_H_
 
-class SIPClientTransactionState;
+class SipClientTransactionState;
 
 /*
 SIP transaction state listener interface
@@ -23,7 +23,7 @@ Example
 See Also
 
 */
-class ISIPTransactionStateListener
+class ISipTransactionStateListener
 {
 public:
     /*

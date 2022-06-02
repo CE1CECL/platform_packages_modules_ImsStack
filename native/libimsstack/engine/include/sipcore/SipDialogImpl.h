@@ -7,19 +7,19 @@
     </table>
 
     Description
-     This class represents one SIP dialog. The SIPDialog can be retrieved from a SIPConnection
+     This class represents one SIP dialog. The SipDialog can be retrieved from a SipConnection
     object, when it is available (at earliest after provisional 101~199 response).
     Three SIP requests can open a dialog: INVITE, SUBSCRIBE/NOTIFY and REFER/NOTIFY.
     An implementation compliant to this specification must support all of the following ways
     of creating dialogs:
-    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when the transaction BYE-200 OK is completed.
-    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SIPClientConnection
+    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SipClientConnection
     in the same dialog can be obtained by calling GetNewClientConnection(...) method.
     The dialog is terminated when a notifier sends a NOTIFY request with a "Subscription-State"
     of "terminated" and there are no other subscriptions alive in this dialog.
-    - REFER-matching NOTIFY will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - REFER-matching NOTIFY will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when a notifier sends a NOTIFY request with a "Subscription-State" of "terminated"
     and there are no other subscriptions alive in this dialog.
@@ -30,18 +30,18 @@
 
 #include "ISipDialog.h"
 
-class SIPDialog;
+class SipDialog;
 
-class SIPDialogImpl : public ISipDialog
+class SipDialogImpl : public ISipDialog
 {
 public:
-    explicit SIPDialogImpl(IN SIPDialog* pDialog_);
-    virtual ~SIPDialogImpl();
+    explicit SipDialogImpl(IN SipDialog* pDialog_);
+    virtual ~SipDialogImpl();
 
 private:
-    SIPDialogImpl();
-    SIPDialogImpl(IN CONST SIPDialogImpl& objRHS);
-    SIPDialogImpl& operator=(IN CONST SIPDialogImpl& objRHS);
+    SipDialogImpl();
+    SipDialogImpl(IN CONST SipDialogImpl& objRHS);
+    SipDialogImpl& operator=(IN CONST SipDialogImpl& objRHS);
 
 public:
     // ISipObject interface
@@ -64,10 +64,10 @@ public:
             IN CONST AString& strParameter, IN IMS_SINT32 nOperation = 0 /* (0: ADD, 1: REMOVE) */);
     virtual void TerminateDialogUsage();
 
-    inline SIPDialog* GetDialog() const { return pDialog; }
+    inline SipDialog* GetDialog() const { return pDialog; }
 
 private:
-    SIPDialog* pDialog;
+    SipDialog* pDialog;
 };
 
 #endif  // _SIP_DIALOG_IMPL_H_

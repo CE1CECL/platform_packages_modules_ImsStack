@@ -19,26 +19,26 @@
 
 class SIPAuHelperPrivate;
 
-class SIPAuHelper
+class SipAuHelper
 {
 public:
-    SIPAuHelper();
-    ~SIPAuHelper();
+    SipAuHelper();
+    ~SipAuHelper();
 
 private:
-    SIPAuHelper(IN CONST SIPAuHelper& objRHS);
-    SIPAuHelper& operator=(IN CONST SIPAuHelper& objRHS);
+    SipAuHelper(IN CONST SipAuHelper& objRHS);
+    SipAuHelper& operator=(IN CONST SipAuHelper& objRHS);
 
 public:
     IMS_BOOL AddChallenge(IN ISipGenericChallenge* piChallenge);
     IMS_BOOL AddCredential(IN CONST Credential& objCredential);
-    IMS_BOOL FormCredentials(IN_OUT SipMessage*& pstMessage);
+    IMS_BOOL FormCredentials(IN_OUT ::SipMessage*& pstMessage);
     ISipGenericChallenge* GetChallenge(IN IMS_SINT32 nIndex = 0) const;
     IMS_BOOL IsChallengePresent() const;
     IMS_BOOL IsCredentialPresent() const;
     void RemoveAllChallenges();
     void RemoveAllCredentials();
-    IMS_BOOL SetChallenges(IN SipMessage* pstMessage);
+    IMS_BOOL SetChallenges(IN ::SipMessage* pstMessage);
 
 private:
     SIPAuHelperPrivate* pSAHelper;

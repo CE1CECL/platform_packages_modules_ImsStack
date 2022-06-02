@@ -30,6 +30,6 @@ return                  description
 void
 </table>
 */
-GLOBAL void SIPStackTxnLayer_Initialize();
+GLOBAL void SipStackTxnLayer_Initialize();
 
 #endif  // _SIP_STACK_TXN_LAYER_H_

@@ -18,23 +18,23 @@
 #include "IOnSipConnectionNotifierErrorListener.h"
 
 class ISipServerConnectionListener;
-class SIPConnectionNotifier;
+class SipConnectionNotifier;
 
-class SIPConnectionNotifierImpl :
+class SipConnectionNotifierImpl :
         public ISipConnectionNotifier,
-        public IOnSIPServerConnectionListener,
-        public IOnSIPConnectionNotifierErrorListener
+        public IOnSipServerConnectionListener,
+        public IOnSipConnectionNotifierErrorListener
 {
 public:
-    explicit SIPConnectionNotifierImpl(IN SIPConnectionNotifier* pSCN_);
-    virtual ~SIPConnectionNotifierImpl();
+    explicit SipConnectionNotifierImpl(IN SipConnectionNotifier* pSCN_);
+    virtual ~SipConnectionNotifierImpl();
 
 private:
-    SIPConnectionNotifierImpl(IN CONST SIPConnectionNotifierImpl& objRHS);
-    SIPConnectionNotifierImpl& operator=(IN CONST SIPConnectionNotifierImpl& objRHS);
+    SipConnectionNotifierImpl(IN CONST SipConnectionNotifierImpl& objRHS);
+    SipConnectionNotifierImpl& operator=(IN CONST SipConnectionNotifierImpl& objRHS);
 
 public:
-    SIPConnectionNotifier* GetConnectionNotifier() const;
+    SipConnectionNotifier* GetConnectionNotifier() const;
 
 private:
     // IConnection interface
@@ -66,19 +66,19 @@ private:
     virtual void AddErrorListener(IN ISipConnectionNotifierErrorListener* piListener);
     virtual void RemoveErrorListener(IN ISipConnectionNotifierErrorListener* piListener);
 
-    // IOnSIPServerConnectionListener interface
-    virtual void OnServerConnection_NotifyRequest(IN SIPConnectionNotifier* pSCN);
-    virtual void OnServerConnection_NotifyForkedRequest(IN SIPConnectionNotifier* pSCN);
+    // IOnSipServerConnectionListener interface
+    virtual void OnServerConnection_NotifyRequest(IN SipConnectionNotifier* pSCN);
+    virtual void OnServerConnection_NotifyForkedRequest(IN SipConnectionNotifier* pSCN);
 
-    // IOnSIPConnectionNotifierErrorListener interface
+    // IOnSipConnectionNotifierErrorListener interface
     virtual void OnConnectionNotifierError_NotifyError(
-            IN SIPConnectionNotifier* pSCN, IN IMS_SINT32 nCode, IN CONST AString& strMessage);
+            IN SipConnectionNotifier* pSCN, IN IMS_SINT32 nCode, IN CONST AString& strMessage);
 
 private:
     ISipServerConnectionListener* piListener;
     IMSList<ISipConnectionNotifierErrorListener*> objErrorListeners;
 
-    SIPConnectionNotifier* pSCN;
+    SipConnectionNotifier* pSCN;
 };
 
 #endif  // _SIP_CONNECTION_NOTIFIER_IMPL_H_

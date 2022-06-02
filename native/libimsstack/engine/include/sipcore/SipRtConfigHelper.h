@@ -16,11 +16,11 @@
 #include "IMSMap.h"
 #include "ISipRtConfigHelper.h"
 
-class SIPRTConfigHelper : public ISipRtConfigHelper
+class SipRtConfigHelper : public ISipRtConfigHelper
 {
 public:
-    SIPRTConfigHelper();
-    virtual ~SIPRTConfigHelper();
+    SipRtConfigHelper();
+    virtual ~SipRtConfigHelper();
 
 public:
     virtual const SipRtConfig::Header* GetHeader(IN CONST AString& strName) const;

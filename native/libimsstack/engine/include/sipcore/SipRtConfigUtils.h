@@ -15,13 +15,13 @@
 
 #include "SipRtConfigHelper.h"
 
-class SIPRTConfigUtils
+class SipRtConfigUtils
 {
 private:
-    SIPRTConfigUtils();
+    SipRtConfigUtils();
 
 public:
-    static SIPRTConfigHelper* GetConfigHelper(IN IMS_SINT32 nSlotId);
+    static SipRtConfigHelper* GetConfigHelper(IN IMS_SINT32 nSlotId);
 
     static IMS_BOOL IsMessageHiddenInLog(IN IMS_SINT32 nSlotId);
     static IMS_BOOL IsRoutingInfoHiddenInLog(IN IMS_SINT32 nSlotId);
@@ -30,7 +30,7 @@ public:
     static IMS_BOOL IsFeatureSipTxPacketBlockedEnabled(IN IMS_SINT32 nSlotId);
 
     /** Configurations */
-    static IMS_BOOL IsIPSecSAConfigured(IN IMS_SINT32 nSlotId);
+    static IMS_BOOL IsIpSecSaConfigured(IN IMS_SINT32 nSlotId);
     static IMS_BOOL IsRegContactAddressConfigured(IN IMS_SINT32 nSlotId);
     static IMS_BOOL IsTcpPortRangeConfigured(IN IMS_SINT32 nSlotId);
 };

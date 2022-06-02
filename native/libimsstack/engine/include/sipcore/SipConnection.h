@@ -21,20 +21,20 @@
 #include "SipTimerValues.h"
 
 class SipProfile;
-class IOnSIPErrorListener;
+class IOnSipErrorListener;
 
-class SIPConnection :
+class SipConnection :
         public Connection,
-        public ISIPTransactionStateListener,
-        public ISIPTransportErrorListener
+        public ISipTransactionStateListener,
+        public ISipTransportErrorListener
 {
 protected:
-    SIPConnection();
-    virtual ~SIPConnection();
+    SipConnection();
+    virtual ~SipConnection();
 
 private:
-    SIPConnection(IN CONST SIPConnection& objRHS);
-    SIPConnection& operator=(IN CONST SIPConnection& objRHS);
+    SipConnection(IN CONST SipConnection& objRHS);
+    SipConnection& operator=(IN CONST SipConnection& objRHS);
 
 public:
     // IConnection interface
@@ -42,16 +42,16 @@ public:
 
     // ISipConnection interface
     virtual IMS_RESULT AddHeader(IN CONST AString& strName, IN CONST AString& strValue);
-    virtual SIPDialog* GetDialog() const;
+    virtual SipDialog* GetDialog() const;
     virtual AString GetHeader(IN CONST AString& strName, IN IMS_SINT32 nIndex = 0);
     virtual IMSList<AString> GetHeaders(IN CONST AString& strName);
     virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
-    virtual const AString& GetRequestURI() const;
+    virtual const AString& GetRequestUri() const;
     virtual IMS_SINT32 GetStatusCode() const;
     virtual IMS_RESULT RemoveHeader(IN CONST AString& strName);
     virtual IMS_RESULT Send();
-    virtual void SetErrorListener(IN IOnSIPErrorListener* piListener);
+    virtual void SetErrorListener(IN IOnSipErrorListener* piListener);
     virtual IMS_RESULT SetHeader(IN CONST AString& strName, IN CONST AString& strValue);
     virtual const ByteArray& GetContent() const;
     virtual IMS_RESULT SetContent(IN CONST ByteArray& objContent);
@@ -59,14 +59,14 @@ public:
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString& strName) const;
     inline virtual ISipMessage* GetMessage() const { return pMessage; }
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SipProfile* pProfile);
+    virtual void SetSipProfile(IN SipProfile* pProfile);
     void SetTransactionTimerValues(IN CONST SipTimerValues& objTV);
 
 protected:
-    // ISIPTransactionStateListener interface
+    // ISipTransactionStateListener interface
     virtual void TransactionState_TimerExpired();
 
-    // ISIPTransportErrorListener interface
+    // ISipTransportErrorListener interface
     virtual void TransportError_NotifyError(IN IMS_SINT32 nCode, IN CONST AString& strMessage);
 
     // SIP_TRANSPORT_ERROR_REPORT_ON_TXN
@@ -74,8 +74,8 @@ protected:
             IN IMS_SINT32 nCode, IN CONST AString& strMessage) const;
 
     SipTimerValues* GetTransactionTimerValues() const;
-    void InitMessage(
-            IN SIPMessage* pMessage_ = IMS_NULL, IN IMS_SINT32 nType_ = SIPMessage::TYPE_REQUEST);
+    void InitMessage(IN sipcore::SipMessage* pMessage_ = IMS_NULL,
+            IN IMS_SINT32 nType_ = sipcore::SipMessage::TYPE_REQUEST);
     void NotifyError(IN IMS_SINT32 nCode, IN CONST AString& strMessage);
 
 private:
@@ -84,10 +84,10 @@ private:
     static IMS_BOOL IsReadOnlyHeader(IN IMS_SINT32 nHType, IN CONST AString& strHName);
 
 protected:
-    IOnSIPErrorListener* piErrorListener;
+    IOnSipErrorListener* piErrorListener;
 
-    SIPDialog* pDialog;
-    SIPMessage* pMessage;
+    SipDialog* pDialog;
+    sipcore::SipMessage* pMessage;
 
     // SIP transaction timer values
     SipTimerValues* pTV;

@@ -229,7 +229,7 @@ protected:
         pSipTranspParam = new SipTransportParameter(
                 (SIP_CHAR*)"192.168.35.156", 5060, SipTransportInfo::PROTOCOL_UDP);
 
-        static const SIPStackCallbacks stTestCallbacks = {
+        static const SipStackCallbacks stTestCallbacks = {
                 &Mock_FetchTransaction,
                 &Mock_ReleaseTransaction,
                 &Mock_StartTimer,
@@ -241,7 +241,7 @@ protected:
                 SIP_NULL,
         };
 
-        SIPStackCallback_SetCallbacks(stTestCallbacks);
+        SipStackCallback_SetCallbacks(stTestCallbacks);
     }
 
     virtual void TearDown() override

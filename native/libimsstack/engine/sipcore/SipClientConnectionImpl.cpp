@@ -23,7 +23,7 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPClientConnectionImpl::SIPClientConnectionImpl(IN SIPClientConnection* pSCC_) :
+SipClientConnectionImpl::SipClientConnectionImpl(IN SipClientConnection* pSCC_) :
         piErrorListener(IMS_NULL),
         piListener(IMS_NULL),
         pDialogImpl(IMS_NULL),
@@ -33,7 +33,7 @@ SIPClientConnectionImpl::SIPClientConnectionImpl(IN SIPClientConnection* pSCC_) 
     pSCC->SetListener(this);
 }
 
-PUBLIC VIRTUAL SIPClientConnectionImpl::~SIPClientConnectionImpl()
+PUBLIC VIRTUAL SipClientConnectionImpl::~SipClientConnectionImpl()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ Remarks
 
 */
 PUBLIC
-IMS_RESULT SIPClientConnectionImpl::InitDialogRequest()
+IMS_RESULT SipClientConnectionImpl::InitDialogRequest()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ IMS_RESULT SIPClientConnectionImpl::InitDialogRequest()
 
     if (pDialogImpl == IMS_NULL)
     {
-        SIPDialog* pDialog = pSCC->GetDialog();
+        SipDialog* pDialog = pSCC->GetDialog();
 
         if (pDialog == IMS_NULL)
         {
@@ -76,11 +76,11 @@ IMS_RESULT SIPClientConnectionImpl::InitDialogRequest()
             return IMS_FAILURE;
         }
 
-        pDialogImpl = new SIPDialogImpl(new SIPDialog(*pDialog));
+        pDialogImpl = new SipDialogImpl(new SipDialog(*pDialog));
 
         if (pDialogImpl == IMS_NULL)
         {
-            IMS_TRACE_E(0, "Creating SIPDialogImpl failed", 0, 0, 0);
+            IMS_TRACE_E(0, "Creating SipDialogImpl failed", 0, 0, 0);
             return IMS_FAILURE;
         }
     }
@@ -93,7 +93,7 @@ IMS_RESULT SIPClientConnectionImpl::InitDialogRequest()
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::Close()
+PRIVATE VIRTUAL void SipClientConnectionImpl::Close()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::Close()
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::AddHeader(
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::AddHeader(
         IN CONST AString& strName, IN CONST AString& strValue)
 {
     //---------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::AddHeader(
 Remarks
 
 */
-PRIVATE VIRTUAL ISipDialog* SIPClientConnectionImpl::GetDialog() const
+PRIVATE VIRTUAL ISipDialog* SipClientConnectionImpl::GetDialog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ PRIVATE VIRTUAL ISipDialog* SIPClientConnectionImpl::GetDialog() const
 Remarks
 
 */
-PRIVATE VIRTUAL AString SIPClientConnectionImpl::GetHeader(
+PRIVATE VIRTUAL AString SipClientConnectionImpl::GetHeader(
         IN CONST AString& strName, IN IMS_SINT32 nIndex /* = 0 */)
 {
     //---------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ PRIVATE VIRTUAL AString SIPClientConnectionImpl::GetHeader(
 Remarks
 
 */
-PRIVATE VIRTUAL IMSList<AString> SIPClientConnectionImpl::GetHeaders(IN CONST AString& strName)
+PRIVATE VIRTUAL IMSList<AString> SipClientConnectionImpl::GetHeaders(IN CONST AString& strName)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ PRIVATE VIRTUAL IMSList<AString> SIPClientConnectionImpl::GetHeaders(IN CONST AS
 Remarks
 
 */
-PRIVATE VIRTUAL const SipMethod& SIPClientConnectionImpl::GetMethod() const
+PRIVATE VIRTUAL const SipMethod& SipClientConnectionImpl::GetMethod() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ PRIVATE VIRTUAL const SipMethod& SIPClientConnectionImpl::GetMethod() const
 Remarks
 
 */
-PRIVATE VIRTUAL const AString& SIPClientConnectionImpl::GetReasonPhrase() const
+PRIVATE VIRTUAL const AString& SipClientConnectionImpl::GetReasonPhrase() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -190,11 +190,11 @@ PRIVATE VIRTUAL const AString& SIPClientConnectionImpl::GetReasonPhrase() const
 Remarks
 
 */
-PRIVATE VIRTUAL const AString& SIPClientConnectionImpl::GetRequestUri() const
+PRIVATE VIRTUAL const AString& SipClientConnectionImpl::GetRequestUri() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return pSCC->GetRequestURI();
+    return pSCC->GetRequestUri();
 }
 
 /*
@@ -202,7 +202,7 @@ PRIVATE VIRTUAL const AString& SIPClientConnectionImpl::GetRequestUri() const
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_SINT32 SIPClientConnectionImpl::GetStatusCode() const
+PRIVATE VIRTUAL IMS_SINT32 SipClientConnectionImpl::GetStatusCode() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ PRIVATE VIRTUAL IMS_SINT32 SIPClientConnectionImpl::GetStatusCode() const
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::RemoveHeader(IN CONST AString& strName)
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::RemoveHeader(IN CONST AString& strName)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -226,18 +226,18 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::RemoveHeader(IN CONST AStrin
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::Send()
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::Send()
 {
     IMS_RESULT nResult = pSCC->Send();
 
     // in-dialog & dialogUsage used
     if (nResult == IMS_SUCCESS)
     {
-        SIPDialog* pDialog = (pDialogImpl != IMS_NULL) ? pDialogImpl->GetDialog() : IMS_NULL;
-        SIPDialog* pSccDialog = pSCC->GetDialog();
+        SipDialog* pDialog = (pDialogImpl != IMS_NULL) ? pDialogImpl->GetDialog() : IMS_NULL;
+        SipDialog* pSccDialog = pSCC->GetDialog();
 
         if ((pSccDialog != IMS_NULL) && (pDialog != IMS_NULL) &&
-                (pDialog->GetState() == SIPDialog::STATE_CONFIRMED))
+                (pDialog->GetState() == SipDialog::STATE_CONFIRMED))
         {
             const SipMethod& objMethod = GetMethod();
 
@@ -256,7 +256,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::Send()
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetErrorListener(IN ISipErrorListener* piListener)
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetErrorListener(IN ISipErrorListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -268,7 +268,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetErrorListener(IN ISipErrorListe
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetHeader(
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::SetHeader(
         IN CONST AString& strName, IN CONST AString& strValue)
 {
     //---------------------------------------------------------------------------------------------
@@ -281,7 +281,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetHeader(
 Remarks
 
 */
-PRIVATE VIRTUAL const ByteArray& SIPClientConnectionImpl::GetContent() const
+PRIVATE VIRTUAL const ByteArray& SipClientConnectionImpl::GetContent() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -293,7 +293,7 @@ PRIVATE VIRTUAL const ByteArray& SIPClientConnectionImpl::GetContent() const
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetContent(IN CONST ByteArray& objContent)
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::SetContent(IN CONST ByteArray& objContent)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -305,7 +305,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetContent(IN CONST ByteArra
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_SINT32 SIPClientConnectionImpl::GetHeaderCount(IN CONST AString& strName) const
+PRIVATE VIRTUAL IMS_SINT32 SipClientConnectionImpl::GetHeaderCount(IN CONST AString& strName) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -317,7 +317,7 @@ PRIVATE VIRTUAL IMS_SINT32 SIPClientConnectionImpl::GetHeaderCount(IN CONST AStr
 Remarks
 
 */
-PRIVATE VIRTUAL ISipMessage* SIPClientConnectionImpl::GetMessage() const
+PRIVATE VIRTUAL ISipMessage* SipClientConnectionImpl::GetMessage() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -329,7 +329,7 @@ PRIVATE VIRTUAL ISipMessage* SIPClientConnectionImpl::GetMessage() const
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_SINT32 SIPClientConnectionImpl::GetSlotId() const
+PRIVATE VIRTUAL IMS_SINT32 SipClientConnectionImpl::GetSlotId() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -341,11 +341,11 @@ PRIVATE VIRTUAL IMS_SINT32 SIPClientConnectionImpl::GetSlotId() const
 Remarks
  MULTI_REG_SIP_PROFILE
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetSipProfile(IN SipProfile* pProfile)
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetSipProfile(IN SipProfile* pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
-    pSCC->SetSIPProfile(pProfile);
+    pSCC->SetSipProfile(pProfile);
 }
 
 /*
@@ -353,7 +353,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetSipProfile(IN SipProfile* pProf
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetTransactionTimerValues(
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetTransactionTimerValues(
         IN CONST SipTimerValues& objTV)
 {
     //---------------------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetTransactionTimerValues(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitAck()
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::InitAck()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -378,25 +378,25 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitAck()
 Remarks
 
 */
-PRIVATE VIRTUAL ISipClientConnection* SIPClientConnectionImpl::InitCancel()
+PRIVATE VIRTUAL ISipClientConnection* SipClientConnectionImpl::InitCancel()
 {
     //---------------------------------------------------------------------------------------------
 
     // 3 To-Tag removal needs to be handled by the user because the re-INVITE may be cancelled
     // 3 Session implementation has the responsibility of the to-tag removal.
 
-    SIPClientConnection* pCANCEL = pSCC->InitCancel();
+    SipClientConnection* pCANCEL = pSCC->InitCancel();
 
     if (pCANCEL == IMS_NULL)
     {
         return IMS_NULL;
     }
 
-    SIPClientConnectionImpl* pCANCELImpl = new SIPClientConnectionImpl(pCANCEL);
+    SipClientConnectionImpl* pCANCELImpl = new SipClientConnectionImpl(pCANCEL);
 
     if (pCANCELImpl == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::CONNECTION_NOT_FOUND);
+        SipPrivate::SetLastError(SipError::CONNECTION_NOT_FOUND);
         return IMS_NULL;
     }
 
@@ -408,11 +408,11 @@ PRIVATE VIRTUAL ISipClientConnection* SIPClientConnectionImpl::InitCancel()
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitRequest(
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::InitRequest(
         IN CONST AString& strMethod, IN ISipConnectionNotifier* piSCN)
 {
-    SIPConnectionNotifierImpl* pSCNImpl = DYNAMIC_CAST(SIPConnectionNotifierImpl*, piSCN);
-    SIPConnectionNotifier* pSCN = IMS_NULL;
+    SipConnectionNotifierImpl* pSCNImpl = DYNAMIC_CAST(SipConnectionNotifierImpl*, piSCN);
+    SipConnectionNotifier* pSCN = IMS_NULL;
 
     //---------------------------------------------------------------------------------------------
 
@@ -426,11 +426,11 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitRequest(
         return IMS_FAILURE;
     }
 
-    SIPDialog* pDialog = pSCC->GetDialog();
+    SipDialog* pDialog = pSCC->GetDialog();
 
     if (pDialog != IMS_NULL)
     {
-        pDialogImpl = new SIPDialogImpl(new SIPDialog(*pDialog));
+        pDialogImpl = new SipDialogImpl(new SipDialog(*pDialog));
 
         if (pDialogImpl == IMS_NULL)
         {
@@ -446,7 +446,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitRequest(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::Receive(IN IMS_SLONG /* nTimeout = 0 */)
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::Receive(IN IMS_SLONG /* nTimeout = 0 */)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -458,7 +458,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::Receive(IN IMS_SLONG /* nTim
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetCredentials(
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::SetCredentials(
         IN IMSList<Credential>& objCredentials)
 {
     //---------------------------------------------------------------------------------------------
@@ -471,7 +471,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetCredentials(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetCredentials(
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::SetCredentials(
         IN CONST Credential& objCredential)
 {
     //---------------------------------------------------------------------------------------------
@@ -484,7 +484,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetCredentials(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetListener(
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetListener(
         IN ISipClientConnectionListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
@@ -497,11 +497,11 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetListener(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetRequestUri(IN CONST AString& strURI)
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::SetRequestUri(IN CONST AString& strURI)
 {
     //---------------------------------------------------------------------------------------------
 
-    return pSCC->SetRequestURI(strURI);
+    return pSCC->SetRequestUri(strURI);
 }
 
 /*
@@ -509,7 +509,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetRequestUri(IN CONST AStri
 Remarks
 
 */
-PRIVATE VIRTUAL ISipGenericChallenge* SIPClientConnectionImpl::GetAuthenticationChallenge(
+PRIVATE VIRTUAL ISipGenericChallenge* SipClientConnectionImpl::GetAuthenticationChallenge(
         IN IMS_SINT32 nIndex /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
@@ -522,7 +522,7 @@ PRIVATE VIRTUAL ISipGenericChallenge* SIPClientConnectionImpl::GetAuthentication
 Remarks
 
 */
-PRIVATE VIRTUAL ISipAckPackage* SIPClientConnectionImpl::GrabAck()
+PRIVATE VIRTUAL ISipAckPackage* SipClientConnectionImpl::GrabAck()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -534,7 +534,7 @@ PRIVATE VIRTUAL ISipAckPackage* SIPClientConnectionImpl::GrabAck()
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitResubmissionRequest()
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::InitResubmissionRequest()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -546,7 +546,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::InitResubmissionRequest()
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::RemoveAllChallenges()
+PRIVATE VIRTUAL void SipClientConnectionImpl::RemoveAllChallenges()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -558,7 +558,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::RemoveAllChallenges()
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::RemoveAllCredentials()
+PRIVATE VIRTUAL void SipClientConnectionImpl::RemoveAllCredentials()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -570,7 +570,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::RemoveAllCredentials()
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetAuthenticationChallenge(
+PRIVATE VIRTUAL IMS_RESULT SipClientConnectionImpl::SetAuthenticationChallenge(
         IN ISipGenericChallenge* piChallenge)
 {
     //---------------------------------------------------------------------------------------------
@@ -583,7 +583,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPClientConnectionImpl::SetAuthenticationChallenge(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetExtensionTokenForViaBranch(
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetExtensionTokenForViaBranch(
         IN CONST AString& strToken)
 {
     //---------------------------------------------------------------------------------------------
@@ -596,7 +596,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetExtensionTokenForViaBranch(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetImplicitRouteHeader(
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetImplicitRouteHeader(
         IN CONST AString& strRouteHeader)
 {
     //---------------------------------------------------------------------------------------------
@@ -609,7 +609,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetImplicitRouteHeader(
 Remarks
  RFC5626_FLOW_CONTROL, MULTI_REG_TRANSPORT
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::SetTransportTuple(IN CONST IPAddress& objIPA,
+PRIVATE VIRTUAL void SipClientConnectionImpl::SetTransportTuple(IN CONST IPAddress& objIPA,
         IN IMS_SINT32 nPortS, IN IMS_SINT32 nPortC, IN IMS_SINT32 nPortFC /* = 0xFFFF */,
         IN IMS_SINT32 nTransportExt /* = 0 (ANY) */)
 {
@@ -623,8 +623,8 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::SetTransportTuple(IN CONST IPAddre
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::OnError_NotifyError(
-        IN SIPConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage)
+PRIVATE VIRTUAL void SipClientConnectionImpl::OnError_NotifyError(
+        IN SipConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -648,8 +648,8 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::OnError_NotifyError(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::OnClientConnection_NotifyResponse(
-        IN SIPClientConnection* pSCC)
+PRIVATE VIRTUAL void SipClientConnectionImpl::OnClientConnection_NotifyResponse(
+        IN SipClientConnection* pSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -673,8 +673,8 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::OnClientConnection_NotifyResponse(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPClientConnectionImpl::OnClientConnection_NotifyForkedResponse(
-        IN SIPClientConnection* pSCC, IN SIPClientConnection* pForkedSCC)
+PRIVATE VIRTUAL void SipClientConnectionImpl::OnClientConnection_NotifyForkedResponse(
+        IN SipClientConnection* pSCC, IN SipClientConnection* pForkedSCC)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -692,7 +692,7 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::OnClientConnection_NotifyForkedRes
         return;
     }
 
-    SIPClientConnectionImpl* pSCCImpl = new SIPClientConnectionImpl(pForkedSCC);
+    SipClientConnectionImpl* pSCCImpl = new SipClientConnectionImpl(pForkedSCC);
 
     if (pSCCImpl == IMS_NULL)
     {
@@ -700,11 +700,11 @@ PRIVATE VIRTUAL void SIPClientConnectionImpl::OnClientConnection_NotifyForkedRes
         return;
     }
 
-    SIPDialog* pDialog = pForkedSCC->GetDialog();
+    SipDialog* pDialog = pForkedSCC->GetDialog();
 
     if (pDialog != IMS_NULL)
     {
-        pSCCImpl->pDialogImpl = new SIPDialogImpl(new SIPDialog(*pDialog));
+        pSCCImpl->pDialogImpl = new SipDialogImpl(new SipDialog(*pDialog));
 
         if (pSCCImpl->pDialogImpl == IMS_NULL)
         {

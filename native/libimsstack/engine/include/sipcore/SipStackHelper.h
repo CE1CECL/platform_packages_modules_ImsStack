@@ -22,7 +22,7 @@
 
 class ISipHeader;
 
-namespace SIPStack
+namespace SipStack
 {
 
 GLOBAL IMS_BOOL DecodeHeaderComponent(
@@ -31,6 +31,6 @@ GLOBAL IMS_BOOL DecodeHeaderComponent(
 GLOBAL IMS_BOOL DecodeHeaderComponent(
         IN CONST AString& strHeaders, OUT IMSList<ISipHeader*>& objHeaders);
 
-}  // namespace SIPStack
+}  // namespace SipStack
 
 #endif

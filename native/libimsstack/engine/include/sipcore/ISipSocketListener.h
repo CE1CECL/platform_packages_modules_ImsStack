@@ -13,7 +13,7 @@
 #ifndef _INTERFACE_SIP_SOCKET_LISTENER_H_
 #define _INTERFACE_SIP_SOCKET_LISTENER_H_
 
-class SIPSocket;
+class SipSocket;
 
 /*
 SIP socket listener interface
@@ -23,7 +23,7 @@ Example
 See Also
 
 */
-class ISIPSocketListener
+class ISipSocketListener
 {
 public:
     /*
@@ -42,7 +42,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void Socket_NotifyError(IN SIPSocket* pSocket, IN IMS_SINT32 nErrorCode) = 0;
+    virtual void Socket_NotifyError(IN SipSocket* pSocket, IN IMS_SINT32 nErrorCode) = 0;
 
     /*
 
@@ -60,7 +60,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void Socket_SendEnabled(IN SIPSocket* pSocket) = 0;
+    virtual void Socket_SendEnabled(IN SipSocket* pSocket) = 0;
 };
 
 #endif  // _INTERFACE_SIP_SOCKET_LISTENER_H_

@@ -20,7 +20,7 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPConnectionNotifierImpl::SIPConnectionNotifierImpl(IN SIPConnectionNotifier* pSCN_) :
+SipConnectionNotifierImpl::SipConnectionNotifierImpl(IN SipConnectionNotifier* pSCN_) :
         piListener(IMS_NULL),
         pSCN(pSCN_)
 {
@@ -28,7 +28,7 @@ SIPConnectionNotifierImpl::SIPConnectionNotifierImpl(IN SIPConnectionNotifier* p
     pSCN->SetErrorListener(this);
 }
 
-PUBLIC VIRTUAL SIPConnectionNotifierImpl::~SIPConnectionNotifierImpl()
+PUBLIC VIRTUAL SipConnectionNotifierImpl::~SipConnectionNotifierImpl()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ Remarks
 
 */
 PUBLIC
-SIPConnectionNotifier* SIPConnectionNotifierImpl::GetConnectionNotifier() const
+SipConnectionNotifier* SipConnectionNotifierImpl::GetConnectionNotifier() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ SIPConnectionNotifier* SIPConnectionNotifierImpl::GetConnectionNotifier() const
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::Close()
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::Close()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::Close()
 Remarks
 
 */
-PRIVATE VIRTUAL ISipServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen()
+PRIVATE VIRTUAL ISipServerConnection* SipConnectionNotifierImpl::AcceptAndOpen()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ PRIVATE VIRTUAL ISipServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen()
 Remarks
 
 */
-PRIVATE VIRTUAL const IPAddress& SIPConnectionNotifierImpl::GetLocalAddress() const
+PRIVATE VIRTUAL const IPAddress& SipConnectionNotifierImpl::GetLocalAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ PRIVATE VIRTUAL const IPAddress& SIPConnectionNotifierImpl::GetLocalAddress() co
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_SINT32 SIPConnectionNotifierImpl::GetLocalPort() const
+PRIVATE VIRTUAL IMS_SINT32 SipConnectionNotifierImpl::GetLocalPort() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ PRIVATE VIRTUAL IMS_SINT32 SIPConnectionNotifierImpl::GetLocalPort() const
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetListener(
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::SetListener(
         IN ISipServerConnectionListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetListener(
 Remarks
 
 */
-PRIVATE VIRTUAL ISipServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen(
+PRIVATE VIRTUAL ISipServerConnection* SipConnectionNotifierImpl::AcceptAndOpen(
         OUT ISipDialog*& piOrigDialog)
 {
     //---------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ PRIVATE VIRTUAL ISipServerConnection* SIPConnectionNotifierImpl::AcceptAndOpen(
 Remarks
 
 */
-PRIVATE VIRTUAL AString SIPConnectionNotifierImpl::GetContactAddress() const
+PRIVATE VIRTUAL AString SipConnectionNotifierImpl::GetContactAddress() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -154,11 +154,11 @@ PRIVATE VIRTUAL AString SIPConnectionNotifierImpl::GetContactAddress() const
 Remarks
  MULTI_REG_SIP_PROFILE
 */
-PRIVATE VIRTUAL SipProfile* SIPConnectionNotifierImpl::GetSipProfile() const
+PRIVATE VIRTUAL SipProfile* SipConnectionNotifierImpl::GetSipProfile() const
 {
     //---------------------------------------------------------------------------------------------
 
-    return pSCN->GetSIPProfile();
+    return pSCN->GetSipProfile();
 }
 
 /*
@@ -166,7 +166,7 @@ PRIVATE VIRTUAL SipProfile* SIPConnectionNotifierImpl::GetSipProfile() const
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_SINT32 SIPConnectionNotifierImpl::GetSlotId() const
+PRIVATE VIRTUAL IMS_SINT32 SipConnectionNotifierImpl::GetSlotId() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ PRIVATE VIRTUAL IMS_SINT32 SIPConnectionNotifierImpl::GetSlotId() const
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_BOOL SIPConnectionNotifierImpl::IsTransportResourceReserved(
+PRIVATE VIRTUAL IMS_BOOL SipConnectionNotifierImpl::IsTransportResourceReserved(
         IN IMS_SINT32 nType /* = TRANSPORT_ALL*/) const
 {
     //---------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ PRIVATE VIRTUAL IMS_BOOL SIPConnectionNotifierImpl::IsTransportResourceReserved(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPConnectionNotifierImpl::ReserveTransportResource(
+PRIVATE VIRTUAL IMS_RESULT SipConnectionNotifierImpl::ReserveTransportResource(
         IN CONST IPAddress& objIPA, IN IMS_SINT32 nPortS, IN IMS_SINT32 nPortC,
         IN IMS_SINT32 nPortFlowControl)
 {
@@ -205,7 +205,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPConnectionNotifierImpl::ReserveTransportResource(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPConnectionNotifierImpl::RestoreTransportResource(
+PRIVATE VIRTUAL IMS_RESULT SipConnectionNotifierImpl::RestoreTransportResource(
         IN IMS_SINT32 nType, IN CONST IPAddress& objPeerIP, IN IMS_SINT32 nPeerPort)
 {
     //---------------------------------------------------------------------------------------------
@@ -218,7 +218,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPConnectionNotifierImpl::RestoreTransportResource(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetFilter(IN CONST AString& strFilter)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::SetFilter(IN CONST AString& strFilter)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -230,7 +230,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetFilter(IN CONST AString& strF
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetFromAndContact(
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::SetFromAndContact(
         IN CONST AString& strFrom, IN CONST AString& strDisplayName, IN CONST AString& strUserInfo)
 {
     //---------------------------------------------------------------------------------------------
@@ -243,11 +243,11 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetFromAndContact(
 Remarks
  MULTI_REG_SIP_PROFILE
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetSipProfile(IN SipProfile* pProfile)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::SetSipProfile(IN SipProfile* pProfile)
 {
     //---------------------------------------------------------------------------------------------
 
-    pSCN->SetSIPProfile(pProfile);
+    pSCN->SetSipProfile(pProfile);
 }
 
 /*
@@ -255,7 +255,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::SetSipProfile(IN SipProfile* pPr
 Remarks
  RFC5626_FLOW_CONTROL
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::UpdatePortFlowControl(IN IMS_SINT32 nPort)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::UpdatePortFlowControl(IN IMS_SINT32 nPort)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -267,11 +267,11 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::UpdatePortFlowControl(IN IMS_SIN
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::UpdatePortUc(IN IMS_SINT32 nPort)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::UpdatePortUc(IN IMS_SINT32 nPort)
 {
     //---------------------------------------------------------------------------------------------
 
-    pSCN->UpdatePortUC(nPort);
+    pSCN->UpdatePortUc(nPort);
 }
 
 /*
@@ -279,7 +279,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::UpdatePortUc(IN IMS_SINT32 nPort
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::AddErrorListener(
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::AddErrorListener(
         IN ISipConnectionNotifierErrorListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
@@ -308,7 +308,7 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::AddErrorListener(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::RemoveErrorListener(
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::RemoveErrorListener(
         IN ISipConnectionNotifierErrorListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
@@ -340,8 +340,8 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::RemoveErrorListener(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::OnServerConnection_NotifyRequest(
-        IN SIPConnectionNotifier* pSCN)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::OnServerConnection_NotifyRequest(
+        IN SipConnectionNotifier* pSCN)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -365,8 +365,8 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::OnServerConnection_NotifyRequest
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::OnServerConnection_NotifyForkedRequest(
-        IN SIPConnectionNotifier* pSCN)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::OnServerConnection_NotifyForkedRequest(
+        IN SipConnectionNotifier* pSCN)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -390,8 +390,8 @@ PRIVATE VIRTUAL void SIPConnectionNotifierImpl::OnServerConnection_NotifyForkedR
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPConnectionNotifierImpl::OnConnectionNotifierError_NotifyError(
-        IN SIPConnectionNotifier* pSCN, IN IMS_SINT32 nCode, IN CONST AString& strMessage)
+PRIVATE VIRTUAL void SipConnectionNotifierImpl::OnConnectionNotifierError_NotifyError(
+        IN SipConnectionNotifier* pSCN, IN IMS_SINT32 nCode, IN CONST AString& strMessage)
 {
     //---------------------------------------------------------------------------------------------
 

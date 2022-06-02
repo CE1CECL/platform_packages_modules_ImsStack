@@ -15,25 +15,25 @@
 
 #include "IPAddress.h"
 
-class SIPTransportAddress
+class SipTransportAddress
 {
 public:
-    SIPTransportAddress();
-    SIPTransportAddress(IN CONST SIPTransportAddress& objRHS);
-    SIPTransportAddress(
+    SipTransportAddress();
+    SipTransportAddress(IN CONST SipTransportAddress& objRHS);
+    SipTransportAddress(
             IN IMS_SINT32 nProtocol_, IN IMS_SINT32 nPort_, IN CONST AString& strAddress_);
-    ~SIPTransportAddress();
+    ~SipTransportAddress();
 
 public:
-    SIPTransportAddress& operator=(IN CONST SIPTransportAddress& objRHS);
+    SipTransportAddress& operator=(IN CONST SipTransportAddress& objRHS);
 
 public:
-    IMS_BOOL Equals(IN CONST SIPTransportAddress& objTA) const;
+    IMS_BOOL Equals(IN CONST SipTransportAddress& objTA) const;
 
-    inline const IPAddress& GetIPAddress() const { return objIPAddress; }
+    inline const IPAddress& GetIpAddress() const { return objIPAddress; }
     inline IMS_SINT32 GetPort() const { return nPort; }
     inline IMS_SINT32 GetProtocol() const { return nProtocol; }
-    inline void SetIPAddress(IN CONST IPAddress& objIPAddress)
+    inline void SetIpAddress(IN CONST IPAddress& objIPAddress)
     {
         this->objIPAddress = objIPAddress;
     }
@@ -54,7 +54,7 @@ public:
     };
 
 private:
-    // TRANSPORT_UDP, ... in SIP class or TYPE_UDP, ... in SIPSocket class
+    // TRANSPORT_UDP, ... in SIP class or TYPE_UDP, ... in SipSocket class
     IMS_SINT32 nProtocol;
     // Port; If -1, the default port number will be selected according to the transport protocol
     IMS_SINT32 nPort;

@@ -22,7 +22,7 @@ Example
 
 See Also
 */
-class ISIPTransportErrorListener
+class ISipTransportErrorListener
 {
 public:
     /*

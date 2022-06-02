@@ -23,9 +23,9 @@
 #include "SipUtils.h"
 
 // HEADER_REQ_SESSION-ID
-PRIVATE GLOBAL AString* SIPUtil::pFixedKeyForSessionId = IMS_NULL;
+PRIVATE GLOBAL AString* SipUtils::pFixedKeyForSessionId = IMS_NULL;
 
-PUBLIC GLOBAL AString SIPUtil::GenerateBoundary()
+PUBLIC GLOBAL AString SipUtils::GenerateBoundary()
 {
     // boundary := 0*69<bchars> bcharsnospace
     AString strBoundary;
@@ -35,7 +35,7 @@ PUBLIC GLOBAL AString SIPUtil::GenerateBoundary()
     return strBoundary;
 }
 
-PUBLIC GLOBAL AString SIPUtil::GenerateCallId(IN const AString& strHost)
+PUBLIC GLOBAL AString SipUtils::GenerateCallId(IN const AString& strHost)
 {
     AString strCallId;
     ImsTime stTime = IMS_SYS_GetLocalTime();
@@ -55,7 +55,8 @@ PUBLIC GLOBAL AString SIPUtil::GenerateCallId(IN const AString& strHost)
 }
 
 // HEADER_REQ_SESSION-ID
-PUBLIC GLOBAL AString SIPUtil::GenerateSessionId(IN IMS_SINT32 nSlotId, IN const AString& strCallId)
+PUBLIC GLOBAL AString SipUtils::GenerateSessionId(
+        IN IMS_SINT32 nSlotId, IN const AString& strCallId)
 {
     // FIXME: add a runtime feature check routine in here (FEATURE)
 
@@ -78,7 +79,7 @@ PUBLIC GLOBAL AString SIPUtil::GenerateSessionId(IN IMS_SINT32 nSlotId, IN const
     return strSessionId.ToHexString();
 }
 
-PUBLIC GLOBAL AString SIPUtil::GenerateTag(IN const AString& strMagicCookie)
+PUBLIC GLOBAL AString SipUtils::GenerateTag(IN const AString& strMagicCookie)
 {
     AString strTagValue;
     ImsTime stTime = IMS_SYS_GetLocalTime();
@@ -97,7 +98,7 @@ PUBLIC GLOBAL AString SIPUtil::GenerateTag(IN const AString& strMagicCookie)
     return strTagValue;
 }
 
-PUBLIC GLOBAL AString SIPUtil::GenerateViaBranch(IN const IMS_CHAR* pszToTag,
+PUBLIC GLOBAL AString SipUtils::GenerateViaBranch(IN const IMS_CHAR* pszToTag,
         IN const IMS_CHAR* pszFromTag, IN const IMS_CHAR* pszCallID,
         IN const IMS_CHAR* pszRequestURI, IN const IMS_CHAR* pszTopmostVia, IN IMS_SINT32 nCSeqNum,
         IN const AString& strExtensionToken /* = AString::ConstNull() */)
@@ -175,7 +176,7 @@ PUBLIC GLOBAL AString SIPUtil::GenerateViaBranch(IN const IMS_CHAR* pszToTag,
     return strViaBranch.Append(acViaBranch).Append(strExtensionToken);
 }
 
-PUBLIC GLOBAL AString SIPUtil::GenerateViaBranch(
+PUBLIC GLOBAL AString SipUtils::GenerateViaBranch(
         IN const AString& strExtensionToken /* = AString::ConstNull() */)
 {
     AString strViaBranch;
@@ -196,7 +197,7 @@ PUBLIC GLOBAL AString SIPUtil::GenerateViaBranch(
     return strViaBranch;
 }
 
-PUBLIC GLOBAL void SIPUtil::Init(IN IMS_SINT32 nSlotId)
+PUBLIC GLOBAL void SipUtils::Init(IN IMS_SINT32 nSlotId)
 {
     (void)nSlotId;
 

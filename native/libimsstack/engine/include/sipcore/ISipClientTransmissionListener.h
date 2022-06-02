@@ -22,7 +22,7 @@ Example
 
 See Also
 */
-class ISIPClientTransmissionListener
+class ISipClientTransmissionListener
 {
 public:
     /*

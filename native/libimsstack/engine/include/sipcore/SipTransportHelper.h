@@ -22,45 +22,45 @@
 #include "SipTransportAddress.h"
 #include "SipSocketAddress.h"
 
-class ISIPSocketListener;
-class ISIPTransportListener;
+class ISipSocketListener;
+class ISipTransportListener;
 class ISipLocalDnsQueryListener;
 
-class SIPTransportHelper :
+class SipTransportHelper :
         public EngineActivity,
         public ISipTransportHelper,
-        public ISIPStreamSocketListener,
-        public ISIPDatagramSocketListener
+        public ISipStreamSocketListener,
+        public ISipDatagramSocketListener
 {
 public:
-    SIPTransportHelper();
-    virtual ~SIPTransportHelper();
+    SipTransportHelper();
+    virtual ~SipTransportHelper();
 
 private:
-    SIPTransportHelper(IN CONST SIPTransportHelper& objRHS);
-    SIPTransportHelper& operator=(IN CONST SIPTransportHelper& objRHS);
+    SipTransportHelper(IN CONST SipTransportHelper& objRHS);
+    SipTransportHelper& operator=(IN CONST SipTransportHelper& objRHS);
 
 public:
     // EngineActivity class
     virtual IMS_BOOL DispatchMessage(IN IMSMSG& objMSG);
 
-    // Only SIPConnectionNotifier
+    // Only SipConnectionNotifier
     void Clear();
-    SIPSocket* Create(IN CONST SIPSocketAddress& objSA);
-    SIPSocket* CreateStreamSocket(
-            IN CONST SIPSocketAddress& objSA, IN CONST SIPSocketAddress& objSA_FarEnd);
-    void Destroy(IN SIPSocket*& pSocket, IN ISIPSocketListener* piListener);
+    SipSocket* Create(IN CONST SipSocketAddress& objSA);
+    SipSocket* CreateStreamSocket(
+            IN CONST SipSocketAddress& objSA, IN CONST SipSocketAddress& objSA_FarEnd);
+    void Destroy(IN SipSocket*& pSocket, IN ISipSocketListener* piListener);
     void DestroyStreamSocket(
-            IN CONST SIPSocketAddress& objSA, IN CONST SIPSocketAddress& objSA_FarEnd);
-    SIPSocket* Open(IN CONST SIPSocketAddress& objSA);
-    SIPSocket* OpenStreamSocket(
-            IN CONST SIPSocketAddress& objSA, IN CONST SIPSocketAddress& objSA_FarEnd);
-    void SetListener(IN ISIPTransportListener* piListener);
+            IN CONST SipSocketAddress& objSA, IN CONST SipSocketAddress& objSA_FarEnd);
+    SipSocket* Open(IN CONST SipSocketAddress& objSA);
+    SipSocket* OpenStreamSocket(
+            IN CONST SipSocketAddress& objSA, IN CONST SipSocketAddress& objSA_FarEnd);
+    void SetListener(IN ISipTransportListener* piListener);
 
     // MULTI_REG_TRANSPORT
-    IMS_SINT32 AttachClientInitiatedConnection(IN SIPSocket* pSocket);
-    void DetachClientInitiatedConnection(IN SIPSocket* pSocket);
-    IMS_BOOL IsClientInitiatedConnection(IN SIPSocket* pSocket) const;
+    IMS_SINT32 AttachClientInitiatedConnection(IN SipSocket* pSocket);
+    void DetachClientInitiatedConnection(IN SipSocket* pSocket);
+    IMS_BOOL IsClientInitiatedConnection(IN SipSocket* pSocket) const;
 
     // LOCAL_DNS_QUERY
     IMS_BOOL GetHostByName(IN CONST IPAddress& objLocalIP, IN CONST AString& strHostname,
@@ -81,22 +81,22 @@ private:
     // LOCAL_DNS_QUERY
     virtual void SetLocalDnsQueryListener(IN ISipLocalDnsQueryListener* piListener);
 
-    // ISIPDatagramSocketListener
-    virtual void DatagramSocket_DataReceived(IN SIPSocket* pSocket, IN CONST ByteArray& objBuffer,
+    // ISipDatagramSocketListener
+    virtual void DatagramSocket_DataReceived(IN SipSocket* pSocket, IN CONST ByteArray& objBuffer,
             IN CONST IPAddress& objIPA, IN IMS_SINT32 nPort);
-    // ISIPStreamSocketListener
-    virtual void StreamSocket_ConnectionReceived(IN SIPSocket* pSocket);
-    virtual void StreamSocket_DataReceived(IN SIPSocket* pSocket, IN_OUT ByteArray& objBuffer);
-    virtual void StreamSocket_KeepAliveExpired(IN SIPSocket* pSocket);
-    virtual void StreamSocket_PassiveClosed(IN SIPSocket* pSocket);
+    // ISipStreamSocketListener
+    virtual void StreamSocket_ConnectionReceived(IN SipSocket* pSocket);
+    virtual void StreamSocket_DataReceived(IN SipSocket* pSocket, IN_OUT ByteArray& objBuffer);
+    virtual void StreamSocket_KeepAliveExpired(IN SipSocket* pSocket);
+    virtual void StreamSocket_PassiveClosed(IN SipSocket* pSocket);
 
-    IMS_BOOL AttachSocket(IN SIPSocket* pSocket);
-    IMS_BOOL IsSocketPresent(IN SIPSocket* pSocket) const;
-    SIPSocket* LookupSocket(IN CONST SIPSocketAddress& objSA, IN IMS_BOOL bDetach = IMS_FALSE);
-    SIPSocket* LookupSocket(IN CONST SIPSocket& objSocket, IN IMS_BOOL bDetach = IMS_FALSE);
-    SIPSocket* LookupStreamSocket(IN CONST SIPSocketAddress& objSA);
-    SIPSocket* LookupStreamSocket(
-            IN CONST SIPSocketAddress& objSA, IN CONST SIPSocketAddress& objSA_FarEnd);
+    IMS_BOOL AttachSocket(IN SipSocket* pSocket);
+    IMS_BOOL IsSocketPresent(IN SipSocket* pSocket) const;
+    SipSocket* LookupSocket(IN CONST SipSocketAddress& objSA, IN IMS_BOOL bDetach = IMS_FALSE);
+    SipSocket* LookupSocket(IN CONST SipSocket& objSocket, IN IMS_BOOL bDetach = IMS_FALSE);
+    SipSocket* LookupStreamSocket(IN CONST SipSocketAddress& objSA);
+    SipSocket* LookupStreamSocket(
+            IN CONST SipSocketAddress& objSA, IN CONST SipSocketAddress& objSA_FarEnd);
 
 private:
     // Event for message processing
@@ -125,13 +125,13 @@ private:
 
     class TransportBuffer
     {
-        friend class SIPTransportHelper;
+        friend class SipTransportHelper;
 
         ByteArray objData;
         // Destination information of a message (on the basis of sender)
-        SIPTransportAddress objTA_NearEnd;
+        SipTransportAddress objTA_NearEnd;
         // Source information of a message (on the basis of sender)
-        SIPTransportAddress objTA_FarEnd;
+        SipTransportAddress objTA_FarEnd;
 
         inline TransportBuffer() {}
         inline TransportBuffer(IN CONST TransportBuffer& objRHS) :
@@ -157,9 +157,9 @@ private:
         void DisplayMessage(IN IMS_SINT32 nSlotId);
     };
 
-    IMSList<SIPSocket*> objSockets;
+    IMSList<SipSocket*> objSockets;
     IMSList<TransportBuffer*> objBuffers;
-    ISIPTransportListener* piListener;
+    ISipTransportListener* piListener;
 
     // MULTI_REG_TRANSPORT :: <Socket object's pointer, count>
     IMSMap<IMS_UINTP, IMS_SINT32> objClientInitiatedConnections;

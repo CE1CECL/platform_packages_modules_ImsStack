@@ -18,28 +18,28 @@
 
 #include "SocketAddress.h"
 
-class SIPSocketAddress
+class SipSocketAddress
 {
 public:
-    SIPSocketAddress();
-    SIPSocketAddress(IN const SIPSocketAddress& other);
-    SIPSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort, IN const AString& strAddress);
-    SIPSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort, IN const AString& strAddress,
+    SipSocketAddress();
+    SipSocketAddress(IN const SipSocketAddress& other);
+    SipSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort, IN const AString& strAddress);
+    SipSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort, IN const AString& strAddress,
             IN IMS_BOOL bSecure);
-    ~SIPSocketAddress();
+    ~SipSocketAddress();
 
 public:
-    SIPSocketAddress& operator=(IN const SIPSocketAddress& other);
+    SipSocketAddress& operator=(IN const SipSocketAddress& other);
 
 public:
-    IMS_BOOL Equals(IN const SIPSocketAddress& other) const;
+    IMS_BOOL Equals(IN const SipSocketAddress& other) const;
 
-    inline const IPAddress& GetIPAddress() const { return m_objSockAddr.GetAddress(); }
+    inline const IPAddress& GetIpAddress() const { return m_objSockAddr.GetAddress(); }
     inline IMS_SINT32 GetPort() const { return m_objSockAddr.GetPort(); }
     inline IMS_BOOL GetSecure() const { return m_bSecure; }
     inline const SocketAddress& GetSocketAddress() const { return m_objSockAddr; }
     inline IMS_SINT32 GetType() const { return m_nType; }
-    inline void SetIPAddress(IN const IPAddress& objIPAddress)
+    inline void SetIpAddress(IN const IPAddress& objIPAddress)
     {
         m_objSockAddr.SetAddress(objIPAddress);
     }
@@ -52,7 +52,7 @@ public:
     inline void SetType(IN IMS_SINT32 nType) { m_nType = nType; }
 
 public:
-    // Types of SIPSocket
+    // Types of SipSocket
     enum
     {
         SOCKET_NONE = 0,
@@ -68,7 +68,7 @@ public:
 private:
     // Flag for secure socket
     IMS_BOOL m_bSecure;
-    // SOCKET_XXX : Type of SIPSocket
+    // SOCKET_XXX : Type of SipSocket
     IMS_SINT32 m_nType;
     SocketAddress m_objSockAddr;
 };

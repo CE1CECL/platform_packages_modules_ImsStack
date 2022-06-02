@@ -16,19 +16,19 @@
 #include "ISipServerConnection.h"
 #include "IOnSipErrorListener.h"
 
-class SIPDialogImpl;
-class SIPServerConnection;
+class SipDialogImpl;
+class SipServerConnection;
 
-class SIPServerConnectionImpl : public ISipServerConnection, public IOnSIPErrorListener
+class SipServerConnectionImpl : public ISipServerConnection, public IOnSipErrorListener
 {
 public:
-    explicit SIPServerConnectionImpl(IN SIPServerConnection* pSSC_);
-    virtual ~SIPServerConnectionImpl();
+    explicit SipServerConnectionImpl(IN SipServerConnection* pSSC_);
+    virtual ~SipServerConnectionImpl();
 
 private:
-    SIPServerConnectionImpl();
-    SIPServerConnectionImpl(IN CONST SIPServerConnectionImpl& objRHS);
-    SIPServerConnectionImpl& operator=(IN CONST SIPServerConnectionImpl& objRHS);
+    SipServerConnectionImpl();
+    SipServerConnectionImpl(IN CONST SipServerConnectionImpl& objRHS);
+    SipServerConnectionImpl& operator=(IN CONST SipServerConnectionImpl& objRHS);
 
 private:
     // IConnection interface implementation
@@ -61,15 +61,15 @@ private:
     virtual IMS_RESULT SetReasonPhrase(IN CONST AString& strReasonPhrase);
     virtual IMS_BOOL IsSameTransaction(IN CONST ISipServerConnection* piOngoingSSC) const;
 
-    // IOnSIPErrorListener interface
+    // IOnSipErrorListener interface
     virtual void OnError_NotifyError(
-            IN SIPConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage);
+            IN SipConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage);
 
 private:
     ISipErrorListener* piErrorListener;
 
-    SIPDialogImpl* pDialogImpl;
-    SIPServerConnection* pSSC;
+    SipDialogImpl* pDialogImpl;
+    SipServerConnection* pSSC;
 };
 
 #endif  // _SIP_SERVER_CONNECTION_IMPL_H_

@@ -3,15 +3,15 @@
 
 #include "RCObject.h"
 
-class SIPMessageBuffer : public RCObject
+class SipMessageBuffer : public RCObject
 {
 public:
-    SIPMessageBuffer();
-    SIPMessageBuffer(IN const SIPMessageBuffer& objRHS);
-    virtual ~SIPMessageBuffer();
+    SipMessageBuffer();
+    SipMessageBuffer(IN const SipMessageBuffer& objRHS);
+    virtual ~SipMessageBuffer();
 
 private:
-    SIPMessageBuffer& operator=(IN const SIPMessageBuffer& objRHS);
+    SipMessageBuffer& operator=(IN const SipMessageBuffer& objRHS);
 
 public:
     IMS_BYTE* GetBuffer();
@@ -21,7 +21,7 @@ public:
     */
     inline IMS_SINT32 GetLength() const { return MAX_MSG_SIZE; }
 
-    static RCPtr<SIPMessageBuffer> GetInstance();
+    static RCPtr<SipMessageBuffer> GetInstance();
 
 public:
     // Max buffer size for raw SIP message

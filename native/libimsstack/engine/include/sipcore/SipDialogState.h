@@ -23,9 +23,9 @@
 #include "SipMessageInfo.h"
 
 class ISipHeader;
-class SIPHeader;
-class SIPDialogSharedState;
-class SIPDialogEx;
+class SipHeader;
+class SipDialogSharedState;
+class SipDialogEx;
 
 /*
 This class contains certain pieces of state needed for further message transmissions
@@ -35,7 +35,7 @@ Example
 
 See Also
 */
-class SIPDialogState : public RCObject
+class SipDialogState : public RCObject
 {
 public:
     class PendingRemoteTarget
@@ -55,45 +55,45 @@ public:
     };
 
 public:
-    explicit SIPDialogState(IN IMS_BOOL bIsCaller_ = IMS_TRUE);
-    SIPDialogState(IN CONST SIPDialogState& objRHS);
-    virtual ~SIPDialogState();
+    explicit SipDialogState(IN IMS_BOOL bIsCaller_ = IMS_TRUE);
+    SipDialogState(IN CONST SipDialogState& objRHS);
+    virtual ~SipDialogState();
 
 private:
-    SIPDialogState& operator=(IN CONST SIPDialogState& objRHS);
+    SipDialogState& operator=(IN CONST SipDialogState& objRHS);
 
 public:
-    IMS_SINT32 CheckToTagValidity(IN CONST SIPMessageInfo& objMInfo);
-    IMS_SINT32 CompareTo(IN SIPDialogState* pDState, IN SipMessage* pstMessage,
+    IMS_SINT32 CheckToTagValidity(IN CONST SipMessageInfo& objMInfo);
+    IMS_SINT32 CompareTo(IN SipDialogState* pDState, IN ::SipMessage* pstMessage,
             IN IMS_BOOL bCheckForked = IMS_FALSE);
-    IMS_BOOL Equals(IN SIPDialogState* pDState);
+    IMS_BOOL Equals(IN SipDialogState* pDState);
 
     inline const AString& GetCallId() const { return strCallId; }
     const ISipHeader* GetContactHeader() const;
     AString GetLocalTag() const;
     AString GetRemoteTag() const;
-    SipHeaderBase* GetLocalTargetURI() const;
+    SipHeaderBase* GetLocalTargetUri() const;
     inline IMS_UINT32 GetNextCSeqNumber() { return (++nLocalCSeq); }
     // HEADER_REQ_SESSION-ID
     inline const AString& GetSessionId() const { return strSessionId; }
     inline IMS_SINT32 GetState() const { return nState; }
     inline IMS_BOOL IsCaller() const { return bIsCaller; }
 
-    IMS_BOOL InitDialogDetails(IN SipMessage* pstMessage);
-    IMS_BOOL InitDialogDetails(IN IMS_SINT32 nTrigger, IN SIPDialogState* pDState);
-    IMS_BOOL InitRequest(IN CONST SipMethod& objMethod, IN_OUT SipMessage*& pstMessage);
+    IMS_BOOL InitDialogDetails(IN ::SipMessage* pstMessage);
+    IMS_BOOL InitDialogDetails(IN IMS_SINT32 nTrigger, IN SipDialogState* pDState);
+    IMS_BOOL InitRequest(IN CONST SipMethod& objMethod, IN_OUT ::SipMessage*& pstMessage);
     // CONTACT_HEADER_PARAMETER_CONTROL_FOR_MID_DIALOG_REQUEST
     IMS_RESULT SetContactParameter(
             IN CONST AString& strParameter, IN IMS_SINT32 nOperation = 0 /* (0: ADD, 1: REMOVE) */);
-    IMS_SINT32 UpdateDialogDetails(IN CONST SIPMessageInfo& objMInfo, IN IMS_SINT32 nUsageState,
+    IMS_SINT32 UpdateDialogDetails(IN CONST SipMessageInfo& objMInfo, IN IMS_SINT32 nUsageState,
             IN IMS_SINT32 nAction, IN IMS_SINT32 nTrigger);
     void UpdateLocalCSeq(IN IMS_UINT32 nCSeq);
-    IMS_SINT32 ValidateRemoteCSeq(IN SipMessage* pstMessage, IN IMS_SINT32 nPrevStatusCode = 0);
+    IMS_SINT32 ValidateRemoteCSeq(IN ::SipMessage* pstMessage, IN IMS_SINT32 nPrevStatusCode = 0);
 
     // For sharing a dialog state
-    IMS_BOOL AddDialogUsage(IN SIPDialogEx* pDialogEx);
-    void RemoveDialogUsage(IN SIPDialogEx* pDialogEx);
-    SIPDialogEx* GetDialogUsage(IN CONST SIPMessageInfo& objMInfo);
+    IMS_BOOL AddDialogUsage(IN SipDialogEx* pDialogEx);
+    void RemoveDialogUsage(IN SipDialogEx* pDialogEx);
+    SipDialogEx* GetDialogUsage(IN CONST SipMessageInfo& objMInfo);
     IMS_BOOL HasMultipleDialogUsages() const;
 
     static IMS_BOOL IsContactMandatory(IN IMS_SINT32 nMsgType, IN CONST SipMethod& objMethod,
@@ -101,30 +101,30 @@ public:
 
 private:
     void ClearRouteSet();
-    IMS_BOOL CreateRouteSet(IN CONST SIPMessageInfo& objMInfo);
-    IMS_BOOL UpdateComponents(IN CONST SIPMessageInfo& objMInfo);
-    IMS_BOOL UpdateContact(IN CONST SIPMessageInfo& objMInfo);
-    IMS_BOOL UpdateRemoteURI(IN CONST SIPMessageInfo& objMInfo);
-    IMS_BOOL UpdateRouteSet(IN CONST SIPMessageInfo& objMInfo);
+    IMS_BOOL CreateRouteSet(IN CONST SipMessageInfo& objMInfo);
+    IMS_BOOL UpdateComponents(IN CONST SipMessageInfo& objMInfo);
+    IMS_BOOL UpdateContact(IN CONST SipMessageInfo& objMInfo);
+    IMS_BOOL UpdateRemoteURI(IN CONST SipMessageInfo& objMInfo);
+    IMS_BOOL UpdateRouteSet(IN CONST SipMessageInfo& objMInfo);
     // HEADER_REQ_SESSION-ID
-    void UpdateSessionId(IN CONST SIPMessageInfo& objMInfo);
+    void UpdateSessionId(IN CONST SipMessageInfo& objMInfo);
     void UpdateState(IN IMS_SINT32 nUsageState, IN IMS_SINT32 nAction, IN IMS_SINT32 nTrigger);
 
     // REMOTE_TARGET_UPDATE_FROM_MID_DIALOG_REQUEST
-    void AddPendingRemoteTarget(IN CONST SIPMessageInfo& objMInfo);
+    void AddPendingRemoteTarget(IN CONST SipMessageInfo& objMInfo);
     void RemoveAllPendingRemoteTargets();
-    void RemovePendingRemoteTarget(IN CONST SIPMessageInfo& objMInfo);
-    void UpdateAndRemovePendingRemoteTarget(IN CONST SIPMessageInfo& objMInfo);
+    void RemovePendingRemoteTarget(IN CONST SipMessageInfo& objMInfo);
+    void UpdateAndRemovePendingRemoteTarget(IN CONST SipMessageInfo& objMInfo);
 
     // "from-change" extension
     IMS_BOOL IsFromChangeCapable() const;
     void ClearFromChangeOption(IN IMS_SINT32 nOption);
     void SetFromChangeOption(IN IMS_SINT32 nOption);
-    void UpdateFromChangeOption(IN CONST SIPMessageInfo& objMInfo);
+    void UpdateFromChangeOption(IN CONST SipMessageInfo& objMInfo);
 
     static IMS_SINT32 CompareHeaders(IN SipHeaderBase* pstNewH, IN SipHeaderBase* pstExistingH,
             IN IMS_BOOL bToTagLenient, IN IMS_SINT32 nForkedMessage);
-    static IMS_BOOL IsTargetRefreshMessage(IN SipMessage* pstMessage);
+    static IMS_BOOL IsTargetRefreshMessage(IN ::SipMessage* pstMessage);
 
 public:
     // Result of Dialog comparison: it is used as a result of CompareTo(...)
@@ -220,10 +220,10 @@ protected:
 
     IMS_BOOL bPreloadedSet;
 
-    SIPDialogSharedState* pSharedState;
+    SipDialogSharedState* pSharedState;
 
     // For local contact address retrieval
-    SIPHeader* pLocalContactHeader;
+    SipHeader* pLocalContactHeader;
 
     // HEADER_REQ_SESSION-ID
     // For Session-ID header control

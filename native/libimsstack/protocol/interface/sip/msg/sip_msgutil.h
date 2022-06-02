@@ -85,7 +85,7 @@
 #define SIP_CONTENT_HDRS_LEN  5
 #define SIP_CONTLEN_LEN       12
 
-// keeping same SIP message buffer size which is mentioned in SIPMessageBuffer.h
+// keeping same SIP message buffer size which is mentioned in SipMessageBuffer.h
 #define SIP_MAX_MSG_SIZE      65535
 
 #define SIP_ENC_SHORT_ACCEPT_CONTACT(ch) \

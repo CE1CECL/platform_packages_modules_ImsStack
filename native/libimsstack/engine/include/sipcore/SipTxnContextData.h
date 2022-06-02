@@ -15,25 +15,25 @@
 
 #include "SipTransactionState.h"
 
-class SIPTxnContextData
+class SipTxnContextData
 {
 public:
-    SIPTxnContextData();
-    ~SIPTxnContextData();
+    SipTxnContextData();
+    ~SipTxnContextData();
 
 private:
-    SIPTxnContextData(IN CONST SIPTxnContextData& objRHS);
-    SIPTxnContextData& operator=(IN CONST SIPTxnContextData& objRHS);
+    SipTxnContextData(IN CONST SipTxnContextData& objRHS);
+    SipTxnContextData& operator=(IN CONST SipTxnContextData& objRHS);
 
 public:
     const SipMethod& GetMethod() const;
-    SIPTransactionState* GetTxnState() const;
+    SipTransactionState* GetTxnState() const;
     void SetMethod(IN CONST SipMethod& objMethod);
-    void SetTxnState(IN SIPTransactionState* pTxnState);
+    void SetTxnState(IN SipTransactionState* pTxnState);
 
 private:
     SipMethod objMethod;
-    RCPtr<SIPTransactionState> pTxnState;
+    RCPtr<SipTransactionState> pTxnState;
 };
 
 #endif  // _SIP_TXN_CONTEXT_DATA_H_

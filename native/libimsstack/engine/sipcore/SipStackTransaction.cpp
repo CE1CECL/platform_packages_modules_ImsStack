@@ -19,56 +19,56 @@
 #include "SipStackTransaction.h"
 
 PUBLIC
-SIPStackTransaction::SIPStackTransaction() :
+SipStackTransaction::SipStackTransaction() :
         m_pKey(IMS_NULL),
         m_pTxn(IMS_NULL)
 {
 }
 
 PUBLIC
-SIPStackTransaction::SIPStackTransaction(IN SipTxnKey* pKey, IN SipTxn* pTxn) :
+SipStackTransaction::SipStackTransaction(IN ::SipTxnKey* pKey, IN SipTxn* pTxn) :
         m_pKey(pKey),
         m_pTxn(pTxn)
 {
-    SIPStack::AddReference(m_pKey);
-    SIPStack::AddReference(m_pTxn);
+    SipStack::AddReference(m_pKey);
+    SipStack::AddReference(m_pTxn);
 }
 
 PUBLIC
-SIPStackTransaction::SIPStackTransaction(IN const SIPStackTransaction& other) :
+SipStackTransaction::SipStackTransaction(IN const SipStackTransaction& other) :
         m_pKey(other.m_pKey),
         m_pTxn(other.m_pTxn)
 {
-    SIPStack::AddReference(m_pKey);
-    SIPStack::AddReference(m_pTxn);
+    SipStack::AddReference(m_pKey);
+    SipStack::AddReference(m_pTxn);
 }
 
-PUBLIC VIRTUAL SIPStackTransaction::~SIPStackTransaction()
+PUBLIC VIRTUAL SipStackTransaction::~SipStackTransaction()
 {
-    SIPStack::FreeTxnKey(m_pKey);
-    SIPStack::FreeTxn(m_pTxn);
+    SipStack::FreeTxnKey(m_pKey);
+    SipStack::FreeTxn(m_pTxn);
 }
 
 PUBLIC
-SIPStackTransaction& SIPStackTransaction::operator=(IN const SIPStackTransaction& other)
+SipStackTransaction& SipStackTransaction::operator=(IN const SipStackTransaction& other)
 {
     if (this != &other)
     {
-        SIPStack::FreeTxnKey(m_pKey);
-        SIPStack::FreeTxn(m_pTxn);
+        SipStack::FreeTxnKey(m_pKey);
+        SipStack::FreeTxn(m_pTxn);
 
         m_pKey = other.m_pKey;
         m_pTxn = other.m_pTxn;
 
-        SIPStack::AddReference(m_pKey);
-        SIPStack::AddReference(m_pTxn);
+        SipStack::AddReference(m_pKey);
+        SipStack::AddReference(m_pTxn);
     }
 
     return (*this);
 }
 
 PUBLIC
-IMS_BOOL SIPStackTransaction::CompareKey(IN SipTxnKey* pKey)
+IMS_BOOL SipStackTransaction::CompareKey(IN ::SipTxnKey* pKey)
 {
-    return SIPStack::CompareTxnKeys(m_pKey, pKey);
+    return SipStack::CompareTxnKeys(m_pKey, pKey);
 }

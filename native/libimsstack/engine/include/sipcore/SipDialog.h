@@ -7,19 +7,19 @@
     </table>
 
     Description
-     This class represents one SIP dialog. The SIPDialog can be retrieved from a SIPConnection
+     This class represents one SIP dialog. The SipDialog can be retrieved from a SipConnection
     object, when it is available (at earliest after provisional 101~199 response).
     Three SIP requests can open a dialog: INVITE, SUBSCRIBE/NOTIFY and REFER/NOTIFY.
     An implementation compliant to this specification must support all of the following ways of
     creating dialogs:
-    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method.
     The dialog is terminated when the transaction BYE-200 OK is completed.
-    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SIPClientConnection
+    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SipClientConnection
     in the same dialog can be obtained by calling GetNewClientConnection(...) method.
     The dialog is terminated when a notifier sends a NOTIFY request with a "Subscription-State"
     of "terminated" and there are no other subscriptions alive in this dialog.
-    - REFER-matching NOTIFY will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - REFER-matching NOTIFY will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when a notifier sends a NOTIFY request with a "Subscription-State" of "terminated"
     and there are no other subscriptions alive in this dialog.
@@ -31,38 +31,38 @@
 #include "SipDialogEx.h"
 
 class ISipHeader;
-class SIPClientConnection;
+class SipClientConnection;
 
-class SIPDialog
+class SipDialog
 {
 public:
-    explicit SIPDialog(IN SIPDialogEx* pDialogEx_);
-    SIPDialog(IN CONST SIPDialog& objRHS);
-    virtual ~SIPDialog();
+    explicit SipDialog(IN SipDialogEx* pDialogEx_);
+    SipDialog(IN CONST SipDialog& objRHS);
+    virtual ~SipDialog();
 
 private:
-    SIPDialog();
+    SipDialog();
 
 public:
-    SIPDialog& operator=(IN CONST SIPDialog& objRHS);
+    SipDialog& operator=(IN CONST SipDialog& objRHS);
 
 public:
-    SIPClientConnection* CreateClientConnection(IN CONST AString& strMethod);
+    SipClientConnection* CreateClientConnection(IN CONST AString& strMethod);
     const AString& GetCallId() const;
     const ISipHeader* GetContactHeader() const;
     AString GetLocalTag() const;
     AString GetRemoteTag() const;
     IMS_SINT32 GetState() const;
-    IMS_BOOL IsSameDialog(IN CONST SIPDialog* pDialog);
+    IMS_BOOL IsSameDialog(IN CONST SipDialog* pDialog);
     // CONTACT_HEADER_PARAMETER_CONTROL_FOR_MID_DIALOG_REQUEST
     IMS_RESULT SetContactParameter(
             IN CONST AString& strParameter, IN IMS_SINT32 nOperation = 0 /* (0: ADD, 1: REMOVE) */);
     void TerminateDialogUsage();
-    void UpdateDialog(IN SIPDialogEx* pDialogEx);
+    void UpdateDialog(IN SipDialogEx* pDialogEx);
 
 private:
     IMS_BOOL CheckMethodValidity(IN CONST SipMethod& objMethod) const;
-    SIPDialogEx* GetOptimumDialog(IN CONST SipMethod& objMethod) const;
+    SipDialogEx* GetOptimumDialog(IN CONST SipMethod& objMethod) const;
 
 public:
     // State of SIP dialog
@@ -75,7 +75,7 @@ public:
     };
 
 private:
-    RCPtr<SIPDialogEx> pDialogEx;
+    RCPtr<SipDialogEx> pDialogEx;
 };
 
 #endif  // _SIP_DIALOG_H_

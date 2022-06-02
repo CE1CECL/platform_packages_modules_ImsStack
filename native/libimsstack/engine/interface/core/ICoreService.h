@@ -148,7 +148,7 @@ public:
     enum
     {
         /// The transaction will be handled by the owner of direct listener.\n
-        /// The owner has a responsibility of the resource release to SIPServerConnection.
+        /// The owner has a responsibility of the resource release to SipServerConnection.
         RESULT_DIRECT_TXN_HANDLED = 0,
         /// The transaction is not handled by the owner of direct listener.\n
         /// The invoker should release the SIP server connection calling close() method.

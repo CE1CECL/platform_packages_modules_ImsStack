@@ -276,7 +276,7 @@ public:
     IMS_BOOL AddChallenge(IN ISipGenericChallenge* piChallenge);
     IMS_BOOL AddChallenge(IN IMS_SINT32 nType, IN SipHeaderBase* pstHeader);
     IMS_BOOL AddCredential(IN CONST Credential& objCredential);
-    IMS_BOOL AddHeader(IN_OUT SipMessage*& pstMessage);
+    IMS_BOOL AddHeader(IN_OUT ::SipMessage*& pstMessage);
     IMS_BOOL CalculateResponse();
     void Clear();
     IMS_BOOL FormCredentials(IN CONST SipMethod& objMethod, IN CONST AString& strURI,
@@ -386,8 +386,8 @@ IMS_BOOL SIPAuHelperPrivate::AddChallenge(IN IMS_SINT32 nType, IN SipHeaderBase*
         return IMS_FALSE;
     }
 
-    pChallenge->SetScheme(SIPStack::GetChallengeScheme(pstHeader));
-    pChallenge->SetRealm(SIPStack::GetParameter(pstHeader, STR_REALM));
+    pChallenge->SetScheme(SipStack::GetChallengeScheme(pstHeader));
+    pChallenge->SetRealm(SipStack::GetParameter(pstHeader, STR_REALM));
 
     const AString& strRealm = pChallenge->GetRealm();
 
@@ -397,9 +397,9 @@ IMS_BOOL SIPAuHelperPrivate::AddChallenge(IN IMS_SINT32 nType, IN SipHeaderBase*
         pChallenge->SetRealm(strRealm.Mid(1, strRealm.GetLength() - 2));
     }
 
-    pChallenge->SetDomain(SIPStack::GetParameter(pstHeader, STR_DOMAIN));
-    pChallenge->SetOpaque(SIPStack::GetParameter(pstHeader, STR_OPAQUE));
-    pChallenge->SetQop(SIPStack::GetParameter(pstHeader, STR_QOP));
+    pChallenge->SetDomain(SipStack::GetParameter(pstHeader, STR_DOMAIN));
+    pChallenge->SetOpaque(SipStack::GetParameter(pstHeader, STR_OPAQUE));
+    pChallenge->SetQop(SipStack::GetParameter(pstHeader, STR_QOP));
 
     const AString& strQop = pChallenge->GetQop();
 
@@ -409,8 +409,8 @@ IMS_BOOL SIPAuHelperPrivate::AddChallenge(IN IMS_SINT32 nType, IN SipHeaderBase*
         pChallenge->SetQop(strQop.Mid(1, strQop.GetLength() - 2));
     }
 
-    pChallenge->SetAlgorithm(SIPStack::GetParameter(pstHeader, STR_ALGORITHM));
-    pChallenge->SetNonce(SIPStack::GetParameter(pstHeader, STR_NONCE));
+    pChallenge->SetAlgorithm(SipStack::GetParameter(pstHeader, STR_ALGORITHM));
+    pChallenge->SetNonce(SipStack::GetParameter(pstHeader, STR_NONCE));
 
     const AString& strNonce = pChallenge->GetNonce();
 
@@ -420,7 +420,7 @@ IMS_BOOL SIPAuHelperPrivate::AddChallenge(IN IMS_SINT32 nType, IN SipHeaderBase*
         pChallenge->SetNonce(strNonce.Mid(1, strNonce.GetLength() - 2));
     }
 
-    pChallenge->SetStale(SIPStack::GetParameter(pstHeader, STR_STALE));
+    pChallenge->SetStale(SipStack::GetParameter(pstHeader, STR_STALE));
 
     // We assume that a default authentication algorithm is an MD5.
     if (pChallenge->GetAlgorithm().GetLength() == 0)
@@ -461,21 +461,21 @@ IMS_BOOL SIPAuHelperPrivate::AddCredential(IN CONST Credential& objCredential)
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelperPrivate::AddHeader(IN_OUT SipMessage*& pstMessage)
+IMS_BOOL SIPAuHelperPrivate::AddHeader(IN_OUT ::SipMessage*& pstMessage)
 {
     // Get the URI from the Request-Line to be used in the uri parameter of the response
     // in case of Digest scheme.
     AString strURI;
-    SipMethod objMethod = SIPStack::GetMethod(pstMessage);
+    SipMethod objMethod = SipStack::GetMethod(pstMessage);
     AString strEntityBody("");
     IMS_BOOL bQopAuthInt = IMS_FALSE;
 
     //---------------------------------------------------------------------------------------------
 
-    SipAddrSpec* pstAddrSpec = SIPStack::GetRequestUri(pstMessage);
+    SipAddrSpec* pstAddrSpec = SipStack::GetRequestUri(pstMessage);
 
-    SIPStack::EncodeAddrSpec(pstAddrSpec, IMS_FALSE, strURI);
-    SIPStack::FreeAddrSpec(pstAddrSpec);
+    SipStack::EncodeAddrSpec(pstAddrSpec, IMS_FALSE, strURI);
+    SipStack::FreeAddrSpec(pstAddrSpec);
 
     // Checks if the integrity of the authentication required
     for (IMS_UINT32 i = 0; i < objResponses.GetSize(); ++i)
@@ -495,7 +495,7 @@ IMS_BOOL SIPAuHelperPrivate::AddHeader(IN_OUT SipMessage*& pstMessage)
     // Form an entity-body field for MD5-sess
     if (bQopAuthInt)
     {
-        if (!SIPStack::GetEntityBody(pstMessage, strEntityBody))
+        if (!SipStack::GetEntityBody(pstMessage, strEntityBody))
         {
             return IMS_FALSE;
         }
@@ -510,7 +510,7 @@ IMS_BOOL SIPAuHelperPrivate::AddHeader(IN_OUT SipMessage*& pstMessage)
             return IMS_FALSE;
         }
 
-        SipHeaderBase* pstHeader = SIPStack::CreateHeader(pResponse->nType);
+        SipHeaderBase* pstHeader = SipStack::CreateHeader(pResponse->nType);
 
         if (pstHeader == IMS_NULL)
         {
@@ -519,17 +519,17 @@ IMS_BOOL SIPAuHelperPrivate::AddHeader(IN_OUT SipMessage*& pstMessage)
 
         if (!FormCredentials(objMethod, strURI, strEntityBody, *pResponse, pstHeader))
         {
-            SIPStack::FreeHeaderEx(pstHeader);
+            SipStack::FreeHeaderEx(pstHeader);
             return IMS_FALSE;
         }
 
-        if (!SIPStack::AppendHeader(pstHeader, pstMessage))
+        if (!SipStack::AppendHeader(pstHeader, pstMessage))
         {
-            SIPStack::FreeHeaderEx(pstHeader);
+            SipStack::FreeHeaderEx(pstHeader);
             return IMS_FALSE;
         }
 
-        SIPStack::FreeHeaderEx(pstHeader);
+        SipStack::FreeHeaderEx(pstHeader);
     }
 
     return IMS_TRUE;
@@ -670,7 +670,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
 {
     //---------------------------------------------------------------------------------------------
 
-    if (!SIPStack::SetChallengeScheme(objResponse.strScheme, pstHeader))
+    if (!SipStack::SetChallengeScheme(objResponse.strScheme, pstHeader))
         return IMS_FALSE;
 
     // Basic
@@ -690,7 +690,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
         // Encode the "username:password" string using the base64 algorithm
         strBasicRES = strBasicRES.ToBase64();
 
-        if (!SIPStack::SetParameter(pstHeader, strBasicRES, AString::ConstNull()))
+        if (!SipStack::SetParameter(pstHeader, strBasicRES, AString::ConstNull()))
             return IMS_FALSE;
     }
     // Digest
@@ -758,7 +758,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_USERNAME, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_USERNAME, strQuotedValue))
                 return IMS_FALSE;
         }
 
@@ -776,7 +776,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_REALM, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_REALM, strQuotedValue))
                 return IMS_FALSE;
         }
 
@@ -794,7 +794,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_NONCE, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_NONCE, strQuotedValue))
                 return IMS_FALSE;
         }
 
@@ -812,18 +812,18 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_URI, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_URI, strQuotedValue))
                 return IMS_FALSE;
         }
 
         // "response digest" field
-        if (!SIPStack::SetParameter(pstHeader, STR_RESPONSE, strDigestRES))
+        if (!SipStack::SetParameter(pstHeader, STR_RESPONSE, strDigestRES))
             return IMS_FALSE;
 
         // "algorithm" field
         if (objResponse.strAlgorithm.GetLength() > 0)
         {
-            if (!SIPStack::SetParameter(pstHeader, STR_ALGORITHM, objResponse.strAlgorithm))
+            if (!SipStack::SetParameter(pstHeader, STR_ALGORITHM, objResponse.strAlgorithm))
                 return IMS_FALSE;
         }
 
@@ -841,7 +841,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_CNONCE, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_CNONCE, strQuotedValue))
                 return IMS_FALSE;
         }
 
@@ -859,21 +859,21 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_OPAQUE, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_OPAQUE, strQuotedValue))
                 return IMS_FALSE;
         }
 
         // "qop" field
         if (objResponse.strQop.GetLength() > 0)
         {
-            if (!SIPStack::SetParameter(pstHeader, STR_QOP, objResponse.strQop))
+            if (!SipStack::SetParameter(pstHeader, STR_QOP, objResponse.strQop))
                 return IMS_FALSE;
         }
 
         // "nonce-count" field
         if (objResponse.strNonceCount.GetLength() > 0)
         {
-            if (!SIPStack::SetParameter(pstHeader, STR_NONCECOUNT, objResponse.strNonceCount))
+            if (!SipStack::SetParameter(pstHeader, STR_NONCECOUNT, objResponse.strNonceCount))
                 return IMS_FALSE;
         }
 
@@ -893,7 +893,7 @@ IMS_BOOL SIPAuHelperPrivate::FormCredentials(IN CONST SipMethod& objMethod,
                 strQuotedValue += TextParser::CHAR_DQUOT;
             }
 
-            if (!SIPStack::SetParameter(pstHeader, STR_AUTS, strQuotedValue))
+            if (!SipStack::SetParameter(pstHeader, STR_AUTS, strQuotedValue))
                 return IMS_FALSE;
         }
     }
@@ -960,20 +960,20 @@ void SIPAuHelperPrivate::RemoveAllCredentials()
 }
 
 PUBLIC
-SIPAuHelper::SIPAuHelper() :
+SipAuHelper::SipAuHelper() :
         pSAHelper(new SIPAuHelperPrivate())
 {
 }
 
 PUBLIC
-SIPAuHelper::~SIPAuHelper()
+SipAuHelper::~SipAuHelper()
 {
     if (pSAHelper != IMS_NULL)
         delete pSAHelper;
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::AddChallenge(IN ISipGenericChallenge* piChallenge)
+IMS_BOOL SipAuHelper::AddChallenge(IN ISipGenericChallenge* piChallenge)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -981,7 +981,7 @@ IMS_BOOL SIPAuHelper::AddChallenge(IN ISipGenericChallenge* piChallenge)
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::AddCredential(IN CONST Credential& objCredential)
+IMS_BOOL SipAuHelper::AddCredential(IN CONST Credential& objCredential)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -989,7 +989,7 @@ IMS_BOOL SIPAuHelper::AddCredential(IN CONST Credential& objCredential)
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::FormCredentials(IN_OUT SipMessage*& pstMessage)
+IMS_BOOL SipAuHelper::FormCredentials(IN_OUT ::SipMessage*& pstMessage)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1000,19 +1000,19 @@ IMS_BOOL SIPAuHelper::FormCredentials(IN_OUT SipMessage*& pstMessage)
     }
 
     // Removes all Authorization/Proxy-Authorization headers if present.
-    IMS_SINT32 nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::AUTHORIZATION);
+    IMS_SINT32 nHCount = SipStack::GetHeaderCount(pstMessage, ISipHeader::AUTHORIZATION);
 
     while (nHCount > 0)
     {
-        SIPStack::RemoveHeader(ISipHeader::AUTHORIZATION, pstMessage);
+        SipStack::RemoveHeader(ISipHeader::AUTHORIZATION, pstMessage);
         --nHCount;
     }
 
-    nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::PROXY_AUTHORIZATION);
+    nHCount = SipStack::GetHeaderCount(pstMessage, ISipHeader::PROXY_AUTHORIZATION);
 
     while (nHCount > 0)
     {
-        SIPStack::RemoveHeader(ISipHeader::PROXY_AUTHORIZATION, pstMessage);
+        SipStack::RemoveHeader(ISipHeader::PROXY_AUTHORIZATION, pstMessage);
         --nHCount;
     }
 
@@ -1032,7 +1032,7 @@ IMS_BOOL SIPAuHelper::FormCredentials(IN_OUT SipMessage*& pstMessage)
 }
 
 PUBLIC
-ISipGenericChallenge* SIPAuHelper::GetChallenge(IN IMS_SINT32 nIndex /* = 0 */) const
+ISipGenericChallenge* SipAuHelper::GetChallenge(IN IMS_SINT32 nIndex /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1040,7 +1040,7 @@ ISipGenericChallenge* SIPAuHelper::GetChallenge(IN IMS_SINT32 nIndex /* = 0 */) 
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::IsChallengePresent() const
+IMS_BOOL SipAuHelper::IsChallengePresent() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1048,7 +1048,7 @@ IMS_BOOL SIPAuHelper::IsChallengePresent() const
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::IsCredentialPresent() const
+IMS_BOOL SipAuHelper::IsCredentialPresent() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1056,7 +1056,7 @@ IMS_BOOL SIPAuHelper::IsCredentialPresent() const
 }
 
 PUBLIC
-void SIPAuHelper::RemoveAllChallenges()
+void SipAuHelper::RemoveAllChallenges()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1064,7 +1064,7 @@ void SIPAuHelper::RemoveAllChallenges()
 }
 
 PUBLIC
-void SIPAuHelper::RemoveAllCredentials()
+void SipAuHelper::RemoveAllCredentials()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -1072,7 +1072,7 @@ void SIPAuHelper::RemoveAllCredentials()
 }
 
 PUBLIC
-IMS_BOOL SIPAuHelper::SetChallenges(IN SipMessage* pstMessage)
+IMS_BOOL SipAuHelper::SetChallenges(IN ::SipMessage* pstMessage)
 {
     IMS_SINT32 nHCount = 0;
 
@@ -1081,48 +1081,48 @@ IMS_BOOL SIPAuHelper::SetChallenges(IN SipMessage* pstMessage)
     pSAHelper->Clear();
 
     // In case of 401 response, the header type to be extracted is a SipHdrTypeWwwAuthenticate.
-    nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::WWW_AUTHENTICATE);
+    nHCount = SipStack::GetHeaderCount(pstMessage, ISipHeader::WWW_AUTHENTICATE);
 
     if (nHCount != 0)
     {
         for (IMS_SINT32 i = 0; i < nHCount; ++i)
         {
             SipHeaderBase* pstHeader =
-                    SIPStack::GetHeader(pstMessage, ISipHeader::WWW_AUTHENTICATE, i);
+                    SipStack::GetHeader(pstMessage, ISipHeader::WWW_AUTHENTICATE, i);
 
-            if (SIPStack::IsValidHeader(pstHeader))
+            if (SipStack::IsValidHeader(pstHeader))
             {
                 if (!pSAHelper->AddChallenge(ISipHeader::WWW_AUTHENTICATE, pstHeader))
                 {
-                    SIPStack::FreeHeaderEx(pstHeader);
+                    SipStack::FreeHeaderEx(pstHeader);
                     return IMS_FALSE;
                 }
             }
 
-            SIPStack::FreeHeaderEx(pstHeader);
+            SipStack::FreeHeaderEx(pstHeader);
         }
     }
 
     // In case of 407 response, the header type to be extracted is a Proxy-Authenticate.
-    nHCount = SIPStack::GetHeaderCount(pstMessage, ISipHeader::PROXY_AUTHENTICATE);
+    nHCount = SipStack::GetHeaderCount(pstMessage, ISipHeader::PROXY_AUTHENTICATE);
 
     if (nHCount != 0)
     {
         for (IMS_SINT32 i = 0; i < nHCount; ++i)
         {
             SipHeaderBase* pstHeader =
-                    SIPStack::GetHeader(pstMessage, ISipHeader::PROXY_AUTHENTICATE, i);
+                    SipStack::GetHeader(pstMessage, ISipHeader::PROXY_AUTHENTICATE, i);
 
-            if (SIPStack::IsValidHeader(pstHeader))
+            if (SipStack::IsValidHeader(pstHeader))
             {
                 if (!pSAHelper->AddChallenge(ISipHeader::PROXY_AUTHENTICATE, pstHeader))
                 {
-                    SIPStack::FreeHeaderEx(pstHeader);
+                    SipStack::FreeHeaderEx(pstHeader);
                     return IMS_FALSE;
                 }
             }
 
-            SIPStack::FreeHeaderEx(pstHeader);
+            SipStack::FreeHeaderEx(pstHeader);
         }
     }
 

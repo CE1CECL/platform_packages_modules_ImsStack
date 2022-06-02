@@ -15,7 +15,7 @@
 
 #include "AString.h"
 
-class SIPUnknownHeaders
+class SipUnknownHeaders
 {
 private:
     class Header
@@ -42,12 +42,12 @@ private:
     };
 
 public:
-    SIPUnknownHeaders();
-    SIPUnknownHeaders(IN CONST SIPUnknownHeaders& objRHS);
-    ~SIPUnknownHeaders();
+    SipUnknownHeaders();
+    SipUnknownHeaders(IN CONST SipUnknownHeaders& objRHS);
+    ~SipUnknownHeaders();
 
 public:
-    SIPUnknownHeaders& operator=(IN CONST SIPUnknownHeaders& objRHS);
+    SipUnknownHeaders& operator=(IN CONST SipUnknownHeaders& objRHS);
 
 public:
     IMS_RESULT AddHeader(IN CONST AString& strName, IN CONST AString& strBody);
@@ -60,7 +60,7 @@ public:
     const AString& GetHeaderName(IN IMS_SINT32 nPos, IN IMS_BOOL bCompactForm = IMS_FALSE) const;
     IMSList<AString> GetHeaders(IN CONST AString& strName) const;
     IMS_BOOL IsHeaderPresent(IN CONST AString& strName) const;
-    IMS_BOOL OverwriteHeaders(IN CONST SIPUnknownHeaders& objOther);
+    IMS_BOOL OverwriteHeaders(IN CONST SipUnknownHeaders& objOther);
     IMS_RESULT PrependHeader(IN CONST AString& strName, IN CONST AString& strBody);
     void RemoveHeader(IN CONST AString& strName);
     IMS_RESULT SetHeader(IN CONST AString& strName, IN CONST AString& strBody);

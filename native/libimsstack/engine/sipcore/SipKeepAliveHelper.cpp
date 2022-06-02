@@ -23,30 +23,30 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPKeepAliveHelper::SIPKeepAliveHelper(IN IMS_SINT32 nSlotId) :
+SipKeepAliveHelper::SipKeepAliveHelper(IN IMS_SINT32 nSlotId) :
         ImsSlot(nSlotId),
         piListener(IMS_NULL)
 {
-    objSA_NearEnd.SetType(SIPSocketAddress::SOCKET_UDP);
-    objSA_FarEnd.SetType(SIPSocketAddress::SOCKET_UDP);
+    objSA_NearEnd.SetType(SipSocketAddress::SOCKET_UDP);
+    objSA_FarEnd.SetType(SipSocketAddress::SOCKET_UDP);
 }
 
-PUBLIC VIRTUAL SIPKeepAliveHelper::~SIPKeepAliveHelper() {}
+PUBLIC VIRTUAL SipKeepAliveHelper::~SipKeepAliveHelper() {}
 
 /*
 
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPKeepAliveHelper::Destroy()
+PRIVATE VIRTUAL void SipKeepAliveHelper::Destroy()
 {
-    SIPSocket* pSocket = IMS_NULL;
-    SIPTransportHelper* pTransportHelper =
-            SIPFactoryProxy::GetInstance()->GetTransportHelper(GetSlotId());
+    SipSocket* pSocket = IMS_NULL;
+    SipTransportHelper* pTransportHelper =
+            SipFactoryProxy::GetInstance()->GetTransportHelper(GetSlotId());
 
     //---------------------------------------------------------------------------------------------
 
-    if (objSA_NearEnd.GetType() == SIPSocketAddress::SOCKET_UDP)
+    if (objSA_NearEnd.GetType() == SipSocketAddress::SOCKET_UDP)
     {
         pSocket = pTransportHelper->Open(objSA_NearEnd);
     }
@@ -68,11 +68,11 @@ PRIVATE VIRTUAL void SIPKeepAliveHelper::Destroy()
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPKeepAliveHelper::SendPacket(IN CONST ByteArray& objPacket)
+PRIVATE VIRTUAL IMS_RESULT SipKeepAliveHelper::SendPacket(IN CONST ByteArray& objPacket)
 {
     //---------------------------------------------------------------------------------------------
 
-    if (objSA_FarEnd.GetIPAddress().Equals(IPAddress::NONE) || (objSA_FarEnd.GetPort() <= 0))
+    if (objSA_FarEnd.GetIpAddress().Equals(IPAddress::NONE) || (objSA_FarEnd.GetPort() <= 0))
     {
         IMS_TRACE_E(0, "IP address & port number MUST be specified to send the keep-alive packet",
                 0, 0, 0);
@@ -85,11 +85,11 @@ PRIVATE VIRTUAL IMS_RESULT SIPKeepAliveHelper::SendPacket(IN CONST ByteArray& ob
         return IMS_FAILURE;
     }
 
-    SIPSocket* pSocket = IMS_NULL;
-    SIPTransportHelper* pTransportHelper =
-            SIPFactoryProxy::GetInstance()->GetTransportHelper(GetSlotId());
+    SipSocket* pSocket = IMS_NULL;
+    SipTransportHelper* pTransportHelper =
+            SipFactoryProxy::GetInstance()->GetTransportHelper(GetSlotId());
 
-    if (objSA_NearEnd.GetType() == SIPSocketAddress::SOCKET_UDP)
+    if (objSA_NearEnd.GetType() == SipSocketAddress::SOCKET_UDP)
     {
         pSocket = pTransportHelper->Open(objSA_NearEnd);
     }
@@ -100,13 +100,13 @@ PRIVATE VIRTUAL IMS_RESULT SIPKeepAliveHelper::SendPacket(IN CONST ByteArray& ob
 
     if (pSocket == IMS_NULL)
     {
-        IMS_TRACE_D("NearEnd - %s, %d, %d", SipDebug::GetIp(objSA_NearEnd.GetIPAddress()),
+        IMS_TRACE_D("NearEnd - %s, %d, %d", SipDebug::GetIp(objSA_NearEnd.GetIpAddress()),
                 objSA_NearEnd.GetPort(), objSA_NearEnd.GetType());
         // LOG_EXCLUDING_SERVER_INFO
         IMS_TRACE_D("FarEnd - %s, %d, %d",
-                SIPRTConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId())
+                SipRtConfigUtils::IsRoutingInfoHiddenInLog(GetSlotId())
                         ? "xxx"
-                        : SipDebug::GetIp(objSA_FarEnd.GetIPAddress()),
+                        : SipDebug::GetIp(objSA_FarEnd.GetIpAddress()),
                 objSA_FarEnd.GetPort(), objSA_FarEnd.GetType());
         IMS_TRACE_E(0, "Finding the socket failed", 0, 0, 0);
         return IMS_FAILURE;
@@ -115,7 +115,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPKeepAliveHelper::SendPacket(IN CONST ByteArray& ob
     pSocket->SetKeepAliveListener(this);
 
     if (pSocket->Send(objPacket.GetData(), objPacket.GetLength(), objSA_FarEnd.GetPort(),
-                objSA_FarEnd.GetIPAddress()) < 0)
+                objSA_FarEnd.GetIpAddress()) < 0)
     {
         IMS_TRACE_E(0, "Sending the keep-alive packet failed", 0, 0, 0);
         return IMS_FAILURE;
@@ -129,7 +129,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPKeepAliveHelper::SendPacket(IN CONST ByteArray& ob
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPKeepAliveHelper::SetListener(IN ISipKeepAliveHelperListener* piListener)
+PRIVATE VIRTUAL void SipKeepAliveHelper::SetListener(IN ISipKeepAliveHelperListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -141,12 +141,12 @@ PRIVATE VIRTUAL void SIPKeepAliveHelper::SetListener(IN ISipKeepAliveHelperListe
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPKeepAliveHelper::SetTransportTupleD(
+PRIVATE VIRTUAL void SipKeepAliveHelper::SetTransportTupleD(
         IN CONST IPAddress& objIP, IN IMS_SINT32 nPort)
 {
     //---------------------------------------------------------------------------------------------
 
-    objSA_FarEnd.SetIPAddress(objIP);
+    objSA_FarEnd.SetIpAddress(objIP);
     objSA_FarEnd.SetPort(nPort);
 }
 
@@ -155,21 +155,21 @@ PRIVATE VIRTUAL void SIPKeepAliveHelper::SetTransportTupleD(
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPKeepAliveHelper::SetTransportTupleS(IN CONST IPAddress& objIP,
+PRIVATE VIRTUAL void SipKeepAliveHelper::SetTransportTupleS(IN CONST IPAddress& objIP,
         IN IMS_SINT32 nPort, IN IMS_SINT32 nProtocol /* = Sip::TRANSPORT_UDP */)
 {
     //---------------------------------------------------------------------------------------------
 
-    objSA_NearEnd.SetIPAddress(objIP);
+    objSA_NearEnd.SetIpAddress(objIP);
     objSA_NearEnd.SetPort(nPort);
 
     if ((nProtocol == Sip::TRANSPORT_TCP) || (nProtocol == Sip::TRANSPORT_TLS))
     {
-        objSA_NearEnd.SetType(SIPSocketAddress::SOCKET_TCP_CLIENT);
+        objSA_NearEnd.SetType(SipSocketAddress::SOCKET_TCP_CLIENT);
     }
     else
     {
-        objSA_NearEnd.SetType(SIPSocketAddress::SOCKET_UDP);
+        objSA_NearEnd.SetType(SipSocketAddress::SOCKET_UDP);
     }
 
     objSA_FarEnd.SetType(objSA_NearEnd.GetType());
@@ -180,7 +180,7 @@ PRIVATE VIRTUAL void SIPKeepAliveHelper::SetTransportTupleS(IN CONST IPAddress& 
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPKeepAliveHelper::KeepAlive_PongReceived()
+PRIVATE VIRTUAL void SipKeepAliveHelper::KeepAlive_PongReceived()
 {
     //---------------------------------------------------------------------------------------------
 

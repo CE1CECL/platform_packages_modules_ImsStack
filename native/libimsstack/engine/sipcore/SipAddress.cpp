@@ -318,7 +318,7 @@ IMS_RESULT SipAddress::AddParameter(IN const AString& strName, IN const AString&
 {
     if (strName.IsNULL() || m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -332,7 +332,7 @@ IMS_RESULT SipAddress::AddParameter(IN const AString& strName, IN const AString&
         {
             pParameter->AddValue(strValue);
 
-            SIPPrivate::SetLastError(SipError::NO_ERROR);
+            SipPrivate::SetLastError(SipError::NO_ERROR);
             return IMS_SUCCESS;
         }
     }
@@ -351,18 +351,18 @@ IMS_RESULT SipAddress::AddParameter(IN const AString& strName, IN const AString&
 
     if (pParameter == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_FAILURE;
     }
 
     if (!m_objParams.Append(pParameter))
     {
         delete pParameter;
-        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
+        SipPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_FAILURE;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -371,7 +371,7 @@ IMS_BOOL SipAddress::Create(IN const AString& strAddress)
 {
     if (strAddress.GetLength() == 0)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FALSE;
     }
 
@@ -462,8 +462,8 @@ const ISipHeader* SipAddress::GetHeader(
             }
             else
             {
-                const IMS_CHAR cCompactName = SIPStack::GetCompactHeaderName(nType, strName);
-                const IMS_CHAR* pszName = SIPStack::GetHeaderName(nType, strName);
+                const IMS_CHAR cCompactName = SipStack::GetCompactHeaderName(nType, strName);
+                const IMS_CHAR* pszName = SipStack::GetHeaderName(nType, strName);
                 const AString& strHeaderName = piHeader->GetName();
 
                 if (strHeaderName.EqualsIgnoreCase(cCompactName) ||
@@ -767,13 +767,13 @@ IMS_RESULT SipAddress::SetDisplayName(IN const AString& strName)
 {
     if (m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
     m_strDisplayName = strName;
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -783,21 +783,21 @@ IMS_RESULT SipAddress::SetHeader(IN IMS_SINT32 nType, IN const AString& strValue
 {
     if (m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
     if ((nType <= ISipHeader::INVALID) || (nType >= ISipHeader::ANY))
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
-    SIPHeader* pHeader = new SIPHeader(nType);
+    SipHeader* pHeader = new SipHeader(nType);
 
     if (pHeader == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_FAILURE;
     }
 
@@ -808,7 +808,7 @@ IMS_RESULT SipAddress::SetHeader(IN IMS_SINT32 nType, IN const AString& strValue
 
     if (pHeader->SetHeaderValue(TextParser::DoPercentDecoding(strValue)) != IMS_SUCCESS)
     {
-        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+        SipPrivate::SetLastError(SipError::PARSING_ERROR);
 
         delete pHeader;
         return IMS_FAILURE;
@@ -820,7 +820,7 @@ IMS_RESULT SipAddress::SetHeader(IN IMS_SINT32 nType, IN const AString& strValue
         return IMS_FAILURE;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -830,7 +830,7 @@ IMS_RESULT SipAddress::SetHeaders(
 {
     if (m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -841,11 +841,11 @@ IMS_RESULT SipAddress::SetHeaders(
 
     if (!DecodeHeaderComponent(strHeaders))
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -854,7 +854,7 @@ IMS_RESULT SipAddress::SetHost(IN const AString& strHost)
 {
     if (strHost.IsNULL() || m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;  // Throw exception
     }
 
@@ -869,7 +869,7 @@ IMS_RESULT SipAddress::SetHost(IN const AString& strHost)
         m_strHostInfo = strHost;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -878,7 +878,7 @@ IMS_RESULT SipAddress::SetParameter(IN const AString& strName, IN const AString&
 {
     if (strName.IsNULL() || m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -893,7 +893,7 @@ IMS_RESULT SipAddress::SetParameter(IN const AString& strName, IN const AString&
                 return IMS_FAILURE;
             }
 
-            SIPPrivate::SetLastError(SipError::NO_ERROR);
+            SipPrivate::SetLastError(SipError::NO_ERROR);
             return IMS_SUCCESS;
         }
     }
@@ -912,18 +912,18 @@ IMS_RESULT SipAddress::SetParameter(IN const AString& strName, IN const AString&
 
     if (pParameter == IMS_NULL)
     {
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
         return IMS_FAILURE;
     }
 
     if (!m_objParams.Append(pParameter))
     {
         delete pParameter;
-        SIPPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
+        SipPrivate::SetLastError(SipError::LIST_OPERATION_FAILED);
         return IMS_FAILURE;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -932,7 +932,7 @@ IMS_RESULT SipAddress::SetPort(IN IMS_SINT32 nPort)
 {
     if ((nPort < 0) || (nPort > Sip::PORT_UNSPECIFIED) || m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -945,7 +945,7 @@ IMS_RESULT SipAddress::SetPort(IN IMS_SINT32 nPort)
         m_nPort = nPort;
     }
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -954,13 +954,13 @@ IMS_RESULT SipAddress::SetScheme(IN const AString& strScheme)
 {
     if (strScheme.IsNULL() || m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
     m_strScheme = strScheme;
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -969,7 +969,7 @@ IMS_RESULT SipAddress::SetUri(IN const AString& strURI)
 {
     if (strURI.IsNULL() || strURI.Equals(TextParser::CHAR_ASTERISK) || m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
@@ -986,13 +986,13 @@ IMS_RESULT SipAddress::SetUser(IN const AString& strUser)
 {
     if (m_bIsWildcard)
     {
-        SIPPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
+        SipPrivate::SetLastError(SipError::ILLEGAL_ARGUMENT);
         return IMS_FAILURE;
     }
 
     m_strUserInfo = strUser;
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
     return IMS_SUCCESS;
 }
 
@@ -1529,7 +1529,7 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
 {
     AString strUri = strAddress.Trim();
 
-    SIPPrivate::SetLastError(SipError::NO_ERROR);
+    SipPrivate::SetLastError(SipError::NO_ERROR);
 
     // Checks if the address is the special ("*") value
     if (strUri.Equals(TextParser::CHAR_ASTERISK))
@@ -1573,13 +1573,13 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
         }
     }
 
-    SipAddrSpec* pAddrSpec = SIPStack::DecodeAddrSpec(strUri);
+    SipAddrSpec* pAddrSpec = SipStack::DecodeAddrSpec(strUri);
 
     if (pAddrSpec != IMS_NULL)
     {
-        if (SIPStack::IsUriSchemeSip(pAddrSpec) || SIPStack::IsUriSchemeSips(pAddrSpec))
+        if (SipStack::IsUriSchemeSip(pAddrSpec) || SipStack::IsUriSchemeSips(pAddrSpec))
         {
-            if (SIPStack::IsUriSchemeSip(pAddrSpec))
+            if (SipStack::IsUriSchemeSip(pAddrSpec))
             {
                 m_strScheme = Sip::STR_SIP;
             }
@@ -1589,9 +1589,9 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
             }
 
             // user-info (user:password)
-            m_strUserInfo = SIPStack::AddrSpec_GetUser(pAddrSpec);
+            m_strUserInfo = SipStack::AddrSpec_GetUser(pAddrSpec);
 
-            const IMS_CHAR* pszPassword = SIPStack::AddrSpec_GetPassword(pAddrSpec);
+            const IMS_CHAR* pszPassword = SipStack::AddrSpec_GetPassword(pAddrSpec);
 
             if (pszPassword != IMS_NULL)
             {
@@ -1599,7 +1599,7 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
                 m_strUserInfo += pszPassword;
             }
 
-            m_strHostInfo = SIPStack::AddrSpec_GetHost(pAddrSpec);
+            m_strHostInfo = SipStack::AddrSpec_GetHost(pAddrSpec);
 
             IPAddress objHost;
 
@@ -1611,7 +1611,7 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
                 }
             }
 
-            IMS_SINT32 nTmpPort = SIPStack::AddrSpec_GetPort(pAddrSpec);
+            IMS_SINT32 nTmpPort = SipStack::AddrSpec_GetPort(pAddrSpec);
 
             if (nTmpPort != 0)
                 m_nPort = nTmpPort;
@@ -1622,10 +1622,10 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
             {
                 RemoveAllHeaderComponents();
 
-                if (!SIPStack::DecodeHeaderComponent(pAddrSpec, m_objHeaders))
+                if (!SipStack::DecodeHeaderComponent(pAddrSpec, m_objHeaders))
                 {
-                    SIPPrivate::SetLastError(SipError::PARSING_ERROR);
-                    SIPStack::FreeAddrSpec(pAddrSpec);
+                    SipPrivate::SetLastError(SipError::PARSING_ERROR);
+                    SipStack::FreeAddrSpec(pAddrSpec);
                     return IMS_FALSE;
                 }
             }
@@ -1633,7 +1633,7 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
             // Process URI parameters
             if (bParseParameter)
             {
-                m_objParams = SIPStack::ExtractParameters(pAddrSpec);
+                m_objParams = SipStack::ExtractParameters(pAddrSpec);
             }
         }
         else
@@ -1719,11 +1719,11 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
             }
         }
 
-        SIPStack::FreeAddrSpec(pAddrSpec);
+        SipStack::FreeAddrSpec(pAddrSpec);
     }
     else
     {
-        SIPPrivate::SetLastError(SipError::PARSING_ERROR);
+        SipPrivate::SetLastError(SipError::PARSING_ERROR);
         return IMS_FALSE;
     }
 
@@ -1733,7 +1733,7 @@ IMS_BOOL SipAddress::Decode(IN const AString& strAddress, IN IMS_BOOL bParsePara
 PRIVATE
 IMS_BOOL SipAddress::DecodeHeaderComponent(IN const AString& strHeaders)
 {
-    return SIPStack::DecodeHeaderComponent(strHeaders, m_objHeaders);
+    return SipStack::DecodeHeaderComponent(strHeaders, m_objHeaders);
 }
 
 PRIVATE

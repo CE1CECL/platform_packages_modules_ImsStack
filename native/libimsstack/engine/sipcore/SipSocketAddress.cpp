@@ -18,7 +18,7 @@
 #include "SipSocketAddress.h"
 
 PUBLIC
-SIPSocketAddress::SIPSocketAddress() :
+SipSocketAddress::SipSocketAddress() :
         m_bSecure(IMS_FALSE),
         m_nType(SOCKET_UDP),
         m_objSockAddr(SocketAddress(IPAddress::NONE, Sip::PORT_UNSPECIFIED))
@@ -26,7 +26,7 @@ SIPSocketAddress::SIPSocketAddress() :
 }
 
 PUBLIC
-SIPSocketAddress::SIPSocketAddress(IN const SIPSocketAddress& other) :
+SipSocketAddress::SipSocketAddress(IN const SipSocketAddress& other) :
         m_bSecure(other.m_bSecure),
         m_nType(other.m_nType),
         m_objSockAddr(other.m_objSockAddr)
@@ -34,7 +34,7 @@ SIPSocketAddress::SIPSocketAddress(IN const SIPSocketAddress& other) :
 }
 
 PUBLIC
-SIPSocketAddress::SIPSocketAddress(
+SipSocketAddress::SipSocketAddress(
         IN IMS_SINT32 nType, IN IMS_SINT32 nPort, IN const AString& strAddress) :
         m_bSecure(IMS_FALSE),
         m_nType(nType),
@@ -43,7 +43,7 @@ SIPSocketAddress::SIPSocketAddress(
 }
 
 PUBLIC
-SIPSocketAddress::SIPSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort,
+SipSocketAddress::SipSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort,
         IN const AString& strAddress, IN IMS_BOOL bSecure) :
         m_bSecure(bSecure),
         m_nType(nType),
@@ -52,10 +52,10 @@ SIPSocketAddress::SIPSocketAddress(IN IMS_SINT32 nType, IN IMS_SINT32 nPort,
 }
 
 PUBLIC
-SIPSocketAddress::~SIPSocketAddress() {}
+SipSocketAddress::~SipSocketAddress() {}
 
 PUBLIC
-SIPSocketAddress& SIPSocketAddress::operator=(IN const SIPSocketAddress& other)
+SipSocketAddress& SipSocketAddress::operator=(IN const SipSocketAddress& other)
 {
     if (this != &other)
     {
@@ -68,7 +68,7 @@ SIPSocketAddress& SIPSocketAddress::operator=(IN const SIPSocketAddress& other)
 }
 
 PUBLIC
-IMS_BOOL SIPSocketAddress::Equals(IN const SIPSocketAddress& other) const
+IMS_BOOL SipSocketAddress::Equals(IN const SipSocketAddress& other) const
 {
     if (m_nType != other.m_nType)
     {

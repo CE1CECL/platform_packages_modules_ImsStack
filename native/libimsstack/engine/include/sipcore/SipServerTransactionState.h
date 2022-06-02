@@ -17,15 +17,15 @@
 #include "SipTransactionState.h"
 #include "SipTransportAddress.h"
 
-class SIPServerTransactionState : public SIPTransactionState, public ITimerListener
+class SipServerTransactionState : public SipTransactionState, public ITimerListener
 {
 public:
-    SIPServerTransactionState(IN IMS_SINT32 nSlotId, IN CONST SIPTransportAddress& objNearEnd_,
-            IN CONST SIPTransportAddress& objFarEnd_);
-    virtual ~SIPServerTransactionState();
+    SipServerTransactionState(IN IMS_SINT32 nSlotId, IN CONST SipTransportAddress& objNearEnd_,
+            IN CONST SipTransportAddress& objFarEnd_);
+    virtual ~SipServerTransactionState();
 
 private:
-    SIPServerTransactionState& operator=(IN CONST SIPServerTransactionState& objRHS);
+    SipServerTransactionState& operator=(IN CONST SipServerTransactionState& objRHS);
 
 public:
     virtual IMS_SINT32 CheckMessageValidity();
@@ -34,25 +34,25 @@ public:
     virtual IMS_BOOL UpdateTransportDetails();
 
     IMS_BOOL InitResponse(IN IMS_SINT32 nStatusCode);
-    IMS_BOOL IsSameTransaction(IN CONST SIPServerTransactionState* pSTState) const;
-    IMS_SINT32 MatchTransaction(IN SipMessage* pstMessage);
+    IMS_BOOL IsSameTransaction(IN CONST SipServerTransactionState* pSTState) const;
+    IMS_SINT32 MatchTransaction(IN ::SipMessage* pstMessage);
     void RejectRequest(
             IN IMS_SINT32 nStatusCode, IN CONST AString& strReason = AString::ConstNull());
     void SetDefaultContact(IN CONST AString& strContact);
-    IMS_SINT32 HandleRequest(OUT RCPtr<SIPDialogEx>& pOrigDialogEx);
+    IMS_SINT32 HandleRequest(OUT RCPtr<SipDialogEx>& pOrigDialogEx);
 
 private:
     // ITimerListener interface
     virtual void Timer_TimerExpired(IN ITimer* piTimer);
 
-    IMS_BOOL InitResponse(IN IMS_SINT32 nStatusCode, OUT SipMessage*& pstOutMessage);
+    IMS_BOOL InitResponse(IN IMS_SINT32 nStatusCode, OUT ::SipMessage*& pstOutMessage);
     IMS_BOOL UpdateTxnDetails();
 
     static IMS_BOOL Is100TryingResponseRequired(IN CONST SipMethod& objMethod);
-    static IMS_RESULT SendResponse100Trying(IN SIPServerTransactionState* pSTState);
-    static void StartTimer100Trying(IN SIPServerTransactionState* pSTState,
+    static IMS_RESULT SendResponse100Trying(IN SipServerTransactionState* pSTState);
+    static void StartTimer100Trying(IN SipServerTransactionState* pSTState,
             IN IMS_SINT32 nTimerInterval /* milli-seconds */);
-    static void StopTimer100Trying(IN SIPServerTransactionState* pSTState);
+    static void StopTimer100Trying(IN SipServerTransactionState* pSTState);
 
 private:
     enum

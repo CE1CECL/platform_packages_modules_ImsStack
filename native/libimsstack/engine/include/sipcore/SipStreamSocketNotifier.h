@@ -16,19 +16,19 @@
 #include "private/SipConfig.h"
 #include "SipSocket.h"
 
-class ISIPStreamSocketListener;
+class ISipStreamSocketListener;
 
-class SIPStreamSocketNotifier : public SIPSocket
+class SipStreamSocketNotifier : public SipSocket
 {
 public:
-    explicit SIPStreamSocketNotifier(IN IMS_SINT32 nSlotId);
-    virtual ~SIPStreamSocketNotifier();
+    explicit SipStreamSocketNotifier(IN IMS_SINT32 nSlotId);
+    virtual ~SipStreamSocketNotifier();
 
 public:
-    virtual SIPSocket* Accept();
+    virtual SipSocket* Accept();
     virtual IMS_BOOL Create(
             IN CONST IPAddress& objIPA, IN IMS_UINT32 nPort = 0, IN IMS_BOOL bSecure = IMS_FALSE);
-    void SetListener(IN ISIPStreamSocketListener* piListener);
+    void SetListener(IN ISipStreamSocketListener* piListener);
 
 public:
     virtual void Socket_OnConnectionReceived(IN ISocket* piSocket);
@@ -36,7 +36,7 @@ public:
             IN ISocket* piSocket, IN IMS_SINT32 nReason = ISocket::CLOSE_REASON_UNKNOWN);
 
 private:
-    ISIPStreamSocketListener* piListener;
+    ISipStreamSocketListener* piListener;
 };
 
 #endif  // _SIP_STREAM_SOCKET_NOTIFIER_H_

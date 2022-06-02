@@ -19,7 +19,7 @@
 #include "SipTransportAddress.h"
 #include "ISipIpSecState.h"
 
-class SIPIPSecState : public EngineActivity, public ISipIpSecState
+class SipIpSecState : public EngineActivity, public ISipIpSecState
 {
 private:
     class SA
@@ -35,14 +35,14 @@ private:
         SA& operator=(IN CONST SA& objRHS);
 
     public:
-        IMS_BOOL AddTransaction(IN CONST SIPTxnKey* pTxnKey);
-        IMS_BOOL CheckIPAddress(IN CONST SIPTransportAddress& objNearEnd,
-                IN CONST SIPTransportAddress& objFarEnd) const;
-        IMS_SINT32 GetSA(IN CONST SIPTransportAddress& objNearEnd,
-                IN CONST SIPTransportAddress& objFarEnd, IN IMS_SINT32 nDirection) const;
+        IMS_BOOL AddTransaction(IN CONST sipcore::SipTxnKey* pTxnKey);
+        IMS_BOOL CheckIPAddress(IN CONST SipTransportAddress& objNearEnd,
+                IN CONST SipTransportAddress& objFarEnd) const;
+        IMS_SINT32 GetSA(IN CONST SipTransportAddress& objNearEnd,
+                IN CONST SipTransportAddress& objFarEnd, IN IMS_SINT32 nDirection) const;
         IMS_SINT32 GetState() const;
         IMS_BOOL HasPendingTransaction() const;
-        IMS_BOOL RemoveTransaction(IN CONST SIPTxnKey* pTxnKey);
+        IMS_BOOL RemoveTransaction(IN CONST sipcore::SipTxnKey* pTxnKey);
         void SetState(IN IMS_SINT32 nState);
 
     private:
@@ -81,25 +81,25 @@ private:
 
         IMS_SINT32 nState;
         // For tracking SIP transaction
-        IMSList<SIPTxnKey> objSAStat;
+        IMSList<sipcore::SipTxnKey> objSAStat;
     };
 
 public:
-    SIPIPSecState();
-    virtual ~SIPIPSecState();
+    SipIpSecState();
+    virtual ~SipIpSecState();
 
 private:
-    SIPIPSecState(IN CONST SIPIPSecState& objRHS);
-    SIPIPSecState& operator=(IN CONST SIPIPSecState& objRHS);
+    SipIpSecState(IN CONST SipIpSecState& objRHS);
+    SipIpSecState& operator=(IN CONST SipIpSecState& objRHS);
 
 public:
-    IMS_BOOL IsIPSecEnabled() const;
-    void NotifyMessageReceived(IN CONST SIPTransportAddress& objNearEnd,
-            IN CONST SIPTransportAddress& objFarEnd, IN SipMessage* pstMessage);
-    void NotifyMessageSent(IN CONST SIPTransportAddress& objNearEnd,
-            IN CONST SIPTransportAddress& objFarEnd, IN SipMessage* pstMessage);
-    void NotifyMessageSentFailed(IN SipMessage* pstMessage);
-    void NotifyTransactionAborted(IN SipTxnKey* pstTxnKey);
+    IMS_BOOL IsIpSecEnabled() const;
+    void NotifyMessageReceived(IN CONST SipTransportAddress& objNearEnd,
+            IN CONST SipTransportAddress& objFarEnd, IN ::SipMessage* pstMessage);
+    void NotifyMessageSent(IN CONST SipTransportAddress& objNearEnd,
+            IN CONST SipTransportAddress& objFarEnd, IN ::SipMessage* pstMessage);
+    void NotifyMessageSentFailed(IN ::SipMessage* pstMessage);
+    void NotifyTransactionAborted(IN ::SipTxnKey* pstTxnKey);
 
 private:
     // EngineActivity class
@@ -114,11 +114,11 @@ private:
             IN IMS_SINT32 nPort_PC, IN IMS_SINT32 nPort_PS);
     virtual void SetListener(IN ISipIpSecStateListener* piListener);
 
-    void NotifyMessageReceivedInternal(IN CONST SIPTransportAddress& objNearEnd,
-            IN CONST SIPTransportAddress& objFarEnd, IN SIPTxnKey* pTxnKey);
-    void NotifyMessageSentInternal(IN CONST SIPTransportAddress& objNearEnd,
-            IN CONST SIPTransportAddress& objFarEnd, IN SIPTxnKey* pTxnKey);
-    void NotifyTransactionAbortedInternal(IN SIPTxnKey* pTxnKey);
+    void NotifyMessageReceivedInternal(IN CONST SipTransportAddress& objNearEnd,
+            IN CONST SipTransportAddress& objFarEnd, IN sipcore::SipTxnKey* pTxnKey);
+    void NotifyMessageSentInternal(IN CONST SipTransportAddress& objNearEnd,
+            IN CONST SipTransportAddress& objFarEnd, IN sipcore::SipTxnKey* pTxnKey);
+    void NotifyTransactionAbortedInternal(IN sipcore::SipTxnKey* pTxnKey);
 
 private:
     // Event for message processing

@@ -19,7 +19,7 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPRTConfigHelper::SIPRTConfigHelper() :
+SipRtConfigHelper::SipRtConfigHelper() :
         objConfigSet(IMSMap<IMS_SINT32, IMS_BOOL>()),
         nFeatures(SipRtConfig::FEATURE_NONE),
         objIPQoSs(IMSList<SipRtConfig::IpQos>()),
@@ -32,14 +32,14 @@ SIPRTConfigHelper::SIPRTConfigHelper() :
     }
 }
 
-PUBLIC VIRTUAL SIPRTConfigHelper::~SIPRTConfigHelper() {}
+PUBLIC VIRTUAL SipRtConfigHelper::~SipRtConfigHelper() {}
 
 /*
 
 Remarks
 
 */
-PUBLIC VIRTUAL const SipRtConfig::Header* SIPRTConfigHelper::GetHeader(
+PUBLIC VIRTUAL const SipRtConfig::Header* SipRtConfigHelper::GetHeader(
         IN CONST AString& strName) const
 {
     //---------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ Remarks
 
 */
 PUBLIC
-const SipRtConfig::LogMask* SIPRTConfigHelper::GetLogMask() const
+const SipRtConfig::LogMask* SipRtConfigHelper::GetLogMask() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Remarks
 
 */
 PUBLIC
-const SipRtConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(IN IMS_SINT32 nItem) const
+const SipRtConfig::SocketOption* SipRtConfigHelper::GetSocketOption(IN IMS_SINT32 nItem) const
 {
     IMS_SLONG nIndex = objSOMap.GetIndexOfKey(nItem);
 
@@ -118,7 +118,7 @@ Remarks
 
 */
 PUBLIC
-const SipRtConfig::SocketOption* SIPRTConfigHelper::GetSocketOption(
+const SipRtConfig::SocketOption* SipRtConfigHelper::GetSocketOption(
         IN IMS_SINT32 nItem, IN CONST IPAddress& objIP, IN IMS_SINT32 nPort /* = 0*/) const
 {
     //---------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ Remarks
 
 */
 PUBLIC
-const SipRtConfig::IpQos* SIPRTConfigHelper::GetIpQos(
+const SipRtConfig::IpQos* SipRtConfigHelper::GetIpQos(
         IN CONST IPAddress& objIP, IN IMS_SINT32 nPort /* = 0 */) const
 {
     //---------------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ Remarks
 
 */
 PUBLIC
-const IMSList<SipRtConfig::IpSecSa>& SIPRTConfigHelper::GetIpSecSas() const
+const IMSList<SipRtConfig::IpSecSa>& SipRtConfigHelper::GetIpSecSas() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -244,7 +244,7 @@ Remarks
 
 */
 PUBLIC
-const SipAddress* SIPRTConfigHelper::GetRegContactUri(IN CONST AString& strCallId) const
+const SipAddress* SipRtConfigHelper::GetRegContactUri(IN CONST AString& strCallId) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -273,7 +273,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPRTConfigHelper::IsFeatureEnabled(IN IMS_SINT32 nFeature) const
+IMS_BOOL SipRtConfigHelper::IsFeatureEnabled(IN IMS_SINT32 nFeature) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -286,7 +286,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPRTConfigHelper::IsItemConfigured(IN IMS_SINT32 nItem) const
+IMS_BOOL SipRtConfigHelper::IsItemConfigured(IN IMS_SINT32 nItem) const
 {
     IMS_SLONG nIndex = objConfigSet.GetIndexOfKey(nItem);
 
@@ -306,7 +306,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPRTConfigHelper::IsMessageHiddenInLog() const
+IMS_BOOL SipRtConfigHelper::IsMessageHiddenInLog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -319,7 +319,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPRTConfigHelper::IsRoutingInfoHiddenInLog() const
+IMS_BOOL SipRtConfigHelper::IsRoutingInfoHiddenInLog() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ IMS_BOOL SIPRTConfigHelper::IsRoutingInfoHiddenInLog() const
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPRTConfigHelper::DisableFeature(IN IMS_SINT32 nFeature)
+PRIVATE VIRTUAL void SipRtConfigHelper::DisableFeature(IN IMS_SINT32 nFeature)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -343,7 +343,7 @@ PRIVATE VIRTUAL void SIPRTConfigHelper::DisableFeature(IN IMS_SINT32 nFeature)
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPRTConfigHelper::EnableFeature(IN IMS_SINT32 nFeature)
+PRIVATE VIRTUAL void SipRtConfigHelper::EnableFeature(IN IMS_SINT32 nFeature)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -355,7 +355,7 @@ PRIVATE VIRTUAL void SIPRTConfigHelper::EnableFeature(IN IMS_SINT32 nFeature)
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_SINT32 SIPRTConfigHelper::GetFeatures() const
+PRIVATE VIRTUAL IMS_SINT32 SipRtConfigHelper::GetFeatures() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -367,7 +367,7 @@ PRIVATE VIRTUAL IMS_SINT32 SIPRTConfigHelper::GetFeatures() const
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPRTConfigHelper::RemoveConfig(
+PRIVATE VIRTUAL void SipRtConfigHelper::RemoveConfig(
         IN IMS_SINT32 nItem, IN SipRtConfig::Base* pParam)
 {
     //---------------------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ PRIVATE VIRTUAL void SIPRTConfigHelper::RemoveConfig(
 
         case SipRtConfig::CONFIG_I_TCP_PORT_RANGE:
         {
-            SIPPortManager::GetInstance()->Clear();
+            SipPortManager::GetInstance()->Clear();
         }
         break;
 
@@ -548,7 +548,7 @@ PRIVATE VIRTUAL void SIPRTConfigHelper::RemoveConfig(
 Remarks
 
 */
-PRIVATE VIRTUAL IMS_RESULT SIPRTConfigHelper::SetConfig(
+PRIVATE VIRTUAL IMS_RESULT SipRtConfigHelper::SetConfig(
         IN IMS_SINT32 nItem, IN SipRtConfig::Base* pParam)
 {
     //---------------------------------------------------------------------------------------------
@@ -723,7 +723,7 @@ PRIVATE VIRTUAL IMS_RESULT SIPRTConfigHelper::SetConfig(
                 return IMS_SUCCESS;
             }
 
-            SIPPortManager::GetInstance()->SetPortC(pPortRange->nPortStart, pPortRange->nPortEnd);
+            SipPortManager::GetInstance()->SetPortC(pPortRange->nPortStart, pPortRange->nPortEnd);
         }
         break;
 
@@ -789,7 +789,7 @@ Remarks
 
 */
 PRIVATE
-IMS_UINT32 SIPRTConfigHelper::GetSocketOptionCount(IN IMS_SINT32 nItem) const
+IMS_UINT32 SipRtConfigHelper::GetSocketOptionCount(IN IMS_SINT32 nItem) const
 {
     IMS_SLONG nIndex = objSOMap.GetIndexOfKey(nItem);
 
@@ -809,7 +809,7 @@ Remarks
 
 */
 PRIVATE
-void SIPRTConfigHelper::RemoveSocketOption(
+void SipRtConfigHelper::RemoveSocketOption(
         IN IMS_SINT32 nItem, IN CONST SipRtConfig::SocketOption* pSO)
 {
     if (pSO == IMS_NULL)
@@ -850,7 +850,7 @@ Remarks
 
 */
 PRIVATE
-IMS_RESULT SIPRTConfigHelper::SetSocketOption(
+IMS_RESULT SipRtConfigHelper::SetSocketOption(
         IN IMS_SINT32 nItem, IN CONST SipRtConfig::SocketOption* pSO)
 {
     if (pSO == IMS_NULL)

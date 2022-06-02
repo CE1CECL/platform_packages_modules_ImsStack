@@ -7,19 +7,19 @@
     </table>
 
     Description
-     This class represents one SIP dialog. The SIPDialog can be retrieved from a SIPConnection
+     This class represents one SIP dialog. The SipDialog can be retrieved from a SipConnection
     object, when it is available (at earliest after provisional 101~199 response).
     Three SIP requests can open a dialog: INVITE, SUBSCRIBE/NOTIFY and REFER/NOTIFY.
     An implementation compliant to this specification must support all of the following ways
     of creating dialogs:
-    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - INVITE-1xx-2xx-ACK will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when the transaction BYE-200 OK is completed.
-    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SIPClientConnection
+    - SUBSCRIBE-200 OK (or matching NOTIFY) will open a dialog. Subsequent SipClientConnection
     in the same dialog can be obtained by calling GetNewClientConnection(...) method.
     The dialog is terminated when a notifier sends a NOTIFY request with a "Subscription-State"
     of "terminated" and there are no other subscriptions alive in this dialog.
-    - REFER-matching NOTIFY will open a dialog. Subsequent SIPClientConnection in the same dialog
+    - REFER-matching NOTIFY will open a dialog. Subsequent SipClientConnection in the same dialog
     can be obtained by calling GetNewClientConnection(...) method. The dialog is terminated
     when a notifier sends a NOTIFY request with a "Subscription-State" of "terminated"
     and there are no other subscriptions alive in this dialog.
@@ -35,12 +35,12 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPDialogImpl::SIPDialogImpl(IN SIPDialog* pDialog_) :
+SipDialogImpl::SipDialogImpl(IN SipDialog* pDialog_) :
         pDialog(pDialog_)
 {
 }
 
-PUBLIC VIRTUAL SIPDialogImpl::~SIPDialogImpl()
+PUBLIC VIRTUAL SipDialogImpl::~SipDialogImpl()
 {
     if (pDialog != IMS_NULL)
     {
@@ -48,7 +48,7 @@ PUBLIC VIRTUAL SIPDialogImpl::~SIPDialogImpl()
     }
 
 #ifdef __IMS_SIP_DEBUG__
-    IMS_TRACE_D("Destructor :: SIPDialogImpl", 0, 0, 0);
+    IMS_TRACE_D("Destructor :: SipDialogImpl", 0, 0, 0);
 #endif
 }
 
@@ -58,7 +58,7 @@ PUBLIC VIRTUAL SIPDialogImpl::~SIPDialogImpl()
 Remarks
 
 */
-PUBLIC VIRTUAL void SIPDialogImpl::Destroy()
+PUBLIC VIRTUAL void SipDialogImpl::Destroy()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ PUBLIC VIRTUAL void SIPDialogImpl::Destroy()
 Remarks
 
 */
-PUBLIC VIRTUAL ISipDialog* SIPDialogImpl::Clone() const
+PUBLIC VIRTUAL ISipDialog* SipDialogImpl::Clone() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ PUBLIC VIRTUAL ISipDialog* SIPDialogImpl::Clone() const
         return IMS_NULL;
     }
 
-    SIPDialog* pNewDialog = new SIPDialog(*pDialog);
+    SipDialog* pNewDialog = new SipDialog(*pDialog);
 
     if (pNewDialog == IMS_NULL)
     {
@@ -89,7 +89,7 @@ PUBLIC VIRTUAL ISipDialog* SIPDialogImpl::Clone() const
         return IMS_NULL;
     }
 
-    SIPDialogImpl* pDialogImpl = new SIPDialogImpl(pNewDialog);
+    SipDialogImpl* pDialogImpl = new SipDialogImpl(pNewDialog);
 
     if (pDialogImpl == IMS_NULL)
     {
@@ -108,9 +108,9 @@ PUBLIC VIRTUAL ISipDialog* SIPDialogImpl::Clone() const
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_BOOL SIPDialogImpl::Equals(IN CONST ISipDialog* piDialog)
+PUBLIC VIRTUAL IMS_BOOL SipDialogImpl::Equals(IN CONST ISipDialog* piDialog)
 {
-    const SIPDialogImpl* pDialogImpl = DYNAMIC_CAST(const SIPDialogImpl*, piDialog);
+    const SipDialogImpl* pDialogImpl = DYNAMIC_CAST(const SipDialogImpl*, piDialog);
 
     //---------------------------------------------------------------------------------------------
 
@@ -126,11 +126,11 @@ PUBLIC VIRTUAL IMS_BOOL SIPDialogImpl::Equals(IN CONST ISipDialog* piDialog)
 Remarks
 
 */
-PUBLIC VIRTUAL AString SIPDialogImpl::GetDialogId()
+PUBLIC VIRTUAL AString SipDialogImpl::GetDialogId()
 {
     //---------------------------------------------------------------------------------------------
 
-    if (pDialog->GetState() == SIPDialog::STATE_TERMINATED)
+    if (pDialog->GetState() == SipDialog::STATE_TERMINATED)
         return AString::ConstNull();
 
     // Call-ID + Local-Tag + Remote-Tag
@@ -138,7 +138,7 @@ PUBLIC VIRTUAL AString SIPDialogImpl::GetDialogId()
 }
 
 /*
- Returns a new SIPClientConnection in this dialog. The returned SIPClientConnection will be
+ Returns a new SipClientConnection in this dialog. The returned SipClientConnection will be
 in STATE_INITIALIZED state. The object is initialized with the given method and default headers.
 
 Remarks
@@ -152,10 +152,10 @@ Remarks
     Contact
     Max-Forwards
 */
-PUBLIC VIRTUAL ISipClientConnection* SIPDialogImpl::GetNewClientConnection(
+PUBLIC VIRTUAL ISipClientConnection* SipDialogImpl::GetNewClientConnection(
         IN CONST AString& strMethod)
 {
-    SIPClientConnection* pSCC = pDialog->CreateClientConnection(strMethod);
+    SipClientConnection* pSCC = pDialog->CreateClientConnection(strMethod);
 
     //---------------------------------------------------------------------------------------------
 
@@ -166,12 +166,12 @@ PUBLIC VIRTUAL ISipClientConnection* SIPDialogImpl::GetNewClientConnection(
         return IMS_NULL;
     }
 
-    SIPClientConnectionImpl* pSCCImpl = new SIPClientConnectionImpl(pSCC);
+    SipClientConnectionImpl* pSCCImpl = new SipClientConnectionImpl(pSCC);
 
     if (pSCCImpl == IMS_NULL)
     {
         delete pSCC;
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
 
         IMS_TRACE_E(0, "Allocating SCCImpl (%s) failed", strMethod.GetStr(), 0, 0);
         return IMS_NULL;
@@ -180,7 +180,7 @@ PUBLIC VIRTUAL ISipClientConnection* SIPDialogImpl::GetNewClientConnection(
     if (pSCCImpl->InitDialogRequest() != IMS_SUCCESS)
     {
         delete pSCCImpl;
-        SIPPrivate::SetLastError(SipError::NO_MEMORY);
+        SipPrivate::SetLastError(SipError::NO_MEMORY);
 
         IMS_TRACE_E(0, "Initializing Dialog info. (%s) failed", strMethod.GetStr(), 0, 0);
         return IMS_NULL;
@@ -208,19 +208,19 @@ Remarks
         can't be called in this state.
 
 */
-PUBLIC VIRTUAL IMS_SINT32 SIPDialogImpl::GetState() const
+PUBLIC VIRTUAL IMS_SINT32 SipDialogImpl::GetState() const
 {
     //---------------------------------------------------------------------------------------------
 
     switch (pDialog->GetState())
     {
-        case SIPDialog::STATE_TERMINATED:
+        case SipDialog::STATE_TERMINATED:
             return ISipDialog::STATE_TERMINATED;
 
-        case SIPDialog::STATE_EARLY:
+        case SipDialog::STATE_EARLY:
             return ISipDialog::STATE_EARLY;
 
-        case SIPDialog::STATE_CONFIRMED:
+        case SipDialog::STATE_CONFIRMED:
             return ISipDialog::STATE_CONFIRMED;
 
         default:
@@ -234,14 +234,14 @@ PUBLIC VIRTUAL IMS_SINT32 SIPDialogImpl::GetState() const
 Remarks
 
 */
-PUBLIC VIRTUAL IMS_BOOL SIPDialogImpl::IsSameDialog(IN CONST ISipConnection* piSC)
+PUBLIC VIRTUAL IMS_BOOL SipDialogImpl::IsSameDialog(IN CONST ISipConnection* piSC)
 {
     //---------------------------------------------------------------------------------------------
 
     if (piSC == IMS_NULL)
         return IMS_FALSE;
 
-    SIPDialogImpl* pDialogImpl = DYNAMIC_CAST(SIPDialogImpl*, piSC->GetDialog());
+    SipDialogImpl* pDialogImpl = DYNAMIC_CAST(SipDialogImpl*, piSC->GetDialog());
 
     if (pDialogImpl == IMS_NULL)
         return IMS_FALSE;
@@ -255,7 +255,7 @@ PUBLIC VIRTUAL IMS_BOOL SIPDialogImpl::IsSameDialog(IN CONST ISipConnection* piS
 Remarks
 
 */
-PUBLIC VIRTUAL AString SIPDialogImpl::GetComponent(IN IMS_SINT32 nType) const
+PUBLIC VIRTUAL AString SipDialogImpl::GetComponent(IN IMS_SINT32 nType) const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -281,7 +281,7 @@ PUBLIC VIRTUAL AString SIPDialogImpl::GetComponent(IN IMS_SINT32 nType) const
 Remarks
  BYE_REQUEST_ON_DIALOG_TERMINATED
 */
-PUBLIC VIRTUAL AString SIPDialogImpl::GetDialogIdEx()
+PUBLIC VIRTUAL AString SipDialogImpl::GetDialogIdEx()
 {
     //---------------------------------------------------------------------------------------------
 
@@ -295,7 +295,7 @@ PUBLIC VIRTUAL AString SIPDialogImpl::GetDialogIdEx()
 Remarks
 
 */
-PUBLIC VIRTUAL const ISipHeader* SIPDialogImpl::GetContactHeader() const
+PUBLIC VIRTUAL const ISipHeader* SipDialogImpl::GetContactHeader() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -309,7 +309,7 @@ Remarks
  CONTACT_HEADER_PARAMETER_CONTROL_FOR_MID_DIALOG_REQUEST
 
 */
-PUBLIC VIRTUAL IMS_RESULT SIPDialogImpl::SetContactParameter(
+PUBLIC VIRTUAL IMS_RESULT SipDialogImpl::SetContactParameter(
         IN CONST AString& strParameter, IN IMS_SINT32 nOperation /* = 0 (0: ADD, 1: REMOVE) */)
 {
     //---------------------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ Remarks
  Use case) remove the dialog usage for "refer" event package subscription.
 
 */
-PUBLIC VIRTUAL void SIPDialogImpl::TerminateDialogUsage()
+PUBLIC VIRTUAL void SipDialogImpl::TerminateDialogUsage()
 {
     pDialog->TerminateDialogUsage();
 }

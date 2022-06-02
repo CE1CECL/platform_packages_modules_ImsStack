@@ -16,17 +16,17 @@
 #include "Protocol.h"
 #include "Sip.h"
 
-class SIPProtocol : public Protocol
+class SipProtocol : public Protocol
 {
 private:
-    SIPProtocol();
-    SIPProtocol(IN CONST SIPProtocol& objRHS);
+    SipProtocol();
+    SipProtocol(IN CONST SipProtocol& objRHS);
 
 public:
-    virtual ~SIPProtocol();
+    virtual ~SipProtocol();
 
 public:
-    static SIPProtocol* GetInstance();
+    static SipProtocol* GetInstance();
 
 private:
     // Protocol class

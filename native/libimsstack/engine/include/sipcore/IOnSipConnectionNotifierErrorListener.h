@@ -22,13 +22,13 @@ SIP connection notifier error listener interface
 Example
 
 See Also
-SIPConnectionNotifier
+SipConnectionNotifier
 */
-class IOnSIPConnectionNotifierErrorListener
+class IOnSipConnectionNotifierErrorListener
 {
 public:
     /*
-     Called when any error occurrs in the SIPConnectionNotifier.
+     Called when any error occurrs in the SipConnectionNotifier.
 
     Remarks
 
@@ -36,7 +36,7 @@ public:
     <table>
     parameter               description
     ----------              ----------
-    pSCN                    Pointer to SIPConnectionNotifier object which error occurrs.
+    pSCN                    Pointer to SipConnectionNotifier object which error occurrs.
     nCode                   Reason code of error
     strMessage              Reason phrase of error; Implementation dependent non-localized
                             information about the error.
@@ -49,7 +49,7 @@ public:
     </table>
     */
     virtual void OnConnectionNotifierError_NotifyError(
-            IN SIPConnectionNotifier* pSCN, IN IMS_SINT32 nCode, IN CONST AString& strMessage) = 0;
+            IN SipConnectionNotifier* pSCN, IN IMS_SINT32 nCode, IN CONST AString& strMessage) = 0;
 };
 
 #endif  // _INTERFACE_ON_SIP_CONNECTION_NOTIFIER_ERROR_LISTENER_H_

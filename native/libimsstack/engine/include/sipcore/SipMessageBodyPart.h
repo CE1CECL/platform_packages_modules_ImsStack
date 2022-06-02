@@ -17,18 +17,18 @@
 #include "SipStackHeaders.h"
 #include "SipUnknownHeaders.h"
 
-class SIPMessageBodyPart : public ISipMessageBodyPart
+class SipMessageBodyPart : public ISipMessageBodyPart
 {
 public:
-    SIPMessageBodyPart(IN IMS_BOOL bSDPBody_ = IMS_FALSE);
-    SIPMessageBodyPart(IN SipMsgBody* pstMsgBody_, IN IMS_BOOL bSDPBody_ = IMS_FALSE);
-    virtual ~SIPMessageBodyPart();
+    SipMessageBodyPart(IN IMS_BOOL bSDPBody_ = IMS_FALSE);
+    SipMessageBodyPart(IN SipMsgBody* pstMsgBody_, IN IMS_BOOL bSDPBody_ = IMS_FALSE);
+    virtual ~SipMessageBodyPart();
 
 private:
-    SIPMessageBodyPart(IN CONST SIPMessageBodyPart& objRHS);
+    SipMessageBodyPart(IN CONST SipMessageBodyPart& objRHS);
 
 public:
-    SIPMessageBodyPart& operator=(IN CONST SIPMessageBodyPart& objRHS);
+    SipMessageBodyPart& operator=(IN CONST SipMessageBodyPart& objRHS);
 
 public:
     // ISipObject interface
@@ -47,7 +47,7 @@ public:
     void SetHeader(IN SipHeaderBase* pstHeader,
             IN IMS_SINT32 nType = ISipMessageBodyPart::CONTENT_UNKNOWN);
     inline SipMsgBody* GetMessageBody() const { return pstMsgBody; }
-    inline IMS_BOOL IsSDPBodyPart() const { return bSDPBody; }
+    inline IMS_BOOL IsSdpBodyPart() const { return bSDPBody; }
 
 private:
     IMS_BOOL ExtractProperties();
@@ -55,7 +55,7 @@ private:
 private:
     IMS_BOOL bSDPBody;
     SipMsgBody* pstMsgBody;
-    SIPUnknownHeaders objOtherMimeHeaders;
+    SipUnknownHeaders objOtherMimeHeaders;
 
     ByteArray objContent;
 };

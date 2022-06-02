@@ -8,7 +8,7 @@
 
     Description
      This class defines a shared dialog state.
-    SIPDialogState class MUST have this class as its member.
+    SipDialogState class MUST have this class as its member.
 */
 
 #include "ServiceMemory.h"
@@ -21,21 +21,21 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPDialogSharedState::SIPDialogSharedState() :
+SipDialogSharedState::SipDialogSharedState() :
         nSharedState(SHARED_STATE_INIT)
 {
 }
 
 PUBLIC
-SIPDialogSharedState::~SIPDialogSharedState()
+SipDialogSharedState::~SipDialogSharedState()
 {
 #ifdef __IMS_SIP_DEBUG__
-    IMS_TRACE_D("Destructor :: SIPDialogSharedState (STATE: %d)", nSharedState, 0, 0);
+    IMS_TRACE_D("Destructor :: SipDialogSharedState (STATE: %d)", nSharedState, 0, 0);
 #endif
 }
 
 PRIVATE
-IMS_BOOL SIPDialogSharedState::AddDialog(IN SIPDialogEx* pDialogEx)
+IMS_BOOL SipDialogSharedState::AddDialog(IN SipDialogEx* pDialogEx)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -65,14 +65,14 @@ IMS_BOOL SIPDialogSharedState::AddDialog(IN SIPDialogEx* pDialogEx)
         nSharedState = SHARED_STATE_ACTIVE;
 
         // Attach a dialog state : make it a permanent dialog state
-        SIPManager::GetInstance()->AttachDialogState(pDialogEx->GetDialogState());
+        SipManager::GetInstance()->AttachDialogState(pDialogEx->GetDialogState());
     }
 
     return IMS_TRUE;
 }
 
 PRIVATE
-void SIPDialogSharedState::RemoveDialog(IN SIPDialogEx* pDialogEx)
+void SipDialogSharedState::RemoveDialog(IN SipDialogEx* pDialogEx)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ void SIPDialogSharedState::RemoveDialog(IN SIPDialogEx* pDialogEx)
 
     for (IMS_UINT32 i = 0; i < objDialogExs.GetSize(); ++i)
     {
-        SIPDialogEx* pTempDialogEx = objDialogExs.GetAt(i);
+        SipDialogEx* pTempDialogEx = objDialogExs.GetAt(i);
 
         if (pTempDialogEx->Equals(pDialogEx))
         {
@@ -102,7 +102,7 @@ void SIPDialogSharedState::RemoveDialog(IN SIPDialogEx* pDialogEx)
                 nSharedState = SHARED_STATE_TERMINATED;
 
                 // Detach a dialog state : dialog will be destroyed after a few minutes
-                SIPManager::GetInstance()->DetachDialogState(pDialogEx->GetDialogState());
+                SipManager::GetInstance()->DetachDialogState(pDialogEx->GetDialogState());
             }
 
             return;
@@ -111,7 +111,7 @@ void SIPDialogSharedState::RemoveDialog(IN SIPDialogEx* pDialogEx)
 }
 
 PRIVATE
-SIPDialogEx* SIPDialogSharedState::GetDialog(IN CONST SIPMessageInfo& objMInfo)
+SipDialogEx* SipDialogSharedState::GetDialog(IN CONST SipMessageInfo& objMInfo)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ SIPDialogEx* SIPDialogSharedState::GetDialog(IN CONST SIPMessageInfo& objMInfo)
 
     for (IMS_UINT32 i = 0; i < objDialogExs.GetSize(); ++i)
     {
-        SIPDialogEx* pDialogEx = objDialogExs.GetAt(i);
+        SipDialogEx* pDialogEx = objDialogExs.GetAt(i);
 
         if (pDialogEx->CompareTo(objMInfo))
         {
@@ -132,7 +132,7 @@ SIPDialogEx* SIPDialogSharedState::GetDialog(IN CONST SIPMessageInfo& objMInfo)
 }
 
 PRIVATE
-IMS_BOOL SIPDialogSharedState::HasMultipleDialogUsages() const
+IMS_BOOL SipDialogSharedState::HasMultipleDialogUsages() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ IMS_BOOL SIPDialogSharedState::HasMultipleDialogUsages() const
 
     for (IMS_UINT32 i = 0; i < objDialogExs.GetSize(); ++i)
     {
-        SIPDialogEx* pDialogEx = objDialogExs.GetAt(i);
+        SipDialogEx* pDialogEx = objDialogExs.GetAt(i);
 
         if (pDialogEx == IMS_NULL)
         {

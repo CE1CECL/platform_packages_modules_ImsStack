@@ -23,10 +23,10 @@ SIP error listener interface
 Example
 
 See Also
-SIPConnection
+SipConnection
 
 */
-class IOnSIPErrorListener
+class IOnSipErrorListener
 {
 public:
     /*
@@ -39,7 +39,7 @@ public:
     <table>
     parameter               description
     ----------              ----------
-    pSC                     Pointer to SIPConnection object which error occurrs.
+    pSC                     Pointer to SipConnection object which error occurrs.
     nCode                   Reason code of error
     strMessage              Reason phrase of error; Implementation dependent non-localized
                             information about the error.
@@ -52,7 +52,7 @@ public:
     </table>
     */
     virtual void OnError_NotifyError(
-            IN SIPConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage) = 0;
+            IN SipConnection* pSC, IN IMS_SINT32 nCode, IN CONST AString& strMessage) = 0;
 };
 
 #endif  // _INTERFACE_ON_SIP_ERROR_LISTENER_H_

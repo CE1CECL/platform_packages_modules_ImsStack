@@ -8,7 +8,7 @@
 
     Description
      This class defines a shared dialog state.
-    SIPDialogState class MUST have this class as its member.
+    SipDialogState class MUST have this class as its member.
 */
 
 #ifndef _SIP_DIALOG_SHARED_STATE_H_
@@ -17,27 +17,27 @@
 #include "IMSList.h"
 #include "SipMessageInfo.h"
 
-class SIPDialogEx;
+class SipDialogEx;
 
-class SIPDialogSharedState
+class SipDialogSharedState
 {
 public:
-    SIPDialogSharedState();
-    ~SIPDialogSharedState();
+    SipDialogSharedState();
+    ~SipDialogSharedState();
 
 private:
-    SIPDialogSharedState(IN CONST SIPDialogSharedState& objRHS);
-    SIPDialogSharedState& operator=(IN CONST SIPDialogSharedState& objRHS);
+    SipDialogSharedState(IN CONST SipDialogSharedState& objRHS);
+    SipDialogSharedState& operator=(IN CONST SipDialogSharedState& objRHS);
 
 private:
-    IMS_BOOL AddDialog(IN SIPDialogEx* pDialogEx);
-    void RemoveDialog(IN SIPDialogEx* pDialogEx);
-    SIPDialogEx* GetDialog(IN CONST SIPMessageInfo& objMInfo);
+    IMS_BOOL AddDialog(IN SipDialogEx* pDialogEx);
+    void RemoveDialog(IN SipDialogEx* pDialogEx);
+    SipDialogEx* GetDialog(IN CONST SipMessageInfo& objMInfo);
     IMS_BOOL HasMultipleDialogUsages() const;
     inline IMS_BOOL IsShared() const { return (nSharedState == SHARED_STATE_ACTIVE); }
 
 private:
-    friend class SIPDialogState;
+    friend class SipDialogState;
 
     enum
     {
@@ -49,7 +49,7 @@ private:
     IMS_SINT32 nSharedState;
 
     // References of dialog state
-    IMSList<SIPDialogEx*> objDialogExs;
+    IMSList<SipDialogEx*> objDialogExs;
 };
 
 #endif  // _SIP_DIALOG_SHARED_STATE_H_

@@ -16,7 +16,7 @@
 #include "IMSTypeDef.h"
 
 // Initialization / Uninitialization for SIP manager
-class StaticSIP
+class StaticSip
 {
 public:
     static IMS_BOOL Initialize();

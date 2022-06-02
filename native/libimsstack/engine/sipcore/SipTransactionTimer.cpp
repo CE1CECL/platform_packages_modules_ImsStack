@@ -25,7 +25,7 @@
 __IMS_TRACE_TAG_SIP__;
 
 PUBLIC
-SIPTransactionTimer::SIPTransactionTimer(
+SipTransactionTimer::SipTransactionTimer(
         IN SipTimeoutData* pData, IN SipTimerCallback pfnTimerCallback) :
         m_piTimer(IMS_NULL),
         m_pData(pData),
@@ -34,7 +34,7 @@ SIPTransactionTimer::SIPTransactionTimer(
 }
 
 PUBLIC
-SIPTransactionTimer::~SIPTransactionTimer()
+SipTransactionTimer::~SipTransactionTimer()
 {
     if (m_piTimer != IMS_NULL)
     {
@@ -45,12 +45,12 @@ SIPTransactionTimer::~SIPTransactionTimer()
     }
 
 #ifdef __IMS_SIP_DEBUG__
-    IMS_TRACE_D("Destructor :: SIPTransactionTimer", 0, 0, 0);
+    IMS_TRACE_D("Destructor :: SipTransactionTimer", 0, 0, 0);
 #endif
 }
 
 PUBLIC
-IMS_BOOL SIPTransactionTimer::Start(IN IMS_SINT32 nDuration)
+IMS_BOOL SipTransactionTimer::Start(IN IMS_SINT32 nDuration)
 {
     if (m_piTimer != IMS_NULL)
     {
@@ -71,18 +71,18 @@ IMS_BOOL SIPTransactionTimer::Start(IN IMS_SINT32 nDuration)
     m_piTimer->SetTimer(nDuration, this);
 
     IMS_TRACE_I(">>> START TIMER - TIMER (%p), TYPE (%s), DURATION (%d)", m_piTimer,
-            SIPStack::GetTimerTypeAsString(m_pData), nDuration);
+            SipStack::GetTimerTypeAsString(m_pData), nDuration);
 
     return IMS_TRUE;
 }
 
 PUBLIC
-void SIPTransactionTimer::Stop(OUT SipTimeoutData*& pData)
+void SipTransactionTimer::Stop(OUT SipTimeoutData*& pData)
 {
     if (m_piTimer != IMS_NULL)
     {
         IMS_TRACE_I(">>> STOP TIMER - TIMER (%p), TYPE (%s)", m_piTimer,
-                SIPStack::GetTimerTypeAsString(m_pData), 0);
+                SipStack::GetTimerTypeAsString(m_pData), 0);
 
         m_piTimer->KillTimer();
         TimerService::GetTimerService()->DestroyTimer(m_piTimer);
@@ -96,9 +96,9 @@ void SIPTransactionTimer::Stop(OUT SipTimeoutData*& pData)
     m_pfnTimerCallback = IMS_NULL;
 }
 
-PUBLIC GLOBAL void SIPTransactionTimer::FreeTimer(IN void* pvTimerHandle)
+PUBLIC GLOBAL void SipTransactionTimer::FreeTimer(IN void* pvTimerHandle)
 {
-    SIPTransactionTimer* pTimer = static_cast<SIPTransactionTimer*>(pvTimerHandle);
+    SipTransactionTimer* pTimer = static_cast<SipTransactionTimer*>(pvTimerHandle);
 
     if (pTimer != IMS_NULL)
     {
@@ -106,15 +106,15 @@ PUBLIC GLOBAL void SIPTransactionTimer::FreeTimer(IN void* pvTimerHandle)
     }
 }
 
-PUBLIC GLOBAL void SIPTransactionTimer::TimerExpired(IN SipEn_TimerType enTimerType)
+PUBLIC GLOBAL void SipTransactionTimer::TimerExpired(IN SipEn_TimerType enTimerType)
 {
     (void)enTimerType;
 
     IMS_TRACE_I(
-            "___ EXPIRED TIMER - TYPE (%s) ___", SIPStack::GetTimerTypeAsString(enTimerType), 0, 0);
+            "___ EXPIRED TIMER - TYPE (%s) ___", SipStack::GetTimerTypeAsString(enTimerType), 0, 0);
 }
 
-PRIVATE VIRTUAL void SIPTransactionTimer::Timer_TimerExpired(IN ITimer* piTimer)
+PRIVATE VIRTUAL void SipTransactionTimer::Timer_TimerExpired(IN ITimer* piTimer)
 {
     if (m_piTimer == IMS_NULL)
     {
@@ -127,7 +127,7 @@ PRIVATE VIRTUAL void SIPTransactionTimer::Timer_TimerExpired(IN ITimer* piTimer)
     }
 
     IMS_TRACE_I(">>> TIMER TIMEOUT - TIMER (%p), TYPE (%s)", m_piTimer,
-            SIPStack::GetTimerTypeAsString(m_pData), 0);
+            SipStack::GetTimerTypeAsString(m_pData), 0);
 
     m_piTimer->KillTimer();
     TimerService::GetTimerService()->DestroyTimer(m_piTimer);
@@ -135,7 +135,7 @@ PRIVATE VIRTUAL void SIPTransactionTimer::Timer_TimerExpired(IN ITimer* piTimer)
 
     if (m_pfnTimerCallback != IMS_NULL)
     {
-        SIPStack::InvokeTimerCallback(
+        SipStack::InvokeTimerCallback(
                 m_pfnTimerCallback, m_pData, reinterpret_cast<IMS_PVOID>(this));
     }
 }

@@ -21,7 +21,7 @@
 #include "SipTransportHelper.h"
 #include "SipFactoryProxy.h"
 
-PRIVATE GLOBAL SIPFactoryProxy* SIPFactoryProxy::pFactoryProxy = IMS_NULL;
+PRIVATE GLOBAL SipFactoryProxy* SipFactoryProxy::pFactoryProxy = IMS_NULL;
 
 class SIPFactoryHolder
 {
@@ -34,31 +34,31 @@ private:
     SIPFactoryHolder& operator=(IN const SIPFactoryHolder& objRHS);
 
 public:
-    inline SIPIPSecState* GetIPSecState()
+    inline SipIpSecState* GetIpSecState()
     {
         if (pIPSecState == IMS_NULL)
         {
-            pIPSecState = new SIPIPSecState();
+            pIPSecState = new SipIpSecState();
         }
 
         return pIPSecState;
     }
 
-    inline SIPMessageTracker* GetMessageTracker()
+    inline SipMessageTracker* GetMessageTracker()
     {
         if (pMessageTracker == IMS_NULL)
         {
-            pMessageTracker = new SIPMessageTracker();
+            pMessageTracker = new SipMessageTracker();
         }
 
         return pMessageTracker;
     }
 
-    inline SIPPacketTracker* GetPacketTracker()
+    inline SipPacketTracker* GetPacketTracker()
     {
         if (pPacketTracker == IMS_NULL)
         {
-            pPacketTracker = new SIPPacketTracker();
+            pPacketTracker = new SipPacketTracker();
         }
 
         return pPacketTracker;
@@ -74,21 +74,21 @@ public:
         return pRoutingRejectNotifier;
     }
 
-    inline SIPRTConfigHelper* GetRtConfigHelper()
+    inline SipRtConfigHelper* GetRtConfigHelper()
     {
         if (pRTConfigHelper == IMS_NULL)
         {
-            pRTConfigHelper = new SIPRTConfigHelper();
+            pRTConfigHelper = new SipRtConfigHelper();
         }
 
         return pRTConfigHelper;
     }
 
-    inline SIPTransportHelper* GetTransportHelper()
+    inline SipTransportHelper* GetTransportHelper()
     {
         if (pTransportHelper == IMS_NULL)
         {
-            pTransportHelper = new SIPTransportHelper();
+            pTransportHelper = new SipTransportHelper();
         }
 
         return pTransportHelper;
@@ -99,9 +99,9 @@ public:
         this->piTokenGenerator = piTokenGenerator;
     }
 
-    inline IMS_BOOL IsIPSecStateEnabled() const
+    inline IMS_BOOL IsIpSecStateEnabled() const
     {
-        return (pIPSecState != IMS_NULL) && pIPSecState->IsIPSecEnabled();
+        return (pIPSecState != IMS_NULL) && pIPSecState->IsIpSecEnabled();
     }
     inline IMS_BOOL IsMessageTrackerEnabled() const
     {
@@ -121,12 +121,12 @@ private:
     void Clear();
 
 private:
-    SIPIPSecState* pIPSecState;
-    SIPMessageTracker* pMessageTracker;
-    SIPPacketTracker* pPacketTracker;
+    SipIpSecState* pIPSecState;
+    SipMessageTracker* pMessageTracker;
+    SipPacketTracker* pPacketTracker;
     SipRoutingRejectNotifier* pRoutingRejectNotifier;
-    SIPRTConfigHelper* pRTConfigHelper;
-    SIPTransportHelper* pTransportHelper;
+    SipRtConfigHelper* pRTConfigHelper;
+    SipTransportHelper* pTransportHelper;
     ISipTokenGenerator* piTokenGenerator;
 };
 
@@ -249,13 +249,13 @@ SIPFactoryProxyPrivate::~SIPFactoryProxyPrivate()
 }
 
 PRIVATE
-SIPFactoryProxy::SIPFactoryProxy() :
+SipFactoryProxy::SipFactoryProxy() :
         pPrivate(new SIPFactoryProxyPrivate())
 {
 }
 
 PRIVATE
-SIPFactoryProxy::~SIPFactoryProxy()
+SipFactoryProxy::~SipFactoryProxy()
 {
     if (pPrivate != IMS_NULL)
     {
@@ -269,10 +269,10 @@ Remarks
 
 */
 PUBLIC
-SIPIPSecState* SIPFactoryProxy::GetIPSecState(IN IMS_SINT32 nSlotId)
+SipIpSecState* SipFactoryProxy::GetIpSecState(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
-    return pHolder->GetIPSecState();
+    return pHolder->GetIpSecState();
 }
 
 /*
@@ -281,7 +281,7 @@ Remarks
 
 */
 PUBLIC
-SIPMessageTracker* SIPFactoryProxy::GetMessageTracker(IN IMS_SINT32 nSlotId)
+SipMessageTracker* SipFactoryProxy::GetMessageTracker(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->GetMessageTracker();
@@ -293,7 +293,7 @@ Remarks
 
 */
 PUBLIC
-SIPPacketTracker* SIPFactoryProxy::GetPacketTracker(IN IMS_SINT32 nSlotId)
+SipPacketTracker* SipFactoryProxy::GetPacketTracker(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->GetPacketTracker();
@@ -305,7 +305,7 @@ Remarks
 
 */
 PUBLIC
-SipRoutingRejectNotifier* SIPFactoryProxy::GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId)
+SipRoutingRejectNotifier* SipFactoryProxy::GetRoutingRejectNotifier(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->GetRoutingRejectNotifier();
@@ -317,7 +317,7 @@ Remarks
 
 */
 PUBLIC
-SIPRTConfigHelper* SIPFactoryProxy::GetRtConfigHelper(IN IMS_SINT32 nSlotId)
+SipRtConfigHelper* SipFactoryProxy::GetRtConfigHelper(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->GetRtConfigHelper();
@@ -329,7 +329,7 @@ Remarks
 
 */
 PUBLIC
-SIPTransportHelper* SIPFactoryProxy::GetTransportHelper(IN IMS_SINT32 nSlotId)
+SipTransportHelper* SipFactoryProxy::GetTransportHelper(IN IMS_SINT32 nSlotId)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->GetTransportHelper();
@@ -341,7 +341,7 @@ Remarks
 
 */
 PUBLIC
-void SIPFactoryProxy::SetTokenGenerator(
+void SipFactoryProxy::SetTokenGenerator(
         IN IMS_SINT32 nSlotId, IN ISipTokenGenerator* piTokenGenerator)
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
@@ -354,10 +354,10 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPFactoryProxy::IsIPSecStateEnabled(IN IMS_SINT32 nSlotId) const
+IMS_BOOL SipFactoryProxy::IsIpSecStateEnabled(IN IMS_SINT32 nSlotId) const
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
-    return pHolder->IsIPSecStateEnabled();
+    return pHolder->IsIpSecStateEnabled();
 }
 
 /*
@@ -366,7 +366,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPFactoryProxy::IsMessageTrackerEnabled(IN IMS_SINT32 nSlotId) const
+IMS_BOOL SipFactoryProxy::IsMessageTrackerEnabled(IN IMS_SINT32 nSlotId) const
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->IsMessageTrackerEnabled();
@@ -378,7 +378,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPFactoryProxy::IsPacketTrackerEnabled(IN IMS_SINT32 nSlotId) const
+IMS_BOOL SipFactoryProxy::IsPacketTrackerEnabled(IN IMS_SINT32 nSlotId) const
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->IsPacketTrackerEnabled();
@@ -390,21 +390,21 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPFactoryProxy::IsRoutingRejectNotifierEnabled(IN IMS_SINT32 nSlotId) const
+IMS_BOOL SipFactoryProxy::IsRoutingRejectNotifierEnabled(IN IMS_SINT32 nSlotId) const
 {
     SIPFactoryHolder* pHolder = pPrivate->GetHolder(nSlotId);
     return pHolder->IsRoutingRejectNotifierEnabled();
 }
 
-PUBLIC GLOBAL void SIPFactoryProxy::CreateInstance()
+PUBLIC GLOBAL void SipFactoryProxy::CreateInstance()
 {
     if (pFactoryProxy == IMS_NULL)
     {
-        pFactoryProxy = new SIPFactoryProxy();
+        pFactoryProxy = new SipFactoryProxy();
     }
 }
 
-PUBLIC GLOBAL void SIPFactoryProxy::DestroyInstance()
+PUBLIC GLOBAL void SipFactoryProxy::DestroyInstance()
 {
     if (pFactoryProxy != IMS_NULL)
     {
@@ -413,7 +413,7 @@ PUBLIC GLOBAL void SIPFactoryProxy::DestroyInstance()
     }
 }
 
-PUBLIC GLOBAL SIPFactoryProxy* SIPFactoryProxy::GetInstance()
+PUBLIC GLOBAL SipFactoryProxy* SipFactoryProxy::GetInstance()
 {
     if (pFactoryProxy == IMS_NULL)
     {

@@ -15,19 +15,19 @@
 #include "SipPacketTracker.h"
 
 PUBLIC
-SIPPacketTracker::SIPPacketTracker() :
+SipPacketTracker::SipPacketTracker() :
         piListener(IMS_NULL)
 {
 }
 
-PUBLIC VIRTUAL SIPPacketTracker::~SIPPacketTracker() {}
+PUBLIC VIRTUAL SipPacketTracker::~SipPacketTracker() {}
 
 /*
 
 Remarks
 
 */
-PRIVATE VIRTUAL void SIPPacketTracker::SetListener(IN ISipPacketTrackerListener* piListener)
+PRIVATE VIRTUAL void SipPacketTracker::SetListener(IN ISipPacketTrackerListener* piListener)
 {
     //---------------------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ Remarks
 
 */
 PUBLIC
-IMS_BOOL SIPPacketTracker::IsPacketTrackerEnabled() const
+IMS_BOOL SipPacketTracker::IsPacketTrackerEnabled() const
 {
     //---------------------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ Remarks
 
 */
 PUBLIC
-void SIPPacketTracker::NotifyMessageSent(
+void SipPacketTracker::NotifyMessageSent(
         IN ISipMessage* piSIPMsg, IN CONST ByteArray& objMsg, IN IMS_BOOL bIsRetransmission)
 {
     //---------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ Remarks
 
 */
 PUBLIC
-void SIPPacketTracker::NotifyMessageReceived(
+void SipPacketTracker::NotifyMessageReceived(
         IN ISipMessage* piSIPMsg, IN CONST ByteArray& objMsg, IN IMS_BOOL bIsRetransmission)
 {
     //---------------------------------------------------------------------------------------------

@@ -20,7 +20,7 @@ Protocol::Protocol() {}
 PUBLIC VIRTUAL Protocol::~Protocol() {}
 
 /*
- Creates and opens a Connection; SIPConnection, Service, and so on.
+ Creates and opens a Connection; SipConnection, Service, and so on.
 
 Remarks
  The creation of Connections is performed dynamically by looking up a protocol implementation class
@@ -39,7 +39,7 @@ PUBLIC VIRTUAL IConnection* Protocol::OpenPrim(IN const AString& /* strName */)
 }
 
 /*
- Creates and opens a Connection; SIPConnection, Service, and so on.
+ Creates and opens a Connection; SipConnection, Service, and so on.
 
 Remarks
  The creation of Connections is performed dynamically by looking up a protocol implementation class

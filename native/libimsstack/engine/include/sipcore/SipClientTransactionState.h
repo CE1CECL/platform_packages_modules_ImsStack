@@ -17,58 +17,58 @@
 #include "SipForkedTransactionManager.h"
 #include "SipTransportAddress.h"
 
-class ISIPClientTransactionStateListener;
+class ISipClientTransactionStateListener;
 
-class SIPClientTransactionState : public SIPTransactionState
+class SipClientTransactionState : public SipTransactionState
 {
 public:
-    explicit SIPClientTransactionState(IN IMS_SINT32 nSlotId);
-    virtual ~SIPClientTransactionState();
+    explicit SipClientTransactionState(IN IMS_SINT32 nSlotId);
+    virtual ~SipClientTransactionState();
 
 private:
-    SIPClientTransactionState& operator=(IN CONST SIPClientTransactionState& objRHS);
+    SipClientTransactionState& operator=(IN CONST SipClientTransactionState& objRHS);
 
 public:
     virtual void Abort();
     virtual IMS_SINT32 CheckMessageValidity();
     virtual IMS_BOOL FormMessage();
     virtual IMS_BOOL FormMessageForResubmissionRequest();
-    virtual IMS_BOOL InitTxnDetails(IN CONST SIPTransactionState* pTState);
+    virtual IMS_BOOL InitTxnDetails(IN CONST SipTransactionState* pTState);
     virtual IMS_BOOL Send(IN SipTimerValues* pTV = IMS_NULL);
     virtual IMS_BOOL UpdateTransportDetails();
 
-    IMS_BOOL AdjustTransportProtocolAsUDP();
-    SipMessage* CreateAckRequest(IN SipMessage* pstRespMessage);
+    IMS_BOOL AdjustTransportProtocolAsUdp();
+    ::SipMessage* CreateAckRequest(IN ::SipMessage* pstRespMessage);
     inline IMS_BOOL IsTargetUpdated() const { return (nRoutingType == TARGET_SR); }
-    IMS_BOOL InitCancel(IN CONST SIPClientTransactionState* pInviteTState);
+    IMS_BOOL InitCancel(IN CONST SipClientTransactionState* pInviteTState);
     IMS_BOOL InitRequest(IN CONST SipMethod& objMethod);
-    IMS_BOOL InitRequest(IN CONST SipMethod& objMethod, IN SIPDialogEx* pDialogEx);
+    IMS_BOOL InitRequest(IN CONST SipMethod& objMethod, IN SipDialogEx* pDialogEx);
     // FORKED_RESPONSE
     IMS_SINT32 RemoveForkedTransaction();
     IMS_BOOL SendWithCredentials(IN SipTimerValues* pTV = IMS_NULL);
     void SetExtensionTokenForViaBranch(IN CONST AString& strToken);
     // IMPLICIT_ROUTE
     void SetImplicitRouteHeader(IN CONST AString& strRouteHeader);
-    inline void SetListener(IN ISIPClientTransactionStateListener* piListener)
+    inline void SetListener(IN ISipClientTransactionStateListener* piListener)
     {
         this->piListener = piListener;
     }
     IMS_BOOL UpdateRouteDetails(IN CONST SipMethod& objMethod);
-    IMS_SINT32 HandleResponse(IN SipMessage* pstMessage);
-    static IMS_SINT32 MatchTransaction(IN SipMessage* pstMessage,
-            IN CONST SIPTransportAddress& objFarEnd,
-            OUT RCPtr<SIPClientTransactionState>& pCTState);
+    IMS_SINT32 HandleResponse(IN ::SipMessage* pstMessage);
+    static IMS_SINT32 MatchTransaction(IN ::SipMessage* pstMessage,
+            IN CONST SipTransportAddress& objFarEnd,
+            OUT RCPtr<SipClientTransactionState>& pCTState);
 
 private:
-    virtual SIPTransactionState* Clone();
+    virtual SipTransactionState* Clone();
 
-    IMS_BOOL CorrectRouteHeader(IN_OUT SipMessage*& pstMessage);
+    IMS_BOOL CorrectRouteHeader(IN_OUT ::SipMessage*& pstMessage);
     void CheckNSendAck();
-    IMS_BOOL HandleForkedResponse(IN CONST SIPMessageInfo& objMInfo);
-    IMS_BOOL InitAck(IN_OUT SipMessage*& pstAckMessage, IN SipMessage* pstRespMessage);
+    IMS_BOOL HandleForkedResponse(IN CONST SipMessageInfo& objMInfo);
+    IMS_BOOL InitAck(IN_OUT ::SipMessage*& pstAckMessage, IN ::SipMessage* pstRespMessage);
     IMS_BOOL SetDialogRelatedHeaders(IN CONST SipMethod& objMethod);
     IMS_BOOL SetMandatoryHeaders(IN CONST SipMethod& objMethod);
-    void SetPANIHeader(IN CONST SipMethod& objMethod, IN_OUT SipMessage*& pstMessage);
+    void SetPANIHeader(IN CONST SipMethod& objMethod, IN_OUT ::SipMessage*& pstMessage);
     IMS_BOOL UpdateTxnDetails(IN CONST SipMethod& objMethod);
 
 private:
@@ -90,12 +90,12 @@ private:
     IMS_SINT32 nRoutingType;
     // IMPLICIT_ROUTE
     SipAddrSpec* pstImplicitRoute;
-    ISIPClientTransactionStateListener* piListener;
+    ISipClientTransactionStateListener* piListener;
 
     // FORKED_RESPONSE
-    RCPtr<SIPForkedTransactionManager> pForkedTxnMngr;
+    RCPtr<SipForkedTransactionManager> pForkedTxnMngr;
     // FORKED_RESPONSE_TO_SUPPORT_EARLY_DIALOG_TERMINATION
-    RCPtr<SIPForkedTransactionManager> pPersistentForkedTxnMngr;
+    RCPtr<SipForkedTransactionManager> pPersistentForkedTxnMngr;
 };
 
 #endif  // _SIP_CLIENT_TRANSACTION_STATE_H_

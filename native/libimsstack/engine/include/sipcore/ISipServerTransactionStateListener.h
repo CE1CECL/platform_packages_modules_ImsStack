@@ -15,7 +15,7 @@
 
 #include "SipServerTransactionState.h"
 
-class SIPDialogState;
+class SipDialogState;
 
 /*
 SIP server transaction state listener interface
@@ -23,9 +23,9 @@ SIP server transaction state listener interface
 Example
 
 See Also
-SIPServerTransactionState
+SipServerTransactionState
 */
-class ISIPServerTransactionStateListener
+class ISipServerTransactionStateListener
 {
 public:
     /*
@@ -45,7 +45,7 @@ public:
     </table>
     */
     virtual void ServerTransactionState_ForkedRequestReceived(
-            IN SIPServerTransactionState* pSTState, IN SIPDialogEx* pOrigDialogEx) = 0;
+            IN SipServerTransactionState* pSTState, IN SipDialogEx* pOrigDialogEx) = 0;
 
     /*
 
@@ -63,7 +63,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void ServerTransactionState_RequestCreated(IN SIPServerTransactionState* pSTState) = 0;
+    virtual void ServerTransactionState_RequestCreated(IN SipServerTransactionState* pSTState) = 0;
 
     /*
 
@@ -81,7 +81,7 @@ public:
     ----------              ----------
     </table>
     */
-    virtual void ServerTransactionState_RequestReceived(IN SIPServerTransactionState* pSTState) = 0;
+    virtual void ServerTransactionState_RequestReceived(IN SipServerTransactionState* pSTState) = 0;
 };
 
 #endif  // _INTERFACE_SIP_SERVER_TRANSACTION_STATE_LISTENER_H_

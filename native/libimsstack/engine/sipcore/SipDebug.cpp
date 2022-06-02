@@ -97,7 +97,7 @@ PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetCharA1(IN const IMS_CHAR* pszValue, I
 
     IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acLog1[0] : &acLog1_1[0];
 
-    return SIPStack::GetLogString(pszValue, pszLog, nCount + 3, cDelimiter);
+    return SipStack::GetLogString(pszValue, pszLog, nCount + 3, cDelimiter);
 }
 
 PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetCharA2(IN const IMS_CHAR* pszValue, IN IMS_SINT32 nCount,
@@ -110,7 +110,7 @@ PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetCharA2(IN const IMS_CHAR* pszValue, I
 
     IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acLog2[0] : &acLog2_1[0];
 
-    return SIPStack::GetLogString(pszValue, pszLog, nCount + 3, cDelimiter);
+    return SipStack::GetLogString(pszValue, pszLog, nCount + 3, cDelimiter);
 }
 
 PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetIp(IN const IPAddress& objIpAddr)
@@ -118,7 +118,7 @@ PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetIp(IN const IPAddress& objIpAddr)
     IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acIpAddr[0] : &acIpAddr_1[0];
 
     // fe80:xxx or 192.1xxx
-    return SIPStack::GetLogString(objIpAddr.ToCharString(), pszLog, 8);
+    return SipStack::GetLogString(objIpAddr.ToCharString(), pszLog, 8);
 }
 
 PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetIp(IN const AString& strIpAddr)
@@ -126,7 +126,7 @@ PUBLIC GLOBAL const IMS_CHAR* SipDebug::GetIp(IN const AString& strIpAddr)
     IMS_CHAR* pszLog = (GetSimSlot() == IMS_SLOT_0) ? &acIpAddr[0] : &acIpAddr_1[0];
 
     // fe80:xxx or 192.1xxx
-    return SIPStack::GetLogString(strIpAddr.GetStr(), pszLog, 8);
+    return SipStack::GetLogString(strIpAddr.GetStr(), pszLog, 8);
 }
 
 PUBLIC GLOBAL const AString& SipDebug::GetStr1(IN const AString& strValue, IN IMS_SINT32 nCount,

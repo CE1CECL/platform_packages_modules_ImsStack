@@ -16,7 +16,7 @@
 #include "Sip.h"
 #include "ServiceTrace.h"
 
-class SIPPrivate
+class SipPrivate
 {
 public:
     static void Init();

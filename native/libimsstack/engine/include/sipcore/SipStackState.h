@@ -18,8 +18,8 @@
 
 class IMutex;
 class SipProfile;
-class SIPStackTransaction;
-class SIPTransactionState;
+class SipStackTransaction;
+class SipTransactionState;
 
 /*
 SIP stact state class
@@ -28,32 +28,32 @@ Example
 
 See Also
 */
-class SIPStackState
+class SipStackState
 {
 private:
-    SIPStackState();
-    SIPStackState(IN CONST SIPStackState& objRHS);
+    SipStackState();
+    SipStackState(IN CONST SipStackState& objRHS);
 
 public:
-    ~SIPStackState();
+    ~SipStackState();
 
 public:
     void CleanUp();
     void StartUp();
 
-    IMS_BOOL AbortTransaction(IN SipTxnKey* pKey, IN SIPTransactionState* pTxnState);
-    IMS_BOOL FetchTransaction(
-            IN SipTxnKey* pKey, IN IMS_SINT32 nOption, OUT SipTxnKey*& pOutKey, OUT SipTxn*& pTxn);
-    IMS_BOOL ReleaseTransaction(
-            IN SipTxnKey* pKey, IN IMS_SINT32 nOption, OUT SipTxnKey*& pOutKey, OUT SipTxn*& pTxn);
+    IMS_BOOL AbortTransaction(IN ::SipTxnKey* pKey, IN SipTransactionState* pTxnState);
+    IMS_BOOL FetchTransaction(IN ::SipTxnKey* pKey, IN IMS_SINT32 nOption,
+            OUT ::SipTxnKey*& pOutKey, OUT SipTxn*& pTxn);
+    IMS_BOOL ReleaseTransaction(IN ::SipTxnKey* pKey, IN IMS_SINT32 nOption,
+            OUT ::SipTxnKey*& pOutKey, OUT SipTxn*& pTxn);
     void SetTransactionTimerValues(IN IMS_SINT32 nSlotId, IN CONST SipProfile* pSIPProfile);
 
-    static SIPStackState* GetInstance();
+    static SipStackState* GetInstance();
 
 private:
-    IMS_BOOL AddTransaction(IN SipTxnKey* pKey, IN SipTxn* pTxn);
-    SIPStackTransaction* FindTransaction(IN SipTxnKey* pKey);
-    SIPStackTransaction* RemoveTransaction(IN SipTxnKey* pKey, IN IMS_SINT32 nOption);
+    IMS_BOOL AddTransaction(IN ::SipTxnKey* pKey, IN SipTxn* pTxn);
+    SipStackTransaction* FindTransaction(IN ::SipTxnKey* pKey);
+    SipStackTransaction* RemoveTransaction(IN ::SipTxnKey* pKey, IN IMS_SINT32 nOption);
     IMS_UINT32 GetTransactionCount() const;
 
 public:
@@ -66,7 +66,7 @@ public:
 
 private:
     IMutex* piLock;
-    IMSMap<IMS_UINT32, IMSList<SIPStackTransaction*>> objTxnAggregate;
+    IMSMap<IMS_UINT32, IMSList<SipStackTransaction*>> objTxnAggregate;
 };
 
 #endif  // _SIP_STACK_STATE_H_

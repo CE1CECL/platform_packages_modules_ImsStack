@@ -15,17 +15,17 @@
 
 #include "SipConnection.h"
 
-class SIPServerTransactionState;
+class SipServerTransactionState;
 
-class SIPServerConnection : public SIPConnection
+class SipServerConnection : public SipConnection
 {
 public:
-    explicit SIPServerConnection(IN SIPServerTransactionState* pSTState_);
-    virtual ~SIPServerConnection();
+    explicit SipServerConnection(IN SipServerTransactionState* pSTState_);
+    virtual ~SipServerConnection();
 
 private:
-    SIPServerConnection(IN CONST SIPServerConnection& objRHS);
-    SIPServerConnection& operator=(IN CONST SIPServerConnection& objRHS);
+    SipServerConnection(IN CONST SipServerConnection& objRHS);
+    SipServerConnection& operator=(IN CONST SipServerConnection& objRHS);
 
 public:
     // IConnection interface
@@ -37,7 +37,7 @@ public:
     virtual IMSList<AString> GetHeaders(IN CONST AString& strName);
     virtual const SipMethod& GetMethod() const;
     virtual const AString& GetReasonPhrase() const;
-    virtual const AString& GetRequestURI() const;
+    virtual const AString& GetRequestUri() const;
     virtual IMS_SINT32 GetStatusCode() const;
     virtual IMS_RESULT RemoveHeader(IN CONST AString& strName);
     virtual IMS_RESULT Send();
@@ -47,12 +47,12 @@ public:
     // IMS extensions
     virtual IMS_SINT32 GetHeaderCount(IN CONST AString& strName) const;
     // MULTI_REG_SIP_PROFILE
-    virtual void SetSIPProfile(IN SipProfile* pProfile);
+    virtual void SetSipProfile(IN SipProfile* pProfile);
 
     // ISIPServerTransaction interface
     IMS_RESULT InitResponse(IN IMS_SINT32 nStatusCode);
     IMS_RESULT SetReasonPhrase(IN CONST AString& strReasonPhrase);
-    IMS_BOOL IsSameTransaction(IN CONST SIPServerConnection* pOngoingSSC) const;
+    IMS_BOOL IsSameTransaction(IN CONST SipServerConnection* pOngoingSSC) const;
 
     // Extension methods
     IMS_RESULT InitRequest();
@@ -78,7 +78,7 @@ public:
 private:
     IMS_SINT32 nState;
 
-    RCPtr<SIPServerTransactionState> pSTState;
+    RCPtr<SipServerTransactionState> pSTState;
 };
 
 #endif  // _SIP_SERVER_CONNECTION_H_

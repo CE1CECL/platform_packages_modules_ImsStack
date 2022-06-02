@@ -15,17 +15,17 @@
 
 #include "ByteArray.h"
 
-class SIPMessageFraming
+class SipMessageFraming
 {
 public:
-    SIPMessageFraming();
-    ~SIPMessageFraming();
+    SipMessageFraming();
+    ~SipMessageFraming();
 
 public:
     IMS_BOOL AppendPacket(IN CONST IMS_BYTE* pBuffer, IN IMS_SINT32 nBuffLen);
     IMS_BOOL CheckCompleteMessage();
     IMS_BOOL GetCompleteMessage(OUT ByteArray& objMessage) const;
-    IMS_BOOL IgnoreCRLF();
+    IMS_BOOL IgnoreCrlf();
     IMS_BOOL IsEmpty() const;
     void UpdateState();
 

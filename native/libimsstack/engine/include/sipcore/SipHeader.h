@@ -8,7 +8,7 @@
 
     Description
      This class provides generic SIP header parser helper. It can be used to parse base string
-    header values that are read from SIP message using e.g. SIPConnection::GetHeader() method.
+    header values that are read from SIP message using e.g. SipConnection::GetHeader() method.
     It uses generic format to parse the header value and parameters following the syntax given
     in RFC 3261.
     - field-name: field-value *(;parameter-name=parameter-value)
@@ -23,19 +23,19 @@
 
 class SipParameter;
 
-class SIPHeader : public ISipHeader
+class SipHeader : public ISipHeader
 {
 public:
-    SIPHeader();
-    explicit SIPHeader(IN IMS_SINT32 nType_);
-    explicit SIPHeader(IN CONST AString& strName_);
-    explicit SIPHeader(IN CONST SipHeaderBase* pstHeader);
-    virtual ~SIPHeader();
+    SipHeader();
+    explicit SipHeader(IN IMS_SINT32 nType_);
+    explicit SipHeader(IN CONST AString& strName_);
+    explicit SipHeader(IN CONST SipHeaderBase* pstHeader);
+    virtual ~SipHeader();
 
 private:
-    SIPHeader(IN CONST SIPHeader& objRHS);
+    SipHeader(IN CONST SipHeader& objRHS);
     // To ignore an assignment operator of object
-    SIPHeader& operator=(IN CONST SIPHeader& objRHS);
+    SipHeader& operator=(IN CONST SipHeader& objRHS);
 
 public:
     // ISipObject interface

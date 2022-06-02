@@ -18,11 +18,11 @@
 #include "ISipKeepAliveListener.h"
 #include "SipSocketAddress.h"
 
-class SIPKeepAliveHelper : public ImsSlot, public ISipKeepAliveHelper, public ISIPKeepAliveListener
+class SipKeepAliveHelper : public ImsSlot, public ISipKeepAliveHelper, public ISipKeepAliveListener
 {
 public:
-    explicit SIPKeepAliveHelper(IN IMS_SINT32 nSlotId);
-    virtual ~SIPKeepAliveHelper();
+    explicit SipKeepAliveHelper(IN IMS_SINT32 nSlotId);
+    virtual ~SipKeepAliveHelper();
 
 private:
     // ISipObject class
@@ -35,13 +35,13 @@ private:
     virtual void SetTransportTupleS(IN CONST IPAddress& objIP, IN IMS_SINT32 nPort,
             IN IMS_SINT32 nProtocol = Sip::TRANSPORT_UDP);
 
-    // ISIPKeepAliveListener class
+    // ISipKeepAliveListener class
     virtual void KeepAlive_PongReceived();
 
 private:
     ISipKeepAliveHelperListener* piListener;
-    SIPSocketAddress objSA_NearEnd;
-    SIPSocketAddress objSA_FarEnd;
+    SipSocketAddress objSA_NearEnd;
+    SipSocketAddress objSA_FarEnd;
 };
 
 #endif  // _SIP_KEEP_ALIVE_HELPER_H_

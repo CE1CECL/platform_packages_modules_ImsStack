@@ -18,24 +18,24 @@
 
 #include "ImsTypeDef.h"
 
-class SIPStackTransaction
+class SipStackTransaction
 {
 public:
-    SIPStackTransaction();
-    SIPStackTransaction(IN SipTxnKey* pKey, IN SipTxn* pTxn);
-    SIPStackTransaction(IN const SIPStackTransaction& other);
-    virtual ~SIPStackTransaction();
+    SipStackTransaction();
+    SipStackTransaction(IN ::SipTxnKey* pKey, IN SipTxn* pTxn);
+    SipStackTransaction(IN const SipStackTransaction& other);
+    virtual ~SipStackTransaction();
 
 public:
-    SIPStackTransaction& operator=(IN const SIPStackTransaction& other);
+    SipStackTransaction& operator=(IN const SipStackTransaction& other);
 
 public:
-    IMS_BOOL CompareKey(IN SipTxnKey* pKey);
+    IMS_BOOL CompareKey(IN ::SipTxnKey* pKey);
     inline SipTxn* GetTxn() const { return m_pTxn; }
-    inline SipTxnKey* GetKey() const { return m_pKey; }
+    inline ::SipTxnKey* GetKey() const { return m_pKey; }
 
 private:
-    SipTxnKey* m_pKey;
+    ::SipTxnKey* m_pKey;
     SipTxn* m_pTxn;
 };
 

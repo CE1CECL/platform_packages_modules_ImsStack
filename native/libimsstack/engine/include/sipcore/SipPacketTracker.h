@@ -16,11 +16,11 @@
 #include "ISipMessage.h"
 #include "ISipPacketTracker.h"
 
-class SIPPacketTracker : public ISipPacketTracker
+class SipPacketTracker : public ISipPacketTracker
 {
 public:
-    SIPPacketTracker();
-    virtual ~SIPPacketTracker();
+    SipPacketTracker();
+    virtual ~SipPacketTracker();
 
 private:
     // ISipPacketTrackerListener class
