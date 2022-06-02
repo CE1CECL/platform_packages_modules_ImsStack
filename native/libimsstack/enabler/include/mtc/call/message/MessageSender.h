@@ -35,7 +35,7 @@ public:
     IMS_RESULT Terminate(IN IMS_BOOL bUseBye, IN const FailReason& objReason);
 
 private:
-    void CreateFormatter();
+    MessageFormatter& GetFormatter();
 
 private:
     IMtcSessionContext& m_objContext;

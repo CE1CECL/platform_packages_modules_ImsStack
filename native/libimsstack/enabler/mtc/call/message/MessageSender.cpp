@@ -26,9 +26,7 @@ MessageSender::~MessageSender() {}
 PUBLIC
 IMS_RESULT MessageSender::Start()
 {
-    CreateFormatter();
-
-    if (m_pFormatter->FormStartMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormStartMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -42,9 +40,7 @@ PUBLIC
 IMS_RESULT MessageSender::SendProvisionalResponse(IN IMS_SINT32 eStatusCode, IN IMS_BOOL bReliable,
         IN IMS_BOOL bIncludeSdp, IN IMS_BOOL bIncludeAlertInfo)
 {
-    CreateFormatter();
-
-    if (m_pFormatter->FormProvisionalResponseMessage(bIncludeAlertInfo) != IMS_SUCCESS)
+    if (GetFormatter().FormProvisionalResponseMessage(bIncludeAlertInfo) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -62,9 +58,7 @@ IMS_RESULT MessageSender::SendProvisionalResponse(IN IMS_SINT32 eStatusCode, IN 
 PUBLIC
 IMS_RESULT MessageSender::SendPrack()
 {
-    CreateFormatter();
-
-    if (m_pFormatter->FormPrackMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormPrackMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -77,12 +71,7 @@ IMS_RESULT MessageSender::SendPrack()
 PUBLIC
 IMS_RESULT MessageSender::RespondToPrack(IN IMS_SINT32 eStatusCode)
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormPrackResponseMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormPrackResponseMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -95,12 +84,7 @@ IMS_RESULT MessageSender::RespondToPrack(IN IMS_SINT32 eStatusCode)
 PUBLIC
 IMS_RESULT MessageSender::SendEarlyUpdate(IN UpdateType eUpdateType)
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormEarlyUpdateMessage(eUpdateType) != IMS_SUCCESS)
+    if (GetFormatter().FormEarlyUpdateMessage(eUpdateType) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -113,12 +97,7 @@ IMS_RESULT MessageSender::SendEarlyUpdate(IN UpdateType eUpdateType)
 PUBLIC
 IMS_RESULT MessageSender::RespondToEarlyUpdate(IN IMS_SINT32 eStatusCode)
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormEarlyUpdateResponseMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormEarlyUpdateResponseMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -131,9 +110,7 @@ IMS_RESULT MessageSender::RespondToEarlyUpdate(IN IMS_SINT32 eStatusCode)
 PUBLIC
 IMS_RESULT MessageSender::Accept()
 {
-    CreateFormatter();
-
-    if (m_pFormatter->FormAcceptMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormAcceptMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -146,12 +123,10 @@ IMS_RESULT MessageSender::Accept()
 PUBLIC
 IMS_RESULT MessageSender::Reject(IN const FailReason& objReason)
 {
-    CreateFormatter();
-
     IMS_SINT32 eStatusCode;
     AString strPhrase;
 
-    if (m_pFormatter->FormRejectMessage(objReason, eStatusCode, strPhrase) != IMS_SUCCESS)
+    if (GetFormatter().FormRejectMessage(objReason, eStatusCode, strPhrase) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -164,9 +139,7 @@ IMS_RESULT MessageSender::Reject(IN const FailReason& objReason)
 PUBLIC
 IMS_RESULT MessageSender::SendAck()
 {
-    CreateFormatter();
-
-    if (m_pFormatter->FormAckMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormAckMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -180,12 +153,7 @@ PUBLIC
 IMS_RESULT MessageSender::Update(IN UpdateType eUpdateType, IN IMS_BOOL bIncludeAlertInfo,
         IN IMS_SINT32 eMethod /*= SipMethod::INVITE*/, IN IMS_BOOL bSessionRefresh /*= IMS_FALSE*/)
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormUpdateMessage(eUpdateType, bIncludeAlertInfo) != IMS_SUCCESS)
+    if (GetFormatter().FormUpdateMessage(eUpdateType, bIncludeAlertInfo) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -198,12 +166,7 @@ IMS_RESULT MessageSender::Update(IN UpdateType eUpdateType, IN IMS_BOOL bInclude
 PUBLIC
 IMS_RESULT MessageSender::AcceptUpdate()
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormAcceptUpdateMessage() != IMS_SUCCESS)
+    if (GetFormatter().FormAcceptUpdateMessage() != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -216,12 +179,7 @@ IMS_RESULT MessageSender::AcceptUpdate()
 PUBLIC
 IMS_RESULT MessageSender::CancelUpdate(IN const FailReason& objReason)
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormCancelUpdateMessage(objReason) != IMS_SUCCESS)
+    if (GetFormatter().FormCancelUpdateMessage(objReason) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -234,12 +192,7 @@ IMS_RESULT MessageSender::CancelUpdate(IN const FailReason& objReason)
 PUBLIC
 IMS_RESULT MessageSender::Terminate(IN IMS_BOOL bUseBye, IN const FailReason& objReason)
 {
-    if (m_pFormatter == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-
-    if (m_pFormatter->FormTerminateMessage(objReason) != IMS_SUCCESS)
+    if (GetFormatter().FormTerminateMessage(objReason) != IMS_SUCCESS)
     {
         return IMS_FAILURE;
     }
@@ -251,19 +204,22 @@ IMS_RESULT MessageSender::Terminate(IN IMS_BOOL bUseBye, IN const FailReason& ob
 /* -------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------- */
 PRIVATE
-void MessageSender::CreateFormatter()
+MessageFormatter& MessageSender::GetFormatter()
 {
     if (m_pFormatter != IMS_NULL)
     {
-        return;
+        return *m_pFormatter;
     }
 
-    IMS_BOOL bEmergency = IMS_FALSE;  // TODO
+    /* TODO:
+    IMS_BOOL bEmergency = IMS_FALSE;
     if (bEmergency)
     {
         m_pFormatter = new EmergencyMessageFormatter(m_objContext);
         return;
     }
+    */
 
     m_pFormatter = new MessageFormatter(m_objContext);
+    return *m_pFormatter;
 }
