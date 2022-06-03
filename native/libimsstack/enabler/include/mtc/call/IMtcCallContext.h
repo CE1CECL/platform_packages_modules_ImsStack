@@ -33,6 +33,7 @@ public:
 
     virtual CallInfo& GetCallInfo() = 0;
     virtual ParticipantInfo& GetParticipantInfo() = 0;
+    virtual MtcSession* GetSession(IN const ISession* piSession) = 0;
     virtual MtcSession* GetSession() = 0;
     virtual IMtcService& GetService() = 0;
     virtual MtcUiNotifier& GetUiNotifier() = 0;
@@ -43,14 +44,16 @@ public:
     virtual UpdatingInfo& GetUpdatingInfo() = 0;
     virtual UssiController* GetUssiController() = 0;
 
-    virtual void SetSession(IN MtcSession* pSession) = 0;
     virtual void SetHeldByMe(IN IMS_BOOL bHeldByMe) = 0;
 
-    virtual MtcSession* CreateSession(IN ISession& objSession, IN CallType eCallType) = 0;
+    virtual MtcSession* CreateSession(IN ISession* piSession) = 0;
+    virtual MtcSession* CreateSession() = 0;
     virtual IMtcBlockChecker* CreateBlockChecker(IN const IMSList<IMtcBlockRule*>& lstRules) = 0;
     virtual JniCallInfo CreateJniCallInfo() = 0;
     virtual ISipClientConnection* CreateClientConnection(IN IMS_SINT32 nMethod) = 0;
 
+    virtual void RemoveSession(IN const ISession* piSession) = 0;
+    virtual void RemoveInactiveSessions(IN const ISession* piActiveSession) = 0;
     virtual void DeleteUpdatingInfo() = 0;
 };
 

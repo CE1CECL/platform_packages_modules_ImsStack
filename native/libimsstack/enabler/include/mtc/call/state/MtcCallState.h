@@ -153,7 +153,6 @@ protected:
     IMS_SINT32 ConvertTerminateReasonToFailReason(IN IMS_SINT32 eReason);
     void NotifyHoldResumeState();
 
-    IMS_RESULT CreateISession(IN CallType eCallType);
     ISession* GetISession();
 
     void InitMediaSession(IN MediaInfo* pMediaInfo = IMS_NULL);

@@ -484,22 +484,6 @@ void MtcCallState::NotifyHoldResumeState()
 }
 
 PROTECTED
-IMS_RESULT MtcCallState::CreateISession(IN CallType eCallType)
-{
-    ISession* piSession = m_objContext.GetSipInterfaceFactory().GetISessionHolder()->GetISession(
-            m_objContext.GetService().GetICoreService(),
-            m_objContext.GetParticipantInfo().GetLocalUri(),
-            m_objContext.GetParticipantInfo().GetRemoteUri());
-    if (piSession == IMS_NULL)
-    {
-        return IMS_FAILURE;
-    }
-    m_objContext.SetSession(m_objContext.CreateSession(*piSession, eCallType));
-
-    return IMS_SUCCESS;
-}
-
-PROTECTED
 ISession* MtcCallState::GetISession()
 {
     return &m_objContext.GetSession()->GetISession();

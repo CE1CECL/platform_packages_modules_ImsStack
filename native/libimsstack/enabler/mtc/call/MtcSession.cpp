@@ -37,8 +37,10 @@ MtcSession::MtcSession(
 
     UpdateSessionProperty();
 
-    m_bVideoCapable = HasAosFeature(ImsAosFeature::MMTEL) && HasAosFeature(ImsAosFeature::VIDEO);
-    m_bRttCapable = HasAosFeature(ImsAosFeature::MMTEL) && HasAosFeature(ImsAosFeature::TEXT);
+    m_bVideoCapable =
+            IsRegisteredFeature(ImsAosFeature::MMTEL) && IsRegisteredFeature(ImsAosFeature::VIDEO);
+    m_bRttCapable =
+            IsRegisteredFeature(ImsAosFeature::MMTEL) && IsRegisteredFeature(ImsAosFeature::TEXT);
 
     if (m_objContext.GetCallInfo().ePeerType == PeerType::MO &&
             GetConfigurationProxy().Is(Feature::SUPPORT_SIP_SESSION_ID_HEADER))
@@ -50,6 +52,7 @@ MtcSession::MtcSession(
 PUBLIC VIRTUAL MtcSession::~MtcSession()
 {
     IMS_TRACE_I("~MtcSession", 0, 0, 0);
+    m_objContext.GetPreconditionManager().DestroyQos(&m_objSession);
     GetSipInterfaceFactory().GetISessionHolder()->ReleaseISession(&m_objSession);
 }
 
@@ -157,9 +160,11 @@ void MtcSession::UpdateCallTypeFromMessage(IN const IMessage& objMessage)
 PRIVATE
 void MtcSession::UpdateCapabilityFromMessage(IN const IMessage& objMessage)
 {
-    m_bVideoCapable = HasAosFeature(ImsAosFeature::MMTEL) && HasAosFeature(ImsAosFeature::VIDEO) &&
+    m_bVideoCapable = IsRegisteredFeature(ImsAosFeature::MMTEL) &&
+            IsRegisteredFeature(ImsAosFeature::VIDEO) &&
             MessageUtil::IsVideoFeatureIncluded(&objMessage);
-    m_bRttCapable = HasAosFeature(ImsAosFeature::MMTEL) && HasAosFeature(ImsAosFeature::TEXT) &&
+    m_bRttCapable = IsRegisteredFeature(ImsAosFeature::MMTEL) &&
+            IsRegisteredFeature(ImsAosFeature::TEXT) &&
             MessageUtil::IsTextFeatureIncluded(&objMessage);
 
     IMS_TRACE_D("UpdateCapabilityFromMessage : Video[%s] Rtt[%s]", _TRACE_B_(m_bVideoCapable),
@@ -194,7 +199,7 @@ AString MtcSession::GenerateSessionId() const
 }
 
 PRIVATE
-IMS_BOOL MtcSession::HasAosFeature(IMS_UINT32 nFeature)
+IMS_BOOL MtcSession::IsRegisteredFeature(IMS_UINT32 nFeature)
 {
     MtcAosConnector* pAosConnector = GetAosConnector(GetService().GetServiceType());
     if (pAosConnector == IMS_NULL)

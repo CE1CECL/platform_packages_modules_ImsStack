@@ -44,6 +44,10 @@ public:
     {
         return m_objContext.GetParticipantInfo();
     }
+    inline MtcSession* GetSession(IN const ISession* piSession) override
+    {
+        return m_objContext.GetSession(piSession);
+    }
     inline MtcSession* GetSession() override { return m_objContext.GetSession(); }
     inline IMtcService& GetService() override { return m_objContext.GetService(); }
     inline MtcUiNotifier& GetUiNotifier() override { return m_objContext.GetUiNotifier(); }
@@ -54,10 +58,11 @@ public:
     }
     inline UssiController* GetUssiController() override { return m_objContext.GetUssiController(); }
     inline UpdatingInfo& GetUpdatingInfo() override { return m_objContext.GetUpdatingInfo(); }
-    inline MtcSession* CreateSession(IN ISession& objSession, IN CallType eCallType) override
+    MtcSession* CreateSession(IN ISession* piSession) override
     {
-        return m_objContext.CreateSession(objSession, eCallType);
+        return m_objContext.CreateSession(piSession);
     }
+    MtcSession* CreateSession() override { return m_objContext.CreateSession(); }
     inline IMtcBlockChecker* CreateBlockChecker(IN const IMSList<IMtcBlockRule*>& lstRules) override
     {
         return m_objContext.CreateBlockChecker(lstRules);
@@ -66,6 +71,14 @@ public:
     inline ISipClientConnection* CreateClientConnection(IN IMS_SINT32 nMethod) override
     {
         return m_objContext.CreateClientConnection(nMethod);
+    }
+    inline void RemoveSession(IN const ISession* piSession) override
+    {
+        m_objContext.RemoveSession(piSession);
+    }
+    inline void RemoveInactiveSessions(IN const ISession* piActiveSession) override
+    {
+        m_objContext.RemoveInactiveSessions(piActiveSession);
     }
     inline void DeleteUpdatingInfo() override { return m_objContext.DeleteUpdatingInfo(); }
     inline MtcTimerWrapper& GetTimer() override { return m_objContext.GetTimer(); }
@@ -108,7 +121,6 @@ public:
     }
     inline EctManager* GetEctManager() override { return m_objContext.GetEctManager(); }
 
-    inline void SetSession(IN MtcSession* pSession) override { m_objContext.SetSession(pSession); }
     inline void SetHeldByMe(IN IMS_BOOL bHeldByMe) override { m_objContext.SetHeldByMe(bHeldByMe); }
 
 private:
@@ -119,7 +131,7 @@ private:
     void UpdateSessionIdFromMessage(IN const IMessage& objMessage);
 
     AString GenerateSessionId() const;
-    IMS_BOOL HasAosFeature(IMS_UINT32 nFeature);
+    IMS_BOOL IsRegisteredFeature(IMS_UINT32 nFeature);
 
     IMtcCallContext& m_objContext;
     ISession& m_objSession;

@@ -23,8 +23,6 @@ public:
     OutgoingState(IN const OutgoingState&) = delete;
     OutgoingState& operator=(IN const OutgoingState&) = delete;
 
-    void OnEnter() override;
-
     CallStateName Terminate(IN const FailReason& objReason) override;
     CallStateName HandleSrvccFailure(IN UpdateType eUpdateType) override;
 
@@ -57,11 +55,9 @@ private:
     void OnStarted(IN ISession* piSession);
     void OnStartFailed(IN ISession* piSession, IN const FailReason& objReason);
     void OnSessionForked(IN ISession* piOriginSession);
-    void DeleteInactiveSessions();
     CallStateName HandleSilentRetry(IN const FailReason& objReason);
     CallStateName ContinueSilentRetry();
 
-    IMSMap<ISession*, MtcSession*> m_objSessions;
     IMS_BOOL m_bRemoteAlerted;
     IMS_SINT32 m_nSilentRedialCount;
 };

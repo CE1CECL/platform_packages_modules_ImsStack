@@ -138,7 +138,7 @@ PUBLIC VIRTUAL CallStateName IdleState::HandleIncoming(
 
     m_objContext.GetUiNotifier().SetJniServiceThread(pServiceThread);
 
-    m_objContext.SetSession(m_objContext.CreateSession(*piSession, CallType::UNKNOWN));
+    m_objContext.CreateSession(piSession);
 
     if (m_objContext.GetConfigurationProxy().Is(Feature::REJECT_OFFERLESS_INVITE) &&
             !MessageUtil::HasSdp(piMessage))
@@ -228,9 +228,6 @@ PUBLIC VIRTUAL CallStateName IdleState::OnAttached()
         {
             return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_SESSION_FAIL));
         }
-
-        // m_objContext.GetTimer().Start(TIMER_MT_PRACK_WAIT,
-        //         UCCONFIG_GET_INT(m_nSlotID, SESSION_TIME_MT_PRACKWAIT) * 1000);
     }
     else
     {
@@ -253,7 +250,8 @@ PUBLIC VIRTUAL CallStateName IdleState::HandleIncomingUssi(
     m_objContext.GetCallInfo().bUssi = IMS_TRUE;
 
     m_objContext.GetUiNotifier().SetJniServiceThread(pServiceThread);
-    m_objContext.SetSession(m_objContext.CreateSession(*piSession, CallType::UNKNOWN));
+
+    m_objContext.CreateSession(piSession);
 
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_START);
 
@@ -309,7 +307,7 @@ PRIVATE
 CallStateName IdleState::ContinueStart(IN MediaInfo* pMediaInfo)
 {
     IMS_TRACE_D("ContinueStart", 0, 0, 0);
-    if (CreateISession(m_objContext.GetCallInfo().eInitialCallType) == IMS_FAILURE)
+    if (m_objContext.CreateSession() == IMS_NULL)
     {
         m_objContext.GetMediaManager().Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
@@ -337,7 +335,7 @@ CallStateName IdleState::ContinueConference(
         IN MediaInfo* pMediaInfo, IN IMSList<ConfUser*> lstUsers)
 {
     IMS_TRACE_D("ContinueConference", 0, 0, 0);
-    if (CreateISession(m_objContext.GetCallInfo().eInitialCallType) == IMS_FAILURE)
+    if (m_objContext.CreateSession() == IMS_NULL)
     {
         m_objContext.GetMediaManager().Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
@@ -378,7 +376,7 @@ CallStateName IdleState::ContinueStartUssi(IN MediaInfo* pMediaInfo)
 {
     IMS_TRACE_D("ContinueStartUssi", 0, 0, 0);
     IMtcMediaManager& objMediaManager = m_objContext.GetMediaManager();
-    if (CreateISession(m_objContext.GetCallInfo().eInitialCallType) == IMS_FAILURE)
+    if (m_objContext.CreateSession() == IMS_NULL)
     {
         objMediaManager.Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
