@@ -100,7 +100,8 @@ public:
     inline IMS_BOOL IsUssi() const override { return m_objCallInfo.bUssi; }
     inline CallInfo& GetCallInfo() override { return m_objCallInfo; }
     inline ParticipantInfo& GetParticipantInfo() override { return m_objParticipantInfo; }
-    inline MtcSession* GetSession() override { return m_pSession; }
+    MtcSession* GetSession(IN const ISession* piSession) override;
+    MtcSession* GetSession() override;
     inline IMtcService& GetService() override { return m_objService; }
     inline MtcUiNotifier& GetUiNotifier() override { return m_objUiNotifier; }
     inline IMtcMediaManager& GetMediaManager() override { return m_objMediaManager; }
@@ -110,10 +111,13 @@ public:
     }
     inline UssiController* GetUssiController() override { return m_pUssiController; }
     UpdatingInfo& GetUpdatingInfo() override;
-    MtcSession* CreateSession(IN ISession& objSession, IN CallType eCallType) override;
+    MtcSession* CreateSession(IN ISession* piSession) override;
+    MtcSession* CreateSession() override;
     IMtcBlockChecker* CreateBlockChecker(IN const IMSList<IMtcBlockRule*>& lstRules) override;
     JniCallInfo CreateJniCallInfo() override;
     ISipClientConnection* CreateClientConnection(IN IMS_SINT32 nMethod) override;
+    void RemoveSession(IN const ISession* piSession) override;
+    void RemoveInactiveSessions(IN const ISession* piActiveSession) override;
     void DeleteUpdatingInfo() override;
     inline MtcTimerWrapper& GetTimer() override { return m_objTimer; }
     inline MtcSupplementaryService& GetSupplementaryService() override
@@ -155,7 +159,6 @@ public:
     }
     inline EctManager* GetEctManager() override { return m_objContext.GetEctManager(); }
 
-    inline void SetSession(IN MtcSession* pSession) override { m_pSession = pSession; }
     inline void SetHeldByMe(IN IMS_BOOL bHeldByMe) override { m_bHeldByMe = bHeldByMe; }
 
     void SessionAlerting(IN ISession* piSession) override;
@@ -217,7 +220,7 @@ private:
     CallInfo m_objCallInfo;
     ParticipantInfo m_objParticipantInfo;
     UpdatingInfo* m_pUpdatingInfo;
-    MtcSession* m_pSession;
+    IMSList<MtcSession*> m_lstSessions;
 
     MtcCallStateMachine<MtcCallState, CallStateName> m_objStateMachine;
     MtcTimerWrapper m_objTimer;

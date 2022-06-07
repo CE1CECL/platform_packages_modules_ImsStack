@@ -9,6 +9,7 @@
 #include "ServiceTrace.h"
 #include "SipStatusCode.h"
 #include "call/MtcCall.h"
+#include "call/MtcSession.h"
 #include "call/state/AlertingState.h"
 #include "call/state/EstablishedState.h"
 #include "call/state/IdleState.h"
@@ -37,7 +38,7 @@ MtcCall::MtcCall(
         m_objCallInfo(objCallInfo),
         m_objParticipantInfo(ParticipantInfo(*this)),
         m_pUpdatingInfo(IMS_NULL),
-        m_pSession(IMS_NULL),
+        m_lstSessions(IMSList<MtcSession*>()),
         m_objStateMachine(
                 MtcCallStateMachine<MtcCallState, CallStateName>(CallStateName::IDLE, *this, this)),
         m_objTimer(MtcTimerWrapper()),
@@ -56,7 +57,13 @@ MtcCall::MtcCall(
 PUBLIC VIRTUAL MtcCall::~MtcCall()
 {
     IMS_TRACE_D("~MtcCall key[%d]", m_nKey, 0, 0);
-    delete m_pSession;
+
+    for (IMS_UINT32 nIndex = 0; nIndex < m_lstSessions.GetSize(); nIndex++)
+    {
+        delete m_lstSessions.GetAt(nIndex);
+    }
+    m_lstSessions.Clear();
+
     delete m_pUssiController;
 }
 
@@ -415,6 +422,33 @@ PUBLIC VIRTUAL void MtcCall::HandleSrvccFailure(IN UpdateType eUpdateType)
             });
 }
 
+PUBLIC VIRTUAL MtcSession* MtcCall::GetSession(IN const ISession* piSession)
+{
+    for (IMS_UINT32 nIndex = 0; nIndex < m_lstSessions.GetSize(); nIndex++)
+    {
+        MtcSession* pSession = m_lstSessions.GetAt(nIndex);
+        if (&pSession->GetISession() == piSession)
+        {
+            return pSession;
+        }
+    }
+
+    IMS_TRACE_D(0, "GetSession : Not exists", 0, 0, 0);
+    return IMS_NULL;
+}
+
+PUBLIC VIRTUAL MtcSession* MtcCall::GetSession()
+{
+    if (m_lstSessions.IsEmpty())
+    {
+        IMS_TRACE_E(0, "GetSession : Empty", 0, 0, 0);
+        return IMS_NULL;
+    }
+
+    const IMS_UINT32 nLastIndex = m_lstSessions.GetSize() - 1;
+    return m_lstSessions.GetAt(nLastIndex);
+}
+
 PUBLIC VIRTUAL UpdatingInfo& MtcCall::GetUpdatingInfo()
 {
     if (m_pUpdatingInfo == IMS_NULL)
@@ -425,10 +459,36 @@ PUBLIC VIRTUAL UpdatingInfo& MtcCall::GetUpdatingInfo()
     return *m_pUpdatingInfo;
 }
 
-PUBLIC VIRTUAL MtcSession* MtcCall::CreateSession(IN ISession& objSession, IN CallType eCallType)
+PUBLIC VIRTUAL MtcSession* MtcCall::CreateSession(IN ISession* piSession)
 {
-    objSession.SetListener(this);
-    return new MtcSession(*this, objSession, eCallType);
+    if (piSession == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "CreateSession : ISession is null", 0, 0, 0);
+        return IMS_NULL;
+    }
+    if (GetSession(piSession) != IMS_NULL)
+    {
+        IMS_TRACE_E(0, "CreateSession : Already exists", 0, 0, 0);
+        return IMS_NULL;
+    }
+
+    piSession->SetListener(this);
+
+    MtcSession* pSession = new MtcSession(*this, *piSession, m_objCallInfo.eInitialCallType);
+    m_lstSessions.Append(pSession);
+
+    IMS_TRACE_D("CreateSession : Session count[%d]", m_lstSessions.GetSize(), 0, 0);
+
+    return pSession;
+}
+
+PUBLIC VIRTUAL MtcSession* MtcCall::CreateSession()
+{
+    ISession* piSession = GetSipInterfaceFactory().GetISessionHolder()->GetISession(
+            GetService().GetICoreService(), GetParticipantInfo().GetLocalUri(),
+            GetParticipantInfo().GetRemoteUri());
+
+    return CreateSession(piSession);
 }
 
 PUBLIC VIRTUAL IMtcBlockChecker* MtcCall::CreateBlockChecker(
@@ -458,13 +518,14 @@ PUBLIC VIRTUAL JniCallInfo MtcCall::CreateJniCallInfo()
 
 PUBLIC VIRTUAL ISipClientConnection* MtcCall::CreateClientConnection(IN IMS_SINT32 nMethod)
 {
-    if (!m_pSession)
+    MtcSession* pSession = GetSession();
+    if (!pSession)
     {
         return IMS_NULL;
     }
 
     ISipClientConnection* piSipClientConnection =
-            m_pSession->GetISession().CreateTransaction(nMethod);
+            pSession->GetISession().CreateTransaction(nMethod);
 
     if (piSipClientConnection)
     {
@@ -473,6 +534,46 @@ PUBLIC VIRTUAL ISipClientConnection* MtcCall::CreateClientConnection(IN IMS_SINT
     }
 
     return piSipClientConnection;
+}
+
+PUBLIC VIRTUAL void MtcCall::RemoveSession(IN const ISession* piSession)
+{
+    for (IMS_UINT32 nIndex = 0; nIndex < m_lstSessions.GetSize(); nIndex++)
+    {
+        MtcSession* pSession = m_lstSessions.GetAt(nIndex);
+        if (&pSession->GetISession() != piSession)
+        {
+            m_lstSessions.RemoveAt(nIndex);
+            delete pSession;
+
+            IMS_TRACE_D("RemoveSession : Session count[%d]", m_lstSessions.GetSize(), 0, 0);
+            return;
+        }
+    }
+
+    IMS_TRACE_E(0, "RemoveSession : Not exists", 0, 0, 0);
+}
+
+PUBLIC VIRTUAL void MtcCall::RemoveInactiveSessions(IN const ISession* piActiveSession)
+{
+    MtcSession* pActiveSession = GetSession(piActiveSession);
+    if (pActiveSession == IMS_NULL)
+    {
+        return;
+    }
+
+    for (IMS_UINT32 nIndex = 0; nIndex < m_lstSessions.GetSize(); nIndex++)
+    {
+        MtcSession* pSession = m_lstSessions.GetAt(nIndex);
+        if (pSession != pActiveSession)
+        {
+            delete pSession;
+        }
+    }
+    m_lstSessions.Clear();
+
+    m_lstSessions.Append(pActiveSession);
+    IMS_TRACE_D("RemoveInactiveSessions : Session count[%d]", m_lstSessions.GetSize(), 0, 0);
 }
 
 PUBLIC VIRTUAL void MtcCall::DeleteUpdatingInfo()
