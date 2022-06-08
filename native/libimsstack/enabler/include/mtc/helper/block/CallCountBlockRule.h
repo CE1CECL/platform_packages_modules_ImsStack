@@ -6,6 +6,8 @@
 
 class IMtcCallContext;
 class IMtcCallManager;
+class MtcConfigurationProxy;
+struct CallInfo;
 
 class CallCountBlockRule final : public IMtcBlockRule
 {
@@ -18,11 +20,13 @@ public:
     Result Check(IN IMtcBlockRuleCheckListener& objListener) override;
 
 private:
-    IMS_UINT32 GetActiveCallCount(IN const IMSList<IMtcCall*> lstCalls);
+    IMS_UINT32 GetActiveCallCount();
+    IMS_BOOL IsOtherCallExists();
+    IMS_BOOL IsVideoCallExists();
 
+    MtcConfigurationProxy& m_objConfiguration;
     IMtcCallManager& m_objCallManager;
     const CallInfo& m_objCallInfo;
-    const IMS_UINT32 m_nMaxCallCount;
 };
 
 #endif

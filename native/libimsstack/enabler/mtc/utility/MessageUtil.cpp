@@ -1597,87 +1597,101 @@ PUBLIC GLOBAL CallType MessageUtil::GetCallType(
 /* -------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------- */
 PUBLIC GLOBAL CallType MessageUtil::GetCallTypeFromSdp(
-        IN ISession* piSession, IN IMS_BOOL bNegoSDP, IN IMS_BOOL bPeerView)
+        IN ISession* piSession, IN IMS_BOOL bNegoSdp, IN IMS_BOOL bPeerView)
 {
     IMS_BOOL bAudio = IMS_FALSE;
     IMS_BOOL bVideo = IMS_FALSE;
-    // IMS_BOOL bText = IMS_FALSE;
+    IMS_BOOL bText = IMS_FALSE;
 
     if (piSession == IMS_NULL)
     {
-        IMS_TRACE_E(0, "GetCallTypeBySdp : piSession is NULL", 0, 0, 0);
+        IMS_TRACE_E(0, "GetCallTypeFromSdp : piSession is NULL", 0, 0, 0);
         return CallType::UNKNOWN;
     }
 
     IMSList<IMedia*> lstIMedia = piSession->GetMedia();
-    for (IMS_UINT32 index = 0; index < lstIMedia.GetSize(); index++)
+    for (IMS_UINT32 nIndex = 0; nIndex < lstIMedia.GetSize(); nIndex++)
     {
-        IMedia* pIMedia = lstIMedia.GetAt(index);
+        IMedia* piMedia = lstIMedia.GetAt(nIndex);
         IMediaDescriptor* pDescriptor = IMS_NULL;
         if (bPeerView)
         {
-            if (pIMedia->GetUpdateState() == IMedia::UPDATE_MODIFIED)
+            if (piMedia->GetUpdateState() == IMedia::UPDATE_MODIFIED)
             {
-                pDescriptor = pIMedia->GetProposal()->GetMediaDescriptor();
+                pDescriptor = piMedia->GetProposal()->GetMediaDescriptor();
             }
             else
             {
-                pDescriptor = pIMedia->GetMediaDescriptor();
+                pDescriptor = piMedia->GetMediaDescriptor();
             }
         }
         else
         {
-            pDescriptor = pIMedia->GetMediaDescriptor();
+            pDescriptor = piMedia->GetMediaDescriptor();
         }
-
         if (pDescriptor == IMS_NULL)
         {
             return CallType::UNKNOWN;
         }
 
-        SdpMedia* pSDPMedia = IMS_NULL;
+        SdpMedia* pSdpMedia = IMS_NULL;
         if (bPeerView)
         {
-            pSDPMedia = (SdpMedia*)pDescriptor->GetMediaDescriptionEx();
+            pSdpMedia = (SdpMedia*)pDescriptor->GetMediaDescriptionEx();
         }
         else
         {
-            pSDPMedia = (SdpMedia*)pDescriptor->GetMediaDescriptionExAsLocal();
+            pSdpMedia = (SdpMedia*)pDescriptor->GetMediaDescriptionExAsLocal();
+        }
+        if (pSdpMedia == IMS_NULL)
+        {
+            continue;
         }
 
-        if (pSDPMedia != IMS_NULL)
+        if (pSdpMedia->GetType() == SdpMedia::TYPE_AUDIO && pSdpMedia->GetPort() != 0)
         {
-            if (pSDPMedia->GetType() == SdpMedia::TYPE_AUDIO && pSDPMedia->GetPort() != 0)
-            {
-                bAudio = IMS_TRUE;
-            }
+            bAudio = IMS_TRUE;
+        }
 
-            if (pSDPMedia->GetType() == SdpMedia::TYPE_VIDEO && pSDPMedia->GetPort() != 0)
+        if (pSdpMedia->GetType() == SdpMedia::TYPE_VIDEO && pSdpMedia->GetPort() != 0)
+        {
+            IMS_TRACE_D("GetCallTypeFromSdp : media state [%d]", piMedia->GetState(), 0, 0);
+            if (!bNegoSdp || piMedia->GetState() != IMedia::STATE_DELETED)
             {
-                IMS_TRACE_D("GetSessionTypeBySDP : media state [%d]", pIMedia->GetState(), 0, 0);
-                if (!bNegoSDP || pIMedia->GetState() != IMedia::STATE_DELETED)
-                {
-                    bVideo = IMS_TRUE;
-                }
+                bVideo = IMS_TRUE;
             }
+        }
 
-            // if (pSDPMedia->GetType() == SdpMedia::TYPE_TEXT && pSDPMedia->GetPort() != 0)
-            // {
-            //     bText = IMS_TRUE;
-            // }
+        if (pSdpMedia->GetType() == SdpMedia::TYPE_TEXT && pSdpMedia->GetPort() != 0)
+        {
+            IMS_TRACE_D("GetCallTypeFromSdp : media state [%d]", piMedia->GetState(), 0, 0);
+            if (!bNegoSdp || piMedia->GetState() != IMedia::STATE_DELETED)
+            {
+                bText = IMS_TRUE;
+            }
         }
     }
+    IMS_TRACE_D("GetCallTypeFromSdp : audio[%s] video[%s] text[%s]", _TRACE_B_(bAudio),
+            _TRACE_B_(bVideo), _TRACE_B_(bText));
 
-    // TODO: RTT
-    if (bAudio && bVideo)
+    if (!bAudio)
+    {
+        return CallType::UNKNOWN;
+    }
+
+    if (bVideo && bText)
+    {
+        return CallType::VIDEO_RTT;
+    }
+    else if (bVideo)
     {
         return CallType::VT;
     }
-    else if (bAudio)
+    else if (bText)
     {
-        return CallType::VOIP;
+        return CallType::RTT;
     }
-    return CallType::UNKNOWN;
+    return CallType::VOIP;
 }
 
 /* -------------------------------------------------------------------------------------------------

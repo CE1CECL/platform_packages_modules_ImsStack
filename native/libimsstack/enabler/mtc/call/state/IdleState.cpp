@@ -18,20 +18,21 @@
 #include "call/message/MessageSender.h"
 #include "MtcDef.h"
 #include "call/MtcSession.h"
+#include "helper/MtcSupplementaryService.h"
 #include "helper/MtcTimerWrapper.h"
-#include "helper/block/IMtcBlockChecker.h"
 #include "helper/block/CallCountBlockRule.h"
+#include "helper/block/CallTypeBlockRule.h"
 #include "helper/block/CsCallBlockRule.h"
+#include "helper/block/IMtcBlockChecker.h"
 #include "helper/block/NetworkBlockRule.h"
 #include "helper/block/ProcessingCallBlockRule.h"
-#include "helper/block/VopsBlockRule.h"
 #include "helper/block/TerminalBasedCallWaitingBlockRule.h"
+#include "helper/block/VopsBlockRule.h"
 #include "call/MtcUiNotifier.h"
 #include "SipAddress.h"
 #include "SipHeaderName.h"
 #include "utility/MessageUtil.h"
 #include "SipStatusCode.h"
-#include "helper/MtcSupplementaryService.h"
 #include "ussi/UssiController.h"
 #include "ussi/UssiController.h"
 
@@ -126,19 +127,29 @@ PUBLIC VIRTUAL CallStateName IdleState::HandleIncoming(
         IN ISession* piSession, IN JniMtcServiceThread* pServiceThread)
 {
     IMS_TRACE_D("HandleIncoming", 0, 0, 0);
-
-    m_eConferenceStartType = ConferenceType::NOT_CONFERENCE;
-    m_objContext.GetCallInfo().ePeerType = PeerType::MT;
-    IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_START);
-
-    if (MessageUtil::IsFocusConf(piMessage))
-    {
-        m_objContext.GetCallInfo().bConference = IMS_TRUE;
-    }
-
     m_objContext.GetUiNotifier().SetJniServiceThread(pServiceThread);
 
-    m_objContext.CreateSession(piSession);
+    MtcSession* pSession = m_objContext.CreateSession(piSession);
+    if (pSession == IMS_NULL)
+    {
+        return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_SERVICE_UNAVAILABLE));
+    }
+
+    IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_START);
+    pSession->HandleRequest(IMessage::SESSION_START, *piMessage);
+
+    m_eConferenceStartType = ConferenceType::NOT_CONFERENCE;
+
+    m_objContext.GetCallInfo().eInitialCallType = pSession->GetCallType();
+    m_objContext.GetCallInfo().ePeerType = PeerType::MT;
+    m_objContext.GetCallInfo().bConference = MessageUtil::IsFocusConf(piMessage);
+    m_objContext.GetParticipantInfo().HandleRequest(IMessage::SESSION_START, *piMessage);
+    m_objContext.GetSupplementaryService().UpdateIncomingServices(piMessage);
+
+    if (!pSession->GetExtensionSet().IsSupportRequiredExtensions(*piMessage))
+    {
+        return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_SESSION_NOTSUPPORT));
+    }
 
     if (m_objContext.GetConfigurationProxy().Is(Feature::REJECT_OFFERLESS_INVITE) &&
             !MessageUtil::HasSdp(piMessage))
@@ -191,18 +202,7 @@ PUBLIC VIRTUAL CallStateName IdleState::OnBlockChecked(IN IMtcBlockChecker::Resu
 PUBLIC VIRTUAL CallStateName IdleState::OnAttached()
 {
     ISession* piSession = GetISession();
-
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_START);
-    m_objContext.GetSession()->HandleRequest(IMessage::SESSION_START, *piMessage);
-    m_objContext.GetSupplementaryService().UpdateIncomingServices(piMessage);
-    m_objContext.GetParticipantInfo().HandleRequest(IMessage::SESSION_START, *piMessage);
-
-    if (!m_objContext.GetSession()->GetExtensionSet().IsSupportRequiredExtensions(*piMessage))
-    {
-        return RejectIncomingAndToTerminating(FailReason(REJECT_REASON_SESSION_NOTSUPPORT));
-    }
-
-    m_objContext.GetCallInfo().eInitialCallType = m_objContext.GetSession()->GetCallType();
 
     InitMediaSession();
 
@@ -444,6 +444,7 @@ IMSList<IMtcBlockRule*> IdleState::GetIncomingCallBlockRules()
     lstRules.Append(new ProcessingCallBlockRule(m_objContext));
     lstRules.Append(new CsCallBlockRule(m_objContext));
     lstRules.Append(new CallCountBlockRule(m_objContext));
+    lstRules.Append(new CallTypeBlockRule(m_objContext));
     lstRules.Append(new TerminalBasedCallWaitingBlockRule(m_objContext));
 
     return lstRules;

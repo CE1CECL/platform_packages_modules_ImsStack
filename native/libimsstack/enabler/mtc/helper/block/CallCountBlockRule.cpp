@@ -8,9 +8,9 @@ __IMS_TRACE_TAG_COM_MTC__;
 
 PUBLIC
 CallCountBlockRule::CallCountBlockRule(IN IMtcCallContext& objContext) :
+        m_objConfiguration(objContext.GetConfigurationProxy()),
         m_objCallManager(objContext.GetCallManager()),
-        m_objCallInfo(objContext.GetCallInfo()),
-        m_nMaxCallCount(objContext.GetConfigurationProxy().GetInt(Feature::CALL_MAX_COUNT))
+        m_objCallInfo(objContext.GetCallInfo())
 {
 }
 
@@ -24,26 +24,44 @@ PUBLIC VIRTUAL CallCountBlockRule::Result CallCountBlockRule::Check(
         return Result(Result::Status::UNBLOCKED);
     }
 
-    if (GetActiveCallCount(m_objCallManager.GetCalls()) <= m_nMaxCallCount)
+    if (!m_objConfiguration.Is(Feature::ALLOW_MULTIPLE_CALL_INCLUDING_VIDEO_CALL))
     {
-        return Result(Result::Status::UNBLOCKED);
+        if (IsOtherCallExists() && IsVideoCallExists())
+        {
+            IMS_TRACE_I("Check : Video call cannot be placed with another call", 0, 0, 0);
+            if (m_objCallInfo.ePeerType == PeerType::MO)
+            {
+                return Result(Result::Status::BLOCKED, FailReason(FAIL_REASON_SERVICE_MAXCALL));
+            }
+            else
+            {
+                return Result(Result::Status::BLOCKED, FailReason(REJECT_REASON_BUSY_MAXCALL));
+            }
+        }
     }
 
-    IMS_TRACE_I("Check : Max call count[%d] reached", m_nMaxCallCount, 0, 0);
+    const IMS_SINT32 nMaxCallCount = m_objConfiguration.GetInt(Feature::CALL_MAX_COUNT);
+    if (GetActiveCallCount() > nMaxCallCount)
+    {
+        IMS_TRACE_I("Check : Max call count[%d] reached", nMaxCallCount, 0, 0);
 
-    if (m_objCallInfo.ePeerType == PeerType::MO)
-    {
-        return Result(Result::Status::BLOCKED, FailReason(FAIL_REASON_SERVICE_MAXCALL));
+        if (m_objCallInfo.ePeerType == PeerType::MO)
+        {
+            return Result(Result::Status::BLOCKED, FailReason(FAIL_REASON_SERVICE_MAXCALL));
+        }
+        else
+        {
+            return Result(Result::Status::BLOCKED, FailReason(REJECT_REASON_BUSY_MAXCALL));
+        }
     }
-    else
-    {
-        return Result(Result::Status::BLOCKED, FailReason(REJECT_REASON_BUSY_MAXCALL));
-    }
+
+    return Result(Result::Status::UNBLOCKED);
 }
 
 PRIVATE
-IMS_UINT32 CallCountBlockRule::GetActiveCallCount(IN const IMSList<IMtcCall*> lstCalls)
+IMS_UINT32 CallCountBlockRule::GetActiveCallCount()
 {
+    const IMSList<IMtcCall*> lstCalls = m_objCallManager.GetCalls();
     IMS_UINT32 nCount = 0;
 
     for (IMS_UINT32 nIndex = 0; nIndex < lstCalls.GetSize(); nIndex++)
@@ -56,4 +74,23 @@ IMS_UINT32 CallCountBlockRule::GetActiveCallCount(IN const IMSList<IMtcCall*> ls
     }
 
     return nCount;
+}
+
+PRIVATE IMS_BOOL CallCountBlockRule::IsOtherCallExists()
+{
+    return m_objCallManager.GetCalls().GetSize() > 1;
+}
+
+PRIVATE IMS_BOOL CallCountBlockRule::IsVideoCallExists()
+{
+    if (!m_objCallManager.GetCallsByType(CallType::VT).IsEmpty())
+    {
+        return IMS_TRUE;
+    }
+    if (!m_objCallManager.GetCallsByType(CallType::VIDEO_RTT).IsEmpty())
+    {
+        return IMS_TRUE;
+    }
+
+    return IMS_FALSE;
 }
