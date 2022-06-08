@@ -431,7 +431,7 @@ void MessageFormatter::SetKeepAliveProfile()
     RCPtr<SipProfile> pProfile = new SipProfile();
 
     pProfile->SetSipFeatures(eSipFeatures);
-    piCoreService->SetSIPProfile(pProfile.Get());
+    piCoreService->SetSipProfile(pProfile.Get());
 }
 
 /* -------------------------------------------------------------------------------------------------
