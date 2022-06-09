@@ -88,7 +88,6 @@ public:
     IMS_BOOL IsSupportEarlySession() const;
     IMS_BOOL IsAllowTextWithVideo() const;
     IMS_SINT32 GetMinimumBatteryLevelForLimitVideoCall() const;
-    IMS_BOOL IsSupportVideoTextFeatureInContactHeaderSimultaneously() const;
 
     // rtt configurations
     IMS_BOOL IsTextOnDefaultBearerSupported() const;  // KEY_TEXT_ON_DEFAULT_BEARER_SUPPORTED_BOOL
@@ -119,6 +118,7 @@ public:
     IMS_SINT32 GetMediaTypeForOfferlessReinvite() const;
     IMS_BOOL IsSupportVideoCallUpgradeRegardlessOfFeatureTags() const;
     IMS_SINT32 GetOipTypeForUnavailable() const;
+    IMS_BOOL IsEnableOipHeaderPolicyFallBack() const;
     IMS_SINT32 GetEmergencyRttGuardTimer() const;
     IMS_BOOL IsRetryEmergencyCallOverEmergencyPdnWithNextPcscf() const;
     IMS_SINT32 GetPreAlertingTimer() const;
