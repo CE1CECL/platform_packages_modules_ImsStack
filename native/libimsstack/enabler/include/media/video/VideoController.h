@@ -37,7 +37,7 @@ public:
     IMS_BOOL CloseSession();
     void UpdateLocalAddress(IN VideoNego* pNego);
     void UpdateRtpConfig(IN VideoNego* pNego);
-    void UpdateQualityThreshold();
+    void UpdateQualityThreshold(IN VideoNego* pNego);
 
 private:
     VideoMediaSession* m_pVideoSession;

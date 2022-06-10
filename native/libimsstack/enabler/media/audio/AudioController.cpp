@@ -57,7 +57,7 @@ IMS_BOOL AudioController::HoldSession()
 
     if (pAudioSession != IMS_NULL)
     {
-        pAudioSession->UpdateMediaQualityThreshold(IMS_TRUE);
+        pAudioSession->UpdateMediaQualityThreshold(IMS_TRUE, NULL);
         pAudioSession->SetMediaQuality();
         pAudioSession->HoldRtpConfig();
         pAudioSession->Modify();
@@ -153,7 +153,7 @@ IMS_BOOL AudioController::OpenSession(IN IMS_UINTP nNegoId)
 }
 
 PUBLIC
-IMS_BOOL AudioController::AddSession(IN IMS_UINTP nNegoId)
+IMS_BOOL AudioController::AddSession(IN IMS_UINTP nNegoId, IN AudioNego* pNego)
 {
     IMS_TRACE_I("AddSession() - nNegoId[%" PFLS_x "], audio list size[%d]", nNegoId,
             m_listAudioSession.GetSize(), 0);
@@ -167,7 +167,7 @@ IMS_BOOL AudioController::AddSession(IN IMS_UINTP nNegoId)
 
     if (pAudioSession != IMS_NULL && m_nAudioSessionState != AudioMediaSession::STATE_NONE)
     {
-        pAudioSession->UpdateMediaQualityThreshold(IsHoldSession(nNegoId));
+        UpdateQualityThreshold(nNegoId, pNego);
         pAudioSession->SetMediaQuality();
         pAudioSession->Add();
         return IMS_TRUE;
@@ -325,15 +325,20 @@ void AudioController::UpdateLocalAddress(IN AudioNego* pNego)
 }
 
 PUBLIC
-void AudioController::UpdateQualityThreshold(IN IMS_UINTP nNegoId)
+void AudioController::UpdateQualityThreshold(IN IMS_UINTP nNegoId, IN AudioNego* pNego)
 {
     IMS_TRACE_I("UpdateQualityThreshold() - nNegoId[%" PFLS_x "]", nNegoId, 0, 0);
 
     AudioMediaSession* pAudioSession = FindAudioSession(nNegoId);
-
-    if (pAudioSession != IMS_NULL)
+    if (pAudioSession != IMS_NULL && pNego != IMS_NULL)
     {
-        pAudioSession->UpdateMediaQualityThreshold(IsHoldSession(nNegoId));
+        AudioProfile* pSrcProfile = IMS_NULL;
+        AudioProfile* pDstProfile = IMS_NULL;
+        AudioProfile* pNegProfile = IMS_NULL;
+        if (pNego->GetNegotiatedProfileSet(pSrcProfile, pDstProfile, pNegProfile) == IMS_TRUE)
+        {
+            pAudioSession->UpdateMediaQualityThreshold(IsHoldSession(nNegoId), pDstProfile);
+        }
     }
 }
 

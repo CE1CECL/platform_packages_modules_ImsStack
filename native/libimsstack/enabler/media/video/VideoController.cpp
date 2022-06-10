@@ -73,7 +73,7 @@ IMS_BOOL VideoController::HoldSession()
 
     if (m_pVideoSession != IMS_NULL)
     {
-        m_pVideoSession->UpdateMediaQualityThreshold(IMS_TRUE);
+        m_pVideoSession->UpdateMediaQualityThreshold(IMS_TRUE, NULL);
         m_pVideoSession->SetMediaQuality();
         m_pVideoSession->HoldRtpConfig();
         m_pVideoSession->Modify();
@@ -190,12 +190,24 @@ void VideoController::UpdateRtpConfig(IN VideoNego* pNego)
 }
 
 PUBLIC
-void VideoController::UpdateQualityThreshold()
+void VideoController::UpdateQualityThreshold(IN VideoNego* pNego)
 {
     IMS_TRACE_I("UpdateQualityThreshold()", 0, 0, 0);
 
-    if (m_pVideoSession != IMS_NULL)
+    if (m_pVideoSession == IMS_NULL || pNego == IMS_NULL)
     {
-        m_pVideoSession->UpdateMediaQualityThreshold(m_pVideoSession->IsDirectionHold());
+        return;
+    }
+
+    VideoProfile* pSrcProfile = IMS_NULL;
+    VideoProfile* pDstProfile = IMS_NULL;
+    VideoProfile* pNegProfile = IMS_NULL;
+    if (pNego->GetNegotiatedProfileSet(pSrcProfile, pDstProfile, pNegProfile) == IMS_TRUE)
+    {
+        IMS_TRACE_I("UpdateQualityThreshold() - SrcRR[%d] DstRR[%d] NegRR[%d]",
+                pSrcProfile->nBandwidthRr, pDstProfile->nBandwidthRr, pNegProfile->nBandwidthRr);
+
+        m_pVideoSession->UpdateMediaQualityThreshold(
+                m_pVideoSession->IsDirectionHold(), pDstProfile);
     }
 }

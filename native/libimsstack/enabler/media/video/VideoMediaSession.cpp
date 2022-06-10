@@ -381,13 +381,15 @@ void VideoMediaSession::HoldRtpConfig()
 }
 
 PUBLIC
-IMS_BOOL VideoMediaSession::UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold)
+IMS_BOOL VideoMediaSession::UpdateMediaQualityThreshold(
+        IN IMS_BOOL bIsHold, IN VideoProfile* pVideoProfile)
 {
     // TODO_MEDIA need to get real value when it's ready.
     if (bIsHold)
     {
         m_objMediaQualityThreshold.setRtpInactivityTimerMillis(0);
-        m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(10000);
+        m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
+                m_pConfig->GetRtcpInactivityTimerMillis());
         m_objMediaQualityThreshold.setRtpPacketLossDurationMillis(0);
         m_objMediaQualityThreshold.setRtpPacketLossRate(0);
         m_objMediaQualityThreshold.setJitterDurationMillis(0);
@@ -397,8 +399,15 @@ IMS_BOOL VideoMediaSession::UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold)
     {
         m_objMediaQualityThreshold.setRtpInactivityTimerMillis(
                 m_pConfig->GetRtpInactivityTimerMillis());
-        m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
-                m_pConfig->GetRtcpInactivityTimerMillis());
+        if (pVideoProfile && pVideoProfile->nBandwidthRs == 0 && pVideoProfile->nBandwidthRr == 0)
+        {
+            m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(0);
+        }
+        else
+        {
+            m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
+                    m_pConfig->GetRtcpInactivityTimerMillis());
+        }
         m_objMediaQualityThreshold.setRtpPacketLossDurationMillis(15000);
         m_objMediaQualityThreshold.setRtpPacketLossRate(30);
         m_objMediaQualityThreshold.setJitterDurationMillis(15000);

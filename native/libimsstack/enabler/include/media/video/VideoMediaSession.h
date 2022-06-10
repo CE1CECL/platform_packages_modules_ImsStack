@@ -55,7 +55,7 @@ public:
             IN VideoProfile* pNegoProfile);
     IMS_BOOL IsDirectionHold();
     void HoldRtpConfig();
-    IMS_BOOL UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold);
+    IMS_BOOL UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold, IN VideoProfile* pVideoProfile);
     IMS_BOOL UpdateLocalEndPoint(IN VideoProfile* pNegoProfile);
     void UpdateLocalEndPoint(IN IPAddress objLocalAddr, IN IMS_UINT32 nPort);
     IMS_BOOL OnVideoMessages(IN IMS_SINT32 nMsg, IN IMS_UINTP pParam);

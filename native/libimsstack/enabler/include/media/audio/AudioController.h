@@ -43,14 +43,14 @@ public:
             IN IMediaSessionListener* pListener, IN IMS_UINTP nNegoId, AudioConfiguration* pConfig);
     IMS_BOOL OpenSession(IN IMS_UINTP nNegoId);
     IMS_BOOL UpdateSession(IN IMS_UINTP nNegoId);
-    IMS_BOOL AddSession(IN IMS_UINTP nNegoId);
+    IMS_BOOL AddSession(IN IMS_UINTP nNegoId, IN AudioNego* pNego);
     IMS_BOOL ConfirmSession(IN IMS_UINTP nNegoId);
     IMS_BOOL ModifySession(IN IMS_UINTP nNegoId);
     IMS_BOOL DeleteSession(IN IMS_UINTP nNegoId);
     void CloseSession();
     void UpdateRtpConfig(IN IMS_UINTP nNegoId, IN AudioNego* pNego);
     void UpdateLocalAddress(IN AudioNego* pNego);
-    void UpdateQualityThreshold(IN IMS_UINTP nNegoId);
+    void UpdateQualityThreshold(IN IMS_UINTP nNegoId, IN AudioNego* pNego);
 
 private:
     AudioMediaSession* FindAudioSession(IN IMS_UINTP nNegoId = IMS_NULL);

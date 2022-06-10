@@ -315,7 +315,7 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::NegotiateSDP(IN IMS_UINTP nNegoId, IN ISes
         if (pMediaNego->GetAudioNego() != IMS_NULL)
         {
             m_objAudioController.UpdateRtpConfig(nNegoId, pMediaNego->GetAudioNego());
-            m_objAudioController.AddSession(nNegoId);
+            m_objAudioController.AddSession(nNegoId, pMediaNego->GetAudioNego());
         }
 
         // video
@@ -381,9 +381,11 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::Run(IN IMS_UINTP nNegoId)
         pMediaManager->OtherSessionHold(m_nCallKey);
     }
 
+    m_objAudioController.UpdateQualityThreshold(nNegoId, pMediaNego->GetAudioNego());
     m_objAudioController.UpdateRtpConfig(nNegoId, pMediaNego->GetAudioNego());
     m_objAudioController.UpdateSession(nNegoId);
 
+    m_objVideoController.UpdateQualityThreshold(pMediaNego->GetVideoNego());
     m_objVideoController.UpdateRtpConfig(pMediaNego->GetVideoNego());
     m_objVideoController.UpdateSession();
 
