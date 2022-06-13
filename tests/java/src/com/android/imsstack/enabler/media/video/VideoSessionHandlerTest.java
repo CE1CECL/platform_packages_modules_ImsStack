@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.imsstack.enabler.media;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,10 +31,12 @@ import android.telephony.imsmedia.ImsVideoSession;
 import android.telephony.imsmedia.MediaQualityThreshold;
 import android.telephony.imsmedia.VideoConfig;
 import android.telephony.imsmedia.VideoSessionCallback;
+import android.testing.TestableLooper;
 
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.enabler.mtc.MtcMediaSession;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,8 +62,8 @@ public class VideoSessionHandlerTest {
     private static final int RTCP = ImsMediaSession.PACKET_TYPE_RTCP;
 
     // Mock Objects
-    @Mock Context mContext;
-    @Mock IBaseContext mMockContext;
+    @Mock Context mMockContext;
+    @Mock IBaseContext mMockBaseContext;
     @Mock MtcMediaSession mMockMtcMediaSession;
     @Mock VideoSessionCallbackHandler mMockVideoSessionCallbackHandler;
     @Mock ImsVideoSession mMockVideoSession;
@@ -71,25 +75,38 @@ public class VideoSessionHandlerTest {
     private MediaSession mMediaSession;
     private MediaManagerHelper mMediaManager;
     private IMediaListener mMediaListener;
+    private VideoSessionHandler.VideoMessageHandler mHandler;
+    private TestableLooper mLooper;
 
     @Before
     public void setUp() throws Exception {
         // Initialize Mock Objects
         MockitoAnnotations.initMocks(this);
-        when(mMockContext.getContext()).thenReturn(mContext);
+        when(mMockBaseContext.getContext()).thenReturn(mMockContext);
 
         // create the instance to test
-        mMediaSession =
-                new MediaSession(
-                        mMockContext, mMockMtcMediaSession, mMockImsMediaManager, mMockExecutor);
+        mMediaSession = new MediaSession(mMockBaseContext, mMockMtcMediaSession,
+                mMockImsMediaManager, mMockExecutor);
         mMediaManager = mMediaSession.getMediaManager();
         mMediaListener = mMediaSession.getMediaListenerProxy();
-        mVideoSessionHandler =
-                new VideoSessionHandler(
-                        mMediaManager, mMockMtcMediaSession, mMockVideoSessionCallbackHandler,
-                        mMockVideoSession);
+        mVideoSessionHandler = new VideoSessionHandler(mMediaManager,
+                mMockMtcMediaSession, mMockVideoSessionCallbackHandler, mMockVideoSession);
         mMediaSession.setVideoSessionHandler(mVideoSessionHandler);
         mVideoSessionCallback = mVideoSessionHandler.getVideoSessionCallback();
+        mHandler = mVideoSessionHandler.getVideoMessageHandler();
+        try {
+            mLooper = new TestableLooper(mHandler.getLooper());
+        } catch (Exception e) {
+            fail("Failed to create TestableLooper" + e);
+        }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (mLooper != null) {
+            mLooper.destroy();
+            mLooper = null;
+        }
     }
 
     @Test
@@ -105,14 +122,20 @@ public class VideoSessionHandlerTest {
         mVideoSessionHandler.setVideoSession(null);
         mMediaManager.setImsMediaConnected(true);
         mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .openSessionResponse(eq(ImsMediaSession.RESULT_PORT_UNAVAILABLE));
 
         // TODO_MEDIA : Socket creation success scenario to be verified
-        // VideoSession was opened already, but OpenVideoSession requested again for same session
+
+        /**
+         * VideoSession was opened already, but OpenVideoSession requested again
+         * for same session
+         */
         mVideoSessionHandler.setVideoSession(mMockVideoSession);
         testParcel.setDataPosition(0);
         mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .openSessionResponse(eq(ImsMediaSession.RESULT_NOT_SUPPORTED));
 
@@ -121,23 +144,27 @@ public class VideoSessionHandlerTest {
         mMediaManager.setImsMediaConnected(false);
         testParcel.setDataPosition(0);
         mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .openSessionResponse(eq(ImsMediaSession.RESULT_NOT_READY));
 
         // OpenSession Success Received.
         when(mMockVideoSession.getSessionId()).thenReturn(SESSION_ID);
         mVideoSessionCallback.onOpenSessionSuccess(mMockVideoSession);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .openSessionResponse(eq(ImsMediaSession.RESULT_SUCCESS));
         assertEquals(mVideoSessionHandler.getVideoSessionId(), SESSION_ID);
 
         // VideoSession null object received in OpenSession Success.
         mVideoSessionCallback.onOpenSessionSuccess(null);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .openSessionResponse(eq(ImsMediaSession.RESULT_NO_MEMORY));
 
         // OpenSession Failure Received
         mVideoSessionCallback.onOpenSessionFailure(ImsMediaSession.RESULT_NO_RESOURCES);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .openSessionResponse(eq(ImsMediaSession.RESULT_NO_RESOURCES));
     }
@@ -149,12 +176,14 @@ public class VideoSessionHandlerTest {
         testParcel.writeInt(ImsMediaSession.SESSION_TYPE_VIDEO);
         testParcel.setDataPosition(0);
         mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
         verify(mMockImsMediaManager).closeSession(eq(mMockVideoSession));
     }
 
     @Test
     public void testSessionChanged() {
         mVideoSessionCallback.onSessionChanged(ImsMediaSession.SESSION_STATE_ACTIVE);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .sessionChanged(eq(ImsMediaSession.SESSION_STATE_ACTIVE));
     }
@@ -169,15 +198,18 @@ public class VideoSessionHandlerTest {
         videoConfig.writeToParcel(testParcel, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         testParcel.setDataPosition(0);
         mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
         verify(mMockVideoSession).modifySession(eq(videoConfig));
 
         // Modify Session Response - SUCCESS
         mVideoSessionCallback.onModifySessionResponse(videoConfig, RESULT_SUCCESS);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .modifySessionResponse(eq(videoConfig), eq(RESULT_SUCCESS));
 
         // Modify Session Response - FAILURE
         mVideoSessionCallback.onModifySessionResponse(videoConfig, RESULT_FAILURE);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .modifySessionResponse(eq(videoConfig), eq(RESULT_FAILURE));
     }
@@ -186,6 +218,7 @@ public class VideoSessionHandlerTest {
     public void testFirstMediaPacketReceived() {
         VideoConfig videoConfig = MediaTestUtils.createVideoConfig();
         mVideoSessionCallback.onFirstMediaPacketReceived(videoConfig);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler).firstMediaPacketReceived(eq(videoConfig));
     }
 
@@ -193,9 +226,9 @@ public class VideoSessionHandlerTest {
     public void testPeerDimensionChanged() {
         mVideoSessionCallback.onPeerDimensionChanged(
                 MediaTestUtils.RESOLUTION_WIDTH, MediaTestUtils.RESOLUTION_HEIGHT);
-        verify(mMockMtcMediaSession)
-                .peerDimensionChanged(
-                        eq(MediaTestUtils.RESOLUTION_WIDTH), eq(MediaTestUtils.RESOLUTION_HEIGHT));
+        processAllMessages();
+        verify(mMockMtcMediaSession).peerDimensionChanged(
+                eq(MediaTestUtils.RESOLUTION_WIDTH), eq(MediaTestUtils.RESOLUTION_HEIGHT));
     }
 
     @Test
@@ -208,6 +241,7 @@ public class VideoSessionHandlerTest {
         threshold.writeToParcel(testParcel, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         testParcel.setDataPosition(0);
         mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
         verify(mMockVideoSession).setMediaQualityThreshold(eq(threshold));
     }
 
@@ -215,10 +249,12 @@ public class VideoSessionHandlerTest {
     public void testMediaInactivityNotifications() {
         // Receive RTP Inactivity Notification
         mVideoSessionCallback.notifyMediaInactivity(RTP);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler).onNotifyMediaInactivity(eq(RTP));
 
         // Receive RTCP Inactivity Notification
         mVideoSessionCallback.notifyMediaInactivity(RTCP);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler).onNotifyMediaInactivity(eq(RTCP));
     }
 
@@ -226,12 +262,20 @@ public class VideoSessionHandlerTest {
     public void testMediaQualityNotifications() {
         // Receive Packet Loss Notification
         mVideoSessionCallback.notifyPacketLoss(MediaTestUtils.PACKET_LOSS_PERCENT);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .onNotifyPacketLoss(eq(MediaTestUtils.PACKET_LOSS_PERCENT));
 
         // Receive Video Data Usage Notification
         mVideoSessionCallback.notifyVideoDataUsage(MediaTestUtils.DATA_BYTES);
+        processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .onNotifyVideoDataUsage(eq(MediaTestUtils.DATA_BYTES));
+    }
+
+    private void processAllMessages() {
+        while (!mLooper.getLooper().getQueue().isIdle()) {
+            mLooper.processAllMessages();
+        }
     }
 }

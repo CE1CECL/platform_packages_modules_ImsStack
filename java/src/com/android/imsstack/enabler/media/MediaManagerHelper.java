@@ -19,6 +19,8 @@ package com.android.imsstack.enabler.media;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.telephony.imsmedia.ImsMediaManager;
 import android.telephony.imsmedia.ImsMediaSession;
 import android.telephony.imsmedia.RtpConfig;
@@ -41,6 +43,8 @@ public class MediaManagerHelper {
     private static ImsMediaManager sImsMediaManager;
     private static Executor sExecutor;
     private IMediaConnectionObserver mMediaObserver;
+    private static HandlerThread sMediaHandlerThread =
+            new HandlerThread(MediaManagerHelper.class.getSimpleName());
 
     public MediaManagerHelper(IMediaConnectionObserver mediaObserver) {
 
@@ -66,6 +70,9 @@ public class MediaManagerHelper {
             sExecutor = Executors.newSingleThreadExecutor();
             sImsMediaManager = new ImsMediaManager(mContext, sExecutor,
                                     new ImsMediaManagerCallback());
+            if (sMediaHandlerThread.getState() == Thread.State.NEW) {
+                sMediaHandlerThread.start();
+            }
         }
     }
 
@@ -140,6 +147,15 @@ public class MediaManagerHelper {
      */
     public void closeSession(@NonNull final ImsMediaSession session) {
         getImsMediaManagerInstance().closeSession(session);
+    }
+
+    /**
+     * Return the Looper for the media Handler thread.
+     *
+     * @return The media main looper.
+     */
+    Looper getMediaLooper() {
+        return sMediaHandlerThread.getLooper();
     }
 
     /**
