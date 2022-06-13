@@ -68,7 +68,10 @@ PUBLIC VIRTUAL void MtcMediaManager::MediaSession_Notify(
             SetState(MediaState::TERMINATED);
             break;
         case REPORT_DATA_RECEIVE_FAILED:
-            m_pMediaReportListener->OnReceivingMediaDataFailed(eReportedMediaType);
+            if (m_objProfileManager.IsConfirmedDialogState() || !IsLocalTone())
+            {
+                m_pMediaReportListener->OnReceivingMediaDataFailed(eReportedMediaType);
+            }
             break;
         case REPORT_DATA_RECEIVE_STARTED:
             HandleReceivingMediaDataStarted(eReportedMediaType);
