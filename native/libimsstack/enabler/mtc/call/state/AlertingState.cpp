@@ -129,7 +129,7 @@ PUBLIC VIRTUAL CallStateName AlertingState::SessionStarted(IN ISession* piSessio
         // TODO TerminateAndToTerminating() ?
         m_objContext.GetMediaManager().Terminate();
         FailReason objReason(FAIL_REASON_MEDIA_NEGOFAIL);
-        m_objContext.GetSession()->GetMessageSender().Terminate(IMS_TRUE, objReason);
+        m_objContext.GetSession()->Terminate(IMS_TRUE, objReason);
         m_objContext.GetUiNotifier().SendStartFailed(objReason);
         return CallStateName::TERMINATING;
     }

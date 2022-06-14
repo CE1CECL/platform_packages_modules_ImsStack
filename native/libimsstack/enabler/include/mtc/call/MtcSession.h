@@ -22,7 +22,8 @@ public:
     MtcSession(IN const MtcSession&) = delete;
     MtcSession& operator=(IN const MtcSession&) = delete;
 
-    IMS_RESULT SendStart();
+    IMS_RESULT Start();
+    IMS_RESULT Terminate(IMS_BOOL bUseBye, IN const FailReason& objReason);
 
     void HandleRequest(IN IMS_UINT32 nMethod, IN const IMessage& objRequest);
     void HandleResponse(IN IMS_UINT32 nMethod, IN const IMessage& objResponse);
@@ -142,6 +143,7 @@ private:
     CallType m_eCallType;
     IMS_BOOL m_bVideoCapable;
     IMS_BOOL m_bRttCapable;
+    IMS_BOOL m_bTerminated;
     AString m_strSessionIdHeader;
 };
 
