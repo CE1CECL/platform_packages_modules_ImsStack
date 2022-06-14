@@ -373,7 +373,6 @@ private:
     void UpdateUserInfoInContact();
     void UpdateRegIpcanCategory();
     void UpdateCallingNumberVerification();
-    void UpdateModeToHandles();
 
     IMS_BOOL IsErrorCodeExisted(
             IN const IMSVector<IMS_SINT32>& objErrorCode, IN IMS_SINT32 nCode) const;

@@ -50,21 +50,10 @@ public:
     // Request : nType
     enum
     {
-        // Action
-        TYPE_LIMITED_MODE = 100,
-        TYPE_FAKE_MODE,
-
         // Notify to Monitor
-        TYPE_SERVICE_BLOCKED = 110,
-        TYPE_HANDOVER
+        TYPE_HANDOVER = 111,
     };
 
-    // Request : nState
-    enum
-    {
-        STATE_ADD = 0,
-        STATE_REMOVE
-    };
     virtual void Request(IN IMS_UINT32 nType, IN IMS_UINT32 nState = 0) = 0;
 
     // AoSApp to AoSHandle

@@ -46,7 +46,6 @@ public:
      *
      * @param nType Indicate the type for the specific information. \n
      *                  - IImsAosMonitor::TYPE_HANDOVER \n
-     *                  - IImsAosMonitor::TYPE_SERVICE_BLOCKED \n
      *                  - IImsAosMonitor::TYPE_IPCAN
      * @param nState Indicate the detailed state for the designated type.
      */
@@ -59,24 +58,15 @@ public:
         /// @param nState HANDOVER_WIFI_TO_CELLULAR_START, HANDOVER_WIFI_TO_CELLULAR_COMPLETED
         TYPE_HANDOVER = 1,
 
-        /// Service block notification for the specific enabler
-        /// @param nState SERVICE_BLOCKED_REG_OUTAGE
-        TYPE_SERVICE_BLOCKED = 2,
-
         /// IP-CAN type notifiction between mobile and wlan
         /// @param nState IIpcan::CATEGORY_MOBILE, IIpcan::CATEGORY_WLAN
-        TYPE_IPCAN = 3,
+        TYPE_IPCAN = 2,
 
         /// Detailed state for the handover type
         /// Handover is started from WIFI to Cellular
         HANDOVER_WIFI_TO_CELLULAR_START = 100,
         /// Handover is completed from WIFI to Cellular
         HANDOVER_WIFI_TO_CELLULAR_COMPLETED,
-
-        /// Detailed state for the service type blocked
-        /// Service is blocked with outage reason phrase in 503 response for reregistration
-        /// during active IMS call
-        SERVICE_BLOCKED_REG_OUTAGE = 200,
     };
 };
 

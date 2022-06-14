@@ -3070,7 +3070,6 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT3
                 ProcessImsiBasedSubscriber();
 
                 SetMode(MODE_LIMITED);
-                UpdateModeToHandles();
             }
             return IMS_TRUE;
         }
@@ -5206,19 +5205,6 @@ PRIVATE
 void AosRegistration::UpdateRegIpcanCategory()
 {
     m_nRegIpcanCategory = m_piContext->GetConnection()->GetIpcanCategory();
-}
-
-PRIVATE
-void AosRegistration::UpdateModeToHandles()
-{
-    IMSMap<AString, IAosHandle*>& objHandles = m_piContext->GetHandles();
-
-    for (IMS_UINT32 nAt = 0; nAt < objHandles.GetSize(); ++nAt)
-    {
-        IAosHandle* piHandle = objHandles.GetValueAt(nAt);
-        piHandle->Request(IAosHandle::TYPE_LIMITED_MODE,
-                (GetMode() == MODE_LIMITED) ? IAosHandle::STATE_ADD : IAosHandle::STATE_REMOVE);
-    }
 }
 
 PRIVATE

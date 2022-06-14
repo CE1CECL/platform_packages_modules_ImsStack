@@ -57,9 +57,6 @@ public:
         /// The initial registration is attempted without IPSEC.
         IPSEC_DISABLED,
 
-        /// MTS service is temporarily blocked by server error with outage reason
-        MTS_BLOCKED_BY_SERVER_OUTAGE,
-
         /// The number of retry failures increases.
         RETRY_COUNT_INCREASE,
 

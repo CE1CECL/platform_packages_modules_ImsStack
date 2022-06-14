@@ -223,21 +223,6 @@ PUBLIC VIRTUAL IMS_BOOL AosApplication::RequestCmd(
                     IAosRegistration::CMD_SET_IPSEC, IAosRegistration::REASON_SET_IPSEC_DISABLE);
             break;
 
-        case ImsAosControl::MTS_BLOCKED_BY_SERVER_OUTAGE:
-        {
-            IAosHandle* piHandle = m_piContext->GetHandle(ImsAosService::MTS);
-            if (piHandle != IMS_NULL)
-            {
-                IImsAosMonitor* piMonitor = piHandle->GetMonitor();
-                if (piMonitor != IMS_NULL)
-                {
-                    piMonitor->ImsAosMonitor_Notify(IImsAosMonitor::TYPE_SERVICE_BLOCKED,
-                            IImsAosMonitor::SERVICE_BLOCKED_REG_OUTAGE);
-                }
-            }
-        }
-        break;
-
         case ImsAosControl::RETRY_COUNT_INCREASE:
             // TODO
             break;
