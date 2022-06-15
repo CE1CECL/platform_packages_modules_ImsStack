@@ -442,7 +442,7 @@ void MtcCallState::HandleTerminate(IN const FailReason& objReason)
         return;
     }
 
-    pSession->GetMessageSender().Terminate(IMS_TRUE, objReason);
+    pSession->Terminate(IMS_TRUE, objReason);
 }
 
 PROTECTED

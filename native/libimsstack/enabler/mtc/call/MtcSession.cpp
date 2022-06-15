@@ -5,6 +5,7 @@
 #include "ServiceSystemTime.h"
 #include "ServiceTrace.h"
 #include "SipHeaderName.h"
+#include "SipStatusCode.h"
 #include "call/MtcSession.h"
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
@@ -27,6 +28,7 @@ MtcSession::MtcSession(
         m_eCallType(eCallType),
         m_bVideoCapable(IMS_FALSE),
         m_bRttCapable(IMS_FALSE),
+        m_bTerminated(IMS_FALSE),
         m_strSessionIdHeader(AString::ConstNull())
 {
     IMS_TRACE_I("+MtcSession", 0, 0, 0);
@@ -56,7 +58,7 @@ PUBLIC VIRTUAL MtcSession::~MtcSession()
     GetSipInterfaceFactory().GetISessionHolder()->ReleaseISession(&m_objSession);
 }
 
-PUBLIC IMS_RESULT MtcSession::SendStart()
+PUBLIC IMS_RESULT MtcSession::Start()
 {
     if (m_objContext.GetMediaManager().FormSdp(&m_objSession, m_eCallType) == IMS_FAILURE)
     {
@@ -66,6 +68,17 @@ PUBLIC IMS_RESULT MtcSession::SendStart()
     m_objContext.GetPreconditionManager().FormPreconditionSdp(&m_objSession, IMS_FALSE);
 
     return m_objMessageSender.Start();
+}
+
+PUBLIC IMS_RESULT MtcSession::Terminate(IMS_BOOL bUseBye, IN const FailReason& objReason)
+{
+    if (m_bTerminated)
+    {
+        return IMS_FAILURE;
+    }
+
+    m_bTerminated = IMS_TRUE;
+    return m_objMessageSender.Terminate(bUseBye, objReason);
 }
 
 PUBLIC
@@ -106,6 +119,11 @@ void MtcSession::HandleResponse(IN IMS_UINT32 nMethod, IN const IMessage& objRes
     {
         UpdateCallTypeFromMessage(objResponse);
         UpdateCapabilityFromMessage(objResponse);
+    }
+
+    if (objResponse.GetStatusCode() == SipStatusCode::SC_199)
+    {
+        m_bTerminated = IMS_TRUE;
     }
 }
 

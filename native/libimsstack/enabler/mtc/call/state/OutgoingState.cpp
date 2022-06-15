@@ -425,7 +425,6 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionProvisionalResponseReceived(
     }
     if (nStatusCode == SipStatusCode::SC_199)
     {
-        // TODO: An early dialog is terminated
         return GetStateName();
     }
 
@@ -492,7 +491,6 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionRPRReceived(
     }
     if (nStatusCode == SipStatusCode::SC_199)
     {
-        // TODO: An early dialog is terminated
         return GetStateName();
     }
 
@@ -665,7 +663,7 @@ void OutgoingState::HandleCancel(IN ISession* piSession, IN const FailReason& ob
     MtcSession* pSession = m_objContext.GetSession(piSession);
     if (pSession != IMS_NULL)
     {
-        pSession->GetMessageSender().Terminate(IMS_FALSE, objReason);
+        pSession->Terminate(IMS_FALSE, objReason);
     }
 }
 
@@ -724,7 +722,7 @@ CallStateName OutgoingState::ContinueSilentRetry()
     InitMediaSession();
     m_objContext.GetPreconditionManager().CreateQos(GetISession());
 
-    if (pSession->SendStart() == IMS_FAILURE)
+    if (pSession->Start() == IMS_FAILURE)
     {
         m_objContext.GetMediaManager().Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
@@ -806,9 +804,7 @@ void OutgoingState::OnSessionForked(IN ISession* piOriginSession)
     }
 
     IMS_TRACE_I("OnSessionForked : Terminate previous session", 0, 0, 0);
-    pOriginMtcSession->GetMessageSender().Terminate(
-            IMS_TRUE, FailReason(FAIL_REASON_SESSION_EARLYDIALOG));
-
+    pOriginMtcSession->Terminate(IMS_TRUE, FailReason(FAIL_REASON_SESSION_EARLYDIALOG));
     m_objContext.GetMediaManager().DestroyMediaProfile(piOriginSession);
     m_objContext.RemoveSession(piOriginSession);
 }

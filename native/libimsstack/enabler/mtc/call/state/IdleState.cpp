@@ -318,7 +318,7 @@ CallStateName IdleState::ContinueStart(IN MediaInfo* pMediaInfo)
 
     m_objContext.GetPreconditionManager().CreateQos(GetISession());
 
-    if (m_objContext.GetSession()->SendStart() == IMS_FAILURE)
+    if (m_objContext.GetSession()->Start() == IMS_FAILURE)
     {
         m_objContext.GetMediaManager().Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
@@ -349,7 +349,7 @@ CallStateName IdleState::ContinueConference(
 
     m_objContext.GetPreconditionManager().CreateQos(GetISession());
 
-    if (m_objContext.GetSession()->SendStart() == IMS_FAILURE)
+    if (m_objContext.GetSession()->Start() == IMS_FAILURE)
     {
         m_objContext.GetMediaManager().Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));
@@ -397,7 +397,7 @@ CallStateName IdleState::ContinueStartUssi(IN MediaInfo* pMediaInfo)
             MtcMediaUtil::GetMediaTypesFromCallType(m_objContext.GetCallInfo().eInitialCallType);
     objMediaManager.SetRtpPort(GetISession(), eMediaTypes, 0);
 
-    if (m_objContext.GetSession()->SendStart() == IMS_FAILURE)
+    if (m_objContext.GetSession()->Start() == IMS_FAILURE)
     {
         objMediaManager.Terminate();
         m_objContext.GetUiNotifier().SendStartFailed(FailReason(FAIL_REASON_UNKNOWN));

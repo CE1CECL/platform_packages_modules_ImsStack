@@ -503,7 +503,7 @@ CallStateName EstablishedState::TerminateUssiAfterInfoTransaction()
 
     m_objContext.GetMediaManager().Terminate();
     FailReason objReason(FAIL_REASON_UNKNOWN);
-    m_objContext.GetSession()->GetMessageSender().Terminate(IMS_TRUE, objReason);
+    m_objContext.GetSession()->Terminate(IMS_TRUE, objReason);
     m_objContext.GetUiNotifier().SendStartFailed(objReason);
 
     return CallStateName::TERMINATING;
