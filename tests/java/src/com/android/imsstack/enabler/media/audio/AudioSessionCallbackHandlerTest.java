@@ -235,7 +235,7 @@ public class AudioSessionCallbackHandlerTest {
     }
 
     @Test
-    public void mediaQualityChanged() {
+    public void testMediaQualityChanged() {
 
         CallQuality callQuality = MediaTestUtils.createCallQuality();
         Parcel testParcel = Parcel.obtain();
@@ -244,6 +244,18 @@ public class AudioSessionCallbackHandlerTest {
         testParcel.writeInt(ImsMediaSession.SESSION_TYPE_AUDIO);
         callQuality.writeToParcel(testParcel, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         mAudioSessionCallbackHandler.mediaQualityChanged(callQuality);
+
+        verify(mMockMtcMediaSession).sendRequest(mCaptorParcel.capture());
+        MediaTestUtils.assertParcelEquals(testParcel, mCaptorParcel.getValue());
+    }
+
+    @Test
+    public void testMediaDetach() {
+
+        Parcel testParcel = Parcel.obtain();
+
+        testParcel.writeInt(MediaConstants.NOTIFY_MEDIA_DETACH);
+        mAudioSessionCallbackHandler.nofityMediaDetach();
 
         verify(mMockMtcMediaSession).sendRequest(mCaptorParcel.capture());
         MediaTestUtils.assertParcelEquals(testParcel, mCaptorParcel.getValue());
