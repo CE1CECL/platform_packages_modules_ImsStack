@@ -204,6 +204,7 @@ PUBLIC IMS_BOOL VideoMediaSession::UpdateRtpConfig(
         m_objVideoConfig.setCodecType(VideoConfig::CODEC_AVC);
         m_objVideoConfig.setFramerate(pFmtp->nFrameRate);
         m_objVideoConfig.setBitrate(pFmtp->nBitrate);
+        m_objVideoConfig.setSamplingRateKHz((int8_t)(pNegoPayload->objRtpMap.nSamplingRate / 1000));
 
         IMS_UINT32 nTempAvcProfile = VideoConfig::CODEC_PROFILE_NONE;
         switch (pFmtp->nProfile)
