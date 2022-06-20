@@ -11,7 +11,7 @@
 */
 
 #include "ServiceMemory.h"
-#include "IMSStateMachine.h"
+#include "ImsStateMachine.h"
 
 #if 0  // public
 #endif

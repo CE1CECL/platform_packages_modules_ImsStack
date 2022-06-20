@@ -14,8 +14,10 @@
 #define _IMS_APP_THREAD_H_
 
 #include "BaseThread.h"
-#include "IMSApp.h"
-#include "IMSActivityMngr.h"
+#include "ImsApp.h"
+#include "ImsActivityManager.h"
+
+#define ImsAppThread IMSAppThread
 
 class IMSAppThread : public BaseThread
 {

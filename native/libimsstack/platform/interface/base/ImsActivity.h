@@ -14,7 +14,9 @@
 #define _IMS_ACTIVITY_H_
 
 #include "IThread.h"
-#include "IIMSActivityControl.h"
+#include "IImsActivityController.h"
+
+#define ImsActivity IMSActivity
 
 class IMSActivity
 {

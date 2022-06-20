@@ -46,7 +46,7 @@ __IMS_TRACE_TAG_COM_UC__;
 ------------------------------------------------------------------------------------------------ */
 PUBLIC
 DEMngr::DEMngr(IN IMtcApp* pApp) :
-        IMSActivityEx(AString::ConstNull()),
+        ImsActivityEx(AString::ConstNull()),
         m_pApp(pApp),
         m_pListener(IMS_NULL),
         m_pTimer(IMS_NULL),

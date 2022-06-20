@@ -8,7 +8,7 @@
 #ifndef UC_TRM_H_
 #define UC_TRM_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "IMSList.h"
 #include "ITrm.h"
 
@@ -19,7 +19,7 @@
 
 class IMutex;
 
-class UCTRM : public IMSActivityEx
+class UCTRM : public ImsActivityEx
 {
 public:
     UCTRM();
@@ -32,7 +32,7 @@ private:
 public:
     static UCTRM* GetInstance();
 
-    class CT_Handler : public IMSActivityEx
+    class CT_Handler : public ImsActivityEx
     {
     public:
         CT_Handler(IN IMS_SINT32 nSlotID);

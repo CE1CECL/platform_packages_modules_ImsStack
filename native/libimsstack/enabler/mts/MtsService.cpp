@@ -40,7 +40,7 @@ __IMS_TRACE_TAG_COM_SMS__;
 
 MtsService::MtsService(IN const AString& strMtsAppId, IN const AString& strServiceId,
         IN IMS_SINT32 nSlotId, IN MtsDynamicLoader* pMtsDynamicLoader) :
-        IMSService(AString::ConstNull()),
+        ImsService(AString::ConstNull()),
         m_piImsAos(IMS_NULL),
         m_strAppId(strMtsAppId),
         m_strServiceId(strServiceId),

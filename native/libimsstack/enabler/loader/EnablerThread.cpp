@@ -25,11 +25,11 @@
 __IMS_TRACE_TAG_USER_DECL__("EnablerThread");
 
 PUBLIC
-EnablerThread::EnablerThread(IN EnablerFactory *pEnablerFactory_, IN IMS_SINT32 nSlotId_)
-    : IMSAppThread()
-    , pEnablerFactory(pEnablerFactory_)
-    , nSlotId(nSlotId_)
-    , nState(STATE_INACTIVE)
+EnablerThread::EnablerThread(IN EnablerFactory* pEnablerFactory_, IN IMS_SINT32 nSlotId_) :
+        ImsAppThread(),
+        pEnablerFactory(pEnablerFactory_),
+        nSlotId(nSlotId_),
+        nState(STATE_INACTIVE)
 {
 }
 
@@ -62,7 +62,7 @@ IMS_BOOL EnablerThread::OnStart(IN IMSMSG &objMSG)
     IMS_TRACE_D("OnStart :: slotId=%d, %s",
             GetSlotId(), DeviceConfig::ToString().GetStr(), 0);
 
-    IMSAppThread::OnStart(objMSG);
+    ImsAppThread::OnStart(objMSG);
 
     IMS_BOOL bInitOnStart = IMS_FALSE;
     const SystemConfig* pSC = SystemConfigManager::GetInstance()->GetConfig(GetSlotId());
@@ -120,7 +120,7 @@ IMS_BOOL EnablerThread::OnTerminate(IN IMSMSG &objMSG)
     UninitializeGlobals();
     EngineLoader::Uninitialize(GetSlotId());
 
-    return IMSAppThread::OnTerminate(objMSG);
+    return ImsAppThread::OnTerminate(objMSG);
 }
 
 PROTECTED VIRTUAL
@@ -128,12 +128,12 @@ IMS_BOOL EnablerThread::OnMessage(IN IMSMSG &objMSG)
 {
     switch (objMSG.GetName())
     {
-    case TMSG_CONTROL_ENABLERS:
-        ControlEnablersInternal(LONG_TO_INT(objMSG.nWparam));
-        return IMS_TRUE;
+        case TMSG_CONTROL_ENABLERS:
+            ControlEnablersInternal(LONG_TO_INT(objMSG.nWparam));
+            return IMS_TRUE;
 
-    default:
-        return IMSAppThread::OnMessage(objMSG);
+        default:
+            return ImsAppThread::OnMessage(objMSG);
     }
 }
 

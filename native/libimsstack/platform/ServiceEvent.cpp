@@ -15,7 +15,7 @@
  */
 #include "IEventReceiver.h"
 #include "IEventSender.h"
-#include "IMSActivity.h"
+#include "ImsActivity.h"
 #include "IMSMap.h"
 #include "ImsMessageDef.h"
 #include "PlatformFactory.h"
@@ -28,7 +28,7 @@
 __IMS_TRACE_TAG_BASE__;
 
 // EventActivity class
-class EventActivity : public IMSActivity
+class EventActivity : public ImsActivity
 {
 public:
     EventActivity(IN IMS_SINT32 nEvent, IN IEventListener* piListener);
@@ -42,8 +42,8 @@ public:
     void NotifyEvent(IN IMS_UINT32 nWParam, IN IMS_UINT32 nLParam);
 
 private:
-    // IMSActivity class
-    virtual IIMSActivityControl* GetController();
+    // ImsActivity class
+    virtual IImsActivityController* GetController();
     virtual IMS_BOOL DispatchMessage(IN ImsMessage& objMsg);
 
 private:
@@ -53,7 +53,7 @@ private:
 
 PUBLIC
 EventActivity::EventActivity(IN IMS_SINT32 nEvent, IN IEventListener* piListener) :
-        IMSActivity(),
+        ImsActivity(),
         m_nEvent(nEvent),
         m_piListener(piListener)
 {
@@ -83,7 +83,7 @@ void EventActivity::NotifyEvent(IN IMS_UINT32 nWParam, IN IMS_UINT32 nLParam)
     PostMessage(IMS_MSG_USER + m_nEvent, nWParam, nLParam);
 }
 
-PRIVATE VIRTUAL IIMSActivityControl* EventActivity::GetController()
+PRIVATE VIRTUAL IImsActivityController* EventActivity::GetController()
 {
     return IMS_NULL;
 }

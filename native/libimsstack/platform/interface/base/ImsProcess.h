@@ -13,8 +13,10 @@
 #ifndef _IMS_PROCESS_H_
 #define _IMS_PROCESS_H_
 
-#include "IMSAppThread.h"
-#include "IIMSActivityControl.h"
+#include "ImsAppThread.h"
+#include "IImsActivityController.h"
+
+#define ImsProcess IMSProcess
 
 class IMSThreadMap;
 class IMutex;

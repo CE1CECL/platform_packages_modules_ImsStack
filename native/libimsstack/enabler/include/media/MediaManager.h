@@ -22,7 +22,7 @@
 #include "ServiceEvent.h"
 #include "ServiceTimer.h"
 #include "IEventListener.h"
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "MediaMsgHandler.h"
 #include "MediaSession.h"
 #include "MediaResourceMngr.h"
@@ -30,7 +30,7 @@
 
 class JniMediaSession;
 
-class MediaManager : public IMSActivityEx, public IMediaManager, public ITimerListener
+class MediaManager : public ImsActivityEx, public IMediaManager, public ITimerListener
 {
 public:
     class MediaSessionNode

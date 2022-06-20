@@ -25,7 +25,7 @@ __IMS_TRACE_TAG_USER_DECL__("UCE");
 */
 PUBLIC
 UceService::UceService(IN CONST AString& strAppName, IN CONST IMS_SINT32 nSlotId) :
-        IMSService(AString::ConstNull()),
+        ImsService(AString::ConstNull()),
         m_pUceSubscribeManager(IMS_NULL),
         m_pUcePublishManager(IMS_NULL),
         m_pUceOptionsManager(IMS_NULL),

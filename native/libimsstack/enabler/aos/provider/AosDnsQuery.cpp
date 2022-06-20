@@ -304,7 +304,7 @@ IMS_BOOL AosDnsQueryPrivate::Terminate()
 
 PUBLIC
 AosDnsQuery::AosDnsQuery() :
-        IMSActivityEx(),
+        ImsActivityEx(),
         m_pPrivate(IMS_NULL),
         m_piListener(IMS_NULL),
         m_piConnection(IMS_NULL)

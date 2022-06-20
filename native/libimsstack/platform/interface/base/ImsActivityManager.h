@@ -13,8 +13,8 @@
 #ifndef _IMS_ACTIVITYMNGR_H_
 #define _IMS_ACTIVITYMNGR_H_
 
-#include "IMSActivity.h"
-#include "IIMSActivityControl.h"
+#include "ImsActivity.h"
+#include "IImsActivityController.h"
 
 class IMSActivityMngr
 {

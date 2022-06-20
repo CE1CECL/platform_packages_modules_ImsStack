@@ -7,14 +7,14 @@
 #ifndef _UCE_OPTIONS_MANAGER_H_
 #define _UCE_OPTIONS_MANAGER_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "IMSMap.h"
 
 class UceOptions;
 class ICoreService;
 class ICapabilities;
 
-class UceOptionsManager : public IMSActivityEx
+class UceOptionsManager : public ImsActivityEx
 {
 public:
     UceOptionsManager(

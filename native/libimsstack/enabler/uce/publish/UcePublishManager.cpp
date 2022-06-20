@@ -464,7 +464,7 @@ void UcePublishManager::SetState(IMS_UINT32 _eState)
     {
         SetPublishStateToAoS(PUBLISH_STOPPED);
     }
-    IMSStateMachine::SetState(_eState);
+    ImsStateMachine::SetState(_eState);
 }
 
 PROTECTED

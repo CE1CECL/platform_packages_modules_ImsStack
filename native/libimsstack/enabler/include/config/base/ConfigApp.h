@@ -14,12 +14,10 @@
 #define _CONFIG_APP_H_
 
 #include "ImsMessageDef.h"
-#include "IMSApp.h"
+#include "ImsApp.h"
 #include "IEventListener.h"
 
-class ConfigApp
-    : public IMSApp
-    , public IEventListener
+class ConfigApp : public ImsApp, public IEventListener
 {
 public:
     ConfigApp(IN const AString &strAppName);
@@ -29,7 +27,7 @@ public:
     void Start();
 
 protected:
-    // IMSApp class
+    // ImsApp class
     virtual IMS_BOOL OnPreprocess(IN IMSMSG &objMSG);
     virtual IMS_BOOL OnMessage(IN IMSMSG &objMSG);
     virtual IMS_BOOL OnPostprocess(IN IMSMSG &objMSG);

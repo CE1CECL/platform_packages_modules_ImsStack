@@ -21,8 +21,8 @@
 __IMS_TRACE_TAG_USER_DECL__("ConfigApp");
 
 PUBLIC
-ConfigApp::ConfigApp(IN const AString &strAppName)
-    : IMSApp(strAppName)
+ConfigApp::ConfigApp(IN const AString& strAppName) :
+        ImsApp(strAppName)
 {
 }
 

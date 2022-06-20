@@ -47,7 +47,7 @@ private:
 
     void ControlEnablers(IN IMS_SINT32 nSlotId);
 
-    static IMSAppThread* CreateThread(IN void* pvParam);
+    static ImsAppThread* CreateThread(IN void* pvParam);
 
 private:
     class EnablerThreadParam

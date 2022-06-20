@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "PlatformProperty.h"
 #include "ServiceTrace.h"
 #include "SystemConfigManager.h"
@@ -60,7 +60,7 @@ PUBLIC GLOBAL void ImsMain::Start()
     // Starts the platform-specific threads
     PlatformProperty::Start();
 
-    IMSProcess* pProcess = IMSProcess::GetInstance();
+    ImsProcess* pProcess = ImsProcess::GetInstance();
 
     // Starts the main worker thread
     if (!pProcess->Initialize())
@@ -80,7 +80,7 @@ PUBLIC GLOBAL void ImsMain::Stop()
 
     EngineState::Uninitialize();
 
-    IMSProcess::GetInstance()->Uninitialize();
+    ImsProcess::GetInstance()->Uninitialize();
 
     PlatformProperty::Stop();
 }

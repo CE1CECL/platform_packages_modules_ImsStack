@@ -16,7 +16,7 @@
 #ifndef AOS_DNS_QUERY_H_
 #define AOS_DNS_QUERY_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "IMSList.h"
 #include "IPAddress.h"
 #include "interface/AosInternalMsgDef.h"
@@ -25,7 +25,7 @@ class INetworkConnection;
 class IAosDnsQueryListener;
 class AosDnsQueryPrivate;
 
-class AosDnsQuery : public IMSActivityEx
+class AosDnsQuery : public ImsActivityEx
 {
 public:
     AosDnsQuery();
@@ -47,7 +47,7 @@ public:
     IMS_BOOL DnsQueryPrivate_Terminated();
 
 private:
-    // IMSActivityEx
+    // ImsActivityEx
     IMS_BOOL OnMessage(IN IMSMSG& objMsg);
 
     enum

@@ -19,8 +19,8 @@
 
 #include <gmock/gmock.h>
 
-#include "IMSActivityEx.h"
-#include "IMSStateMachine.h"
+#include "ImsActivityEx.h"
+#include "ImsStateMachine.h"
 #include "IEventListener.h"
 #include "ITimer.h"
 #include "interface/AosInternalMsgDef.h"

@@ -11,7 +11,7 @@
 */
 
 #include "ServiceMemory.h"
-#include "IMSApp.h"
+#include "ImsApp.h"
 
 PUBLIC
 IMSApp::IMSApp(IN CONST AString& strName) :

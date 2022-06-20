@@ -17,7 +17,7 @@
 #ifndef MTS_SERVICE_H_
 #define MTS_SERVICE_H_
 
-#include "IMSService.h"
+#include "ImsService.h"
 #include "ICoreServiceListener.h"
 #include "interface/aos/IImsAosListener.h"
 #include "interface/aos/IImsAosMonitor.h"
@@ -33,7 +33,7 @@ class JniMtsServiceThread;
 class MtsDynamicLoader;
 
 class MtsService final :
-        public IMSService,
+        public ImsService,
         public ICoreServiceListener,
         public IImsAosListener,
         public IImsAosMonitor,
@@ -45,7 +45,7 @@ public:
     ~MtsService();
 
 protected:
-    // IMSService
+    // ImsService
     inline IMS_BOOL OnPreprocess(IN IMSMSG& /*objMSG*/) { return IMS_TRUE; }
     inline IMS_BOOL OnMessage(IN IMSMSG& /*objMSG*/) { return IMS_TRUE; }
     inline IMS_BOOL OnPostprocess(IN IMSMSG& /*objMSG*/) { return IMS_TRUE; }

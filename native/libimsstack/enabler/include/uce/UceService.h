@@ -6,15 +6,15 @@
 
 #include "ICoreService.h"
 #include "ICoreServiceListener.h"
-#include "IMSService.h"
+#include "ImsService.h"
 #include "IUce.h"
 
 class UceSubscribeManager;
 class UcePublishManager;
 class UceOptionsManager;
-class IIMSActivityControl;
+class IImsActivityController;
 
-class UceService : public IMSService, public ICoreServiceListener
+class UceService : public ImsService, public ICoreServiceListener
 {
 public:
     UceService(IN CONST AString& strAppName, IN CONST IMS_SINT32 nSlotId);

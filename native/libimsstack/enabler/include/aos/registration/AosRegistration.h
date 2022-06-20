@@ -18,7 +18,7 @@
 
 #include "ITimer.h"
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "IPAddress.h"
 
 #include "IRegistrationListener.h"
@@ -55,7 +55,7 @@ class AosSubscription;
 enum class AosNetworkType;
 
 class AosRegistration :
-        public IMSActivityEx,
+        public ImsActivityEx,
         public IAosRegistration,
         public IRegistrationListener,
         public IAosSubscriptionListener,
@@ -148,7 +148,7 @@ protected:
     /// Log
     AString FeatureToString();
 
-    /// IMSActivityEx
+    /// ImsActivityEx
     virtual IMS_BOOL OnMessage(IN IMSMSG& objMsg);
 
     /// Initialize

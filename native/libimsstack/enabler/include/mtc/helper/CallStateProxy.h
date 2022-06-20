@@ -2,7 +2,7 @@
 #define CALL_STATE_PROXY_H_
 
 #include "CallReasonInfo.h"
-#include "IMSActivity.h"
+#include "ImsActivity.h"
 #include "IMSTypeDef.h"
 #include "MtcDef.h"
 #include "call/IMtcCall.h"
@@ -38,7 +38,7 @@ public:
     IMS_SINT32 nReason;  // enum class????
 };
 
-class CallStateProxy final : public IMSActivity
+class CallStateProxy final : public ImsActivity
 {
 public:
     CallStateProxy(IN IMtcCallManager& objCallManager);
@@ -47,7 +47,7 @@ public:
     CallStateProxy& operator=(IN const CallStateProxy&) = delete;
 
 public:
-    virtual IIMSActivityControl* GetController() override { return IMS_NULL; }
+    virtual IImsActivityController* GetController() override { return IMS_NULL; }
     void AddListener(IN IMtcCallStateListener* pListener);
     void RemoveListener(IN IMtcCallStateListener* pListener);
 

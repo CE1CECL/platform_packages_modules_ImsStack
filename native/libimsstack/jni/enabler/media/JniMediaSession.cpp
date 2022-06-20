@@ -19,7 +19,7 @@
 #include <utils/String8.h>
 
 #include "ServiceTrace.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 
 #include "JniConnectorFactory.h"
 #include "JniMediaSession.h"
@@ -55,7 +55,7 @@ JniMediaSession::~JniMediaSession()
 
     if (m_pThread != IMS_NULL)
     {
-        IMSProcess::GetInstance()->UnloadAppThread(m_strThreadName);
+        ImsProcess::GetInstance()->UnloadAppThread(m_strThreadName);
         m_pThread = IMS_NULL;
     }
     SetJniMediaSessionThread();
@@ -90,8 +90,8 @@ void JniMediaSession::Initialize(IN CBServiceNoti pfnNotifier, IN IMS_SINTP nNat
     {
         return new JniMediaSessionThread();
     };
-    IMSProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
-    m_pThread = (JniMediaSessionThread*)(IMSProcess::GetInstance()->GetThread(m_strThreadName));
+    ImsProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
+    m_pThread = (JniMediaSessionThread*)(ImsProcess::GetInstance()->GetThread(m_strThreadName));
 
     if (m_pThread == IMS_NULL)
     {

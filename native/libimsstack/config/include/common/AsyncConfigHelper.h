@@ -14,11 +14,11 @@
 #define _ASYNC_CONFIG_HELPER_H_
 
 #include "ImsMessageDef.h"
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 
 class IAsyncConfig;
 
-class AsyncConfigHelper : public IMSActivityEx
+class AsyncConfigHelper : public ImsActivityEx
 {
 public:
     AsyncConfigHelper();
@@ -31,7 +31,7 @@ public:
     void Unregister(IN IAsyncConfig* piConfig);
 
 private:
-    // IMSActivityEx class
+    // ImsActivityEx class
     virtual IMS_BOOL OnMessage(IN IMSMSG& objMSG);
 
     IMS_BOOL IsRegisteredConfig(IN IAsyncConfig* piConfig);

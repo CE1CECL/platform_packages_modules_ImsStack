@@ -12,7 +12,7 @@
 
 #include "ServiceMemory.h"
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 
 #if 0  // public
 #endif

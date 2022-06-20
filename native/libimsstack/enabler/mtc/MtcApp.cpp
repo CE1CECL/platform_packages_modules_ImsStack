@@ -25,7 +25,7 @@ LOCAL const IMS_CHAR MTC_APP_NAME[] = "MtcApp";
 
 PUBLIC
 MtcApp::MtcApp(IN IMS_SINT32 nSlotId) :
-        IMSApp(MTC_APP_NAME),
+        ImsApp(MTC_APP_NAME),
         m_nSlotId(nSlotId),
         m_objConfigurationProxy(MtcConfigurationProxy()),
         m_lstServices(IMSList<MtcService*>()),

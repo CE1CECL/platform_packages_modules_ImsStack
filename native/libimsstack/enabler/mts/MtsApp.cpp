@@ -38,7 +38,7 @@ LOCAL const IMS_CHAR MTS_APP_NAME[] = "MtsApp";
 
 PUBLIC
 MtsApp::MtsApp(IN IMS_SINT32 nSlotId) :
-        IMSApp(MTS_APP_NAME),
+        ImsApp(MTS_APP_NAME),
         m_pMtsService(IMS_NULL),
         m_pMtsMessageController(IMS_NULL),
         m_pMtsDynamicLoader(IMS_NULL),

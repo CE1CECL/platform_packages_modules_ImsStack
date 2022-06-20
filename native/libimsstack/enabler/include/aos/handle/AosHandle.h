@@ -19,7 +19,7 @@
 #include "interface/IAosHandle.h"
 #include "IImsAos.h"
 #include "IImsAosInfo.h"
-#include "IMSStateMachine.h"
+#include "ImsStateMachine.h"
 #include "IEventListener.h"
 #include "interface/IAosCallTrackerListener.h"
 #include "interface/IAosNetTrackerListener.h"
@@ -39,7 +39,7 @@ class AosHandle :
         public IAosNetTrackerListener,
         public IEventListener,
         public IImsAos,
-        public IMSStateMachine,
+        public ImsStateMachine,
         public AosRegistrationControlListener,
         public AosServiceSettingListener
 {

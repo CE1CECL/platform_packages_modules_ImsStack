@@ -12,7 +12,7 @@
 
 #include "ServiceMemory.h"
 #include "ServiceTrace.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "SystemConfigManager.h"
 #include "EnablerUtils.h"
 #include "GeolocationHelper.h"
@@ -112,7 +112,7 @@ void EnablerLoader::CreateAndAddThread(IN IMS_SINT32 nSlotId)
 {
     AString strThreadName = EnablerUtils::GetEnablerThreadName(nSlotId);
     EnablerThreadParam objParam(pEnablerFactory, nSlotId);
-    IMSProcess *pProcess = IMSProcess::GetInstance();
+    ImsProcess* pProcess = ImsProcess::GetInstance();
 
     pProcess->LoadAppThreadWithParam(strThreadName,
             EnablerLoader::CreateThread, reinterpret_cast<void*>(&objParam), nSlotId);
@@ -243,8 +243,7 @@ void EnablerLoader::ControlEnablers(IN IMS_SINT32 nSlotId)
     }
 }
 
-PRIVATE GLOBAL
-IMSAppThread* EnablerLoader::CreateThread(IN void* pvParam)
+PRIVATE GLOBAL ImsAppThread* EnablerLoader::CreateThread(IN void* pvParam)
 {
     EnablerThreadParam *pParam = reinterpret_cast<EnablerThreadParam*>(pvParam);
 

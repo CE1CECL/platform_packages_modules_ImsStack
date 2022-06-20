@@ -11,7 +11,7 @@
 */
 
 #include "ServiceMemory.h"
-#include "IMSService.h"
+#include "ImsService.h"
 
 #if 0  // public
 #endif

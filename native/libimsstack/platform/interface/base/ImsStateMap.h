@@ -14,11 +14,12 @@
 #define _IMS_STATEMAP_H_
 
 #include "ImsMessage.h"
-#include "IMSStateObject.h"
+#include "ImsStateObject.h"
 
 #define IMS_INVALID_STATE 0xFFFFFFFF
 #define IMS_INVALID_MSG   0xFFFFFFFF
 
+// clang-format off
 #define DECLARE_STATE_MAP() \
 protected:                  \
     virtual const StateMap* GetStateMap() const;
@@ -68,6 +69,8 @@ private:                             \
 
 #define STATE_MSG_ENTRY(MSG, MSGHandler) \
     { MSG, (StateMsgHandler)(MSGHandler) },
+
+// clang-format on
 
 typedef IMS_BOOL (IMSStateObject::*StateMsgHandler)(IMSMSG& objMsg);
 

@@ -83,7 +83,7 @@ __IMS_TRACE_TAG_USER_DECL__("AOS");
 
 PUBLIC
 AosRegistration::AosRegistration(IN IAosAppContext* piAppContext, IN AString& strRegId) :
-        IMSActivityEx(strRegId),
+        ImsActivityEx(strRegId),
         m_piContext(piAppContext),
         m_piListener(IMS_NULL),
         m_nSlotId(piAppContext->GetSlotId()),

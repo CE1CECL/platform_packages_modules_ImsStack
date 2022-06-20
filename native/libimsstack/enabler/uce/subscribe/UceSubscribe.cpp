@@ -53,7 +53,7 @@ END_STATE_MSG_MAP()
 */
 UceSubscribe::UceSubscribe(IN ICoreService* piCoreService, IN CONST AString& strAppName,
         IN CONST AString& strManagerName, IN IMS_UINT32 conectedService, IN IMS_SINT32 nSimSlot) :
-        IMSActivityEx(AString::ConstNull()),
+        ImsActivityEx(AString::ConstNull()),
         m_nKey(0),
         m_piCoreService(piCoreService),
         m_piSubscription(IMS_NULL),
@@ -911,7 +911,7 @@ void UceSubscribe::SetState(IMS_UINT32 _eState)
     IMS_TRACE_I(
             "SetState:State [ %s ] -> [ %s ]", StateToString(m_eState), StateToString(_eState), 0);
     m_eState = _eState;
-    IMSStateMachine::SetState(m_eState);
+    ImsStateMachine::SetState(m_eState);
 }
 
 PRIVATE

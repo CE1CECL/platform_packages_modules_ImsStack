@@ -2,11 +2,11 @@
 #define OBJECT_ASYNC_DESTROYER_H_
 
 #include "IMSTypeDef.h"
-#include "IMSActivity.h"
+#include "ImsActivity.h"
 #include "ImsMessage.h"
 
 template <typename MtcObject>
-class ObjectAsyncDestroyer final : public IMSActivity
+class ObjectAsyncDestroyer final : public ImsActivity
 {
 public:
     inline explicit ObjectAsyncDestroyer() {}
@@ -14,8 +14,8 @@ public:
     ObjectAsyncDestroyer(IN const ObjectAsyncDestroyer&) = delete;
     ObjectAsyncDestroyer& operator=(IN const ObjectAsyncDestroyer&) = delete;
 
-    // IMSActivity implementation
-    inline IIMSActivityControl* GetController() override { return IMS_NULL; }
+    // ImsActivity implementation
+    inline IImsActivityController* GetController() override { return IMS_NULL; }
     inline IMS_BOOL DispatchMessage(IN IMSMSG& objMsg) override;
 
     inline void Destroy(IN MtcObject* pObject);

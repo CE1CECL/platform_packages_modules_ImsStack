@@ -15,7 +15,7 @@
 
 #include "EnablerUtils.h"
 #include "ImsMessage.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include <binder/Parcel.h>
 
 #define IMS_STL_USE
@@ -54,7 +54,7 @@ protected:
         pParcelOut->setDataPosition(0);
 
         IMSMSG objMsg(pParcelOut->readInt32(), 0, reinterpret_cast<IMS_UINTP>(pParcelOut), this);
-        IThread* piThread = IMSProcess::GetInstance()
+        IThread* piThread = ImsProcess::GetInstance()
                                     ->GetThread(EnablerUtils::GetEnablerThreadName(nSlotId))
                                     ->GetThread();
         piThread->PostMessageI(objMsg);

@@ -2,7 +2,7 @@
 #ifndef _UCE_APP_H_
 #define _UCE_APP_H_
 
-#include "IMSApp.h"
+#include "ImsApp.h"
 #include "INetworkWatcher.h"
 #include "ITimer.h"
 #include "IUce.h"
@@ -12,12 +12,12 @@
 #include "aos/IImsAosMonitor.h"
 
 class IImsAos;
-class IMSService;
+class ImsService;
 class UceService;
 
 class UceApp :
-        public IMSApp,
-        public IIMSActivityControl,
+        public ImsApp,
+        public IImsActivityController,
         public IImsAosListener,
         public IImsAosMonitor,
         public INetworkWatcherListener,
@@ -36,13 +36,13 @@ public:
     ---------------------------------------------------------------------------------------------
   */
 public:
-    static IMSApp* GetInstance(IN CONST IMS_SINT32 nSlotId);
+    static ImsApp* GetInstance(IN CONST IMS_SINT32 nSlotId);
 
 protected:
     virtual IMS_BOOL OnPreprocess(IN IMSMSG& objMSG);
     virtual IMS_BOOL OnMessage(IN IMSMSG& objMSG);
     virtual IMS_BOOL OnPostprocess(IN IMSMSG& objMSG);
-    virtual IIMSActivityControl* GetController();
+    virtual IImsActivityController* GetController();
     virtual IMS_BOOL Control(
             IN IMS_UINT32 nCmdType, IN IMS_UINTP nInParam, OUT IMS_UINTP* pnOutParam);
     void NetworkWatcher_NotifyStatus(IN INetworkWatcher* piNetWatcherInfo);

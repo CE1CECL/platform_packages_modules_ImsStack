@@ -14,15 +14,15 @@
 #define _IMS_UCE_SERVICE_THREAD_H_
 
 #include "BaseService.h"
-#include "IMSAppThread.h"
+#include "ImsAppThread.h"
 
-class JniUceServiceThread : public IMSAppThread
+class JniUceServiceThread : public ImsAppThread
 {
 private:
     JniUceServiceThread();
 
 public:
-    static IMSAppThread* GetInstance();
+    static ImsAppThread* GetInstance();
     virtual ~JniUceServiceThread();
 
     int SetCallback(IN IMS_UINTP nNativeObj, IN CBServiceNoti pCBServiceNoti);

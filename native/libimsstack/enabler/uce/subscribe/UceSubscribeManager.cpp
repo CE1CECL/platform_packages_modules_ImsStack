@@ -30,7 +30,7 @@ __IMS_TRACE_TAG_USER_DECL__("UCE");
 PUBLIC
 UceSubscribeManager::UceSubscribeManager(IN CONST AString& strName, ICoreService* _piCoreService,
         IN CONST AString& strAppName, IN IMS_SINT32 nSimSlot) :
-        IMSActivityEx(strName),
+        ImsActivityEx(strName),
         m_piCoreService(_piCoreService),
         m_strAppName(strAppName),
         m_nSimSlot(nSimSlot),

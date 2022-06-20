@@ -1,4 +1,4 @@
-#include "IMSActivity.h"
+#include "ImsActivity.h"
 #include "ImsMessage.h"
 #include "IMSTypeDef.h"
 #include "call/IMtcCallManager.h"
@@ -10,7 +10,7 @@ __IMS_TRACE_TAG_COM_MTC__;
 
 PUBLIC
 CallStateProxy::CallStateProxy(IN IMtcCallManager& objCallManager) :
-        IMSActivity(),
+        ImsActivity(),
         m_objSynchronousListeners(IMSList<IMtcCallStateListener*>()),
         m_objAsynchronousListeners(IMSList<IMtcCallStateListener*>()),
         m_objCallManager(objCallManager),

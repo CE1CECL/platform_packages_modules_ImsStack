@@ -94,7 +94,7 @@ END_STATE_MSG_MAP()
 
 PUBLIC
 AosApplication::AosApplication(IN IAosAppContext* piAppContext, IN AString& strAppId) :
-        IMSActivityEx(strAppId),
+        ImsActivityEx(strAppId),
         m_piContext(piAppContext),
         m_piRegistration(IMS_NULL),
         m_piCallTracker(IMS_NULL),

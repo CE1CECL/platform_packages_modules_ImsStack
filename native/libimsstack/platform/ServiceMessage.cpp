@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "IMSActivity.h"
+#include "ImsActivity.h"
 #include "ServiceMemory.h"
 #include "ServiceMessage.h"
 #include "ServiceThread.h"
@@ -87,7 +87,7 @@ PUBLIC GLOBAL IMS_BOOL MessageService::PostMessageThread(
 }
 
 PUBLIC GLOBAL IMS_BOOL MessageService::PostMessageActivity(
-        IN IMSActivity* pTargetActivity, IN ImsMessage& objMsg)
+        IN ImsActivity* pTargetActivity, IN ImsMessage& objMsg)
 {
     if (pTargetActivity == IMS_NULL)
     {

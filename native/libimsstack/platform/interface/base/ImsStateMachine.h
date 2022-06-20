@@ -13,9 +13,11 @@
 #ifndef _IMS_STATEMACHINE_H_
 #define _IMS_STATEMACHINE_H_
 
-#include "IMSStateMap.h"
-#include "IMSActivity.h"
-#include "IMSStateObject.h"
+#include "ImsStateMap.h"
+#include "ImsActivity.h"
+#include "ImsStateObject.h"
+
+#define ImsStateMachine IMSStateMachine
 
 class IMSStateMachine : public IMSStateObject
 {

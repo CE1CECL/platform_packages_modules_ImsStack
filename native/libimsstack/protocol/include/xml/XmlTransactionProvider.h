@@ -1,13 +1,13 @@
 #ifndef XML_TRANSACTION_PROVIDER_H_
 #define XML_TRANSACTION_PROVIDER_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "IMSQueue.h"
 #include "IXmlTransactionProvider.h"
 
 class XmlApp;
 
-class XmlTransactionProvider : public IMSActivityEx, public IXmlTransactionProvider
+class XmlTransactionProvider : public ImsActivityEx, public IXmlTransactionProvider
 {
 public:
     XmlTransactionProvider();

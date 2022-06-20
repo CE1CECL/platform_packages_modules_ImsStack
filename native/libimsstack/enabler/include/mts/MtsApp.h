@@ -17,8 +17,8 @@
 #ifndef MTS_APP_H_
 #define MTS_APP_H_
 
-#include "IMSApp.h"
-#include "IMSService.h"
+#include "ImsApp.h"
+#include "ImsService.h"
 #include "IMtsCallTrackerListener.h"
 #include "IMtsMessageControllerListener.h"
 #include "IMtsApp.h"
@@ -33,7 +33,7 @@ class MtsService;
 class MtsServiceState;
 
 class MtsApp :
-        public IMSApp,
+        public ImsApp,
         public IMtsApp,
         public IMtsCallTrackerListener,
         public IMtsMessageControllerListener

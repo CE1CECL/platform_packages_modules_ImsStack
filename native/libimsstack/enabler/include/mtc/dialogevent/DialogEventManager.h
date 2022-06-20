@@ -8,7 +8,7 @@
 #ifndef DIALOG_EVENT_MNGR_H_
 #define DIALOG_EVENT_MNGR_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 
 #include "ISubscription.h"
 #include "ISubscriptionListener.h"
@@ -31,7 +31,7 @@
 
 #include "CallReasonInfo.h"
 
-class DEMngr : public IMSActivityEx, public ISubscriptionListener, public IMtcTimerListener
+class DEMngr : public ImsActivityEx, public ISubscriptionListener, public IMtcTimerListener
 {
 public:
     DEMngr(IN IMtcApp* pApp);

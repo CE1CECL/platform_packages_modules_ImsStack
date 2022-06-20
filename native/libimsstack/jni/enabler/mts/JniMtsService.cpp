@@ -5,7 +5,7 @@
 #include "ServiceMemory.h"
 #include "ServiceTrace.h"
 #include "ServiceMessage.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "IMtsService.h"
 #include "IuMts.h"
 #include "IuMtsService.h"
@@ -41,7 +41,7 @@ JniMtsService::~JniMtsService()
 
     if (m_pJniMtsServiceThread != IMS_NULL)
     {
-        IMSProcess::GetInstance()->UnloadAppThread(m_strThreadName);
+        ImsProcess::GetInstance()->UnloadAppThread(m_strThreadName);
         m_pJniMtsServiceThread = IMS_NULL;
     }
 }
@@ -136,9 +136,9 @@ void JniMtsService::Initialize(IN CBServiceNoti pCbServiceNoti)
     IMS_TRACE_D("Initialize()", 0, 0, 0);
     auto fnEntry = []() -> BaseThread * { return new JniMtsServiceThread(); };
 
-    IMSProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
+    ImsProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
     m_pJniMtsServiceThread =
-            (JniMtsServiceThread*)(IMSProcess::GetInstance()->GetThread(m_strThreadName));
+            (JniMtsServiceThread*)(ImsProcess::GetInstance()->GetThread(m_strThreadName));
 
     if (m_pJniMtsServiceThread == IMS_NULL)
     {

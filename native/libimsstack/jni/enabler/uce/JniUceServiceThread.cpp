@@ -31,7 +31,7 @@ JniUceServiceThread::JniUceServiceThread() :
     IMS_TRACE_I("JniUceServiceThread : ", 0, 0, 0);
 }
 
-IMSAppThread* JniUceServiceThread::GetInstance()
+ImsAppThread* JniUceServiceThread::GetInstance()
 {
     return new JniUceServiceThread();
 }

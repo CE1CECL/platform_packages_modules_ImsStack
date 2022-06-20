@@ -21,7 +21,7 @@ __IMS_TRACE_TAG_USER_DECL__("UCE");
 PUBLIC
 UceOptionsManager::UceOptionsManager(
         IN CONST AString& _strName, IN ICoreService* piCoreService, IN IMS_SINT32 simSlotId) :
-        IMSActivityEx(_strName),
+        ImsActivityEx(_strName),
         m_nSimSlot(simSlotId),
         m_piCoreService(piCoreService),
         m_bAoSConnected(IMS_FALSE),

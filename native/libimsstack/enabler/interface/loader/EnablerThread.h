@@ -14,12 +14,11 @@
 #define _ENABLER_THREAD_H_
 
 #include "ImsMessageDef.h"
-#include "IMSAppThread.h"
+#include "ImsAppThread.h"
 
 class EnablerFactory;
 
-class EnablerThread
-    : public IMSAppThread
+class EnablerThread : public ImsAppThread
 {
 public:
     EnablerThread(IN EnablerFactory *pEnablerFactory_, IN IMS_SINT32 nSlotId_);
@@ -30,7 +29,7 @@ public:
     void ControlEnablers(IN IMS_SINT32 nCtrlFlags);
 
 protected:
-    // IMSAppThread class
+    // ImsAppThread class
     virtual IMS_BOOL Initialize();
 
     virtual IMS_BOOL OnStart(IN IMSMSG &objMSG);

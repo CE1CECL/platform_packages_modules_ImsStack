@@ -17,7 +17,7 @@
 
 #include <utils/String8.h>
 #include "ServiceTrace.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "JniAosServiceThread.h"
 #include "JniAosService.h"
 #include "JniConnectorFactory.h"
@@ -50,7 +50,7 @@ JniAosService::~JniAosService()
 
     if (m_pJniAosServiceThread != IMS_NULL)
     {
-        IMSProcess::GetInstance()->UnloadAppThread(m_strThreadName);
+        ImsProcess::GetInstance()->UnloadAppThread(m_strThreadName);
         m_pJniAosServiceThread = IMS_NULL;
     }
 }
@@ -88,9 +88,9 @@ void JniAosService::Initialize(IN CBServiceNoti pCbServiceNoti)
         return new JniAosServiceThread();
     };
 
-    IMSProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
+    ImsProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
     m_pJniAosServiceThread =
-            (JniAosServiceThread*)(IMSProcess::GetInstance()->GetThread(m_strThreadName));
+            (JniAosServiceThread*)(ImsProcess::GetInstance()->GetThread(m_strThreadName));
 
     if (m_pJniAosServiceThread == IMS_NULL)
     {

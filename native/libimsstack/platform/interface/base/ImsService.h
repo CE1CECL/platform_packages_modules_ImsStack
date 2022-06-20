@@ -13,9 +13,11 @@
 #ifndef _IMS_SERVICE_H_
 #define _IMS_SERVICE_H_
 
-#include "IMSActivity.h"
-#include "IMSStateMap.h"
-#include "IMSStateObject.h"
+#include "ImsActivity.h"
+#include "ImsStateMap.h"
+#include "ImsStateObject.h"
+
+#define ImsService IMSService
 
 class IMSService : public IMSActivity, public IMSStateObject
 {

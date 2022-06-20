@@ -13,8 +13,10 @@
 #ifndef _IMS_APP_H_
 #define _IMS_APP_H_
 
-#include "IMSActivity.h"
-#include "IMSService.h"
+#include "ImsActivity.h"
+#include "ImsService.h"
+
+#define ImsApp IMSApp
 
 class IMSApp : public IMSActivity
 {

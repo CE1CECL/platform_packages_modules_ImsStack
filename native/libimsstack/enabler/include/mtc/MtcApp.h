@@ -1,7 +1,7 @@
 #ifndef MTC_APP_H_
 #define MTC_APP_H_
 
-#include "IMSApp.h"
+#include "ImsApp.h"
 
 #include "MtcImsEventReceiver.h"
 #include "helper/CallStateProxy.h"
@@ -20,7 +20,7 @@
 class MtcService;
 class EctManager;
 
-class MtcApp : public IMSApp, public IMtcApp, public IMtcContext
+class MtcApp : public ImsApp, public IMtcApp, public IMtcContext
 {
 public:
     MtcApp(IN IMS_SINT32 nSlotId);

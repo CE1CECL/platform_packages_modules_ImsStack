@@ -16,12 +16,12 @@
 #ifndef _UCE_SUBSCRIBE_MANAGER_H_
 #define _UCE_SUBSCRIBE_MANAGER_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 
 class ICoreService;
 class UceSubscribe;
 
-class UceSubscribeManager : public IMSActivityEx
+class UceSubscribeManager : public ImsActivityEx
 {
     /* ------------------------------------------------------------------------------------------
         Constructor, Destructor, Operator Overloading

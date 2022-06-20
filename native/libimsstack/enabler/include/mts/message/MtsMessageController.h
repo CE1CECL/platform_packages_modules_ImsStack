@@ -17,7 +17,7 @@
 #ifndef MTS_MESSAGE_CONTROLLER_H_
 #define MTS_MESSAGE_CONTROLLER_H_
 
-#include "IMSActivityEx.h"
+#include "ImsActivityEx.h"
 #include "ICoreService.h"
 #include "IuMts.h"
 #include "MtsService.h"
@@ -30,7 +30,7 @@ class MtsDynamicLoader;
 class MtsSmUtils;
 
 class MtsMessageController final :
-        public IMSActivityEx,
+        public ImsActivityEx,
         public IMtsServiceListener,
         public MtsTrmListener
 {
@@ -83,7 +83,7 @@ public:
     virtual void Trm_PriorityChanged();
 
 protected:
-    // IMSActivityEx
+    // ImsActivityEx
     IMS_BOOL OnMessage(IN IMSMSG& objMSG);
 
 private:

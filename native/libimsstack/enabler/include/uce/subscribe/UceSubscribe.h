@@ -4,8 +4,8 @@
 #ifndef _UCE_SUBSCRIBE_H_
 #define _UCE_SUBSCRIBE_H_
 
-#include "IMSActivityEx.h"
-#include "IMSStateMachine.h"
+#include "ImsActivityEx.h"
+#include "ImsStateMachine.h"
 #include "ISubscriptionListener.h"
 #include "ITimer.h"
 #include "IUce.h"
@@ -38,8 +38,8 @@ public:
 };
 
 class UceSubscribe :
-        public IMSActivityEx,
-        public IMSStateMachine,
+        public ImsActivityEx,
+        public ImsStateMachine,
         public ISubscriptionListener,
         public ITimerListener,
         public IMessageMediator

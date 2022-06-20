@@ -13,6 +13,8 @@
 #ifndef _IIMS_ACTIVITYCONTROL_H_
 #define _IIMS_ACTIVITYCONTROL_H_
 
+#define IImsActivityController IIMSActivityControl
+
 class IIMSActivityControl
 {
 public:

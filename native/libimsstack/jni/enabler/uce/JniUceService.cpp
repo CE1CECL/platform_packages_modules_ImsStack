@@ -15,7 +15,7 @@
 #define IMS_STL_USE
 
 #include "EnablerUtils.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "IUUceService.h"
 #include "IUce.h"
 #include "JniUceService.h"
@@ -57,9 +57,9 @@ JniUceService::JniUceService(CBServiceNoti pCBServiceNoti, IN IMS_UINT32 _nSimSl
     {
         IMS_TRACE_E(0, "JniUceService:pCBServiceNoti is null", 0, 0, 0);
     }
-    IMSProcess::GetInstance()->LoadAppThread(
+    ImsProcess::GetInstance()->LoadAppThread(
             STR_UCE_LISTENER_THREAD_NAME, JniUceServiceThread::GetInstance);
-    m_pJniUceServiceThread = (JniUceServiceThread*)(IMSProcess::GetInstance()->GetApplicationThread(
+    m_pJniUceServiceThread = (JniUceServiceThread*)(ImsProcess::GetInstance()->GetApplicationThread(
             STR_UCE_LISTENER_THREAD_NAME));
     if (m_pJniUceServiceThread != NULL)
     {
@@ -78,7 +78,7 @@ JniUceService::~JniUceService()
     //---------------------------------------------------------------------------------------------
     if (m_pJniUceServiceThread != NULL)
     {
-        IMSProcess::GetInstance()->UnloadAppThread(STR_UCE_LISTENER_THREAD_NAME);
+        ImsProcess::GetInstance()->UnloadAppThread(STR_UCE_LISTENER_THREAD_NAME);
         m_pJniUceServiceThread = NULL;
     }
 }

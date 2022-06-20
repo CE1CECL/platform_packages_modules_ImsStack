@@ -1,6 +1,6 @@
 #define IMS_STL_USE
 #include "ServiceTrace.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "EnablerUtils.h"
 
 #include "IuMtcService.h"
@@ -26,7 +26,7 @@ JniMtcService::~JniMtcService()
 
     if (m_pThread != IMS_NULL)
     {
-        IMSProcess::GetInstance()->UnloadAppThread(m_strThreadName);
+        ImsProcess::GetInstance()->UnloadAppThread(m_strThreadName);
         m_pThread = IMS_NULL;
     }
 
@@ -66,8 +66,8 @@ void JniMtcService::Initialize(IN CBServiceNoti pfnNotifier)
     {
         return new JniMtcServiceThread();
     };
-    IMSProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
-    m_pThread = (JniMtcServiceThread*)(IMSProcess::GetInstance()->GetThread(m_strThreadName));
+    ImsProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
+    m_pThread = (JniMtcServiceThread*)(ImsProcess::GetInstance()->GetThread(m_strThreadName));
 
     if (m_pThread == IMS_NULL)
     {

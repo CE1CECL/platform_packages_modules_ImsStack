@@ -20,7 +20,7 @@
 
 PUBLIC
 ImsAosManager::ImsAosManager(IN const AString& strAppName) :
-        IMSApp(strAppName)
+        ImsApp(strAppName)
 {
     IMS_TRACE_MEM("AOS_MEM", "AOS_M : [%s] ImsAosManager = %" PFLS_u "/%" PFLS_x,
             GetName().GetStr(), sizeof(ImsAosManager), this);

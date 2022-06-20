@@ -6,7 +6,7 @@
 #include "ICoreServiceListener.h"
 #include "IImsAosListener.h"
 #include "IImsAosMonitor.h"
-#include "IMSService.h"
+#include "ImsService.h"
 #include "IMSTypeDef.h"
 #include "IMtcContext.h"
 #include "IMtcService.h"
@@ -17,7 +17,7 @@ class JniMtcService;
 class JniMtcServiceThread;
 
 class MtcService :
-        public IMSService,
+        public ImsService,
         public IMtcService,
         public ICoreServiceListener,
         public IImsAosListener,

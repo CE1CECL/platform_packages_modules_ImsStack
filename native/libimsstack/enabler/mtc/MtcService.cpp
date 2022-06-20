@@ -25,7 +25,7 @@ __IMS_TRACE_TAG_COM_MTC__;
 
 PUBLIC
 MtcService::MtcService(IN IMtcContext& objContext, IN ServiceType eType) :
-        IMSService(AString::ConstNull()),
+        ImsService(AString::ConstNull()),
         m_eType(eType),
         m_objContext(objContext),
         m_strServiceName(GetServiceName(eType)),

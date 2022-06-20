@@ -16,14 +16,14 @@
 #ifndef ENGINE_ACTIVITY_H_
 #define ENGINE_ACTIVITY_H_
 
-#include "IMSActivity.h"
+#include "ImsActivity.h"
 #include "ImsMessageDef.h"
 
-class EngineActivity : public IMSActivity
+class EngineActivity : public ImsActivity
 {
 public:
     inline explicit EngineActivity(IN const AString& strName = AString::ConstNull()) :
-            IMSActivity(strName)
+            ImsActivity(strName)
     {
     }
     inline virtual ~EngineActivity() {}
@@ -32,8 +32,8 @@ public:
     EngineActivity& operator=(IN const EngineActivity&) = delete;
 
 protected:
-    // IMSActivity class
-    inline virtual IIMSActivityControl* GetController() { return IMS_NULL; }
+    // ImsActivity class
+    inline virtual IImsActivityController* GetController() { return IMS_NULL; }
     virtual IMS_BOOL DispatchMessage(IN ImsMessage& objMsg);
 
     virtual void OnDestroy();

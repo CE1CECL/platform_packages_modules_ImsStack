@@ -27,7 +27,7 @@ PRIVATE GLOBAL IMSMap<IMS_SINT32, MediaManager*> MediaManager::m_objMapMediaMana
 
 PRIVATE
 MediaManager::MediaManager(IN CONST AString& strName, IN IMS_SINT32 nSlotId) :
-        IMSActivityEx(strName),
+        ImsActivityEx(strName),
         m_nSlotId(nSlotId),
         m_lstSessionNode(IMSList<MediaSessionNode*>()),
         m_pResourceMngr(IMS_NULL),

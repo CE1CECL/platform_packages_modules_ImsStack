@@ -24,7 +24,7 @@ __IMS_TRACE_TAG_USER_DECL__("UCE");
 -------------------------------------------------------------------------------------------------
 */
 UceApp::UceApp(IN CONST IMS_SINT32 nSlotId, IN CONST AString& strAppName) :
-        IMSApp(strAppName),
+        ImsApp(strAppName),
         m_nSlotId(nSlotId),
         m_strAppName(strAppName),
         m_eAoSStatus(AOS_DISCONNECTED),
@@ -56,7 +56,7 @@ UceApp::UceApp(IN CONST IMS_SINT32 nSlotId, IN CONST AString& strAppName) :
 }
 
 UceApp::UceApp(IN CONST IMS_SINT32 nSlotId) :
-        IMSApp("UceApp"),
+        ImsApp("UceApp"),
         m_nSlotId(nSlotId),
         m_strAppName("UceApp"),
         m_eAoSStatus(AOS_DISCONNECTED),
@@ -91,7 +91,7 @@ PUBLIC VIRTUAL UceApp::~UceApp()
 -------------------------------------------------------------------------------------------------
 */
 PUBLIC
-IMSApp* UceApp::GetInstance(IN CONST IMS_SINT32 nSlotId)
+ImsApp* UceApp::GetInstance(IN CONST IMS_SINT32 nSlotId)
 {
     return new UceApp(nSlotId, GetUceAppName(nSlotId));
 }
@@ -154,7 +154,7 @@ IMS_BOOL UceApp::OnPostprocess(IN IMSMSG& objMSG)
     return IMS_TRUE;
 }
 
-IIMSActivityControl* UceApp::GetController()
+IImsActivityController* UceApp::GetController()
 {
     return this;
 }

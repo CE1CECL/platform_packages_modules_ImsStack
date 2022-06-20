@@ -13,7 +13,9 @@
 #ifndef _IMS_ACTIVITY_EX_H_
 #define _IMS_ACTIVITY_EX_H_
 
-#include "IMSActivity.h"
+#include "ImsActivity.h"
+
+#define ImsActivityEx IMSActivityEx
 
 class IMSActivityEx : public IMSActivity
 {

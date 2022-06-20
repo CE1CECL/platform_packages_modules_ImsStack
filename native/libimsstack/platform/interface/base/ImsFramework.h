@@ -13,7 +13,7 @@
 #ifndef _IMS_FRAMEWORK_H_
 #define _IMS_FRAMEWORK_H_
 
-#include "IMSAppThread.h"
+#include "ImsAppThread.h"
 
 class IMutex;
 class IFrameworkThreadListener;

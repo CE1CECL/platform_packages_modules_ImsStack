@@ -13,8 +13,8 @@
 #include "ServiceMemory.h"
 #include "ServiceThread.h"
 
-#include "IMSProcess.h"
-#include "IMSActivity.h"
+#include "ImsProcess.h"
+#include "ImsActivity.h"
 
 #if 0  // public
 #endif

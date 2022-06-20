@@ -40,7 +40,7 @@ public:
 
 PUBLIC
 AsyncConfigHelper::AsyncConfigHelper() :
-        IMSActivityEx(),
+        ImsActivityEx(),
         objAsyncConfigs(IMSList<IAsyncConfig*>())
 {
 }

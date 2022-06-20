@@ -24,7 +24,7 @@ __IMS_TRACE_TAG_COM_UC__;
 ------------------------------------------------------------------------------------------------ */
 PUBLIC
 UCTRM::UCTRM() :
-        IMSActivityEx(AString::ConstNull())
+        ImsActivityEx(AString::ConstNull())
 {
     IMS_TRACE_MEM("uc", "uc_M : UCTRM[%" PFLS_u "][%" PFLS_x "]", sizeof(UCTRM), this, 0);
 

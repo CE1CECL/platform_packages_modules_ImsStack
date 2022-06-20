@@ -14,7 +14,7 @@
 #include "ServiceMutex.h"
 #include "SystemConfigManager.h"
 #include "IFrameworkThreadListener.h"
-#include "IMSFramework.h"
+#include "ImsFramework.h"
 
 #if 0  // public
 #endif

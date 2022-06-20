@@ -1,6 +1,6 @@
 #define IMS_STL_USE
 #include "ServiceTrace.h"
-#include "IMSProcess.h"
+#include "ImsProcess.h"
 #include "EnablerUtils.h"
 
 #include "call/IMtcCall.h"
@@ -37,7 +37,7 @@ JniMtcCall::~JniMtcCall()
 
     if (m_pThread != IMS_NULL)
     {
-        IMSProcess::GetInstance()->UnloadAppThread(m_strThreadName);
+        ImsProcess::GetInstance()->UnloadAppThread(m_strThreadName);
         m_pThread = IMS_NULL;
     }
     delete m_pJniMediaSession;
@@ -79,8 +79,8 @@ void JniMtcCall::Initialize()
     {
         return new JniMtcCallThread();
     };
-    IMSProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
-    m_pThread = (JniMtcCallThread*)(IMSProcess::GetInstance()->GetThread(m_strThreadName));
+    ImsProcess::GetInstance()->LoadThread(m_strThreadName, fnEntry);
+    m_pThread = (JniMtcCallThread*)(ImsProcess::GetInstance()->GetThread(m_strThreadName));
 
     if (m_pThread == IMS_NULL)
     {

@@ -16,8 +16,8 @@
 #ifndef AOS_APPLICATION_H_
 #define AOS_APPLICATION_H_
 
-#include "IMSActivityEx.h"
-#include "IMSStateMachine.h"
+#include "ImsActivityEx.h"
+#include "ImsStateMachine.h"
 #include "IEventListener.h"
 #include "ITimer.h"
 
@@ -42,8 +42,8 @@ class AosConnector;
 class AosUtil;
 
 class AosApplication :
-        public IMSActivityEx,
-        public IMSStateMachine,
+        public ImsActivityEx,
+        public ImsStateMachine,
         public IAosApplication,
         public IAosConditionListener,
         public IAosConnectorListener,
@@ -133,7 +133,7 @@ protected:
 
     virtual IMS_UINT32 GetReportState();
 
-    // IMSActivityEx
+    // ImsActivityEx
     virtual IMS_BOOL OnMessage(IN IMSMSG& objMsg);
 
     // Message

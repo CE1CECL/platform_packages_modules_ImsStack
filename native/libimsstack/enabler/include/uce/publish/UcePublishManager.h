@@ -4,7 +4,7 @@
 #ifndef _UCE_PUBLISH_MANAGER_H_
 #define _UCE_PUBLISH_MANAGER_H_
 
-#include "IMSStateMachine.h"
+#include "ImsStateMachine.h"
 #include "IPublicationListener.h"
 #include "ITimer.h"
 #include "base/IMessageMediator.h"
@@ -58,7 +58,7 @@ class UcePublishManager :
         public IPublicationListener,
         public ITimerListener,
         public IMessageMediator,
-        public IMSStateMachine
+        public ImsStateMachine
 {
     /* ------------------------------------------------------------------------------------------
         State Machine

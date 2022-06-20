@@ -15,8 +15,8 @@
 #include "ServiceMemory.h"
 #include "ServiceTrace.h"
 #include "ServiceMutex.h"
-#include "IMSFramework.h"
-#include "IMSProcess.h"
+#include "ImsFramework.h"
+#include "ImsProcess.h"
 
 __IMS_TRACE_TAG_FWK__;
 
