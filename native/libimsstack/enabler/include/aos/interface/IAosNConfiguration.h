@@ -683,6 +683,13 @@ public:
     virtual IMS_SINT32 GetRegRetryCountResetPolicy() const = 0;
 
     /**
+     * @brief Indicate to maintain the registration until the retry count
+     *
+     * @return IMS_SINT32 Return the retry count for maintaining the registered state
+     */
+    virtual IMS_SINT32 GetReregRetryMaxCountKeptRegistration() const = 0;
+
+    /**
      * @brief Get the registration retry intervals for using when registration is failed
      *        as general codes.
      *

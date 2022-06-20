@@ -109,6 +109,7 @@ public:
     virtual IMS_SINT32 GetSpecificRegistrationErrorPolicy() const;
     virtual IMS_SINT32 GetSpecificRegistrationErrorMaxCount() const;
     virtual IMS_SINT32 GetRegRetryCountResetPolicy() const;
+    virtual IMS_SINT32 GetReregRetryMaxCountKeptRegistration() const;
 
     virtual IMSVector<IMS_SINT32>& GetRegistrationRetryIntervals();
     virtual IMSVector<IMS_SINT32>& GetRegistrationRandomRetryIntervals();

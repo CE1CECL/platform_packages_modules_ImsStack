@@ -2524,6 +2524,7 @@ PROTECTED VIRTUAL void AosRegistration::ClearPcscf()
 
 PROTECTED VIRTUAL void AosRegistration::ClearRetryCount()
 {
+    A_IMS_TRACE_D(REGID, "ClearRetryCount :: (%d) -> (%d)", m_nConsecutiveFailure, 0, 0);
     m_nConsecutiveFailure = 0;
 }
 
@@ -3320,6 +3321,10 @@ PROTECTED VIRTUAL void AosRegistration::ProcessDefaultFlowRecovery_Update(
         if (nRetryAfter == 0)
         {
             nRetryAfter = GetActualWaitTime();
+            if (nRetryAfter == 0)
+            {
+                nRetryAfter = RETRY_DEFAULT_WAIT_TIME;
+            }
         }
 
         if (m_nConsecutiveFailure == 1 && !IsRegExpiredDuringAwt(nRetryAfter))
@@ -3766,17 +3771,21 @@ PROTECTED VIRTUAL void AosRegistration::ProcessUpdateFailed_StatusCode(IN IMS_SI
         return;
     }
 
-    switch (nStatusCode)
+    if (GET_N_CONFIG(m_nSlotId)->GetRegistrationActualWaitTimePolicy() !=
+            CarrierConfig::Assets::AWT_POLICY_SPECIFIED_INTERVAL)
     {
-        case SipStatusCode::SC_403:  // FALL-THROUGH
-        case SipStatusCode::SC_408:  // FALL-THROUGH
-        case SipStatusCode::SC_500:  // FALL-THROUGH
-        case SipStatusCode::SC_504:
-            ProcessReinitiate(IMS_FALSE);
-            return;
+        switch (nStatusCode)
+        {
+            case SipStatusCode::SC_403:  // FALL-THROUGH
+            case SipStatusCode::SC_408:  // FALL-THROUGH
+            case SipStatusCode::SC_500:  // FALL-THROUGH
+            case SipStatusCode::SC_504:
+                ProcessReinitiate(IMS_FALSE);
+                return;
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
 
     switch (nStatusCode)

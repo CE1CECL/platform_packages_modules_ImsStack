@@ -431,6 +431,11 @@ PUBLIC VIRTUAL IMS_SINT32 AosNConfiguration::GetRegRetryCountResetPolicy() const
     return m_objAsset.nRegistrationRetryCountResetPolicy;
 }
 
+PUBLIC VIRTUAL IMS_SINT32 AosNConfiguration::GetReregRetryMaxCountKeptRegistration() const
+{
+    return m_objReregRetry.nReregistrationRetryMaxCountKeptRegistration;
+}
+
 PUBLIC VIRTUAL IMSVector<IMS_SINT32>& AosNConfiguration::GetRegistrationRetryIntervals()
 {
     return m_objRegRetryInterval.objRegistrationRetryIntervalSec;
