@@ -2970,7 +2970,7 @@ PROTECTED VIRTUAL void AosRegistration::ProcessRegRequiredWithNextPcscf()
 PROTECTED VIRTUAL void AosRegistration::ProcessSubReinitiate()
 {
     DestroySubscription();
-    StartSubscription();
+    CreateSubscription();
 }
 
 PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessForbiddenFailed(IN IMS_SINT32 nStatusCode)
