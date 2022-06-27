@@ -215,7 +215,7 @@ public final class ImsVideoCallSession implements IVideoCallSession {
         boolean callTypeChanged = false;
 
         if (modificationType == MODIFICATION_CALL_TYPE) {
-            callTypeChanged = ImsCallUtils.isCallTypeChanged(callProfile.mCallType, callType);
+            callTypeChanged = ImsCallUtils.isCallTypeChanged(callProfile.getCallType(), callType);
             int statusCode = CallFeature.getStatusCodeforCallTypeChangeReject(
                         mCallContext.getSlotId());
             if (callTypeChanged || statusCode == 200) {
@@ -423,7 +423,11 @@ public final class ImsVideoCallSession implements IVideoCallSession {
         ImsCallProfile callProfile = getCallProfile();
 
         if (callProfile == null) {
-            return new ImsStreamMediaProfile();
+            return new ImsStreamMediaProfile(ImsStreamMediaProfile.AUDIO_QUALITY_NONE,
+                    ImsStreamMediaProfile.DIRECTION_INVALID,
+                    ImsStreamMediaProfile.VIDEO_QUALITY_NONE,
+                    ImsStreamMediaProfile.DIRECTION_INVALID,
+                    ImsStreamMediaProfile.RTT_MODE_DISABLED);
         }
 
         ImsStreamMediaProfile mediaProfile = callProfile.getMediaProfile();
