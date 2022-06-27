@@ -242,16 +242,9 @@ SIP_BOOL SipTxn::StartTxnTimer(SIP_UINT32 eTimerType, SIP_UINT32 nDuration, SIP_
 
     if (pTimeoutData == SIP_NULL)
     {
+        *pnError = E_ERR_PF_MALLOCFAILED;
         SIP_DEBUG_WARNING(
                 ESIPTRACE_MODTXN, "SipTxn::StartTxnTimer: Memory Failed \n", SIP_ZERO, SIP_ZERO);
-        return SIP_FALSE;
-    }
-
-    if (*pnError == EERR_MALLOCFAILED)
-    {
-        SIP_DEBUG_WARNING(
-                ESIPTRACE_MODTXN, "SipTxn::StartTxnTimer: Memory Failed \n", SIP_ZERO, SIP_ZERO);
-        delete pTimeoutData;
         return SIP_FALSE;
     }
 
@@ -602,7 +595,7 @@ SIP_BOOL SipTxn::SetUserData(ISipUserData* pUserData)
 {
     if (pUserData == SIP_NULL)
     {
-        return SIP_TRUE;
+        return SIP_FALSE;
     }
 
     SIP_TRACE_NORMAL(ESIPTRACE_MODTXN, "SipTxn::SetUserData Called", SIP_ZERO, SIP_ZERO);
@@ -660,7 +653,6 @@ SIP_BOOL SipTxn::IsTxnTerminated()
         {
             return SIP_FALSE;
         }
-        break;
     }
 
     return SIP_FALSE;
