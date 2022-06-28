@@ -1728,7 +1728,7 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::SendRegister(
 
     if (IsIpsecSupported())
     {
-        m_pIpsecHelper->Create(bInitial);
+        m_pIpsecHelper->Create(bInitial || bRestore);
     }
 
     if (m_piRegistration->Register() == IMS_FAILURE)
