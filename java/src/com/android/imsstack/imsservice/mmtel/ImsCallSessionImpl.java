@@ -227,6 +227,13 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 mCall.terminate(CallReasonInfo.CODE_LOCAL_CALL_END_UNSPECIFIED);
             }
 
+            // CALL_CONNECTION_ID
+            if (isMultiparty()) {
+                removeCallConnectionId();
+            } else if (!mCallDetails.is(CallDetails.MERGED)) {
+                ImsCallConnectionIds.remove(mCallContext.getSlotId(), getCallConnectionId());
+            }
+
             mCall.setListener(null);
             mCall.close();
             mCall = null;
@@ -239,13 +246,6 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         mVideoCallProvider.close();
 
         clearSpecificFeatures();
-
-        // CALL_CONNECTION_ID
-        if (isMultiparty()) {
-            removeCallConnectionId();
-        } else if (!mCallDetails.is(CallDetails.MERGED)) {
-            ImsCallConnectionIds.remove(mCallContext.getSlotId(), getCallConnectionId());
-        }
 
         if (garbageCalls.contains(this)) {
             garbageCalls.remove(this);
