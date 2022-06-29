@@ -59,3 +59,16 @@ PROTECTED VIRTUAL void AosHandleEmergencyMts::Init()
         AosHandle::Init();
     }
 }
+
+/*
+
+Remarks
+
+*/
+PROTECTED VIRTUAL void AosHandleEmergencyMts::NConfiguration_NotifyConfigChanged()
+{
+    if (GetAosInfo() == IMS_NULL && GET_N_CONFIG(m_nSlotId) != IMS_NULL)
+    {
+        Init();
+    }
+}

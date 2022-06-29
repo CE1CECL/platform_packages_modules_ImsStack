@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 #include "ServiceEvent.h"
-#include "ServiceNetwork.h"
 #include "ServicePhoneInfo.h"
 #include "ServiceSystemTime.h"
 #include "ServiceTimer.h"
@@ -23,7 +22,6 @@
 #include "ServiceVoNr.h"
 
 #include "IIpcan.h"
-#include "INetworkIpSec.h"
 #include "ISipConfig.h"
 #include "ISubscriberConfig.h"
 #include "IVoNr.h"
@@ -157,6 +155,13 @@ AosRegistration::AosRegistration(IN IAosAppContext* piAppContext, IN AString& st
     };
     IMS_Sprintf(acLog, 128, "REG(%s)//FLOW(%d)", REGID, m_nFlowId);
 
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->SetListener(this);
+    }
+
     IMS_TRACE_MEM("AOS_MEM", "AOS_M : [%s] AosRegistration = %" PFLS_u "/%" PFLS_x, acLog,
             sizeof(AosRegistration), this);
 };
@@ -167,6 +172,13 @@ PUBLIC VIRTUAL AosRegistration::~AosRegistration()
             0,
     };
     IMS_Sprintf(acLog, 128, "REG(%s)/FLOW(%d)", REGID, m_nFlowId);
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->RemoveListener(this);
+    }
 
     IMS_TRACE_MEM("AOS_MEM", "AOS_F : [%s] AosRegistration = %" PFLS_u "/%" PFLS_x, acLog,
             sizeof(AosRegistration), this);
@@ -1038,14 +1050,7 @@ PROTECTED VIRTUAL void AosRegistration::Init()
 
     InitFeatures();
 
-    if (GET_N_CONFIG(m_nSlotId)->IsWfcImsAvailable())
-    {
-        m_piContext->GetNetTracker()->SetListener(this);
-    }
-    else
-    {
-        m_piContext->GetBlock()->SetListener(this);
-    }
+    m_piContext->GetBlock()->SetListener(this);
 
     if (IsCallStateRequired())
     {
@@ -1063,16 +1068,6 @@ PROTECTED VIRTUAL void AosRegistration::Init()
         m_piTrm->SetListener(this);
     }
 
-    if (m_pUtil->IsFeatureOn(FEATURE_IPSEC, m_nFeature))
-    {
-        INetworkIpSec* piNetIpsec = NetworkService::GetNetworkService()->GetIpSec();
-        if (piNetIpsec != IMS_NULL)
-        {
-            piNetIpsec->SetSdbFlushCapability(IMS_TRUE);
-            piNetIpsec->FlushPolicies();
-        }
-    }
-
     if (m_pUtil->IsFeatureOn(FEATURE_VONR, m_nFeature))
     {
         m_piVonr = new AosVonr(m_piContext);
@@ -1082,9 +1077,12 @@ PROTECTED VIRTUAL void AosRegistration::Init()
 
 PROTECTED VIRTUAL void AosRegistration::InitFeatures()
 {
-    if (GET_N_CONFIG(m_nSlotId)->IsSubscription())
+    if (GetRegType() == AosRegistrationType::NORMAL)
     {
-        m_pUtil->AddFeature(FEATURE_SUBSCRIPTION, m_nFeature);
+        if (GET_N_CONFIG(m_nSlotId)->IsSubscription())
+        {
+            m_pUtil->AddFeature(FEATURE_SUBSCRIPTION, m_nFeature);
+        }
     }
 
     if (GET_N_CONFIG(m_nSlotId)->IsIpsecEnabled())
@@ -1143,21 +1141,10 @@ PROTECTED VIRTUAL void AosRegistration::CleanUp()
         piCt->RemoveListener(this);
     }
 
-    if (GET_N_CONFIG(m_nSlotId)->IsWfcImsAvailable())
+    IAosBlock* piBlock = m_piContext->GetBlock();
+    if (piBlock != IMS_NULL)
     {
-        IAosNetTracker* piNt = m_piContext->GetNetTracker();
-        if (piNt != IMS_NULL)
-        {
-            piNt->RemoveListener(this);
-        }
-    }
-    else
-    {
-        IAosBlock* piBlock = m_piContext->GetBlock();
-        if (piBlock != IMS_NULL)
-        {
-            piBlock->RemoveListener(this);
-        }
+        piBlock->RemoveListener(this);
     }
 }
 
@@ -5041,18 +5028,24 @@ PROTECTED VIRTUAL void AosRegistration::CallTracker_StateChanged(
     }
 }
 
-PROTECTED VIRTUAL void AosRegistration::NetTracker_StatusChanged()
+PROTECTED VIRTUAL void AosRegistration::NConfiguration_NotifyConfigChanged()
 {
-    IMS_BOOL bCurrBlocked = m_piContext->GetNetTracker()->IsSuspended();
+    A_IMS_TRACE_D(REGID, "NConfiguration_NotifyConfigChanged", 0, 0, 0);
 
-    if (IsBlocked() != bCurrBlocked)
+    if (GET_N_CONFIG(m_nSlotId) != IMS_NULL)
     {
-        SetBlocked(bCurrBlocked);
-        UpdateTransactionStarted();
-
-        if (IsTransactionStarted())
+        if (GetRegType() == AosRegistrationType::NORMAL)
         {
-            ProcessPendingTransaction();
+            if (GET_N_CONFIG(m_nSlotId)->IsSubscription())
+            {
+                m_pUtil->AddFeature(FEATURE_SUBSCRIPTION, m_nFeature);
+            }
+        }
+
+        if (GET_N_CONFIG(m_nSlotId)->IsIpsecEnabled())
+        {
+            SetIsIpsecSupported(IMS_TRUE);
+            m_pUtil->AddFeature(FEATURE_IPSEC, m_nFeature);
         }
     }
 }

@@ -497,6 +497,30 @@ PROTECTED VIRTUAL void AosCondition::ServiceAvailable_RequestCommand(
     }
 }
 
+PROTECTED VIRTUAL void AosCondition::NConfiguration_NotifyConfigChanged()
+{
+    A_IMS_TRACE_D(APPPROFILE, "NConfiguration_NotifyConfigChanged :: changed", 0, 0, 0);
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig == IMS_NULL)
+    {
+        return;
+    }
+
+    m_eServiceType = GetServiceType();
+
+    if (!piNConfig->IsVopsIgnoredForVolteEnabled())
+    {
+        IMS_EVENT_AddListenerForSlotId(IMS_EVENT_IMS_VOICE_OVER_PS_STATE, this, m_nSlotId);
+    }
+
+    if (!piNConfig->IsVoLteRoamingAvailable() || !piNConfig->IsWfcRoamingEnabled())
+    {
+        IMS_EVENT_AddListenerForSlotId(IMS_EVENT_ROAMING_STATE, this, m_nSlotId);
+    }
+}
+
 // AosServicePhoneListener
 PROTECTED VIRTUAL void AosCondition::ServicePhone_AosStart()
 {

@@ -26,9 +26,11 @@ class MockIAosNConfiguration : public IAosNConfiguration
 {
 public:
     MOCK_METHOD(IMS_SINT32, GetSlotId, (), (const, override));
+    MOCK_METHOD(void, SetListener, (IN IAosNConfigurationListener*), (override));
+    MOCK_METHOD(void, RemoveListener, (IN IAosNConfigurationListener*), (override));
+
     MOCK_METHOD(IMS_BOOL, IsSubscription, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsUnSubscription, (), (const, override));
-
     MOCK_METHOD(IMS_BOOL, IsVoLteAvailable, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsVoLteRoamingAvailable, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsVtAvailable, (), (const, override));

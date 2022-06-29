@@ -41,6 +41,9 @@ public:
 
     virtual IMS_SINT32 GetSlotId() const;
 
+    virtual void SetListener(IN IAosNConfigurationListener* piListener);
+    virtual void RemoveListener(IN IAosNConfigurationListener* piListener);
+
     virtual IMS_BOOL IsSubscription() const;
     virtual IMS_BOOL IsUnSubscription() const;
     virtual IMS_BOOL IsVoLteAvailable() const;
@@ -184,6 +187,8 @@ private:
     IMS_UINT32 m_nEventForInitRegOnTerminatedState;
     IMS_UINT32 m_nEventToFollowWtForInitRegOnTerminatedState;
     IMS_UINT32 m_nClearPermanentPdnFailure;
+
+    IMSList<IAosNConfigurationListener*> m_objListeners;
 
     AString m_strLogTag;
 };

@@ -19,6 +19,7 @@
 #include "ServiceTimer.h"
 #include "ISubscriberConfigListener.h"
 #include "IConfigUpdateListener.h"
+#include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosServicePhoneListener.h"
 #include "interface/IAosSubscriber.h"
 #include "interface/IAosSubscriberManager.h"
@@ -26,6 +27,7 @@
 
 class AosSubscriberManager :
         public IAosSubscriberManager,
+        public IAosNConfigurationListener,
         public ISubscriberConfigListener,
         public IConfigUpdateListener,
         public ITimerListener,
@@ -123,6 +125,9 @@ private:
 
     IMS_BOOL IsPrimaryImpuValid(IN const AStringArray& objImpus) const;
     IMS_BOOL IsSipUri(IN const AString& strImpu) const;
+
+    // IAosNConfigurationListener
+    void NConfiguration_NotifyConfigChanged() override;
 
     // ISubscriberConfigListener
     void SubscriberConfig_InitCompleted() override;

@@ -28,6 +28,7 @@
 #include "interface/IAosCallTrackerListener.h"
 #include "interface/IAosConditionListener.h"
 #include "interface/IAosConnectorListener.h"
+#include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosNetTrackerListener.h"
 #include "interface/IAosRegistrationControlListener.h"
 #include "interface/IAosRegistrationListener.h"
@@ -52,6 +53,7 @@ class AosApplication :
         public IEventListener,
         public ITimerListener,
         public IAosNetTrackerListener,
+        public IAosNConfigurationListener,
         public AosRegistrationControlListener
 {
     DECLARE_STATE_MAP()
@@ -251,6 +253,9 @@ protected:
 
     // IAosNetTrackerListener
     virtual void NetTracker_StatusChanged();
+
+    // IAosNConfigurationListener
+    virtual void NConfiguration_NotifyConfigChanged();
 
     // IEventListener
     virtual void Event_NotifyEvent(

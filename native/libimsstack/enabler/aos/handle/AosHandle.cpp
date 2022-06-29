@@ -120,6 +120,13 @@ AosHandle::AosHandle(IN IAosAppContext* piAppContext, IN const AString& strAppId
     m_strTag.Sprintf("%d:%s", m_nSlotId, m_piAppContext->GetProfileId().GetStr());
 
     SetHandleState(STATE_DISCONNECTED);
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->SetListener(this);
+    }
 }
 
 /*
@@ -137,6 +144,13 @@ PUBLIC VIRTUAL AosHandle::~AosHandle()
 
     IMS_TRACE_MEM("AOS_MEM", "AOS_F : [%s] AosHandle = %" PFLS_u "/%" PFLS_x, acLog,
             sizeof(AosHandle), this);
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->RemoveListener(this);
+    }
 }
 
 /*
@@ -620,6 +634,26 @@ PUBLIC VIRTUAL void AosHandle::NetTracker_StatusChanged()
 Remarks
 
 */
+PUBLIC VIRTUAL void AosHandle::NConfiguration_NotifyConfigChanged()
+{
+    A_IMS_TRACE_D(APPPROFILE, "NConfiguration_NotifyConfigChanged", 0, 0, 0);
+
+    if (GET_N_CONFIG(m_nSlotId) != IMS_NULL)
+    {
+        InitializeServiceBlock();
+        InitializeServiceFeature();
+        InitializeFeatureTags();
+
+        IMSMSG objMSG(HANDLE_MSG_BLOCK_STATUS, 0, 0);
+        OnStateMessage(objMSG);
+    }
+}
+
+/*
+
+Remarks
+
+*/
 PROTECTED VIRTUAL void AosHandle::Init()
 {
     A_IMS_TRACE_D(APPPROFILE, "Init", 0, 0, 0);
@@ -657,10 +691,10 @@ PROTECTED VIRTUAL void AosHandle::CleanUp()
 {
     A_IMS_TRACE_D(APPPROFILE, "CleanUp", 0, 0, 0);
 
-    IAosNetTracker* piNetTracker = m_piAppContext->GetNetTracker();
-    if (piNetTracker != IMS_NULL)
+    if (m_piInfo != IMS_NULL)
     {
-        piNetTracker->RemoveListener(this);
+        delete DYNAMIC_CAST(AosInfo*, m_piInfo);
+        m_piInfo = IMS_NULL;
     }
 
     IAosService* piAosService = AosProvider::GetInstance()->GetService(m_nSlotId);
@@ -671,10 +705,10 @@ PROTECTED VIRTUAL void AosHandle::CleanUp()
         piAosService->RemoveListener(DYNAMIC_CAST(IAosServiceSettingListener*, this));
     }
 
-    if (m_piInfo != IMS_NULL)
+    IAosNetTracker* piNetTracker = m_piAppContext->GetNetTracker();
+    if (piNetTracker != IMS_NULL)
     {
-        delete DYNAMIC_CAST(AosInfo*, m_piInfo);
-        m_piInfo = IMS_NULL;
+        piNetTracker->RemoveListener(this);
     }
 }
 

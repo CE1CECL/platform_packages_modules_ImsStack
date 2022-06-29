@@ -478,6 +478,20 @@ PRIVATE VIRTUAL void AosERegistration::CallTracker_StateChanged(
     }
 }
 
+PRIVATE VIRTUAL void AosERegistration::NConfiguration_NotifyConfigChanged()
+{
+    if (GET_N_CONFIG(m_nSlotId) != IMS_NULL)
+    {
+        AosRegistration::NConfiguration_NotifyConfigChanged();
+
+        if (pEModeInfo == IMS_NULL)
+        {
+            pEModeInfo = new EmergencyModeInfo();
+            IMS_EVENT_AddListenerForSlotId(IMS_EVENT_ECM_STATE, this, m_nSlotId);
+        }
+    }
+}
+
 PRIVATE VIRTUAL void AosERegistration::Event_NotifyEvent(
         IN IMS_SINT32 nEvent, IN IMS_UINT32 nWParam, IN IMS_UINT32 /* nLParam */)
 {

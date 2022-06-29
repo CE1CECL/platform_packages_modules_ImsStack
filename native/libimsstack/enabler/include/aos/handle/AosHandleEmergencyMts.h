@@ -28,5 +28,7 @@ public:
 
 protected:
     virtual void Init();
+
+    virtual void NConfiguration_NotifyConfigChanged();
 };
 #endif  // AOS_HANDLE_EMERGENCY_MTS_H_

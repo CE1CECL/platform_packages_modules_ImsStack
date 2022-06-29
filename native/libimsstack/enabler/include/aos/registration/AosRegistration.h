@@ -24,9 +24,10 @@
 #include "IRegistrationListener.h"
 #include "base/IMessageMediator.h"
 
+#include "interface/AosInternalMsgDef.h"
 #include "interface/IAosBlockListener.h"
 #include "interface/IAosCallTrackerListener.h"
-#include "interface/AosInternalMsgDef.h"
+#include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosNetTrackerListener.h"
 #include "interface/IAosRegistration.h"
 #include "interface/IAosSubscriptionListener.h"
@@ -61,6 +62,7 @@ class AosRegistration :
         public IAosSubscriptionListener,
         public IAosBlockListener,
         public IAosCallTrackerListener,
+        public IAosNConfigurationListener,
         public IAosNetTrackerListener,
         public IAosTrmListener,
         public ITimerListener,
@@ -360,8 +362,11 @@ protected:
     /// IAosCallTrackerListener
     virtual void CallTracker_StateChanged(IN IMS_UINT32 nType, IN CallState eState);
 
+    /// IAosNConfigurationListener
+    virtual void NConfiguration_NotifyConfigChanged();
+
     /// IAosNetTrackerListener
-    virtual void NetTracker_StatusChanged();
+    virtual void NetTracker_StatusChanged(){};
 
     /// IAosTrmListener
     virtual void Trm_PriorityChanged();

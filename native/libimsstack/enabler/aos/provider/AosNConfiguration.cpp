@@ -19,6 +19,7 @@
 #include "ICarrierConfig.h"
 #include "ImsIpSecType.h"
 
+#include "interface/IAosNConfigurationListener.h"
 #include "provider/AosNConfiguration.h"
 
 __IMS_TRACE_TAG_USER_DECL__("AOS");
@@ -44,7 +45,8 @@ AosNConfiguration::AosNConfiguration() :
         m_objSubTerminatedErrCode(AosSubscriptionTerminatedErrorCodeForRegEventBundle()),
         m_nEventForInitRegOnTerminatedState(0),
         m_nEventToFollowWtForInitRegOnTerminatedState(0),
-        m_nClearPermanentPdnFailure(0)
+        m_nClearPermanentPdnFailure(0),
+        m_objListeners(IMSList<IAosNConfigurationListener*>())
 {
     IMS_TRACE_MEM("AOS_MEM", "AOS_M : AosNConfiguration = %" PFLS_u "/%" PFLS_x,
             sizeof(AosNConfiguration), this, 0);
@@ -60,11 +62,57 @@ PUBLIC VIRTUAL AosNConfiguration::~AosNConfiguration()
     {
         piCc->RemoveListener(this);
     }
+
+    m_objListeners.Clear();
 }
 
 PUBLIC VIRTUAL IMS_SINT32 AosNConfiguration::GetSlotId() const
 {
     return m_nSlotId;
+}
+
+PUBLIC VIRTUAL void AosNConfiguration::SetListener(IN IAosNConfigurationListener* piListener)
+{
+    if (piListener == IMS_NULL)
+    {
+        return;
+    }
+
+    for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
+    {
+        IAosNConfigurationListener* piCurrListener = m_objListeners.GetAt(i);
+
+        if (piCurrListener == piListener)
+        {
+            return;
+        }
+    }
+
+    m_objListeners.Append(piListener);
+
+    A_IMS_TRACE_D(LOGTAG, "SetListener :: Listener (%" PFLS_x ") is set", piListener, 0, 0);
+}
+
+PUBLIC VIRTUAL void AosNConfiguration::RemoveListener(IN IAosNConfigurationListener* piListener)
+{
+    if (piListener == IMS_NULL)
+    {
+        return;
+    }
+
+    for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
+    {
+        IAosNConfigurationListener* piCurrListener = m_objListeners.GetAt(i);
+
+        if (piCurrListener == piListener)
+        {
+            m_objListeners.RemoveAt(i);
+
+            A_IMS_TRACE_D(
+                    LOGTAG, "RemoveListener - Listener (%" PFLS_x ") is removed", piListener, 0, 0);
+            return;
+        }
+    }
 }
 
 PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsSubscription() const
@@ -614,7 +662,30 @@ PRIVATE VIRTUAL void AosNConfiguration::CarrierConfig_NotifyConfigChanged(IN IMS
         return;
     }
 
-    // TODO: implement
+    A_IMS_TRACE_I(LOGTAG, "CarrierConfig_NotifyConfigChanged :: updated", 0, 0, 0);
+
+    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(m_nSlotId);
+
+    if (piCc == IMS_NULL)
+    {
+        A_IMS_TRACE_I(LOGTAG, "Init :: config failed", 0, 0, 0);
+        return;
+    }
+
+    InitConfig(piCc);
+    InitBundle(piCc);
+
+    for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
+    {
+        IAosNConfigurationListener* piListener = m_objListeners.GetAt(i);
+
+        if (piListener == IMS_NULL)
+        {
+            continue;
+        }
+
+        piListener->NConfiguration_NotifyConfigChanged();
+    }
 }
 
 PRIVATE VIRTUAL void AosNConfiguration::Init(IN IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
@@ -629,6 +700,7 @@ PRIVATE VIRTUAL void AosNConfiguration::Init(IN IN IMS_SINT32 nSlotId /* = IMS_S
     if (piCc == IMS_NULL)
     {
         A_IMS_TRACE_I(LOGTAG, "Init :: config failed", 0, 0, 0);
+        return;
     }
 
     piCc->AddListener(this);

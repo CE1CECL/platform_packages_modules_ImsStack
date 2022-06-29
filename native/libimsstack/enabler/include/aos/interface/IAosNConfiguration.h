@@ -20,6 +20,8 @@
 
 #define GET_N_CONFIG(SLOT) (AosProvider::GetInstance()->GetNConfiguration(SLOT))
 
+class IAosNConfigurationListener;
+
 /**
  * @brief This class provids an interface to access the configuration information related to Aos.
  *
@@ -33,6 +35,20 @@ public:
      * @return IMS_SINT32 Return slot id to be retrieved
      */
     virtual IMS_SINT32 GetSlotId() const = 0;
+
+    /**
+     * @brief Set the listener for monitoring the configuration.
+     *
+     * @param piListener Indicate the configuration listener.
+     */
+    virtual void SetListener(IN IAosNConfigurationListener* piListener) = 0;
+
+    /**
+     * @brief Remove the listener for monitoring the configuration.
+     *
+     * @param piListener Indicate the configuration listener.
+     */
+    virtual void RemoveListener(IN IAosNConfigurationListener* piListener) = 0;
 
     /**
      * @brief Returns whether subscription is initiated after registration.

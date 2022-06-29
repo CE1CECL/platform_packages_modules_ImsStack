@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AOS_HANDLE_SIP_CONTROLLER_H_
-#define AOS_HANDLE_SIP_CONTROLLER_H_
+#ifndef INTERFACE_AOS_NCONFIGURATION_LISTENER_H_
+#define INTERFACE_AOS_NCONFIGURATION_LISTENER_H_
 
-#include "handle/AosHandle.h"
-#include "IEventListener.h"
-
-class AosHandleSipController : public AosHandle
+class IAosNConfigurationListener
 {
 public:
-    AosHandleSipController(IN IAosAppContext* piAppContext, IN const AString& strAppId,
-            IN const AString& strServiceId, IN const IMS_SINT32 nServiceType);
-    virtual ~AosHandleSipController();
-
-protected:
-    virtual void Init();
-
-    virtual void NConfiguration_NotifyConfigChanged();
+    virtual void NConfiguration_NotifyConfigChanged() = 0;
 };
-#endif  // AOS_HANDLE_SIP_CONTROLLER_H_
+#endif

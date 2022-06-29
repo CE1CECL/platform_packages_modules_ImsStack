@@ -22,6 +22,7 @@
 #include "interface/IAosBlockListener.h"
 #include "interface/IAosCallTrackerListener.h"
 #include "interface/IAosNConfiguration.h"
+#include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosNetTrackerListener.h"
 #include "interface/IAosServiceAvailableListener.h"
 #include "interface/IAosServicePhoneListener.h"
@@ -43,6 +44,7 @@ class AosCondition :
         public IAosNetTrackerListener,
         public IAosServiceAvailableListener,
         public IAosSubscriberListener,
+        public IAosNConfigurationListener,
         public AosServicePhoneListener,
         public AosServiceSettingListener
 {
@@ -127,6 +129,8 @@ protected:
     void ServiceAvailable_Changed() override;
     void ServiceAvailable_RequestCommand(IN IMS_UINT32 nCommand, IN IMS_UINT32 nReason) override;
 
+    // IAosNConfigurationListener
+    void NConfiguration_NotifyConfigChanged() override;
     // AosServicePhoneListener
     void ServicePhone_AosStart() override;
     void ServicePhone_LocationInfoChanged(IN LocationInfo eState) override;

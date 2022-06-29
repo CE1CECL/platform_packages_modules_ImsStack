@@ -60,12 +60,26 @@ AosSubscriberManager::AosSubscriberManager(IN IMS_SINT32 nSlotId) :
     IMS_TRACE_MEM("AOS_MEM", "AOS_M : [SLOT%d] AosSubscriberManager = %" PFLS_u "/%" PFLS_x,
             m_nSlotId, sizeof(AosSubscriberManager), this);
     Init();
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->SetListener(this);
+    }
 }
 
 PUBLIC VIRTUAL AosSubscriberManager::~AosSubscriberManager()
 {
     IMS_TRACE_MEM("AOS_MEM", "AOS_F : [SLOT%d] AosSubscriberManager = %" PFLS_u "/%" PFLS_x,
             m_nSlotId, sizeof(AosSubscriberManager), this);
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->RemoveListener(this);
+    }
 
     CleanUp();
 }
@@ -1291,6 +1305,18 @@ IMS_BOOL AosSubscriberManager::IsSipUri(IN const AString& strImpu) const
     }
 
     return IMS_FALSE;
+}
+
+PRIVATE
+void AosSubscriberManager::NConfiguration_NotifyConfigChanged()
+{
+    A_IMS_TRACE_D(AOSTAG, "NConfiguration_NotifyConfigChanged :: changed", 0, 0, 0);
+
+    if (GET_N_CONFIG(m_nSlotId) != IMS_NULL)
+    {
+        UpdateImsIdentity(GetIdentity(Index::FIRST));
+        AosSubscriberManager::Restart();
+    }
 }
 
 PRIVATE

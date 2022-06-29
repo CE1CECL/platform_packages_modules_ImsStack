@@ -22,6 +22,7 @@
 #include "ImsStateMachine.h"
 #include "IEventListener.h"
 #include "interface/IAosCallTrackerListener.h"
+#include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosNetTrackerListener.h"
 #include "interface/IAosRegistrationControlListener.h"
 #include "interface/IAosServiceSettingListener.h"
@@ -37,6 +38,7 @@ class AosHandle :
         public IAosHandle,
         public IAosCallTrackerListener,
         public IAosNetTrackerListener,
+        public IAosNConfigurationListener,
         public IEventListener,
         public IImsAos,
         public ImsStateMachine,
@@ -111,6 +113,9 @@ public:
 
     // IAosNetTrackerListener
     virtual void NetTracker_StatusChanged();
+
+    // IAosNConfigurationListener
+    virtual void NConfiguration_NotifyConfigChanged();
 
     // IEventListener
     virtual void Event_NotifyEvent(

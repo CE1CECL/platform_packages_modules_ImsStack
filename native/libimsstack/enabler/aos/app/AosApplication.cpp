@@ -496,6 +496,13 @@ PROTECTED VIRTUAL void AosApplication::CreateAosConnector()
 PROTECTED VIRTUAL void AosApplication::CreateAosLocationStarter(
         IN IMS_BOOL bInitiation /* = IMS_TRUE */)
 {
+    IAosLocationStarter* piLs = AosProvider::GetInstance()->GetLocationStarter(m_nSlotId);
+
+    if (piLs != IMS_NULL)
+    {
+        return;
+    }
+
     IAosLocationStarter* piStarter = new AosLocationStarter();
     AosProvider::GetInstance()->SetLocationStarter(piStarter, m_nSlotId);
 
@@ -2558,6 +2565,27 @@ PROTECTED VIRTUAL void AosApplication::NetTracker_StatusChanged()
     m_nRat = nNewRat;
 }
 
+PROTECTED VIRTUAL void AosApplication::NConfiguration_NotifyConfigChanged()
+{
+    A_IMS_TRACE_D(APPID, "NConfiguration_NotifyConfigChanged :: changed", 0, 0, 0);
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig == IMS_NULL)
+    {
+        return;
+    }
+
+    if (piNConfig->IsWfcImsAvailable())
+    {
+        if (piNConfig->IsGeolocationPidfSupported(
+                    CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI))
+        {
+            CreateAosLocationStarter();
+        }
+    }
+}
+
 PROTECTED VIRTUAL void AosApplication::Event_NotifyEvent(
         IN IMS_SINT32 nEvent, IN IMS_UINT32 nWParam, IN IMS_UINT32 nLParam)
 {
@@ -2664,12 +2692,19 @@ PROTECTED VIRTUAL void AosApplication::RegistrationControl_ControlRegistration(
 
 PROTECTED VIRTUAL void AosApplication::Init()
 {
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig == IMS_NULL)
+    {
+        return;
+    }
+    piNConfig->SetListener(this);
     A_IMS_TRACE_D(APPID, "Init", 0, 0, 0);
 
     IVoNr* piServiceVonr = VoNrService::GetVoNrService()->GetVoNr(m_nSlotId);
+
     m_bIsVonrSupported =
             (piServiceVonr != IMS_NULL && piServiceVonr->IsVoNrSupported()) ? IMS_TRUE : IMS_FALSE;
-
     m_piRegistration = m_piContext->GetRegistration();
     m_piRegistration->SetListener(this);
     SetAppType(m_piRegistration->GetRegType());
@@ -2697,27 +2732,27 @@ PROTECTED VIRTUAL void AosApplication::Init()
         Condition_Changed();
     }
 
-    if (GET_N_CONFIG(m_nSlotId)->IsWfcImsAvailable())
+    if (m_nAppType == TYPE_NORMAL)
     {
-        if (GET_N_CONFIG(m_nSlotId)->IsGeolocationPidfSupported(
-                    CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI))
+        if (piNConfig->IsWfcImsAvailable())
         {
-            CreateAosLocationStarter();
+            if (piNConfig->IsGeolocationPidfSupported(
+                        CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI))
+            {
+                CreateAosLocationStarter();
+            }
+        }
+
+        IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
+        if (piService != IMS_NULL)
+        {
+            piService->AddListener(DYNAMIC_CAST(IAosRegistrationControlListener*, this));
         }
     }
 
     if (IsRegStateUpdatedByNrLteRatChange())
     {
         SetNetTrackerListener();
-    }
-
-    if (m_nAppType == TYPE_NORMAL)
-    {
-        IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
-        if (piService != IMS_NULL)
-        {
-            piService->AddListener(DYNAMIC_CAST(IAosRegistrationControlListener*, this));
-        }
     }
 }
 
@@ -2729,6 +2764,11 @@ PROTECTED VIRTUAL void AosApplication::CleanUp()
 
     StopTimer(TIMER_RECONFIG_GUARD);
 
+    if (m_piNetTracker != IMS_NULL)
+    {
+        m_piNetTracker->RemoveListener(this);
+    }
+
     if (m_nAppType == TYPE_NORMAL)
     {
         IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
@@ -2736,18 +2776,14 @@ PROTECTED VIRTUAL void AosApplication::CleanUp()
         {
             piService->RemoveListener(DYNAMIC_CAST(IAosRegistrationControlListener*, this));
         }
-    }
 
-    if (m_piNetTracker != IMS_NULL)
-    {
-        m_piNetTracker->RemoveListener(this);
-    }
+        IAosLocationStarter* piLs = AosProvider::GetInstance()->GetLocationStarter(m_nSlotId);
 
-    IAosLocationStarter* piLs = AosProvider::GetInstance()->GetLocationStarter(m_nSlotId);
-    if (piLs != IMS_NULL)
-    {
-        AosProvider::GetInstance()->SetLocationStarter(IMS_NULL, m_nSlotId);
-        delete DYNAMIC_CAST(AosLocationStarter*, piLs);
+        if (piLs != IMS_NULL)
+        {
+            AosProvider::GetInstance()->SetLocationStarter(IMS_NULL, m_nSlotId);
+            delete DYNAMIC_CAST(AosLocationStarter*, piLs);
+        }
     }
 
     if (m_piCallTracker != IMS_NULL)
@@ -2776,5 +2812,12 @@ PROTECTED VIRTUAL void AosApplication::CleanUp()
     if (m_piRegistration != IMS_NULL)
     {
         m_piRegistration->SetListener(IMS_NULL);
+    }
+
+    IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+
+    if (piNConfig != IMS_NULL)
+    {
+        piNConfig->RemoveListener(this);
     }
 }

@@ -64,3 +64,17 @@ PROTECTED VIRTUAL void AosHandleSipController::Init()
         m_bBlocked = IMS_TRUE;
     }
 }
+
+/*
+
+Remarks
+
+*/
+PROTECTED VIRTUAL void AosHandleSipController::NConfiguration_NotifyConfigChanged()
+{
+    if (GET_N_CONFIG(m_nSlotId) != IMS_NULL)
+    {
+        m_bBlocked =
+                GET_N_CONFIG(m_nSlotId)->IsImsSingleRegistrationRequired() ? IMS_FALSE : IMS_TRUE;
+    }
+}
