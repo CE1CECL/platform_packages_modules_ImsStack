@@ -61,7 +61,7 @@ PUBLIC VIRTUAL void UCVoNRForQct::CheckBarring(
     {
         if (m_piListener->IsOtherSessionAlive(this, m_nUacType) == IMS_FALSE)
         {
-            NotifyCallState(IVoNr::STATE_START);
+            NotifyCallState(0/*IVoNr::STATE_START*/);
         }
         m_eUacStatus = UacStatus::SUCCESS;
         return;
@@ -73,7 +73,7 @@ PUBLIC VIRTUAL void UCVoNRForQct::CheckBarring(
     }
 
     StartTimer(TIME_WAIT_UAC_RESPONSE);
-    NotifyCallState(IVoNr::STATE_START);
+    NotifyCallState(0/*IVoNr::STATE_START*/);
     // TODO, MTC BUILD
     // piUCSession->SetUacBlockType(IMtcCall::VONR_BLOCK_TYPE_WAIT_UAC);
 }
@@ -106,7 +106,7 @@ PROTECTED VIRTUAL void UCVoNRForQct::OnSessionStopped(IN IMS_UINTP nParam)
 
     if (m_piListener->IsOtherSessionAlive(this, m_nUacType) == IMS_FALSE)
     {
-        NotifyCallState(IVoNr::STATE_IDLE);
+        NotifyCallState(0/*IVoNr::STATE_IDLE*/);
     }
 
     m_piListener->OnTerminated(this);
@@ -135,7 +135,7 @@ PROTECTED VIRTUAL void UCVoNRForQct::OnNotifyUacResponse(IN IMS_UINT32 nType, IN
     IMS_TRACE_I("OnNotifyUacResponse - Result[%d], Reason[%d], SysMode[%d]", nResult, nReason,
             nSysMode);
 
-    if (nSysMode != IVoNr::SYS_MODE_NR5G)
+    if (nSysMode != 0/*IVoNr::SYS_MODE_NR5G*/)
     {
         return;
     }
@@ -163,14 +163,14 @@ PROTECTED VIRTUAL void UCVoNRForQct::OnNotifyUacResponse(IN IMS_UINT32 nType, IN
     }
     else if (m_eUacStatus == UacStatus::FAILURE)
     {
-        RequestCallPreference(IVoNr::RAT_LTE);
+        RequestCallPreference(0/*IVoNr::RAT_LTE*/);
     }
 }
 
 PROTECTED VIRTUAL void UCVoNRForQct::OnNotifyCallPreferenceReady(IN IMS_UINT32 nSysMode)
 {
     // --------------------------------------------------------------------------------------------
-    if (m_eUacStatus == UacStatus::SUCCESS || nSysMode != IVoNr::SYS_MODE_LTE)
+    if (m_eUacStatus == UacStatus::SUCCESS || nSysMode != 0/*IVoNr::SYS_MODE_LTE*/)
     {
         IMS_TRACE_I("OnNotifyCallPreferenceReady - invalid", 0, 0, 0);
         return;
@@ -195,7 +195,7 @@ PROTECTED VIRTUAL void UCVoNRForQct::OnNotifyCallPreferenceReady(IN IMS_UINT32 n
     // }
 
     m_eUacStatus = UacStatus::SUCCESS;
-    NotifyCallState(IVoNr::STATE_START);
+    NotifyCallState(0/*IVoNr::STATE_START*/);
 
     // not to wait VoNrUac_NotifyResponse for LTE.
     // TODO, MTC BUILD
@@ -212,9 +212,9 @@ PROTECTED VIRTUAL IMS_BOOL UCVoNRForQct::IsUacCheckRequired()
         return IMS_FALSE;
     }
 #else
-    if (m_nUacType == IVoNr::TYPE_EMERGENCY ||
-            m_piVonr->IsUacCheckRequired(m_nUacType) == IMS_FALSE ||
-            m_nDirection == IVoNr::DIRECTION_MT)
+    if (m_nUacType == 0/*IVoNr::TYPE_EMERGENCY*/ ||
+            //m_piVonr->IsUacCheckRequired(m_nUacType) == IMS_FALSE ||
+            m_nDirection == 0/*IVoNr::DIRECTION_MT*/)
     {
         IMS_TRACE_I("IsUacCheckRequired : FALSE", 0, 0, 0);
         return IMS_FALSE;
@@ -230,9 +230,9 @@ PRIVATE
 IMS_UINT32 UCVoNRForQct::GetConvertedCallState(IN IMS_UINT32 nState, IN IMS_UINT32 nDirection)
 {
     // --------------------------------------------------------------------------------------------
-    if (nState == IVoNr::STATE_START)
+    if (nState == 0/*IVoNr::STATE_START*/)
     {
-        if (nDirection == IVoNr::DIRECTION_MO)
+        if (nDirection == 0/*IVoNr::DIRECTION_MO*/)
         {
             return VOLTE_CALL_STATE_RINGBACK;
         }

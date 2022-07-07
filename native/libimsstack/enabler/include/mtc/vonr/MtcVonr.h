@@ -18,7 +18,7 @@
 #define MTC_VONR_H_
 
 #include "INetworkWatcher.h"
-#include "IVoNr.h"
+//#include "IVoNr.h"
 #include "ServiceTimer.h"
 
 #include "call/IMtcCall.h"
@@ -26,9 +26,9 @@
 class IMtcVonrListener;
 
 class MtcVonr :
-        public IVoNrUacListener,
-        public IVoNrCallPreferenceListener,
-        public IVoNrHandoffListener,
+//        public IVoNrUacListener,
+//        public IVoNrCallPreferenceListener,
+//        public IVoNrHandoffListener,
         public INetworkWatcherListener,
         public ITimerListener
 {
@@ -111,7 +111,7 @@ protected:
     IMS_UINT32 m_nSlotId;
     IMtcVonrListener* m_piListener;
 
-    IVoNr* m_piVonr;
+//    IVoNr* m_piVonr;
     IMS_SINTP m_nCallKey;
     // IMtcCallManager*    m_piCallManager;
     IMS_UINT32 m_nDirection;

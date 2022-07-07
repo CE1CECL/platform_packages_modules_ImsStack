@@ -21,7 +21,7 @@
 #include "ServiceNetworkPolicy.h"
 #include "ServicePhoneInfo.h"
 #include "ServiceTrace.h"
-#include "ServiceVoNr.h"
+//#include "ServiceVoNr.h"
 
 #include "call/IMtcCallContext.h"
 #include "call/IMtcCall.h"
@@ -36,10 +36,10 @@ PUBLIC
 MtcVonr::MtcVonr(IN IMS_UINT32 nSlotId, IN IMtcVonrListener* piListener) :
         m_nSlotId(nSlotId),
         m_piListener(piListener),
-        m_piVonr(IMS_NULL),
+        //m_piVonr(IMS_NULL),
         m_nCallKey(-1),
-        m_nDirection(IVoNr::DIRECTION_MO),
-        m_nUacType(IVoNr::TYPE_VOICE),
+        m_nDirection(0/*IVoNr::DIRECTION_MO*/),
+        m_nUacType(0/*IVoNr::TYPE_VOICE*/),
         m_piNetWatcherInfo(IMS_NULL),
         m_eUacStatus(UacStatus::IDLE),
         m_nCurrentNetwork(INetworkWatcher::RADIOTECH_TYPE_INVALID),
@@ -53,13 +53,14 @@ PUBLIC VIRTUAL MtcVonr::~MtcVonr()
 {
     IMS_TRACE_I("~MtcVonr : [%" PFLS_x "]", this, 0, 0);
 
+/*
     if (m_piVonr)
     {
         m_piVonr->RemoveListenerForUac(this);
         m_piVonr->RemoveListenerForCallPreference(this);
         m_piVonr->RemoveListenerForHandoff(this);
     }
-
+*/
     if (m_piNetWatcherInfo)
     {
         m_piNetWatcherInfo->RemoveObserver(this);
@@ -154,7 +155,7 @@ PUBLIC VIRTUAL void MtcVonr::Timer_TimerExpired(IN ITimer* piTimer)
     else
     {
         // temp policy : treat as success. in success case, other information(params) don't matter.
-        VoNrUac_NotifyResponse(m_nUacType, IMS_SUCCESS, 0, IVoNr::SYS_MODE_NR5G, 0);
+        VoNrUac_NotifyResponse(m_nUacType, IMS_SUCCESS, 0, 0/*IVoNr::SYS_MODE_NR5G*/, 0);
     }
 }
 
@@ -208,12 +209,12 @@ PROTECTED
 void MtcVonr::Initialize()
 {
     IMS_TRACE_D("Initialize", 0, 0, 0);
-
+/*
     m_piVonr = VoNrService::GetVoNrService()->GetVoNr(m_nSlotId);
     m_piVonr->AddListenerForUac(this);
     m_piVonr->AddListenerForCallPreference(this);
     m_piVonr->AddListenerForHandoff(this);
-
+*/
     m_piNetWatcherInfo = PhoneInfoService::GetPhoneInfoService()->GetNetworkWatcher(m_nSlotId);
     m_piNetWatcherInfo->RegisterObserver(this);
 }
@@ -223,13 +224,13 @@ void MtcVonr::RequestCallPreference(IN IMS_UINT32 nRat)
 {
     IMS_TRACE_I("RequestCallPreference - nRat[%d]", nRat, 0, 0);
 
-    if (m_piVonr == IMS_NULL)
+    if (IMS_TRUE/*m_piVonr == IMS_NULL*/)
     {
         return;
     }
 
     StartTimer(TIME_WAIT_CALL_READY);
-    m_piVonr->RequestCallPreference(nRat, m_nUacType);
+    //m_piVonr->RequestCallPreference(nRat, m_nUacType);
 }
 
 PROTECTED
@@ -259,22 +260,22 @@ void MtcVonr::SetUacType(IN CallType eCallType, IN IMS_BOOL bEmergency)
 
     if (bEmergency)
     {
-        m_nUacType = IVoNr::TYPE_EMERGENCY;
+        m_nUacType = 0;//IVoNr::TYPE_EMERGENCY;
     }
     else if (eCallType == CallType::VOIP || eCallType == CallType::RTT)
     {
-        m_nUacType = IVoNr::TYPE_VOICE;
+        m_nUacType = 0;//IVoNr::TYPE_VOICE;
     }
     else if (eCallType == CallType::VT || eCallType == CallType::VIDEO_RTT)
     {
-        m_nUacType = IVoNr::TYPE_VIDEO;
+        m_nUacType = 0;//IVoNr::TYPE_VIDEO;
     }
 }
 
 PROTECTED
 IMS_UINT32 MtcVonr::GetSysMode()
 {
-    IMS_UINT32 nSysMode = IVoNr::SYS_MODE_UNKNOWN;
+    IMS_UINT32 nSysMode = 0;//IVoNr::SYS_MODE_UNKNOWN;
     IMS_UINT32 nRadioTechType = m_piNetWatcherInfo->GetNetRadioTechType();
 
     const INetworkConnection* piNetConnection =
@@ -284,17 +285,17 @@ IMS_UINT32 MtcVonr::GetSysMode()
     if (bWLAN)
     {
         // only working for MTK
-        nSysMode = IVoNr::SYS_MODE_WLAN;
+        nSysMode = 0;//IVoNr::SYS_MODE_WLAN;
     }
     else
     {
         if (nRadioTechType == NW_REPORT_RADIO_NR)
         {
-            nSysMode = IVoNr::SYS_MODE_NR5G;
+            nSysMode = 0;//IVoNr::SYS_MODE_NR5G;
         }
         else if (nRadioTechType == NW_REPORT_RADIO_LTE)
         {
-            nSysMode = IVoNr::SYS_MODE_LTE;
+            nSysMode = 0;//IVoNr::SYS_MODE_LTE;
         }
     }
 
@@ -309,10 +310,10 @@ IMS_UINT32 MtcVonr::GetConvertedDirection(IN PeerType ePeerType)
 
     if (ePeerType == PeerType::MT)
     {
-        return IVoNr::DIRECTION_MT;
+        return 0;//IVoNr::DIRECTION_MT;
     }
 
-    return IVoNr::DIRECTION_MO;
+    return 0;//IVoNr::DIRECTION_MO;
 }
 
 PROTECTED
@@ -320,21 +321,21 @@ MtcVonr::VonrInitType MtcVonr::GetConvertedInitType(IN IMS_UINT32 nSysMode)
 {
     VonrInitType nInitType = VonrInitType::NONE;
 
-    if (m_nUacType == IVoNr::IVoNr::TYPE_EMERGENCY)
+    if (m_nUacType == 0/*IVoNr::IVoNr::TYPE_EMERGENCY*/)
     {
         nInitType = VonrInitType::EMERGENCY;
     }
     else
     {
-        if (nSysMode == IVoNr::SYS_MODE_LTE)
+        if (nSysMode == 0/*IVoNr::SYS_MODE_LTE*/)
         {
             nInitType = VonrInitType::LTE;
         }
-        else if (nSysMode == IVoNr::SYS_MODE_NR5G)
+        else if (nSysMode == 0/*IVoNr::SYS_MODE_NR5G*/)
         {
             nInitType = VonrInitType::NR;
         }
-        else if (nSysMode == IVoNr::SYS_MODE_WLAN)
+        else if (nSysMode == 0/*IVoNr::SYS_MODE_WLAN*/)
         {
             nInitType = VonrInitType::WIFI;
         }
