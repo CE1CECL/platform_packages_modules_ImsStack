@@ -217,6 +217,10 @@ public class ConfigContainerTest {
 
         // check different client info for SubId 0 and SubId 1
         checkNotEquals(clientInfo0, clientInfo1);
+
+        mConfigContainer.resetClientInfo();
+        clientInfo1 = mConfigContainer.getClientInfo();
+        checkEquals(null, clientInfo1);
     }
 
     @Test
