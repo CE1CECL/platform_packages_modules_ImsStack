@@ -25,13 +25,10 @@ import static org.mockito.Mockito.doReturn;
 import android.content.Context;
 import android.os.Environment;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
 
 import com.android.imsstack.enabler.acs.impl.ProvisioningData;
-
-import com.google.common.io.Files;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,8 +37,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class ProvisioningDataTest {
@@ -50,7 +45,8 @@ public class ProvisioningDataTest {
     // path : /storage/emulated/0/Download
     private static final String FILE_DESCRIPTOR_EXTERNAL =
             Environment.getExternalStorageDirectory() + "/Download";
-    private static final String FILE_NAME = "provisionindData.xml";
+    private static final String LOCAL_FILE_NAME_PREFIX = "rcs_provisioning_";
+    private static final String LOCAL_FILE_NAME_POSTFIX = ".xml";
     private static final String AC_DATA = "<?xml version=\"1.0\"?>"
                     + "<wap-provisioningdoc version=\"1.1\">"
                     + "<characteristic type=\"VERS\">"
@@ -153,6 +149,7 @@ public class ProvisioningDataTest {
     @Mock
     Context mContext;
 
+    private int mSubId = 1234;
     private ProvisioningData mProvisioningData;
 
     @Before
@@ -160,31 +157,38 @@ public class ProvisioningDataTest {
         MockitoAnnotations.initMocks(this);
 
         doReturn(FILE_DESCRIPTOR).when(mContext).getFilesDir();
+        //doReturn(new File(FILE_DESCRIPTOR_EXTERNAL)).when(mContext).getFilesDir();
     }
 
     @After
     public void tearDown() throws Exception {
         mProvisioningData = null;
+/*
+        String fileName = LOCAL_FILE_NAME_PREFIX + mSubId + LOCAL_FILE_NAME_POSTFIX;
+        File file = new File(mContext.getFilesDir(), fileName);
+        if (file != null && file.exists()) {
+            file.delete();
+        }*/
     }
 
     @Test
     @SmallTest
     public void parseAndSaveProvisioningData_withByteArray() throws Exception {
-        mProvisioningData = new ProvisioningData(AC_DATA.getBytes(StandardCharsets.UTF_8));
+        mProvisioningData = new ProvisioningData(mContext, mSubId, AC_DATA.getBytes());
         assertEquals(true, mProvisioningData.isComplete());
 
         mProvisioningData.dumpLog();
 
-        mProvisioningData.saveXmlFile(FILE_DESCRIPTOR, FILE_NAME);
-        assertEquals(true, isExistTestFile(FILE_NAME));
+        mProvisioningData.saveXmlFile();
+        String fileName = mProvisioningData.getFileName();
 
-        copyFile(FILE_NAME);
+        assertEquals(true, isExistTestFile(fileName));
     }
 
     @Test
     @SmallTest
     public void parseAndGetProvisioningData_withByteArray() throws Exception {
-        mProvisioningData = new ProvisioningData(AC_DATA.getBytes(StandardCharsets.UTF_8));
+        mProvisioningData = new ProvisioningData(mContext, mSubId, AC_DATA.getBytes());
         assertEquals(true, mProvisioningData.isComplete());
 
         int intValue = mProvisioningData.getIntValue("version", 0);
@@ -204,13 +208,17 @@ public class ProvisioningDataTest {
     @SmallTest
     public void parseAndGetProvisioningData_withFile() throws Exception {
         // write data to xml file
-        mProvisioningData = new ProvisioningData(AC_DATA.getBytes(StandardCharsets.UTF_8));
-        assertEquals(true, mProvisioningData.isComplete());
-        mProvisioningData.saveXmlFile(FILE_DESCRIPTOR, FILE_NAME);
-        assertEquals(true, isExistTestFile(FILE_NAME));
+        mProvisioningData = new ProvisioningData(mContext, mSubId, AC_DATA.getBytes());
+
+        assertTrue(mProvisioningData.isComplete());
+
+        mProvisioningData.saveXmlFile();
+        String fileName = mProvisioningData.getFileName();
+
+        assertTrue(isExistTestFile(fileName));
 
         // read data from xml file
-        ProvisioningData fileProvisioningData = new ProvisioningData(FILE_DESCRIPTOR, FILE_NAME);
+        ProvisioningData fileProvisioningData = new ProvisioningData(mContext, mSubId);
 
         int intValue = fileProvisioningData.getIntValue("TimerIdle", 0);
         assertEquals(660, intValue);
@@ -226,11 +234,11 @@ public class ProvisioningDataTest {
     @SmallTest
     public void updateProvisioningData_withPartialData() throws Exception {
         // write data to xml file
-        mProvisioningData = new ProvisioningData(AC_DATA.getBytes(StandardCharsets.UTF_8));
+        mProvisioningData = new ProvisioningData(mContext, mSubId, AC_DATA.getBytes());
         assertEquals(true, mProvisioningData.isComplete());
 
         ProvisioningData newProvisioningData =
-                new ProvisioningData(AC_DATA_PARTIAL.getBytes(StandardCharsets.UTF_8));
+                new ProvisioningData(mContext, mSubId, AC_DATA_PARTIAL.getBytes());
         assertEquals(true, newProvisioningData.isComplete());
 
         mProvisioningData.updateData(newProvisioningData);
@@ -255,9 +263,10 @@ public class ProvisioningDataTest {
         longValue = mProvisioningData.getLongValue("nonRCScapInfoExpiry", 0L);
         assertEquals(123456789L, longValue);
 
-        String fileName = "provisionindData_partialupdate.xml";
-        mProvisioningData.saveXmlFile(FILE_DESCRIPTOR, fileName);
-        copyFile(fileName);
+        mProvisioningData.saveXmlFile();
+        String fileName = mProvisioningData.getFileName();
+
+        assertTrue(isExistTestFile(fileName));
     }
 
     @Test
@@ -275,34 +284,20 @@ public class ProvisioningDataTest {
 
     @Test
     @SmallTest
-    public void createXmlFile_withData() {
-        String fileName = "temp_provisioning.xml";
+    public void createDeleteXmlFile_withData() {
         boolean result = ProvisioningData.createXmlFileFromBytes(
-                FILE_DESCRIPTOR, fileName, AC_DATA.getBytes());
+                mContext, mSubId, AC_DATA.getBytes());
         assertTrue(result);
 
-        copyFile(fileName);
+        String fileName = LOCAL_FILE_NAME_PREFIX + mSubId + LOCAL_FILE_NAME_POSTFIX;
+        assertTrue(isExistTestFile(fileName));
+
+        ProvisioningData.deleteXmlFile(mContext, mSubId);
+        assertFalse(isExistTestFile(fileName));
     }
 
     private boolean isExistTestFile(String fileName) {
-        File srcFile = new File(FILE_DESCRIPTOR, fileName);
+        File srcFile = new File(mContext.getFilesDir(), fileName);
         return srcFile.exists();
-    }
-
-    private boolean isExistTestFileInExternalStorage(String fileName) {
-        File srcFile = new File(FILE_DESCRIPTOR_EXTERNAL, fileName);
-        return srcFile.exists();
-    }
-
-    private void copyFile(String fileName) {
-        File desFile = new File(FILE_DESCRIPTOR_EXTERNAL, fileName);
-        File srcFile = new File(FILE_DESCRIPTOR, fileName);
-        try {
-            Files.copy(srcFile, desFile);
-        } catch (IOException e) {
-            Log.i(TAG, e.getMessage());
-        }
-
-        Log.i(TAG, "test result file copied : " + desFile + "/" + FILE_NAME);
     }
 }

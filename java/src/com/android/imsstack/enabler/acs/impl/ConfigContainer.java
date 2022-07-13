@@ -125,12 +125,12 @@ public class ConfigContainer {
     }
 
     /**
-     * notify the stored provisioning data is not valid
+     * reset the stored version, validity and token
      */
     public void resetAcValue() {
         mConfig.putInt(LOCAL_KEY_AC_VERSION, 0);
-        mConfig.putLong(LOCAL_KEY_AC_VALIDITY, 0);
-        mConfig.putString(LOCAL_KEY_AC_TOKEN, "");
+        mConfig.putLong(LOCAL_KEY_AC_VALIDITY, 0L);
+        mConfig.putString(LOCAL_KEY_AC_TOKEN, null);
 
         saveDataToFile();
     }
@@ -167,6 +167,19 @@ public class ConfigContainer {
 
         return new AcServiceClientInfo(rcsVersion, rcsProfile, clientVendor, clientVersion,
                 mConfig.getBoolean(LOCAL_KEY_RCS_ENABLED_BY_USER));
+    }
+
+    /**
+     * reset the stored client info data
+     */
+    public void resetClientInfo() {
+        mConfig.putString(LOCAL_KEY_RCS_VERSION, null);
+        mConfig.putString(LOCAL_KEY_RCS_PROFILE, null);
+        mConfig.putString(LOCAL_KEY_CLIENT_VENDOR, null);
+        mConfig.putString(LOCAL_KEY_CLIENT_VERSION, null);
+        mConfig.putBoolean(LOCAL_KEY_RCS_ENABLED_BY_USER, false);
+
+        saveDataToFile();
     }
 
     /**

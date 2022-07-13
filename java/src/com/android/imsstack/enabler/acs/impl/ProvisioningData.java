@@ -18,6 +18,7 @@ package com.android.imsstack.enabler.acs.impl;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Xml;
 
@@ -44,13 +45,15 @@ import java.util.zip.GZIPOutputStream;
  * This class parse provisioning xml data and generate xml from parsed data
  */
 public class ProvisioningData {
-    public static final String TAG_PROVISIONINGDOC = "wap-provisioningdoc";
-    public static final String TAG_CHARACTERISTIC = "characteristic";
-    public static final String ELEM_PARM = "parm";
-    public static final String ATTR_VERSION = "version";
-    public static final String ATTR_TYPE = "type";
-    public static final String ATTR_NAME = "name";
-    public static final String ATTR_VALUE = "value";
+    private static final String LOCAL_FILE_NAME_PREFIX = "rcs_provisioning_";
+    private static final String LOCAL_FILE_NAME_POSTFIX = ".xml";
+    private static final String TAG_PROVISIONINGDOC = "wap-provisioningdoc";
+    private static final String TAG_CHARACTERISTIC = "characteristic";
+    private static final String ELEM_PARM = "parm";
+    private static final String ATTR_VERSION = "version";
+    private static final String ATTR_TYPE = "type";
+    private static final String ATTR_NAME = "name";
+    private static final String ATTR_VALUE = "value";
 
     /**
      * This class handles each characteristic block in RCS provisioning XML data
@@ -94,22 +97,28 @@ public class ProvisioningData {
         }
     }
 
+    private final Context mContext;
+    private final String mFileName;
     private final Characteristic mRoot = new Characteristic(null, "root");
-    private byte[] mRawData;
     private boolean mIsComplete;
 
     /**
      * Creator to parse xml data
+     * @param context Context
+     * @param subId subscriber ID
      * @param data provisioning xml data
      */
-    public ProvisioningData(byte[] data) {
+    public ProvisioningData(Context context, int subId, byte[] data) {
+        mContext = context;
+        mFileName = LOCAL_FILE_NAME_PREFIX + subId + LOCAL_FILE_NAME_POSTFIX;
+
         // copy data
-        mRawData = data.clone();
+        byte[] rawData = data.clone();
         mIsComplete = false;
 
         // parse data
         try {
-            parse(new ByteArrayInputStream(mRawData), mRoot);
+            parse(new ByteArrayInputStream(rawData), mRoot);
         } catch (XmlPullParserException | IOException e) {
             ImsLog.i(e.getMessage());
         }
@@ -117,15 +126,17 @@ public class ProvisioningData {
 
     /**
      * Creator to parse xml file
-     * @param parent The parent abstract pathname
-     * @param child The child pathname string
+     * @param context Context
+     * @param subId subscriber ID
      */
-    public ProvisioningData(File parent, String child) {
-        mIsComplete = false;
+    public ProvisioningData(Context context, int subId) {
+        mContext = context;
+        mFileName = LOCAL_FILE_NAME_PREFIX + subId + LOCAL_FILE_NAME_POSTFIX;
 
+        mIsComplete = false;
         try {
             // read data from file
-            File file = new File(parent, child);
+            File file = new File(mContext.getFilesDir(), mFileName);
             FileInputStream inputStream = new FileInputStream(file);
 
             // parse data
@@ -155,11 +166,9 @@ public class ProvisioningData {
 
     /**
      * Store xml parsed data into xml file
-     * @param parent file descriptor include path information
-     * @param child file name
      * @return true if the operation is success, otherwise return false
      */
-    public boolean saveXmlFile(File parent, String child) {
+    public boolean saveXmlFile() {
         if (!mIsComplete) {
             ImsLog.i("not available parsed data");
             return false;
@@ -169,7 +178,7 @@ public class ProvisioningData {
         if (out != null) {
             try {
                 ImsLog.i(out.toString());
-                File file = new File(parent, child);
+                File file = new File(mContext.getFilesDir(), mFileName);
                 FileOutputStream outputStream = new FileOutputStream(file);
                 out.writeTo(outputStream);
                 outputStream.close();
@@ -234,6 +243,15 @@ public class ProvisioningData {
         }
 
         return value;
+    }
+
+    /**
+     * get file name to be stored
+     * @return file name
+     */
+    @VisibleForTesting
+    public String getFileName() {
+        return mFileName;
     }
 
     private String getValue(Characteristic root, String key) {
@@ -523,15 +541,15 @@ public class ProvisioningData {
 
     /**
      * Store xml parsed data into xml file
-     * @param parent file descriptor include path information
-     * @param child file name
+     * @param context Context
+     * @param subId subscriber ID
      * @param data data will be stored in file
      * @return true if the operation is success, otherwise return false
      */
-    public static boolean createXmlFileFromBytes(@NonNull File parent, @NonNull String child,
-            @NonNull byte[] data) {
+    public static boolean createXmlFileFromBytes(Context context, int subId, byte[] data) {
         try {
-            File file = new File(parent, child);
+            String fileName = LOCAL_FILE_NAME_PREFIX + subId + LOCAL_FILE_NAME_POSTFIX;
+            File file = new File(context.getFilesDir(), fileName);
             FileOutputStream outputStream = new FileOutputStream(file);
             outputStream.write(data);
             outputStream.close();
@@ -541,6 +559,20 @@ public class ProvisioningData {
         }
 
         return true;
+    }
+
+    /**
+     * delete xml file
+     * @param context Context
+     * @param subId subscriber ID
+     */
+    public static void deleteXmlFile(Context context, int subId) {
+        String fileName = LOCAL_FILE_NAME_PREFIX + subId + LOCAL_FILE_NAME_POSTFIX;
+        File file = new File(context.getFilesDir(), fileName);
+        if (file != null && file.exists()) {
+            file.delete();
+            ImsLog.i("deleted file name is " + fileName);
+        }
     }
 
     /**
