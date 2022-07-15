@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import com.android.imsstack.IStateInfoChangedObserver;
-import com.android.imsstack.StateInfoChangedReceiver;
 import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -77,7 +76,6 @@ public class EventReceiver {
             new ArrayList<EventReceiverCallback>();
     private final Object mLock = new Object();
     private final Context mContext;
-    private final StateInfoChangedReceiver mStateInfoChangedReceiver;
 
     private boolean mRegistered;
 
@@ -89,7 +87,7 @@ public class EventReceiver {
     public static EventReceiver getInstance(Context context) {
         synchronized (sInstance) {
             if (sInstance == null) {
-                sInstance = new EventReceiver(context, new StateInfoChangedReceiver());
+                sInstance = new EventReceiver(context);
             }
         }
 
@@ -131,10 +129,9 @@ public class EventReceiver {
     }
 
     @VisibleForTesting
-    public EventReceiver(Context context, StateInfoChangedReceiver stateInfoChangedReceiver) {
+    public EventReceiver(Context context) {
         mRegistered = false;
         mContext = context;
-        mStateInfoChangedReceiver = stateInfoChangedReceiver;
     }
 
     private void checkEvent() {
@@ -148,8 +145,6 @@ public class EventReceiver {
             IntentFilter filter = new IntentFilter();
             filter.addAction(ReconfigManager.INTENT_ACTION);
             mContext.registerReceiver(mReceiver, filter);
-
-            mStateInfoChangedReceiver.init(mContext, mIStateInfoChangedObserver);
 
             mRegistered = true;
         } else if (size == 0) {
