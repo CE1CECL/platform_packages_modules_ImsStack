@@ -39,6 +39,5 @@ TEST(CallReasonInfoTest, ToStringReturnsValidLogString)
     CallReasonInfo objReason(1, 1, AString("Extra Value"));
 
     AString strExpectedLog = "Code[1] Extra[1][Extra Value]";
-    // EXPECT_STREQ(objReason.ToString(), strExpectedLog.GetStr());
-    EXPECT_STREQ(objReason.ToString(), "Extra Value");
+    EXPECT_STREQ(objReason.ToString().GetStr(), strExpectedLog.GetStr());
 }

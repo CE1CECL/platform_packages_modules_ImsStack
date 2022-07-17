@@ -72,12 +72,12 @@ public:
 
     IMS_BOOL operator!=(const CallReasonInfo& objRhs) const { return !(*this == objRhs); }
 
-    const IMS_CHAR* ToString() const
+    AString ToString() const
     {
         AString strOut;
         strOut.Sprintf("Code[%d] Extra[%d][%s]", nCode, nExtraCode, strExtraMessage.GetStr());
 
-        return strExtraMessage.GetStr();  // TODO: temp code
+        return strOut;
     }
 
     IMS_SINT32 nCode;
@@ -198,6 +198,6 @@ enum
     EXTRA_CODE_EMERGENCYSERVICE_COUNTRY_SPECIFIC = 10,
 };
 
-#define _TRACE_CR_(I) (I.ToString())
+#define _TRACE_CR_(I) (I.ToString().GetStr())
 
 #endif
