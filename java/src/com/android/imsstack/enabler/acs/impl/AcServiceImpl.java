@@ -52,18 +52,22 @@ public class AcServiceImpl {
     private static final int MSG_START = 2;
     // stop AC progress, called by App
     private static final int MSG_STOP = 3;
+    // receive provisioning data from App
+    private static final int MSG_PROVISIONING_DATA_RECEIVED = 4;
+    // reset provisioning data from App
+    private static final int MSG_PROVISIONING_DATA_RESET = 5;
     // received intent
-    private static final int MSG_INTENT = 4;
+    private static final int MSG_INTENT = 6;
     // received subscription changed event
-    private static final int MSG_SUBSCRIPTION_CHANGED = 5;
+    private static final int MSG_SUBSCRIPTION_CHANGED = 7;
 
     // received HTTP/HTTPS final response
-    private static final int MSG_HTTP_RESPONSE = 6;
+    private static final int MSG_HTTP_RESPONSE = 8;
 
     // received HTTP/HTTPS internal error response
-    private static final int MSG_HTTP_INTERNAL_EROR = 8;
+    private static final int MSG_HTTP_INTERNAL_ERROR = 9;
 
-    private static final int MSG_MAX = 9;
+    private static final int MSG_MAX = 10;
 
     private static final SparseArray<AcServiceImpl> INSTANCES = new SparseArray<AcServiceImpl>();
 
@@ -93,7 +97,7 @@ public class AcServiceImpl {
         }
 
         @Override
-        public void onSubscriptionChanged() {
+        public void onSubscriptionChanged(Intent intent) {
             sendMessage(MSG_SUBSCRIPTION_CHANGED, 0, 0, null);
         }
     }
@@ -114,24 +118,26 @@ public class AcServiceImpl {
         }
     }
 
-    private final MessageFunction mMessageFunctionStart = new MessageFunction() {
+    private final MessageFunction mMsgFuncStart = new MessageFunction() {
         @Override
         public int handleMessage(Message msg) {
             mRequestInfo = createRequestInfo(mAcServiceClientInfo, mConfigContainer);
 
             // TODO : HTTP request
+
             setState(AcService.STATE_TYPE_PROGRESS);
 
             return 0;
         }
     };
 
-    private final MessageFunction mMessageFunctionStop = new MessageFunction() {
+    private final MessageFunction mMsgFuncStop = new MessageFunction() {
         @Override
         public int handleMessage(Message msg) {
             if (getState() == AcService.STATE_TYPE_PROGRESS) {
                 // TODO : de-init if we need, for example de-register http callback
 
+                // clear message Q
                 mHandler.removeCallbacksAndMessages(null);
                 setState(AcService.STATE_TYPE_READY);
                 return 0;
@@ -142,21 +148,64 @@ public class AcServiceImpl {
         }
     };
 
-    private final MessageFunction mMessageFunctionIntent = new MessageFunction() {
+    private final MessageFunction mMsgFuncProvisioningDataReceived = new MessageFunction() {
+        @Override
+        public int handleMessage(Message msg) {
+            if (msg == null || msg.obj == null) {
+                ImsLog.i(mSlotId, "parameter is null");
+                return 0;
+            }
+
+            // check compressing
+            byte[] data = (byte[]) msg.obj;
+            if (msg.arg1 == 1) {
+                data = ProvisioningData.decompressGzip((byte[]) msg.obj);
+            }
+
+            // save provisioning data to file
+            ProvisioningData.createXmlFileFromBytes(mContext, mSubId, data);
+
+            // reset ConfigContainer
+            resetConfig();
+
+            // stop timer for re-config
+            stopTimer();
+
+            return 0;
+        }
+    };
+
+    private final MessageFunction mMsgFuncProvisioningDataReset = new MessageFunction() {
+        @Override
+        public int handleMessage(Message msg) {
+            // delete xml file includes provisioning data
+            ProvisioningData.deleteXmlFile(mContext, mSubId);
+
+            // reset ConfigContainer
+            resetConfig();
+
+            // stop timer for re-config
+            stopTimer();
+
+            return 0;
+        }
+    };
+
+    private final MessageFunction mMsgFuncIntent = new MessageFunction() {
         @Override
         public int handleMessage(Message msg) {
             return 0;
         }
     };
 
-    private final MessageFunction mMessageFunctionSubscriptionChanged = new MessageFunction() {
+    private final MessageFunction mMsgFuncSubscriptionChanged = new MessageFunction() {
         @Override
         public int handleMessage(Message msg) {
             return 0;
         }
     };
 
-    private final MessageFunction mMessageFunctionHttpResponse = new MessageFunction() {
+    private final MessageFunction mMsgFuncHttpResponse = new MessageFunction() {
         @Override
         public int handleMessage(Message msg) {
             if (msg.obj == null) {
@@ -175,7 +224,7 @@ public class AcServiceImpl {
         }
     };
 
-    private final MessageFunction mMessageFunctionHttpInternalError = new MessageFunction() {
+    private final MessageFunction mMsgFuncHttpInternalError = new MessageFunction() {
         @Override
         public int handleMessage(Message msg) {
             return 0;
@@ -185,12 +234,14 @@ public class AcServiceImpl {
     private final HashMap<Integer, MessageFunction> mMessageFunctionMap =
             new HashMap<Integer, MessageFunction>() {
             {
-                put(MSG_START, mMessageFunctionStart);
-                put(MSG_STOP, mMessageFunctionStop);
-                put(MSG_INTENT, mMessageFunctionIntent);
-                put(MSG_SUBSCRIPTION_CHANGED, mMessageFunctionSubscriptionChanged);
-                put(MSG_HTTP_RESPONSE, mMessageFunctionHttpResponse);
-                put(MSG_HTTP_INTERNAL_EROR, mMessageFunctionHttpInternalError);
+                put(MSG_START, mMsgFuncStart);
+                put(MSG_STOP, mMsgFuncStop);
+                put(MSG_PROVISIONING_DATA_RECEIVED, mMsgFuncProvisioningDataReceived);
+                put(MSG_PROVISIONING_DATA_RESET, mMsgFuncProvisioningDataReset);
+                put(MSG_INTENT, mMsgFuncIntent);
+                put(MSG_SUBSCRIPTION_CHANGED, mMsgFuncSubscriptionChanged);
+                put(MSG_HTTP_RESPONSE, mMsgFuncHttpResponse);
+                put(MSG_HTTP_INTERNAL_ERROR, mMsgFuncHttpInternalError);
             }
     };
 
@@ -327,7 +378,7 @@ public class AcServiceImpl {
      * notified by callback, or false otherwise.
      */
     public boolean start(int reason) {
-        ImsLog.i(mSlotId, "start background reason : " + reason);
+        ImsLog.i(mSlotId, "start reason : " + reason);
 
         // check clientInfo
         synchronized (mObject) {
@@ -369,14 +420,15 @@ public class AcServiceImpl {
      * @param isCompressed The xml file is compressed in gzip format
      */
     public void notifyProvisioningReceived(byte[] data, boolean isCompressed) {
-        // mAcServiceImpl.notifyConfigDataReceived(data, isCompressed);
+        int arg1 = isCompressed ? 1 : 0;
+        sendMessage(MSG_PROVISIONING_DATA_RECEIVED, arg1, 0, (Object) data.clone());
     }
 
     /**
      * The provisioning xml through notifyConfigDataReceived() is not available anymore.
      */
     public void notifyProvisioningRemoved() {
-        // mAcServiceImpl.notifyConfigDataRemoved();
+        sendMessage(MSG_PROVISIONING_DATA_RESET, 0, 0, null);
     }
 
     /**
@@ -417,6 +469,20 @@ public class AcServiceImpl {
         mState = state;
     }
 
+    private void resetConfig() {
+        if (mConfigContainer == null) {
+            ImsLog.i(mSlotId, "Config object is null");
+            return;
+        }
+
+        mConfigContainer.resetAcValue();
+        mConfigContainer.resetClientInfo();
+    }
+
+    private void stopTimer() {
+        // TODO : call ReconfigAgent
+    }
+
     private void handleHttpSuccessResponse(TxzResponse txzResponse) {
         if (txzResponse.mProvisioningData == null) {
             ImsLog.i(mSlotId, "provisioning data is null");
@@ -428,7 +494,6 @@ public class AcServiceImpl {
     }
 
     private void handleHttpFailResponse(TxzResponse txzResponse) {
-
 
     }
 }

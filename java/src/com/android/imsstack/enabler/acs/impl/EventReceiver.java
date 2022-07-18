@@ -16,11 +16,12 @@
 
 package com.android.imsstack.enabler.acs.impl;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import com.android.imsstack.IStateInfoChangedObserver;
-import com.android.imsstack.StateInfoChangedReceiver;
 import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -43,7 +44,7 @@ public class EventReceiver {
         /**
          * Notify subscription changed
          */
-        void onSubscriptionChanged();
+        void onSubscriptionChanged(Intent intent);
     }
 
     private static EventReceiver sInstance;
@@ -54,18 +55,27 @@ public class EventReceiver {
                 public void notifyStateInfoChanged(Intent intent) {
                     synchronized (mLock) {
                         for (EventReceiverCallback cb : mCallbackList) {
-                            // TODO : check slotId
-                            cb.onReceivedIntent(intent);
+                            cb.onSubscriptionChanged(intent);
                         }
                     }
                 }
             };
 
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            synchronized (mLock) {
+                for (EventReceiverCallback cb : mCallbackList) {
+                    cb.onReceivedIntent(intent);
+                }
+            }
+        }
+    };
+
     private final ArrayList<EventReceiverCallback> mCallbackList =
             new ArrayList<EventReceiverCallback>();
     private final Object mLock = new Object();
     private final Context mContext;
-    private final StateInfoChangedReceiver mStateInfoChangedReceiver;
 
     private boolean mRegistered;
 
@@ -77,7 +87,7 @@ public class EventReceiver {
     public static EventReceiver getInstance(Context context) {
         synchronized (sInstance) {
             if (sInstance == null) {
-                sInstance = new EventReceiver(context, new StateInfoChangedReceiver());
+                sInstance = new EventReceiver(context);
             }
         }
 
@@ -119,10 +129,9 @@ public class EventReceiver {
     }
 
     @VisibleForTesting
-    public EventReceiver(Context context, StateInfoChangedReceiver stateInfoChangedReceiver) {
+    public EventReceiver(Context context) {
         mRegistered = false;
         mContext = context;
-        mStateInfoChangedReceiver = stateInfoChangedReceiver;
     }
 
     private void checkEvent() {
@@ -133,15 +142,13 @@ public class EventReceiver {
 
         if (size == 1 && !mRegistered) {
             // TODO : need to register IntentReceiver to retrieve OTP
-/*            IntentFilter filter = new IntentFilter();
-            filter.addAction(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED);
-            mContext.registerReceiver(mReceiver, filter);*/
-
-            mStateInfoChangedReceiver.init(mContext, mIStateInfoChangedObserver);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(ReconfigManager.INTENT_ACTION);
+            mContext.registerReceiver(mReceiver, filter);
 
             mRegistered = true;
         } else if (size == 0) {
-//            mContext.unregisterReceiver(mReceiver);
+            mContext.unregisterReceiver(mReceiver);
 
             mRegistered = false;
         }
