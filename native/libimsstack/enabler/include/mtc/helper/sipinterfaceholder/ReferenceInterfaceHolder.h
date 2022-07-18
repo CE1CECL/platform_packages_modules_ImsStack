@@ -50,6 +50,13 @@ public:
 
     virtual void ReleaseIReference(IN IReference* piReference, IN IMS_BOOL bTerminated = IMS_FALSE);
 
+    inline virtual IMS_BOOL IsTimerExist(IN IReference* piReference) const
+    {
+        return GetTimer(piReference) != IMS_NULL;
+    }
+
+    inline virtual IMS_UINT32 GetReferenceCount() const { return m_objIReferences.GetSize(); }
+
 private:
     IMS_BOOL IsReadyToDestroy(IN IReference* piReference);
 
@@ -58,12 +65,12 @@ private:
     IMS_RESULT StartTimer(IN IReference* piReference, IN IMS_SINT32 nDuration);
     void StopTimer(IN ITimer* piTimer);
 
-    ITimer* GetTimer(IN IReference* piReference);
+    ITimer* GetTimer(IN IReference* piReference) const;
 
 private:
     IInterfaceHolderListener& m_objListener;
-    IMSList<IReference*> m_objIReferences;
-    IMSMap<ITimer*, IReference*> m_objReferenceTerminatedGuardTimers;
+    ImsList<IReference*> m_objIReferences;
+    ImsMap<ITimer*, IReference*> m_objReferenceTerminatedGuardTimers;
 
     static const IMS_UINT32 TIME_TRANSACTION_TERMINATED_GUARD = 32000;
 };

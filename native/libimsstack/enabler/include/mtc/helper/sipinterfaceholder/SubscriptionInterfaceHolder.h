@@ -53,6 +53,13 @@ public:
     virtual void ReleaseISubscription(
             IN ISubscription* piSubscription, IN IMS_BOOL bTerminated = IMS_FALSE);
 
+    inline virtual IMS_BOOL IsTimerExist(IN ISubscription* piSubscription) const
+    {
+        return GetTimer(piSubscription) != IMS_NULL;
+    }
+
+    inline virtual IMS_UINT32 GetSubscriptionCount() const { return m_objISubscriptions.GetSize(); }
+
 private:
     IMS_BOOL IsReadyToDestroy(IN ISubscription* piSubscription);
 
@@ -61,12 +68,12 @@ private:
     IMS_RESULT StartTimer(IN ISubscription* piSubscription, IN IMS_SINT32 nDuration);
     void StopTimer(IN ITimer* piTimer);
 
-    ITimer* GetTimer(IN ISubscription* piSubscription);
+    ITimer* GetTimer(IN ISubscription* piSubscription) const;
 
 private:
     IInterfaceHolderListener& m_objListener;
-    IMSList<ISubscription*> m_objISubscriptions;
-    IMSMap<ITimer*, ISubscription*> m_objSubscriptionTerminatedGuardTimers;
+    ImsList<ISubscription*> m_objISubscriptions;
+    ImsMap<ITimer*, ISubscription*> m_objSubscriptionTerminatedGuardTimers;
 
     static const IMS_UINT32 TIME_TRANSACTION_TERMINATED_GUARD = 32000;
 };

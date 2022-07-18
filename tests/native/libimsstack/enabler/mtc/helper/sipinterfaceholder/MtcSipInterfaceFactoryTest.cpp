@@ -16,16 +16,97 @@
 
 #include <gtest/gtest.h>
 #include "helper/sipinterfaceholder/MtcSipInterfaceFactory.h"
+#include "helper/sipinterfaceholder/ReferenceInterfaceHolder.h"
+#include "helper/sipinterfaceholder/SessionInterfaceHolder.h"
+#include "helper/sipinterfaceholder/SubscriptionInterfaceHolder.h"
 
 namespace android
 {
 
 class MtcSipInterfaceFactoryTest : public ::testing::Test
 {
-protected:
-    virtual void SetUp() override {}
+public:
+    MtcSipInterfaceFactory* pFactory;
 
-    virtual void TearDown() override {}
+protected:
+    virtual void SetUp() override { pFactory = new MtcSipInterfaceFactory(); }
+
+    virtual void TearDown() override { delete pFactory; }
 };
+
+TEST_F(MtcSipInterfaceFactoryTest, SessionInterfaceHolderIsReturnedForTheFirstInvoking)
+{
+    ASSERT_NE(pFactory->GetISessionHolder(), nullptr);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest, ReferenceInterfaceHolderIsReturnedForTheFirstInvoking)
+{
+    ASSERT_NE(pFactory->GetIReferenceHolder(), nullptr);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest, SubscriptionInterfaceHolderIsReturnedForTheFirstInvoking)
+{
+    ASSERT_NE(pFactory->GetISubscriptionHolder(), nullptr);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest, SameSessionInterfaceHolderIsReturnedForTheSecondInvoking)
+{
+    SessionInterfaceHolder* pHolder1 = pFactory->GetISessionHolder();
+    ASSERT_NE(pHolder1, nullptr);
+    SessionInterfaceHolder* pHolder2 = pFactory->GetISessionHolder();
+    EXPECT_EQ(pHolder1, pHolder2);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest, SameReferenceInterfaceHolderIsReturnedForTheSecondInvoking)
+{
+    ReferenceInterfaceHolder* pHolder1 = pFactory->GetIReferenceHolder();
+    ASSERT_NE(pHolder1, nullptr);
+    ReferenceInterfaceHolder* pHolder2 = pFactory->GetIReferenceHolder();
+    EXPECT_EQ(pHolder1, pHolder2);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest, SameSubscriptionInterfaceHolderIsReturnedForTheSecondInvoking)
+{
+    SubscriptionInterfaceHolder* pHolder1 = pFactory->GetISubscriptionHolder();
+    ASSERT_NE(pHolder1, nullptr);
+    SubscriptionInterfaceHolder* pHolder2 = pFactory->GetISubscriptionHolder();
+    EXPECT_EQ(pHolder1, pHolder2);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest,
+        NewSessionInterfaceHolderIsReturnedForTheSecondInvokingAfterCleared)
+{
+    SessionInterfaceHolder* pHolder1 = pFactory->GetISessionHolder();
+    ASSERT_NE(pHolder1, nullptr);
+    EXPECT_TRUE(pFactory->IsSessionHolderExist());
+    pFactory->OnSessionInterfaceCleared();
+    EXPECT_FALSE(pFactory->IsSessionHolderExist());
+    SessionInterfaceHolder* pHolder2 = pFactory->GetISessionHolder();
+    ASSERT_NE(pHolder2, nullptr);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest,
+        NewReferenceInterfaceHolderIsReturnedForTheSecondInvokingAfterCleared)
+{
+    ReferenceInterfaceHolder* pHolder1 = pFactory->GetIReferenceHolder();
+    ASSERT_NE(pHolder1, nullptr);
+    EXPECT_TRUE(pFactory->IsReferenceHolderExist());
+    pFactory->OnReferenceInterfaceCleared();
+    EXPECT_FALSE(pFactory->IsReferenceHolderExist());
+    ReferenceInterfaceHolder* pHolder2 = pFactory->GetIReferenceHolder();
+    ASSERT_NE(pHolder2, nullptr);
+}
+
+TEST_F(MtcSipInterfaceFactoryTest,
+        NewSubscriptionInterfaceHolderIsReturnedForTheSecondInvokingAfterCleared)
+{
+    SubscriptionInterfaceHolder* pHolder1 = pFactory->GetISubscriptionHolder();
+    ASSERT_NE(pHolder1, nullptr);
+    EXPECT_TRUE(pFactory->IsSubscriptionHolderExist());
+    pFactory->OnSubscriptionInterfaceCleared();
+    EXPECT_FALSE(pFactory->IsSubscriptionHolderExist());
+    SubscriptionInterfaceHolder* pHolder2 = pFactory->GetISubscriptionHolder();
+    ASSERT_NE(pHolder2, nullptr);
+}
 
 }  // namespace android
