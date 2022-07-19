@@ -44,6 +44,11 @@ public:
     ReferenceInterfaceHolder* GetIReferenceHolder() override;
     SubscriptionInterfaceHolder* GetISubscriptionHolder() override;
 
+    // for unit tests
+    inline IMS_BOOL IsSessionHolderExist() const { return m_piSessionHolder != IMS_NULL; }
+    inline IMS_BOOL IsReferenceHolderExist() const { return m_piReferenceHolder != IMS_NULL; }
+    inline IMS_BOOL IsSubscriptionHolderExist() const { return m_piSubscriptionHolder != IMS_NULL; }
+
 private:
     SessionInterfaceHolder* m_piSessionHolder;
     ReferenceInterfaceHolder* m_piReferenceHolder;

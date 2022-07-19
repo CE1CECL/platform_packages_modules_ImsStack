@@ -16,16 +16,90 @@
 
 #include <gtest/gtest.h>
 #include "helper/sipinterfaceholder/ReferenceInterfaceHolder.h"
+#include "helper/sipinterfaceholder/MockIInterfaceHolderListener.h"
+#include "core/MockISession.h"
+#include "core/MockIReference.h"
+#include "core/MockICoreService.h"
+#include "core/MockIMessage.h"
+#include "sipcore/MockISipServerConnection.h"
+
+using ::testing::_;
+using ::testing::Return;
 
 namespace android
 {
 
 class ReferenceInterfaceHolderTest : public ::testing::Test
 {
-protected:
-    virtual void SetUp() override {}
+public:
+    ReferenceInterfaceHolder* pHolder;
+    MockIInterfaceHolderListener objListener;
+    MockIReference objMockIReference;
+    MockISession objMockISession;
 
-    virtual void TearDown() override {}
+protected:
+    virtual void SetUp() override
+    {
+        ON_CALL(objMockISession, CreateReference(_, _)).WillByDefault(Return(&objMockIReference));
+        pHolder = new ReferenceInterfaceHolder(objListener);
+    }
+
+    virtual void TearDown() override { delete pHolder; }
 };
+
+TEST_F(ReferenceInterfaceHolderTest, HolderDoesNothingForReferenceListenerExceptTerminated)
+{
+    MockIMessage objIMessage;
+
+    pHolder->ReferenceDelivered(&objMockIReference);
+    pHolder->ReferenceDeliveryFailed(&objMockIReference);
+    pHolder->ReferenceNotify(&objMockIReference, &objIMessage);
+
+    EXPECT_FALSE(pHolder->IsTimerExist(&objMockIReference));
+}
+
+TEST_F(ReferenceInterfaceHolderTest, StopsTimerIfReferenceTerminated)
+{
+    EXPECT_CALL(objMockIReference, Destroy()).Times(1);
+
+    pHolder->GetIReference(&objMockISession, "sip:referToUri", "referMethod");
+    pHolder->ReferenceTerminated(&objMockIReference);
+
+    EXPECT_FALSE(pHolder->IsTimerExist(&objMockIReference));
+    EXPECT_EQ(pHolder->GetReferenceCount(), 0);
+}
+
+TEST_F(ReferenceInterfaceHolderTest, AddAndReleaseStartsTimer)
+{
+    ON_CALL(objMockIReference, GetState).WillByDefault(Return(IReference::STATE_REFERRING));
+
+    EXPECT_EQ(pHolder->GetReferenceCount(), 0);
+
+    pHolder->GetIReference(&objMockISession, "sip:referToUri", "referMethod");
+    EXPECT_FALSE(pHolder->IsTimerExist(&objMockIReference));
+    EXPECT_EQ(pHolder->GetReferenceCount(), 1);
+
+    pHolder->ReleaseIReference(&objMockIReference, IMS_FALSE);
+    EXPECT_TRUE(pHolder->IsTimerExist(&objMockIReference));
+}
+
+TEST_F(ReferenceInterfaceHolderTest, AddAndReleaseWithTerminatedStopsTimer)
+{
+    ON_CALL(objMockIReference, GetState).WillByDefault(Return(IReference::STATE_REFERRING));
+    EXPECT_CALL(objMockIReference, Destroy()).Times(1);
+
+    EXPECT_EQ(pHolder->GetReferenceCount(), 0);
+
+    pHolder->GetIReference(&objMockISession, "sip:referToUri", "referMethod");
+    EXPECT_FALSE(pHolder->IsTimerExist(&objMockIReference));
+    EXPECT_EQ(pHolder->GetReferenceCount(), 1);
+
+    pHolder->ReleaseIReference(&objMockIReference, IMS_FALSE);
+    EXPECT_TRUE(pHolder->IsTimerExist(&objMockIReference));
+
+    pHolder->ReleaseIReference(&objMockIReference, IMS_TRUE);
+    EXPECT_FALSE(pHolder->IsTimerExist(&objMockIReference));
+    EXPECT_EQ(pHolder->GetReferenceCount(), 0);
+}
 
 }  // namespace android

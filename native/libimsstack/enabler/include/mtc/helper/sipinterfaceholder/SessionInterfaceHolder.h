@@ -66,6 +66,13 @@ public:
     virtual void AddISession(IN ISession* piSession);
     virtual void ReleaseISession(IN ISession* piSession, IN IMS_BOOL bTerminated = IMS_FALSE);
 
+    inline virtual IMS_BOOL IsTimerExist(IN ISession* piSession) const
+    {
+        return GetTimer(piSession) != IMS_NULL;
+    }
+
+    inline virtual IMS_UINT32 GetSessionCount() const { return m_objISessions.GetSize(); }
+
 private:
     IMS_BOOL IsReadyToDestroy(IN ISession* piSession);
 
@@ -73,12 +80,12 @@ private:
 
     IMS_RESULT StartTimer(IN ISession* piSession, IN IMS_SINT32 nDuration);
     void StopTimer(IN ITimer* piTimer);
-    ITimer* GetTimer(IN ISession* piSession);
+    ITimer* GetTimer(IN ISession* piSession) const;
 
 private:
     IInterfaceHolderListener& m_objListener;
-    IMSList<ISession*> m_objISessions;
-    IMSMap<ITimer*, ISession*> m_objTerminatedGuardTimers;
+    ImsList<ISession*> m_objISessions;
+    ImsMap<ITimer*, ISession*> m_objTerminatedGuardTimers;
 
     static const IMS_UINT32 TIME_TRANSACTION_TERMINATED_GUARD = 128000;
 };

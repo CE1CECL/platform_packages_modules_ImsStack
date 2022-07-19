@@ -144,7 +144,7 @@ IMS_BOOL SessionInterfaceHolder::IsReadyToDestroy(IN ISession* piSession)
 PRIVATE
 void SessionInterfaceHolder::ClearISessions()
 {
-    IMS_TRACE_D("ClearISessions", 0, 0, 0);
+    IMS_TRACE_D("ClearISessions [%d]", m_objISessions.GetSize(), 0, 0);
 
     for (IMS_UINT32 i = 0; i < m_objISessions.GetSize(); i++)
     {
@@ -197,7 +197,7 @@ void SessionInterfaceHolder::StopTimer(IN ITimer* piTimer)
 }
 
 PRIVATE
-ITimer* SessionInterfaceHolder::GetTimer(IN ISession* piSession)
+ITimer* SessionInterfaceHolder::GetTimer(IN ISession* piSession) const
 {
     IMS_UINT32 nSize = m_objTerminatedGuardTimers.GetSize();
     IMS_TRACE_D("GetTimer size = [%d]", nSize, 0, 0);
