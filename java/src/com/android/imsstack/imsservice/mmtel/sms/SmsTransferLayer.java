@@ -26,6 +26,7 @@ import android.telephony.ims.stub.ImsSmsImplBase;
 import com.android.imsstack.imsservice.mmtel.ImsCallContext;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.uicc.IccUtils;
+import com.android.internal.util.HexDump;
 import com.android.telephony.Rlog;
 
 import java.io.ByteArrayOutputStream;
@@ -46,12 +47,29 @@ public class SmsTransferLayer {
     public Map<Integer, TpduParam> mTokenMessageMap = new ConcurrentHashMap<>();
     private static final int MAX_MESSAGE_COUNT = 255;
     private static final int MAX_CDMA_PDU_LENGTH = 255;
+    private static final int MAX_TPDU_LENGTH = 234;
     public final ConcurrentLinkedQueue<Integer> mSendSmsQueue =
                  new ConcurrentLinkedQueue<Integer>();
     private MessageHandler mSmsHandler = null;
     private HandlerThread mSmsHandlerThread = new HandlerThread("ImsSmsHandlerThread");
     public static final int REQUEST_SEND_NEXT_SMS_TO_RL = 1;
     private static final boolean VDBG = true;
+
+    /** TP-Failure-Cause (TP-FCS). See TS 23.040 9.2.3.22 */
+    public static final int TP_FCS_NONE = 0x00;
+    public static final int TP_FCS_SHORT_MESSAGE_TYPE_0_NOT_SUPPORTED = 0x81;
+    public static final int TP_FCS_CANNOT_REPLACE_SHORT_MESSAGE = 0x82;
+    public static final int TP_FCS_UNSPECIFIED_TP_PID_ERROR = 0x8F;
+    public static final int TP_FCS_MESSAGE_CLASS_NOT_SUPPORTED = 0x91;
+    public static final int TP_FCS_UNSPECIFIED_TP_DCS_ERROR = 0x9F;
+    public static final int TP_FCS_TPDU_NOT_SUPPORTED = 0xB0;
+    public static final int TP_FCS_USIM_SMS_STORAGE_FULL = 0xD0;
+    public static final int TP_FCS_NO_SMS_STORAGE_CAPABILITY_IN_USIM = 0xD1;
+    public static final int TP_FCS_ERROR_IN_MS = 0xD2;
+    public static final int TP_FCS_MEMORY_CAPACITY_EXCEEDED = 0xD3;
+    public static final int TP_FCS_USIM_APPLICATION_TOOLKIT_BUSY = 0xD4;
+    public static final int TP_FCS_USIM_DATA_DOWNLOAD_ERROR = 0xD5;
+    public static final int TP_FCS_UNSPECIFIED_ERROR_CAUSE = 0xFF;
 
     /**
      * This class contains parameters related to each SMS sent and is required for
@@ -196,11 +214,59 @@ public class SmsTransferLayer {
             if (result == ImsSmsImplBase.DELIVER_STATUS_OK) {
                 messageType = SmsUtils.RP_ACK;
             }
-            return mSmsRL.sendRPMessage(token, messageType, null, null, null, result);
+            byte[] deliverReportPdu = generateDeliverReportPdu(result);
+            Rlog.i(TAG, "SMS-DELIVER-REPORT = " + HexDump.dumpHexString(deliverReportPdu));
+            return mSmsRL.sendRPMessage(token, messageType, null, null, deliverReportPdu, result);
         } catch (RuntimeException e) {
             Rlog.e(TAG, "sendReportTPdu Failed: " + e.getMessage());
             return SmsUtils.SMSTL_RESULT_EXCEPTION;
         }
+    }
+
+    /**
+     * Generates the SMS-DELIVER-REPORT TPDU
+     * @param deliverResult indicates the result of SMS-DELIVER receipt
+     *
+     * @return SMS-DELIVER-REPORT TPDU in byte array
+     */
+    public byte[] generateDeliverReportPdu(int deliverResult) {
+        try {
+            ByteArrayOutputStream bo = new ByteArrayOutputStream(MAX_TPDU_LENGTH);
+            byte mtiByte = 0x00; // TP-MTI for SMS-DELIVER-REPORT as per TS 23.040 section 9.2.3.1
+            byte parameterIndByte = 0x00;
+            bo.write(mtiByte);
+
+            int cause = TP_FCS_UNSPECIFIED_ERROR_CAUSE;
+
+            switch (deliverResult) {
+                case ImsSmsImplBase.DELIVER_STATUS_OK:
+                //case ImsSmsImplBase.STATUS_REPORT_STATUS_OK:
+                    cause = TP_FCS_NONE;
+                    break;
+                case ImsSmsImplBase.DELIVER_STATUS_ERROR_GENERIC:
+                //case ImsSmsImplBase.STATUS_REPORT_STATUS_ERROR:
+                    cause = TP_FCS_UNSPECIFIED_ERROR_CAUSE;
+                    break;
+                case ImsSmsImplBase.DELIVER_STATUS_ERROR_NO_MEMORY:
+                    cause = TP_FCS_MEMORY_CAPACITY_EXCEEDED;
+                    break;
+                case ImsSmsImplBase.DELIVER_STATUS_ERROR_REQUEST_NOT_SUPPORTED:
+                    cause = TP_FCS_TPDU_NOT_SUPPORTED;
+                    break;
+                default:
+                    cause = TP_FCS_UNSPECIFIED_ERROR_CAUSE;
+            }
+            if (cause != TP_FCS_NONE) {
+                bo.write((byte) cause);
+            }
+
+            bo.write(parameterIndByte); //TP-PID not set
+            return bo.toByteArray();
+        } catch (RuntimeException ex) {
+            Rlog.e(TAG, "Generating Deliver Report failed: " + ex.toString());
+            return null;
+        }
+
     }
 
     private class MessageHandler extends Handler {
