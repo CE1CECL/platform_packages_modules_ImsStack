@@ -43,7 +43,6 @@ public class RequestInfo {
 
     private final RequestInfoBuilder mBuilder;
     private String mGBAProductToken;
-    private String mAcVersion = "0";
     private String mRcsState = "0";
     private String mOtp;
     private String mToken;
@@ -101,8 +100,9 @@ public class RequestInfo {
      * @param acVersion new AC version
      */
     public void updateAcVersion(String acVersion) {
-        ImsLog.i("[" + mBuilder.mSlotId + "] Rcs version from " + mAcVersion + " to " + acVersion);
-        mAcVersion = acVersion;
+        ImsLog.i("[" + mBuilder.mSlotId + "] Rcs version from "
+                + mBuilder.mAcVersion + " to " + acVersion);
+        mBuilder.mAcVersion = acVersion;
     }
 
     /**

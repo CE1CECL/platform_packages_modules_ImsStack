@@ -226,7 +226,7 @@ public class RequestInfoTest {
         String defaultVvmApp = "google_vvm";
         String smsPort = "9898";
         String rcsState = "-4";
-        String acVersion = "85";
+        String acVersion = "7171";
 
         mRequestInfo.setOtp(otp);
         mRequestInfo.setToken(token);
