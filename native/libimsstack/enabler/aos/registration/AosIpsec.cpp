@@ -556,26 +556,6 @@ void AosIpsec::CreateSa(IN IMS_UINT32 nType)
 }
 
 PRIVATE
-IMS_UINT32 AosIpsec::CreatePcscfPort()
-{
-    IMS_UINT32 nPort = 0;
-    // 1. Crate UE Port
-    if (gRandPcscfPort < PCSCF_PORT_UPPER)
-    {
-        nPort = ++gRandPcscfPort;
-    }
-    else
-    {
-        gRandPcscfPort = PCSCF_PORT_LOWER;
-        nPort = gRandPcscfPort;
-    }
-
-    A_IMS_TRACE_I(AOSTAG, "CreatePcscfPort :: (%d)", nPort, 0, 0);
-
-    return nPort;
-}
-
-PRIVATE
 IMS_UINT32 AosIpsec::GetIntegrityAlgorithm()
 {
     A_IMS_TRACE_I(AOSTAG, "GetIntegrityAlgorithm :: (%d)", m_nAuthAlgo, 0, 0);

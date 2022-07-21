@@ -81,8 +81,8 @@ public:
 
     enum
     {
-        SERVER = 1,
-        CLIENT
+        TYPE_SERVER = 1,
+        TYPE_CLIENT
     };
 
 protected:
@@ -169,6 +169,32 @@ protected:
         pAosIpsecHelper->IPSecPolicyExpired(pAosIpsec);
     }
 
+    void SetUeIpsecInfo(IN IMS_SINT32 nUeInfo, IN IMS_SINT32 nWhere, IN IMS_UINT32 nValue)
+    {
+        if (nUeInfo == SPI)
+        {
+            if (nWhere == TYPE_CLIENT)
+            {
+                pAosIpsecHelper->m_pUeIpsecInfo->nSpiC = nValue;
+            }
+            else
+            {
+                pAosIpsecHelper->m_pUeIpsecInfo->nSpiS = nValue;
+            }
+        }
+        else
+        {
+            if (nWhere == TYPE_CLIENT)
+            {
+                pAosIpsecHelper->m_pUeIpsecInfo->nPortC = nValue;
+            }
+            else
+            {
+                pAosIpsecHelper->m_pUeIpsecInfo->nPortS = nValue;
+            }
+        }
+    }
+
     void SetIpsec(IN IMS_SINT32 nType, IN AosIpsec* pAosIpsec)
     {
         if (nType == NEW_IPSEC)
@@ -182,6 +208,22 @@ protected:
         else  // OLD_IPSEC
         {
             pAosIpsecHelper->m_pOldIpsec = pAosIpsec;
+        }
+    }
+
+    AosIpsec* GetIpsec(IN IMS_SINT32 nType)
+    {
+        if (nType == NEW_IPSEC)
+        {
+            return pAosIpsecHelper->m_pNewIpsec;
+        }
+        else if (nType == CURR_IPSEC)
+        {
+            return pAosIpsecHelper->m_pCurrIpsec;
+        }
+        else  // OLD_IPSEC
+        {
+            return pAosIpsecHelper->m_pOldIpsec;
         }
     }
 
@@ -293,22 +335,22 @@ protected:
         {
             if (nPcscfInfo == PORT)
             {
-                if (nWhere == CLIENT)
+                if (nWhere == TYPE_CLIENT)
                 {
                     pAosIpsecHelper->m_pNewIpsec->m_pPcscfInfo->nPortC = nValue;
                 }
-                else  // SERVER
+                else  // TYPE_SERVER
                 {
                     pAosIpsecHelper->m_pNewIpsec->m_pPcscfInfo->nPortS = nValue;
                 }
             }
             else  // SPI
             {
-                if (nWhere == CLIENT)
+                if (nWhere == TYPE_CLIENT)
                 {
                     pAosIpsecHelper->m_pNewIpsec->m_pPcscfInfo->nSpiC = nValue;
                 }
-                else  // SERVER
+                else  // TYPE_SERVER
                 {
                     pAosIpsecHelper->m_pNewIpsec->m_pPcscfInfo->nSpiS = nValue;
                 }
@@ -318,22 +360,22 @@ protected:
         {
             if (nPcscfInfo == PORT)
             {
-                if (nWhere == CLIENT)
+                if (nWhere == TYPE_CLIENT)
                 {
                     pAosIpsecHelper->m_pCurrIpsec->m_pPcscfInfo->nPortC = nValue;
                 }
-                else  // SERVER
+                else  // TYPE_SERVER
                 {
                     pAosIpsecHelper->m_pCurrIpsec->m_pPcscfInfo->nPortS = nValue;
                 }
             }
             else  // SPI
             {
-                if (nWhere == CLIENT)
+                if (nWhere == TYPE_CLIENT)
                 {
                     pAosIpsecHelper->m_pCurrIpsec->m_pPcscfInfo->nSpiC = nValue;
                 }
-                else  // SERVER
+                else  // TYPE_SERVER
                 {
                     pAosIpsecHelper->m_pCurrIpsec->m_pPcscfInfo->nSpiS = nValue;
                 }
@@ -343,22 +385,22 @@ protected:
         {
             if (nPcscfInfo == PORT)
             {
-                if (nWhere == CLIENT)
+                if (nWhere == TYPE_CLIENT)
                 {
                     pAosIpsecHelper->m_pOldIpsec->m_pPcscfInfo->nPortC = nValue;
                 }
-                else  // SERVER
+                else  // TYPE_SERVER
                 {
                     pAosIpsecHelper->m_pOldIpsec->m_pPcscfInfo->nPortS = nValue;
                 }
             }
             else  // SPI
             {
-                if (nWhere == CLIENT)
+                if (nWhere == TYPE_CLIENT)
                 {
                     pAosIpsecHelper->m_pOldIpsec->m_pPcscfInfo->nSpiC = nValue;
                 }
-                else  // SERVER
+                else  // TYPE_SERVER
                 {
                     pAosIpsecHelper->m_pOldIpsec->m_pPcscfInfo->nSpiS = nValue;
                 }
@@ -460,7 +502,17 @@ TEST_F(AosIpsecHelperTest, CreateOnChallenging)
 
     SetIpsec(CURR_IPSEC, IMS_NULL);
 
+    SetUeIpsecInfo(PORT, TYPE_CLIENT, 38002);
+    SetUeIpsecInfo(PORT, TYPE_SERVER, 39002);
+    SetUeIpsecInfo(SPI, TYPE_CLIENT, 12345678);
+    SetUeIpsecInfo(SPI, TYPE_SERVER, 87654321);
+
     pAosIpsecHelper->CreateOnChallenging();
+
+    EXPECT_EQ(GetIpsec(NEW_IPSEC)->GetUePort(AosIpsec::TYPE_CLIENT), 38002);
+    EXPECT_EQ(GetIpsec(NEW_IPSEC)->GetUePort(AosIpsec::TYPE_SERVER), 39002);
+    EXPECT_EQ(GetIpsec(NEW_IPSEC)->GetUeSpi(AosIpsec::TYPE_CLIENT), 12345678);
+    EXPECT_EQ(GetIpsec(NEW_IPSEC)->GetUeSpi(AosIpsec::TYPE_SERVER), 87654321);
 
     DestroyIpsec(NEW_IPSEC);
 }
@@ -476,12 +528,12 @@ TEST_F(AosIpsecHelperTest, IsPcscfServerPortDifferent)
 
     SetIpsec(CURR_IPSEC, pAosCurrIpsec);
 
-    SetPcscf(CURR_IPSEC, PORT, SERVER, 39002);
-    SetPcscf(NEW_IPSEC, PORT, SERVER, 39002);
+    SetPcscf(CURR_IPSEC, PORT, TYPE_SERVER, 39002);
+    SetPcscf(NEW_IPSEC, PORT, TYPE_SERVER, 39002);
 
     EXPECT_FALSE(pAosIpsecHelper->IsPcscfServerPortDifferent());
 
-    SetPcscf(NEW_IPSEC, PORT, SERVER, 39004);
+    SetPcscf(NEW_IPSEC, PORT, TYPE_SERVER, 39004);
     EXPECT_TRUE(pAosIpsecHelper->IsPcscfServerPortDifferent());
 }
 
@@ -493,7 +545,7 @@ TEST_F(AosIpsecHelperTest, UpdatePreloadedRoute)
     EXPECT_FALSE(pAosIpsecHelper->UpdatePreloadedRoute(strPcscf));
 
     SetIpsec(NEW_IPSEC, pAosNewIpsec);
-    SetPcscf(NEW_IPSEC, PORT, SERVER, 39002);
+    SetPcscf(NEW_IPSEC, PORT, TYPE_SERVER, 39002);
     EXPECT_CALL(objMockIRegParameter, RemoveAllPreloadedRoutes()).Times(1);
     EXPECT_CALL(objMockIRegParameter, AddPreloadedRoute(strPcscf, 39002, AString::ConstNull()))
             .Times(1);
@@ -584,12 +636,31 @@ TEST_F(AosIpsecHelperTest, MakeSas)
 
 TEST_F(AosIpsecHelperTest, ProcessAuthChallenged)
 {
-    IMSList<SipSecurityHeader> objSecuServerH;
-    objSecuServerH.Clear();
+    IMSList<SipSecurityHeader> objSecuServerHs;
+    objSecuServerHs.Clear();
 
-    EXPECT_CALL(objMockIRegParameter, GetSecurityServers()).WillOnce(ReturnRef(objSecuServerH));
+    EXPECT_CALL(objMockIRegParameter, GetSecurityServers()).WillOnce(ReturnRef(objSecuServerHs));
 
     EXPECT_FALSE(pAosIpsecHelper->ProcessAuthChallenged(Credential::TYPE_AKAv1_MD5));
+
+    // compare to Algorithm
+    SipSecurityHeader objSecurityH;
+    objSecuServerHs.Append(objSecurityH);
+    EXPECT_CALL(objMockIRegParameter, GetSecurityServers())
+            .WillRepeatedly(ReturnRef(objSecuServerHs));
+
+    EXPECT_FALSE(pAosIpsecHelper->ProcessAuthChallenged(Credential::TYPE_AKAv2_MD5));
+
+    // check bOldSaRemovedOnEstablisingSa
+    EXPECT_CALL(objMockAosConfig, IsOldSaOnEstablishingSaRemoved)
+            .WillOnce(Return(IMS_FALSE))
+            .WillOnce(Return(IMS_TRUE));
+    EXPECT_TRUE(pAosIpsecHelper->ProcessAuthChallenged(Credential::TYPE_AKAv1_MD5));
+
+    AosIpsec* pAosTestIpsec =
+            new AosIpsec(static_cast<IAosIpsecListener*>(&objIAosIpsecListener), SLOT_ID);
+    SetIpsec(OLD_IPSEC, pAosTestIpsec);
+    EXPECT_TRUE(pAosIpsecHelper->ProcessAuthChallenged(Credential::TYPE_AKAv1_MD5));
 }
 
 TEST_F(AosIpsecHelperTest, ProcessRegStarted)

@@ -190,9 +190,6 @@ private:
     /// Create SAs
     void CreateSa(IN IMS_UINT32 nType);
 
-    /// At this time, N/A - Create Pcscf Port & SPI
-    IMS_UINT32 CreatePcscfPort();
-
 public:
     // ePDG requires a certain range of UE ports. So here we made a change from 58001 to 38001.
     static const IMS_UINT32 UE_PORT_LOWER = 38001;
