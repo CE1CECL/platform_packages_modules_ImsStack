@@ -21,6 +21,10 @@ import android.annotation.NonNull;
 import android.content.Context;
 import android.util.SparseArray;
 
+import com.android.imsstack.enabler.acs.impl.AcServiceImpl;
+import com.android.imsstack.enabler.acs.impl.IAcServiceImplCallback;
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
@@ -115,13 +119,36 @@ public class AcService {
     private static final String TAG = "AcServiceImplBase";
     private static final SparseArray<AcService> INSTANCES = new SparseArray<AcService>();
 
-    //private AcServiceImpl mAcServiceImpl;
-    private int mPhoneId;
+    private final AcServiceImpl mAcServiceImpl;
+    private final int mPhoneId;
 
-    private AcService(Context context, int phoneId) {
+    private AcService(int phoneId, AcServiceImpl acServiceImpl) {
         mPhoneId = phoneId;
+        mAcServiceImpl = acServiceImpl;
+    }
 
-        //mAcServiceImpl = new AcServiceImpl(context, phoneId);
+    private void release() {
+        mAcServiceImpl.destroy();
+    }
+
+    /**
+     * Returns a AcService for phoneId specified.
+     * @param phoneId The ID of the Phone or SIM Slot that this AcService will use.
+     * @param acServiceImpl mock object for AcServiceImpl
+     * @return Instance of the AcService
+     */
+    @VisibleForTesting
+    public static AcService getInstance(int phoneId, AcServiceImpl acServiceImpl) {
+        AcService acService;
+        synchronized (INSTANCES) {
+            acService = INSTANCES.get(phoneId);
+            if (acService == null) {
+                acService = new AcService(phoneId, acServiceImpl);
+                INSTANCES.put(phoneId, acService);
+            }
+        }
+
+        return acService;
     }
 
     /**
@@ -136,12 +163,27 @@ public class AcService {
         synchronized (INSTANCES) {
             acService = INSTANCES.get(phoneId);
             if (acService == null) {
-                acService = new AcService(context, phoneId);
+                acService = new AcService(phoneId, AcServiceImpl.getInstance(context, phoneId));
                 INSTANCES.put(phoneId, acService);
             }
         }
 
         return acService;
+    }
+
+    /**
+     * Release AcService object
+     * @param phoneId The ID of the Phone or SIM Slot that this AcService will use.
+     */
+    public static void releaseInstance(int phoneId) {
+        AcService acService;
+        synchronized (INSTANCES) {
+            acService = INSTANCES.get(phoneId);
+            if (acService != null) {
+                acService.release();
+            }
+            INSTANCES.remove(phoneId);
+        }
     }
 
     /**
@@ -153,8 +195,7 @@ public class AcService {
     public boolean setCallback(@NonNull Executor executor,
             @NonNull AcServiceCallback serviceCallback) {
         serviceCallback.setExecutor(executor);
-        //mAcServiceImpl.setCallback(mSubId, serviceCallback.getCallback());
-        return true;
+        return mAcServiceImpl.setCallback(serviceCallback.getCallback());
     }
 
     /**
@@ -163,7 +204,7 @@ public class AcService {
      * @param serviceCallback The callback to be removed.
      */
     public void removeCallback(@NonNull AcServiceCallback serviceCallback) {
-        //mAcServiceImpl.removeCallBack(mSubId, serviceCallback.getCallback());
+        mAcServiceImpl.removeCallback(serviceCallback.getCallback());
     }
 
     /**
@@ -173,7 +214,7 @@ public class AcService {
      * @return true if the operation is success, or false otherwise.
      */
     public boolean setClientInfo(@NonNull AcServiceClientInfo clientInfo) {
-        //mAcServiceImpl.setClientInfo(mSubId, clientInfo);
+        mAcServiceImpl.setClientInfo(clientInfo);
         return true;
     }
 
@@ -183,8 +224,7 @@ public class AcService {
      * notified by callback, or false otherwise.
      */
     public boolean start() {
-        // return mAcServiceImpl.start();
-        return false;
+        return mAcServiceImpl.start(1);
     }
 
     /**
@@ -192,7 +232,7 @@ public class AcService {
      * running. (before called the registered callback)
      */
     public void stop() {
-        // mAcServiceImpl.stop();
+        mAcServiceImpl.stop();
     }
 
     /**
@@ -201,14 +241,14 @@ public class AcService {
      * @param isCompressed The xml file is compressed in gzip format
      */
     public void notifyProvisioningReceived(byte[] data, boolean isCompressed) {
-        // mAcServiceImpl.notifyConfigDataReceived(data, isCompressed);
+        mAcServiceImpl.notifyProvisioningReceived(data, isCompressed);
     }
 
     /**
      * The provisioning xml through notifyConfigDataReceived() is not available anymore.
      */
     public void notifyProvisioningRemoved() {
-        // mAcServiceImpl.notifyConfigDataRemoved();
+        mAcServiceImpl.notifyProvisioningRemoved();
     }
 
     /**
@@ -216,7 +256,6 @@ public class AcService {
      * @return The state is defined in AcServiceSateFlag
      */
     public @AcServiceStateFlag int getState() {
-        // return mAcServiceImpl.getState()
-        return STATE_TYPE_NONE;
+        return mAcServiceImpl.getState();
     }
 }
