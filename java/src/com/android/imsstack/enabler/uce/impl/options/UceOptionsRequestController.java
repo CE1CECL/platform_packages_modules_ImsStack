@@ -16,7 +16,12 @@
 
 package com.android.imsstack.enabler.uce.impl.options;
 
-import com.android.imsstack.util.ImsLog;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Parcel;
+
 import com.android.imsstack.enabler.uce.impl.define.UceMessage;
 import com.android.imsstack.enabler.uce.impl.define.UceResponseData;
 import com.android.imsstack.enabler.uce.impl.jni.IUceJNIListener;
@@ -24,13 +29,8 @@ import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
 import com.android.imsstack.enabler.uce.impl.utils.UceUtils;
 import com.android.imsstack.enabler.uce.interf.OptionsResponse;
 import com.android.imsstack.enabler.uce.interf.UceApiConstant;
+import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
-
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Parcel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,10 +39,17 @@ import java.util.Set;
 interface UceOptionsMessageHandler {
     public void onHandle(Message objMessage);
 }
-
+/**
+ * The UceOptionsRequestController manages the request associated with
+ * the UCE options request.
+ * When the request receives from the caller, a UceOptionsRequest instance is created
+ * for each request.
+ * And the request is complete, the created instance of the UceOptionsRequest is deleted.
+ */
 public class UceOptionsRequestController implements IUceJNIListener {
     private final int mSlotId;
-    private final Map<Integer, UceOptionsRequest> mUceOptionsRequestMap;
+    private final Map<Integer, UceOptionsRequest> mUceOptionsRequestMap =
+            new HashMap<Integer, UceOptionsRequest>();
     private final UceOptionsControllerHandler mUceOptionsControllerHandler;
     private boolean mIsImsRegistered;
 
@@ -52,22 +59,13 @@ public class UceOptionsRequestController implements IUceJNIListener {
         new HashMap<Integer, UceOptionsMessageHandler>();
 
     public UceOptionsRequestController(int slotId, Looper looper) {
-        mSlotId = slotId;
-        mIsImsRegistered = false;
-        mUceOptionsRequestMap = new HashMap<Integer, UceOptionsRequest>();
-        mUceOptionsControllerHandler = new UceOptionsControllerHandler(looper);
-
-        mUceJNI = UceJNI.getInstance();
-
-        mUceJNI.addListener(mSlotId, this, UceMessage.UCE_OPTIONS_RESPONSE_IND);
-        mUceJNI.addListener(mSlotId, this, UceMessage.UCE_OPTIONS_CMD_ERROR_IND);
+        this (slotId, UceJNI.getInstance(), looper);
     }
 
     @VisibleForTesting
     public UceOptionsRequestController(int slotId, UceJNI jni, Looper looper) {
         mSlotId = slotId;
         mIsImsRegistered = false;
-        mUceOptionsRequestMap = new HashMap<Integer, UceOptionsRequest>();
         mUceOptionsControllerHandler = new UceOptionsControllerHandler(looper);
 
         mUceJNI = jni;
@@ -90,6 +88,9 @@ public class UceOptionsRequestController implements IUceJNIListener {
     /**
      * Push one's own capabilities to a remote user via the SIP OPTIONS presence exchange mechanism
      * in order to receive the capabilities of the remote user in response.
+     * @param contactUri The URI of the remote user that we wish to get the capabilities of.
+     * @param myCapabilities The capabilities of this device to send to the remote user.
+     * @param cb The callback of this request which is sent from the remote user.
      */
     public void sendOptionsCapabilityRequest(Uri contactUri, Set<String> myCapabilities,
             OptionsResponse cb) {
@@ -97,23 +98,19 @@ public class UceOptionsRequestController implements IUceJNIListener {
             sendCommandError(cb, UceApiConstant.COMMAND_CODE_SERVICE_UNAVAILABLE);
             return;
         }
-
         int key = UceUtils.generateKey();
         UceOptionsRequest request = new UceOptionsRequest(cb, mSlotId, key);
-        String remoteUri = contactUri.toString();
-        if (request.sendRequest(remoteUri, myCapabilities)) {
-            mUceOptionsRequestMap.put(key, request);
-        }
+        sendOptionsCapabilityRequest(contactUri, myCapabilities, cb, key, request);
     }
 
     @VisibleForTesting
     public void sendOptionsCapabilityRequest(Uri contactUri, Set<String> myCapabilities,
-            OptionsResponse cb, UceOptionsRequest request) {
+            OptionsResponse cb, int key, UceOptionsRequest request) {
         if (!mIsImsRegistered) {
             sendCommandError(cb, UceApiConstant.COMMAND_CODE_SERVICE_UNAVAILABLE);
+            request = null;
             return;
         }
-        int key = UceUtils.generateKey();
         String remoteUri = contactUri.toString();
         if (request.sendRequest(remoteUri, myCapabilities)) {
             mUceOptionsRequestMap.put(key, request);
@@ -128,6 +125,15 @@ public class UceOptionsRequestController implements IUceJNIListener {
     @VisibleForTesting
     public void setRequestWithKey(int key, UceOptionsRequest request) {
         mUceOptionsRequestMap.put(key, request);
+    }
+
+    /** Get the UceOptionsRequest that matched the input parameter key.
+     * @param key key to get the wanted UceOptionsRequest.
+     * @return UceOptionsRequest on the Map that matches the input key.
+     */
+    @VisibleForTesting
+    public UceOptionsRequest getRequestWithKey(int key) {
+        return mUceOptionsRequestMap.get(key);
     }
 
     class UceOptionsControllerHandler extends Handler {

@@ -16,22 +16,25 @@
 
 package com.android.imsstack.enabler.uce.impl.options;
 
-import com.android.imsstack.enabler.uce.impl.define.UceMessage;
-import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
-import com.android.imsstack.enabler.uce.impl.utils.UceUtils;
-import com.android.imsstack.enabler.uce.interf.UceApiConstant;
-import com.android.imsstack.enabler.uce.interf.OptionsResponse;
-import com.android.internal.annotations.VisibleForTesting;
-
 import android.os.Parcel;
 import android.text.TextUtils;
-import android.net.Uri;
+
+import com.android.imsstack.enabler.uce.impl.define.UceMessage;
+import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
+import com.android.imsstack.enabler.uce.impl.utils.UceUtils;
+import com.android.imsstack.enabler.uce.interf.OptionsResponse;
+import com.android.imsstack.enabler.uce.interf.UceApiConstant;
+import com.android.imsstack.util.ImsLog;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The UceOptionsRequest will be handled the request related to the OPTIONS.
+ * This class will be created per each request related to the OPTIONS.
+ */
 public class UceOptionsRequest {
     private final int mSlotId;
     private final int mKey;
@@ -39,10 +42,7 @@ public class UceOptionsRequest {
     private UceJNI mUceJNI;
 
     public UceOptionsRequest(OptionsResponse cb, int slotId, int key) {
-        mSlotId = slotId;
-        mKey = key;
-        callback = cb;
-        mUceJNI = UceJNI.getInstance();
+        this (cb, slotId, key, UceJNI.getInstance());
     }
 
     @VisibleForTesting
@@ -56,6 +56,9 @@ public class UceOptionsRequest {
     /**
      * Push one's own capabilities to a remote user via the SIP OPTIONS presence exchange mechanism
      * in order to receive the capabilities of the remote user in response.
+     * @param remoteUri The URI of the remote user that we wish to get the capabilities of.
+     * @param myCapabilities The capabilities of this device to send to the remote user.
+     * @return true if the request was handle successful.
      */
     public boolean sendRequest(String remoteUri, Set<String> myCapabilities) {
         ImsLog.i("");
@@ -81,6 +84,11 @@ public class UceOptionsRequest {
 
     /**
      * Handles responses to OPTIONS requests.
+     * @param responseCode The SIP response code that was sent by the network in response
+     * to the request.
+     * @param reason The optional SIP response reason sent by the network.
+     * @param capabilities the contact's UCE capabilities associated with the
+     * capability request.
      */
     public void informNetworkResponse(int responseCode, String reason, long capabilities) {
         ImsLog.d("informNetworkResponse:responseCode=" + responseCode + ", reason:" + reason);
@@ -95,6 +103,7 @@ public class UceOptionsRequest {
 
     /**
      * Send command error regarding this request.
+     * @param code The reason why the associated command has failed.
      */
     public void informCommandError(int code) {
         ImsLog.d("informCommandError:code=" + code);
