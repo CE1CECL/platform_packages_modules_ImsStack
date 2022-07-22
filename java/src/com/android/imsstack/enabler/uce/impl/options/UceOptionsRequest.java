@@ -61,15 +61,15 @@ public class UceOptionsRequest {
      * @return true if the request was handle successful.
      */
     public boolean sendRequest(String remoteUri, Set<String> myCapabilities) {
-        ImsLog.i("");
+        ImsLog.i(mSlotId, "");
         if (TextUtils.isEmpty(remoteUri)) {
-            ImsLog.e("remoteUri is empty");
+            ImsLog.e(mSlotId, "remoteUri is empty");
             informCommandError(UceApiConstant.COMMAND_CODE_INVALID_PARAM);
             return false;
         }
         long capabilities = UceUtils.getCapabilities(myCapabilities);
         if (capabilities == 0) {
-            ImsLog.e("capabilities is empty");
+            ImsLog.e(mSlotId, "capabilities is empty");
             informCommandError(UceApiConstant.COMMAND_CODE_INVALID_PARAM);
             return false;
         }
@@ -91,13 +91,14 @@ public class UceOptionsRequest {
      * capability request.
      */
     public void informNetworkResponse(int responseCode, String reason, long capabilities) {
-        ImsLog.d("informNetworkResponse:responseCode=" + responseCode + ", reason:" + reason);
+        ImsLog.d(mSlotId, "informNetworkResponse:responseCode=" + responseCode
+                + ", reason:" + reason);
         Set<String> caps = UceUtils.getFeatureTags(capabilities);
         List<String> theirCaps = new ArrayList<>(caps);
         try {
             callback.onNetworkResponse(responseCode, reason, theirCaps);
         } catch (Exception e) {
-            ImsLog.e("Exception:" + e.toString());
+            ImsLog.e(mSlotId, "Exception:" + e.toString());
         }
     }
 
@@ -106,11 +107,11 @@ public class UceOptionsRequest {
      * @param code The reason why the associated command has failed.
      */
     public void informCommandError(int code) {
-        ImsLog.d("informCommandError:code=" + code);
+        ImsLog.d(mSlotId, "informCommandError:code=" + code);
         try {
             callback.onCommandError(code);
         } catch (Exception e) {
-            ImsLog.e("Exception:" + e.toString());
+            ImsLog.e(mSlotId, "Exception:" + e.toString());
         }
     }
 }

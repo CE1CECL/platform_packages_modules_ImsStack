@@ -81,7 +81,7 @@ public class UceOptionsRequestController implements IUceJNIListener {
     public void setImsRegistrationStatus(boolean imsRegistered) {
         if (mIsImsRegistered != imsRegistered) {
             mIsImsRegistered = imsRegistered;
-            ImsLog.i("IsImsRegistered:" + mIsImsRegistered);
+            ImsLog.i(mSlotId, "IsImsRegistered:" + mIsImsRegistered);
         }
     }
 
@@ -146,12 +146,12 @@ public class UceOptionsRequestController implements IUceJNIListener {
         @Override
         public void handleMessage(Message objMessage) {
             if (objMessage == null) {
-                ImsLog.e("Message is null");
+                ImsLog.e(mSlotId, "Message is null");
                 return;
             }
             UceOptionsMessageHandler objMsgHandler = mMessageHandler.get(objMessage.what);
             if (objMsgHandler == null) {
-                ImsLog.e("message can not be handled.");
+                ImsLog.e(mSlotId, "message can not be handled.");
                 return;
             }
             objMsgHandler.onHandle(objMessage);
@@ -163,7 +163,7 @@ public class UceOptionsRequestController implements IUceJNIListener {
                 int requestKey = objMessage.arg1;
                 UceOptionsRequest request = getOptionsRequest(requestKey);
                 if (request == null) {
-                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    ImsLog.e(mSlotId, "Do not find request for Key=" + requestKey);
                     return;
                 }
                 UceResponseData data = (UceResponseData)objMessage.obj;
@@ -182,7 +182,7 @@ public class UceOptionsRequestController implements IUceJNIListener {
                 int requestKey = objMessage.arg1;
                 UceOptionsRequest request = getOptionsRequest(requestKey);
                 if (request == null) {
-                    ImsLog.e("Do not find request for Key=" + requestKey);
+                    ImsLog.e(mSlotId, "Do not find request for Key=" + requestKey);
                     return;
                 }
                 int commandErrorCode = objMessage.arg2;
@@ -193,11 +193,11 @@ public class UceOptionsRequestController implements IUceJNIListener {
     }
 
     private void sendCommandError(OptionsResponse cb, int code) {
-        ImsLog.d("sendCommandError:" + code);
+        ImsLog.d(mSlotId, "sendCommandError:" + code);
         try {
             cb.onCommandError(code);
         } catch (Exception e) {
-            ImsLog.e("Exception:" + e.toString());
+            ImsLog.e(mSlotId, "Exception:" + e.toString());
         }
     }
 
@@ -206,9 +206,9 @@ public class UceOptionsRequestController implements IUceJNIListener {
         try {
             request = mUceOptionsRequestMap.get(key);
         } catch (ClassCastException e) {
-            ImsLog.e("ClassCastException:" + e.toString());
+            ImsLog.e(mSlotId, "ClassCastException:" + e.toString());
         } catch (NullPointerException e) {
-            ImsLog.e("NullPointerException:" + e.toString());
+            ImsLog.e(mSlotId, "NullPointerException:" + e.toString());
         } finally {
             return request;
         }
@@ -217,13 +217,13 @@ public class UceOptionsRequestController implements IUceJNIListener {
     private void removeOptionsRequest(int key) {
         try {
             mUceOptionsRequestMap.remove(key);
-            ImsLog.d("remove key:" + key);
+            ImsLog.d(mSlotId, "remove key:" + key);
         } catch (ClassCastException e) {
-            ImsLog.e("ClassCastException:" + e.toString());
+            ImsLog.e(mSlotId, "ClassCastException:" + e.toString());
         } catch (NullPointerException e) {
-            ImsLog.e("NullPointerException:" + e.toString());
+            ImsLog.e(mSlotId, "NullPointerException:" + e.toString());
         } catch (UnsupportedOperationException e) {
-            ImsLog.e("UnsupportedOperationException:" + e.toString());
+            ImsLog.e(mSlotId, "UnsupportedOperationException:" + e.toString());
         } finally {
             return;
         }
@@ -231,7 +231,7 @@ public class UceOptionsRequestController implements IUceJNIListener {
 
     @Override
     public void onOptionsResponseMessage(Parcel parcel) {
-        ImsLog.d("");
+        ImsLog.d(mSlotId, "");
         Message msg = Message.obtain();
         int messageType = parcel.readInt();
         switch (messageType) {
@@ -242,7 +242,7 @@ public class UceOptionsRequestController implements IUceJNIListener {
                 String reason = parcel.readString();
                 long capabilities = parcel.readLong();
 
-                ImsLog.d("responseCode:" + responseCode + ", reason:" + reason);
+                ImsLog.d(mSlotId, "responseCode:" + responseCode + ", reason:" + reason);
 
                 msg.arg1 = requestKey;
                 UceResponseData data = new UceResponseData(responseCode, reason);
@@ -259,7 +259,7 @@ public class UceOptionsRequestController implements IUceJNIListener {
                 break;
             }
             default:
-                ImsLog.d("message not handle");
+                ImsLog.d(mSlotId, "message not handle");
                 return;
         }
         mUceOptionsControllerHandler.sendMessage(msg);
