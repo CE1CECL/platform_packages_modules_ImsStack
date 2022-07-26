@@ -16,7 +16,6 @@
 
 package com.android.imsstack.enabler.acs.impl;
 
-import com.android.imsstack.enabler.acs.IAcServiceImplCallback;
 import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
 

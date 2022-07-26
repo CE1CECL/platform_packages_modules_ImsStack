@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.imsstack.enabler.acs;
+package com.android.imsstack.enabler.acs.impl;
 
 /**
  * Callback for AcService status changes.
