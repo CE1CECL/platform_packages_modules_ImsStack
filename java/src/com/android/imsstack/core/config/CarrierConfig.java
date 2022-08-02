@@ -210,8 +210,6 @@ public class CarrierConfig {
                 KEY_PREFIX + "ut_max_retry_count_int";
         public static final String KEY_UT_TEMPORARY_BLOCK_TIMER_MIN_INT =
                 KEY_PREFIX + "ut_temporary_block_timer_min_int";
-        public static final String KEY_XCAP_OVER_WIFI_REQUIRES_VOWIFI_REGISTRATION_BOOL =
-                KEY_PREFIX + "xcap_over_wifi_requires_vowifi_registration_bool";
         public static final String KEY_TERMINAL_BASED_CALL_WAIT_SYNC_INT =
                 KEY_PREFIX + "terminal_based_call_wait_sync_int";
         public static final String KEY_TERMINAL_BASED_CALL_WAIT_DEFAULT_ACTIVATED_BOOL =

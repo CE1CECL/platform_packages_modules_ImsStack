@@ -38,9 +38,9 @@ public final class SscConfig {
     // CarrierConfigManager.OIR_TEMP_MODE_ALLOWED;
     public static final int OIR_TEMP_MODE_ALLOWED = 3;
 
-    public static final int GBA_ME = CarrierConfigManager.GBA_ME;
-    public static final int GBA_U = CarrierConfigManager.GBA_U;
-    public static final int GBA_DIGEST = CarrierConfigManager.GBA_DIGEST;
+    public static final int GBA_ME = CarrierConfigManager.GBA_ME; // 1
+    public static final int GBA_U = CarrierConfigManager.GBA_U; // 2
+    public static final int GBA_DIGEST = CarrierConfigManager.GBA_DIGEST; // 3
 
     private static HashMap<Integer, ConfigAgent> mConfigAgent = new HashMap<>();
 
@@ -170,13 +170,6 @@ public final class SscConfig {
     public static int getTimerForTempBlock(int slotId) {
         return getInt(slotId, CarrierConfig.ImsSs.KEY_UT_TEMPORARY_BLOCK_TIMER_MIN_INT) * 60 * 1000;
     }
-
-    /* TODO: This needs to be checked by Framework
-    public static boolean isWfcRegiRequiredForXcapOverWifi(int slotId) {
-        return getBoolean(slotId,
-                CarrierConfig.ImsSs.KEY_XCAP_OVER_WIFI_REQUIRES_VOWIFI_REGISTRATION_BOOL);
-    }
-    */
 
     // Asset
     public static boolean isCfActionErasureSupported(int slotId) {
