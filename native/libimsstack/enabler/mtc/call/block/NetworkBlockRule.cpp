@@ -25,7 +25,8 @@ PUBLIC
 NetworkBlockRule::NetworkBlockRule(
         IN IMtcCallContext& objContext, IN INetworkWatcher& objNetworkWatcher) :
         m_objService(objContext.GetService()),
-        m_objNetworkWatcher(objNetworkWatcher)
+        m_objNetworkWatcher(objNetworkWatcher),
+        m_bWifiTestMode(objContext.IsWifiTestMode())
 {
 }
 
@@ -34,7 +35,7 @@ PUBLIC VIRTUAL NetworkBlockRule::~NetworkBlockRule() {}
 PUBLIC VIRTUAL NetworkBlockRule::Result NetworkBlockRule::Check(
         IN IMtcBlockRuleCheckListener& /* objListener */)
 {
-    if (m_objService.IsWlanIpCanType())
+    if (m_objService.IsWlanIpCanType() || m_bWifiTestMode)
     {
         return Result(Result::Status::UNBLOCKED);
     }

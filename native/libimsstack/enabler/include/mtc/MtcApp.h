@@ -82,6 +82,7 @@ public:
     IEctManager* GetEctManager() override;
     MtcEmergencyServiceManager* GetEmergencyServiceManager() override;
     OperationAsyncRunner* GetAsyncRunner(IN std::function<void()> objOperation) override;
+    inline IMS_BOOL IsWifiTestMode() override { return m_bWifiTestMode; }
 
 protected:
     virtual void InitConfiguration();
@@ -103,6 +104,8 @@ protected:
     ConferenceManager m_objConferenceManager;
     EctManager* m_pEctManager;
     MtcEmergencyServiceManager* m_pEmergencyServiceManager;
+
+    IMS_BOOL m_bWifiTestMode;
 };
 
 #endif

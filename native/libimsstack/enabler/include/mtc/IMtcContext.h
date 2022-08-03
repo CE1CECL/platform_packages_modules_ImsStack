@@ -53,6 +53,7 @@ public:
     virtual IEctManager* GetEctManager() = 0;
     virtual MtcEmergencyServiceManager* GetEmergencyServiceManager() = 0;
     virtual OperationAsyncRunner* GetAsyncRunner(IN std::function<void()> objOperation) = 0;
+    virtual IMS_BOOL IsWifiTestMode() = 0;
 };
 
 #endif
