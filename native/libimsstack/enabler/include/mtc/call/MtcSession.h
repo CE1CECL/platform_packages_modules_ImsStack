@@ -172,6 +172,8 @@ public:
     {
         return m_objContext.GetAsyncRunner(objOperation);
     }
+    inline IMS_BOOL IsWifiTestMode() override { return m_objContext.IsWifiTestMode(); }
+    // end of IMtcContext
 
     inline void SetHeldByMe(IN IMS_BOOL bHeldByMe) override { m_objContext.SetHeldByMe(bHeldByMe); }
 

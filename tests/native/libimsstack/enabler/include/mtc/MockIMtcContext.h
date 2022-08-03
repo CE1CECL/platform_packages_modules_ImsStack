@@ -43,7 +43,7 @@ public:
     virtual ~MockIMtcContext() {}
 
     MOCK_METHOD(IMS_SINT32, GetSlotId, (), (override));
-    MOCK_METHOD(IMtcService*, GetServiceByType, (IN ServiceType eServiceType), (override));
+    MOCK_METHOD(IMtcService*, GetServiceByType, (IN ServiceType), (override));
     MOCK_METHOD(IMtcDialingPlan&, GetDialingPlan, (), (override));
     MOCK_METHOD(IMtcCallController&, GetCallController, (), (override));
     MOCK_METHOD(IMtcCallManager&, GetCallManager, (), (override));
@@ -51,12 +51,13 @@ public:
     MOCK_METHOD(MtcConfigurationProxy&, GetConfigurationProxy, (), (override));
     MOCK_METHOD(ICallStateProxy&, GetCallStateProxy, (), (override));
     MOCK_METHOD(IMtcImsEventReceiver&, GetImsEventReceiver, (), (override));
-    MOCK_METHOD(IMtcAosConnector*, GetAosConnector, (IN ServiceType eServiceType), (override));
+    MOCK_METHOD(IMtcAosConnector*, GetAosConnector, (IN ServiceType), (override));
     MOCK_METHOD(IMtcSipInterfaceFactory&, GetSipInterfaceFactory, (), (override));
     MOCK_METHOD(IConferenceManager&, GetConferenceManager, (), (override));
     MOCK_METHOD(IEctManager*, GetEctManager, (), (override));
     MOCK_METHOD(MtcEmergencyServiceManager*, GetEmergencyServiceManager, (), (override));
     MOCK_METHOD(OperationAsyncRunner*, GetAsyncRunner, (IN std::function<void()>), (override));
+    MOCK_METHOD(IMS_BOOL, IsWifiTestMode, (), (override));
 };
 
 #endif

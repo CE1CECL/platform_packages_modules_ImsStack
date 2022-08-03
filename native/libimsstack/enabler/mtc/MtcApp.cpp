@@ -20,6 +20,7 @@
 #include "ImsServiceConfig.h"
 #include "ServicePhoneInfo.h"
 #include "ServiceTrace.h"
+#include "ServiceUtil.h"
 #include "JniConnector.h"
 #include "JniConnectorFactory.h"
 #include "JniMtcCall.h"
@@ -59,9 +60,12 @@ MtcApp::MtcApp(IN IMS_SINT32 nSlotId) :
         m_objSipInterfaceFactory(MtcSipInterfaceFactory()),
         m_objConferenceManager(ConferenceManager(*this)),
         m_pEctManager(IMS_NULL),
-        m_pEmergencyServiceManager(IMS_NULL)
+        m_pEmergencyServiceManager(IMS_NULL),
+        m_bWifiTestMode(IMS_FALSE)
 {
     IMS_TRACE_I("+MtcApp [slot_%d]", nSlotId, 0, 0);
+    m_bWifiTestMode = (UtilService::GetUtilService()->GetPrivateProperty()->GetPersistentInt(
+            ImsPrivateProperties::Persistent::KEY_WIFI_TEST, 0) == 1);
     MtcContextRepository::GetInstance()->AddContext(nSlotId, this);
     Configuration::GetInstance()->SetAppConfig(
             ImsServiceConfig::GetAppName(ImsAppId::MTC), nSlotId);

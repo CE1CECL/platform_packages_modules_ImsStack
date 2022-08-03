@@ -99,3 +99,17 @@ TEST_F(NetworkBlockRuleTest, CheckReturnsBlockedIfNotSupportedNetwork)
     EXPECT_EQ(Result::Status::BLOCKED, objResult.eStatus);
     EXPECT_EQ(CallReasonInfo(CODE_SIP_NOT_ACCEPTABLE), objResult.objReason);
 }
+
+TEST_F(NetworkBlockRuleTest, CheckReturnsUnblockedIfWifiTestMode)
+{
+    ON_CALL(objContext, IsWifiTestMode)
+            .WillByDefault(Return(IMS_TRUE));
+    ON_CALL(objService, IsWlanIpCanType)
+            .WillByDefault(Return(IMS_FALSE));
+
+    NetworkBlockRule* pTestBlockRule = new NetworkBlockRule(objContext, objNetworkWatcher);
+    Result objResult = pTestBlockRule->Check(objListener);
+
+    EXPECT_EQ(Result::Status::UNBLOCKED, objResult.eStatus);
+    delete pTestBlockRule;
+}

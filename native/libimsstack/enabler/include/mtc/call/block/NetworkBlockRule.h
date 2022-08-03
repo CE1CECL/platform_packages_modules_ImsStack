@@ -38,6 +38,7 @@ public:
 private:
     const IMtcService& m_objService;
     INetworkWatcher& m_objNetworkWatcher;
+    IMS_BOOL m_bWifiTestMode;
 };
 
 #endif

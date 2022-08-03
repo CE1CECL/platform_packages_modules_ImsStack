@@ -79,6 +79,7 @@ public:
     MOCK_METHOD(IEctManager*, GetEctManager, (), (override));
     MOCK_METHOD(MtcEmergencyServiceManager*, GetEmergencyServiceManager, (), (override));
     MOCK_METHOD(OperationAsyncRunner*, GetAsyncRunner, (IN std::function<void()>), (override));
+    MOCK_METHOD(IMS_BOOL, IsWifiTestMode, (), (override));
 };
 
 #endif
