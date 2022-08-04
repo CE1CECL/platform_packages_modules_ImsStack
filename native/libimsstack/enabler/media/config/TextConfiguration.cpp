@@ -57,11 +57,13 @@ PUBLIC VIRTUAL IMS_BOOL TextConfiguration::Create(IN ICarrierConfig* piCc)
     nRrBandwidthBps = piCc->GetInt(CarrierConfig::ImsRtt::KEY_TEXT_RR_BANDWIDTH_BPS_INT);
     nRsBandwidthBps = piCc->GetInt(CarrierConfig::ImsRtt::KEY_TEXT_RS_BANDWIDTH_BPS_INT);
 
-    nRtpInactivityTimerMillis = piCc->GetInt(
-            CarrierConfig::ImsVoice::KEY_AUDIO_RTP_INACTIVITY_TIMER_MILLIS_INT);  // same with audio
-    nRtcpInactivityTimerMillis = piCc->GetInt(
-            CarrierConfig::ImsVoice::KEY_AUDIO_RTCP_INACTIVITY_TIMER_MILLIS_INT);  // same with
-                                                                                   // audio
+    nRtpInactivityTimerMillis =
+            piCc->GetInt(CarrierConfig::Assets::KEY_TEXT_RTP_INACTIVITY_TIMER_MILLIS_INT);
+    nRtcpInactivityTimerMillis =
+            piCc->GetInt(CarrierConfig::Assets::KEY_TEXT_RTCP_INACTIVITY_TIMER_MILLIS_INT);
+
+    IMS_TRACE_D("Create Text Configuration: rtpinactivity: %d rtcpinactivity: %d",
+            nRtpInactivityTimerMillis, nRtcpInactivityTimerMillis, 0);
 
     /** According to RFC 2474, six bits of the DS field are used as a codepoint (DSCP),
      * a two-bit currently unused (CU) field is reserved. So two left shift operations are required.
@@ -134,13 +136,14 @@ PROTECTED VIRTUAL IMS_BOOL TextConfiguration::CreateCodecConfigs(IN ICarrierConf
             m_nRedPayloadType, 0);
 
     IMS_UINT32 nCodecCnt = 0;
-    if (m_nT140PayloadType > 0)
-    {
-        nCodecCnt = MakeCodec(piCc, ImsCodec::TEXT_T140, nCodecCnt, m_nT140PayloadType, 0);
-    }
     if (m_nRedPayloadType > 0)
     {
         nCodecCnt = MakeCodec(piCc, ImsCodec::TEXT_RED, nCodecCnt, m_nRedPayloadType, 0);
+    }
+
+    if (m_nT140PayloadType > 0)
+    {
+        nCodecCnt = MakeCodec(piCc, ImsCodec::TEXT_T140, nCodecCnt, m_nT140PayloadType, 0);
     }
 
     return IMS_TRUE;

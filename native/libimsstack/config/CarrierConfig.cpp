@@ -1096,6 +1096,10 @@ const IMS_CHAR CarrierConfig::Assets::KEY_SDP_REOFFER_FULL_CAPABILITY_BOOL[] =
         "sdp_reoffer_full_capability_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_TEXT_CODEC_REDUNDANCY_LEVEL_INT[] =
         "text_codec_redundancy_level_int";
+const IMS_CHAR CarrierConfig::Assets::KEY_TEXT_RTP_INACTIVITY_TIMER_MILLIS_INT[] =
+        "text_rtp_inactivity_timer_millis_int";
+const IMS_CHAR CarrierConfig::Assets::KEY_TEXT_RTCP_INACTIVITY_TIMER_MILLIS_INT[] =
+        "text_rtcp_inactivity_timer_millis_int";
 
 // TODO - Need to change to carrier configuration bundle later
 const IMS_CHAR CarrierConfig::Assets::KEY_ASSET_EVS_PAYLOAD_TYPE_INT_ARRAY[] =

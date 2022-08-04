@@ -986,6 +986,8 @@ public:
         static const IMS_CHAR KEY_SDP_ANSWER_FULL_CAPABILITY_BOOL[];
         static const IMS_CHAR KEY_SDP_REOFFER_FULL_CAPABILITY_BOOL[];
         static const IMS_CHAR KEY_TEXT_CODEC_REDUNDANCY_LEVEL_INT[];
+        static const IMS_CHAR KEY_TEXT_RTP_INACTIVITY_TIMER_MILLIS_INT[];
+        static const IMS_CHAR KEY_TEXT_RTCP_INACTIVITY_TIMER_MILLIS_INT[];
 
         // TODO Media - Need to change to carrier configuration bundle later
         static const IMS_CHAR KEY_ASSET_EVS_PAYLOAD_TYPE_INT_ARRAY[];

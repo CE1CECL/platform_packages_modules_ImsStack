@@ -828,6 +828,10 @@ public class CarrierConfig {
                 "sdp_reoffer_full_capability_bool";
         public static final String KEY_TEXT_CODEC_REDUNDANCY_LEVEL_INT =
                 "text_codec_redundancy_level_int";
+        public static final String KEY_TEXT_RTP_INACTIVITY_TIMER_MILLIS_INT =
+                "text_rtp_inactivity_timer_millis_int";
+        public static final String KEY_TEXT_RTCP_INACTIVITY_TIMER_MILLIS_INT =
+                "text_rtcp_inactivity_timer_millis_int";
 
         // TODO - Media Codec for Test
         public static final String KEY_ASSET_EVS_PAYLOAD_TYPE_INT_ARRAY =
