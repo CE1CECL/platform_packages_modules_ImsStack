@@ -25,9 +25,9 @@ import com.android.imsstack.*;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.*;
 import org.junit.runners.JUnit4;
-import org.junit.Test;
 
 @RunWith(JUnit4.class)
 public class VideoDimensionTest {
@@ -54,6 +54,8 @@ public class VideoDimensionTest {
 
     @Test
     public void testToString(){
+        assertEquals("[ VideoDimension: width=" + mWidth + ", height=" + mHeight + " ]",
+                mVideoDimension.toString());
         assertNotNull(mVideoDimension);
     }
 
