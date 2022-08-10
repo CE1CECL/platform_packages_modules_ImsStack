@@ -43,6 +43,7 @@ public:
     IMS_BOOL IsStreamMediaSupported() const;
     IMS_BOOL IsStreamMediaAudioSupported() const;
     IMS_BOOL IsStreamMediaVideoSupported() const;
+    IMS_BOOL IsStreamMediaTextSupported() const;
     IMS_BOOL IsFramedMediaSupported() const;
     const AStringArray& GetFramedMediaMimeTypes() const;
     IMS_BOOL IsFramedMediaMaxSizePresent() const;

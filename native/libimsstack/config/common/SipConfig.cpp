@@ -122,9 +122,18 @@ PUBLIC VIRTUAL IMS_BOOL SipConfig::Init()
 
 PUBLIC VIRTUAL void SipConfig::Refresh()
 {
-    Clear();
-
     ReadFrom();
+
+    if (m_pSipConfigV != IMS_NULL)
+    {
+        m_pSipConfigV->Refresh();
+
+        UpdateTcpTimerValues();
+    }
+    else
+    {
+        CreateDefaultServiceConfig();
+    }
 }
 
 PUBLIC

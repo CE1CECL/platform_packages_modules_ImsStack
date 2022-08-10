@@ -24,6 +24,7 @@ PUBLIC GLOBAL const IMS_CHAR ConfigMtc::APP_NAME[] = CONFIG_APP_NAME;
 PUBLIC GLOBAL const IMS_CHAR ConfigMtc::SERVICE_NAME[] = CONFIG_SERVICE_NAME;
 PUBLIC GLOBAL const IMS_CHAR ConfigMtc::EMERGENCY_SERVICE_NAME[] = CONFIG_EMERGENCY_SERVICE_NAME;
 
+// clang-format off
 PUBLIC GLOBAL const IMS_CHAR ConfigMtc::APP_CONFIG[] = {
         "[Uniqueness]\n"
         "Stream=1\n"
@@ -43,7 +44,7 @@ PUBLIC GLOBAL const IMS_CHAR ConfigMtc::APP_CONFIG[] = {
         "IMSRegistry=" CONFIG_APP_NAME "\n"
         "\n"
         "[Stream]\n"
-        "media_types=audio video\n"
+        "media_types=audio video text\n"
         "\n"
         "[Event]\n"
         "package_names=conference\n"
@@ -90,3 +91,4 @@ PUBLIC GLOBAL const IMS_CHAR ConfigMtc::APP_CONFIG[] = {
         "profile=" CONFIG_MEDIA_MTC "\n"
         "\n"
 };
+// clang-format on

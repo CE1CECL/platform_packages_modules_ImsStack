@@ -76,6 +76,11 @@ PUBLIC VIRTUAL IMS_BOOL SipConfigV::Init()
     return ConfigBase::Init();
 }
 
+PUBLIC VIRTUAL void SipConfigV::Refresh()
+{
+    ReadFrom();
+}
+
 PUBLIC VIRTUAL IMS_SINT32 SipConfigV::GetTimerValue(IN IMS_SINT32 nType) const
 {
     switch (nType)

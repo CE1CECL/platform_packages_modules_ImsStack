@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IMS_REGISTRY_LOADER_H_
-#define IMS_REGISTRY_LOADER_H_
+#ifndef MOCK_I_SIP_CONFIG_V_H_
+#define MOCK_I_SIP_CONFIG_V_H_
 
-#include "ImsRegistry.h"
+#include <gmock/gmock.h>
 
-class ImsRegistryLoader
+#include "ISipConfigV.h"
+
+class MockISipConfigV : public ISipConfigV
 {
 public:
-    ImsRegistryLoader() = delete;
+    inline MockISipConfigV() {}
+    inline virtual ~MockISipConfigV() {}
 
-public:
-    static IMS_BOOL GetRegistry(IN const AString& strAppId, OUT ImsRegistry& objRegistry);
-    static IMS_BOOL GetRegistryFromContent(
-            IN const AString& strAppId, IN const AString& strContent, OUT ImsRegistry& objRegistry);
+    MOCK_METHOD(IConfigurable*, GetConfigurable, (), (const, override));
+    MOCK_METHOD(IMS_UINT32, GetFeatureTagOptions, (), (const, override));
+    MOCK_METHOD(IMS_SINT32, GetTargetNumberFormat, (), (const, override));
+    MOCK_METHOD(IMS_SINT32, GetTargetScheme, (), (const, override));
+    MOCK_METHOD(IMS_SINT32, GetTimerValue, (IN IMS_SINT32 nType), (const, override));
 };
 
 #endif

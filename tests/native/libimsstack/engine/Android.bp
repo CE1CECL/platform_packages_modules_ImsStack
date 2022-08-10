@@ -33,6 +33,7 @@ cc_defaults {
         "libimsstack_engine_headers",
         "libimsstack_platform_headers",
         "libimsstack_protocol_headers",
+        "libimsstack_test_config_headers",
         "libimsstack_test_platform_headers",
     ],
     static_libs: [
@@ -56,6 +57,9 @@ cc_test {
         "interface/core",
         "interface/registration",
         "interface/sipcore",
+    ],
+    static_libs: [
+        "libimsstack-test-config",
     ],
 
     test_config: "ImsStackNativeEngineTests.xml",

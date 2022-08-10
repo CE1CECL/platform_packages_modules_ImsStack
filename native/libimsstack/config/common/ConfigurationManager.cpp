@@ -352,7 +352,6 @@ void ConfigurationHolder::RefreshConfigs(IN IMS_SINT32 nId)
     if (m_pSipConfig != IMS_NULL)
     {
         m_pSipConfig->Refresh();
-        m_pSipConfig->CreateDefaultServiceConfig();
     }
 
     if (m_pMediaConfig != IMS_NULL)

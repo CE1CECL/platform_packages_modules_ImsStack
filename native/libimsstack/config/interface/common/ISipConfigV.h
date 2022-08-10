@@ -40,6 +40,7 @@ public:
      *         #FEATURE_TAG_MEDIA_STREAM\n
      *         #FEATURE_TAG_MEDIA_STREAM_AUDIO\n
      *         #FEATURE_TAG_MEDIA_STREAM_VIDEO\n
+     *         #FEATURE_TAG_MEDIA_STREAM_TEXT\n
      *         #FEATURE_TAG_IARI_REQUIRE\n
      *         #FEATURE_TAG_IARI_EXPLICIT\n
      *         #FEATURE_TAG_ALL\n
@@ -125,20 +126,21 @@ public:
     /// Default value (J281-compliant) : (FEATURE_TAG_ALL & ~FEATURE_TAG_IARI_EXPLICIT)
     enum
     {
-        FEATURE_TAG_NONE = 0x00000000,
+        FEATURE_TAG_NONE = 0,
 
-        FEATURE_TAG_EVENT = 0x00000001,
-        FEATURE_TAG_MEDIA_BASIC = 0x00000002,
-        FEATURE_TAG_MEDIA_FRAMED = 0x00000004,
-        FEATURE_TAG_MEDIA_STREAM = 0x00000008,
-        FEATURE_TAG_MEDIA_STREAM_AUDIO = 0x00000100,
-        FEATURE_TAG_MEDIA_STREAM_VIDEO = 0x00000200,
+        FEATURE_TAG_EVENT = 1 << 0,
+        FEATURE_TAG_MEDIA_BASIC = 1 << 1,
+        FEATURE_TAG_MEDIA_FRAMED = 1 << 2,
+        FEATURE_TAG_MEDIA_STREAM = 1 << 3,
+        FEATURE_TAG_MEDIA_STREAM_AUDIO = 1 << 8,
+        FEATURE_TAG_MEDIA_STREAM_VIDEO = 1 << 9,
+        FEATURE_TAG_MEDIA_STREAM_TEXT = 1 << 10,
 
         /// As default, IARI sets 'require' parameter
         /// If this flag is not defined, IARI will not contain 'require' parameter
-        FEATURE_TAG_IARI_REQUIRE = 0x01000000,
+        FEATURE_TAG_IARI_REQUIRE = 1 << 24,
         /// 'explicit' parameter for IARI
-        FEATURE_TAG_IARI_EXPLICIT = 0x02000000,
+        FEATURE_TAG_IARI_EXPLICIT = 1 << 25,
 
         FEATURE_TAG_ALL = 0xFFFFFFFF,
 

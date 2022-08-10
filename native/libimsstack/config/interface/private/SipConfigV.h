@@ -61,6 +61,8 @@ public:
 public:
     // ConfigBase class
     IMS_BOOL Init() override;
+    void Refresh() override;
+
     inline IMS_UINT32 GetFeatureTagOptions() const override { return m_nFeatureTagOptions; }
     inline IMS_SINT32 GetTargetNumberFormat() const override { return m_nTargetNumberFormat; }
     inline IMS_SINT32 GetTargetScheme() const override { return m_nTargetScheme; }

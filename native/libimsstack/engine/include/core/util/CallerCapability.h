@@ -19,9 +19,9 @@
 #include "AString.h"
 
 class AppConfig;
-class CoreServiceConfig;
 class Feature;
 class FeatureSet;
+class ICoreServiceConfig;
 class ISipConfigV;
 
 class CallerCapability
@@ -38,7 +38,7 @@ public:
     IMS_BOOL AddFeature(IN const FeatureSet* pFeatureSet);
     IMS_BOOL AddFeatures(IN const CallerCapability* pCc);
     void Clear();
-    IMS_BOOL Create(IN const AppConfig* pAppConfig, IN const CoreServiceConfig* pServiceConfig,
+    IMS_BOOL Create(IN const AppConfig* pAppConfig, IN const ICoreServiceConfig* piServiceConfig,
             IN const ISipConfigV* piSipConfigV);
     IMS_BOOL Equals(IN const CallerCapability* pCc) const;
     inline const IMSList<FeatureSet*>& GetFeatures() const { return m_objContactFeatures; }
