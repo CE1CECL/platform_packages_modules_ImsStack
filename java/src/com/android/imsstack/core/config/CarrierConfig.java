@@ -438,6 +438,10 @@ public class CarrierConfig {
                 "hide_mac_address_in_pani_header_bool";
         public static final String KEY_SUPPORT_COUNTRY_PARAM_IN_PANI_HEADER_BOOL =
                 "support_country_param_in_pani_header_bool";
+        public static final String KEY_SUPPORT_ECBM_FOR_VOLTE_BOOL =
+                "support_ecbm_for_volte_bool";
+        public static final String KEY_SUPPORT_ECBM_FOR_VOWIFI_BOOL =
+                "support_ecbm_for_vowifi_bool";
         // Aos
         public static final String KEY_USE_SECURITY_SERVER_PORT_IN_REG_CONTACT_OF_INITIAL_REGISTRATION_BOOL =
                 "use_security_server_port_in_reg_contact_of_initial_registration_bool";

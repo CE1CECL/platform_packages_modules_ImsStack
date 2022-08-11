@@ -64,7 +64,8 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
     public void init() {
         log("init");
 
-        if (MtcECallStateTracker.isFeatureSupported(mContext.getSlotId())) {
+        if (MtcECallStateTracker.isEcbmSupportedForVolte(mContext.getSlotId())
+                || MtcECallStateTracker.isEcbmSupportedForVowifi(mContext.getSlotId())) {
             mECallStateTracker = new MtcECallStateTracker(mContext, this);
         }
 
