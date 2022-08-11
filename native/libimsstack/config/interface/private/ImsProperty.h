@@ -90,9 +90,10 @@ public:
     // Key string of Registry property
     static const IMS_CHAR* PKEY_STRING[PKEY_MAX];
 
-    // Type of StreamMedia : Audio, Video
+    // Type of StreamMedia : Audio, Video, Text
     static const IMS_CHAR STREAM_MEDIA_TYPE_AUDIO[];
     static const IMS_CHAR STREAM_MEDIA_TYPE_VIDEO[];
+    static const IMS_CHAR STREAM_MEDIA_TYPE_TEXT[];
 
 protected:
     IMS_SINT32 m_nKey;

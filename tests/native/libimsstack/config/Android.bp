@@ -37,6 +37,20 @@ cc_defaults {
     ],
 }
 
+cc_library_static {
+    name:"libimsstack-test-config",
+    defaults: [
+        "imsstack_native_test_config_defaults",
+    ],
+    srcs: [
+        "common/TestAppConfig.cpp",
+    ],
+    local_include_dirs: [
+        "interface",
+        "interface/common",
+    ],
+}
+
 cc_test {
     name: "ImsStackNativeConfigTests",
     defaults: [
@@ -44,6 +58,16 @@ cc_test {
     ],
     srcs: [
         "**/*.cpp",
+    ],
+    exclude_srcs: [
+        "common/TestAppConfig.cpp",
+    ],
+    local_include_dirs: [
+        "interface",
+        "interface/common",
+    ],
+    static_libs: [
+        "libimsstack-test-config",
     ],
 
     test_config: "ImsStackNativeConfigTests.xml",

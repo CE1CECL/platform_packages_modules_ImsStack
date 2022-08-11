@@ -146,7 +146,7 @@ void CallerCapability::Clear()
 
 PUBLIC
 IMS_BOOL CallerCapability::Create(IN const AppConfig* pAppConfig,
-        IN const CoreServiceConfig* pServiceConfig, IN const ISipConfigV* piSipConfigV)
+        IN const ICoreServiceConfig* piServiceConfig, IN const ISipConfigV* piSipConfigV)
 {
     if (pAppConfig == IMS_NULL)
     {
@@ -163,17 +163,17 @@ IMS_BOOL CallerCapability::Create(IN const AppConfig* pAppConfig,
 
     // CoreService property
     // Check the core service and add a feature first for IARI / ICSI / Feature-Tags
-    if (pServiceConfig != IMS_NULL)
+    if (piServiceConfig != IMS_NULL)
     {
         // IARI : "+g.3gpp.iari-ref"
-        if (pServiceConfig->IsIariSupported())
+        if (piServiceConfig->IsIariSupported())
         {
-            AddFeature(Feature::OTHER_G_3GPP_IARI_REF, pServiceConfig->GetIari().GetName());
+            AddFeature(Feature::OTHER_G_3GPP_IARI_REF, piServiceConfig->GetIari().GetName());
         }
 
         // ICSIs : "+g.3gpp.icsi-ref"
         IMS_UINT32 j = 0;
-        const IMSList<ServiceIdentifier>& objIcsis = pServiceConfig->GetIcsis();
+        const IMSList<ServiceIdentifier>& objIcsis = piServiceConfig->GetIcsis();
 
         if (!objIcsis.IsEmpty())
         {
@@ -186,7 +186,7 @@ IMS_BOOL CallerCapability::Create(IN const AppConfig* pAppConfig,
         }
 
         // Feature tags
-        const IMSList<ServiceIdentifier>& objFeatureTags = pServiceConfig->GetFeatureTags();
+        const IMSList<ServiceIdentifier>& objFeatureTags = piServiceConfig->GetFeatureTags();
 
         if (!objFeatureTags.IsEmpty())
         {
@@ -213,10 +213,9 @@ IMS_BOOL CallerCapability::Create(IN const AppConfig* pAppConfig,
     // StreamMedia property
     if (pAppConfig->IsStreamMediaSupported())
     {
-        if ((!pAppConfig->IsStreamMediaVideoSupported() &&
-                    !pAppConfig->IsStreamMediaAudioSupported()) ||
-                (pAppConfig->IsStreamMediaVideoSupported() &&
-                        pAppConfig->IsStreamMediaAudioSupported()))
+        if (!pAppConfig->IsStreamMediaAudioSupported() &&
+                !pAppConfig->IsStreamMediaVideoSupported() &&
+                !pAppConfig->IsStreamMediaTextSupported())
         {
             if ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_AUDIO) != 0)
             {
@@ -227,16 +226,31 @@ IMS_BOOL CallerCapability::Create(IN const AppConfig* pAppConfig,
             {
                 AddFeature(Feature::BASE_TAG[Feature::BASE_VIDEO]);
             }
+
+            if ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_TEXT) != 0)
+            {
+                AddFeature(Feature::BASE_TAG[Feature::BASE_TEXT]);
+            }
         }
-        else if (pAppConfig->IsStreamMediaVideoSupported() &&
-                ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_VIDEO) != 0))
+        else
         {
-            AddFeature(Feature::BASE_TAG[Feature::BASE_VIDEO]);
-        }
-        else if (pAppConfig->IsStreamMediaAudioSupported() &&
-                ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_AUDIO) != 0))
-        {
-            AddFeature(Feature::BASE_TAG[Feature::BASE_AUDIO]);
+            if (pAppConfig->IsStreamMediaAudioSupported() &&
+                    ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_AUDIO) != 0))
+            {
+                AddFeature(Feature::BASE_TAG[Feature::BASE_AUDIO]);
+            }
+
+            if (pAppConfig->IsStreamMediaVideoSupported() &&
+                    ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_VIDEO) != 0))
+            {
+                AddFeature(Feature::BASE_TAG[Feature::BASE_VIDEO]);
+            }
+
+            if (pAppConfig->IsStreamMediaTextSupported() &&
+                    ((nFeatureTags & ISipConfigV::FEATURE_TAG_MEDIA_STREAM_TEXT) != 0))
+            {
+                AddFeature(Feature::BASE_TAG[Feature::BASE_TEXT]);
+            }
         }
     }
 

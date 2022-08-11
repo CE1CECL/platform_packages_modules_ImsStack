@@ -24,6 +24,7 @@ __IMS_TRACE_TAG_CONF__;
 
 PUBLIC GLOBAL const IMS_CHAR ImsProperty::STREAM_MEDIA_TYPE_AUDIO[] = "Audio";
 PUBLIC GLOBAL const IMS_CHAR ImsProperty::STREAM_MEDIA_TYPE_VIDEO[] = "Video";
+PUBLIC GLOBAL const IMS_CHAR ImsProperty::STREAM_MEDIA_TYPE_TEXT[] = "Text";
 
 PUBLIC GLOBAL const IMS_CHAR* ImsProperty::PKEY_STRING[ImsProperty::PKEY_MAX] = {
         "",

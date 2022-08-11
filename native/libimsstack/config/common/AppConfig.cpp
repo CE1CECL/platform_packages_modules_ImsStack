@@ -68,6 +68,7 @@ private:
     IMS_BOOL m_bStreamMediaSupported;
     IMS_BOOL m_bStreamAudioSupported;
     IMS_BOOL m_bStreamVideoSupported;
+    IMS_BOOL m_bStreamTextSupported;
 
     // FramedMedia property
     IMS_BOOL m_bFramedMediaSupported;
@@ -101,6 +102,7 @@ AppConfigPrivate::AppConfigPrivate(IN const AString& strAppId) :
         m_bStreamMediaSupported(IMS_FALSE),
         m_bStreamAudioSupported(IMS_FALSE),
         m_bStreamVideoSupported(IMS_FALSE),
+        m_bStreamTextSupported(IMS_FALSE),
         m_bFramedMediaSupported(IMS_FALSE),
         m_bFramedMediaTransferMaxSize(IMS_FALSE),
         m_nFramedMediaTransferMaxSize(0),
@@ -276,6 +278,10 @@ PUBLIC GLOBAL IMS_BOOL AppConfigPrivate::AddStreamMediaProperty(
         else if (strValue.EqualsIgnoreCase(ImsProperty::STREAM_MEDIA_TYPE_VIDEO))
         {
             pConfigPrivate->m_bStreamVideoSupported = IMS_TRUE;
+        }
+        else if (strValue.EqualsIgnoreCase(ImsProperty::STREAM_MEDIA_TYPE_TEXT))
+        {
+            pConfigPrivate->m_bStreamTextSupported = IMS_TRUE;
         }
         else
         {
@@ -650,7 +656,8 @@ PUBLIC VIRTUAL ImsRegistry* AppConfig::ToRegistry() const
     ImsRegistry* pRegistry = new ImsRegistry();
 
     // Stream media property
-    if (IsStreamMediaAudioSupported() || IsStreamMediaVideoSupported())
+    if (IsStreamMediaAudioSupported() || IsStreamMediaVideoSupported() ||
+            IsStreamMediaTextSupported())
     {
         AStringArray objValues;
 
@@ -661,6 +668,10 @@ PUBLIC VIRTUAL ImsRegistry* AppConfig::ToRegistry() const
         if (IsStreamMediaVideoSupported())
         {
             objValues.AddElement(ImsProperty::STREAM_MEDIA_TYPE_VIDEO);
+        }
+        if (IsStreamMediaTextSupported())
+        {
+            objValues.AddElement(ImsProperty::STREAM_MEDIA_TYPE_TEXT);
         }
 
         objProperty.AddElement(ImsProperty::PKEY_STRING[ImsProperty::PKEY_STREAM]);
@@ -904,6 +915,12 @@ PUBLIC
 IMS_BOOL AppConfig::IsStreamMediaVideoSupported() const
 {
     return m_pConfigPrivate->m_bStreamVideoSupported;
+}
+
+PUBLIC
+IMS_BOOL AppConfig::IsStreamMediaTextSupported() const
+{
+    return m_pConfigPrivate->m_bStreamTextSupported;
 }
 
 PUBLIC

@@ -370,17 +370,21 @@ PUBLIC GLOBAL IMS_BOOL RegistryLoader::ValidateUniqueness(
 PUBLIC GLOBAL IMS_BOOL ImsRegistryLoader::GetRegistry(
         IN const AString& strAppId, OUT ImsRegistry& objRegistry)
 {
-    IConfigBuffer* piBuffer = IMS_NULL;
     const AString strContent = StaticConfig::GetConfig(strAppId);
 
-    if (strContent.GetLength() != 0)
+    if (strContent.GetLength() == 0)
     {
-        piBuffer = ConfigLoader::GetConfig(strContent);
+        IMS_TRACE_D("No matched static configurtion(%s)", strAppId.GetStr(), 0, 0);
+        return IMS_FALSE;
     }
-    else
-    {
-        IMS_TRACE_D("No matched static configurtion: fallback to legacy is failed.", 0, 0, 0);
-    }
+
+    return GetRegistryFromContent(strAppId, strContent, objRegistry);
+}
+
+PUBLIC GLOBAL IMS_BOOL ImsRegistryLoader::GetRegistryFromContent(
+        IN const AString& strAppId, IN const AString& strContent, OUT ImsRegistry& objRegistry)
+{
+    IConfigBuffer* piBuffer = ConfigLoader::GetConfig(strContent);
 
     if (piBuffer == IMS_NULL)
     {
