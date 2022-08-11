@@ -134,7 +134,6 @@ void MtcCallController::Detach(IN CallKey nCallKey)
 {
     IMtcCall* piMtcCall = m_objCallManager.GetCallByCallKey(nCallKey);
     piMtcCall->Detach();
-    m_objCallManager.RemoveCall(nCallKey);
 }
 
 PUBLIC

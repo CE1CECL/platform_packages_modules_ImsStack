@@ -103,6 +103,7 @@ public class CallReasonInfo implements Parcelable {
     public static final int CODE_EARLYDIALOG_FORKED_TERMINATED_INTERNALONLY = 1001;
     public static final int CODE_RETRY_AFTER_INTERNALONLY = 1002;
     public static final int CODE_REJECT_ONGOING_CALL_UPDATE = 1003;
+    public static final int CODE_LOCAL_VCC_ON_PROGRESSING = 1004;
 
     // CODE_LOCAL_CALL_CS_RETRY_REQUIRED
     public static final int EXTRA_CODE_CALL_RETRY_NORMAL = 0;

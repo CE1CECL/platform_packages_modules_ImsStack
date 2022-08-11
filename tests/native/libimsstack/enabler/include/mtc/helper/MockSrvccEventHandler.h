@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_I_SRVCC_STATE_LISTENER
-#define MOCK_I_SRVCC_STATE_LISTENER
+#ifndef MOCK_SRVCC_EVENT_HANDLER_
+#define MOCK_SRVCC_EVENT_HANDLER_
 
 #include <gmock/gmock.h>
 #include "ImsTypeDef.h"
 #include "helper/SrvccEventHandler.h"
 
+class IMtcContext;
+
 class MockSrvccEventHandler : public SrvccEventHandler
 {
 public:
-    virtual ~MockSrvccEventHandler() {}
+    explicit MockSrvccEventHandler(IN IMtcContext& objContext) :
+            SrvccEventHandler(objContext)
+    {
+    }
+    ~MockSrvccEventHandler() {}
     MOCK_METHOD(void, AddListener, (IN ISrvccStateListener*), (override));
     MOCK_METHOD(void, RemoveListener, (IN ISrvccStateListener*), (override));
     MOCK_METHOD(void, UpdateSrvccState, (IN SrvccState), (override));

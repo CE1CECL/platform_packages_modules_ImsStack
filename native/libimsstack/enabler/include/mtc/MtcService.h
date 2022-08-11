@@ -17,7 +17,6 @@
 #ifndef MTC_SERVICE_H_
 #define MTC_SERVICE_H_
 
-#include <memory>
 #include "AString.h"
 #include "ICoreService.h"
 #include "ICoreServiceListener.h"
@@ -28,13 +27,13 @@
 #include "IMtcContext.h"
 #include "IMtcService.h"
 #include "MtcRoutingRejectHandler.h"
-#include "helper/SrvccEventHandler.h"
-#include "helper/MtcAosEventHandler.h"
 #include "helper/MtcAosConnector.h"
 
 class JniMtcService;
 class JniMtcServiceThread;
 class IMtcAosConnector;
+class MtcAosEventHandler;
+class SrvccEventHandler;
 
 class MtcService :
         public ImsService,
@@ -71,16 +70,16 @@ public:
     void OpenEmergencyService() override;
 
     // ICoreServiceListener implementation
-    void CoreService_PageMessageReceived(
-            IN ICoreService* piService, IN IPageMessage* piMessage) override;
-    void CoreService_ReferenceReceived(
-            IN ICoreService* piService, IN IReference* piReference) override;
+    inline void CoreService_PageMessageReceived(
+            IN ICoreService*, IN IPageMessage*) override {}
+    inline void CoreService_ReferenceReceived(
+            IN ICoreService*, IN IReference*) override {};
     void CoreService_ServiceClosed(
             IN ICoreService* piService, IN IReasonInfo* piReasonInfo) override;
     void CoreService_SessionInvitationReceived(
             IN ICoreService* piService, IN ISession* piSession) override;
-    void CoreService_UnsolicitedNotifyReceived(
-            IN ICoreService* piService, IN IMessage* piNotify) override;
+    inline void CoreService_UnsolicitedNotifyReceived(
+            IN ICoreService*, IN IMessage*) override {};
     void CoreService_CapabilityQueryReceived(
             IN ICoreService* piService, IN ICapabilities* piCapabilities) override;
 
@@ -103,17 +102,17 @@ private:
     void SetServiceFilterCriteria();
     void SetAosReady(IN IMS_BOOL);
 
-private:
+protected:
     ServiceType m_eType;
     IMtcContext& m_objContext;
     AString m_strServiceName;
     ServiceStatus m_eStatus;
     ICoreService* m_piCoreService;
     MtcAosConnector* m_pAosConnector;
-    MtcAosEventHandler m_objAosEventHandler;
-    SrvccEventHandler m_objSrvccEventHandler;
+    MtcAosEventHandler* m_pAosEventHandler;
+    SrvccEventHandler* m_pSrvccEventHandler;
     JniMtcService* m_pJniService;
-    std::unique_ptr<MtcRoutingRejectHandler> m_pRoutingRejectHandler;
+    MtcRoutingRejectHandler* m_pRoutingRejectHandler;
     IMS_BOOL m_bTerminalBasedCallWaitingEnabled;
 };
 

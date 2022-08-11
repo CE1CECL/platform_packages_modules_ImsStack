@@ -40,6 +40,7 @@
 #include "helper/MtcAosConnector.h"
 #include "helper/MtcCapabilityQueryHandler.h"
 #include "helper/SrvccEventHandler.h"
+#include "helper/MtcAosEventHandler.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
@@ -52,10 +53,10 @@ MtcService::MtcService(IN IMtcContext& objContext, IN ServiceType eType) :
         m_eStatus(ServiceStatus::SERVICE_IDLE),
         m_piCoreService(IMS_NULL),
         m_pAosConnector(IMS_NULL),
-        m_objAosEventHandler(MtcAosEventHandler(*this, objContext.GetConfigurationProxy())),
-        m_objSrvccEventHandler(SrvccEventHandler(objContext)),
+        m_pAosEventHandler(IMS_NULL),
+        m_pSrvccEventHandler(IMS_NULL),
         m_pJniService(IMS_NULL),
-        m_pRoutingRejectHandler(nullptr),
+        m_pRoutingRejectHandler(IMS_NULL),
         m_bTerminalBasedCallWaitingEnabled(IMS_TRUE/*m_objContext.GetConfigurationProxy().Is(
                 Feature::TERMINAL_BASED_CALL_WAIT_DEFAULT_ENABLED)*/)
 {
@@ -89,7 +90,6 @@ PUBLIC VIRTUAL MtcService::~MtcService()
 
     SetAosReady(IMS_FALSE);
     delete m_pAosConnector;
-    m_pAosConnector = IMS_NULL;
 
     IImsAos* piImsAos = ImsAos::GetImsAos(ImsServiceConfig::GetAppName(ImsAppId::MTC),
             m_strServiceName, m_objContext.GetSlotId());
@@ -98,22 +98,26 @@ PUBLIC VIRTUAL MtcService::~MtcService()
         piImsAos->SetListener(IMS_NULL);
     }
 
+    delete m_pAosEventHandler;
+    delete m_pSrvccEventHandler;
+
     if (m_pRoutingRejectHandler)
     {
         ISipRoutingRejectNotifier* piRoutingRejectNotifier =
                 SipFactory::GetRoutingRejectNotifier(m_objContext.GetSlotId());
-        piRoutingRejectNotifier->RemoveListener(m_pRoutingRejectHandler.get());
+        piRoutingRejectNotifier->RemoveListener(m_pRoutingRejectHandler);
+        delete m_pRoutingRejectHandler;
     }
 }
 
 PUBLIC VIRTUAL void MtcService::AddSrvccStateListener(IN ISrvccStateListener* piListener)
 {
-    m_objSrvccEventHandler.AddListener(piListener);
+    m_pSrvccEventHandler->AddListener(piListener);
 }
 
 PUBLIC VIRTUAL void MtcService::RemoveSrvccStateListener(IN ISrvccStateListener* piListener)
 {
-    m_objSrvccEventHandler.RemoveListener(piListener);
+    m_pSrvccEventHandler->RemoveListener(piListener);
 }
 
 PUBLIC VIRTUAL IMS_BOOL MtcService::IsWlanIpCanType() const
@@ -129,7 +133,8 @@ PUBLIC VIRTUAL IMS_BOOL MtcService::IsWlanIpCanType() const
 PUBLIC VIRTUAL void MtcService::UpdateSrvccState(IN SrvccState eState)
 {
     IMS_TRACE_I("UpdateSrvccState", 0, 0, 0);
-    m_objSrvccEventHandler.UpdateSrvccState(eState);
+    m_pSrvccEventHandler->UpdateSrvccState(eState);
+    m_pAosEventHandler->SetOnSrvcc(eState == SrvccState::STARTED);
 }
 
 PUBLIC VIRTUAL void MtcService::SetJniService(IN JniMtcService* pJniService)
@@ -159,14 +164,7 @@ PUBLIC VIRTUAL void MtcService::SetTerminalBasedCallWaiting(
             _TRACE_B_(bProvisioned), _TRACE_B_(bEnabled), 0);
     if (bProvisioned)
     {
-        if (bEnabled)
-        {
-            m_bTerminalBasedCallWaitingEnabled = IMS_TRUE;
-        }
-        else
-        {
-            m_bTerminalBasedCallWaitingEnabled = IMS_FALSE;
-        }
+        m_bTerminalBasedCallWaitingEnabled = bEnabled;
     }
 }
 
@@ -175,19 +173,10 @@ PUBLIC VIRTUAL void MtcService::OpenEmergencyService()
     m_objContext.GetEmergencyServiceManager()->OpenEmergencyService();
 }
 
-PUBLIC VIRTUAL void MtcService::CoreService_PageMessageReceived(
-        IN ICoreService* /*piService*/, IN IPageMessage* /*piMessage*/)
-{
-}
-
-PUBLIC VIRTUAL void MtcService::CoreService_ReferenceReceived(
-        IN ICoreService* /*piService*/, IN IReference* /*piReference*/)
-{
-}
-
 PUBLIC VIRTUAL void MtcService::CoreService_ServiceClosed(
         IN ICoreService* /*piService*/, IN IReasonInfo* /*piReasonInfo*/)
 {
+    IMS_TRACE_I("CoreService_ServiceClosed", 0, 0, 0);
 }
 
 PUBLIC VIRTUAL void MtcService::CoreService_SessionInvitationReceived(
@@ -206,11 +195,6 @@ PUBLIC VIRTUAL void MtcService::CoreService_SessionInvitationReceived(
     m_objContext.GetCallController().HandleIncoming(this, piSession, m_pJniService->GetThread());
 }
 
-PUBLIC VIRTUAL void MtcService::CoreService_UnsolicitedNotifyReceived(
-        IN ICoreService* /*piService*/, IN IMessage* /*piNotify*/)
-{
-}
-
 PUBLIC VIRTUAL void MtcService::CoreService_CapabilityQueryReceived(
         IN ICoreService* piService, IN ICapabilities* piCapabilities)
 {
@@ -223,7 +207,7 @@ PUBLIC VIRTUAL void MtcService::CoreService_CapabilityQueryReceived(
 PUBLIC VIRTUAL void MtcService::ImsAos_Connected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan)
 {
     m_eStatus = ServiceStatus::SERVICE_ACTIVE;
-    m_objAosEventHandler.OnConnected(nFeatures, nIpcan,
+    m_pAosEventHandler->OnConnected(nFeatures, nIpcan,
             m_pJniService ? m_pJniService->GetThread() : IMS_NULL,
             m_objContext.GetEmergencyServiceManager(), m_objContext.GetCallController());
     SetAosReady(IMS_TRUE);
@@ -233,13 +217,13 @@ PUBLIC VIRTUAL void MtcService::ImsAos_Connecting() {}
 
 PUBLIC VIRTUAL void MtcService::ImsAos_Disconnecting(IN IMS_UINT32 nReason)
 {
-    m_objAosEventHandler.OnDisconnecting(nReason, m_objContext.GetCallController());
+    m_pAosEventHandler->OnDisconnecting(nReason, m_objContext.GetCallController());
 }
 
 PUBLIC VIRTUAL void MtcService::ImsAos_Disconnected(IN IMS_UINT32 nReason)
 {
     m_eStatus = ServiceStatus::SERVICE_IDLE;
-    m_objAosEventHandler.OnDisconnected(nReason, m_objContext.GetCallController(),
+    m_pAosEventHandler->OnDisconnected(nReason, m_objContext.GetCallController(),
             m_pJniService ? m_pJniService->GetThread() : IMS_NULL,
             m_objContext.GetEmergencyServiceManager());
 }
@@ -247,24 +231,24 @@ PUBLIC VIRTUAL void MtcService::ImsAos_Disconnected(IN IMS_UINT32 nReason)
 PUBLIC VIRTUAL void MtcService::ImsAos_Suspended(IN IMS_UINT32 nReason)
 {
     m_eStatus = ServiceStatus::SERVICE_SUSPENDED;
-    m_objAosEventHandler.OnSuspended(nReason, m_objContext.GetCallController());
+    m_pAosEventHandler->OnSuspended(nReason, m_objContext.GetCallController());
 }
 
 PUBLIC VIRTUAL void MtcService::ImsAos_Resumed()
 {
     m_eStatus = ServiceStatus::SERVICE_ACTIVE;
-    m_objAosEventHandler.OnResumed();
+    m_pAosEventHandler->OnResumed();
 }
 
 PUBLIC VIRTUAL void MtcService::ImsAosMonitor_Connected(
         IN IMS_UINT32 nServices, IN IMS_UINT32 nIpcan)
 {
-    m_objAosEventHandler.OnServiceConnected(nServices, nIpcan);
+    m_pAosEventHandler->OnServiceConnected(nServices, nIpcan);
 }
 
 PUBLIC VIRTUAL void MtcService::ImsAosMonitor_Notify(IN IMS_UINT32 nType, IN IMS_UINT32 nState)
 {
-    m_objAosEventHandler.OnEventNotify(nType, nState);
+    m_pAosEventHandler->OnEventNotify(nType, nState);
 }
 
 PRIVATE
@@ -279,17 +263,21 @@ void MtcService::Init()
                 ->GetMtcServiceConnector(m_objContext.GetSlotId())
                 ->SetEnablerService(this);
     }
+
+    m_pAosEventHandler = new MtcAosEventHandler(*this, m_objContext.GetConfigurationProxy());
+    m_pSrvccEventHandler = new SrvccEventHandler(m_objContext);
+
     AttachCoreServiceInterface();
     AttachAosInterface();
 
     if (m_objContext.GetConfigurationProxy().Is(Feature::
             USE_CARRIER_SPECIFIC_REJECT_PHRASE_FOR_INCOMING_CALL_DURING_NO_REGISTRATION))
     {
-        m_pRoutingRejectHandler = std::make_unique<MtcRoutingRejectHandler>(m_objContext);
+        m_pRoutingRejectHandler = new MtcRoutingRejectHandler(m_objContext);
 
         ISipRoutingRejectNotifier* piRoutingRejectNotifier =
                 SipFactory::GetRoutingRejectNotifier(m_objContext.GetSlotId());
-        piRoutingRejectNotifier->AddListener(m_pRoutingRejectHandler.get());
+        piRoutingRejectNotifier->AddListener(m_pRoutingRejectHandler);
     }
 }
 

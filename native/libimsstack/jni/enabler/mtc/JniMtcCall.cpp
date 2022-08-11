@@ -49,7 +49,7 @@ JniMtcCall::~JniMtcCall()
 {
     IMS_TRACE_D("~JniMtcCall", 0, 0, 0);
 
-    // m_objCallController.Detach(m_nCallKey);
+    m_objCallController.Detach(m_nCallKey);
 
     if (m_pThread != IMS_NULL)
     {

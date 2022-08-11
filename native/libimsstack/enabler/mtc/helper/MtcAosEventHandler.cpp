@@ -34,7 +34,8 @@ MtcAosEventHandler::MtcAosEventHandler(
         IN IMtcService& objService, IN MtcConfigurationProxy& objConfiguration) :
         m_objService(objService),
         m_objConfiguration(objConfiguration),
-        m_nIpcan(IIpcan::CATEGORY_MOBILE)
+        m_nIpcan(IIpcan::CATEGORY_MOBILE),
+        m_bOnSrvcc(IMS_FALSE)
 {
     IMS_TRACE_I("+MtcAosEventHandler", 0, 0, 0);
 }
@@ -95,7 +96,8 @@ void MtcAosEventHandler::OnDisconnecting(
     if (m_objConfiguration.Is(
                 Feature::REGISTRATION_DISCONNECT_REASON_TO_TERMINATE_ONGOING_CALL, nReason))
     {
-        objCallController.TerminateCalls(KeyType::SERVICE_TYPE, nKey, nReason);
+        const CallReasonInfo objReason(GetCallReasonByAosReason(nReason));
+        objCallController.TerminateCalls(KeyType::SERVICE_TYPE, nKey, objReason);
     }
 }
 
@@ -107,12 +109,19 @@ void MtcAosEventHandler::OnDisconnected(IN IMS_UINT32 nReason,
     IMS_TRACE_I("OnDisconnected emergency[%s] nReason[%d]", _TRACE_B_(m_objService.IsEmergency()),
             nReason, 0);
 
+    if (m_bOnSrvcc)
+    {
+        IMS_TRACE_I("OnDisconnected during SRVCC process. Ignore Disconnection", 0, 0, 0);
+        return;
+    }
+
     Key nKey;
     nKey.eServiceType = m_objService.GetServiceType();
     if (m_objConfiguration.Is(
                 Feature::REGISTRATION_DISCONNECT_REASON_TO_TERMINATE_ONGOING_CALL, nReason))
     {
-        objCallController.TerminateCalls(KeyType::SERVICE_TYPE, nKey, nReason);
+        const CallReasonInfo objReason(GetCallReasonByAosReason(nReason));
+        objCallController.TerminateCalls(KeyType::SERVICE_TYPE, nKey, objReason);
     }
 
     if (m_objService.IsEmergency())
@@ -154,4 +163,34 @@ void MtcAosEventHandler::OnEventNotify(IN IMS_UINT32 nType, IN IMS_UINT32 nState
 {
     IMS_TRACE_I("OnEventNotify emergency[%s] nType[%d] nState[%d]",
             _TRACE_B_(m_objService.IsEmergency()), nType, nState);
+}
+
+PRIVATE
+IMS_SINT32 MtcAosEventHandler::GetCallReasonByAosReason(IN IMS_UINT32 nAosReason) const
+{
+    switch (nAosReason)
+    {
+        case ImsAosReason::OUT_OF_SERVICE:
+            return CODE_LOCAL_NETWORK_NO_SERVICE;
+        case ImsAosReason::POWER_OFF:
+            return CODE_LOCAL_POWER_OFF;
+        case ImsAosReason::NO_RAT_COVERAGE:
+            return CODE_LOCAL_NETWORK_NO_LTE_COVERAGE;
+        case ImsAosReason::SERVICE_POLICY:
+            return CODE_LOCAL_SERVICE_UNAVAILABLE;
+        case ImsAosReason::SERVICE_BLOCKED:
+            return CODE_LOCAL_SERVICE_UNAVAILABLE;
+        case ImsAosReason::DATA_DISCONNECTED:
+            return CODE_LOCAL_NETWORK_NO_SERVICE;
+        case ImsAosReason::REG_TERMINATED:
+            return CODE_LOCAL_NOT_REGISTERED;
+        case ImsAosReason::REG_NEW_REQUIRED:
+            return CODE_LOCAL_NOT_REGISTERED;
+        case ImsAosReason::SUSPEND_OUT_OF_SERVICE:
+            return CODE_LOCAL_NETWORK_NO_SERVICE;
+        case ImsAosReason::SUSPEND_NO_RAT_COVERAGE:
+            return CODE_LOCAL_NETWORK_NO_LTE_COVERAGE;
+        default:                               // NOT_SPECIFIED
+            return CODE_LOCAL_NOT_REGISTERED;  // optimize.
+    }
 }

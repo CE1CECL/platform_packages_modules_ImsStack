@@ -21,14 +21,12 @@
 #include "configuration/MockIMtcConfigurationManager.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockISrvccStateListener.h"
-//#include "helper/MockSrvccEventHandler.h"
-//#include "MtcEmergencyServiceManager.h"
+#include "helper/MockMtcAosEventHandler.h"
+#include "helper/MockSrvccEventHandler.h"
 #include "ImsAosParameter.h"
 #include "IIpcan.h"
 #include "call/MockIMtcCallManager.h"
 #include "call/MtcCallController.h"
-#include "IMtcCallController.h"
-#include "AoSReason.h"
 #include "MockMtcEmergencyServiceManager.h"
 #include "core/MockICoreService.h"
 #include "core/MockIReference.h"
@@ -36,14 +34,43 @@
 #include "core/MockIMessage.h"
 #include "core/IPageMessage.h"
 #include "service/IReasonInfo.h"
+#include "../../interface/mtc/MockIMtcCallController.h"
 
 LOCAL IMS_SINT32 SLOT_ID = 0;
 
+using ::testing::_;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
 namespace android
 {
+
+class TestMtcService : public MtcService
+{
+public:
+    inline TestMtcService(IN IMtcContext& objContext, IN ServiceType eType) :
+            MtcService(objContext, eType)
+    {
+    }
+
+    inline void ReplaceAosConnector(IN MtcAosConnector* pAosConnector)
+    {
+        delete m_pAosConnector;
+        m_pAosConnector = pAosConnector;
+    }
+
+    inline void ReplaceAosEventHandler(IN MtcAosEventHandler* pAosEventHandler)
+    {
+        delete m_pAosEventHandler;
+        m_pAosEventHandler = pAosEventHandler;
+    }
+
+    inline void ReplaceSrvccEventHandler(IN SrvccEventHandler* pSrvccEventHandler)
+    {
+        delete m_pSrvccEventHandler;
+        m_pSrvccEventHandler = pSrvccEventHandler;
+    }
+};
 
 LOCAL IMS_UINTP FAKE_ADDRESS = 1;
 
@@ -51,12 +78,14 @@ class MtcServiceTest : public ::testing::Test
 {
 public:
     MockIMtcContext objMockContext;
-    MockIMtcConfigurationManager objMockConfigurationManager;
+    MockIMtcConfigurationManager* pMockConfigurationManager;
     MtcConfigurationProxy* pConfigurationProxy;
     MockMtcEmergencyServiceManager* pMockEmergencyManager;
     MockIMtcCallManager objMockCallManager;
+    MockIMtcCallController objMockCallController;
     MockICoreService objMockCoreService;
-    IMtcCallController* pCallController;
+    MockMtcAosEventHandler* pMockAosEventHandler;
+    MockSrvccEventHandler* pMockSrvccEventHandler;
 
     MtcService* pNormalMtcService;
     MtcService* pEmergencyMtcService;
@@ -64,7 +93,8 @@ public:
 protected:
     virtual void SetUp() override
     {
-        pConfigurationProxy = new MtcConfigurationProxy(&objMockConfigurationManager);
+        pMockConfigurationManager = new MockIMtcConfigurationManager();
+        pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
         ON_CALL(objMockContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
 
@@ -74,11 +104,12 @@ protected:
         ON_CALL(objMockContext, GetEmergencyServiceManager)
                 .WillByDefault(Return(pMockEmergencyManager));
 
-        ON_CALL(objMockContext, GetCallManager).WillByDefault(ReturnRef(objMockCallManager));
-        pCallController = new MtcCallController(objMockContext);
-        ON_CALL(objMockContext, GetCallController).WillByDefault(ReturnRef(*pCallController));
+        ON_CALL(objMockContext, GetCallManager)
+                .WillByDefault(ReturnRef(objMockCallManager));
+        ON_CALL(objMockContext, GetCallController)
+                .WillByDefault(ReturnRef(objMockCallController));
 
-        pNormalMtcService = new MtcService(objMockContext, ServiceType::NORMAL);
+        pNormalMtcService = CreateMtcService(ServiceType::NORMAL);
         pEmergencyMtcService = new MtcService(objMockContext, ServiceType::EMERGENCY);
     }
 
@@ -87,11 +118,29 @@ protected:
         delete pMockEmergencyManager;
         delete pNormalMtcService;
         delete pEmergencyMtcService;
+        delete pConfigurationProxy;
+    }
+
+    MtcService* CreateMtcService(IN ServiceType eType)
+    {
+        TestMtcService* pService = new TestMtcService(objMockContext, eType);
+
+        //pService->ReplaceAosConnector();
+
+        pMockAosEventHandler = new MockMtcAosEventHandler(*pService, *pConfigurationProxy);
+        pService->ReplaceAosEventHandler(pMockAosEventHandler);
+
+        pMockSrvccEventHandler = new MockSrvccEventHandler(objMockContext);
+        pService->ReplaceSrvccEventHandler(pMockSrvccEventHandler);
+        return pService;
     }
 };
 
 TEST_F(MtcServiceTest, NoCrashOnSetJniServiceWithNull)
 {
+    EXPECT_CALL(*pMockEmergencyManager, SetJniServiceThread(IMS_NULL))
+            .Times(1);
+
     pNormalMtcService->SetJniService(IMS_NULL);
 }
 
@@ -105,9 +154,17 @@ TEST_F(MtcServiceTest, AddSrvccStateListenerThenBeingNotified)
     MockISrvccStateListener* pSrvccListener = new MockISrvccStateListener();
     pNormalMtcService->AddSrvccStateListener(pSrvccListener);
 
-    EXPECT_CALL(*pSrvccListener, OnStateUpdated(SrvccState::STARTED)).Times(1);
+    EXPECT_CALL(*pSrvccListener, OnStateUpdated(SrvccState::STARTED))
+            .Times(1);
+    EXPECT_CALL(*pSrvccListener, OnStateUpdated(SrvccState::SUCCEEDED))
+            .Times(1);
+    EXPECT_CALL(*pMockAosEventHandler, SetOnSrvcc(IMS_TRUE))
+            .Times(1);
+    EXPECT_CALL(*pMockAosEventHandler, SetOnSrvcc(IMS_FALSE))
+            .Times(1);
 
     pNormalMtcService->UpdateSrvccState(SrvccState::STARTED);
+    pNormalMtcService->UpdateSrvccState(SrvccState::SUCCEEDED);
 }
 
 TEST_F(MtcServiceTest, RemoveSrvccStateListenerThenNotBeingNotified)
@@ -134,35 +191,56 @@ TEST_F(MtcServiceTest, IsActiveReturnsFalseAfterAosConnecting)
 
 TEST_F(MtcServiceTest, IsActiveReturnsTrueAfterAosConnected)
 {
-    pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
+    IMS_UINT32 nFeature = ImsAosFeature::MMTEL;
+    IMS_UINT32 nIpcan = IIpcan::CATEGORY_MOBILE;
+    EXPECT_CALL(*pMockAosEventHandler, OnConnected(
+            nFeature, nIpcan, IMS_NULL, pMockEmergencyManager, _))
+            .Times(1);
+
+    pNormalMtcService->ImsAos_Connected(nFeature, nIpcan);
     EXPECT_EQ(pNormalMtcService->IsActive(), IMS_TRUE);
 }
 
 TEST_F(MtcServiceTest, IsActiveReturnsTrueAfterAosDisconnecting)
 {
+    IMS_UINT32 nReason = ImsAosReason::NONE;
+    EXPECT_CALL(*pMockAosEventHandler, OnDisconnecting(nReason, _))
+            .Times(1);
+
     pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
-    pNormalMtcService->ImsAos_Disconnecting(AoSReason::NONE);
+    pNormalMtcService->ImsAos_Disconnecting(nReason);
     EXPECT_EQ(pNormalMtcService->IsActive(), IMS_TRUE);
 }
 
 TEST_F(MtcServiceTest, IsActiveReturnsFalseAfterAosDisconnected)
 {
+    IMS_UINT32 nReason = ImsAosReason::NONE;
+    EXPECT_CALL(*pMockAosEventHandler, OnDisconnected(nReason, _, IMS_NULL, pMockEmergencyManager))
+            .Times(1);
+
     pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
-    pNormalMtcService->ImsAos_Disconnected(AoSReason::NONE);
+    pNormalMtcService->ImsAos_Disconnected(nReason);
     EXPECT_EQ(pNormalMtcService->IsActive(), IMS_FALSE);
 }
 
 TEST_F(MtcServiceTest, IsActiveReturnsFalseAfterAosSuspended)
 {
+    IMS_UINT32 nReason = ImsAosReason::NONE;
+    EXPECT_CALL(*pMockAosEventHandler, OnSuspended(nReason, _))
+            .Times(1);
+
     pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
-    pNormalMtcService->ImsAos_Suspended(AoSReason::NONE);
+    pNormalMtcService->ImsAos_Suspended(nReason);
     EXPECT_EQ(pNormalMtcService->IsActive(), IMS_FALSE);
 }
 
 TEST_F(MtcServiceTest, IsActiveReturnsTrueAfterAosResumed)
 {
+    EXPECT_CALL(*pMockAosEventHandler, OnResumed)
+            .Times(1);
+
     pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
-    pNormalMtcService->ImsAos_Suspended(AoSReason::NONE);
+    pNormalMtcService->ImsAos_Suspended(ImsAosReason::NONE);
     pNormalMtcService->ImsAos_Resumed();
     EXPECT_EQ(pNormalMtcService->IsActive(), IMS_TRUE);
 }
@@ -201,14 +279,14 @@ TEST_F(MtcServiceTest, GetServiceStatusReturnsActiveAfterAosConnected)
 TEST_F(MtcServiceTest, GetServiceStatusReturnsSuspendedfterAosSuspended)
 {
     pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
-    pNormalMtcService->ImsAos_Suspended(AoSReason::NONE);
+    pNormalMtcService->ImsAos_Suspended(ImsAosReason::NONE);
     EXPECT_EQ(pNormalMtcService->GetServiceStatus(), ServiceStatus::SERVICE_SUSPENDED);
 }
 
 TEST_F(MtcServiceTest, GetServiceStatusReturnsIdleAfterAosDisconnected)
 {
     pNormalMtcService->ImsAos_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
-    pNormalMtcService->ImsAos_Disconnected(AoSReason::NONE);
+    pNormalMtcService->ImsAos_Disconnected(ImsAosReason::NONE);
     EXPECT_EQ(pNormalMtcService->GetServiceStatus(), ServiceStatus::SERVICE_IDLE);
 }
 
@@ -270,7 +348,6 @@ TEST_F(MtcServiceTest, CoreServiceReferenceReceivedDoesNothing)
 
 TEST_F(MtcServiceTest, CoreServiceServiceClosedDoesNothing)
 {
-    // TODO: do something just in case Aos doesn't notify.
     ServiceStatus eOldStatus = pNormalMtcService->GetServiceStatus();
     IReasonInfo* piReasonInfo = reinterpret_cast<IReasonInfo*>(FAKE_ADDRESS);
     pNormalMtcService->CoreService_ServiceClosed(&objMockCoreService, piReasonInfo);
@@ -279,10 +356,12 @@ TEST_F(MtcServiceTest, CoreServiceServiceClosedDoesNothing)
 
 TEST_F(MtcServiceTest, CoreServiceInvitationReceivedRejectCallByNoJniService)
 {
-    // TODO: after MockIMtcCallController merged.
-    // MockISession objMockSession;
-    // pNormalMtcService->CoreService_SessionInvitationReceived(&objMockCoreService,
-    // &objMockSession);
+    MockISession objMockSession;
+    EXPECT_CALL(objMockCallController, HandleIncoming(_, &objMockSession, IMS_NULL))
+            .Times(1);
+
+    pNormalMtcService->CoreService_SessionInvitationReceived(&objMockCoreService,
+            &objMockSession);
 }
 
 TEST_F(MtcServiceTest, CoreServiceCapabilityQueryReceivedCallsQueryHandler)
@@ -291,19 +370,27 @@ TEST_F(MtcServiceTest, CoreServiceCapabilityQueryReceivedCallsQueryHandler)
     // pNormalMtcService->CoreService_CapabilityQueryReceived(&objMockCoreService, );
 }
 
-TEST_F(MtcServiceTest, ImsAosMonitorConnectedDoesNothing)
+TEST_F(MtcServiceTest, ImsAosMonitorConnectedInvokesEventHandler)
 {
-    // TODO: mock MtcAosEventHandler and check calling the api which does nothing?
+    IMS_UINT32 nFeature = ImsAosFeature::MMTEL;
+    IMS_UINT32 nIpcan = IIpcan::CATEGORY_MOBILE;
+    EXPECT_CALL(*pMockAosEventHandler, OnServiceConnected(nFeature, nIpcan))
+            .Times(1);
+
     ServiceStatus eOldStatus = pNormalMtcService->GetServiceStatus();
-    pNormalMtcService->ImsAosMonitor_Connected(ImsAosFeature::MMTEL, IIpcan::CATEGORY_MOBILE);
+    pNormalMtcService->ImsAosMonitor_Connected(nFeature, nIpcan);
     EXPECT_EQ(pNormalMtcService->GetServiceStatus(), eOldStatus);
 }
 
-TEST_F(MtcServiceTest, ImsAosMonitorNotifyDoesNothing)
+TEST_F(MtcServiceTest, ImsAosMonitorNotifyInvokesEventHandler)
 {
-    // TODO: mock MtcAosEventHandler and check calling the api which does nothing?
+    IMS_UINT32 nType = IImsAosMonitor::TYPE_IPCAN;
+    IMS_UINT32 nState = IIpcan::CATEGORY_WLAN;
+    EXPECT_CALL(*pMockAosEventHandler, OnEventNotify(nType, nState))
+            .Times(1);
+
     ServiceStatus eOldStatus = pNormalMtcService->GetServiceStatus();
-    pNormalMtcService->ImsAosMonitor_Connected(IImsAosMonitor::TYPE_IPCAN, IIpcan::CATEGORY_WLAN);
+    pNormalMtcService->ImsAosMonitor_Notify(nType, nState);
     EXPECT_EQ(pNormalMtcService->GetServiceStatus(), eOldStatus);
 }
 

@@ -22,7 +22,6 @@
 #include "MockICarrierConfig.h"
 #include "configuration/ConfigDef.h"
 #include "ImsAosReason.h"
-#include "AoSReason.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -1059,8 +1058,8 @@ TEST_F(MtcConfigurationManagerTest,
         IsRegistrationDisconnectReasonToTerminateOngoingCallReturnsValueInCarrierConfig)
 {
     IMSVector<IMS_SINT32> objArray;
-    objArray.Push(AoSReason::POWER_OFF);
-    objArray.Push(AoSReason::SRV_OUT);
+    objArray.Push(ImsAosReason::POWER_OFF);
+    objArray.Push(ImsAosReason::OUT_OF_SERVICE);
 
     MockICarrierConfig* piMockCarrierConfig = new MockICarrierConfig();
     ON_CALL(*piMockCarrierConfig,
@@ -1070,17 +1069,18 @@ TEST_F(MtcConfigurationManagerTest,
 
     pManager->UpdateFullConfig(piMockCarrierConfig);
 
-    EXPECT_FALSE(
-            pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(AoSReason::BAD_BATTERY));
-    EXPECT_TRUE(
-            pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(AoSReason::POWER_OFF));
     EXPECT_FALSE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
-            AoSReason::DATA_DISCONNECTED));
+            ImsAosReason::NONE));
+    EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
+            ImsAosReason::POWER_OFF));
     EXPECT_FALSE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
-            AoSReason::NO_LTE_COVERAGE));
-    EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(AoSReason::SRV_OUT));
+            ImsAosReason::DATA_DISCONNECTED));
     EXPECT_FALSE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
-            AoSReason::REG_TERMINATED_EXPIRE));
+            ImsAosReason::NO_RAT_COVERAGE));
+    EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
+            ImsAosReason::OUT_OF_SERVICE));
+    EXPECT_FALSE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
+            ImsAosReason::REG_TERMINATED));
 }
 
 TEST_F(MtcConfigurationManagerTest,
@@ -1097,17 +1097,16 @@ TEST_F(MtcConfigurationManagerTest,
 
     pManager->UpdateFullConfig(piMockCarrierConfig);
 
-    EXPECT_TRUE(
-            pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(AoSReason::BAD_BATTERY));
-    EXPECT_TRUE(
-            pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(AoSReason::POWER_OFF));
     EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
-            AoSReason::DATA_DISCONNECTED));
+            ImsAosReason::POWER_OFF));
     EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
-            AoSReason::NO_LTE_COVERAGE));
-    EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(AoSReason::SRV_OUT));
+            ImsAosReason::DATA_DISCONNECTED));
     EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
-            AoSReason::REG_TERMINATED_EXPIRE));
+            ImsAosReason::NO_RAT_COVERAGE));
+    EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
+            ImsAosReason::OUT_OF_SERVICE));
+    EXPECT_TRUE(pManager->IsRegistrationDisconnectReasonToTerminateOngoingCall(
+            ImsAosReason::REG_TERMINATED));
 }
 
 TEST_F(MtcConfigurationManagerTest, GetWifiEmergency18xTimerReturnsValueInCarrierConfig)

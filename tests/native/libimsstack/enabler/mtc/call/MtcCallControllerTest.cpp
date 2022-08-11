@@ -318,21 +318,6 @@ TEST_F(MtcCallControllerTest, DetachDetachesTargetCall)
     delete pCall;
 }
 
-TEST_F(MtcCallControllerTest, DetachRemovesTargetCall)
-{
-    CallKey nCallKey = 1;
-    MockIMtcCall* pCall = CreateMockIMtcCall(nCallKey);
-
-    ON_CALL(objCallManager, GetCallByCallKey(nCallKey))
-            .WillByDefault(Return(pCall));
-    EXPECT_CALL(objCallManager, RemoveCall(nCallKey))
-            .Times(1);
-
-    pCallController->Detach(nCallKey);
-
-    delete pCall;
-}
-
 TEST_F(MtcCallControllerTest, HandleIncomingCreatesCall)
 {
     ServiceType eServiceType = ServiceType::NORMAL;

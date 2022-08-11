@@ -15,6 +15,7 @@
  */
 
 #include <gtest/gtest.h>
+#include "CallReasonInfo.h"
 #include "MockIMtcService.h"
 #include "MediaDef.h"
 #include "SipStatusCode.h"
@@ -169,4 +170,31 @@ TEST_F(MtcSessionTest, SendProvisionalResponseSends183NotReliablyWithSdp)
             .Times(1);
 
     pMtcSession->SendProvisionalResponse(IMS_FALSE);
+}
+
+TEST_F(MtcSessionTest, TerminateWithReasonVccDoesnsInvokeTerminate)
+{
+    const CallReasonInfo objReason(CODE_LOCAL_VCC_ON_PROGRESSING);
+    EXPECT_CALL(*pMessageSender, Terminate(_, _))
+            .Times(0);
+
+    pMtcSession->Terminate(IMS_TRUE, objReason);
+}
+
+TEST_F(MtcSessionTest, TerminateWithReasonUserTerminatedInvokesTerminate)
+{
+    const CallReasonInfo objReason(CODE_USER_TERMINATED);
+    EXPECT_CALL(*pMessageSender, Terminate(IMS_TRUE, objReason))
+            .Times(1);
+
+    pMtcSession->Terminate(IMS_TRUE, objReason);
+}
+
+TEST_F(MtcSessionTest, SecondTerminateReturnsFailure)
+{
+    const CallReasonInfo objReason(CODE_USER_TERMINATED);
+    //ON_CALL(*pMessageSender, Terminate(_, _)).WillByDefault(Return(IMS_SUCCESS));
+
+    EXPECT_EQ(IMS_SUCCESS, pMtcSession->Terminate(IMS_TRUE, objReason));
+    EXPECT_EQ(IMS_FAILURE, pMtcSession->Terminate(IMS_TRUE, objReason));
 }

@@ -18,72 +18,7 @@
 #define CALL_REASON_INFO_H_
 
 #include "AString.h"
-#include "IMSTypeDef.h"
-
-struct CallReasonInfo
-{
-public:
-    CallReasonInfo(IN IMS_SINT32 _nCode, IN IMS_SINT32 _nExtraCode, IN AString _strExtraMessage) :
-            nCode(_nCode),
-            nExtraCode(_nExtraCode),
-            strExtraMessage(_strExtraMessage)
-    {
-    }
-
-    CallReasonInfo(IN IMS_SINT32 _nCode, IN IMS_SINT32 _nExtraCode) :
-            CallReasonInfo(_nCode, _nExtraCode, AString::ConstNull())
-    {
-    }
-
-    CallReasonInfo(IN IMS_SINT32 _nCode) :
-            CallReasonInfo(_nCode, -1)
-    {
-    }
-
-    CallReasonInfo(IN const CallReasonInfo& objRhs) :
-            nCode(objRhs.nCode),
-            nExtraCode(objRhs.nExtraCode),
-            strExtraMessage(objRhs.strExtraMessage)
-    {
-    }
-
-    CallReasonInfo& operator=(const CallReasonInfo& objRhs)
-    {
-        if (this != &objRhs)
-        {
-            nCode = objRhs.nCode;
-            nExtraCode = objRhs.nExtraCode;
-            strExtraMessage = objRhs.strExtraMessage;
-        }
-
-        return *this;
-    }
-
-    IMS_BOOL operator==(const CallReasonInfo& objRhs) const
-    {
-        if (this == &objRhs)
-        {
-            return IMS_TRUE;
-        }
-
-        return nCode == objRhs.nCode && nExtraCode == objRhs.nExtraCode &&
-                strExtraMessage.Equals(objRhs.strExtraMessage);
-    }
-
-    IMS_BOOL operator!=(const CallReasonInfo& objRhs) const { return !(*this == objRhs); }
-
-    AString ToString() const
-    {
-        AString strOut;
-        strOut.Sprintf("Code[%d] Extra[%d][%s]", nCode, nExtraCode, strExtraMessage.GetStr());
-
-        return strOut;
-    }
-
-    IMS_SINT32 nCode;
-    IMS_SINT32 nExtraCode;
-    AString strExtraMessage;
-};
+#include "ImsTypeDef.h"
 
 enum
 {
@@ -166,6 +101,7 @@ enum
     CODE_EARLYDIALOG_FORKED_TERMINATED_INTERNALONLY = 1001,
     CODE_RETRY_AFTER_INTERNALONLY = 1002,
     CODE_REJECT_ONGOING_CALL_UPDATE = 1003,
+    CODE_LOCAL_VCC_ON_PROGRESSING = 1004,  // TODO: check the purpose.
 };
 
 // CODE_LOCAL_CALL_CS_RETRY_REQUIRED
@@ -205,6 +141,85 @@ enum
     EXTRA_CODE_NOT_ACCEPTABLE_SIP_406 = 1,
     EXTRA_CODE_NOT_ACCEPTABLE_SIP_488 = 2,
     EXTRA_CODE_NOT_ACCEPTABLE_SIP_606 = 3,
+};
+
+struct CallReasonInfo
+{
+public:
+    CallReasonInfo(IN IMS_SINT32 _nCode, IN IMS_SINT32 _nExtraCode, IN AString _strExtraMessage) :
+            nCode(_nCode),
+            nExtraCode(_nExtraCode),
+            strExtraMessage(_strExtraMessage)
+    {
+    }
+
+    CallReasonInfo(IN IMS_SINT32 _nCode, IN IMS_SINT32 _nExtraCode) :
+            CallReasonInfo(_nCode, _nExtraCode, AString::ConstNull())
+    {
+    }
+
+    CallReasonInfo(IN IMS_SINT32 _nCode) :
+            CallReasonInfo(_nCode, -1)
+    {
+    }
+
+    CallReasonInfo(IN const CallReasonInfo& objRhs) :
+            nCode(objRhs.nCode),
+            nExtraCode(objRhs.nExtraCode),
+            strExtraMessage(objRhs.strExtraMessage)
+    {
+    }
+
+    CallReasonInfo& operator=(const CallReasonInfo& objRhs)
+    {
+        if (this != &objRhs)
+        {
+            nCode = objRhs.nCode;
+            nExtraCode = objRhs.nExtraCode;
+            strExtraMessage = objRhs.strExtraMessage;
+        }
+
+        return *this;
+    }
+
+    IMS_BOOL operator==(const CallReasonInfo& objRhs) const
+    {
+        if (this == &objRhs)
+        {
+            return IMS_TRUE;
+        }
+
+        return nCode == objRhs.nCode && nExtraCode == objRhs.nExtraCode &&
+                strExtraMessage.Equals(objRhs.strExtraMessage);
+    }
+
+    inline static IMS_BOOL IsTerminateRequired(IN IMS_SINT32 nCode)
+    {
+        switch (nCode)
+        {
+            case CODE_LOCAL_NOT_REGISTERED:
+            case CODE_LOCAL_NETWORK_NO_SERVICE:
+            case CODE_LOCAL_NETWORK_NO_LTE_COVERAGE:
+            case CODE_LOCAL_VCC_ON_PROGRESSING:
+                return IMS_FALSE;
+            default:
+                return IMS_TRUE;
+        }
+    }
+
+    IMS_BOOL operator!=(const CallReasonInfo& objRhs) const { return !(*this == objRhs); }
+
+    AString ToString() const
+    {
+        AString strOut;
+        strOut.Sprintf("Code[%d] Extra[%d][%s]", nCode, nExtraCode, strExtraMessage.GetStr());
+
+        return strOut;
+    }
+
+    IMS_SINT32 nCode;
+    IMS_SINT32 nExtraCode;
+    AString strExtraMessage;
 };
 
 #define _TRACE_CR_(I) (I.ToString().GetStr())

@@ -20,6 +20,8 @@
 #include "helper/ISrvccStateListener.h"
 #include "ImsList.h"
 #include "IMtcContext.h"
+#include "IMtcCallController.h"
+#include "CallReasonInfo.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
@@ -42,7 +44,13 @@ SrvccEventHandler::~SrvccEventHandler()
 PUBLIC
 void SrvccEventHandler::AddListener(IN ISrvccStateListener* piListener)
 {
-    // no duplication check.
+    for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); i++)
+    {
+        if (m_objListeners.GetAt(i) == piListener)
+        {
+            return;
+        }
+    }
     m_objListeners.Append(piListener);
 }
 
@@ -86,12 +94,15 @@ void SrvccEventHandler::NotifyListeners()
 PRIVATE
 void SrvccEventHandler::HandleCalls()
 {
+    Key nKey;  // For all types.
     switch (m_eState)
     {
         case SrvccState::SUCCEEDED:
-            m_objContext.GetCallController();  // avoid build error.
-            // m_objContext.GetCallController().RemoveCalls(KeyType::NONE, Key::...);
+        {
+            const CallReasonInfo objReason(CODE_LOCAL_VCC_ON_PROGRESSING);
+            m_objContext.GetCallController().TerminateCalls(KeyType::NONE, nKey, objReason);
             return;
+        }
         case SrvccState::CANCELED:
             // m_objContext.GetCallController().UpdateCalls(Reason SrvccCanceled...);
             return;

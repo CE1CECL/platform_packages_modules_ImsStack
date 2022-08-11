@@ -17,7 +17,8 @@
 #ifndef MTC_AOS_EVENT_HANDLER_H
 #define MTC_AOS_EVENT_HANDLER_H
 
-#include "IMSTypeDef.h"
+#include "ImsTypeDef.h"
+#include "ImsAosReason.h"
 
 class IMessage;
 class AString;
@@ -32,28 +33,33 @@ class MtcAosEventHandler
 public:
     explicit MtcAosEventHandler(
             IN IMtcService& objService, IN MtcConfigurationProxy& objConfiguration);
-    ~MtcAosEventHandler();
+    virtual ~MtcAosEventHandler();
     MtcAosEventHandler(IN const MtcAosEventHandler&) = delete;
     MtcAosEventHandler& operator=(IN const MtcAosEventHandler&) = delete;
 
-    void OnConnected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan,
+    virtual void OnConnected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan,
             IN JniMtcServiceThread* pServiceThread,
             IN MtcEmergencyServiceManager* pEmergencyServiceManager,
             IN IMtcCallController& objCallController);
-    void OnDisconnecting(IN IMS_UINT32 nReason, IN IMtcCallController& objCallController);
-    void OnDisconnected(IN IMS_UINT32 nReason, IN IMtcCallController& objCallController,
+    virtual void OnDisconnecting(IN IMS_UINT32 nReason, IN IMtcCallController& objCallController);
+    virtual void OnDisconnected(IN IMS_UINT32 nReason, IN IMtcCallController& objCallController,
             IN JniMtcServiceThread* pServiceThread,
             IN MtcEmergencyServiceManager* pEmergencyServiceManager);
-    void OnSuspended(IN IMS_UINT32 nReason, IN IMtcCallController& objCallController);
-    void OnResumed();
+    virtual void OnSuspended(IN IMS_UINT32 nReason, IN IMtcCallController& objCallController);
+    virtual void OnResumed();
 
-    void OnServiceConnected(IN IMS_UINT32 nServices, IN IMS_UINT32 nIpcan);
-    void OnEventNotify(IN IMS_UINT32 nType, IN IMS_UINT32 nState);
+    virtual void OnServiceConnected(IN IMS_UINT32 nServices, IN IMS_UINT32 nIpcan);
+    virtual void OnEventNotify(IN IMS_UINT32 nType, IN IMS_UINT32 nState);
+
+    inline virtual void SetOnSrvcc(IN IMS_BOOL bOnSrvcc) { m_bOnSrvcc = bOnSrvcc; }
 
 private:
+    IMS_SINT32 GetCallReasonByAosReason(IN IMS_UINT32 nAosReason) const;
+
     IMtcService& m_objService;
     MtcConfigurationProxy& m_objConfiguration;
     IMS_UINT32 m_nIpcan;
+    IMS_BOOL m_bOnSrvcc;
 };
 
 #endif

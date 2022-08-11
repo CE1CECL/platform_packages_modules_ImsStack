@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CallReasonInfo.h"
 #include "IMessage.h"
 #include "ImsAosParameter.h"
 #include "ISession.h"
@@ -256,11 +257,14 @@ PUBLIC VIRTUAL IMS_RESULT MtcSession::Terminate(
     {
         return IMS_FAILURE;
     }
-
     m_bTerminated = IMS_TRUE;
 
-    m_objExtensionSet.FormatRequest(RequestType::TERMINATE, *m_objSession.GetNextRequest());
-    return m_pMessageSender->Terminate(bUseBye, objReason);
+    if (CallReasonInfo::IsTerminateRequired(objReason.nCode))
+    {
+        m_objExtensionSet.FormatRequest(RequestType::TERMINATE, *m_objSession.GetNextRequest());
+        return m_pMessageSender->Terminate(bUseBye, objReason);
+    }
+    return IMS_SUCCESS;
 }
 
 PUBLIC VIRTUAL void MtcSession::HandleRequest(IN RequestType eType, IN const IMessage& objRequest)
