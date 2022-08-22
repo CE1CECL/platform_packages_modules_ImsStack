@@ -26,7 +26,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.concurrent.Executor;
 
-public class ImsServiceRecord {
+public final class ImsServiceRecord {
     public static interface Listener {
         public void onServiceRecordStateChanged();
     };
