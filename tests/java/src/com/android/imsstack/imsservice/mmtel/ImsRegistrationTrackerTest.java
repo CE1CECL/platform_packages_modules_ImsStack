@@ -16,14 +16,23 @@
 
 package com.android.imsstack.imsservice.mmtel;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Looper;
+import android.os.Message;
 import android.telephony.DataFailCause;
+import android.telephony.ims.ImsMmTelManager;
+import android.telephony.ims.ProvisioningManager;
 import android.telephony.ims.feature.CapabilityChangeRequest.CapabilityPair;
 import android.telephony.ims.feature.ImsFeature;
 import android.telephony.ims.feature.MmTelFeature;
 import android.util.ArraySet;
 
+import com.android.imsstack.core.ICommonPackageListener;
+import com.android.imsstack.core.agents.ConfigInterface;
+import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
+import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.enabler.IContext;
 import com.android.imsstack.enabler.aos.IAosRegistration;
@@ -34,6 +43,8 @@ import com.android.imsstack.imsservice.mmtel.base.IMmTelFeatureCapabilityListene
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,6 +61,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
@@ -60,17 +72,35 @@ public class ImsRegistrationTrackerTest {
     private IAosRegistrationListener mAosRegListener = null;
     private MockIAosRegistration mAosReg;
 
+    @Mock CarrierConfig mMockCarrierConfig;
+    @Mock ConfigInterface mMockConfigInterface;
+    @Mock IDcNetWatcher mMockIDcNetWatcher;
     @Mock IBaseContext mMockBaseContext;
     @Mock IContext mMockContext;
     @Mock ImsRegistrationTracker.CapabilityUpdateListener mMockCapabilityListener;
     @Mock IMmTelFeatureCapabilityListener mMockFeatureCapabilityListener;
+    @Mock Context mContext;
+    @Mock Executor mExecutor;
+    @Mock SharedPreferences mSp;
+    @Mock SharedPreferences.Editor mSpEditor;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         when(mMockContext.getSlotId()).thenReturn(0);
+        when(mMockContext.getPhoneId()).thenReturn(0);
+        when(mMockContext.getContext()).thenReturn(mContext);
+        when(mMockContext.getDefaultLooper()).thenReturn(Looper.getMainLooper());
         when(mMockBaseContext.getDefaultLooper()).thenReturn(Looper.getMainLooper());
+        when(mMockConfigInterface.getCarrierConfig()).thenReturn(mMockCarrierConfig);
+        when(mContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mSp);
+        when(mSp.edit()).thenReturn(mSpEditor);
+        when(mMockCarrierConfig.getBoolean(eq(CarrierConfig.Assets
+                .KEY_SUPPORT_VOWIFI_CAPABILITY_WHEN_WIFI_ONLY_OR_PREFERRED_IN_ROAMING_BOOL)))
+                .thenReturn(true);
+
+        when(mMockIDcNetWatcher.isVoiceRoaming()).thenReturn(false);
 
         mFeatureManager = new ImsFeatureManager(mMockBaseContext, mMockFeatureCapabilityListener);
         mAosReg = new MockIAosRegistration();
@@ -331,16 +361,88 @@ public class ImsRegistrationTrackerTest {
         mRegTracker.changeCapabilities(new ArrayList<>(), disableCapabilities);
         assertEquals(null, mRegTracker.createCapabilityPairsFromCapabilities());
 
+    }
+
+    @Test
+    public void testchangeCapabilities_VoWifiBasedOnMode() {
+        ImsServiceManager.setDefault(new ImsServiceManager(mContext, mExecutor));
+
+        when(mMockIDcNetWatcher.isVoiceRoaming()).thenReturn(true);
+
         List<CapabilityPair> enableCapabilities = new ArrayList<>();
+        enableCapabilities.add(new CapabilityPair(
+                MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE,
+                ImsRegistrationImpl.REGISTRATION_TECH_IWLAN));
+
+        CapabilityPairs capabilityPairs = new CapabilityPairs(
+                IAosRegistrationListener.NetworkType.IWLAN,
+                IAosRegistrationListener.Capability.VOICE);
+
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_ROAMING_ENABLED_OVERRIDE"), anyInt()))
+                .thenReturn(ProvisioningManager.PROVISIONING_VALUE_DISABLED);
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_MODE_OVERRIDE"), anyInt()))
+                .thenReturn(ImsMmTelManager.WIFI_MODE_WIFI_PREFERRED);
+
+        mRegTracker.changeCapabilities(enableCapabilities, new ArrayList<>());
+        assertEquals(capabilityPairs, mRegTracker.createCapabilityPairsFromCapabilities());
+
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_ROAMING_ENABLED_OVERRIDE"), anyInt()))
+                .thenReturn(ProvisioningManager.PROVISIONING_VALUE_DISABLED);
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_MODE_OVERRIDE"), anyInt()))
+                .thenReturn(ImsMmTelManager.WIFI_MODE_CELLULAR_PREFERRED);
+
+        mRegTracker.changeCapabilities(enableCapabilities, new ArrayList<>());
+        assertEquals(new CapabilityPairs(), mRegTracker.createCapabilityPairsFromCapabilities());
+
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_ROAMING_ENABLED_OVERRIDE"), anyInt()))
+                .thenReturn(ProvisioningManager.PROVISIONING_VALUE_ENABLED);
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_MODE_OVERRIDE"), anyInt()))
+                .thenReturn(ImsMmTelManager.WIFI_MODE_CELLULAR_PREFERRED);
+
+        mRegTracker.changeCapabilities(enableCapabilities, new ArrayList<>());
+        assertEquals(capabilityPairs, mRegTracker.createCapabilityPairsFromCapabilities());
+
+        when(mMockIDcNetWatcher.isVoiceRoaming()).thenReturn(false);
+        mRegTracker.changeCapabilities(enableCapabilities, new ArrayList<>());
+        assertEquals(capabilityPairs, mRegTracker.createCapabilityPairsFromCapabilities());
+    }
+
+    @Test
+    public void testcreateCapabilities_OnRoaming() {
+        ImsServiceManager.setDefault(new ImsServiceManager(mContext, mExecutor));
+
+        when(mMockIDcNetWatcher.isVoiceRoaming()).thenReturn(false);
+
+        List<CapabilityPair> enableCapabilities = new ArrayList<>();
+        enableCapabilities.add(new CapabilityPair(
+                MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE,
+                ImsRegistrationImpl.REGISTRATION_TECH_IWLAN));
         enableCapabilities.add(new CapabilityPair(
                 MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE,
                 ImsRegistrationImpl.REGISTRATION_TECH_LTE));
 
-        mRegTracker.changeCapabilities(enableCapabilities, disableCapabilities);
-
         CapabilityPairs capabilityPairs = new CapabilityPairs(
                 IAosRegistrationListener.NetworkType.LTE,
                 IAosRegistrationListener.Capability.VOICE);
+
+        capabilityPairs.addCapability(IAosRegistrationListener.NetworkType.IWLAN,
+                IAosRegistrationListener.Capability.VOICE);
+
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_ROAMING_ENABLED_OVERRIDE"), anyInt()))
+                .thenReturn(ProvisioningManager.PROVISIONING_VALUE_DISABLED);
+        when(mSp.getInt(eq("VOICE_OVER_WIFI_MODE_OVERRIDE"), anyInt()))
+                .thenReturn(ImsMmTelManager.WIFI_MODE_CELLULAR_PREFERRED);
+
+        mRegTracker.changeCapabilities(enableCapabilities, new ArrayList<>());
+        assertEquals(capabilityPairs, mRegTracker.createCapabilityPairsFromCapabilities());
+
+        when(mMockIDcNetWatcher.isVoiceRoaming()).thenReturn(true);
+        capabilityPairs = new CapabilityPairs(IAosRegistrationListener.NetworkType.LTE,
+                IAosRegistrationListener.Capability.VOICE);
+
+        int eventVoiceRoaming = 1;
+        mRegTracker.getMessageHandler().handleMessage(
+                Message.obtain(mRegTracker.getMessageHandler(), eventVoiceRoaming));
         assertEquals(capabilityPairs, mRegTracker.createCapabilityPairsFromCapabilities());
     }
 
@@ -352,6 +454,9 @@ public class ImsRegistrationTrackerTest {
                 ImsRegistrationImpl.REGISTRATION_TECH_LTE));
         enableCapabilities.add(new CapabilityPair(
                 MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_SMS,
+                ImsRegistrationImpl.REGISTRATION_TECH_IWLAN));
+        enableCapabilities.add(new CapabilityPair(
+                MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE,
                 ImsRegistrationImpl.REGISTRATION_TECH_IWLAN));
         enableCapabilities.add(new CapabilityPair(
                 MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VIDEO,
@@ -376,6 +481,7 @@ public class ImsRegistrationTrackerTest {
                 IAosRegistrationListener.Capability.VOICE);
         capabilityPairs.addCapability(IAosRegistrationListener.NetworkType.IWLAN,
                 IAosRegistrationListener.Capability.SMS
+                | IAosRegistrationListener.Capability.VOICE
                 | IAosRegistrationListener.Capability.VIDEO);
         capabilityPairs.addCapability(IAosRegistrationListener.NetworkType.NR,
                 IAosRegistrationListener.Capability.VIDEO);
@@ -476,6 +582,26 @@ public class ImsRegistrationTrackerTest {
         assertTrue(lock.await(1, TimeUnit.SECONDS));
     }
 
+    @Test
+    public void testOnCommonPackageReady() {
+        ICommonPackageListener listener = mRegTracker.getICommonPackageListener();
+        assertNotNull(listener);
+
+        listener.onCommonPackageReady(0);
+        verify(mMockIDcNetWatcher).registerForVoiceRoamingStateChanged(
+                mRegTracker.getMessageHandler(), 1, null);
+    }
+
+    @Test
+    public void testOnCommonPackageStop() {
+        ICommonPackageListener listener = mRegTracker.getICommonPackageListener();
+        assertNotNull(listener);
+
+        listener.onCommonPackageStop(0);
+        verify(mMockIDcNetWatcher).unregisterForVoiceRoamingStateChanged(
+                mRegTracker.getMessageHandler());
+    }
+
     private class FakeImsRegistrationTracker extends ImsRegistrationTracker {
         FakeImsRegistrationTracker(IContext context, ImsRegistrationImpl regImpl) {
             super(context, regImpl);
@@ -484,6 +610,16 @@ public class ImsRegistrationTrackerTest {
         @Override
         protected IAosRegistration getIAosRegistration(int slotId) {
             return mAosReg;
+        }
+
+        @Override
+        protected ConfigInterface getConfigInterface(int slotId) {
+            return mMockConfigInterface;
+        }
+
+        @Override
+        protected IDcNetWatcher getDcNetWatcher(int slotId) {
+            return mMockIDcNetWatcher;
         }
     }
 }
