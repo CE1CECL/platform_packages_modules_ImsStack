@@ -353,6 +353,10 @@ PUBLIC VIRTUAL void AosRegistration::RequestCmd(
             ProcessIpcanChanged();
             break;
 
+        case CMD_UPDATE_IPCAN:
+            ProcessUpdateIpcan();
+            break;
+
         case CMD_SCSCF_RESTORATION:
             ProcessScscfRestoration();
             break;
@@ -2579,6 +2583,21 @@ PROTECTED VIRTUAL void AosRegistration::ProcessIpcanChanged()
     else
     {
         Update();
+    }
+}
+
+PROTECTED VIRTUAL void AosRegistration::ProcessUpdateIpcan()
+{
+    A_IMS_TRACE_I(REGID, "ProcessUpdateIpcan()", 0, 0, 0);
+
+    IMS_BOOL bCurrBlocked = !((m_piContext->GetConnection()->IsEpdgEnabled())
+                    ? m_piContext->GetBlock()->IsCleared(SERVICE_WIFI)
+                    : m_piContext->GetBlock()->IsCleared(SERVICE_CELLULAR));
+
+    if (IsBlocked() != bCurrBlocked)
+    {
+        SetBlocked(bCurrBlocked);
+        UpdateTransactionStarted();
     }
 }
 
@@ -4956,11 +4975,6 @@ PROTECTED VIRTUAL void AosRegistration::StopKeepAlive()
 PROTECTED VIRTUAL void AosRegistration::Block_Changed(
         IN IMS_UINT32 /* nType  = 0 */, IN IMS_UINT32 /* nParam  = 0 */)
 {
-    if (!IsAppReady())
-    {
-        return;
-    }
-
     IMS_BOOL bCurrBlocked = !((m_piContext->GetConnection()->IsEpdgEnabled())
                     ? m_piContext->GetBlock()->IsCleared(SERVICE_WIFI)
                     : m_piContext->GetBlock()->IsCleared(SERVICE_CELLULAR));

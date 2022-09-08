@@ -239,6 +239,7 @@ protected:
     virtual void ProcessSetIpsec(IN IMS_UINT32 nReason);
     virtual void ProcessRefreshRegInfo();
     virtual void ProcessIpcanChanged();
+    virtual void ProcessUpdateIpcan();
     virtual void ProcessScscfRestoration();
     virtual void ProcessPendingTransaction();
     virtual void ProcessRetryInRegStopped(IN IMS_BOOL bIgnoreTimer = IMS_FALSE);

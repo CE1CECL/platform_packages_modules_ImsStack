@@ -653,6 +653,22 @@ TEST_F(AosRegistrationTest, RequestCmd)
     m_pTestAosRegistration->SetIRegContact(IMS_NULL);
 
     m_pTestAosRegistration->SetRegType(AosRegistrationType::NORMAL);
+
+    // CMD_UPDATE_IPCAN
+    EXPECT_CALL(m_objMockIAosConnection, IsEpdgEnabled())
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(IMS_FALSE));
+
+    EXPECT_CALL(m_objMockIAosBlock, IsCleared(_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(IMS_FALSE));
+
+    EXPECT_FALSE(m_pTestAosRegistration->IsBlocked());
+
+    m_pTestAosRegistration->RequestCmd(IAosRegistration::CMD_UPDATE_IPCAN);
+
+    EXPECT_TRUE(m_pTestAosRegistration->IsBlocked());
+    EXPECT_FALSE(m_pTestAosRegistration->IsTransactionStarted());
 }
 
 TEST_F(AosRegistrationTest, CheckMode)
@@ -735,7 +751,7 @@ TEST_F(AosRegistrationTest, BlockChanged)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    m_pTestAosRegistration->SetAppReady(IMS_TRUE);
+    m_pTestAosRegistration->SetAppReady(IMS_FALSE);
 
     EXPECT_FALSE(m_pTestAosRegistration->IsBlocked());
 

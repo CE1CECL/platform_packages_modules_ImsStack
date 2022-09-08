@@ -1122,6 +1122,8 @@ PROTECTED VIRTUAL IMS_BOOL AosApplication::PreprocessStateMessage_Connection(IN 
             UpdateMonitorNotify(IImsAosMonitor::TYPE_IPCAN,
                     (bEpdgEnabled) ? IIpcan::CATEGORY_WLAN : IIpcan::CATEGORY_MOBILE);
         }
+
+        m_piRegistration->RequestCmd(IAosRegistration::CMD_UPDATE_IPCAN);
     }
 
     return IMS_TRUE;
