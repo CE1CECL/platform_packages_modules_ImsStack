@@ -18,16 +18,17 @@ package com.android.imsstack.imsservice.mmtel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.telephony.ims.stub.ImsCallSessionImplBase;
 
+import com.android.imsstack.enabler.mtc.MtcApp;
 import com.android.imsstack.enabler.mtc.MtcCall;
 import com.android.imsstack.imsservice.mmtel.base.ICallContext;
 import com.android.imsstack.imsservice.mmtel.internal.ConferenceProxy;
+import com.android.imsstack.util.MessageExecutor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,11 +42,12 @@ import org.mockito.Mockito;
 public class ImsConferenceHelperTest {
     private static final String TAG = ImsConferenceHelper.class.getName();
 
-    @Mock private ICallContext mICallContext;
+    @Mock protected ICallContext mICallContext;
     @Mock private ImsCallApp mImsCallApp;
     @Mock private ImsCallManager mImsCallManager;
     @Mock private ImsCallSessionImpl mFgImsCallSession, mBgImsCallSession;
-    @Mock private MtcCall mFgMtcCall, mBgMtcCall;
+    @Mock private MtcCall mMtcCall, mFgMtcCall, mBgMtcCall;
+    @Mock private MtcApp mMtcApp;
 
     private ImsConferenceHelper mConfHelper;
     private String[] mParticipants = {"1234", "5678"};
@@ -60,6 +62,8 @@ public class ImsConferenceHelperTest {
         mBgImsCallSession = Mockito.mock(ImsCallSessionImpl.class);
         mFgMtcCall = Mockito.mock(MtcCall.class);
         mBgMtcCall = Mockito.mock(MtcCall.class);
+        mMtcApp = Mockito.mock(MtcApp.class);
+        mMtcCall = Mockito.mock(MtcCall.class);
     }
 
     @Test
@@ -90,41 +94,71 @@ public class ImsConferenceHelperTest {
 
     @Test
     public void test_extendToConference() {
+        MessageExecutor executor = new MessageExecutor(ImsConferenceHelper.class.getSimpleName());
+        when(mICallContext.getExecutor()).thenReturn(executor);
         when(mICallContext.getApp()).thenReturn(mImsCallApp);
         when(mImsCallApp.getCallManager()).thenReturn(mImsCallManager);
         when(mImsCallManager.getActiveSession()).thenReturn(mFgImsCallSession);
         when(mFgImsCallSession.getMtcCall()).thenReturn(mFgMtcCall);
+        when(mImsCallManager.getMtcApp()).thenReturn(mMtcApp);
+        when(mMtcApp.createCall(18)).thenReturn(mMtcCall);
 
-        assertEquals(false, mConfHelper.extendToConference(mICallContext, mParticipants));
+        assertEquals(true, mConfHelper.extendToConference(mICallContext, mParticipants));
         verify(mFgImsCallSession, Mockito.times(1)).setConferenceProxy(any(ConferenceProxy.class));
+
+        mMtcCall = null;
+        when(mMtcApp.createCall(18)).thenReturn(mMtcCall);
+        assertEquals(false, mConfHelper.extendToConference(mICallContext, mParticipants));
 
         mFgMtcCall = null;
         when(mFgImsCallSession.getMtcCall()).thenReturn(mFgMtcCall);
-        assertNull(mFgMtcCall);
+        assertEquals(false, mConfHelper.extendToConference(mICallContext, mParticipants));
 
         mFgImsCallSession = null;
         when(mImsCallManager.getActiveSession()).thenReturn(mFgImsCallSession);
-        assertNull(mFgImsCallSession);
+        assertEquals(false, mConfHelper.extendToConference(mICallContext, mParticipants));
     }
 
     @Test
     public void test_merge() {
+        MessageExecutor executor = new MessageExecutor(ImsConferenceHelper.class.getSimpleName());
+        when(mICallContext.getExecutor()).thenReturn(executor);
         when(mICallContext.getApp()).thenReturn(mImsCallApp);
         when(mImsCallApp.getCallManager()).thenReturn(mImsCallManager);
         when(mImsCallManager.getActiveSession()).thenReturn(mFgImsCallSession);
         when(mImsCallManager.getHoldSession()).thenReturn(mBgImsCallSession);
         when(mFgImsCallSession.getMtcCall()).thenReturn(mFgMtcCall);
         when(mBgImsCallSession.getMtcCall()).thenReturn(mBgMtcCall);
+        when(mImsCallManager.getMtcApp()).thenReturn(mMtcApp);
+        when(mMtcApp.createCall(18)).thenReturn(mMtcCall);
 
-        assertEquals(false, mConfHelper.merge(mICallContext));
+        assertEquals(true, mConfHelper.merge(mICallContext));
         verify(mBgImsCallSession, Mockito.times(1)).setConferenceProxy(any(ConferenceProxy.class));
+        verify(mFgImsCallSession, Mockito.times(1)).setConferenceProxy(any(ConferenceProxy.class));
+
+        mMtcCall = null;
+        when(mMtcApp.createCall(18)).thenReturn(mMtcCall);
+        assertEquals(false, mConfHelper.merge(mICallContext));
+
+        mFgMtcCall = null;
+        when(mFgImsCallSession.getMtcCall()).thenReturn(mFgMtcCall);
+        assertEquals(false, mConfHelper.merge(mICallContext));
+
+        mBgMtcCall = null;
+        when(mBgImsCallSession.getMtcCall()).thenReturn(mBgMtcCall);
+        assertEquals(false, mConfHelper.merge(mICallContext));
+
+        mFgImsCallSession = null;
+        when(mImsCallManager.getActiveSession()).thenReturn(mFgImsCallSession);
+        assertEquals(false, mConfHelper.merge(mICallContext));
+
+        mBgImsCallSession = null;
+        when(mImsCallManager.getHoldSession()).thenReturn(mBgImsCallSession);
+        assertEquals(false, mConfHelper.merge(mICallContext));
     }
 
     @After
     public void tearDown() {
         mConfHelper = null;
-        mICallContext = null;
-        mImsCallApp = null;
-        mImsCallManager = null;
     }
 }

@@ -17,26 +17,23 @@
 package com.android.imsstack.imsservice.mmtel.base;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 
 import android.telephony.ims.ImsCallProfile;
-import android.util.Log;
 
 import com.android.imsstack.*;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.*;
-import org.junit.runners.JUnit4;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class ImsAppTest {
     private ImsApp mImsApp;
-    public static final String TAG = "ImsAppTest";
+
+    private int mPhoneId = 0;
 
     @Before
     public void setUp() throws Exception {
@@ -45,12 +42,14 @@ public class ImsAppTest {
     }
 
     @Test
-    public void testIsConnected(){
-        Log.d(TAG, " Unit Test");
+    public void test_getPhoneId() {
+        assertEquals(mPhoneId, mImsApp.getPhoneId());
+    }
+
+    @Test
+    public void test_isConnected() {
         assertEquals(false, mImsApp.isConnected(ImsCallProfile.SERVICE_TYPE_NORMAL,
             ImsCallProfile.CALL_TYPE_VOICE));
-        assertNotEquals(true, mImsApp.isConnected(ImsCallProfile.SERVICE_TYPE_NONE,
-            ImsCallProfile.CALL_TYPE_VT));
     }
 
     @After

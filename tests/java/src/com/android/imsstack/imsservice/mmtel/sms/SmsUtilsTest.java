@@ -37,6 +37,7 @@ public class SmsUtilsTest {
     public void test_getFormatString() {
         assertEquals("3gpp", mSmsUtils.getFormatString(mSmsUtils.FORMAT_INT_3GPP));
         assertEquals("3gpp2", mSmsUtils.getFormatString(mSmsUtils.FORMAT_INT_3GPP2));
+        assertEquals("invalid", mSmsUtils.getFormatString(-1));
     }
 
     @After
