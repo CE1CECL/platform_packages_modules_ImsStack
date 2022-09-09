@@ -41,7 +41,6 @@
 #include "call/IMtcSession.h"
 #include "precondition/MockIMtcPreconditionManager.h"
 #include "media/MockIMtcMediaManager.h"
-#include "call/MtcUiNotifier.h"
 
 using ::testing::_;
 using ::testing::Return;

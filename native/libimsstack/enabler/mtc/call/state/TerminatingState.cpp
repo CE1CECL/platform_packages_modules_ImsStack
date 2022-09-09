@@ -15,7 +15,7 @@
  */
 
 #include "call/IMtcCallContext.h"
-#include "call/MtcUiNotifier.h"
+#include "call/IMtcUiNotifier.h"
 #include "call/state/TerminatingState.h"
 #include "helper/MtcTimerWrapper.h"
 #include "ServiceTrace.h"
