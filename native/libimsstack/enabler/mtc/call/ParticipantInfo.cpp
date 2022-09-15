@@ -191,12 +191,7 @@ AString ParticipantInfo::GetLocalUriForEmergencyCall() const
             nAosRegistrationMode == IImsAosInfo::REG_MODE_ADMIN)
     {
         SipAddress objSipAddress;
-        if (objSipAddress.Create(ANONYMOUS_ADDRESS) == IMS_FALSE)
-        {
-            IMS_TRACE_E(0, "GetLocalUriForEmergencyCall : Failed to create SIP address", 0, 0, 0);
-            return URI_SET_BY_IMS_ENGINE;
-        }
-
+        objSipAddress.Create(ANONYMOUS_ADDRESS);
         objSipAddress.SetDisplayName(ANONYMOUS_DISPLAY_NAME);
         return objSipAddress.ToString();
     }

@@ -30,12 +30,8 @@
 #include "helper/MtcSupplementaryService.h"
 #include "sipcore/SipAddress.h"
 
-#include "ServiceTrace.h"
-__IMS_TRACE_TAG_COM_MTC__;
-
-
 using ::testing::_;
-using ::testing::Invoke;
+using ::testing::Ref;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
@@ -102,7 +98,7 @@ TEST_F(ParticipantInfoTest, GetLocalUriReturnsNullIfEmergencyAndAosConnectorIsNu
 {
     MockIMtcService objService;
     ON_CALL(objService, IsEmergency)
-            .WillByDefault(Return(IMS_FALSE));
+            .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objService, GetAosConnector)
             .WillByDefault(Return(nullptr));
     ON_CALL(objContext, GetService)
@@ -142,8 +138,6 @@ TEST_F(ParticipantInfoTest, GetLocalUriReturnsAnonymousIfEmergencyNoUiccRegister
     ON_CALL(objContext, GetService)
             .WillByDefault(ReturnRef(objService));
 
-    IMS_TRACE_D("TEST: %s", pParticipantInfo->GetLocalUri().GetStr(), 0, 0);
-
     AString objAnonymousUri("Anonymous <sip:anonymous@anonymous.invalid>");
     EXPECT_EQ(objAnonymousUri, pParticipantInfo->GetLocalUri());
 }
@@ -162,8 +156,6 @@ TEST_F(ParticipantInfoTest, GetLocalUriReturnsAnonymousIfEmergencyAdminRegistere
     ON_CALL(objContext, GetService)
             .WillByDefault(ReturnRef(objService));
 
-    IMS_TRACE_D("TEST: %s", pParticipantInfo->GetLocalUri().GetStr(), 0, 0);
-
     AString objAnonymousUri("Anonymous <sip:anonymous@anonymous.invalid>");
     EXPECT_EQ(objAnonymousUri, pParticipantInfo->GetLocalUri());
 }
@@ -171,6 +163,26 @@ TEST_F(ParticipantInfoTest, GetLocalUriReturnsAnonymousIfEmergencyAdminRegistere
 TEST_F(ParticipantInfoTest, GetRemoteNumberReturnsNullInitially)
 {
     EXPECT_TRUE(pParticipantInfo->GetRemoteNumber().IsNull());
+}
+
+TEST_F(ParticipantInfoTest, GetRemoteUriReturnsFromDialingPlanForConference)
+{
+    const AString strToUri("some_uri");
+
+    CallInfo objCallInfo;
+    objCallInfo.bConference = IMS_TRUE;
+    ON_CALL(objContext, GetCallInfo)
+            .WillByDefault(ReturnRef(objCallInfo));
+
+    MockIMtcDialingPlan objDialingPlan;
+    ON_CALL(objContext, GetDialingPlan)
+            .WillByDefault(ReturnRef(objDialingPlan));
+
+    EXPECT_CALL(objDialingPlan, GetToUri(_, Ref(objCallInfo), _))
+            .Times(1)
+            .WillOnce(Return(strToUri));
+
+    EXPECT_EQ(strToUri, pParticipantInfo->GetRemoteUri());
 }
 
 TEST_F(ParticipantInfoTest, GetRemoteUriReturnsFromSupplementaryService)
@@ -328,7 +340,7 @@ TEST_F(ParticipantInfoTest, UpdateFromRemoteNumberUpdatesRemoteUri)
     EXPECT_EQ(strToUri, pParticipantInfo->GetRemoteUri());
 }
 
-TEST_F(ParticipantInfoTest, HandleRequestDoNothingIfNotStartMethod)
+TEST_F(ParticipantInfoTest, HandleRequestDoesNothingIfNotStartMethod)
 {
     const AString strInitialRemoteNumber = pParticipantInfo->GetRemoteNumber();
 
@@ -340,3 +352,14 @@ TEST_F(ParticipantInfoTest, HandleRequestDoNothingIfNotStartMethod)
 
 // TODO: HandleRequestUpdatesRemoteUri
 // TODO: HandleRequestUpdatesRemoteNumber
+
+TEST_F(ParticipantInfoTest, HandleResponseDoesNothing)
+{
+    const AString strInitialRemoteNumber = pParticipantInfo->GetRemoteNumber();
+
+    ResponseType eAnyRequest = ResponseType::PROVISIONAL_RESPONSE;
+    MockIMessage objMessage;
+    pParticipantInfo->HandleResponse(eAnyRequest, objMessage);
+
+    EXPECT_EQ(strInitialRemoteNumber, pParticipantInfo->GetRemoteNumber());
+}
