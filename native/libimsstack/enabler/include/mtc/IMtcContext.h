@@ -34,6 +34,7 @@ class IConferenceManager;
 class IEctManager;
 class MtcEmergencyServiceManager;
 class OperationAsyncRunner;
+class IMessageUtils;
 
 class IMtcContext
 {
@@ -53,6 +54,7 @@ public:
     virtual IEctManager* GetEctManager() = 0;
     virtual MtcEmergencyServiceManager* GetEmergencyServiceManager() = 0;
     virtual OperationAsyncRunner* GetAsyncRunner(IN std::function<void()> objOperation) = 0;
+    virtual IMessageUtils& GetMessageUtils() = 0;
     virtual IMS_BOOL IsWifiTestMode() = 0;
 };
 

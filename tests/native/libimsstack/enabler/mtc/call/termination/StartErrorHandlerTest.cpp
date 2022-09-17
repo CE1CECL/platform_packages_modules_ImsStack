@@ -19,6 +19,7 @@
 #include "CarrierConfig.h"
 #include "ImsAosParameter.h"
 #include "MockIMtcService.h"
+#include "MtcContextRepository.h"
 #include "call/IMtcCall.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/termination/StartErrorHandler.h"
@@ -29,6 +30,7 @@
 #include "sipcore/ISipHeader.h"
 #include "sipcore/MockISipMessage.h"
 #include "sipcore/SipStatusCode.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -47,12 +49,16 @@ public:
     MockIMtcConfigurationManager* pConfigurationManager;
     MtcConfigurationProxy* pConfigurationProxy;
     CallInfo objCallInfo;
+    MessageUtils objMessageUtils;
 
     StartErrorHandler* pHandler;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objCallContext);
+        ON_CALL(objCallContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
         ON_CALL(objCallContext, GetService)
                 .WillByDefault(ReturnRef(objMtcService));
         ON_CALL(objMtcService, GetAosConnector)

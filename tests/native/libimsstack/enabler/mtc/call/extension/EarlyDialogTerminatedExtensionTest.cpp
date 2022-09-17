@@ -17,25 +17,34 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "ISipHeader.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "call/extension/EarlyDialogTerminatedExtension.h"
 #include "call/extension/MtcExtensionSet.h"
 #include "core/MockIMessage.h"
 #include "sipcore/MockISipMessage.h"
+#include "utility/MockIMessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
+using ::testing::ReturnRef;
 
 class EarlyDialogTerminatedExtensionTest : public ::testing::Test
 {
 public:
     EarlyDialogTerminatedExtension* pExtension;
 
+    MockIMtcContext objContext;
     MockISipMessage objSipMessage;
     MockIMessage objMessage;
+    MockIMessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
         ON_CALL(objMessage, GetMessage)
                 .WillByDefault(Return(&objSipMessage));
 

@@ -32,6 +32,7 @@
 #include "vonr/MtcVonrManager.h"
 #include "helper/sipinterfaceholder/MtcSipInterfaceFactory.h"
 #include "conferencecall/ConferenceManager.h"
+#include "utility/MessageUtils.h"
 #include <functional>
 
 class EctManager;
@@ -41,6 +42,7 @@ class IMtcCallManager;
 class IMtcDialingPlan;
 class IMtcVonrManager;
 class ICallStateProxy;
+class IMessageUtils;
 class IMtcImsEventReceiver;
 class IMtcAosConnector;
 class IMtcSipInterfaceFactory;
@@ -82,6 +84,7 @@ public:
     IEctManager* GetEctManager() override;
     MtcEmergencyServiceManager* GetEmergencyServiceManager() override;
     OperationAsyncRunner* GetAsyncRunner(IN std::function<void()> objOperation) override;
+    inline IMessageUtils& GetMessageUtils() override { return m_objMessageUtils; };
     inline IMS_BOOL IsWifiTestMode() override { return m_bWifiTestMode; }
 
 protected:
@@ -93,7 +96,7 @@ protected:
 protected:
     IMS_SINT32 m_nSlotId;
     MtcConfigurationProxy m_objConfigurationProxy;
-    IMSList<IMtcService*> m_lstServices;
+    ImsList<IMtcService*> m_lstServices;
     MtcDialingPlan m_objDialingPlan;
     MtcCallManager m_objCallManager;
     MtcCallController m_objCallController;
@@ -104,6 +107,7 @@ protected:
     ConferenceManager m_objConferenceManager;
     EctManager* m_pEctManager;
     MtcEmergencyServiceManager* m_pEmergencyServiceManager;
+    MessageUtils m_objMessageUtils;
 
     IMS_BOOL m_bWifiTestMode;
 };

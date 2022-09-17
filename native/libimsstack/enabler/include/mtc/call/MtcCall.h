@@ -63,6 +63,7 @@ class IMutex;
 class IReference;
 class ISession;
 class MessageSender;
+class MessageUtils;
 class MtcConfigurationProxy;
 class UssiController;
 struct CallReasonInfo;
@@ -199,6 +200,7 @@ public:
     {
         return m_objContext.GetAsyncRunner(objOperation);
     }
+    inline IMessageUtils& GetMessageUtils() override { return m_objContext.GetMessageUtils(); }
     inline IMS_BOOL IsWifiTestMode() override { return m_objContext.IsWifiTestMode(); }
     // end of IMtcContext
 

@@ -27,8 +27,10 @@
 #include "helper/MtcSupplementaryService.h"
 #include "IImsAosInfo.h"
 #include "MockIMtcService.h"
+#include "MtcContextRepository.h"
 #include "sipcore/MockISipMessage.h"
 #include "sipcore/SipParameter.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::Return;
 using ::testing::ReturnRef;
@@ -52,11 +54,14 @@ public:
     MockIMtcAosConnector objAosConnector;
     MtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pSupplementaryService;
+    MessageUtils objMessageUtils;
     FeatureCaps* pFeatureCaps;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+
         pConfigurationManager = new MockIMtcConfigurationManager();
         pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
         pSupplementaryService = new MtcSupplementaryService(*pConfigurationProxy);
@@ -68,6 +73,7 @@ protected:
         ON_CALL(objContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
         ON_CALL(objContext, GetAosConnector).WillByDefault(Return(&objAosConnector));
+        ON_CALL(objContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
         ON_CALL(objService, GetICoreService).WillByDefault(Return(&objCoreService));
         ON_CALL(objCoreService, GetFeatureCaps).WillByDefault(Return(pFeatureCaps));
         ON_CALL(objCoreService, GetUserIdentities)

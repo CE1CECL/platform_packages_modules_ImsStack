@@ -19,6 +19,8 @@
 #include "IMessage.h"
 #include "ImsList.h"
 #include "ISipMessage.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "call/extension/IMtcExtension.h"
 #include "call/extension/MockIMtcExtension.h"
 #include "call/extension/MtcExtension.h"
@@ -26,6 +28,8 @@
 #include "call/extension/RprExtension.h"
 #include "core/MockIMessage.h"
 #include "sipcore/MockISipMessage.h"
+#include "utility/MessageUtils.h"
+#include "utility/MockIMessageUtils.h"
 
 using ::testing::_;
 using ::testing::Eq;
@@ -119,6 +123,12 @@ TEST(MtcExtensionSetTest, IsAvailableOnLocalInitiallyReturnsInitialValue)
 
 TEST(MtcExtensionSetTest, IsSupportRequiredExtensionsReturnsTrueForNotAvailableExtension)
 {
+    MockIMtcContext objContext;
+    MockIMessageUtils objMessageUtils;
+    MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+    ON_CALL(objContext, GetMessageUtils)
+            .WillByDefault(ReturnRef(objMessageUtils));
+
     MtcExtensionSet objExtensionSet = CreateExtensionSetSupportsRprOnly();
 
     ImsList<AString> lstRequiredHeaders;
@@ -137,6 +147,12 @@ TEST(MtcExtensionSetTest, IsSupportRequiredExtensionsReturnsTrueForNotAvailableE
 
 TEST(MtcExtensionSetTest, IsSupportRequiredExtensionsReturnsFalseForNotAvailableExtension)
 {
+    MockIMtcContext objContext;
+    MessageUtils objMessageUtils;
+    MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+    ON_CALL(objContext, GetMessageUtils)
+            .WillByDefault(ReturnRef(objMessageUtils));
+
     MtcExtensionSet objExtensionSet = CreateExtensionSetSupportsRprOnly();
 
     ImsList<AString> lstRequiredHeaders;

@@ -41,6 +41,7 @@
 #include "call/IMtcSession.h"
 #include "precondition/MockIMtcPreconditionManager.h"
 #include "media/MockIMtcMediaManager.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -77,6 +78,7 @@ public:
     MockIMtcPreconditionManager objMockPreconditionManager;
     CallInfo objCallInfo;
     ConfUser objUser;
+    MessageUtils objMessageUtils;
 
     MockISession objMockConfSession;
     MockIMtcSession objMockConfMtcSession;
@@ -93,6 +95,8 @@ protected:
         pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
         ON_CALL(objMockContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
+        ON_CALL(objMockContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
 
         ON_CALL(objMockContext, GetCallStateProxy).WillByDefault(ReturnRef(objMockCallStateProxy));
         ON_CALL(objMockContext, GetCallManager).WillByDefault(ReturnRef(objMockCallManager));

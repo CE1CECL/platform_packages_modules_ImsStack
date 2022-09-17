@@ -15,7 +15,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "utility/MessageUtil.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "CallReasonInfo.h"
 #include "ImsList.h"
 #include "core/IReference.h"
@@ -25,6 +26,8 @@
 #include "sipcore/ISipHeader.h"
 #include "sipcore/ISipMessageBodyPart.h"
 #include "sipcore/SipHeaderName.h"
+#include "utility/MessageUtil.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -43,10 +46,16 @@ public:
     MockISipMessage* piSipMessage;
     MockISession* piSession;
     ImsList<IMessage*> objMessages;
+    MockIMtcContext objContext;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
+
         piMessage = new MockIMessage();
         piSipMessage = new MockISipMessage();
         piSession = new MockISession();
@@ -832,11 +841,6 @@ TEST_F(MessageUtilTest, IsTextFeatureIncluded)
     EXPECT_FALSE(MessageUtil::IsTextFeatureIncluded(piMessage));
 }
 
-TEST_F(MessageUtilTest, CheckServiceType)
-{
-    // TODO: remove api
-}
-
 TEST_F(MessageUtilTest, GetCallType)
 {
     // TODO: add
@@ -845,26 +849,6 @@ TEST_F(MessageUtilTest, GetCallType)
 TEST_F(MessageUtilTest, GetCallTypeFromSdp)
 {
     // TODO: add
-}
-
-TEST_F(MessageUtilTest, GetCallTypeFromAcceptContact)
-{
-    // TODO: remove api
-}
-
-TEST_F(MessageUtilTest, CheckRttUpdateRequest)
-{
-    // TODO: remove api
-}
-
-TEST_F(MessageUtilTest, IsSessionRefresh)
-{
-    // TODO: remove api
-}
-
-TEST_F(MessageUtilTest, IsTextSession)
-{
-    // TODO: remove api
 }
 
 TEST_F(MessageUtilTest, IsResponseExist)

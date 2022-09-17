@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 #include "MockISession.h"
+#include "MtcContextRepository.h"
 #include "call/message/MtcMessageMediator.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/MockIMtcSession.h"
@@ -25,6 +26,7 @@
 #include "sipcore/ISipHeader.h"
 #include "media/MockIMediaDescriptor.h"
 #include "media/MockIMedia.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -49,15 +51,19 @@ public:
     MockIMtcConfigurationManager* pConfigurationManager;
     MtcConfigurationProxy* pConfigurationProxy;
     MtcMessageMediator* pMessageMediator;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+
         pConfigurationManager = new MockIMtcConfigurationManager();
         pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
 
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
         ON_CALL(objContext, GetSession()).WillByDefault(Return(&objMtcSession));
+        ON_CALL(objContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
         ON_CALL(objMtcSession, GetISession).WillByDefault(ReturnRef(objISession));
 
         pMessageMediator = new MtcMessageMediator(objContext);

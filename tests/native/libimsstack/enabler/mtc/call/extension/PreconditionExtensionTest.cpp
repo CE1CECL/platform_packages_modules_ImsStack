@@ -18,13 +18,17 @@
 #include <gtest/gtest.h>
 #include "ImsList.h"
 #include "ISipHeader.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "call/extension/MtcExtensionSet.h"
 #include "call/extension/PreconditionExtension.h"
 #include "core/MockIMessage.h"
 #include "sipcore/MockISipMessage.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
+using ::testing::ReturnRef;
 
 class PreconditionExtensionTest : public ::testing::Test
 {
@@ -37,10 +41,16 @@ public:
     MockIMessage objMessage;
     MockIMessage objMessageRequiresPrecondition;
     MockIMessage objMessageSupportsPrecondition;
+    MockIMtcContext objContext;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
+
         pExtension = new PreconditionExtension();
 
         ON_CALL(objMessage, GetMessage)
