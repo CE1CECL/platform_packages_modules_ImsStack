@@ -18,13 +18,17 @@
 #include "AString.h"
 #include "ImsList.h"
 #include "ImsTypeDef.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "call/termination/CancelHandler.h"
 #include "core/MockIMessage.h"
 #include "sipcore/MockISipMessage.h"
 #include "sipcore/SipHeaderName.h"
 #include "sipcore/ISipHeader.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::Return;
+using ::testing::ReturnRef;
 
 class CancelHandlerTest : public ::testing::Test
 {
@@ -32,10 +36,16 @@ public:
     MockISipMessage objSipMessage;
     MockIMessage objMessage;
     CancelHandler objHandler;
+    MockIMtcContext objContext;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
+
         ON_CALL(objMessage, GetMessage)
                 .WillByDefault(Return(&objSipMessage));
     }

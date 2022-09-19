@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include "MtcContextRepository.h"
 #include "call/state/AlertingState.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/MockIMtcSession.h"
@@ -30,6 +31,7 @@
 #include "core/MockIMessage.h"
 #include "core/MockISession.h"
 #include "sipcore/MockISipMessage.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -50,10 +52,13 @@ public:
     MockIMtcPreconditionManager objMockPreconditionManager;
     MockIMtcSession objMtcSession;
     MockIMtcUiNotifier objUiNotifier;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objMockCallContext);
+
         ON_CALL(objMockISession, GetPreviousRequest(_)).WillByDefault(Return(&objMockIMessage));
         ON_CALL(objMockIMessage, GetMessage).WillByDefault(Return(&objMockISipMessage));
 
@@ -75,6 +80,8 @@ protected:
         ON_CALL(objMockCallContext, GetSession()).WillByDefault(Return(&objMtcSession));
 
         ON_CALL(objMockCallContext, GetUiNotifier).WillByDefault(ReturnRef(objUiNotifier));
+
+        ON_CALL(objMockCallContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
 
         ON_CALL(objMtcSession, GetISession)
                 .WillByDefault(ReturnRef(objMockISession));

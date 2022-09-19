@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef MTC_MESSAGE_UTIL_H_
-#define MTC_MESSAGE_UTIL_H_
+#ifndef MESSAGE_UTIL_H_
+#define MESSAGE_UTIL_H_
 
 #include "AString.h"
+#include "Ims3gpp.h"
 #include "IMtcService.h"
 #include "MtcDef.h"
 #include "call/IMtcCall.h"
+#include "utility/IMessageUtils.h"
+#include "MtcContextRepository.h"
+#include "IMtcContext.h"
 
 class AStringBuffer;
 class IMessage;
 class IMessageBodyPart;
-class Ims3gpp;
 class ISession;
 class ISipHeader;
 class ISipMessage;
@@ -37,164 +40,280 @@ struct ConfUser;
 class MessageUtil
 {
 public:
-    // Changed :: GetResponseMsg -> GetPreviousResponse
-    static IMessage* GetPreviousResponse(IN const ISession* piSession, IN IMS_SINT32 eServiceMethod,
-            IN IMS_SINT32 nResponseIndex = INVALID_INDEX);
-    // Changed :: GetRemotePreviousMsg -> GetRemotePreviousMessage
-    static IMessage* GetRemotePreviousMessage(IN ISession* piSession, IN IMS_SINT32 eServiceMethod,
-            IN IMS_BOOL bIsUac, IN IMS_SINT32 nResponseIndex = INVALID_INDEX);
-    static IMS_SINT32 GetResponseStatusCode(IN ISession* piSession, IN IMS_SINT32 eServiceMethod,
-            IN IMS_SINT32 nResponseIndex = INVALID_INDEX);
-    // Changed :: GetRemoteURIs -> GetRemoteUris
-    static IMS_RESULT GetRemoteUris(
-            IN ISession* piSession, IN PeerType ePeerType, OUT IMSList<AString>& lstUris);
-    // Changed :: GetRemoteURI -> GetRemoteUri
-    static IMS_RESULT GetRemoteUri(
-            IN ISession* piSession, IN PeerType ePeerType, OUT AString& strUri);
-    // Changed :: GetSessionID -> GetSessionId
-    static IMS_RESULT GetSessionId(IN ISession* piSession, OUT AString& strSessionId);
-
-    static IMS_RESULT GetHeaders(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT IMSList<AString>& lstHeaders,
-            IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_RESULT GetHeader(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT AString& strHeader, IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_RESULT GetHeaderValue(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT AString& strValue, IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_SINT32 GetHeaderValueInt(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetHeaderParameterValue -> GetParameterValue
-    static IMS_RESULT GetParameterValue(IN const IMessage* piMessage,
+    inline static IMessage* GetPreviousResponse(IN const ISession* piSession,
+            IN IMS_SINT32 eServiceMethod, IN IMS_SINT32 nResponseIndex = INVALID_INDEX)
+    {
+        return GetUtils().GetPreviousResponse(piSession, eServiceMethod, nResponseIndex);
+    }
+    inline static IMessage* GetRemotePreviousMessage(IN ISession* piSession,
+            IN IMS_SINT32 eServiceMethod, IN IMS_BOOL bIsUac,
+            IN IMS_SINT32 nResponseIndex = INVALID_INDEX)
+    {
+        return GetUtils().GetRemotePreviousMessage(
+                piSession, eServiceMethod, bIsUac, nResponseIndex);
+    }
+    inline static IMS_SINT32 GetResponseStatusCode(IN ISession* piSession,
+            IN IMS_SINT32 eServiceMethod, IN IMS_SINT32 nResponseIndex = INVALID_INDEX)
+    {
+        return GetUtils().GetResponseStatusCode(piSession, eServiceMethod, nResponseIndex);
+    }
+    inline static IMS_RESULT GetRemoteUris(
+            IN ISession* piSession, IN PeerType ePeerType, OUT ImsList<AString>& lstUris)
+    {
+        lstUris = GetUtils().GetRemoteUris(piSession, ePeerType);
+        return lstUris.IsEmpty() ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetRemoteUri(
+            IN ISession* piSession, IN PeerType ePeerType, OUT AString& strUri)
+    {
+        strUri = GetUtils().GetRemoteUri(piSession, ePeerType);
+        return strUri.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetSessionId(IN ISession* piSession, OUT AString& strSessionId)
+    {
+        strSessionId = GetUtils().GetSessionId(piSession);
+        return strSessionId.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetHeaders(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT ImsList<AString>& lstHeaders,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        lstHeaders = GetUtils().GetHeaders(piMessage, eHeaderType, strHeaderName);
+        return lstHeaders.GetSize() == 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetHeader(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT AString& strHeader, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strHeader = GetUtils().GetHeader(piMessage, eHeaderType, strHeaderName);
+        return strHeader.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetHeaderValue(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT AString& strValue, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strValue = GetUtils().GetHeaderValue(piMessage, eHeaderType, strHeaderName);
+        return strValue.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_SINT32 GetHeaderValueInt(IN const IMessage* piMessage,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().GetHeaderValueInt(piMessage, eHeaderType, strHeaderName);
+    }
+    inline static IMS_RESULT GetParameterValue(IN const IMessage* piMessage,
             IN const AString& strParameterName, IN IMS_SINT32 eHeaderType, OUT AString& strValue,
-            IN const AString& strHeaderName = AString::ConstNull());
-
-    // Changed :: GetUserPartsFromXXXX -> GetUserParts
-    static IMSList<AString> GetUserParts(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserPartFromXXXX -> GetUserPart
-    static IMS_RESULT GetUserPart(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT AString& strUserPart, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserIDsFromHdr -> GetUserIds(piMessage, ISipHeader::FROM)
-    static IMS_RESULT GetUserIds(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT IMSList<AString>& lstUserIds,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserIDFromHdr -> GetUserId(piMessage, ISipHeader::FROM)
-    static IMS_RESULT GetUserId(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT AString& strUserId, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserDisplaynamesFromXXX -> GetDisplayNames
-    static IMS_RESULT GetDisplayNames(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT IMSList<AString>& lstDisplayNames,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetUserDisplaynameFromXXX -> GetDisplayName
-    static IMS_RESULT GetDisplayName(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT AString& strDisplayName, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetHosts -> GetHosts(piMessage, ISipHeader::CONTACT_NORMAL)
-    static IMS_RESULT GetHosts(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT IMSList<AString>& lstHosts, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetHost -> GetHost(piMessage, ISipHeader::CONTACT_NORMAL)
-    static IMS_RESULT GetHost(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT AString& strHost, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetURIParameters -> GetParameterValueFromUri
-    static IMS_RESULT GetParameterValueFromUri(IN IMessage* piMessage,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strValue = GetUtils().GetParameterValue(
+                piMessage, strParameterName, eHeaderType, strHeaderName);
+        return strValue.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static ImsList<AString> GetUserParts(IN const IMessage* piMessage,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().GetUserParts(piMessage, eHeaderType, strHeaderName);
+    }
+    inline static IMS_RESULT GetUserPart(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT AString& strUserPart, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strUserPart = GetUtils().GetUserPart(piMessage, eHeaderType, strHeaderName);
+        return strUserPart.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetUserIds(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT ImsList<AString>& lstUserIds,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        lstUserIds = GetUtils().GetUserIds(piMessage, eHeaderType, strHeaderName);
+        return lstUserIds.IsEmpty() ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetUserId(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT AString& strUserId, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strUserId = GetUtils().GetUserId(piMessage, eHeaderType, strHeaderName);
+        return strUserId.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetDisplayNames(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT ImsList<AString>& lstDisplayNames,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        lstDisplayNames = GetUtils().GetDisplayNames(piMessage, eHeaderType, strHeaderName);
+        return lstDisplayNames.IsEmpty() ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetDisplayName(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT AString& strDisplayName, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strDisplayName = GetUtils().GetDisplayName(piMessage, eHeaderType, strHeaderName);
+        return strDisplayName.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetHosts(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT ImsList<AString>& lstHosts, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        lstHosts = GetUtils().GetHosts(piMessage, eHeaderType, strHeaderName);
+        return lstHosts.IsEmpty() ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetHost(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            OUT AString& strHost, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strHost = GetUtils().GetHost(piMessage, eHeaderType, strHeaderName);
+        return strHost.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetParameterValueFromUri(IN IMessage* piMessage,
             IN const AString& strParameterName, IN IMS_SINT32 eHeaderType, OUT AString& strValue,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetContactURIs -> GetUris(piMessage, bWithParameters, ISipHeader::CONTACT_NORMAL)
-    // Changed :: GetRemoteURIsFromHdr -> GetUris(piMessage, IMS_FALSE, ISipHeader::FROM)
-    static IMS_RESULT GetUris(IN IMessage* piMessage, IN IMS_BOOL bWithParameters,
-            IN IMS_SINT32 eHeaderType, OUT IMSList<AString>& lstUris,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetContactURI -> GetUri(piMessage, bWithParameters, ISipHeader::CONTACT_NORMAL)
-    // Changed :: GetRemoteURIFromHdr -> GetUri(piMessage, IMS_FALSE, ISipHeader::FROM)
-    static IMS_RESULT GetUri(IN IMessage* piMessage, IN IMS_BOOL bWithParameters,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strValue = GetUtils().GetParameterValueFromUri(
+                piMessage, strParameterName, eHeaderType, strHeaderName);
+        return strValue.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetUris(IN IMessage* piMessage, IN IMS_BOOL bWithParameters,
+            IN IMS_SINT32 eHeaderType, OUT ImsList<AString>& lstUris,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        lstUris = GetUtils().GetUris(piMessage, bWithParameters, eHeaderType, strHeaderName);
+        return lstUris.IsEmpty() ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT GetUri(IN IMessage* piMessage, IN IMS_BOOL bWithParameters,
             IN IMS_SINT32 eHeaderType, OUT AString& strUri,
-            IN const AString& strHeaderName = AString::ConstNull());
-
-    static IMS_SINT32 GetFeatures(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: GetSOSTypeFromServiceURN -> GetSosTypeFromServiceUrn
-    static IMS_SINT32 GetSosTypeFromServiceUrn(IN const IMessage* piMessage,
-            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull());
-
-    // Changed :: GetCauseFromReason -> GetCauseFromReasonHeader
-    static IMS_SINT32 GetCauseFromReasonHeader(
-            IN const IMessage* piMessage, IN const AString& strProtocol = AString::ConstNull());
-    static IMS_RESULT GetCauseAndTextFromReasonHeader(IN const IMessage* piMessage,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        strUri = GetUtils().GetUri(piMessage, bWithParameters, eHeaderType, strHeaderName);
+        return strUri.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_SINT32 GetFeatures(IN IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().GetFeatures(piMessage, eHeaderType, strHeaderName);
+    }
+    inline static IMS_SINT32 GetSosTypeFromServiceUrn(IN const IMessage* piMessage,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().GetSosTypeFromServiceUrn(piMessage, eHeaderType, strHeaderName);
+    }
+    inline static IMS_SINT32 GetCauseFromReasonHeader(
+            IN const IMessage* piMessage, IN const AString& strProtocol = AString::ConstNull())
+    {
+        return GetUtils().GetCauseFromReasonHeader(piMessage, strProtocol);
+    }
+    inline static IMS_RESULT GetCauseAndTextFromReasonHeader(IN const IMessage* piMessage,
             OUT IMS_SINT32& nCause, OUT AString& strText,
-            IN const AString& strProtocol = AString::ConstNull());
-    static IMS_SINT32 GetSupportedFeatures(IN IMessage* piMessage);
-    static IMS_SINT32 GetRequireFeatures(IN IMessage* piMessage);
-    // Removed :: GetIDFromEvent -> GetParameterValue(piMessage, STR_ID, ISipHeader::EVENT, strId)
-    // Removed :: GetSubscriptionState ->
-    //            GetHeaderValue(piMessage, ISipHeader::SUBSCRIPTION_STATE, strSubscriptionState)
-    // Changed :: GetIms3gppFromMsgBody -> GetIms3gppFromBody
-    static IMS_RESULT GetIms3gppFromBody(IN const IMessage* piMessage, OUT Ims3gpp& objIms3gpp);
-    static IMS_SINT32 GetStatusCodeInNotify(IN IMessage* piMessage);
-
-    // Removed :: IsQoSAttr
-    // Changed :: HasSDP -> HasSdp
-    static IMS_BOOL HasSdp(IN const IMessage* piMessage);
-    static IMS_BOOL IsFocusConf(IN const IMessage* piMessage);
-    // Removed :: IsRestoration -> IsInitialRegistrationRequired
-    static IMS_BOOL IsInitialRegistrationRequired(IN const IMessage* piMessage);
-    static IMS_BOOL ContainsValue(IN IMessage* piMessage, IN const AString& strValue,
-            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_BOOL HasValue(IN const IMessage* piMessage, IN const AString& strValue,
-            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_BOOL IsHeaderPresent(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_BOOL ContainsTag(IN const AString& strHeader, IN const AString& strTag);
-    static IMS_BOOL ContainsAddressInPaid(
-            IN const IMessage* piMessage, IN const AString& strAddress);
-
-    static IMS_RESULT SetHeader(IN IMessage* piMessage, IN const AString& strValue,
-            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull());
-    // Changed :: AddHeader -> AddValueIfNotExists
-    static IMS_RESULT AddValueIfNotExists(IN IMessage* piMessage, IN const AString& strValue,
-            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull());
-
-    // Changed :: GenerateCID -> GenerateContentId
-    static IMS_RESULT GenerateContentId(IN const AString& strHost, OUT AString& strContentId,
-            IN IMS_BOOL bAngleQuote = IMS_FALSE);
-    // Changed :: SetResourceListByConf -> SetResourceListByConfUser
-    static IMS_RESULT SetResourceListByConfUser(IN_OUT IMessage* piMessage,
-            IN const AString& strContentId, IN IMSList<ConfUser*>& lstConfUser,
-            IN IMS_BOOL bMultiPart, IN IMS_BOOL bCopyControl = IMS_TRUE);
-    // Changed :: SetResourceListByURI -> SetResourceListByEntryUri
-    static IMS_RESULT SetResourceListByEntryUri(IN_OUT IMessage* piMessage,
-            IN const AString& strContentId, IN IMSList<AString>& lstEntryUri,
-            IN IMS_BOOL bMultiPart, IN IMS_BOOL bCopyControl = IMS_TRUE);
-    static IMS_BOOL IsVideoFeatureIncluded(IN const IMessage* piMessage);
-    static IMS_BOOL IsTextFeatureIncluded(IN const IMessage* piMessage);
+            IN const AString& strProtocol = AString::ConstNull())
+    {
+        ReasonHeaderValue objValue =
+                GetUtils().GetCauseAndTextFromReasonHeader(piMessage, strProtocol);
+        nCause = objValue.nCause;
+        strText = objValue.strText;
+        return nCause == -1 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_SINT32 GetSupportedFeatures(IN IMessage* piMessage)
+    {
+        return GetUtils().GetSupportedFeatures(piMessage);
+    }
+    inline static IMS_SINT32 GetRequireFeatures(IN IMessage* piMessage)
+    {
+        return GetUtils().GetRequireFeatures(piMessage);
+    }
+    inline static IMS_RESULT GetIms3gppFromBody(
+            IN const IMessage* piMessage, OUT Ims3gpp& objIms3gpp)
+    {
+        GetUtils().GetIms3gppFromBody(piMessage, objIms3gpp);
+        return objIms3gpp.GetType() == Ims3gpp::TYPE_UNKNOWN ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_SINT32 GetStatusCodeInNotify(IN IMessage* piMessage)
+    {
+        return GetUtils().GetStatusCodeInNotify(piMessage);
+    }
+    inline static IMS_BOOL HasSdp(IN const IMessage* piMessage)
+    {
+        return GetUtils().HasSdp(piMessage);
+    }
+    inline static IMS_BOOL IsFocusConf(IN const IMessage* piMessage)
+    {
+        return GetUtils().IsFocusConf(piMessage);
+    }
+    inline static IMS_BOOL IsInitialRegistrationRequired(IN const IMessage* piMessage)
+    {
+        return GetUtils().IsInitialRegistrationRequired(piMessage);
+    }
+    inline static IMS_BOOL ContainsValue(IN IMessage* piMessage, IN const AString& strValue,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().ContainsValue(piMessage, strValue, eHeaderType, strHeaderName);
+    }
+    inline static IMS_BOOL HasValue(IN const IMessage* piMessage, IN const AString& strValue,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().HasValue(piMessage, strValue, eHeaderType, strHeaderName);
+    }
+    inline static IMS_BOOL IsHeaderPresent(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
+            IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().IsHeaderPresent(piMessage, eHeaderType, strHeaderName);
+    }
+    inline static IMS_BOOL ContainsTag(IN const AString& strHeader, IN const AString& strTag)
+    {
+        return GetUtils().ContainsTag(strHeader, strTag);
+    }
+    inline static IMS_BOOL ContainsAddressInPaid(
+            IN const IMessage* piMessage, IN const AString& strAddress)
+    {
+        return GetUtils().ContainsAddressInPaid(piMessage, strAddress);
+    }
+    inline static IMS_RESULT SetHeader(IN IMessage* piMessage, IN const AString& strValue,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().SetHeader(piMessage, strValue, eHeaderType, strHeaderName);
+    }
+    inline static IMS_RESULT AddValueIfNotExists(IN IMessage* piMessage, IN const AString& strValue,
+            IN IMS_SINT32 eHeaderType, IN const AString& strHeaderName = AString::ConstNull())
+    {
+        return GetUtils().AddValueIfNotExists(piMessage, strValue, eHeaderType, strHeaderName);
+    }
+    inline static IMS_RESULT GenerateContentId(IN const AString& strHost, OUT AString& strContentId,
+            IN IMS_BOOL bAngleQuote = IMS_FALSE)
+    {
+        strContentId = GetUtils().GenerateContentId(strHost, bAngleQuote);
+        return strContentId.GetLength() <= 0 ? IMS_FAILURE : IMS_SUCCESS;
+    }
+    inline static IMS_RESULT SetResourceListByConfUser(IN_OUT IMessage* piMessage,
+            IN const AString& strContentId, IN ImsList<ConfUser*>& lstConfUser,
+            IN IMS_BOOL bMultiPart, IN IMS_BOOL bCopyControl = IMS_TRUE)
+    {
+        return GetUtils().SetResourceListByConfUser(
+                piMessage, strContentId, lstConfUser, bMultiPart, bCopyControl);
+    }
+    inline static IMS_RESULT SetResourceListByEntryUri(IN_OUT IMessage* piMessage,
+            IN const AString& strContentId, IN ImsList<AString>& lstEntryUri,
+            IN IMS_BOOL bMultiPart, IN IMS_BOOL bCopyControl = IMS_TRUE)
+    {
+        return GetUtils().SetResourceListByEntryUri(
+                piMessage, strContentId, lstEntryUri, bMultiPart, bCopyControl);
+    }
+    inline static IMS_BOOL IsVideoFeatureIncluded(IN const IMessage* piMessage)
+    {
+        return GetUtils().IsVideoFeatureIncluded(piMessage);
+    }
+    inline static IMS_BOOL IsTextFeatureIncluded(IN const IMessage* piMessage)
+    {
+        return GetUtils().IsTextFeatureIncluded(piMessage);
+    }
+    inline static CallType GetCallType(
+            IN const IMessage* piMessage, IN ISession* piSession, IN IMS_BOOL bPeerView)
+    {
+        return GetUtils().GetCallType(piMessage, piSession, bPeerView);
+    }
+    inline static CallType GetCallTypeFromSdp(IN ISession* piSession, IN IMS_BOOL bNegoSdp,
+            IN IMS_BOOL bPeerView, IN IMS_BOOL bCheckPort = IMS_TRUE)
+    {
+        return GetUtils().GetCallTypeFromSdp(piSession, bNegoSdp, bPeerView, bCheckPort);
+    }  // TODO: change name of bPeerView
+    inline static IMS_BOOL IsResponseExist(IN ISession* piSession, IN IMS_SINT32 nStatusCode)
+    {
+        return GetUtils().IsResponseExist(piSession, nStatusCode);
+    }
 
 private:
-    static ISipMessage* GetSipMessage(IN const IMessage* piMessage);
-    static IMS_RESULT GetAddresses(IN const IMessage* piMessage, IN IMS_SINT32 eHeaderType,
-            OUT IMSList<SipAddress>& lstAddresses,
-            IN const AString& strHeaderName = AString::ConstNull());
-    static void GetParameterValueFromUnknownHeaderBody(
-            IN const AString& strBody, IN const AString& strParameterName, OUT AString& strValue);
-    static IMS_RESULT GetUrnValue(IN const IMessage* piMessage, IN const AString& strId,
-            IN IMS_SINT32 eHeaderType, OUT AString& strValue,
-            IN const AString& strHeaderName = AString::ConstNull());
-    static IMS_RESULT SetResourceList(IN_OUT IMessage* piMessage, IN const AString& strContentId,
-            IN IMS_BOOL bMultiPart, IN AStringBuffer& objXml);
-
-public:
-    // legacy API
-    static ServiceType CheckServiceType(IN IMessage* piMessage, IN IMtcCall* pSession = IMS_NULL,
-            IN ISession* piSession = IMS_NULL);
-    static CallType GetCallType(
-            IN const IMessage* piMessage, IN ISession* piSession, IN IMS_BOOL bPeerView);
-    static CallType GetCallTypeFromSdp(IN ISession* piSession, IN IMS_BOOL bNegoSdp,
-            IN IMS_BOOL bPeerView,
-            IN IMS_BOOL bCheckPort = IMS_TRUE);  // TODO: change name of bPeerView
-    static CallType GetCallTypeFromAcceptContact(
-            IN IMessage* piMessage, IN ISession* piSession = IMS_NULL);
-    static IMS_SINT32 CheckRttUpdateRequest(
-            IN IMessage* piMessage, IN ISession* piSession = IMS_NULL);
-    static IMS_BOOL IsSessionRefresh(IN ISession* piSession);
-    static IMS_BOOL IsTextSession(IN ISession* piSession);
-    static IMS_BOOL IsResponseExist(IN ISession* piSession, IN IMS_SINT32 nStatusCode);
+    inline static IMessageUtils& GetUtils()
+    {
+        return MtcContextRepository::GetContext()->GetMessageUtils();
+    }
 
 public:
     static const IMS_CHAR STR_199[];

@@ -21,6 +21,7 @@
 #include "MockIMtcImsEventReceiver.h"
 #include "MockIMtcService.h"
 #include "MockIMtcCallController.h"
+#include "MtcContextRepository.h"
 #include "MtcDef.h"
 #include "call/IMtcCall.h"
 #include "call/IMtcSession.h"
@@ -50,6 +51,7 @@
 #include "sipcore/MockISipServerConnection.h"
 #include "sipcore/SipStatusCode.h"
 #include "ussi/UssiConstants.h"
+#include "utility/MessageUtils.h"
 #include "vonr/MockIMtcVonrManager.h"
 
 using ::testing::_;
@@ -77,12 +79,17 @@ public:
     MockIMtcConfigurationManager* pConfigurationManager;
     MtcConfigurationProxy* pConfigurationProxy;
     MockSessionInterfaceHolder* pSessionInterfaceHolder;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+
         ON_CALL(objContext, GetCallStateProxy)
                 .WillByDefault(ReturnRef(objCallStateProxy));
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
 
         pConfigurationManager = new MockIMtcConfigurationManager();
         pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);

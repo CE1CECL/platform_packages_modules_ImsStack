@@ -39,6 +39,7 @@
 #include "helper/sipinterfaceholder/MockReferenceInterfaceHolder.h"
 #include "sipcore/MockISipMessage.h"
 #include "sipcore/SipStatusCode.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -82,10 +83,13 @@ public:
     MockIMessage objMockMessage;
     MockISipMessage objMockSipMessage;
     EctReference* pEctReference;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(0, &objMockContext);
+
         pMockConfigurationManager = new MockIMtcConfigurationManager();
         pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
         ON_CALL(objMockContext, GetConfigurationProxy)
@@ -101,6 +105,9 @@ protected:
 
         ON_CALL(objMockContext, GetSipInterfaceFactory)
                 .WillByDefault(ReturnRef(objMockInterfaceFactory));
+
+        ON_CALL(objMockContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
 
         pMockReferenceInterfaceHolder = new MockReferenceInterfaceHolder(objMockHolderListener);
         ON_CALL(objMockInterfaceFactory, GetIReferenceHolder)
@@ -144,8 +151,6 @@ protected:
 
     void SetUpUriFormatter(IN const AString& strUri)
     {
-        MtcContextRepository::GetInstance()->AddContext(0, &objMockContext);
-
         ON_CALL(objMockTargetContext, GetCallInfo)
                 .WillByDefault(ReturnRef(objTargetInfo));
         objTargetInfo.bConference = IMS_TRUE; // to get Remote Uri from ParticipantInfo easily

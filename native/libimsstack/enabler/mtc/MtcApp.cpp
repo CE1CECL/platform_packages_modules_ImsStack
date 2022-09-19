@@ -37,6 +37,7 @@
 #include "ect/EctManager.h"
 #include "MtcEmergencyServiceManager.h"
 #include "helper/OperationAsyncRunner.h"
+#include "utility/MessageUtils.h"
 #include <functional>
 
 __IMS_TRACE_TAG_COM_MTC__;
@@ -49,8 +50,8 @@ MtcApp::MtcApp(IN IMS_SINT32 nSlotId) :
         m_nSlotId(nSlotId),
         m_objConfigurationProxy(MtcConfigurationProxy(new MtcConfigurationManager())),
         m_lstServices(IMSList<IMtcService*>()),
-        m_objDialingPlan(MtcDialingPlan(*this,
-                *PhoneInfoService::GetPhoneInfoService()->GetSubscriberInfo(nSlotId))),
+        m_objDialingPlan(MtcDialingPlan(
+                *this, *PhoneInfoService::GetPhoneInfoService()->GetSubscriberInfo(nSlotId))),
         m_objCallManager(MtcCallManager(*this)),
         m_objCallController(MtcCallController(*this)),
         m_objVonrManager(MtcVonrManager()),
@@ -60,6 +61,7 @@ MtcApp::MtcApp(IN IMS_SINT32 nSlotId) :
         m_objConferenceManager(ConferenceManager(*this)),
         m_pEctManager(IMS_NULL),
         m_pEmergencyServiceManager(IMS_NULL),
+        m_objMessageUtils(MessageUtils()),
         m_bWifiTestMode(IMS_FALSE)
 {
     IMS_TRACE_I("+MtcApp [slot_%d]", nSlotId, 0, 0);

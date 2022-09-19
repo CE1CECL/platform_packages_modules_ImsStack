@@ -19,16 +19,20 @@
 
 #include "IMessage.h"
 #include "ISipHeader.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "MtcDef.h"
 #include "SipHeaderName.h"
 #include "configuration/MockIMtcConfigurationManager.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcSupplementaryService.h"
+#include "utility/MessageUtils.h"
 #include "../../../engine/interface/core/MockIMessage.h"
 #include "../../../engine/interface/sipcore/MockISipMessage.h"
 
 using ::testing::AnyNumber;
 using ::testing::Return;
+using ::testing::ReturnRef;
 
 namespace android
 {
@@ -41,10 +45,16 @@ public:
     MtcSupplementaryService* pMtcSupplementaryService;
     MockISipMessage objMockISipMessage;
     MockIMessage objMockIMessage;
+    MockIMtcContext objContext;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
+
         pMockIMtcConfigurationManager = new MockIMtcConfigurationManager();
         pMtcConfigurationProxy = new MtcConfigurationProxy(
                 static_cast<IMtcConfigurationManager*>(pMockIMtcConfigurationManager));

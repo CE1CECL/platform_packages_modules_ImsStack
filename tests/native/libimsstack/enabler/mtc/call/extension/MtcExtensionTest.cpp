@@ -18,12 +18,16 @@
 #include <gtest/gtest.h>
 #include "ImsList.h"
 #include "ISipHeader.h"
+#include "MockIMtcContext.h"
+#include "MtcContextRepository.h"
 #include "../../../../engine/interface/core/MockIMessage.h"
 #include "../../../../engine/interface/sipcore/MockISipMessage.h"
 #include "call/extension/MtcExtension.h"
+#include "utility/MessageUtils.h"
 
 using ::testing::_;
 using ::testing::Return;
+using ::testing::ReturnRef;
 
 const AString strSomeOptionTag = "some_tag";
 
@@ -36,10 +40,16 @@ public:
     MockISipMessage objSipMessageSupportsSomeOptionTag;
     MockIMessage objMessageRequiresSomeOptionTag;
     MockIMessage objMessageSupportsSomeOptionTag;
+    MockIMtcContext objContext;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+        ON_CALL(objContext, GetMessageUtils)
+                .WillByDefault(ReturnRef(objMessageUtils));
+
         pExtension = new MtcExtension(strSomeOptionTag);
 
         InitMessageRequiresOptionTag(strSomeOptionTag);

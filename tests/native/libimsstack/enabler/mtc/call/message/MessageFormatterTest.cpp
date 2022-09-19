@@ -28,9 +28,11 @@
 #include "helper/MtcSupplementaryService.h"
 #include "MockIMtcService.h"
 #include "MockIPhoneInfoLocation.h"
+#include "MtcContextRepository.h"
 #include "sipcore/MockISipMessage.h"
 #include "SipStatusCode.h"
 #include "utility/MessageUtil.h"
+#include "utility/MessageUtils.h"
 
 LOCAL IMS_SINT32 SLOT_ID = 0;
 
@@ -54,10 +56,13 @@ public:
     MockIMtcConfigurationManager* pConfigurationManager;
     MtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pSupplementaryService;
+    MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
+        MtcContextRepository::GetInstance()->AddContext(IMS_SLOT_0, &objContext);
+
         pConfigurationManager = new MockIMtcConfigurationManager();
         pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
         pSupplementaryService = new MtcSupplementaryService(*pConfigurationProxy);
@@ -68,6 +73,7 @@ protected:
         ON_CALL(objContext, GetService).WillByDefault(ReturnRef(objService));
         ON_CALL(objContext, GetSupplementaryService)
                 .WillByDefault(ReturnRef(*pSupplementaryService));
+        ON_CALL(objContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
         ON_CALL(objSession, GetNextRequest).WillByDefault(Return(&objMessage));
         ON_CALL(objSession, GetNextResponse).WillByDefault(Return(&objMessage));
         ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
