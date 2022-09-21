@@ -403,7 +403,7 @@ PROTECTED VIRTUAL IMS_BOOL AosSubscription::ProcessFailureResponse_423(IN IMS_BO
         return IMS_FALSE;
     }
 
-    m_piRegSubscription->SetExpires(nMinTime + nMinTime / 2);
+    m_piRegSubscription->SetExpires(nMinTime);
 
     if (!SendSubscribe())
     {

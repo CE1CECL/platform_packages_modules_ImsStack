@@ -680,7 +680,7 @@ TEST_F(AosSubscriptionTest, ProcessFailedStatusCode)
             .WillOnce(Return(strMinTime))
             .WillOnce(Return(strMinTime2));
 
-    EXPECT_CALL(objMockIRegSubscription, SetExpires(900)).Times(3);
+    EXPECT_CALL(objMockIRegSubscription, SetExpires(600)).Times(3);
 
     EXPECT_CALL(objMockIRegSubscription, Subscribe())
             .WillOnce(Return(IMS_SUCCESS))
