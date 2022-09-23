@@ -19,6 +19,10 @@ package com.android.imsstack.imsservice.mmtel;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
+import android.telephony.ims.ImsMmTelManager;
+import android.telephony.ims.ProvisioningManager;
 import android.telephony.ims.feature.CapabilityChangeRequest.CapabilityPair;
 import android.telephony.ims.feature.ImsFeature;
 import android.telephony.ims.feature.MmTelFeature;
@@ -28,6 +32,11 @@ import android.util.SparseArray;
 
 import com.android.imsstack.core.CommonStarter;
 import com.android.imsstack.core.ICommonPackageListener;
+import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.ConfigInterface;
+import com.android.imsstack.core.agents.dcm.DcFactory;
+import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
+import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.enabler.IContext;
 import com.android.imsstack.enabler.aos.AosFactory;
 import com.android.imsstack.enabler.aos.IAosRegistration;
@@ -62,6 +71,9 @@ public class ImsRegistrationTracker {
     private int mFeatures = FeatureTagMask.NONE;
     private List<Pair<Integer, Integer>> mCapabilities;
 
+    @VisibleForTesting
+    public MessageHandler mHandler = null;
+
     public ImsRegistrationTracker(IContext context, ImsRegistrationImpl regImpl) {
         mContext = context;
         mRegImpl = regImpl;
@@ -71,6 +83,10 @@ public class ImsRegistrationTracker {
         mCapabilities = new ArrayList<Pair<Integer, Integer>>();
 
         mRegImpl.setRegistrationTracker(this);
+
+        if (isVoWifiCapabilitySupportedWhenWifiOnlyOrPreferredInRoaming()) {
+            mHandler = new MessageHandler();
+        }
     }
 
     public void dispose() {
@@ -79,6 +95,10 @@ public class ImsRegistrationTracker {
         mRegImpl.setRegistrationTracker(null);
         mRegTracker.clear();
         mCapabilities.clear();
+
+        if (mHandler != null) {
+            mHandler.clear();
+        }
     }
 
     public ImsRegistrationImpl getRegistration() {
@@ -215,6 +235,26 @@ public class ImsRegistrationTracker {
         return AosFactory.getInstance().getAosRegistration(slotId);
     }
 
+    @VisibleForTesting
+    protected ConfigInterface getConfigInterface(int slotId) {
+        return AgentFactory.getInstance().getAgent(ConfigInterface.class, slotId);
+    }
+
+    @VisibleForTesting
+    protected IDcNetWatcher getDcNetWatcher(int slotId) {
+        return (IDcNetWatcher) DcFactory.getDc(DcFactory.NETWORK_WATCHER, slotId);
+    }
+
+    @VisibleForTesting
+    protected Handler getMessageHandler() {
+        return mHandler;
+    }
+
+    @VisibleForTesting
+    protected ICommonPackageListener getICommonPackageListener() {
+        return mRegTracker;
+    }
+
     protected CapabilityPairs createCapabilityPairsFromCapabilities() {
 
         if (mCapabilities.isEmpty()) {
@@ -226,6 +266,15 @@ public class ImsRegistrationTracker {
             Pair<Integer, Integer> finalcapability = mCapabilities.get(i);
             int networkType = convertToAosNetworkType(finalcapability.first);
             int capability = convertToAosCapability(finalcapability.second);
+
+            if (isVoWifiCapabilitySupportedWhenWifiOnlyOrPreferredInRoaming()) {
+                if ((networkType == IAosRegistrationListener.NetworkType.IWLAN)
+                        && (capability == IAosRegistrationListener.Capability.VOICE)) {
+                    if (isVoiceRoaming() && isCellularPreferredMode()) {
+                        continue;
+                    }
+                }
+            }
 
             capabilityPairs.addCapability(networkType, capability);
             logi("changeCapabilities::finalCaps networkType"
@@ -241,6 +290,33 @@ public class ImsRegistrationTracker {
             }
         }
         return capabilityPairs;
+    }
+
+    private boolean isCellularPreferredMode() {
+        ImsServiceRecord isr = ImsServiceManager.getServiceRecord(mContext.getPhoneId());
+        ImsConfigImpl configImpl = isr.getConfig();
+
+        if ((configImpl.getConfigInt(
+                ProvisioningManager.KEY_VOICE_OVER_WIFI_ROAMING_ENABLED_OVERRIDE)
+                == ProvisioningManager.PROVISIONING_VALUE_DISABLED)
+                || (configImpl.getConfigInt(ProvisioningManager.KEY_VOICE_OVER_WIFI_MODE_OVERRIDE)
+                == ImsMmTelManager.WIFI_MODE_CELLULAR_PREFERRED)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isVoiceRoaming() {
+        IDcNetWatcher dcnw = getDcNetWatcher(mContext.getSlotId());
+        return (dcnw != null) ? dcnw.isVoiceRoaming() : false;
+    }
+
+    private boolean isVoWifiCapabilitySupportedWhenWifiOnlyOrPreferredInRoaming() {
+        ConfigInterface config = getConfigInterface(mContext.getSlotId());
+        CarrierConfig cc = (config != null) ? config.getCarrierConfig() : null;
+        return cc != null && cc.getBoolean(
+                CarrierConfig.Assets
+                .KEY_SUPPORT_VOWIFI_CAPABILITY_WHEN_WIFI_ONLY_OR_PREFERRED_IN_ROAMING_BOOL);
     }
 
     private int convertToAosNetworkType(int radioTech) {
@@ -287,6 +363,47 @@ public class ImsRegistrationTracker {
 
     private static void logi(String s) {
         ImsLog.i("[GII-IMPL] " + s);
+    }
+
+    private class MessageHandler extends Handler {
+        public static final int EVENT_VOICE_ROAMING_STATE_CHANGED = 1;
+
+        MessageHandler() {
+            super(mContext.getDefaultLooper());
+            init();
+        }
+
+        public void init() {
+            IDcNetWatcher dcnw = getDcNetWatcher(mContext.getSlotId());
+            if (dcnw != null) {
+                dcnw.registerForVoiceRoamingStateChanged(this,
+                        EVENT_VOICE_ROAMING_STATE_CHANGED, null);
+            }
+        }
+
+        public void clear() {
+            IDcNetWatcher dcnw = getDcNetWatcher(mContext.getSlotId());
+            if (dcnw != null) {
+                dcnw.unregisterForVoiceRoamingStateChanged(this);
+            }
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            logi("MessageHandler :: msg=" + msg.what);
+
+            switch (msg.what) {
+                case EVENT_VOICE_ROAMING_STATE_CHANGED: {
+                    CapabilityPairs capabilityPairs = createCapabilityPairsFromCapabilities();
+                    if (capabilityPairs != null) {
+                        mRegTracker.changeCapabilities(capabilityPairs);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
     }
 
     private class RegTracker implements IAosRegistrationListener, ICommonPackageListener {
@@ -457,6 +574,14 @@ public class ImsRegistrationTracker {
                 return;
             }
 
+            if (isVoWifiCapabilitySupportedWhenWifiOnlyOrPreferredInRoaming()) {
+                if (mHandler == null) {
+                    mHandler = new MessageHandler();
+                } else {
+                    mHandler.init();
+                }
+            }
+
             if (mAosReg == null) {
                 mAosReg = getIAosRegistration(mContext.getSlotId());
                 if (mAosReg != null) {
@@ -481,6 +606,10 @@ public class ImsRegistrationTracker {
                 mAosReg.removeListener(this);
             }
             mAosReg = null;
+
+            if (mHandler != null) {
+                mHandler.clear();
+            }
         }
 
         private int convertToTelephonyCapability(int capability) {

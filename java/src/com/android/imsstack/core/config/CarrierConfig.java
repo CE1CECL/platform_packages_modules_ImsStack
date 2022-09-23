@@ -466,6 +466,9 @@ public class CarrierConfig {
                 "remove_old_sa_on_establishing_sa_bool";
         public static final String KEY_REQUIRE_REG_AFTER_IMS_CALL_END_ON_REG_HELD_BOOL =
                 "require_reg_after_ims_call_end_on_reg_held_bool";
+        public static final String
+                KEY_SUPPORT_VOWIFI_CAPABILITY_WHEN_WIFI_ONLY_OR_PREFERRED_IN_ROAMING_BOOL =
+                        "support_vowifi_capability_when_wifi_only_or_preferred_in_roaming_bool";
         public static final String KEY_REQUIRED_EMERGENCY_REGISTRATION_IN_ROAMING_BOOL =
                 "required_emergency_registration_in_roaming_bool";
         public static final String KEY_REQUIRED_VOLTE_BLOCK_BY_SETTING_BOOL =
