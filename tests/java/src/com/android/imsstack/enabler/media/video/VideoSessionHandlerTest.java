@@ -58,6 +58,8 @@ public class VideoSessionHandlerTest {
     // open Session Parameters
     private static final String LOCAL_RTP_ADDRESS = "222.22.22.22";
     private static final int LOCAL_RTP_PORT = 50050;
+    private static final String REMOTE_RTP_ADDRESS = "fg01:cdcd:abef:6fee::1";
+    private static final int REMOTE_RTP_PORT = 1240;
     private static final int SESSION_ID = 12;
 
     // Session Operator Results
@@ -234,8 +236,6 @@ public class VideoSessionHandlerTest {
         testParcel.writeInt(ImsMediaSession.SESSION_TYPE_VIDEO);
         videoConfig.writeToParcel(testParcel, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         testParcel.setDataPosition(0);
-        mVideoSessionHandler.setVideoQosAgent(mMockQosAgent);
-        mVideoSessionHandler.setRtpSocket(mRtpSocketPair);
         mMediaListener.onMediaMessage(testParcel);
         processAllMessages();
         verify(mMockVideoSession).modifySession(eq(videoConfig));
@@ -251,6 +251,23 @@ public class VideoSessionHandlerTest {
         processAllMessages();
         verify(mMockVideoSessionCallbackHandler)
                 .modifySessionResponse(eq(videoConfig), eq(RESULT_FAILURE));
+    }
+
+    @Test
+    public void testRequestQoS() {
+        // QoS Request
+        Parcel testParcel = Parcel.obtain();
+        testParcel.writeInt(MediaConstants.REQUEST_QOS);
+        testParcel.writeInt(ImsMediaSession.SESSION_TYPE_VIDEO);
+        testParcel.writeString(REMOTE_RTP_ADDRESS);
+        testParcel.writeInt(REMOTE_RTP_PORT);
+        testParcel.setDataPosition(0);
+        mVideoSessionHandler.setVideoQosAgent(mMockQosAgent);
+        mVideoSessionHandler.setRtpSocket(mRtpSocketPair);
+        mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
+        verify(mMockQosAgent).updateQosConnection(eq(mMockRtpSocket), eq(mMockRtpSocket),
+                eq(REMOTE_RTP_ADDRESS), eq(REMOTE_RTP_PORT));
     }
 
     @Test

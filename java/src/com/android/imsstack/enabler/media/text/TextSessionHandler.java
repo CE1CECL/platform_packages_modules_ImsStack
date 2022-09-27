@@ -113,6 +113,12 @@ public class TextSessionHandler  {
         return mTextMessageHandler;
     }
 
+    private boolean isWaitRequired(int requestType) {
+        return (requestType != MediaConstants.REQUEST_OPEN_SESSION
+                && requestType != MediaConstants.RESPONSE_OPEN_SESSION
+                && requestType != MediaConstants.REQUEST_QOS);
+    }
+
     /** Text session message Handler */
     class TextMessageHandler extends Handler {
 
@@ -127,8 +133,7 @@ public class TextSessionHandler  {
             // Till open session response is received, handling other commands has to wait
             try {
                 synchronized (mLock) {
-                    if (mTextSession == null && msg.what != MediaConstants.REQUEST_OPEN_SESSION
-                                && msg.what != MediaConstants.RESPONSE_OPEN_SESSION) {
+                    if (mTextSession == null && isWaitRequired(msg.what)) {
                         ImsLog.d(Thread.currentThread().getName()
                                 + " is waiting for Text openSession response");
                         mLock.wait(MediaConstants.RESPONSE_WAIT_TIMEOUT);
@@ -161,6 +166,12 @@ public class TextSessionHandler  {
                 case MediaConstants.REQUEST_MODIFY_SESSION:
                 {
                     handleTextModifySession((TextConfig) msg.obj);
+                }
+                    break;
+
+                case MediaConstants.REQUEST_QOS:
+                {
+                    handleTextQos((String) msg.obj, msg.arg1);
                 }
                     break;
 
@@ -336,6 +347,19 @@ public class TextSessionHandler  {
             }
                 break;
 
+            case MediaConstants.REQUEST_QOS:
+            {
+                String remoteIpAddress = parcel.readString();
+                int remotePortNumber = parcel.readInt();
+                ImsLog.v("remoteIpAddress= " + remoteIpAddress
+                        + " remotePortNumber= " + remotePortNumber);
+
+                Message.obtain(
+                        mTextMessageHandler, requestType, remotePortNumber, UNUSED,
+                        remoteIpAddress).sendToTarget();
+            }
+                break;
+
             case MediaConstants.REQUEST_SEND_RTT:
             {
                 String rttMessage = parcel.readString();
@@ -430,21 +454,20 @@ public class TextSessionHandler  {
 
     private void handleTextModifySession(TextConfig textConfig) {
         if (mTextSession != null) {
-            InetSocketAddress remoteRtpAddress = textConfig.getRemoteRtpAddress();
-            if (remoteRtpAddress != null) {
-                InetAddress remoteInetAddress = remoteRtpAddress.getAddress();
-                int remotePort = remoteRtpAddress.getPort();
-                if (remoteInetAddress != null && remotePort != 0
-                        && !remoteRtpAddress.equals(mRemoteAddress)) {
-                    mTextQosAgent.updateQosConnection(mRtpSocket.first, mRtpSocket.second,
-                            remoteInetAddress.getHostAddress(), remotePort);
-                    mRemoteAddress = remoteRtpAddress;
-                }
-            }
             mTextSession.modifySession(textConfig);
         }
         else {
             handleModifySessionResponse(textConfig, ImsMediaSession.RESULT_NOT_READY);
+        }
+    }
+
+    private void handleTextQos(String remoteIpAddress, int remotePortNumber)  {
+        if (remoteIpAddress != null && remotePortNumber != 0
+                && isNewRemoteAddress(remoteIpAddress, remotePortNumber)) {
+            mTextQosAgent.updateQosConnection(mRtpSocket.first, mRtpSocket.second,
+                    remoteIpAddress, remotePortNumber);
+            ImsLog.d("Updated QoS Connection for remoteIpAddress= " + remoteIpAddress
+                    + " remotePortNumber= " + remotePortNumber);
         }
     }
 
@@ -502,5 +525,21 @@ public class TextSessionHandler  {
         if (mTextSessionCallbackHandler != null && mTextSession != null) {
             mTextSessionCallbackHandler.onNotifyMediaInactivity(packetType);
         }
+    }
+
+    private boolean isNewRemoteAddress(String remoteIpAddress, int remotePortNumber)  {
+        if (remoteIpAddress != null) {
+            InetSocketAddress remoteSocketAddress =
+                    (InetSocketAddress) (mRtpSocket.first).getRemoteSocketAddress();
+            if (remoteSocketAddress != null) {
+                InetAddress remoteInetAddress = remoteSocketAddress.getAddress();
+                if (remoteInetAddress != null
+                        && remoteIpAddress.equals(remoteInetAddress.getHostAddress())
+                        && remotePortNumber == remoteSocketAddress.getPort()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

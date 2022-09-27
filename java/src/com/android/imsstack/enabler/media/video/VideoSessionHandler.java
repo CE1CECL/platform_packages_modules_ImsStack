@@ -125,6 +125,12 @@ public class VideoSessionHandler {
         return mVideoMessageHandler;
     }
 
+    private boolean isWaitRequired(int requestType) {
+        return (requestType != MediaConstants.REQUEST_OPEN_SESSION
+                && requestType != MediaConstants.RESPONSE_OPEN_SESSION
+                && requestType != MediaConstants.REQUEST_QOS);
+    }
+
     /** Video session message Handler */
     class VideoMessageHandler extends Handler {
 
@@ -139,8 +145,7 @@ public class VideoSessionHandler {
             // Till open session response is received, handling other commands has to wait
             try {
                 synchronized (mLock) {
-                    if (mVideoSession == null && msg.what != MediaConstants.REQUEST_OPEN_SESSION
-                                && msg.what != MediaConstants.RESPONSE_OPEN_SESSION) {
+                    if (mVideoSession == null && isWaitRequired(msg.what)) {
                         ImsLog.d(Thread.currentThread().getName()
                                 + " is waiting for Video openSession response");
                         mLock.wait(MediaConstants.RESPONSE_WAIT_TIMEOUT);
@@ -173,6 +178,12 @@ public class VideoSessionHandler {
                 case MediaConstants.REQUEST_MODIFY_SESSION:
                 {
                     handleVideoModifySession((VideoConfig) msg.obj);
+                }
+                    break;
+
+                case MediaConstants.REQUEST_QOS:
+                {
+                    handleVideoQos((String) msg.obj, msg.arg1);
                 }
                     break;
 
@@ -419,7 +430,18 @@ public class VideoSessionHandler {
             }
                 break;
 
+            case MediaConstants.REQUEST_QOS:
+            {
+                String remoteIpAddress = parcel.readString();
+                int remotePortNumber = parcel.readInt();
+                ImsLog.v("remoteIpAddress= " + remoteIpAddress
+                        + " remotePortNumber= " + remotePortNumber);
 
+                Message.obtain(
+                        mVideoMessageHandler, requestType, remotePortNumber, UNUSED,
+                        remoteIpAddress).sendToTarget();
+            }
+                break;
             case MediaConstants.REQUEST_SET_MEDIA_QUALITY:
             {
                 MediaQualityThreshold threshold =
@@ -513,21 +535,20 @@ public class VideoSessionHandler {
 
     private void handleVideoModifySession(VideoConfig videoConfig) {
         if (mVideoSession != null) {
-            InetSocketAddress remoteRtpAddress = videoConfig.getRemoteRtpAddress();
-            if (remoteRtpAddress != null) {
-                InetAddress remoteInetAddress = remoteRtpAddress.getAddress();
-                int remotePort = remoteRtpAddress.getPort();
-                if (remoteInetAddress != null && remotePort != 0
-                        && !remoteRtpAddress.equals(mRemoteAddress)) {
-                    mVideoQosAgent.updateQosConnection(mRtpSocket.first, mRtpSocket.second,
-                            remoteInetAddress.getHostAddress(), remotePort);
-                    mRemoteAddress = remoteRtpAddress;
-                }
-            }
             mVideoSession.modifySession(videoConfig);
         }
         else {
             handleVideoModifySessionResponse(videoConfig, ImsMediaSession.RESULT_NOT_READY);
+        }
+    }
+
+    private void handleVideoQos(String remoteIpAddress, int remotePortNumber)  {
+        if (remoteIpAddress != null && remotePortNumber != 0
+                && isNewRemoteAddress(remoteIpAddress, remotePortNumber)) {
+            mVideoQosAgent.updateQosConnection(mRtpSocket.first, mRtpSocket.second,
+                    remoteIpAddress, remotePortNumber);
+            ImsLog.d("Updated QoS Connection for remoteIpAddress= " + remoteIpAddress
+                    + " remotePortNumber= " + remotePortNumber);
         }
     }
 
@@ -630,5 +651,21 @@ public class VideoSessionHandler {
         if (mVideoSessionCallbackHandler != null) {
             mVideoSessionCallbackHandler.onNotifyVideoDataUsage(bytes);
         }
+    }
+
+    private boolean isNewRemoteAddress(String remoteIpAddress, int remotePortNumber)  {
+        if (remoteIpAddress != null) {
+            InetSocketAddress remoteSocketAddress =
+                    (InetSocketAddress) (mRtpSocket.first).getRemoteSocketAddress();
+            if (remoteSocketAddress != null) {
+                InetAddress remoteInetAddress = remoteSocketAddress.getAddress();
+                if (remoteInetAddress != null
+                        && remoteIpAddress.equals(remoteInetAddress.getHostAddress())
+                        && remotePortNumber == remoteSocketAddress.getPort()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

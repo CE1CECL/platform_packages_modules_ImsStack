@@ -37,6 +37,7 @@ public class MediaConstants {
     public static final int REQUEST_SEND_DTMF             = (IMSMEDIA_REQUEST + 7);
     public static final int REQUEST_SET_MEDIA_QUALITY     = (IMSMEDIA_REQUEST + 8);
     public static final int REQUEST_HEADER_EXTENSION      = (IMSMEDIA_REQUEST + 9);
+    public static final int REQUEST_QOS                   = (IMSMEDIA_REQUEST + 10);
 
     // Requests for video
     public static final int IMSMEDIA_VIDEO_REQUEST        = (IMSMEDIA_REQUEST + 50);

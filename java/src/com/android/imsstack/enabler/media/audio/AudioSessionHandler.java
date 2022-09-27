@@ -55,15 +55,16 @@ public class AudioSessionHandler  {
     private final AudioSessionCallbackProxy mAudioSessionCallback;
     private ImsAudioSession mAudioSession;
     private int mAudioSessionId;
-    private Pair<DatagramSocket, DatagramSocket> mRtpSocket;
+    private ArrayList<Pair<DatagramSocket, DatagramSocket>> mRtpSocketList = new ArrayList<>();
     private final AudioSessionCallbackHandler mAudioSessionCallbackHandler;
     private final MediaManagerHelper mMediaManager;
     private final AudioMessageHandler mAudioMessageHandler;
     private final IBaseContext mContext;
     private QosAgent mAudioQosAgent;
     private AudioImsQosCallback mAudioImsQosCallback;
-    private InetSocketAddress mRemoteAddress;
     private Object mLock = new Object();
+    private boolean mQosUpdateRequired;
+    private Pair<String, Integer> mLocalAddress;
 
     public AudioSessionHandler(IBaseContext context,
             @NonNull MediaManagerHelper mediaManager, IMtcMediaInterface mtcMediaInterface) {
@@ -100,8 +101,21 @@ public class AudioSessionHandler  {
     }
 
     @VisibleForTesting
+    void setLocalAddress(@Nullable String localAddress, int localPort) {
+        mLocalAddress = new Pair<>(localAddress, localPort);
+    }
+
+    @VisibleForTesting
+    void setQosUpdateRequired(boolean flag) {
+        mQosUpdateRequired = flag;
+    }
+
+    @VisibleForTesting
     void setRtpSocket(@Nullable Pair<DatagramSocket, DatagramSocket> rtpSocket) {
-        mRtpSocket = rtpSocket;
+        synchronized (mRtpSocketList) {
+            mRtpSocketList.clear();
+            mRtpSocketList.add(rtpSocket);
+        }
     }
 
     @VisibleForTesting
@@ -119,6 +133,12 @@ public class AudioSessionHandler  {
         return mAudioMessageHandler;
     }
 
+    private boolean isWaitRequired(int requestType) {
+        return (requestType != MediaConstants.REQUEST_OPEN_SESSION
+                && requestType != MediaConstants.RESPONSE_OPEN_SESSION
+                && requestType != MediaConstants.REQUEST_QOS);
+    }
+
     /** Audio session message Handler */
     class AudioMessageHandler extends Handler {
 
@@ -133,8 +153,7 @@ public class AudioSessionHandler  {
             // Till open session response is received, handling other commands has to wait
             try {
                 synchronized (mLock) {
-                    if (mAudioSession == null && msg.what != MediaConstants.REQUEST_OPEN_SESSION
-                                && msg.what != MediaConstants.RESPONSE_OPEN_SESSION) {
+                    if (mAudioSession == null && isWaitRequired(msg.what)) {
                         ImsLog.d(Thread.currentThread().getName()
                                 + " is waiting for Audio openSession response");
                         mLock.wait(MediaConstants.RESPONSE_WAIT_TIMEOUT);
@@ -167,6 +186,12 @@ public class AudioSessionHandler  {
                 case MediaConstants.REQUEST_MODIFY_SESSION:
                 {
                     handleAudioModifySession((AudioConfig) msg.obj);
+                }
+                    break;
+
+                case MediaConstants.REQUEST_QOS:
+                {
+                    handleAudioQos((String) msg.obj, msg.arg1);
                 }
                     break;
 
@@ -462,6 +487,19 @@ public class AudioSessionHandler  {
             }
                 break;
 
+            case MediaConstants.REQUEST_QOS:
+            {
+                String remoteIpAddress = parcel.readString();
+                int remotePortNumber = parcel.readInt();
+                ImsLog.v("remoteIpAddress= " + remoteIpAddress
+                        + " remotePortNumber= " + remotePortNumber);
+
+                Message.obtain(
+                        mAudioMessageHandler, requestType, remotePortNumber, UNUSED,
+                        remoteIpAddress).sendToTarget();
+            }
+                break;
+
             case MediaConstants.REQUEST_SEND_DTMF:
             {
                 char dtmfDigit = (char)parcel.readByte();
@@ -520,16 +558,23 @@ public class AudioSessionHandler  {
         if(mAudioSession == null) {
             if (mMediaManager.isImsMediaConnected()) {
 
-                mRtpSocket = mAudioQosAgent.createQosConnection(localIpAddress, localPortNumber);
+                Pair<DatagramSocket, DatagramSocket> rtpSocket =
+                        mAudioQosAgent.createQosConnection(localIpAddress, localPortNumber);
+                synchronized (mRtpSocketList) {
+                    mRtpSocketList.clear();
+                    mRtpSocketList.add(rtpSocket);
+                }
+                setQosUpdateRequired(true);
+                setLocalAddress(localIpAddress, localPortNumber);
 
-                if (mRtpSocket == null) {
+                if (rtpSocket == null) {
                     ImsLog.e("rtp socket creation failed");
                     if (mAudioSessionCallbackHandler != null) {
                         mAudioSessionCallbackHandler.openSessionResponse(
                             ImsMediaSession.RESULT_PORT_UNAVAILABLE);
                     }
                     return;
-                } else if (mRtpSocket.first == null || mRtpSocket.second == null) {
+                } else if (rtpSocket.first == null || rtpSocket.second == null) {
                     ImsLog.e("rtp socket creation failed");
                     closeSockets();
                     if (mAudioSessionCallbackHandler != null) {
@@ -539,7 +584,7 @@ public class AudioSessionHandler  {
                     return;
                 }
 
-                mMediaManager.openSession(mRtpSocket.first, mRtpSocket.second,
+                mMediaManager.openSession(rtpSocket.first, rtpSocket.second,
                         ImsMediaSession.SESSION_TYPE_AUDIO, null, mAudioSessionCallback);
             }
             else {
@@ -577,24 +622,17 @@ public class AudioSessionHandler  {
     }
 
     private void closeSockets() {
-        if (mRtpSocket != null) {
-            mAudioQosAgent.destroyQosConnection(mRtpSocket.first, mRtpSocket.second);
+        synchronized (mRtpSocketList) {
+            for (Pair<DatagramSocket, DatagramSocket> rtpSocket : mRtpSocketList) {
+                mAudioQosAgent.destroyQosConnection(rtpSocket.first, rtpSocket.second);
+                mRtpSocketList.remove(rtpSocket);
+            }
+            mRtpSocketList.clear();
         }
     }
 
     private void handleAudioModifySession(AudioConfig audioConfig) {
         if (mAudioSession != null) {
-            InetSocketAddress remoteRtpAddress = audioConfig.getRemoteRtpAddress();
-            if (remoteRtpAddress != null) {
-                InetAddress remoteInetAddress = remoteRtpAddress.getAddress();
-                int remotePort = remoteRtpAddress.getPort();
-                if (remoteInetAddress != null && remotePort != 0
-                        && !remoteRtpAddress.equals(mRemoteAddress)) {
-                    mAudioQosAgent.updateQosConnection(mRtpSocket.first, mRtpSocket.second,
-                            remoteInetAddress.getHostAddress(), remotePort);
-                    mRemoteAddress = remoteRtpAddress;
-                }
-            }
             mAudioSession.modifySession(audioConfig);
         }
         else {
@@ -602,8 +640,47 @@ public class AudioSessionHandler  {
         }
     }
 
+    private void handleAudioQos(String remoteIpAddress, int remotePortNumber)  {
+        synchronized (mRtpSocketList) {
+            if (remoteIpAddress != null && remotePortNumber != 0) {
+                if (mQosUpdateRequired) {
+                    Pair<DatagramSocket, DatagramSocket> rtpSocket = mRtpSocketList.get(0);
+                    mAudioQosAgent.updateQosConnection(rtpSocket.first, rtpSocket.second,
+                            remoteIpAddress, remotePortNumber);
+                    setQosUpdateRequired(false);
+                    ImsLog.d("Updated QoS Connection for remoteIpAddress= " + remoteIpAddress
+                            + " remotePortNumber= " + remotePortNumber);
+                    return;
+                }
+
+                // TODO : updated rtpSocket has to be sent in modifySession
+                if (isNewRemoteAddress(remoteIpAddress, remotePortNumber)) {
+                    Pair<DatagramSocket, DatagramSocket> rtpSocket =
+                            mAudioQosAgent.createQosConnection(
+                                    mLocalAddress.first, mLocalAddress.second,
+                                    remoteIpAddress, remotePortNumber);
+                    ImsLog.d("Created QoS Connection for remoteIpAddress= " + remoteIpAddress
+                            + " remotePortNumber= " + remotePortNumber);
+                    mRtpSocketList.add(rtpSocket);
+                }
+            }
+        }
+    }
+
     private void handleAudioAddConfig(AudioConfig audioConfig) {
         if (mAudioSession != null) {
+            Pair<DatagramSocket, DatagramSocket> rtpSocket;
+            InetSocketAddress remoteRtpAddress = audioConfig.getRemoteRtpAddress();
+            if (remoteRtpAddress != null) {
+                InetAddress remoteInetAddress = remoteRtpAddress.getAddress();
+                int remotePort = remoteRtpAddress.getPort();
+                if (remoteInetAddress != null && remotePort != 0) {
+                    rtpSocket = getRtpSocketFromList(
+                            remoteInetAddress.getHostAddress(), remotePort);
+                }
+            }
+
+            // TODO : rtpSocket has to be sent via addConfig
             mAudioSession.addConfig(audioConfig);
         }
         else {
@@ -613,13 +690,61 @@ public class AudioSessionHandler  {
 
     private void handleAudioDeleteConfig(AudioConfig audioConfig) {
         if (mAudioSession != null) {
+            InetSocketAddress remoteRtpAddress = audioConfig.getRemoteRtpAddress();
+            if (remoteRtpAddress != null) {
+                InetAddress remoteInetAddress = remoteRtpAddress.getAddress();
+                int remotePort = remoteRtpAddress.getPort();
+                Pair<DatagramSocket, DatagramSocket> rtpSocket =
+                        getRtpSocketFromList(remoteInetAddress.getHostAddress(), remotePort);
+                if (rtpSocket != null) {
+                    mAudioQosAgent.destroyQosConnection(rtpSocket.first, rtpSocket.second);
+                    synchronized (mRtpSocketList) {
+                        mRtpSocketList.remove(rtpSocket);
+                    }
+                }
+            }
+
             mAudioSession.deleteConfig(audioConfig);
         }
     }
 
     private void handleAudioConfirmConfig(AudioConfig audioConfig) {
         if (mAudioSession != null) {
-            mAudioSession.confirmConfig(audioConfig);
+            InetSocketAddress remoteRtpAddress = audioConfig.getRemoteRtpAddress();
+            if (remoteRtpAddress != null) {
+                InetAddress remoteInetAddress = remoteRtpAddress.getAddress();
+                if (remoteInetAddress != null) {
+                    String confirmedAddress = remoteInetAddress.getHostAddress();
+                    int confirmedPort = remoteRtpAddress.getPort();
+                    Pair<DatagramSocket, DatagramSocket> confirmedRtpSocket =
+                            getRtpSocketFromList(confirmedAddress, confirmedPort);
+                    synchronized (mRtpSocketList) {
+                        for (Pair<DatagramSocket, DatagramSocket> rtpSocket : mRtpSocketList) {
+                            InetSocketAddress remoteSocketAddress =
+                                    (InetSocketAddress) (rtpSocket.first).getRemoteSocketAddress();
+                            if (confirmedAddress != null
+                                    && (!confirmedAddress.equals(
+                                            remoteSocketAddress.getAddress().getHostAddress())
+                                    || confirmedPort != remoteSocketAddress.getPort())) {
+                                mAudioQosAgent.destroyQosConnection(rtpSocket.first,
+                                        rtpSocket.second);
+                                ImsLog.d("destroyed QoS Connection for remoteIpAddress= "
+                                        + remoteSocketAddress.getAddress().getHostAddress()
+                                        + " remotePortNumber= " + remoteSocketAddress.getPort());
+                            }
+                        }
+                        mRtpSocketList.clear();
+                        mRtpSocketList.add(confirmedRtpSocket);
+                        ImsLog.d("rtpSocketList has [%d] sockets available"
+                                + mRtpSocketList.size());
+                    }
+                    mAudioSession.confirmConfig(audioConfig);
+                } else {
+                    handleConfirmConfigResponse(audioConfig, ImsMediaSession.RESULT_INVALID_PARAM);
+                }
+            } else {
+                handleConfirmConfigResponse(audioConfig, ImsMediaSession.RESULT_INVALID_PARAM);
+            }
         }
     }
 
@@ -719,5 +844,41 @@ public class AudioSessionHandler  {
         if (mAudioSessionCallbackHandler != null) {
             mAudioSessionCallbackHandler.callQualityChanged(callQuality);
         }
+    }
+
+    private boolean isNewRemoteAddress(String remoteIpAddress, int remotePortNumber)  {
+        synchronized (mRtpSocketList) {
+            if (remoteIpAddress != null) {
+                for (Pair<DatagramSocket, DatagramSocket> rtpSocket : mRtpSocketList) {
+                    InetSocketAddress remoteSocketAddress =
+                            (InetSocketAddress) (rtpSocket.first).getRemoteSocketAddress();
+                    if (remoteSocketAddress != null) {
+                        InetAddress remoteInetAddress = remoteSocketAddress.getAddress();
+                        if (remoteInetAddress != null
+                                && remoteIpAddress.equals(remoteInetAddress.getHostAddress())
+                                && remotePortNumber == remoteSocketAddress.getPort()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private Pair<DatagramSocket, DatagramSocket> getRtpSocketFromList(
+            String remoteIpAddress, int remotePortNumber)  {
+        synchronized (mRtpSocketList) {
+            for (Pair<DatagramSocket, DatagramSocket> rtpSocket : mRtpSocketList) {
+                InetSocketAddress remoteAddress =
+                        (InetSocketAddress) (rtpSocket.first).getRemoteSocketAddress();
+                if (remoteIpAddress != null
+                        && remoteIpAddress.equals(remoteAddress.getAddress().getHostAddress())
+                        && remotePortNumber == remoteAddress.getPort()) {
+                    return rtpSocket;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -58,6 +58,8 @@ public class TextSessionHandlerTest {
     // open Session Parameters
     private static final String LOCAL_RTP_ADDRESS = "123.12.12.98";
     private static final int LOCAL_RTP_PORT = 50040;
+    private static final String REMOTE_RTP_ADDRESS = "gf01:abab:dcef:6fee::1";
+    private static final int REMOTE_RTP_PORT = 1000;
     private static final int SESSION_ID = 532;
 
     // Session Operator Results
@@ -235,8 +237,6 @@ public class TextSessionHandlerTest {
         testParcel.writeInt(ImsMediaSession.SESSION_TYPE_RTT);
         textConfig.writeToParcel(testParcel, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
         testParcel.setDataPosition(0);
-        mTextSessionHandler.setTextQosAgent(mMockQosAgent);
-        mTextSessionHandler.setRtpSocket(mRtpSocketPair);
         mMediaListener.onMediaMessage(testParcel);
         processAllMessages();
         verify(mMockTextSession).modifySession(eq(textConfig));
@@ -265,6 +265,23 @@ public class TextSessionHandlerTest {
         mMediaListener.onMediaMessage(testParcel);
         processAllMessages();
         verify(mMockTextSession).sendRtt(eq(RTT_MESSAGE));
+    }
+
+    @Test
+    public void testRequestQoS() {
+        // QoS Request
+        Parcel testParcel = Parcel.obtain();
+        testParcel.writeInt(MediaConstants.REQUEST_QOS);
+        testParcel.writeInt(ImsMediaSession.SESSION_TYPE_RTT);
+        testParcel.writeString(REMOTE_RTP_ADDRESS);
+        testParcel.writeInt(REMOTE_RTP_PORT);
+        testParcel.setDataPosition(0);
+        mTextSessionHandler.setTextQosAgent(mMockQosAgent);
+        mTextSessionHandler.setRtpSocket(mRtpSocketPair);
+        mMediaListener.onMediaMessage(testParcel);
+        processAllMessages();
+        verify(mMockQosAgent).updateQosConnection(eq(mMockRtpSocket), eq(mMockRtpSocket),
+                eq(REMOTE_RTP_ADDRESS), eq(REMOTE_RTP_PORT));
     }
 
     @Test
