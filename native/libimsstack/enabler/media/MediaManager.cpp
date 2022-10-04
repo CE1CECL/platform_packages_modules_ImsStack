@@ -116,8 +116,7 @@ MediaMsgHandler* MediaManager::GetHandler(IN IMS_SINTP nCallKey)
 }
 
 PUBLIC
-MediaSession* MediaManager::CreateSession(
-        IN MEDIA_SERVICE_TYPE nService, IN IMS_SINTP nCallKey)
+MediaSession* MediaManager::CreateSession(IN MEDIA_SERVICE_TYPE nService, IN IMS_SINTP nCallKey)
 {
     IMS_TRACE_D("CreateSession() - CallKey[%d], nService[%d]", nCallKey, nService, 0);
 
@@ -208,42 +207,6 @@ IMS_BOOL MediaManager::handleRequestMsg(IN IMS_SINT32 eEvent, IN IMS_SINTP nCall
     return IMS_FALSE;
 }
 
-PUBLIC
-IMS_BOOL MediaManager::OtherSessionHold(IN IMS_SINTP nCallKey)
-{
-    IMS_BOOL bRet = IMS_TRUE;
-
-    IMS_TRACE_D("OtherSessionHold() have [%d] more call(s)", m_lstSessionNode.GetSize() - 1, 0, 0);
-
-    for (IMS_UINT32 i = 0; i < m_lstSessionNode.GetSize(); i++)
-    {
-        MediaSessionNode* pSessionNode = (MediaSessionNode*)m_lstSessionNode.GetAt(i);
-        if (pSessionNode != IMS_NULL)
-        {
-            if (pSessionNode->nCallKey != nCallKey)
-            {
-                if (pSessionNode->pMediaSession->IsHoldSession(IMS_NULL) == IMS_FALSE)
-                {
-                    IMS_TRACE_D("OtherSessionHold() hold this session callKey [%d]",
-                            pSessionNode->nCallKey, 0, 0);
-                    bRet &= pSessionNode->pMediaSession->HoldSession();
-                }
-                else
-                {
-                    IMS_TRACE_D("OtherSessionHold() This session is already on hold callKey [%d]",
-                            pSessionNode->nCallKey, 0, 0);
-                }
-            }
-            else
-            {
-                IMS_TRACE_D("OtherSessionHold() This is me callKey[%d]", nCallKey, 0, 0);
-            }
-        }
-    }
-
-    return bRet;
-}
-
 PRIVATE
 void MediaManager::ClearMediaSessionNode()
 {
@@ -277,9 +240,7 @@ void MediaManager::DeleteMediaSessionNode(IN MediaSessionNode* pSessionNode, IMS
     m_lstSessionNode.RemoveAt(nIndex);
 }
 
-
-PRIVATE VIRTUAL MediaManager::MediaSessionNode* MediaManager::FindSessionNode(
-        IN IMS_SINTP nCallKey)
+PRIVATE VIRTUAL MediaManager::MediaSessionNode* MediaManager::FindSessionNode(IN IMS_SINTP nCallKey)
 {
     for (IMS_UINT32 i = 0; i < m_lstSessionNode.GetSize(); i++)
     {

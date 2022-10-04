@@ -35,21 +35,6 @@ public:
 
     AudioController();
     ~AudioController();
-    /**
-     * @brief Get the given session with nego id is in hold state
-     *
-     * @param nNegoId The identification of AudioMediaSession
-     * @return IMS_BOOL Returns IMS_TRUE when the target session is in hold state, IMS_FALSE in it
-     * is in live state
-     */
-    IMS_BOOL IsHoldSession(IN IMS_UINTP nNegoId);
-
-    /**
-     * @brief Transition the all AudioMediaSession instances to hold
-     *
-     * @return IMS_BOOL Returns IMS_TRUE when the changing to hold successfully
-     */
-    IMS_BOOL HoldSession();
 
     /**
      * @brief Set the update condition for next transition
@@ -140,7 +125,6 @@ public:
      *
      * @return IMS_BOOL Returns IMS_TRUE when the send message successfully, IMS_FALSE when it is
      * failed to send
-     *
      */
     IMS_BOOL CloseSession();
 

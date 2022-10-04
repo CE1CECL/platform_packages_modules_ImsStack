@@ -38,33 +38,6 @@ TextController::~TextController()
 }
 
 PUBLIC
-IMS_BOOL TextController::IsHoldSession()
-{
-    if (m_pSession != IMS_NULL)
-    {
-        return m_pSession->IsDirectionHold();
-    }
-
-    return IMS_TRUE;
-}
-
-PUBLIC
-IMS_BOOL TextController::HoldSession()
-{
-    IMS_TRACE_D("HoldSession()", 0, 0, 0);
-
-    if (m_pSession != IMS_NULL)
-    {
-        m_pSession->UpdateMediaQualityThreshold(IMS_TRUE, IMS_TRUE);
-        m_pSession->SetMediaQuality();
-        m_pSession->HoldRtpConfig();
-        return m_pSession->Modify();
-    }
-
-    return IMS_FALSE;
-}
-
-PUBLIC
 IMS_BOOL TextController::CreateSession(IMediaSessionListener* pListener, TextConfiguration* pConfig)
 {
     if (pListener == IMS_NULL || pConfig == IMS_NULL)
@@ -203,5 +176,5 @@ IMS_BOOL TextController::UpdateQualityThreshold(IN TextNego* pNego)
         bEnableRtcp = IMS_FALSE;
     }
 
-    return m_pSession->UpdateMediaQualityThreshold(m_pSession->IsDirectionHold(), bEnableRtcp);
+    return m_pSession->UpdateMediaQualityThreshold(IMS_FALSE, bEnableRtcp);
 }

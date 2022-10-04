@@ -18,13 +18,10 @@
 #define _IMS_VIDEO_MEDIA_SESSION_H_
 
 #include <MediaQualityThreshold.h>
-#include <VideoConfig.h>
 #include "BaseSession.h"
 #include "video/VideoDef.h"
 #include "video/VideoProfile.h"
 #include "config/VideoConfiguration.h"
-
-using namespace android::telephony::imsmedia;
 
 class VideoMediaSession : public BaseSession
 {
@@ -33,6 +30,8 @@ public:
     {
         /** The state that video session created and no operation is on going */
         STATE_IDLE = 0,
+        /** The state that video session created and openSession is finished */
+        STATE_OPENED,
         /** The state that video session created and camera is running in preview mode and no
            rx/rtcp streaming is on going */
         STATE_PREVIEW,
@@ -66,19 +65,6 @@ public:
             IN VideoProfile* pNegoProfile);
 
     /**
-     * @brief
-     *
-     * @return IMS_BOOL
-     */
-    IMS_BOOL IsDirectionHold();
-
-    /**
-     * @brief
-     *
-     */
-    void HoldRtpConfig();
-
-    /**
      * @brief Update AccessNetwork information in the RtpConfig
      *
      * @param nAccessNetwork : AccessNetwork information
@@ -86,36 +72,30 @@ public:
     void UpdateAccessNetwork(IMS_UINT32 nAccessNetwork);
 
     /**
-     * @brief
+     * @brief Update MediaQualityThreshold parameters and send it to the java
      *
-     * @param bIsHold
-     * @param bEnableRtcp
-     * @return IMS_BOOL
+     * @param bIsHold If it is IMS_TRUE, it has to set for the hold state
+     * @param bEnableRtcp Set IMS_TRUE to enable monitoring Rtcp inacitivity, IMS_FALSE to disable
+     * rtcp monitoring
+     * @return IMS_BOOL Returns IMS_TRUE when the sending MediaQualityThreshold is done
+     * successfully, IMS_FALSE when it is failed with invalid arguments
      */
     IMS_BOOL UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold, IN IMS_BOOL bEnableRtcp);
 
     /**
-     * @brief
+     * @brief Set the local ip address and port number
      *
-     * @param pNegoProfile
-     * @return IMS_BOOL
-     */
-    IMS_BOOL UpdateLocalEndPoint(IN VideoProfile* pNegoProfile);
-
-    /**
-     * @brief
-     *
-     * @param objLocalAddr
-     * @param nPort
+     * @param objLocalAddr The local ip address
+     * @param nPort The local port number
      */
     void UpdateLocalEndPoint(IN IPAddress objLocalAddr, IN IMS_UINT32 nPort);
 
     /**
-     * @brief
+     * @brief Handles the message from the telecom
      *
-     * @param nMsg
-     * @param pParam
-     * @return IMS_BOOL
+     * @param nMsg The message type
+     * @param pParam The message parameter
+     * @return IMS_BOOL Returns IMS_TRUE when the parameter is valid, IMS_FALSE when it is invalid
      */
     IMS_BOOL OnMessages(IN IMS_SINT32 nMsg, IN IMS_UINTP pParam);
 
@@ -146,10 +126,8 @@ private:
     IMS_BOOL OnChangeCameraZoomCmd(IN IMS_UINTP pParam);
     IMS_BOOL OnSetPauseImageCmd(IN IMS_UINTP pParam);
     IMS_BOOL OnChangeOrientation(IN IMS_UINTP pParam);
-    void SetStateFromVideoMode(IN IMS_SINT32 mode);
 
     VideoConfiguration* m_pConfig;
-    VideoConfig m_objConfig;
     MediaQualityThreshold m_objMediaQualityThreshold;
     IPAddress m_objLocalAddress;
     IMS_SINT32 m_nLocalPort;

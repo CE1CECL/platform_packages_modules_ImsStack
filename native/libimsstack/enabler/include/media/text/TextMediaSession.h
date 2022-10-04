@@ -17,14 +17,11 @@
 #ifndef _IMS_TEXT_MEDIA_SESSION_H_
 #define _IMS_TEXT_MEDIA_SESSION_H_
 
-#include <TextConfig.h>
 #include <MediaQualityThreshold.h>
 #include "BaseSession.h"
 #include "text/TextDef.h"
 #include "text/TextProfile.h"
 #include "config/TextConfiguration.h"
-
-using namespace android::telephony::imsmedia;
 
 class TextMediaSession : public BaseSession
 {
@@ -62,19 +59,6 @@ public:
             IN TextProfile* pNegoProfile);
 
     /**
-     * @brief Check the media direction is a hold type
-     *
-     * @return IMS_BOOL Returns IMS_TRUE when is it hold type, IMS_FALSE if it is not
-     */
-    IMS_BOOL IsDirectionHold();
-
-    /**
-     * @brief Set the RtpConfig parameters for hold state
-     *
-     */
-    void HoldRtpConfig();
-
-    /**
      * @brief Update AccessNetwork information in the RtpConfig
      *
      * @param nAccessNetwork : AccessNetwork information
@@ -91,14 +75,6 @@ public:
      * successfully, IMS_FALSE when it is failed with invalid arguments
      */
     IMS_BOOL UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold, IN IMS_BOOL bEnableRtcp);
-
-    /**
-     * @brief Update local ip address and port number
-     *
-     * @param pNegoProfile The negotiated profile to update
-     * @return IMS_BOOL Returns IMS_TRUE when the parameter is valid, IMS_FALSE when it is invalid
-     */
-    IMS_BOOL UpdateLocalEndPoint(IN TextProfile* pNegoProfile);
 
     /**
      * @brief Set the local ip address and port number
@@ -152,17 +128,7 @@ public:
     IMS_SINT32 GetRemotePort();
 
 private:
-    /**
-     * @brief Send text string to ImsMedia
-     *
-     * @param text text string
-     * @return IMS_BOOL Returns IMS_TRUE when the sending message is done successfully, IMS_FALSE
-     * when it is failed with invalid arguments
-     */
-    IMS_BOOL SendRtt(IN android::String8 text);
-
     TextConfiguration* m_pConfig;
-    TextConfig m_objTextConfig;
     MediaQualityThreshold m_objMediaQualityThreshold;
     IPAddress m_objLocalAddress;
     IMS_SINT32 m_nLocalPort;

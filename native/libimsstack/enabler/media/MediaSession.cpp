@@ -80,22 +80,6 @@ MEDIA_NETWORK_TYPE MediaSession::GetNetworkType()
     return MEDIA_NETWORK_NONE;
 }
 
-PUBLIC
-IMS_BOOL MediaSession::IsHoldSession(IN IMS_UINTP nNegoId)
-{
-    return (m_objAudioController.IsHoldSession(nNegoId) && m_objVideoController.IsHoldSession());
-}
-
-PUBLIC
-IMS_BOOL MediaSession::HoldSession()
-{
-    IMS_TRACE_D("HoldSession()", 0, 0, 0);
-    m_objAudioController.HoldSession();
-    m_objVideoController.HoldSession();
-    m_objTextController.HoldSession();
-    return IMS_FALSE;
-}
-
 PUBLIC VIRTUAL void MediaSession::SetMtcListener(
         IN IMediaSessionClientListener* piMediaSessionListener)
 {
@@ -334,26 +318,18 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::Run(IN IMS_UINTP nNegoId)
         return IMS_FALSE;
     }
 
+    // set Access Network
     MediaManager* pMediaManager = MediaManager::GetInstance(m_nSlotId);
 
-    if (pMediaManager == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "Run() - No MediaManager", 0, 0, 0);
-        return IMS_FALSE;
-    }
-
-    if (IsHoldSession(nNegoId) != IMS_TRUE)
-    {
-        IMS_TRACE_D("Run() - Need to hold active Session except callKey[%d]", m_nCallKey, 0, 0);
-        pMediaManager->OtherSessionHold(m_nCallKey);
-    }
-
-    // set Access Network
-    IMS_UINT32 nNetworkInterfaceID = 0;
     IMS_SINT32 accessNetwork = 0;
-    IpAddress objIPAddress = GetAndroidIP();
-    pMediaManager->GetResourceManager()->GetMediaConnectionWatcherInfo(
-            objIPAddress, accessNetwork, nNetworkInterfaceID);
+
+    if (pMediaManager != IMS_NULL)
+    {
+        IMS_UINT32 nNetworkInterfaceID = 0;
+        IpAddress objIPAddress = GetAndroidIP();
+        pMediaManager->GetResourceManager()->GetMediaConnectionWatcherInfo(
+                objIPAddress, accessNetwork, nNetworkInterfaceID);
+    }
 
     m_objAudioController.UpdateRtpConfig(nNegoId, pMediaNego->GetAudioNego());
     m_objAudioController.UpdateAccessNetwork(nNegoId, accessNetwork);

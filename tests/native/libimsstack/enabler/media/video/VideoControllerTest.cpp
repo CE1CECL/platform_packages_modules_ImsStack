@@ -113,7 +113,7 @@ TEST_F(VideoControllerTest, testModifySession)
                       IMMedia::SETSURFACE_CMD, reinterpret_cast<IMS_UINTP>(pSetSurfaceParam)),
             IMS_TRUE);
 
-    EXPECT_EQ(m_pController->OpenSession(), IMS_FALSE);
+    EXPECT_EQ(m_pController->OpenSession(), IMS_TRUE);
 
     ImsMediaVideoParam* pParam = new ImsMediaVideoParam();
     pParam->nValue = 0;

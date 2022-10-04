@@ -78,21 +78,6 @@ public:
             IN AudioProfile* pNegoProfile);
 
     /**
-     * @brief Get the media direction configured most recently
-     */
-    MEDIA_DIRECTION GetMediaDirection();
-
-    /**
-     * @brief Set the media direction
-     */
-    void SetMediaDirection(IN MEDIA_DIRECTION eDirection);
-
-    /**
-     * @brief Get the previous media direction
-     */
-    MEDIA_DIRECTION GetPrevMediaDirection();
-
-    /**
      * @brief Update AccessNetwork information in the RtpConfig
      *
      * @param nAccessNetwork : AccessNetwork information
@@ -117,6 +102,11 @@ public:
      * @param nPort The local port number
      */
     void SetLocalEndPoint(IN IPAddress objLocalAddr, IN IMS_UINT32 nPort);
+
+    /**
+     * @brief Get the rtcp is enabled
+     */
+    IMS_BOOL GetEnabledRtcp();
 
     /*
      * request OPEN_SESSION with updated AudioConfig
@@ -164,12 +154,10 @@ public:
 
 protected:
     AudioConfiguration* m_pConfig;
-    AudioConfig m_objAudioConfig;
     MediaQualityThreshold m_objMediaQualityThreshold;
     IPAddress m_objLocalAddress;
     IMS_SINT32 m_nLocalPort;
     IMSList<IMS_UINTP> m_listNegoId;
-    MEDIA_DIRECTION m_nPrevMediaDirection;
 };
 
 #endif /* End of _IMS_AUDIO_MEDIA_SESSION_H_*/

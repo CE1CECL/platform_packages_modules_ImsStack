@@ -42,42 +42,7 @@ IMS_BOOL VideoController::SendMessage(IN IMS_SINT32 nMsg, IN IMS_UINTP pParam)
 {
     if (m_pSession != IMS_NULL)
     {
-        IMS_BOOL bRet = m_pSession->OnMessages(nMsg, pParam);
-
-        if (bRet == IMS_TRUE && nMsg == IMMedia::SELECT_CAMERA_CMD &&
-                m_pSession->GetState() == STATE_IDLE)
-        {
-            OpenSession();
-        }
-
-        return bRet;
-    }
-
-    return IMS_FALSE;
-}
-
-PUBLIC
-IMS_BOOL VideoController::IsHoldSession()
-{
-    if (m_pSession != IMS_NULL)
-    {
-        return m_pSession->IsDirectionHold();
-    }
-
-    return IMS_TRUE;
-}
-
-PUBLIC
-IMS_BOOL VideoController::HoldSession()
-{
-    IMS_TRACE_D("HoldSession()", 0, 0, 0);
-
-    if (m_pSession != IMS_NULL)
-    {
-        m_pSession->UpdateMediaQualityThreshold(IMS_TRUE, IMS_TRUE);
-        m_pSession->SetMediaQuality();
-        m_pSession->HoldRtpConfig();
-        return m_pSession->Modify();
+        return m_pSession->OnMessages(nMsg, pParam);
     }
 
     return IMS_FALSE;
@@ -107,13 +72,15 @@ IMS_BOOL VideoController::CreateSession(
 PUBLIC
 IMS_BOOL VideoController::OpenSession()
 {
-    IMS_TRACE_D("OpenSession()", 0, 0, 0);
-
-    if (m_pSession != IMS_NULL && m_pSession->GetState() == VideoMediaSession::STATE_IDLE &&
-            m_pSession->GetCameraId() != VideoMediaSession::CAMERA_ID_NONE)
+    if (m_pSession != IMS_NULL)
     {
-        m_pSession->UpdateLocalEndPoint(m_objLocalAddr, m_nPort);
-        return m_pSession->Open();
+        IMS_TRACE_D("OpenSession() - state[%d]", m_pSession->GetState(), 0, 0);
+
+        if (m_pSession->GetState() == VideoMediaSession::STATE_IDLE)
+        {
+            m_pSession->UpdateLocalEndPoint(m_objLocalAddr, m_nPort);
+            return m_pSession->Open();
+        }
     }
 
     return IMS_FALSE;
@@ -122,7 +89,7 @@ IMS_BOOL VideoController::OpenSession()
 PUBLIC
 IMS_BOOL VideoController::UpdateSession()
 {
-    IMS_TRACE_D("UpdateSession()", 0, 0, 0);
+    IMS_TRACE_D("UpdateSession() - state[%d]", m_pSession->GetState(), 0, 0);
 
     if (m_pSession != IMS_NULL)
     {
@@ -218,7 +185,8 @@ IMS_BOOL VideoController::UpdateQualityThreshold(IN VideoNego* pNego)
         bEnableRtcp = IMS_FALSE;
     }
 
-    return m_pSession->UpdateMediaQualityThreshold(m_pSession->IsDirectionHold(), bEnableRtcp);
+    return m_pSession->UpdateMediaQualityThreshold(
+            MEDIA_DIRECTION_IS_VIDEO_HOLD(m_pSession->GetDirection()), bEnableRtcp);
 }
 
 PUBLIC

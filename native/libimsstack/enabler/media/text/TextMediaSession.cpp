@@ -26,23 +26,31 @@
 #include "text/TextMediaSession.h"
 #include "MediaManager.h"
 #include "IMMedia.h"
+#include <TextConfig.h>
+using namespace android::telephony::imsmedia;
 
 __IMS_TRACE_TAG_USER_DECL__("MED.TS");
 
 PUBLIC TextMediaSession::TextMediaSession(IN IMS_SINT32 nSlotId) :
         BaseSession(nSlotId),
         m_pConfig(IMS_NULL),
-        m_objTextConfig(TextConfig()),
         m_objMediaQualityThreshold(MediaQualityThreshold()),
         m_objLocalAddress(IPAddress::IPv6NONE),
         m_nLocalPort(0)
 {
     IMS_TRACE_I("+TextMediaSession()", 0, 0, 0);
+
+    m_pRtpConfig = new TextConfig();
 }
 
 PUBLIC VIRTUAL TextMediaSession::~TextMediaSession()
 {
     IMS_TRACE_I("~TextMediaSession() - state[%d]", GetState(), 0, 0);
+
+    if (m_pRtpConfig)
+    {
+        delete m_pRtpConfig;
+    }
 }
 
 PUBLIC void TextMediaSession::SetConfig(TextConfiguration* pConfig)
@@ -53,7 +61,8 @@ PUBLIC void TextMediaSession::SetConfig(TextConfiguration* pConfig)
 PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
         IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile, IN TextProfile* pNegoProfile)
 {
-    if (pLocalProfile == IMS_NULL || pPeerProfile == IMS_NULL || pNegoProfile == IMS_NULL)
+    if (pLocalProfile == IMS_NULL || pPeerProfile == IMS_NULL || pNegoProfile == IMS_NULL ||
+            m_pRtpConfig == NULL)
     {
         return IMS_FALSE;
     }
@@ -63,14 +72,14 @@ PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
         return IMS_FALSE;
     }
 
-    // Setting the network properties
-    UpdateLocalEndPoint(pNegoProfile);
+    TextConfig* pTextConfig = REINTERPRET_CAST(TextConfig*, m_pRtpConfig);
 
+    // Setting the network properties
+    UpdateLocalEndPoint(pNegoProfile->objIpAddress, pNegoProfile->nDataPort);
     // remote network parameters
-    m_objTextConfig.setRemoteAddress(
-            android::String8(pPeerProfile->objIpAddress.ToString().GetStr()));
-    m_objTextConfig.setRemotePort(pPeerProfile->nDataPort);
-    m_objTextConfig.setDscp(0); /** TODO: add interface to get text dscp value */
+    pTextConfig->setRemoteAddress(android::String8(pPeerProfile->objIpAddress.ToString().GetStr()));
+    pTextConfig->setRemotePort(pPeerProfile->nDataPort);
+    pTextConfig->setDscp(0); /** TODO: add interface to get text dscp value */
 
     IMS_SINT32 nTextDerection = RtpConfig::MEDIA_DIRECTION_NO_FLOW;
 
@@ -98,25 +107,24 @@ PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
         nTextDerection = RtpConfig::MEDIA_DIRECTION_NO_FLOW;
     }
 
-    m_objTextConfig.setMediaDirection((int32_t)nTextDerection);
+    pTextConfig->setMediaDirection((int32_t)nTextDerection);
 
-    IMS_TRACE_D("UpdateRtpConfig() - TxPayloadTypeNumber[%d], RxPayloadTypeNumber[%d]",
-            m_objTextConfig.getTxPayloadTypeNumber(), m_objTextConfig.getRxPayloadTypeNumber(), 0);
-    IMS_TRACE_D("UpdateRtpConfig() - RemoteAddress[%s], RemotePort[%d], MediaDirection[%d]",
-            m_objTextConfig.getRemoteAddress().c_str(), m_objTextConfig.getRemotePort(),
-            m_objTextConfig.getMediaDirection());
+    IMS_TRACE_D("UpdateRtpConfig() - MediaDirection[%d], TxPayload[%d], RxPayload[%d]",
+            pTextConfig->getMediaDirection(), pTextConfig->getTxPayloadTypeNumber(),
+            pTextConfig->getRxPayloadTypeNumber());
+    IMS_TRACE_D("UpdateRtpConfig() - RemoteAddress[%s], RemotePort[%d]",
+            pTextConfig->getRemoteAddress().c_str(), pTextConfig->getRemotePort(), 0);
 
     RtcpConfig objRtcpConfig;
     objRtcpConfig.setCanonicalName(android::String8("Canonical_Name")); /** TODO_MEDIA */
     objRtcpConfig.setTransmitPort(pNegoProfile->nControlPort);
     objRtcpConfig.setIntervalSec(pNegoProfile->nRtcpInterval);
     objRtcpConfig.setRtcpXrBlockTypes(0);
-    m_objTextConfig.setRtcpConfig(objRtcpConfig);
+    pTextConfig->setRtcpConfig(objRtcpConfig);
 
-    IMS_TRACE_D("UpdateRtpConfig() - RTCP CanonicalName[%s], RtcpXrBlockTypes[%d]",
-            objRtcpConfig.getCanonicalName().c_str(), objRtcpConfig.getRtcpXrBlockTypes(), 0);
-    IMS_TRACE_D("UpdateRtpConfig() - RTCP TransmitPort[%d], IntervalSec[%d]",
-            objRtcpConfig.getTransmitPort(), objRtcpConfig.getIntervalSec(), 0);
+    IMS_TRACE_D("UpdateRtpConfig() - RTCP TransmitPort[%d], IntervalSec[%d], RtcpXrBlockTypes[%d]",
+            objRtcpConfig.getTransmitPort(), objRtcpConfig.getIntervalSec(),
+            objRtcpConfig.getRtcpXrBlockTypes());
 
     for (IMS_UINT32 nIdxPayload = 0; nIdxPayload < pNegoProfile->lstPayload.GetSize();
             nIdxPayload++)
@@ -128,9 +136,9 @@ PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
             continue;
         }
 
-        m_objTextConfig.setTxPayloadTypeNumber((int32_t)pPayload->objRtpMap.nPayloadNum);
-        m_objTextConfig.setRxPayloadTypeNumber((int32_t)pPayload->objRtpMap.nPayloadNum);
-        m_objTextConfig.setSamplingRateKHz((int8_t)(pPayload->objRtpMap.nSamplingRate / 1000));
+        pTextConfig->setTxPayloadTypeNumber((int32_t)pPayload->objRtpMap.nPayloadNum);
+        pTextConfig->setRxPayloadTypeNumber((int32_t)pPayload->objRtpMap.nPayloadNum);
+        pTextConfig->setSamplingRateKHz((int8_t)(pPayload->objRtpMap.nSamplingRate / 1000));
 
         if (pPayload->objRtpMap.strPayloadType.EqualsIgnoreCase("red"))
         {
@@ -142,16 +150,16 @@ PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
                 continue;
             }
 
-            m_objTextConfig.setCodecType(TextConfig::TEXT_T140_RED);
-            m_objTextConfig.setRedundantPayload(pFmtp->nRedPayload);
-            m_objTextConfig.setRedundantLevel(pFmtp->nRedLevel);
+            pTextConfig->setCodecType(TextConfig::TEXT_T140_RED);
+            pTextConfig->setRedundantPayload(pFmtp->nRedPayload);
+            pTextConfig->setRedundantLevel(pFmtp->nRedLevel);
             break;
         }
         else if (pPayload->objRtpMap.strPayloadType.EqualsIgnoreCase("t140"))
         {
-            m_objTextConfig.setCodecType(TextConfig::TEXT_T140);
-            m_objTextConfig.setRedundantPayload(0);
-            m_objTextConfig.setRedundantLevel(0);
+            pTextConfig->setCodecType(TextConfig::TEXT_T140);
+            pTextConfig->setRedundantPayload(0);
+            pTextConfig->setRedundantLevel(0);
             break;
         }
         else
@@ -161,34 +169,23 @@ PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
         }
     }
 
-    m_objTextConfig.setKeepRedundantLevel(pLocalProfile->bKeepRedLevel);
+    pTextConfig->setKeepRedundantLevel(pLocalProfile->bKeepRedLevel);
 
     IMS_TRACE_D("UpdateRtpConfig() - CodecType[%d], RedPayload[%d], RedLevel[%d]",
-            m_objTextConfig.getCodecType(), m_objTextConfig.getRedundantPayload(),
-            m_objTextConfig.getRedundantLevel());
+            pTextConfig->getCodecType(), pTextConfig->getRedundantPayload(),
+            pTextConfig->getRedundantLevel());
     return IMS_TRUE;
-}
-
-PUBLIC
-IMS_BOOL TextMediaSession::IsDirectionHold()
-{
-    IMS_UINT32 nDirection = m_objTextConfig.getMediaDirection();
-    IMS_TRACE_D("IsDirectionHold() - m_objTextConfig direction[%d]", nDirection, 0, 0);
-    return (nDirection == (IMS_UINT32)RtpConfig::MEDIA_DIRECTION_NO_FLOW) ? IMS_TRUE : IMS_FALSE;
-}
-
-PUBLIC
-void TextMediaSession::HoldRtpConfig()
-{
-    m_objTextConfig.setMediaDirection((int32_t)RtpConfig::MEDIA_DIRECTION_NO_FLOW);
 }
 
 PUBLIC
 void TextMediaSession::UpdateAccessNetwork(IMS_UINT32 nAccessNetwork)
 {
-    m_objTextConfig.setAccessNetwork(nAccessNetwork);
-    IMS_TRACE_D(
-            "UpdateAccessNetwork() - accessNetwork[%d]", m_objTextConfig.getAccessNetwork(), 0, 0);
+    if (m_pRtpConfig != NULL)
+    {
+        m_pRtpConfig->setAccessNetwork(nAccessNetwork);
+        IMS_TRACE_D("UpdateAccessNetwork() - accessNetwork[%d]", m_pRtpConfig->getAccessNetwork(),
+                0, 0);
+    }
 }
 
 PUBLIC
@@ -239,27 +236,6 @@ IMS_BOOL TextMediaSession::UpdateMediaQualityThreshold(IN IMS_BOOL bIsHold, IN I
 }
 
 PUBLIC
-IMS_BOOL TextMediaSession::UpdateLocalEndPoint(IN TextProfile* pNegoProfile)
-{
-    if (pNegoProfile == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    if (!pNegoProfile->objIpAddress.ToString().IsNULL())
-    {
-        m_objLocalAddress = pNegoProfile->objIpAddress;
-    }
-
-    m_nLocalPort = pNegoProfile->nDataPort;
-
-    IMS_TRACE_D("UpdateLocalEndPoint() - LocalIP[%s], LocalPort[%d]",
-            m_objLocalAddress.ToString().GetStr(), m_nLocalPort, 0);
-
-    return IMS_TRUE;
-}
-
-PUBLIC
 void TextMediaSession::UpdateLocalEndPoint(IN IPAddress objLocalAddr, IN IMS_UINT32 nPort)
 {
     if (!objLocalAddr.ToString().IsNULL())
@@ -276,14 +252,14 @@ void TextMediaSession::UpdateLocalEndPoint(IN IPAddress objLocalAddr, IN IMS_UIN
 PUBLIC
 IMS_BOOL TextMediaSession::Open()
 {
-    IMS_TRACE_I("Open()", 0, 0, 0);
+    IMS_TRACE_I("Open() - state[%d]", m_nState, 0, 0);
 
     if (m_piMediaSessionListener != IMS_NULL)
     {
         ImsMediaMsgOpenConfigParam* pParam = new ImsMediaMsgOpenConfigParam(MEDIA_TYPE_TEXT);
         pParam->m_objLocalAddress = m_objLocalAddress;
         pParam->m_nLocalPort = m_nLocalPort;
-        pParam->m_pConfig = new TextConfig(m_objTextConfig);
+        pParam->m_pConfig = new TextConfig(REINTERPRET_CAST(TextConfig*, m_pRtpConfig));
 
         if (m_piMediaSessionListener->MediaSession_SendMsgToMediaManager(
                     IMMedia::REQUEST_OPEN_SESSION, pParam) == IMS_TRUE)
@@ -299,25 +275,17 @@ IMS_BOOL TextMediaSession::Open()
 PUBLIC
 IMS_BOOL TextMediaSession::Modify()
 {
-    IMS_TRACE_I("Modify()", 0, 0, 0);
+    IMS_TRACE_I("Modify() - state[%d]", m_nState, 0, 0);
 
     if (m_piMediaSessionListener != IMS_NULL && m_nState != STATE_NONE)
     {
         ImsMediaMsgConfigParam* pParam = new ImsMediaMsgConfigParam(MEDIA_TYPE_TEXT);
-        pParam->m_pConfig = new TextConfig(m_objTextConfig);
+        pParam->m_pConfig = new TextConfig(REINTERPRET_CAST(TextConfig*, m_pRtpConfig));
 
         if (m_piMediaSessionListener->MediaSession_SendMsgToMediaManager(
                     IMMedia::REQUEST_MODIFY_SESSION, pParam) == IMS_TRUE)
         {
-            if (IsDirectionHold())
-            {
-                m_nState = STATE_PAUSED;
-            }
-            else
-            {
-                m_nState = STATE_LIVE;
-            }
-
+            m_nState = STATE_LIVE;
             return IMS_TRUE;
         }
     }
@@ -328,7 +296,7 @@ IMS_BOOL TextMediaSession::Modify()
 PUBLIC
 IMS_BOOL TextMediaSession::Close()
 {
-    IMS_TRACE_I("Close()", 0, 0, 0);
+    IMS_TRACE_I("Close() - state[%d]", m_nState, 0, 0);
 
     if (m_piMediaSessionListener != IMS_NULL)
     {
@@ -347,7 +315,7 @@ IMS_BOOL TextMediaSession::Close()
 PUBLIC
 IMS_BOOL TextMediaSession::SetMediaQuality()
 {
-    IMS_TRACE_I("SetMediaQuality()", 0, 0, 0);
+    IMS_TRACE_I("SetMediaQuality() - state[%d]", m_nState, 0, 0);
 
     if (m_piMediaSessionListener != IMS_NULL && m_nState != STATE_IDLE)
     {
@@ -371,13 +339,5 @@ IMS_SINT32 TextMediaSession::GetLocalPort()
 PUBLIC
 IMS_SINT32 TextMediaSession::GetRemotePort()
 {
-    return m_objTextConfig.getRemotePort();
-}
-
-PRIVATE
-IMS_BOOL TextMediaSession::SendRtt(IN android::String8 text)
-{
-    (void)text;
-    /** TODO: add implementation */
-    return IMS_TRUE;
+    return m_pRtpConfig->getRemotePort();
 }

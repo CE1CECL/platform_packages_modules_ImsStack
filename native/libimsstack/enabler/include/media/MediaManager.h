@@ -101,15 +101,6 @@ public:
     IMS_BOOL handleRequestMsg(
             IN IMS_SINT32 eEvent, IN IMS_SINTP nCallKey, IN ImsMediaMsgParamBase* param);
 
-    /**
-     * @brief Hold the session not mached with the call key
-     *
-     * @param nCallKey The key identification of the session
-     * @return IMS_BOOL Returns IMS_FALSE when the hold session operation has any error. Returns
-     * IMS_TRUE when there is no error during the operation
-     */
-    IMS_BOOL OtherSessionHold(IN IMS_SINTP nCallKey);
-
 private:
     static const IMS_UINT32 TIME_WAIT_MEDIA_RESPONSE = 5000;
 

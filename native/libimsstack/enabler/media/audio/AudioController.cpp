@@ -44,51 +44,6 @@ AudioController::~AudioController()
 }
 
 PUBLIC
-IMS_BOOL AudioController::IsHoldSession(IN IMS_UINTP nNegoId)
-{
-    AudioMediaSession* pAudioSession = FindAudioSession(nNegoId);
-
-    if (pAudioSession != IMS_NULL)
-    {
-        return MEDIA_DIRECTION_IS_AUDIO_HOLD(pAudioSession->GetMediaDirection());
-    }
-
-    return IMS_FALSE;
-}
-
-PUBLIC
-IMS_BOOL AudioController::HoldSession()
-{
-    IMS_TRACE_D("HoldSession()", 0, 0, 0);
-
-    AudioMediaSession* pAudioSession = FindAudioSession();
-
-    if (pAudioSession != IMS_NULL)
-    {
-        pAudioSession->UpdateMediaQualityThreshold(IMS_TRUE, IMS_FALSE);
-        pAudioSession->SetMediaQuality();
-
-        switch (pAudioSession->GetMediaDirection())
-        {
-            case MEDIA_DIRECTION_INVALID:
-            case MEDIA_DIRECTION_INACTIVE:
-                return IMS_TRUE;
-            case MEDIA_DIRECTION_RECEIVE:
-            case MEDIA_DIRECTION_SEND:
-                pAudioSession->SetMediaDirection(MEDIA_DIRECTION_INACTIVE);
-                pAudioSession->Modify();
-                break;
-            case MEDIA_DIRECTION_SEND_RECEIVE:
-                pAudioSession->SetMediaDirection(MEDIA_DIRECTION_RECEIVE);
-                pAudioSession->Modify();
-                break;
-        }
-    }
-
-    return IMS_FALSE;
-}
-
-PUBLIC
 void AudioController::SetConfirmSession(IN IMS_BOOL bConfirmed)
 {
     if (bConfirmed)
@@ -409,7 +364,8 @@ IMS_BOOL AudioController::UpdateQualityThreshold(IN IMS_UINTP nNegoId, IN AudioN
             bEnableRtcp = IMS_FALSE;
         }
 
-        return pAudioSession->UpdateMediaQualityThreshold(IsHoldSession(nNegoId), bEnableRtcp);
+        return pAudioSession->UpdateMediaQualityThreshold(
+                MEDIA_DIRECTION_IS_AUDIO_HOLD(pAudioSession->GetDirection()), bEnableRtcp);
     }
 
     return IMS_FALSE;
@@ -437,12 +393,12 @@ IMS_BOOL AudioController::UpdateMediaDirection(MEDIA_DIRECTION eDirection, IMS_B
 
         if (bRestore)
         {
-            pAudioSession->SetMediaDirection(pAudioSession->GetPrevMediaDirection());
+            pAudioSession->SetDirection(pAudioSession->GetPrevDirection());
             bRet = pAudioSession->Modify();
         }
         else
         {
-            pAudioSession->SetMediaDirection(eDirection);
+            pAudioSession->SetDirection(eDirection);
             bRet = pAudioSession->Modify();
         }
     }

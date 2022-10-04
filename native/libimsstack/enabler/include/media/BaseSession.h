@@ -21,6 +21,9 @@
 #include "IMediaSessionListener.h"
 #include "MediaEnvironment.h"
 
+#include <RtpConfig.h>
+using namespace android::telephony::imsmedia;
+
 class BaseSession
 {
 public:
@@ -50,10 +53,18 @@ public:
 
     /**
      * @brief Set the media direction
-     *
-     * @param eDir the media direction to set
      */
     virtual void SetDirection(MEDIA_DIRECTION eDir);
+
+    /**
+     * @brief Get the media direction
+     */
+    virtual MEDIA_DIRECTION GetDirection();
+
+    /**
+     * @brief Get the media direction
+     */
+    virtual MEDIA_DIRECTION GetPrevDirection();
 
     /**
      * @brief Get the session state
@@ -73,7 +84,8 @@ protected:
     IMS_SINT32 m_nSlodId;
     IMediaSessionListener* m_piMediaSessionListener;
     MediaEnvironment* m_pEnvironment;
-    MEDIA_DIRECTION m_eEnforcedDirection;
+    RtpConfig* m_pRtpConfig;
+    MEDIA_DIRECTION m_ePrevDirection;
     IMS_SINT32 m_nState;
 };
 

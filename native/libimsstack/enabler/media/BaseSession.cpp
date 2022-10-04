@@ -17,12 +17,15 @@
 #include "ServiceTrace.h"
 #include "BaseSession.h"
 
+__IMS_TRACE_TAG_USER_DECL__("MED.BS");
+
 PUBLIC
 BaseSession::BaseSession(IN IMS_SINT32 nSlodId) :
         m_nSlodId(nSlodId),
         m_piMediaSessionListener(IMS_NULL),
         m_pEnvironment(IMS_NULL),
-        m_eEnforcedDirection(MEDIA_DIRECTION_INVALID),
+        m_pRtpConfig(IMS_NULL),
+        m_ePrevDirection(MEDIA_DIRECTION_INVALID),
         m_nState(0)
 {
 }
@@ -44,9 +47,58 @@ PUBLIC VIRTUAL void BaseSession::SetMediaEnvironment(MediaEnvironment* pEnvironm
     m_pEnvironment = pEnvironment;
 }
 
-PUBLIC VIRTUAL void BaseSession::SetDirection(MEDIA_DIRECTION eDir)
+PUBLIC
+void BaseSession::SetDirection(IN MEDIA_DIRECTION eDirection)
 {
-    m_eEnforcedDirection = eDir;
+    IMS_TRACE_D("SetDirection() - eDirection[%d]", eDirection, 0, 0);
+    m_ePrevDirection = GetDirection();
+
+    switch (eDirection)
+    {
+        case MEDIA_DIRECTION_INVALID:
+            m_pRtpConfig->setMediaDirection(RtpConfig::MEDIA_DIRECTION_NO_FLOW);
+            break;
+        case MEDIA_DIRECTION_SEND:
+            m_pRtpConfig->setMediaDirection(RtpConfig::MEDIA_DIRECTION_SEND_ONLY);
+            break;
+        case MEDIA_DIRECTION_RECEIVE:
+            m_pRtpConfig->setMediaDirection(RtpConfig::MEDIA_DIRECTION_RECEIVE_ONLY);
+            break;
+        case MEDIA_DIRECTION_SEND_RECEIVE:
+            m_pRtpConfig->setMediaDirection(RtpConfig::MEDIA_DIRECTION_SEND_RECEIVE);
+            break;
+        case MEDIA_DIRECTION_INACTIVE:
+            m_pRtpConfig->setMediaDirection(RtpConfig::MEDIA_DIRECTION_INACTIVE);
+            break;
+    }
+}
+
+PUBLIC
+MEDIA_DIRECTION BaseSession::GetDirection()
+{
+    IMS_UINT32 nDirection = m_pRtpConfig->getMediaDirection();
+
+    switch (nDirection)
+    {
+        case RtpConfig::MEDIA_DIRECTION_NO_FLOW:
+            return MEDIA_DIRECTION_INVALID;
+        case RtpConfig::MEDIA_DIRECTION_SEND_ONLY:
+            return MEDIA_DIRECTION_SEND;
+        case RtpConfig::MEDIA_DIRECTION_RECEIVE_ONLY:
+            return MEDIA_DIRECTION_RECEIVE;
+        case RtpConfig::MEDIA_DIRECTION_SEND_RECEIVE:
+            return MEDIA_DIRECTION_SEND_RECEIVE;
+        case RtpConfig::MEDIA_DIRECTION_INACTIVE:
+            return MEDIA_DIRECTION_INACTIVE;
+    }
+
+    return MEDIA_DIRECTION_INVALID;
+}
+
+PUBLIC
+MEDIA_DIRECTION BaseSession::GetPrevDirection()
+{
+    return m_ePrevDirection;
 }
 
 PUBLIC VIRTUAL IMS_SINT32 BaseSession::GetState()

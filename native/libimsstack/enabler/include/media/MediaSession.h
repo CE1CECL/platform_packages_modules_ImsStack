@@ -54,28 +54,12 @@ public:
     MEDIA_NETWORK_TYPE GetNetworkType(void);
 
     /**
-     * @brief Check the MediaSession is in hold state
-     *
-     * @param nNegoId The target MediaSession instance
-     * @return IMS_BOOL Returns IMS_TRUE if the MediaSession is in hold state
-     */
-    IMS_BOOL IsHoldSession(IN IMS_UINTP nNegoId);
-
-    /**
-     * @brief Change the MediaSession to hold
-     *
-     * @return IMS_BOOL Returns IMS_TRUE when the session updates successfully
-     */
-    IMS_BOOL HoldSession();
-
-    /**
      * @brief Get the call key to identify the call session
      *
      * @return IMS_SINTP The session key
      */
     IMS_SINTP GetCallKey() { return m_nCallKey; };
 
-public:
     virtual void SetMtcListener(IN IMediaSessionClientListener* pISessionListener);
     virtual IMS_BOOL SetEnvironment(IN MediaEnvironment* pEnvironment);
     virtual IMS_UINTP CreateProfile(

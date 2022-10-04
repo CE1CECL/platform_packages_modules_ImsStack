@@ -30,21 +30,6 @@ public:
     ~TextController();
 
     /**
-     * @brief Checks whether the given session is in hold state or not
-     *
-     * @return IMS_BOOL Returns IMS_TRUE when the target session is in hold state, IMS_FALSE in it
-     * is in live state
-     */
-    IMS_BOOL IsHoldSession();
-
-    /**
-     * @brief Transit all TextMediaSession instances to hold
-     *
-     * @return IMS_BOOL Returns IMS_TRUE when the changing to hold successfully
-     */
-    IMS_BOOL HoldSession();
-
-    /**
      * @brief Create a TextMediaSession instance with given parameters
      *
      * @param pListener A listener to IMediaSession

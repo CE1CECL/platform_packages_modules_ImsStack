@@ -31,22 +31,6 @@ public:
     IMS_BOOL SendMessage(IN IMS_SINT32 nMsg, IN IMS_UINTP pParam);
 
     /**
-     * @brief Get the given session with nego id is in hold state
-     *
-     * @param nNegoId The identification of VideoMediaSession
-     * @return IMS_BOOL Returns IMS_TRUE when the target session is in hold state, IMS_FALSE in it
-     * is in live state
-     */
-    IMS_BOOL IsHoldSession();
-
-    /**
-     * @brief Transition the all VideoMediaSession instances to hold
-     *
-     * @return IMS_BOOL Returns IMS_TRUE when the changing to hold successfully
-     */
-    IMS_BOOL HoldSession();
-
-    /**
      * @brief Create a VideoMediaSession instance with given parameters
      *
      * @param pListener A listener to IMediaSession
