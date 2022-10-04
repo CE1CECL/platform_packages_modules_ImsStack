@@ -37,8 +37,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import org.w3c.dom.Document;
 
-import java.lang.ref.WeakReference;
-
 public class SscTransaction {
     public static final int EVENT_SEND_HTTP_REQUEST = 1001;
     public static final int EVENT_SRV_RETRY_REQUIRED = 1002;
@@ -85,7 +83,7 @@ public class SscTransaction {
     public void startGetTransaction(SscServiceQueryData data) {
         ImsLog.d("");
 
-        mSscTransactionThread = new SscTransactionThread(this);
+        mSscTransactionThread = new SscTransactionThread();
         mTransaction = new GetTransaction(data);
         mEventNumber = data.getEventNumber();
         mTransactionId = data.getTransactionId();
@@ -95,7 +93,7 @@ public class SscTransaction {
     public void startPutTransaction(SscServiceData data) {
         ImsLog.d("");
 
-        mSscTransactionThread = new SscTransactionThread(this);
+        mSscTransactionThread = new SscTransactionThread();
         mTransaction = new PutTransaction(data);
         mEventNumber = data.getEventNumber();
         mTransactionId = data.getTransactionId();
@@ -126,26 +124,6 @@ public class SscTransaction {
 
         mSscServiceImplHandler.sendMessage(msg);
         close();
-    }
-
-    private final class SscTransactionThread extends Thread {
-        private SscTransaction mSscTransaction = null;
-
-        public SscTransactionThread(SscTransaction SscTransaction) {
-            super("SscTransactionThread");
-            this.mSscTransaction = SscTransaction;
-        }
-
-        public void run() {
-            Looper.prepare();
-
-            ImsLog.d("SscTransactionThread is running ... (" + android.os.Process.myTid() + ")");
-            mTransactionHandler = new TransactionHandler(mSscTransaction, Looper.myLooper());
-            SscNetConnectionGov.getInstance().setCallbackHandler(mSlotId, mTransactionHandler);
-            mTransaction.startTransaction();
-
-            Looper.loop();
-        }
     }
 
     /* TODO: check when implementing NAPTR/SRV
@@ -508,68 +486,72 @@ public class SscTransaction {
         }
     }
 
-    private class TransactionHandler extends Handler {
-        private final WeakReference<SscTransaction> mService;
+    private final class SscTransactionThread extends Thread {
+        SscTransactionThread() {
+            super("SscTransactionThread");
+        }
 
-        public TransactionHandler(SscTransaction service, Looper looper) {
+        public void run() {
+            Looper.prepare();
+
+            mTransactionHandler = new TransactionHandler(Looper.myLooper());
+            SscNetConnectionGov.getInstance().setCallbackHandler(mSlotId, mTransactionHandler);
+            mTransaction.startTransaction();
+
+            Looper.loop();
+        }
+    }
+
+    private class TransactionHandler extends Handler {
+        TransactionHandler(Looper looper) {
             super(looper);
-            mService = new WeakReference<SscTransaction>(service);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            SscTransaction service = mService.get();
-            if (service != null) {
-                service.handleMessage(msg);
-            }
-        }
-    }
+            ImsLog.d("SscTransactionHandler - what=" + msg.what);
 
-    private void handleMessage(Message msg) {
-        ImsLog.d("SscTransactionHandler - what=" + msg.what);
-
-        switch (msg.what) {
-            case EVENT_SEND_HTTP_REQUEST:
-                ImsLog.d("sendRequest");
-                mTransaction.sendRequest();
-                break;
-            case SscNetConnection.EVENT_PDN_CONNECTED:
-                ImsLog.d("PDN Connected");
-                if (mSscTransactionThread != null) {
+            switch (msg.what) {
+                case EVENT_SEND_HTTP_REQUEST:
+                    ImsLog.d("sendRequest");
+                    mTransaction.sendRequest();
+                    break;
+                case SscNetConnection.EVENT_PDN_CONNECTED:
+                    ImsLog.d("PDN Connected");
                     mTransaction.startTransaction();
-                }
-                break;
-            case SscNetConnection.EVENT_PDN_DISCONNECTED:
-                ImsLog.d("PDN Disconnected");
-                sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
-                break;
-            case SscNetConnection.EVENT_PDN_IPCAN_CHANGED:
-                ImsLog.d("PDN IPCAN Changed");
-                if (mXcapTrafficNotified) {
-                    stratXcapTraffic();
-                }
-                break;
-            case SscNetConnection.EVENT_PDN_REQUEST_TIMEOUT:
-                ImsLog.d("Connection Timeout");
-                sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
-                break;
-            case SscNetConnection.EVENT_PDN_CONNECTION_FAILED:
-                ImsLog.d("Connection Failed");
-                sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
-                break;
-            /* TODO: check when implementing NAPTR/SRV
-            case EVENT_SRV_RETRY_REQUIRED:
-                if (getSscServiceStateAgent().getAllSrvAddrTried(mSlotId) == true) {
+                    break;
+                case SscNetConnection.EVENT_PDN_DISCONNECTED:
+                    ImsLog.d("PDN Disconnected");
                     sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
-                } else {
-                    SscAuthAgent.getInstance(mSlotId).setIsCredentialInfoUpdated(false);
-                    mTransaction.startTransaction();
-                }
-                break;
-            */
-            default:
-                // do nothing
-                break;
+                    break;
+                case SscNetConnection.EVENT_PDN_IPCAN_CHANGED:
+                    ImsLog.d("PDN IPCAN Changed");
+                    if (mXcapTrafficNotified) {
+                        stratXcapTraffic();
+                    }
+                    break;
+                case SscNetConnection.EVENT_PDN_REQUEST_TIMEOUT:
+                    ImsLog.d("Connection Timeout");
+                    sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
+                    break;
+                case SscNetConnection.EVENT_PDN_CONNECTION_FAILED:
+                    ImsLog.d("Connection Failed");
+                    sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
+                    break;
+                /* TODO: check when implementing NAPTR/SRV
+                case EVENT_SRV_RETRY_REQUIRED:
+                    if (getSscServiceStateAgent().getAllSrvAddrTried(mSlotId) == true) {
+                        sendFailMessageToServiceImpl(mEventNumber, mTransactionId);
+                    } else {
+                        SscAuthAgent.getInstance(mSlotId).setIsCredentialInfoUpdated(false);
+                        mTransaction.startTransaction();
+                    }
+                    break;
+                */
+                default:
+                    // do nothing
+                    break;
+            }
         }
     }
 }

@@ -118,13 +118,18 @@ public final class AgentFactory {
 
     @VisibleForTesting
     public void setAgent(Class<?> clazz, IAgent agent, int slotId) {
-        if (slotId < 0 || slotId >= mAgentsForSlot.size()) {
+        if (slotId < 0) {
             return;
         }
 
-        ArrayMap<Class<?>, IAgent> agents = mAgentsForSlot.valueAt(slotId);
+        ArrayMap<Class<?>, IAgent> agents = mAgentsForSlot.get(slotId);
 
         synchronized (mLock) {
+            if (agents == null) {
+                agents = new ArrayMap<Class<?>, IAgent>();
+                mAgentsForSlot.put(slotId, agents);
+            }
+
             agents.put(clazz, agent);
         }
     }
