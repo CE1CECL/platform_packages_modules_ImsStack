@@ -82,21 +82,6 @@ public class AudioSessionCallbackHandlerTest {
     }
 
     @Test
-    public void testSessionChanged() {
-
-        Parcel testParcel = Parcel.obtain();
-
-        testParcel.writeInt(MediaConstants.RESPONSE_SESSION_CHANGED);
-        testParcel.writeInt(ImsMediaSession.SESSION_TYPE_AUDIO);
-        testParcel.writeInt(ImsMediaSession.SESSION_STATE_OPEN);
-
-        mAudioSessionCallbackHandler.sessionChanged(ImsMediaSession.SESSION_STATE_OPEN);
-
-        verify(mMockMtcMediaSession).sendRequest(mCaptorParcel.capture());
-        MediaTestUtils.assertParcelEquals(testParcel, mCaptorParcel.getValue());
-    }
-
-    @Test
     public void testModifySessionResponse() {
 
         AudioConfig audioConfig = MediaTestUtils.createAudioConfig();

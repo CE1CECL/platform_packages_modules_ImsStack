@@ -63,22 +63,6 @@ public class AudioSessionCallbackHandler {
     }
 
     /**
-     * Handles response when any change occurs to the RTP session
-     *
-     * @param state session state
-     */
-    public void sessionChanged(int state) {
-        ImsLog.v("sessionChanged");
-
-        Parcel parcel = Parcel.obtain();
-        parcel.writeInt(MediaConstants.RESPONSE_SESSION_CHANGED);
-        parcel.writeInt(ImsMediaSession.SESSION_TYPE_AUDIO);
-        parcel.writeInt(state);
-
-        getMtcMediaInterface().sendRequest(parcel);
-    }
-
-    /**
      * Handles response for Modify Session request
      *
      * @param audioConfig The AudioConfig passed in ImsMediaSession#modifySession()

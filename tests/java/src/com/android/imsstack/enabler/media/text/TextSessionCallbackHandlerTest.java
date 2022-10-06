@@ -80,21 +80,6 @@ public class TextSessionCallbackHandlerTest {
     }
 
     @Test
-    public void testSessionChanged() {
-
-        Parcel testParcel = Parcel.obtain();
-
-        testParcel.writeInt(MediaConstants.RESPONSE_SESSION_CHANGED);
-        testParcel.writeInt(ImsMediaSession.SESSION_TYPE_RTT);
-        testParcel.writeInt(ImsMediaSession.SESSION_STATE_OPEN);
-
-        mTextSessionCallbackHandler.sessionChanged(ImsMediaSession.SESSION_STATE_OPEN);
-
-        verify(mMockMtcMediaSession).sendRequest(mCaptorParcel.capture());
-        MediaTestUtils.assertParcelEquals(testParcel, mCaptorParcel.getValue());
-    }
-
-    @Test
     public void testModifySessionResponse() {
 
         TextConfig textConfig = MediaTestUtils.createTextConfig();

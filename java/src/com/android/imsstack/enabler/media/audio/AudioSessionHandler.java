@@ -195,12 +195,6 @@ public class AudioSessionHandler  {
                 }
                     break;
 
-                case MediaConstants.RESPONSE_SESSION_CHANGED:
-                {
-                    handleSessionChanged(msg.arg1);
-                }
-                    break;
-
                 case MediaConstants.RESPONSE_MODIFY_SESSION:
                 {
                     handleModifySessionResponse((AudioConfig) msg.obj, msg.arg1);
@@ -292,14 +286,6 @@ public class AudioSessionHandler  {
 
             Message.obtain(mAudioMessageHandler, MediaConstants.RESPONSE_SESSION_CLOSED)
                     .sendToTarget();
-        }
-
-        @Override
-        public void onSessionChanged(final @ImsMediaSession.SessionState int state) {
-            ImsLog.d("state=" + state);
-
-            Message.obtain(mAudioMessageHandler, MediaConstants.RESPONSE_SESSION_CHANGED,
-                    state, UNUSED).sendToTarget();
         }
 
         @Override
@@ -643,12 +629,6 @@ public class AudioSessionHandler  {
         closeSockets();
         mAudioSession = null;
         mAudioSessionId = 0;
-    }
-
-    private void handleSessionChanged(int state) {
-        if (mAudioSessionCallbackHandler != null) {
-            mAudioSessionCallbackHandler.sessionChanged(state);
-        }
     }
 
     private void handleModifySessionResponse(final AudioConfig audioConfig, final int result) {

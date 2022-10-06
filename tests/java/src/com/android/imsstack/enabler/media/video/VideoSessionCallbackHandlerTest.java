@@ -77,21 +77,6 @@ public class VideoSessionCallbackHandlerTest {
     }
 
     @Test
-    public void testSessionChanged() {
-
-        Parcel testParcel = Parcel.obtain();
-
-        testParcel.writeInt(MediaConstants.RESPONSE_SESSION_CHANGED);
-        testParcel.writeInt(ImsMediaSession.SESSION_TYPE_VIDEO);
-        testParcel.writeInt(ImsMediaSession.SESSION_STATE_OPEN);
-
-        mVideoSessionCallbackHandler.sessionChanged(ImsMediaSession.SESSION_STATE_OPEN);
-
-        verify(mMockMtcMediaSession).sendRequest(mCaptorParcel.capture());
-        MediaTestUtils.assertParcelEquals(testParcel, mCaptorParcel.getValue());
-    }
-
-    @Test
     public void testModifySessionResponse() {
 
         VideoConfig videoConfig = MediaTestUtils.createVideoConfig();

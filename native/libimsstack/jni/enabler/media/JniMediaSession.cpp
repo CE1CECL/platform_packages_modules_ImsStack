@@ -173,9 +173,6 @@ PROTECTED VIRTUAL void JniMediaSession::HandleMessage(
         case IMMedia::NOTIFY_CALL_QUALITY_CHANGE:
             OnNofityCallQualityChange(nMsg, objParcel);
             break;
-        case IMMedia::RESPONSE_SESSION_CHANGED:
-            OnResponseSessionChanged(nMsg, objParcel);
-            break;
         case IMMedia::NOTIFY_HEADER_EXTENSION:
             OnNofityHeaderExtension(nMsg, objParcel);
             break;
@@ -289,14 +286,6 @@ void JniMediaSession::OnNofityPacketLosses(IN IMS_SINT32 nMsg, IN const android:
 
 PRIVATE
 void JniMediaSession::OnNofityCallQualityChange(
-        IN IMS_SINT32 nMsg, IN const android::Parcel& objParcel)
-{
-    (void)nMsg;
-    (void)objParcel;
-}
-
-PRIVATE
-void JniMediaSession::OnResponseSessionChanged(
         IN IMS_SINT32 nMsg, IN const android::Parcel& objParcel)
 {
     (void)nMsg;

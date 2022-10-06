@@ -227,14 +227,6 @@ public class TextSessionHandlerTest {
     }
 
     @Test
-    public void testSessionChanged() {
-        mTextSessionCallback.onSessionChanged(ImsMediaSession.SESSION_STATE_ACTIVE);
-        processAllMessages();
-        verify(mMockTextSessionCallbackHandler).sessionChanged(
-                eq(ImsMediaSession.SESSION_STATE_ACTIVE));
-    }
-
-    @Test
     public void testModifySession() {
         // Modify Session Request
         TextConfig textConfig = MediaTestUtils.createTextConfig();

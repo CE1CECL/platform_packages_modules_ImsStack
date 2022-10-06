@@ -59,22 +59,6 @@ public class TextSessionCallbackHandler {
     }
 
     /**
-     * Handles response when any change occurs to the RTP session
-     *
-     * @param state session state
-     */
-    public void sessionChanged(int state) {
-        ImsLog.v("sessionChanged");
-
-        Parcel parcel = Parcel.obtain();
-        parcel.writeInt(MediaConstants.RESPONSE_SESSION_CHANGED);
-        parcel.writeInt(ImsMediaSession.SESSION_TYPE_RTT);
-        parcel.writeInt(state);
-
-        getMtcMediaInterface().sendRequest(parcel);
-    }
-
-    /**
      * Handles response for Modify Session request
      *
      * @param textConfig The TextConfig passed in ImsMediaSession#modifySession()

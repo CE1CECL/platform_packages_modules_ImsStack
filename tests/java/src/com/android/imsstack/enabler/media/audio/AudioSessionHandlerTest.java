@@ -231,14 +231,6 @@ public class AudioSessionHandlerTest {
     }
 
     @Test
-    public void testSessionChanged() {
-        mAudioSessionCallback.onSessionChanged(ImsMediaSession.SESSION_STATE_ACTIVE);
-        processAllMessages();
-        verify(mMockAudioSessionCallbackHandler).sessionChanged(
-                eq(ImsMediaSession.SESSION_STATE_ACTIVE));
-    }
-
-    @Test
     public void testModifySession() {
         // Modify Session Request
         AudioConfig audioConfig = MediaTestUtils.createAudioConfig();

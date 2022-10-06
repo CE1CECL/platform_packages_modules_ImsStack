@@ -866,7 +866,6 @@ IMS_BOOL MediaSession::OnMessage(IN IMS_SINT32 nMsg, IN IMS_UINTP pParam)
             bRet = OnSendDtmf(pParam);
             break;
         case IMMedia::NOTIFY_CALL_QUALITY_CHANGE:
-        case IMMedia::RESPONSE_SESSION_CHANGED:
         case IMMedia::NOTIFY_HEADER_EXTENSION:
             // TODO: add implementation
             break;

@@ -50,11 +50,10 @@ public class MediaConstants {
     // Responses
     public static final int IMSMEDIA_RESPONSE             = (IMSMEDIA_REQUEST + 100);
     public static final int RESPONSE_OPEN_SESSION         = (IMSMEDIA_RESPONSE + 1);
-    public static final int RESPONSE_SESSION_CHANGED      = (IMSMEDIA_RESPONSE + 2);
-    public static final int RESPONSE_MODIFY_SESSION       = (IMSMEDIA_RESPONSE + 3);
-    public static final int RESPONSE_ADD_CONFIG           = (IMSMEDIA_RESPONSE + 4);
-    public static final int RESPONSE_CONFIRM_CONFIG       = (IMSMEDIA_RESPONSE + 5);
-    public static final int RESPONSE_SESSION_CLOSED       = (IMSMEDIA_RESPONSE + 6);
+    public static final int RESPONSE_MODIFY_SESSION       = (IMSMEDIA_RESPONSE + 2);
+    public static final int RESPONSE_ADD_CONFIG           = (IMSMEDIA_RESPONSE + 3);
+    public static final int RESPONSE_CONFIRM_CONFIG       = (IMSMEDIA_RESPONSE + 4);
+    public static final int RESPONSE_SESSION_CLOSED       = (IMSMEDIA_RESPONSE + 5);
 
     // Notifications
     public static final int NOTIFY_FIRST_PACKET           = (IMSMEDIA_RESPONSE + 11);

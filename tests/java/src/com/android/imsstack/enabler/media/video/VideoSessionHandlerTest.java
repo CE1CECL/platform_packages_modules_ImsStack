@@ -224,14 +224,6 @@ public class VideoSessionHandlerTest {
     }
 
     @Test
-    public void testSessionChanged() {
-        mVideoSessionCallback.onSessionChanged(ImsMediaSession.SESSION_STATE_ACTIVE);
-        processAllMessages();
-        verify(mMockVideoSessionCallbackHandler)
-                .sessionChanged(eq(ImsMediaSession.SESSION_STATE_ACTIVE));
-    }
-
-    @Test
     public void testModifySession() {
         // Modify Session Request
         VideoConfig videoConfig = MediaTestUtils.createVideoConfig();

@@ -54,7 +54,6 @@ public:
             IMMEDIA_CASE_ENUM(REQUEST_SET_DISPLAY_SURFACE);
             IMMEDIA_CASE_ENUM(REQUEST_VIDEO_DATA_USAGE);
             IMMEDIA_CASE_ENUM(RESPONSE_OPEN_SESSION);
-            IMMEDIA_CASE_ENUM(RESPONSE_SESSION_CHANGED);
             IMMEDIA_CASE_ENUM(RESPONSE_MODIFY_SESSION);
             IMMEDIA_CASE_ENUM(RESPONSE_ADD_CONFIG);
             IMMEDIA_CASE_ENUM(RESPONSE_CONFIRM_CONFIG);
@@ -123,16 +122,14 @@ public:
     static const IMS_SINT32 MEDIA_MESSAGE_AUDIO_COMMON_IND_IDX_START = IMMEDIA_IND + 0;
     /** response of openSession request  */
     static const IMS_SINT32 RESPONSE_OPEN_SESSION = IMMEDIA_IND + 1;
-    /** notification of session state changed  */
-    static const IMS_SINT32 RESPONSE_SESSION_CHANGED = IMMEDIA_IND + 2;
     /** response of modifySession request  */
-    static const IMS_SINT32 RESPONSE_MODIFY_SESSION = IMMEDIA_IND + 3;
+    static const IMS_SINT32 RESPONSE_MODIFY_SESSION = IMMEDIA_IND + 2;
     /** response of addConfig request  */
-    static const IMS_SINT32 RESPONSE_ADD_CONFIG = IMMEDIA_IND + 4;
+    static const IMS_SINT32 RESPONSE_ADD_CONFIG = IMMEDIA_IND + 3;
     /** response of confirmConfig request  */
-    static const IMS_SINT32 RESPONSE_CONFIRM_CONFIG = IMMEDIA_IND + 5;
+    static const IMS_SINT32 RESPONSE_CONFIRM_CONFIG = IMMEDIA_IND + 4;
     /** response of closeSession request  */
-    static const IMS_SINT32 RESPONSE_SESSION_CLOSED = IMMEDIA_IND + 6;
+    static const IMS_SINT32 RESPONSE_SESSION_CLOSED = IMMEDIA_IND + 5;
     /** notification of first packet received in the target session during the streaming */
     static const IMS_SINT32 NOTIFY_FIRST_PACKET = IMMEDIA_IND + 11;
     /** notification of rtp extended header received */

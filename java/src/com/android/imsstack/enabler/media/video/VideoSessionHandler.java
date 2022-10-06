@@ -189,12 +189,6 @@ public class VideoSessionHandler {
                 }
                     break;
 
-                case MediaConstants.RESPONSE_SESSION_CHANGED:
-                {
-                    handleVideoSessionChanged(msg.arg1);
-                }
-                    break;
-
                 case MediaConstants.RESPONSE_MODIFY_SESSION:
                 {
                     handleVideoModifySessionResponse((VideoConfig) msg.obj, msg.arg1);
@@ -269,14 +263,6 @@ public class VideoSessionHandler {
 
             Message.obtain(mVideoMessageHandler, MediaConstants.RESPONSE_SESSION_CLOSED)
                     .sendToTarget();
-        }
-
-        @Override
-        public void onSessionChanged(final @ImsMediaSession.SessionState int state) {
-            ImsLog.d("state=" + state);
-
-            Message.obtain(mVideoMessageHandler, MediaConstants.RESPONSE_SESSION_CHANGED,
-                    state, UNUSED).sendToTarget();
         }
 
         @Override
@@ -574,12 +560,6 @@ public class VideoSessionHandler {
         closeSockets();
         mVideoSession = null;
         mVideoSessionId = 0;
-    }
-
-    private void handleVideoSessionChanged(int state) {
-        if (mVideoSessionCallbackHandler != null) {
-            mVideoSessionCallbackHandler.sessionChanged(state);
-        }
     }
 
     private void handleVideoModifySessionResponse(final VideoConfig videoConfig, final int result) {

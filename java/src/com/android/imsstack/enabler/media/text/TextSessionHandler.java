@@ -165,12 +165,6 @@ public class TextSessionHandler  {
                 }
                     break;
 
-                case MediaConstants.RESPONSE_SESSION_CHANGED:
-                {
-                    handleSessionChanged(msg.arg1);
-                }
-                    break;
-
                 case MediaConstants.RESPONSE_MODIFY_SESSION:
                 {
                     handleModifySessionResponse((TextConfig) msg.obj, msg.arg1);
@@ -220,14 +214,6 @@ public class TextSessionHandler  {
 
             Message.obtain(mTextMessageHandler, MediaConstants.RESPONSE_SESSION_CLOSED)
                     .sendToTarget();
-        }
-
-        @Override
-        public void onSessionChanged(final @ImsMediaSession.SessionState int state) {
-            ImsLog.d("state=" + state);
-
-            Message.obtain(mTextMessageHandler, MediaConstants.RESPONSE_SESSION_CHANGED,
-                    state, UNUSED).sendToTarget();
         }
 
         @Override
@@ -465,12 +451,6 @@ public class TextSessionHandler  {
         closeSockets();
         mTextSession = null;
         mTextSessionId = 0;
-    }
-
-    private void handleSessionChanged(int state) {
-        if (mTextSessionCallbackHandler != null && mTextSession != null) {
-            mTextSessionCallbackHandler.sessionChanged(state);
-        }
     }
 
     private void handleModifySessionResponse(final TextConfig textConfig, final int result) {
