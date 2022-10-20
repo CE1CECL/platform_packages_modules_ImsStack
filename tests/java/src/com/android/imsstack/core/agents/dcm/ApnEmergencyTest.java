@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkRequest;
+import android.os.Message;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.testing.AndroidTestingRunner;
@@ -37,6 +38,7 @@ import com.android.imsstack.core.agents.dcmif.EApnReqState;
 import com.android.imsstack.core.agents.dcmif.EApnType;
 import com.android.imsstack.core.agents.dcmif.EDataState;
 import com.android.imsstack.core.agents.dcmif.IDcApn;
+import com.android.imsstack.core.agents.dcmif.IDcSettings;
 import com.android.imsstack.core.agents.dcmif.IDcUtils;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.util.AppContext;
@@ -61,6 +63,7 @@ public class ApnEmergencyTest {
 
     @Mock private Apn.ImsNetworkCallback mMockNetworkCallback;
     @Mock private IDcApn mMockIDcApn;
+    @Mock private IDcSettings mMockIDcSettings;
     @Mock private IDcUtils mMockIDcUtils;
     @Mock private ISystem mMockISystem;
 
@@ -108,10 +111,10 @@ public class ApnEmergencyTest {
 
     @Test
     public void testConnect() throws Exception {
-        // do not handle request to connect because ApnIms is not enabled
+        // do not handle request to connect because mApnEmergency is not enabled
         assertFalse(mApnEmergency.connect());
 
-        // handle request to connect if ApnIms is enabled
+        // handle request to connect if mApnEmergency is enabled
         mApnEmergency.employApn();
         assertTrue(mApnEmergency.connect());
         assertEquals(EApnReqState.APN_REQUEST_DONE, mApnEmergency.getApnReqState());
@@ -228,6 +231,12 @@ public class ApnEmergencyTest {
 
     @Test
     public void testHandleDataConnectionFailed() throws Exception {
+        int failureCause = 33;
+        replaceInstance(Apn.class, "mDcSettings", mApnEmergency, mMockIDcSettings);
+        when(mMockIDcSettings.isPermanentFailure(EApnType.EMERGENCY, failureCause))
+                .thenReturn(false)
+                .thenReturn(true);
+
         // if apn is not requested, ignore event
         assertEquals(EApnReqState.APN_REQUEST_IDLE, mApnEmergency.getApnReqState());
         mApnEmergency.sendEmptyMessage(Apn.EVENT_DATA_CONNECTION_FAILED);
@@ -236,10 +245,25 @@ public class ApnEmergencyTest {
         // if apn has been requested before, notify data connection state change
         mApnEmergency.setApnReqState(EApnReqState.APN_REQUEST_DONE);
         mApnEmergency.setDataState(TelephonyManager.DATA_CONNECTING);
-        mApnEmergency.sendEmptyMessage(Apn.EVENT_DATA_CONNECTION_FAILED);
+
+        Message msg1 = Message.obtain();
+        msg1.what = Apn.EVENT_DATA_CONNECTION_FAILED;
+        msg1.obj = null;
+        mApnEmergency.sendMessage(msg1);
         mTestableLooper.processAllMessages();
 
-        assertEquals(TelephonyManager.DATA_DISCONNECTED, mApnEmergency.getDataState());
+        Message msg2 = Message.obtain();
+        msg2.what = Apn.EVENT_DATA_CONNECTION_FAILED;
+        msg2.obj = failureCause;
+        mApnEmergency.sendMessage(msg2);
+        mTestableLooper.processAllMessages();
+
+        Message msg3 = Message.obtain();
+        msg3.what = Apn.EVENT_DATA_CONNECTION_FAILED;
+        msg3.obj = failureCause;
+        mApnEmergency.sendMessage(msg3);
+        mTestableLooper.processAllMessages();
+
         verify(mMockISystem, times(1)).notifyDataConnectionStateChanged(
                 EApnType.EMERGENCY.getType(), EDataState.DATA_STATE_DISCONNECTED.getState());
     }
