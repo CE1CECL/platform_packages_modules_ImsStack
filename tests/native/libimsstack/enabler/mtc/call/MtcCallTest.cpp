@@ -38,6 +38,7 @@
 #include "core/MockIReference.h"
 #include "core/MockISession.h"
 #include "dialingplan/MockIMtcDialingPlan.h"
+#include "helper/IMtcAosStateListener.h"
 #include "helper/ISrvccStateListener.h"
 #include "helper/MockICallStateProxy.h"
 #include "helper/OperationAsyncRunner.h"
@@ -716,17 +717,6 @@ TEST_F(MtcCallTest, SendUssdCallsState)
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
     objCall.SendUssd(strUssd);
-}
-
-TEST_F(MtcCallTest, HandleIpcanChangedCallsState)
-{
-    MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, HandleIpcanChanged)
-            .Times(1);
-
-    MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
-
-    objCall.HandleIpcanChanged();
 }
 
 TEST_F(MtcCallTest, GetKeyReturnsValidKeyInitially)
@@ -2359,4 +2349,29 @@ TEST_F(MtcCallTest, OnSrvccStateUpdatedCallsState)
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
     objCall.OnSrvccStateUpdated(eAnyState);
+}
+
+TEST_F(MtcCallTest, OnAosStateChangedCallsState)
+{
+    MtcAosState eAnyState = MtcAosState::CONNECTED;
+    IMS_UINT32 eAnyReason = 0;
+    MockIMtcCallState* pState = new MockIMtcCallState();
+    EXPECT_CALL(*pState, OnAosStateChanged(eAnyState, eAnyReason))
+            .Times(1);
+
+    MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
+
+    objCall.OnAosStateChanged(objService, eAnyState, eAnyReason);
+}
+
+TEST_F(MtcCallTest, OnIpcanChangedCallsState)
+{
+    IMS_UINT32 eAnyType = 0;
+    MockIMtcCallState* pState = new MockIMtcCallState();
+    EXPECT_CALL(*pState, OnIpcanChanged(eAnyType))
+            .Times(1);
+
+    MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
+
+    objCall.OnIpcanChanged(objService, eAnyType);
 }
