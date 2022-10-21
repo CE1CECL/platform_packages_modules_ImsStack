@@ -174,18 +174,25 @@ public class ApnEmergency extends Apn {
     private class HandleDataConnectionFailed implements MsgProcInterface {
         @Override
         public void procMsg(Message msg) {
-            int curDataState = TelephonyManager.DATA_DISCONNECTED;
-
-            if (mAPNState != EApnReqState.APN_REQUEST_DONE) {
-                ImsLog.w(mSlotId, "apn is not requested");
+            if (msg == null) {
                 return;
             }
 
-            if (mDataState != curDataState) {
-                ImsLog.i(mSlotId, "data state :: " + mDataState + " >> " + curDataState);
+            if (mAPNState != EApnReqState.APN_REQUEST_DONE) {
+                ImsLog.w("apn is not requested, ignore event");
+                return;
+            }
 
-                setDataState(curDataState);
-                sendDataStateUpdateMessage(mType, EDataState.DATA_STATE_DISCONNECTED);
+            if (msg.obj == null) {
+                ImsLog.w(mSlotId, "msg.obj is null");
+                return;
+            }
+
+            int causeCode = (int) msg.obj;
+            if (mDcSettings != null) {
+                if (mDcSettings.isPermanentFailure(mType, causeCode)) {
+                    sendDataStateUpdateMessage(mType, EDataState.DATA_STATE_DISCONNECTED);
+                }
             }
         }
     }
