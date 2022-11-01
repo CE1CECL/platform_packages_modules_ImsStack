@@ -156,7 +156,7 @@ IMS_BOOL AudioMediaSession::UpdateRtpConfig(IN const IMS_UINT32 nAccessNetwork,
             objAudioConfig.getRxPayloadTypeNumber());
     IMS_TRACE_D("UpdateRtpConfig() - RemoteAddress[%s], RemotePort[%d]",
             objAudioConfig.getRemoteAddress().c_str(), objAudioConfig.getRemotePort(), 0);
-    IMS_TRACE_D("UpdateRtpConfig() - Dscp[%d], AccessNetwork[%d]", objAudioConfig.getDscp(),
+    IMS_TRACE_D("UpdateRtpConfig() - Dscp[%d], AccessNetwork[%d]", u_char(objAudioConfig.getDscp()),
             objAudioConfig.getAccessNetwork(), 0);
 
     // RTCP

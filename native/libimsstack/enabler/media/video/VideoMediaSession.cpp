@@ -153,7 +153,7 @@ PUBLIC IMS_BOOL VideoMediaSession::UpdateRtpConfig(IN VideoProfile* pLocalProfil
             pVideoConfig->getRxPayloadTypeNumber());
     IMS_TRACE_D("UpdateRtpConfig() - RemoteAddress[%s], RemotePort[%d]",
             pVideoConfig->getRemoteAddress().c_str(), pVideoConfig->getRemotePort(), 0);
-    IMS_TRACE_D("UpdateRtpConfig() - Dscp[%d], Mtu[%d]", pVideoConfig->getDscp(),
+    IMS_TRACE_D("UpdateRtpConfig() - Dscp[%d], Mtu[%d]", u_char(pVideoConfig->getDscp()),
             pVideoConfig->getMaxMtuBytes(), 0);
 
     RtcpConfig objRtcpConfig;
