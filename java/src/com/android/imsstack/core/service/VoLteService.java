@@ -308,6 +308,8 @@ public class VoLteService implements IVoLteService {
                 addressResolutionTimeMillis = LocationPolicy.ADDRESS_RESOLUTION_MAX_TIME;
                 validityPeriod = LocationPolicy.LOCATION_VALIDITY_PERIOD_SHORT;
             } else if (ImsGlobal.equalsCountry(mCountry, "CA")) {
+                lp = locAgent.getLocationPolicy();
+
                 policy |= LocationPolicy.POLICY_INIT_REQUIRED_ON_GETTING_LAST_LOCATION;
                 policy |= LocationPolicy.POLICY_LOCATION_UPDATE_USING_SMD;
                 policy |= LocationPolicy.POLICY_UPDATE_COUNTRY_VIA_OTHER_SCHEME;
