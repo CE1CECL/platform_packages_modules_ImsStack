@@ -23,7 +23,7 @@ PRIVATE GLOBAL IMS_SINT32* Ims::s_pnErrorCode = IMS_NULL;
 
 PUBLIC GLOBAL void Ims::Init()
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     s_pnErrorCode = new IMS_SINT32[nSimCount];
 
@@ -35,7 +35,7 @@ PUBLIC GLOBAL void Ims::Init()
 
 PUBLIC GLOBAL void Ims::Init(IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return;
     }
@@ -72,7 +72,7 @@ PUBLIC GLOBAL IMS_SINT32 Ims::GetLastError()
 
 PUBLIC GLOBAL void Ims::SetLastError(IN IMS_SINT32 nErrorCode, IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return;
     }
@@ -85,7 +85,7 @@ PUBLIC GLOBAL void Ims::SetLastError(IN IMS_SINT32 nErrorCode, IN IMS_SINT32 nSl
 
 PUBLIC GLOBAL IMS_SINT32 Ims::GetLastError(IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return ImsError::NO_ERROR;
     }

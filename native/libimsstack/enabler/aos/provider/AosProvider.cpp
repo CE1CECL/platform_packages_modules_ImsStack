@@ -44,7 +44,7 @@ AosProvider::AosProvider() :
 
     m_piLock = MutexService::GetMutexService()->CreateMutex();
 
-    for (int i = 0; i < SystemConfig::GetMaxSimSlot(); i++)
+    for (int i = 0; i < SystemConfig::GetSupportedSimCount(); i++)
     {
         m_objParam.Add(i, new ProviderParam());
     }

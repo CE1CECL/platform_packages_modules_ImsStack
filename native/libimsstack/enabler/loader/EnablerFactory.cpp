@@ -28,7 +28,7 @@ PUBLIC
 EnablerFactory::EnablerFactory() :
         m_piLock(IMS_NULL)
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     for (IMS_SINT32 i = 0; i < nSimCount; ++i)
     {
@@ -47,7 +47,7 @@ EnablerFactory::~EnablerFactory()
     {
         LockGuard objLock(m_piLock);
 
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {

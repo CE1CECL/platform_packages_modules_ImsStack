@@ -21,10 +21,12 @@ PUBLIC GLOBAL AString DeviceConfig::ToString()
 {
     AString strDeviceConfig;
 
-    strDeviceConfig.Sprintf("DeviceConfig=[ activeModemCount=%d, imsEmergencyEnabled=%d, "
-                            "voLteEnabled=%d, vtEnabled=%d, wfcEnabled=%d ]",
-            s_objConfig.nActiveModemCount, s_objConfig.nImsEmergencyEnabled,
-            s_objConfig.nVoLteEnabled, s_objConfig.nVtEnabled, s_objConfig.nWfcEnabled);
+    strDeviceConfig.Sprintf("DeviceConfig=[ supportedSimCount=%d, activeSimCount=%d, "
+                            "imsEmergencyEnabled=%d, voLteEnabled=%d, "
+                            "vtEnabled=%d, wfcEnabled=%d ]",
+            s_objConfig.nSupportedSimCount, s_objConfig.nActiveSimCount,
+            s_objConfig.nImsEmergencyEnabled, s_objConfig.nVoLteEnabled, s_objConfig.nVtEnabled,
+            s_objConfig.nWfcEnabled);
 
     return strDeviceConfig;
 }
@@ -33,8 +35,13 @@ PRIVATE GLOBAL void DeviceConfig::SetConfig(IN const __DeviceConfig& objConfig)
 {
     IMS_MEM_Memcpy(&s_objConfig, &objConfig, sizeof(__DeviceConfig));
 
-    if (s_objConfig.nActiveModemCount == 0)
+    if (s_objConfig.nActiveSimCount == 0)
     {
-        s_objConfig.nActiveModemCount = 1;
+        s_objConfig.nActiveSimCount = 1;
+    }
+
+    if (s_objConfig.nSupportedSimCount == 0)
+    {
+        s_objConfig.nSupportedSimCount = 1;
     }
 }

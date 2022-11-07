@@ -347,7 +347,7 @@ public:
 public:
     inline EventHolder* GetHolder(IN IMS_SINT32 nSlotId)
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             nSlotId = IMS_SLOT_0;
         }
@@ -371,7 +371,7 @@ EventServicePrivate::EventServicePrivate() :
     IOsFactory* piOsFactory = PlatformContext::GetInstance()->GetOsFactory();
     m_piSender = piOsFactory->CreateEventSender();
 
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppHolder = new EventHolder*[nSimCount];
 
@@ -385,7 +385,7 @@ PUBLIC VIRTUAL EventServicePrivate::~EventServicePrivate()
 {
     if (m_ppHolder != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {

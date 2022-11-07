@@ -32,10 +32,10 @@ public class AosFactory {
 
     @VisibleForTesting
     protected Map<Integer, AosService> mAosServices =
-            new HashMap<Integer, AosService>(MSimUtils.getMaxSimSlot());
+            new HashMap<Integer, AosService>(MSimUtils.getSupportedSimCount());
     @VisibleForTesting
     protected Map<Integer, AosSettingService> mAosSettingServices =
-            new HashMap<Integer, AosSettingService>(MSimUtils.getMaxSimSlot());
+            new HashMap<Integer, AosSettingService>(MSimUtils.getSupportedSimCount());
 
     public static AosFactory getInstance() {
         if (sFactory == null) {

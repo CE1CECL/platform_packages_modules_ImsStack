@@ -20,8 +20,11 @@
 
 struct __DeviceConfig
 {
-    // Number of logical modems currently configured to be activated
-    IMS_SINT32 nActiveModemCount;
+    // How many logical SIM can be potentially active simultaneously,
+    // in terms of hardware capability.
+    IMS_SINT32 nSupportedSimCount;
+    // Number of logical SIMs currently configured to be activated.
+    IMS_SINT32 nActiveSimCount;
 
     // 0: disabled, 1: enabled
     IMS_SINT32 nImsEmergencyEnabled;
@@ -30,7 +33,8 @@ struct __DeviceConfig
     IMS_SINT32 nWfcEnabled;
 
     __DeviceConfig() :
-            nActiveModemCount(1),
+            nSupportedSimCount(1),
+            nActiveSimCount(1),
             // VoLte always enables because Ims emergency call should be supported.
             nImsEmergencyEnabled(1),
             nVoLteEnabled(0),
@@ -39,9 +43,11 @@ struct __DeviceConfig
     {
     }
 
-    __DeviceConfig(IN IMS_SINT32 nActiveModemCount_, IN IMS_SINT32 nImsEmergencyEnabled_,
-            IN IMS_SINT32 nVoLteEnabled_, IN IMS_SINT32 nVtEnabled_, IN IMS_SINT32 nWfcEnabled_) :
-            nActiveModemCount(nActiveModemCount_),
+    __DeviceConfig(IN IMS_SINT32 nSupportedSimCount_, IN IMS_SINT32 nActiveSimCount_,
+            IN IMS_SINT32 nImsEmergencyEnabled_, IN IMS_SINT32 nVoLteEnabled_,
+            IN IMS_SINT32 nVtEnabled_, IN IMS_SINT32 nWfcEnabled_) :
+            nSupportedSimCount(nSupportedSimCount_),
+            nActiveSimCount(nActiveSimCount_),
             nImsEmergencyEnabled(nImsEmergencyEnabled_),
             nVoLteEnabled(nVoLteEnabled_),
             nVtEnabled(nVtEnabled_),
@@ -56,7 +62,8 @@ public:
     DeviceConfig() = delete;
 
 public:
-    inline static IMS_SINT32 GetActiveModemCount() { return s_objConfig.nActiveModemCount; }
+    inline static IMS_SINT32 GetActiveSimCount() { return s_objConfig.nActiveSimCount; }
+    inline static IMS_SINT32 GetSupportedSimCount() { return s_objConfig.nSupportedSimCount; }
     inline static IMS_BOOL IsImsEmergencyEnabled() { return s_objConfig.nImsEmergencyEnabled == 1; }
     inline static IMS_BOOL IsVoLteEnabled()
     {

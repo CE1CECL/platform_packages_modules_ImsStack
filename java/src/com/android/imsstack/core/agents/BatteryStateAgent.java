@@ -352,7 +352,8 @@ public class BatteryStateAgent implements IBatteryState, ISystemAPIBattery {
     }
 
     private void notifyBatteryState(int state) {
-        for (int i = 0; i < MSimUtils.getMaxSimSlot(); i++) {
+        int activeSimCount = MSimUtils.getActiveSimCount();
+        for (int i = 0; i < activeSimCount; i++) {
             ISystem system = SystemInterface.getInstance().getSystem(i);
             if (system != null) {
                 system.notifyEvent(ImsEventDef.IMS_EVENT_POWER_LOW_BATTERY, state, 0);

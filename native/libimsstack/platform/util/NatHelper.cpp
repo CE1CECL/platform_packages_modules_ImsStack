@@ -21,7 +21,7 @@ PRIVATE
 NatHelper::NatHelper() :
         m_ppBindings(IMS_NULL)
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppBindings = new ImsList<IpBinding>*[nSimCount];
 
@@ -36,7 +36,7 @@ NatHelper::~NatHelper()
 {
     if (m_ppBindings != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {
@@ -246,7 +246,7 @@ void NatHelper::RemoveIpBinding(
 PRIVATE
 ImsList<NatHelper::IpBinding>* NatHelper::GetIpBindings(IN IMS_SINT32 nSlotId) const
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         nSlotId = IMS_SLOT_0;
     }

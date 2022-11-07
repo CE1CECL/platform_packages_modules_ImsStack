@@ -63,6 +63,7 @@ public class AosFactoryTest {
         TelephonyManager tm = sContext.getSystemService(TelephonyManager.class);
         when(tm.createForSubscriptionId(anyInt())).thenReturn(tm);
         when(tm.getActiveModemCount()).thenReturn(MAX_SIM_SLOT);
+        when(tm.getSupportedModemCount()).thenReturn(MAX_SIM_SLOT);
     }
 
     @Before

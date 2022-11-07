@@ -201,7 +201,7 @@ SipConnectionNotifierManagerPrivate::SipConnectionNotifierManagerPrivate() :
 {
     m_piLock = MutexService::GetMutexService()->CreateMutex();
 
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppListenerProxy = new SipServerConnectionListenerProxy*[nSimCount];
 
@@ -215,7 +215,7 @@ PUBLIC VIRTUAL SipConnectionNotifierManagerPrivate::~SipConnectionNotifierManage
 {
     if (m_ppListenerProxy != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {
@@ -234,7 +234,7 @@ PUBLIC VIRTUAL SipConnectionNotifierManagerPrivate::~SipConnectionNotifierManage
 PUBLIC
 void SipConnectionNotifierManagerPrivate::Init(IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return;
     }
@@ -425,7 +425,7 @@ PRIVATE
 SipServerConnectionListenerProxy* SipConnectionNotifierManagerPrivate::GetServerConnectionListener(
         IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return IMS_NULL;
     }

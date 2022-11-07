@@ -90,6 +90,7 @@ public class AosSettingServiceTest {
         mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
         when(mTelephonyManager.createForSubscriptionId(SUB_ID_0)).thenReturn(mTelephonyManager);
         when(mTelephonyManager.getActiveModemCount()).thenReturn(MAX_SIM_SLOT);
+        when(mTelephonyManager.getSupportedModemCount()).thenReturn(MAX_SIM_SLOT);
 
         mBackupJniUpCallEvtManager = JNIUpCallEvtManager.getInstance();
         when(mMockJniUpCallEvtManager.getJNIUpCallEvt(SLOT_0)).thenReturn(mMockJniUpCallEvt);

@@ -42,7 +42,7 @@ public:
 PUBLIC
 ImsRadioServicePrivate::ImsRadioServicePrivate()
 {
-    for (IMS_UINT32 i = 0; i < SystemConfig::GetMaxSimSlot(); ++i)
+    for (IMS_UINT32 i = 0; i < SystemConfig::GetSupportedSimCount(); ++i)
     {
         m_objImsRadios.Add(i, IMS_NULL);
     }

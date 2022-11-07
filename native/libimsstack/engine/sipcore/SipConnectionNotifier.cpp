@@ -66,9 +66,9 @@ SipConnectionNotifier::SipConnectionNotifier(IN IMS_SINT32 nScheme, IN IMS_SINT3
 {
     if (s_pGlobalSystemPort == IMS_NULL)
     {
-        s_pGlobalSystemPort = new IMS_SINT32[SystemConfig::GetMaxSimSlot()];
+        s_pGlobalSystemPort = new IMS_SINT32[SystemConfig::GetSupportedSimCount()];
 
-        for (IMS_SINT32 i = 0; i < SystemConfig::GetMaxSimSlot(); ++i)
+        for (IMS_SINT32 i = 0; i < SystemConfig::GetSupportedSimCount(); ++i)
         {
             s_pGlobalSystemPort[i] = (i * 2000) + 9000;
         }

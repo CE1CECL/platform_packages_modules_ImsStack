@@ -71,12 +71,13 @@ public class UtCommandTest {
 
     @BeforeClass
     public static void setupOnce() {
-        // This is to get one when MSimUtils.getMaxSimSlot() is called in UtFactory
+        // This is to get one when MSimUtils.getSupportedModemCount() is called in UtFactory
         sContext = new ContextFixture();
         AppContext.init(sContext.getTestDouble());
 
         TelephonyManager tm = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(tm.getActiveModemCount()).thenReturn(ACTIVE_MODEM_COUNT);
+        when(tm.getSupportedModemCount()).thenReturn(ACTIVE_MODEM_COUNT);
 
         UtFactory.sUtFactory = new UtFactory();
     }

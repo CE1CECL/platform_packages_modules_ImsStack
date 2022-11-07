@@ -209,10 +209,10 @@ PUBLIC GLOBAL void SipUtils::Init(IN IMS_SINT32 nSlotId)
     {
         if (s_pFixedKeyForSessionId == IMS_NULL)
         {
-            s_pFixedKeyForSessionId = new AString[SystemConfig::GetMaxSimSlot()];
+            s_pFixedKeyForSessionId = new AString[SystemConfig::GetSupportedSimCount()];
         }
 
-        if ((nSlotId >= IMS_SLOT_0) && (nSlotId < SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId >= IMS_SLOT_0) && (nSlotId < SystemConfig::GetActiveSimCount()))
         {
             // Generates pseudo-random 128-bit system secret key
             IDeviceInfo* piDeviceInfo = PhoneInfoService::GetPhoneInfoService()->GetDeviceInfo();

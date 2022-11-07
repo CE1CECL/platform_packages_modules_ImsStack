@@ -542,7 +542,7 @@ public:
 public:
     inline ConfigurationHolder* GetHolder(IN IMS_SINT32 nSlotId) const
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             nSlotId = IMS_SLOT_0;
         }
@@ -562,7 +562,7 @@ PUBLIC
 ConfigurationManagerPrivate::ConfigurationManagerPrivate() :
         m_ppHolder(IMS_NULL)
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppHolder = new ConfigurationHolder*[nSimCount];
 
@@ -577,7 +577,7 @@ ConfigurationManagerPrivate::~ConfigurationManagerPrivate()
 {
     if (m_ppHolder != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {
@@ -594,7 +594,7 @@ ConfigurationManagerPrivate::~ConfigurationManagerPrivate()
 PUBLIC
 IMS_BOOL ConfigurationManagerPrivate::Initialize()
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetActiveSimCount();
 
     for (IMS_SINT32 i = 0; i < nSimCount; ++i)
     {

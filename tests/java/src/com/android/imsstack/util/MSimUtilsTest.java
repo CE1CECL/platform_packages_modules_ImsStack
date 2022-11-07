@@ -39,7 +39,8 @@ import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
 public class MSimUtilsTest {
-    private static final int[] MAX_SIM_SLOT = { 1, 2 };
+    private static final int[] MAX_SUPPORTED_SIM_COUNT = { 1, 2 };
+    private static final int[] MAX_ACTIVE_SIM_COUNT = { 1, 2 };
     private static final boolean[] HAS_ICC_CARD = { true, false };
     private static final int SLOT0 = 0;
     private static final int SLOT1 = 1;
@@ -67,7 +68,10 @@ public class MSimUtilsTest {
 
         mTelephonyManager = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(mTelephonyManager.createForSubscriptionId(anyInt())).thenReturn(mTelephonyManager);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(MAX_SIM_SLOT[0], MAX_SIM_SLOT[1]);
+        when(mTelephonyManager.getActiveModemCount())
+                .thenReturn(MAX_ACTIVE_SIM_COUNT[0], MAX_ACTIVE_SIM_COUNT[1]);
+        when(mTelephonyManager.getSupportedModemCount())
+                .thenReturn(MAX_SUPPORTED_SIM_COUNT[0], MAX_SUPPORTED_SIM_COUNT[1]);
         when(mTelephonyManager.hasIccCard()).thenReturn(HAS_ICC_CARD[0], HAS_ICC_CARD[1]);
     }
 
@@ -83,9 +87,16 @@ public class MSimUtilsTest {
 
     @Test
     @SmallTest
-    public void getMaxSimSlot() throws Exception {
-        assertEquals(MAX_SIM_SLOT[0], MSimUtils.getMaxSimSlot());
-        assertEquals(MAX_SIM_SLOT[1], MSimUtils.getMaxSimSlot());
+    public void getActiveSimCount() throws Exception {
+        assertEquals(MAX_ACTIVE_SIM_COUNT[0], MSimUtils.getActiveSimCount());
+        assertEquals(MAX_ACTIVE_SIM_COUNT[1], MSimUtils.getActiveSimCount());
+    }
+
+    @Test
+    @SmallTest
+    public void getSupportedSimCount() throws Exception {
+        assertEquals(MAX_SUPPORTED_SIM_COUNT[0], MSimUtils.getSupportedSimCount());
+        assertEquals(MAX_SUPPORTED_SIM_COUNT[1], MSimUtils.getSupportedSimCount());
     }
 
     @Test

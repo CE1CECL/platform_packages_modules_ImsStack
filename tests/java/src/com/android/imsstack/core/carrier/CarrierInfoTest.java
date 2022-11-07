@@ -95,6 +95,7 @@ public class CarrierInfoTest {
         mTelephonyManager = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(mTelephonyManager.createForSubscriptionId(anyInt())).thenReturn(mTelephonyManager);
         when(mTelephonyManager.getActiveModemCount()).thenReturn(MAX_SIM_SLOT);
+        when(mTelephonyManager.getSupportedModemCount()).thenReturn(MAX_SIM_SLOT);
         when(mTelephonyManager.getSimSerialNumber()).thenReturn(SIM_ICCID);
         when(mTelephonyManager.getSimCarrierId()).thenReturn(SIM_CARRIER_ID);
         when(mTelephonyManager.getSimSpecificCarrierId()).thenReturn(SIM_SPECIFIC_CARRIER_ID);

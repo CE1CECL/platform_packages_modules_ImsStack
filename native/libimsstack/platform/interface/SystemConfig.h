@@ -24,7 +24,8 @@ public:
     SystemConfig() = delete;
 
 public:
-    static IMS_SINT32 GetMaxSimSlot();
+    static IMS_SINT32 GetActiveSimCount();
+    static IMS_SINT32 GetSupportedSimCount();
     static IMS_BOOL IsMultiImsEnabled();
     static IMS_BOOL IsMultiSimEnabled();
 

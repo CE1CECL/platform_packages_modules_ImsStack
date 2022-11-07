@@ -29,12 +29,14 @@ import com.android.imsstack.util.MSimUtils;
  */
 public final class CarrierInfo {
     private static CarrierInfo sCarrierInfo = null;
-    private final SparseArray<SimCarrierId> mSimCarrierIds = new SparseArray<>(2);
+    private final SparseArray<SimCarrierId> mSimCarrierIds;
 
     private CarrierInfo() {
-        int maxSimSlot = MSimUtils.getMaxSimSlot();
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
 
-        for (int i = 0; i < maxSimSlot; ++i) {
+        mSimCarrierIds = new SparseArray<>(supportedSimCount);
+
+        for (int i = 0; i < supportedSimCount; ++i) {
             mSimCarrierIds.put(i, new SimCarrierId.Builder().build());
         }
     }

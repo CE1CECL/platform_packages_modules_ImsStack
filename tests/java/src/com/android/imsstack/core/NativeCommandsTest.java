@@ -60,6 +60,7 @@ public class NativeCommandsTest {
         TelephonyManager tm = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(sContext.getTestDouble().getResources().getBoolean(anyInt())).thenReturn(true);
         when(tm.getActiveModemCount()).thenReturn(1);
+        when(tm.getSupportedModemCount()).thenReturn(1);
 
         JniImsProxy.setJniIms(mJniIms);
     }

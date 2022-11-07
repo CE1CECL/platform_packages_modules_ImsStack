@@ -205,7 +205,7 @@ public:
 public:
     inline SipFactoryHolder* GetHolder(IN IMS_SINT32 nSlotId) const
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             nSlotId = IMS_SLOT_0;
         }
@@ -221,7 +221,7 @@ PUBLIC
 SipFactoryProxyPrivate::SipFactoryProxyPrivate() :
         m_ppHolder(IMS_NULL)
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppHolder = new SipFactoryHolder*[nSimCount];
 
@@ -236,7 +236,7 @@ SipFactoryProxyPrivate::~SipFactoryProxyPrivate()
 {
     if (m_ppHolder != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {

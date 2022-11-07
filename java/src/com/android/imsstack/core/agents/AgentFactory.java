@@ -53,11 +53,11 @@ public final class AgentFactory {
     private static final int AGENT_END = (CALL_SETTING + 1);
     private static final int AGENT_MAX = AGENT_END;
 
-    private static Map<Integer, IAgent> sAgents
-            = new HashMap<Integer, IAgent>(AGENT_MAX);
+    private static Map<Integer, IAgent> sAgents =
+            new HashMap<Integer, IAgent>(AGENT_MAX);
 
-    private static Map<Integer, HashMap<Integer, IAgent>> sAgentSlots
-            = new HashMap<Integer, HashMap<Integer, IAgent>>(MSimUtils.getMaxSimSlot());
+    private static Map<Integer, HashMap<Integer, IAgent>> sAgentSlots =
+            new HashMap<Integer, HashMap<Integer, IAgent>>(MSimUtils.getSupportedSimCount());
 
     private final Object mLock = new Object();
     private final SparseArray<SystemCallAgent> mSystemCallAgents;
@@ -65,10 +65,11 @@ public final class AgentFactory {
     private static AgentFactory sInstance;
 
     private AgentFactory() {
-        mSystemCallAgents = new SparseArray<>(MSimUtils.getMaxSimSlot());
-        mAgentsForSlot = new SparseArray<>(MSimUtils.getMaxSimSlot());
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        mSystemCallAgents = new SparseArray<>(supportedSimCount);
+        mAgentsForSlot = new SparseArray<>(supportedSimCount);
 
-        for (int i = 0; i < MSimUtils.getMaxSimSlot(); ++i) {
+        for (int i = 0; i < supportedSimCount; ++i) {
             mSystemCallAgents.put(i, null);
             mAgentsForSlot.put(i, new ArrayMap<>());
         }

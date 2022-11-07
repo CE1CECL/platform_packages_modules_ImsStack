@@ -28,7 +28,7 @@ SipMessageBuffer::SipMessageBuffer() :
 
     if (SystemConfig::IsMultiImsEnabled())
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         m_ppBuffer = new IMS_BYTE*[nSimCount];
 
@@ -46,7 +46,7 @@ PUBLIC VIRTUAL SipMessageBuffer::~SipMessageBuffer()
 {
     if (m_ppBuffer != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {
@@ -87,7 +87,7 @@ IMS_BYTE* SipMessageBuffer::GetBuffer(IN IMS_SINT32 nSlotId)
     {
         if (m_ppBuffer != IMS_NULL)
         {
-            if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+            if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
             {
                 nSlotId = IMS_SLOT_0;
             }

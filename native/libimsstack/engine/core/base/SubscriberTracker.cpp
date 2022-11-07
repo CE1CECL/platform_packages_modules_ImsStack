@@ -32,7 +32,8 @@ SubscriberTracker::SubscriberTracker() :
         m_pSubscriberMaps(IMS_NULL)
 {
     m_piLock = MutexService::GetMutexService()->CreateMutex();
-    m_pSubscriberMaps = new IMSMap<AString, IMSList<SipAddress*>>[SystemConfig::GetMaxSimSlot()];
+    m_pSubscriberMaps =
+            new IMSMap<AString, IMSList<SipAddress*>>[SystemConfig::GetSupportedSimCount()];
 }
 
 PUBLIC VIRTUAL SubscriberTracker::~SubscriberTracker()
@@ -252,7 +253,7 @@ PRIVATE
 IMSMap<AString, IMSList<SipAddress*>>* SubscriberTracker::GetSubscribers(
         IN IMS_SINT32 nSlotId) const
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return IMS_NULL;
     }
@@ -263,7 +264,7 @@ IMSMap<AString, IMSList<SipAddress*>>* SubscriberTracker::GetSubscribers(
 PRIVATE
 void SubscriberTracker::Initialize()
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     for (IMS_SINT32 i = 0; i < nSimCount; i++)
     {

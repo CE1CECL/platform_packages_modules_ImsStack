@@ -235,7 +235,8 @@ IMS_UINTP GetCommandParam(IN JNIEnv* env, IN jint cmd, IN jbyteArray jData)
         {
             __DeviceConfig* pConfig = new __DeviceConfig();
 
-            pConfig->nActiveModemCount = objData.readInt32();
+            pConfig->nSupportedSimCount = objData.readInt32();
+            pConfig->nActiveSimCount = objData.readInt32();
             pConfig->nImsEmergencyEnabled = objData.readInt32();
             pConfig->nVoLteEnabled = objData.readInt32();
             pConfig->nVtEnabled = objData.readInt32();

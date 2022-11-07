@@ -50,8 +50,8 @@ public final class ImsTestMode {
 
     private static ImsTestMode sImsTestMode = new ImsTestMode();
 
-    private static Map<Integer, IImsTestMode> sTestModes
-            = new HashMap<Integer, IImsTestMode>(MSimUtils.getMaxSimSlot());
+    private static Map<Integer, IImsTestMode> sTestModes =
+            new HashMap<Integer, IImsTestMode>(MSimUtils.getSupportedSimCount());
 
 
     public static ImsTestMode getInstance() {

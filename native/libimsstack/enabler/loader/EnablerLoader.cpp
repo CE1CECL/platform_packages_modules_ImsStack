@@ -54,7 +54,7 @@ void EnablerLoader::Init()
     // As default, the enabler thread for slot0 is always created.
     CreateAndAddThread(IMS_SLOT_0);
 
-    for (IMS_SINT32 i = IMS_SLOT_1; i < SystemConfig::GetMaxSimSlot(); ++i)
+    for (IMS_SINT32 i = IMS_SLOT_1; i < SystemConfig::GetSupportedSimCount(); ++i)
     {
         CreateAndAddThread(i);
     }

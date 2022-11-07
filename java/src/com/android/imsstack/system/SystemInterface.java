@@ -50,8 +50,8 @@ public class SystemInterface implements JniSystemListener {
 
     private long mNativeObject = 0;
 
-    private Map<Integer, ISystem> mSystems
-            = new HashMap<Integer, ISystem>(MSimUtils.getMaxSimSlot());
+    private Map<Integer, ISystem> mSystems =
+            new HashMap<Integer, ISystem>(MSimUtils.getSupportedSimCount());
 
     private ThreadMessageExecutor mDefaultExecutor =
             new ThreadMessageExecutor(SystemInterface.class.getSimpleName() + "_DEFAULT");
@@ -446,7 +446,9 @@ public class SystemInterface implements JniSystemListener {
 
 
     private synchronized System getActiveSystem() {
-        for (int i = 0; i < MSimUtils.getMaxSimSlot(); i++) {
+        int activeSimCount = MSimUtils.getActiveSimCount();
+
+        for (int i = 0; i < activeSimCount; i++) {
             System system = (System)getSystem(i);
             if (system != null) {
                 return system;

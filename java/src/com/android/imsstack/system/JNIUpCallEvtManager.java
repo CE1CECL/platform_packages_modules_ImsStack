@@ -35,7 +35,7 @@ public class JNIUpCallEvtManager {
     private static JNIUpCallEvtManager sJNIUpCallEvtManager = new JNIUpCallEvtManager();
 
     private Map<Integer, IJNIUpCallEvt> mJniUpCallEvts =
-        new HashMap<Integer, IJNIUpCallEvt>(MSimUtils.getMaxSimSlot());
+            new HashMap<Integer, IJNIUpCallEvt>(MSimUtils.getSupportedSimCount());
 
     // Public methods --------------------------------------------
     public static JNIUpCallEvtManager getInstance() {

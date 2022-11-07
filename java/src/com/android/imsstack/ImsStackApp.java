@@ -46,6 +46,7 @@ public class ImsStackApp extends Application {
     private static final String TAG = ImsStackApp.class.getSimpleName();
 
     private IntentReceiver mIntentReceiver;
+    private int mActiveSimCount = 1;
     private SparseArray<SlotState> mSlotState = new SparseArray<>(2);
 
     @Override
@@ -82,17 +83,19 @@ public class ImsStackApp extends Application {
         // Initialize any static data
         ImsUtils.init();
 
-        int simCount = MSimUtils.getMaxSimSlot();
+        mActiveSimCount = MSimUtils.getActiveSimCount();
+
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
 
         // Clear Ephemeral properties for IMS internal usage
-        for (int i = 0; i < simCount; ++i) {
+        for (int i = 0; i < supportedSimCount; ++i) {
             ImsPrivateProperties.Ephemeral.removeAll(i);
         }
 
         mIntentReceiver = new IntentReceiver();
         mIntentReceiver.startListening();
 
-        for (int i = 0; i < simCount; ++i) {
+        for (int i = 0; i < supportedSimCount; ++i) {
             mSlotState.put(i, new SlotState(i));
         }
 
@@ -116,9 +119,7 @@ public class ImsStackApp extends Application {
 
         Log.i(TAG, "onStart");
 
-        int count = mSlotState.size();
-
-        for (int i = 0; i < count; ++i) {
+        for (int i = 0; i < mActiveSimCount; ++i) {
             int subId = MSimUtils.getSubId(i);
             int simState = getSimState(i, subId);
 
@@ -166,10 +167,8 @@ public class ImsStackApp extends Application {
     }
 
     private void processSimStateForOtherSlots(int slotId) {
-        int simCount = MSimUtils.getMaxSimSlot();
-
-        if (simCount > 1) {
-            for (int i = 0; i < simCount; ++i) {
+        if (mActiveSimCount > 1) {
+            for (int i = 0; i < mActiveSimCount; ++i) {
                 if (i != slotId) {
                     int subId = MSimUtils.getSubId(i);
                     processSimState(i, subId, getSimState(slotId, subId));
@@ -263,10 +262,8 @@ public class ImsStackApp extends Application {
     }
 
     private void processCarrierConfigStateForOtherSlots(int slotId) {
-        int simCount = MSimUtils.getMaxSimSlot();
-
-        if (simCount > 1) {
-            for (int i = 0; i < simCount; ++i) {
+        if (mActiveSimCount > 1) {
+            for (int i = 0; i < mActiveSimCount; ++i) {
                 if (i != slotId) {
                     int subId = MSimUtils.getSubId(i);
 
@@ -280,6 +277,17 @@ public class ImsStackApp extends Application {
                     }
                 }
             }
+        }
+    }
+
+    private void handleMultiSimConfigChanged(Intent intent) {
+        int activeSimCount = intent.getIntExtra(
+                TelephonyManager.EXTRA_ACTIVE_SIM_SUPPORTED_COUNT, 0);
+
+        Log.d(TAG, "handleMultiSimConfigChanged :: " + mActiveSimCount + " >> " + activeSimCount);
+
+        if (activeSimCount > 0) {
+            mActiveSimCount = activeSimCount;
         }
     }
 
@@ -344,9 +352,9 @@ public class ImsStackApp extends Application {
         boolean deviceWfcEnabled = getResources().getBoolean(
                 com.android.internal.R.bool.config_device_wfc_ims_available);
 
-        Log.i(TAG, "CarrierConfig - voLteEnabled=" + voLteEnabled
+        Log.i(TAG, "CarrierConfig(" + phoneId + ") - voLteEnabled=" + voLteEnabled
                 + ", vtEnabled=" + vtEnabled + ", wfcEnabled=" + wfcEnabled);
-        Log.i(TAG, "Device - voLteEnabled=" + deviceVoLteEnabled
+        Log.i(TAG, "Device(" + phoneId + ") - voLteEnabled=" + deviceVoLteEnabled
                 + ", vtEnabled=" + deviceVtEnabled + ", wfcEnabled=" + deviceWfcEnabled);
     }
 
@@ -471,6 +479,7 @@ public class ImsStackApp extends Application {
             IntentFilter filter = new IntentFilter();
             filter.addAction(TelephonyManager.ACTION_SIM_APPLICATION_STATE_CHANGED);
             filter.addAction(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED);
+            filter.addAction(TelephonyManager.ACTION_MULTI_SIM_CONFIG_CHANGED);
 
             AppContext.getInstance().registerReceiver(this, filter, null,
                     AppContext.getInstance().getMainHandler(), Context.RECEIVER_EXPORTED);
@@ -490,6 +499,8 @@ public class ImsStackApp extends Application {
                 handleSimStateChanged(intent);
             } else if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
                 handleCarrierConfigChanged(intent);
+            } else if (TelephonyManager.ACTION_MULTI_SIM_CONFIG_CHANGED.equals(action)) {
+                handleMultiSimConfigChanged(intent);
             }
         }
     }

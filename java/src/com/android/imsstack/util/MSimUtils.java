@@ -46,15 +46,24 @@ public final class MSimUtils {
         }
     }
 
-    /** Returns the maximum count of SIM slot. */
-    public static int getMaxSimSlot() {
-        return getPhoneCount();
-    }
-
-    /** Returns the phone count. */
-    public static int getPhoneCount() {
+    /**
+     * Returns the number of logical SIMs currently configured to be activated.
+     */
+    public static int getActiveSimCount() {
         TelephonyManager tm = AppContext.getTelephonyManager();
         return (tm != null) ? tm.getActiveModemCount() : 1;
+    }
+
+    /**
+     * Returns how many logical SIM can be potentially active simultaneously, in terms of hardware
+     * capability.
+     * It might return different value from {@link #getActiveSimCount}. For example, for a
+     * dual-SIM capable device operating in single SIM mode (only one logical modem is turned on),
+     * {@link #getActiveSimCount} returns 1 while this API returns 2.
+     */
+    public static int getSupportedSimCount() {
+        TelephonyManager tm = AppContext.getTelephonyManager();
+        return (tm != null) ? tm.getSupportedModemCount() : getActiveSimCount();
     }
 
     /** Returns the phone id from the specified subscription id. */
@@ -64,14 +73,14 @@ public final class MSimUtils {
 
     /** Returns the phone id from the specified subscription id. */
     public static int getPhoneId(int subId, int defaultPhoneId) {
-        int phoneId = SubscriptionManager.getSlotIndex(subId);
+        int slotId = SubscriptionManager.getSlotIndex(subId);
 
-        if (phoneId < DEFAULT_PHONE_ID || phoneId >= getPhoneCount()) {
+        if (slotId < DEFAULT_PHONE_ID || slotId >= getActiveSimCount()) {
             // Set the phoneId as a default
-            phoneId = defaultPhoneId;
+            slotId = defaultPhoneId;
         }
 
-        return phoneId;
+        return slotId;
     }
 
     /** Returns a string representing the SIM state. */
@@ -150,7 +159,7 @@ public final class MSimUtils {
 
     /** Checks if the device supports the multiple SIM cards. */
     public static boolean isMultiSimEnabled() {
-        return getMaxSimSlot() > 1;
+        return getActiveSimCount() > 1;
     }
 
     /** Checks if the specified subscription id is valid or not. */

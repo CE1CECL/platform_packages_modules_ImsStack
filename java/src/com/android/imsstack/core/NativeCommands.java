@@ -35,14 +35,16 @@ public class NativeCommands {
 
     /** Sets the device configuration. */
     public static void setDeviceConfig(Context c) {
-        int activeModemCount = MSimUtils.getMaxSimSlot();
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int activeSimCount = MSimUtils.getActiveSimCount();
         boolean imsEmergencyEnabled = true;
         boolean voLteEnabled = ImsUtils.isVoLteEnabledByDevice(c, MSimUtils.DEFAULT_PHONE_ID);
         boolean vtEnabled = ImsUtils.isVtEnabledByDevice(c, MSimUtils.DEFAULT_PHONE_ID);
         boolean wfcEnabled = ImsUtils.isWfcEnabledByDevice(c, MSimUtils.DEFAULT_PHONE_ID);
 
         Parcel p = Parcel.obtain();
-        p.writeInt(activeModemCount);
+        p.writeInt(supportedSimCount);
+        p.writeInt(activeSimCount);
         p.writeInt(imsEmergencyEnabled ? 1 : 0);
         p.writeInt(voLteEnabled ? 1 : 0);
         p.writeInt(vtEnabled ? 1 : 0);

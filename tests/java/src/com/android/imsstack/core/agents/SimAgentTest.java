@@ -87,6 +87,7 @@ public class SimAgentTest {
         TelephonyManager tm = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(tm.createForSubscriptionId(anyInt())).thenReturn(mTelephonyManager);
         when(mTelephonyManager.getActiveModemCount()).thenReturn(1);
+        when(mTelephonyManager.getSupportedModemCount()).thenReturn(1);
         when(mTelephonyManager.getSimServiceTable(eq(TelephonyManager.APPTYPE_USIM)))
                 .thenReturn(UST);
         when(mTelephonyManager.getSimServiceTable(eq(TelephonyManager.APPTYPE_ISIM)))

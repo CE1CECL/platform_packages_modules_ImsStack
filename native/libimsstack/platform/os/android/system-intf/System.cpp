@@ -233,7 +233,7 @@ public:
 public:
     inline SystemListenerHolder* GetListenerHolder(IN IMS_SINT32 nSlotId) const
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             nSlotId = IMS_SLOT_0;
         }
@@ -248,7 +248,7 @@ private:
 PUBLIC
 SystemPrivate::SystemPrivate()
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppListenerHolder = new SystemListenerHolder*[nSimCount];
 
@@ -263,7 +263,7 @@ SystemPrivate::~SystemPrivate()
 {
     if (m_ppListenerHolder != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {

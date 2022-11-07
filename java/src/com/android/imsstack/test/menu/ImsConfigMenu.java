@@ -108,9 +108,9 @@ public class ImsConfigMenu extends PreferenceActivity {
     private void showSimList() {
         mSimList = new ArrayList<>();
 
-        int maxSimSlot = MSimUtils.getMaxSimSlot();
+        int activeSimCount = MSimUtils.getActiveSimCount();
 
-        for (int i = 0; i < maxSimSlot; i++) {
+        for (int i = 0; i < activeSimCount; i++) {
             SimCarrierId cid = CarrierInfo.getInstance().getCarrierId(i);
 
             if (cid != null) {
@@ -122,7 +122,7 @@ public class ImsConfigMenu extends PreferenceActivity {
             }
         }
 
-        ImsLog.d("showSimList: sims=" + maxSimSlot);
+        ImsLog.d("showSimList: sims=" + activeSimCount);
 
         ArrayAdapter<String> simListAdaptor =
                 new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mSimList);

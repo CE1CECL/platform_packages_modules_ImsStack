@@ -255,6 +255,7 @@ public class DcUtilsTest extends ImsStackTest {
     @SmallTest
     public void getServiceState_multiSim() {
         when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
+        when(mTelephonyManager.getSupportedModemCount()).thenReturn(2);
 
         ServiceState ss = mDcUtils.getServiceState();
 

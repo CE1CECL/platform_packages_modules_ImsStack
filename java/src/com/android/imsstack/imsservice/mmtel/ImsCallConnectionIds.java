@@ -118,7 +118,7 @@ public final class ImsCallConnectionIds {
     }
 
     private static List<Integer> getConnectionIds(int slotId) {
-        if ((slotId < 0) || (slotId >= MSimUtils.getMaxSimSlot())) {
+        if ((slotId < 0) || (slotId >= sCallConnectionIdTable.size())) {
             return null;
         }
 
@@ -132,8 +132,9 @@ public final class ImsCallConnectionIds {
 
     static {
         sCallConnectionIdTable = new HashMap<Integer, List<Integer>>();
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
 
-        for (int i = 0; i < MSimUtils.getMaxSimSlot(); i++) {
+        for (int i = 0; i < supportedSimCount; i++) {
             sCallConnectionIdTable.put(i, new ArrayList<Integer>());
         }
     }

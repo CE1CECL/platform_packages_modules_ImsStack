@@ -50,23 +50,25 @@ protected:
 TEST_F(NativeCommandsHandlerTest, OnCommandForSetDeviceConfig)
 {
     NativeCommandsHandler objCommandsHandler;
-    // <active modem count, emergency, volte, vt, wfc>
-    __DeviceConfig objConfig(2, 1, 1, 1, 1);
+    // <active sim count, supported sim count, emergency, volte, vt, wfc>
+    __DeviceConfig objConfig(2, 2, 1, 1, 1, 1);
     IMS_UINTP pnParam = reinterpret_cast<IMS_UINTP>(&objConfig);
     objCommandsHandler.OnCommand(NativeCommands::CMD_SET_DEVICE_CONFIG, -1, pnParam);
 
-    EXPECT_EQ(DeviceConfig::GetActiveModemCount(), 2);
+    EXPECT_EQ(DeviceConfig::GetSupportedSimCount(), 2);
+    EXPECT_EQ(DeviceConfig::GetActiveSimCount(), 2);
     EXPECT_TRUE(DeviceConfig::IsImsEmergencyEnabled());
     EXPECT_TRUE(DeviceConfig::IsVoLteEnabled());
     EXPECT_TRUE(DeviceConfig::IsVtEnabled());
     EXPECT_TRUE(DeviceConfig::IsWfcEnabled());
 
-    // <active modem count, emergency, volte, vt, wfc>
-    __DeviceConfig objConfig2(1, 0, 0, 0, 0);
+    // <active sim count, supported sim count, emergency, volte, vt, wfc>
+    __DeviceConfig objConfig2(2, 1, 0, 0, 0, 0);
     pnParam = reinterpret_cast<IMS_UINTP>(&objConfig2);
     objCommandsHandler.OnCommand(NativeCommands::CMD_SET_DEVICE_CONFIG, -1, pnParam);
 
-    EXPECT_EQ(DeviceConfig::GetActiveModemCount(), 1);
+    EXPECT_EQ(DeviceConfig::GetSupportedSimCount(), 2);
+    EXPECT_EQ(DeviceConfig::GetActiveSimCount(), 1);
     EXPECT_FALSE(DeviceConfig::IsImsEmergencyEnabled());
     EXPECT_FALSE(DeviceConfig::IsVoLteEnabled());
     EXPECT_FALSE(DeviceConfig::IsVtEnabled());

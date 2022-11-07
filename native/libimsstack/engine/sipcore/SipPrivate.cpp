@@ -25,7 +25,7 @@ PRIVATE GLOBAL IMS_SINT32* SipPrivate::s_pnEncodingOptions = IMS_NULL;
 
 PUBLIC GLOBAL void SipPrivate::Init()
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     s_pnErrorCode = new IMS_SINT32[nSimCount];
     s_pnEncodingOptions = new IMS_SINT32[nSimCount];
@@ -38,7 +38,7 @@ PUBLIC GLOBAL void SipPrivate::Init()
 
 PUBLIC GLOBAL void SipPrivate::Init(IN IMS_SINT32 nSlotId, IN IMS_SINT32 nEncodingOptions)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return;
     }
@@ -92,7 +92,7 @@ PUBLIC GLOBAL IMS_SINT32 SipPrivate::GetEncodingOptions()
 
 PRIVATE GLOBAL void SipPrivate::SetLastError(IN IMS_SINT32 nErrorCode, IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return;
     }
@@ -105,7 +105,7 @@ PRIVATE GLOBAL void SipPrivate::SetLastError(IN IMS_SINT32 nErrorCode, IN IMS_SI
 
 PRIVATE GLOBAL IMS_SINT32 SipPrivate::GetLastError(IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return 0;
     }
@@ -115,7 +115,7 @@ PRIVATE GLOBAL IMS_SINT32 SipPrivate::GetLastError(IN IMS_SINT32 nSlotId)
 
 PRIVATE GLOBAL IMS_SINT32 SipPrivate::GetEncodingOptions(IN IMS_SINT32 nSlotId)
 {
-    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+    if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
     {
         return (OPTIONS_E | OPT_E_FULLFORM);
     }

@@ -18,9 +18,14 @@
 
 PRIVATE GLOBAL IMS_SINT32 SystemConfig::s_nGlobalConfigs = CONFIG_MULTI_IMS;
 
-PUBLIC GLOBAL IMS_SINT32 SystemConfig::GetMaxSimSlot()
+PUBLIC GLOBAL IMS_SINT32 SystemConfig::GetActiveSimCount()
 {
-    return DeviceConfig::GetActiveModemCount();
+    return DeviceConfig::GetActiveSimCount();
+}
+
+PUBLIC GLOBAL IMS_SINT32 SystemConfig::GetSupportedSimCount()
+{
+    return DeviceConfig::GetSupportedSimCount();
 }
 
 PUBLIC GLOBAL IMS_BOOL SystemConfig::IsMultiImsEnabled()
@@ -31,5 +36,5 @@ PUBLIC GLOBAL IMS_BOOL SystemConfig::IsMultiImsEnabled()
 
 PUBLIC GLOBAL IMS_BOOL SystemConfig::IsMultiSimEnabled()
 {
-    return GetMaxSimSlot() > 1;
+    return GetActiveSimCount() > 1;
 }

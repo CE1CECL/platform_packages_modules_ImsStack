@@ -166,7 +166,7 @@ JniConnectorFactory::~JniConnectorFactory()
 {
     MutexService::GetMutexService()->DestroyMutex(m_piLock);
 
-    for (IMS_SINT32 i = 0; i < SystemConfig::GetMaxSimSlot(); i++)
+    for (IMS_SINT32 i = 0; i < SystemConfig::GetSupportedSimCount(); i++)
     {
         ReleaseConnectors(i);
     }

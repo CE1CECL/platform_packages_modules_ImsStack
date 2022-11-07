@@ -176,9 +176,9 @@ public final class SubscriptionAgent implements ISubscription {
     @Override
     public boolean isAllSimAbsent() {
         boolean allSimAbsent = true;
-        int simCount = MSimUtils.getMaxSimSlot();
+        int activeSimCount = MSimUtils.getActiveSimCount();
 
-        for (int i = 0; i < simCount; i++) {
+        for (int i = 0; i < activeSimCount; i++) {
             if (!isSimAbsent(i)) {
                 allSimAbsent = false;
                 break;
@@ -191,9 +191,9 @@ public final class SubscriptionAgent implements ISubscription {
     @Override
     public boolean isAllSimAbsentOrLocked() {
         boolean allSimAbsentOrLocked = true;
-        int simCount = MSimUtils.getMaxSimSlot();
+        int activeSimCount = MSimUtils.getActiveSimCount();
 
-        for (int i = 0; i < simCount; i++) {
+        for (int i = 0; i < activeSimCount; i++) {
             if (!isSimAbsent(i) && !isSimLocked(i)) {
                 allSimAbsentOrLocked = false;
                 break;

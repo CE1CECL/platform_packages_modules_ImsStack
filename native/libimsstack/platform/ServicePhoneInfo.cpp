@@ -164,7 +164,7 @@ public:
 public:
     inline PhoneInfoHolder* GetHolder(IN IMS_SINT32 nSlotId) const
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             nSlotId = IMS_SLOT_0;
         }
@@ -191,7 +191,7 @@ PhoneInfoServicePrivate::PhoneInfoServicePrivate() :
         m_piWifiWatcher(IMS_NULL),
         m_ppHolder(IMS_NULL)
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppHolder = new PhoneInfoHolder*[nSimCount];
 
@@ -211,7 +211,7 @@ PhoneInfoServicePrivate::~PhoneInfoServicePrivate()
 
     if (m_ppHolder != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {

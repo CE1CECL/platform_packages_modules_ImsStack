@@ -41,7 +41,7 @@ public:
 PUBLIC
 SdpProfilePrivate::SdpProfilePrivate()
 {
-    for (IMS_UINT32 i = 0; i < SystemConfig::GetMaxSimSlot(); ++i)
+    for (IMS_UINT32 i = 0; i < SystemConfig::GetSupportedSimCount(); ++i)
     {
         m_objFeatures.Add(i, SdpProfile::FEATURE_A_PRECONDITION_SUPPORTED);
     }

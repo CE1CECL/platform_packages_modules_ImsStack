@@ -102,9 +102,11 @@ public final class ImsUtils {
     }
 
     public static synchronized void init() {
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
+
         // CACHE_FOR_SERVICE_CAPS
         if (sCacheForServiceCaps == null) {
-            sCacheForServiceCaps = new ServiceCaps[MSimUtils.getMaxSimSlot()];
+            sCacheForServiceCaps = new ServiceCaps[supportedSimCount];
 
             for (int i = 0; i < sCacheForServiceCaps.length; i++) {
                 sCacheForServiceCaps[i] = new ServiceCaps(false, false, false);
@@ -112,15 +114,17 @@ public final class ImsUtils {
         }
 
         if (sImsManagers == null) {
-            sImsManagers = new ImsManager[MSimUtils.getMaxSimSlot()];
+            sImsManagers = new ImsManager[supportedSimCount];
+            int activeSimCount = MSimUtils.getActiveSimCount();
+            int simCount = Math.min(activeSimCount, supportedSimCount);
 
-            for (int i = 0; i < sImsManagers.length; i++) {
+            for (int i = 0; i < simCount; i++) {
                 sImsManagers[i] = ImsManager.getInstance(AppContext.getInstance(), i);
             }
         }
 
         if (sNrUeCapability == null) {
-            sNrUeCapability = new int[MSimUtils.getMaxSimSlot()];
+            sNrUeCapability = new int[supportedSimCount];
 
             for (int i = 0; i < sNrUeCapability.length; i++) {
                 sNrUeCapability[i] = getDefaultNrUeCapability();
@@ -182,7 +186,7 @@ public final class ImsUtils {
         }
 
         if (sImsManagers[phoneId] == null) {
-            return ImsManager.getInstance(AppContext.getInstance(), phoneId);
+            sImsManagers[phoneId] = ImsManager.getInstance(AppContext.getInstance(), phoneId);
         }
 
         return sImsManagers[phoneId];

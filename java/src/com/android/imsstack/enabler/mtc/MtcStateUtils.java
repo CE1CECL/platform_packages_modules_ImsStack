@@ -51,9 +51,9 @@ public class MtcStateUtils {
         logi("initializeStateOnceOnBootup");
 
         if (MSimUtils.isMultiSimEnabled()) {
-            int phoneCount = MSimUtils.getPhoneCount();
-            for (int phoneId = 0; phoneId < phoneCount; ++phoneId) {
-                ImsStateStore.init(phoneId);
+            int activeSimCount = MSimUtils.getActiveSimCount();
+            for (int i = 0; i < activeSimCount; ++i) {
+                ImsStateStore.init(i);
             }
         } else {
             ImsStateStore.init(MSimUtils.DEFAULT_PHONE_ID);
@@ -134,9 +134,9 @@ public class MtcStateUtils {
             initializeImsStateInternal(phoneId, initFlags);
         } else {
             if (MSimUtils.isMultiSimEnabled()) {
-                int phoneCount = MSimUtils.getPhoneCount();
-                for (int pid = 0; pid < phoneCount; ++pid) {
-                    initializeImsStateInternal(pid, initFlags);
+                int activeSimCount = MSimUtils.getActiveSimCount();
+                for (int i = 0; i < activeSimCount; ++i) {
+                    initializeImsStateInternal(i, initFlags);
                 }
             } else {
                 initializeImsStateInternal(MSimUtils.DEFAULT_PHONE_ID, initFlags);

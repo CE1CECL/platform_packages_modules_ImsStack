@@ -46,7 +46,7 @@ private:
 PUBLIC NetworkServicePrivate::NetworkServicePrivate() :
         m_piIpcan(IMS_NULL)
 {
-    for (IMS_UINT32 i = 0; i < SystemConfig::GetMaxSimSlot(); ++i)
+    for (IMS_UINT32 i = 0; i < SystemConfig::GetSupportedSimCount(); ++i)
     {
         m_objIpSecs.Add(i, IMS_NULL);
     }

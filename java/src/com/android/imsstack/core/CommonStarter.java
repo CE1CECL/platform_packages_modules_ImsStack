@@ -45,7 +45,7 @@ public class CommonStarter {
 
     private boolean mJNIReady = false;
     private boolean mCommonAgentReady = false;
-    private int[] mState = new int[MSimUtils.getMaxSimSlot()];
+    private int[] mState = new int[MSimUtils.getSupportedSimCount()];
     private Set<ICommonPackageListener> mListeners
             = new HashSet<ICommonPackageListener>();
     private Set<IVoltePackageListener> mVolteListeners
@@ -277,9 +277,5 @@ public class CommonStarter {
                 mState[slotId] = newState;
             }
         }
-    }
-
-    private static boolean isSlotIdValid(int slotId) {
-        return (slotId >= MSimUtils.DEFAULT_SLOT_ID) && (slotId < MSimUtils.getMaxSimSlot());
     }
 }

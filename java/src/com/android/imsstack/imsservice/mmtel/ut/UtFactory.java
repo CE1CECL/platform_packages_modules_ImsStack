@@ -24,7 +24,7 @@ import com.android.internal.annotations.VisibleForTesting;
 public final class UtFactory {
     @VisibleForTesting
     protected static UtFactory sUtFactory = new UtFactory();
-    private final IUtInterface[] mUtInterface = new IUtInterface[MSimUtils.getMaxSimSlot()];
+    private final IUtInterface[] mUtInterface = new IUtInterface[MSimUtils.getSupportedSimCount()];
 
     @VisibleForTesting
     protected UtFactory() {

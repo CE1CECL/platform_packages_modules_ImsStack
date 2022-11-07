@@ -91,6 +91,7 @@ public class UsatAgentTest {
         mTelephonyManager = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(mTelephonyManager.createForSubscriptionId(anyInt())).thenReturn(mTelephonyManager);
         when(mTelephonyManager.getActiveModemCount()).thenReturn(MAX_SIM_SLOT);
+        when(mTelephonyManager.getSupportedModemCount()).thenReturn(MAX_SIM_SLOT);
 
         when(mSimInterface.getSlotId()).thenReturn(SLOT0);
 

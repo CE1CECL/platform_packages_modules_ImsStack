@@ -39,7 +39,7 @@ public final class DcFactory {
     public static final int MAX = (APN + 1);
 
     private static Map<Integer, HashMap<Integer, IDc>> sDcSlots =
-            new HashMap<Integer, HashMap<Integer, IDc>>(MSimUtils.getMaxSimSlot());
+            new HashMap<Integer, HashMap<Integer, IDc>>(MSimUtils.getSupportedSimCount());
 
     public DcFactory() {
     }

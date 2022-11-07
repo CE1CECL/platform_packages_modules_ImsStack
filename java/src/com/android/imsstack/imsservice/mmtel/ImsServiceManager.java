@@ -53,17 +53,24 @@ public class ImsServiceManager {
             = new ConcurrentHashMap<Integer, ImsCallApp>(4, 0.9f, 1);
     private int mDefaultPhoneId = MSimUtils.DEFAULT_PHONE_ID;
     // Operator changed by hotswap
-    private String[] mOperator = new String[MSimUtils.getMaxSimSlot()];
-    private String[] mCountry = new String[MSimUtils.getMaxSimSlot()];
-    protected int[] mServiceFeatures = new int[MSimUtils.getMaxSimSlot()];
-    private int[] mVoLteServiceFeatures = new int[MSimUtils.getMaxSimSlot()];
+    private final String[] mOperator;
+    private final String[] mCountry;
+    protected final int[] mServiceFeatures;
+    private final int[] mVoLteServiceFeatures;
 
     public ImsServiceManager(Context context, Executor executor) {
         mContext = context;
         mExecutor = executor;
         mDefaultPhoneId = getActivePhoneId();
 
-        for (int i = 0; i < MSimUtils.getMaxSimSlot(); i++) {
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
+
+        mOperator = new String[supportedSimCount];
+        mCountry = new String[supportedSimCount];
+        mServiceFeatures = new int[supportedSimCount];
+        mVoLteServiceFeatures = new int[supportedSimCount];
+
+        for (int i = 0; i < supportedSimCount; i++) {
             mOperator[i] = null;
             mCountry[i] = null;
             mServiceFeatures[i] = 0;
@@ -304,9 +311,9 @@ public class ImsServiceManager {
     }
 
     private void createServiceRecords() {
-        int phoneCount = MSimUtils.getPhoneCount();
+        int supportedSimCount = MSimUtils.getSupportedSimCount();
 
-        for (int i = 0; i < phoneCount; ++i) {
+        for (int i = 0; i < supportedSimCount; ++i) {
             mServiceRecords.put(i, new ImsServiceRecord(mContext, mExecutor, i));
         }
 
@@ -422,7 +429,7 @@ public class ImsServiceManager {
     // Check whether ImsService should be down by hotswap
     private void checkImsServiceAvailabilityAndBroadcastServiceUpDown(
             int phoneId) {
-        if (phoneId < MSimUtils.DEFAULT_PHONE_ID || phoneId >= MSimUtils.getMaxSimSlot()) {
+        if (phoneId < MSimUtils.DEFAULT_PHONE_ID || phoneId >= MSimUtils.getActiveSimCount()) {
             return;
         }
 
@@ -433,7 +440,7 @@ public class ImsServiceManager {
 
     // Operator changed by hotswap
     private void checkOperatorAndRebindCallApp(int phoneId) {
-        if (phoneId < MSimUtils.DEFAULT_PHONE_ID || phoneId >= MSimUtils.getMaxSimSlot()) {
+        if (phoneId < MSimUtils.DEFAULT_PHONE_ID || phoneId >= MSimUtils.getActiveSimCount()) {
             return;
         }
 
@@ -693,7 +700,7 @@ public class ImsServiceManager {
         public void onCommonPackageStop(int slotId) {
             logi("onCommonPackageStop :: slotId=" + slotId);
 
-            if (slotId < MSimUtils.DEFAULT_PHONE_ID || slotId >= MSimUtils.getMaxSimSlot()) {
+            if (slotId < MSimUtils.DEFAULT_PHONE_ID || slotId >= MSimUtils.getSupportedSimCount()) {
                 return;
             }
 

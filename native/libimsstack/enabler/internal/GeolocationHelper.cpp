@@ -34,7 +34,7 @@ public:
 public:
     inline void CreatePidfCreator(IN IMS_SINT32 nSlotId)
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             return;
         }
@@ -47,7 +47,7 @@ public:
 
     inline void DestroyPidfCreator(IN IMS_SINT32 nSlotId)
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             return;
         }
@@ -61,7 +61,7 @@ public:
 
     inline GeolocationPidfCreator* GetPidfCreator(IN IMS_SINT32 nSlotId) const
     {
-        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetMaxSimSlot()))
+        if ((nSlotId < IMS_SLOT_0) || (nSlotId >= SystemConfig::GetSupportedSimCount()))
         {
             nSlotId = IMS_SLOT_0;
         }
@@ -77,7 +77,7 @@ PUBLIC
 GeolocationHelperPrivate::GeolocationHelperPrivate() :
         m_ppCreator(IMS_NULL)
 {
-    IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+    IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
     m_ppCreator = new GeolocationPidfCreator*[nSimCount];
 
@@ -92,7 +92,7 @@ GeolocationHelperPrivate::~GeolocationHelperPrivate()
 {
     if (m_ppCreator != IMS_NULL)
     {
-        IMS_SINT32 nSimCount = SystemConfig::GetMaxSimSlot();
+        IMS_SINT32 nSimCount = SystemConfig::GetSupportedSimCount();
 
         for (IMS_SINT32 i = 0; i < nSimCount; ++i)
         {
