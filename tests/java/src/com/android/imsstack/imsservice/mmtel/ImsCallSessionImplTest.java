@@ -281,6 +281,9 @@ public class ImsCallSessionImplTest {
         assertTrue(mImsCallSession.getCallDetails().is(0x80000000));
         verify(mMockImsCallSessionCallback).invokeTerminated(any(ImsCallSessionImplBase.class),
                 any(ImsReasonInfo.class));
+        assertTrue(mImsCallSession.isCacheCallReasonInfoNull());
+
+        verifyWaitOrNotifyCallTerminated();
 
         mImsCallSession.setState(ImsCallSessionImplBase.State.RENEGOTIATING);
         mImsCallSession.reject(ImsReasonInfo.CODE_LOCAL_ILLEGAL_STATE);
@@ -631,6 +634,13 @@ public class ImsCallSessionImplTest {
         mCallFeaturemap.put(ImsCallSessionImpl.CF_RTT, true);
         mImsCallSession.sendRttMessage("Hello");
         verify(mMockMtcCall).sendRttMessage(eq("Hello"));
+    }
+
+    private void verifyWaitOrNotifyCallTerminated() {
+        mImsCallSession.getCallDetails().set(0x00001000);
+        mImsCallSession.getCallDetails().clear(0x80000000);
+        mImsCallSession.reject(ImsReasonInfo.CODE_LOCAL_ILLEGAL_STATE);
+        assertFalse(mImsCallSession.isCacheCallReasonInfoNull());
     }
 
     private ImsCallSessionImpl createImsCallSession(String callId) {
