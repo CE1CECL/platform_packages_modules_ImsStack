@@ -77,8 +77,6 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionEarlyMediaUpdated(IN ISession
         return RejectIncomingAndToTerminating(CallReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE));
     }
 
-    RunMedia(piSession, piMessage);
-
     IMtcPreconditionManager& objPreconditionManager = m_objContext.GetPreconditionManager();
     if (m_objContext.GetMediaManager().GetNegotiationState(piSession) ==
             NegotiationState::STATE_NEGOTIATED)
@@ -135,8 +133,6 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionEarlyMediaUpdateReceived(IN I
         return RejectIncomingAndToTerminating(CallReasonInfo(CODE_REJECT_INTERNAL_ERROR));
     }
 
-    RunMedia(piSession, piMessage);
-
     IMtcPreconditionManager& objPreconditionManager = m_objContext.GetPreconditionManager();
     if (!objPreconditionManager.IsResourceReserved(piSession, QosCheckType::LOCAL_STATUS))
     {
@@ -176,7 +172,6 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionPRAckReceived(IN ISession* pi
         return RejectIncomingAndToTerminating(CallReasonInfo(CODE_REJECT_INTERNAL_ERROR));
     }
 
-    RunMedia(piSession, piMessage);
     SetLocalQosAvailableForWifiCalling(piSession);
 
     // TODO: CheckReadyToAlert()? common?
