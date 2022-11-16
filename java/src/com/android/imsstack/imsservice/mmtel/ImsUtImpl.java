@@ -31,6 +31,7 @@ import com.android.imsstack.imsservice.mmtel.ut.UtFactory;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtInterface;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtListener;
 import com.android.imsstack.util.ImsLog;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Arrays;
 
@@ -38,7 +39,8 @@ public final class ImsUtImpl extends ImsUtImplBase {
     private static final boolean DBG = ImsLog.isDebuggable();
 
     private final IBaseContext mContext;
-    private ImsUtListener mListener = null;
+    @VisibleForTesting
+    protected ImsUtListener mListener = null;
     private IUtInterface mUt = null;
     private IUtListener mUtListenerProxy = null;
     private int mTransactionId = 1;
@@ -60,12 +62,11 @@ public final class ImsUtImpl extends ImsUtImplBase {
     }
 
     public void clear() {
-        mUtListenerProxy = null;
-
         if (mUt == null) {
             return;
         }
 
+        mUtListenerProxy = null;
         mUt.setListener(null);
         UtFactory.getInstance().releaseUtInterface(mContext.getSlotId());
         mUt = null;
@@ -77,7 +78,7 @@ public final class ImsUtImpl extends ImsUtImplBase {
 
     private int getTransactionId() {
         synchronized (this) {
-            if (mTransactionId == 0x7FFFFFFF) {
+            if (mTransactionId == Integer.MAX_VALUE) {
                 mTransactionId = 1;
             }
 
@@ -87,12 +88,7 @@ public final class ImsUtImpl extends ImsUtImplBase {
 
     @Override
     public void close() {
-        if (mUt == null) {
-            return;
-        }
-
-        UtFactory.getInstance().releaseUtInterface(mContext.getSlotId());
-        mUt = null;
+        clear();
     }
 
     @Override
@@ -431,7 +427,7 @@ public final class ImsUtImpl extends ImsUtImplBase {
     }
 
     public boolean isUtAvailable() {
-        return (mUt != null) ? mUt.isUtAvailable() : false;
+        return (mUt != null) && mUt.isUtAvailable();
     }
 
     private void postAndRunTask(Runnable task) {
@@ -439,15 +435,15 @@ public final class ImsUtImpl extends ImsUtImplBase {
     }
 
     private void log(Throwable t, String message) {
+        ImsLog.e(mContext.getSlotId(), "[GII-IMPL] " + message + t, t);
+
         if (t instanceof DeadObjectException) {
             mListener = null;
-        } else if (mListener != null) {
-            ImsLog.e("[GII-IMPL] " + message + t, t);
         }
     }
 
-    private static void log(String s) {
-        ImsLog.d("[GII-IMPL] " + s);
+    private void log(String s) {
+        ImsLog.d(mContext.getSlotId(), "[GII-IMPL] " + s);
     }
 
     private class UtListenerProxy implements IUtListener {

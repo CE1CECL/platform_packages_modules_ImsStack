@@ -78,8 +78,6 @@ public class UtCommandTest {
         TelephonyManager tm = sContext.getTestDouble().getSystemService(TelephonyManager.class);
         when(tm.getActiveModemCount()).thenReturn(ACTIVE_MODEM_COUNT);
         when(tm.getSupportedModemCount()).thenReturn(ACTIVE_MODEM_COUNT);
-
-        UtFactory.sUtFactory = new UtFactory();
     }
 
     @Before
