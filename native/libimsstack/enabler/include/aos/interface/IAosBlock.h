@@ -53,8 +53,10 @@ typedef enum
     BLOCK_TEMPORARY_DATA_DEACTIVATED,
     /// IMS service is disabled
     BLOCK_IMS_SERVICE_DISABLED,
+    /// EPS fallback is started. registration is holding until LTE is attached.
+    BLOCK_EPS_FALLBACK_STARTED,
     /// End common Block reason
-    BLOCK_END = BLOCK_IMS_SERVICE_DISABLED,
+    BLOCK_END = BLOCK_EPS_FALLBACK_STARTED,
 
     /// Start cellular Block reason
     BLOCK_CELLULAR_START,
