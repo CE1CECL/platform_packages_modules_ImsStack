@@ -547,6 +547,9 @@ protected:
     /// network binding features
     IMS_UINT32 m_nNetworkBindingFeatures;
 
+    /// attach type is EPS only or 5GS
+    IMS_BOOL m_bEps5GsOnly;
+
     /// the state for notifying ims registration callback in telephony ims
     IMS_UINT32 m_nImsRegState;
 

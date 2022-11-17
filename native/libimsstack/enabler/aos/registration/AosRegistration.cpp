@@ -124,6 +124,7 @@ AosRegistration::AosRegistration(IN IAosAppContext* piAppContext, IN AString& st
         m_nErrorCountForServerSocket(0),
         m_bCallingNumberVerificationSupported(IMS_FALSE),
         m_nNetworkBindingFeatures(0),
+        m_bEps5GsOnly(IMS_TRUE),
         m_nImsRegState(IMS_REG_STATE_DEREGISTERED),
         m_nImsRegFeatures(ImsAosFeature::NONE),
         m_eImsRegNetwork(AosNetworkType::NONE),
@@ -3757,7 +3758,7 @@ PROTECTED VIRTUAL void AosRegistration::ProcessStartFailed_StatusCode(IN IMS_SIN
     {
         if (SipStatusCode::IsFinalFailure(nStatusCode))
         {
-            if (IsErrorCodeExistedForSpecificRegistration(nStatusCode) ||
+            if (m_bEps5GsOnly || IsErrorCodeExistedForSpecificRegistration(nStatusCode) ||
                     IsErrorCodeExistedForSpecificRegistration(nStatusCode / 100))
             {
                 if (IsPdnReactivationRequired())
@@ -3804,8 +3805,9 @@ PROTECTED VIRTUAL void AosRegistration::ProcessStartFailed_TxnTimeout()
     if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy() ==
             CarrierConfig::Assets::ERROR_POLICY_PDN_REACTIVATED)
     {
-        if (IsErrorCodeExistedForSpecificRegistration(
-                    CarrierConfig::Assets::REG_ERROR_CODE_TIMER_F))
+        if (m_bEps5GsOnly ||
+                IsErrorCodeExistedForSpecificRegistration(
+                        CarrierConfig::Assets::REG_ERROR_CODE_TIMER_F))
         {
             if (IsPdnReactivationRequired())
             {
@@ -3855,8 +3857,9 @@ PROTECTED VIRTUAL void AosRegistration::ProcessStartFailed_Others(IN IMS_SINT32 
         if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy() ==
                 CarrierConfig::Assets::ERROR_POLICY_PDN_REACTIVATED)
         {
-            if (IsErrorCodeExistedForSpecificRegistration(
-                        CarrierConfig::Assets::REG_ERROR_CODE_TRANSPORT))
+            if (m_bEps5GsOnly ||
+                    IsErrorCodeExistedForSpecificRegistration(
+                            CarrierConfig::Assets::REG_ERROR_CODE_TRANSPORT))
             {
                 if (IsPdnReactivationRequired())
                 {
@@ -3911,6 +3914,14 @@ PROTECTED VIRTUAL void AosRegistration::ProcessUpdateFailed_StatusCode(IN IMS_SI
     if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy() ==
             CarrierConfig::Assets::ERROR_POLICY_PDN_REACTIVATED)
     {
+        if (m_bEps5GsOnly)
+        {
+            if (IsPdnReactivationRequired())
+            {
+                return;
+            }
+        }
+
         ProcessDefaultFlowRecovery_Update(nStatusCode);
         return;
     }
@@ -3960,6 +3971,16 @@ PROTECTED VIRTUAL void AosRegistration::ProcessUpdateFailed_TxnTimeout()
         return;
     }
 
+    if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy() ==
+                    CarrierConfig::Assets::ERROR_POLICY_PDN_REACTIVATED &&
+            m_bEps5GsOnly)
+    {
+        if (IsPdnReactivationRequired())
+        {
+            return;
+        }
+    }
+
     ProcessDefaultFlowRecovery_Update();
 }
 
@@ -3984,10 +4005,15 @@ PROTECTED VIRTUAL void AosRegistration::ProcessUpdateFailed_Others(IN IMS_SINT32
         if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy() ==
                 CarrierConfig::Assets::ERROR_POLICY_PDN_REACTIVATED)
         {
-            if (IsErrorCodeExistedForSpecificRegistration(
-                        CarrierConfig::Assets::REG_ERROR_CODE_TRANSPORT))
+            if (m_bEps5GsOnly ||
+                    IsErrorCodeExistedForSpecificRegistration(
+                            CarrierConfig::Assets::REG_ERROR_CODE_TRANSPORT))
             {
-                m_nConsecutiveFailureForPdnReactivated++;
+                if (IsPdnReactivationRequired())
+                {
+                    return;
+                }
+
                 ProcessDefaultFlowRecovery_Update();
                 return;
             }
