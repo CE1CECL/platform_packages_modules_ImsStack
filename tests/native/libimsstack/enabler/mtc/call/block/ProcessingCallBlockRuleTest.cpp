@@ -124,8 +124,20 @@ TEST_F(ProcessingCallBlockRuleTest, CheckReturnsBlockedIfOutgoingCallExists)
     EXPECT_EQ(CallReasonInfo(CODE_REJECT_ONGOING_CALL_SETUP), objResult.objReason);
 }
 
-TEST_F(ProcessingCallBlockRuleTest, CheckReturnsBlockedIfUpdatingCallExists)
+TEST_F(ProcessingCallBlockRuleTest, CheckReturnsUnblockedForMoIfUpdatingCallExists)
 {
+    objCallInfo.ePeerType = PeerType::MO;
+    lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::UPDATING));
+    ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
+
+    Result objResult = pBlockRule->Check(objListener);
+
+    EXPECT_EQ(Result::Status::UNBLOCKED, objResult.eStatus);
+}
+
+TEST_F(ProcessingCallBlockRuleTest, CheckReturnsBlockedForMtIfUpdatingCallExists)
+{
+    objCallInfo.ePeerType = PeerType::MT;
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::UPDATING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
