@@ -34,9 +34,10 @@ PUBLIC VIRTUAL ProcessingCallBlockRule::Result ProcessingCallBlockRule::Check(
 {
     IMSList<IMtcCall*> lstCalls = m_objContext.GetOtherCalls();
 
+    PeerType ePeerType = m_objContext.GetCallInfo().ePeerType;
     if (IsEmergencyCallExists(lstCalls))
     {
-        if (m_objContext.GetCallInfo().ePeerType == PeerType::MO)
+        if (ePeerType == PeerType::MO)
         {
             return Result(Result::Status::BLOCKED, CallReasonInfo(CODE_LOCAL_SERVICE_UNAVAILABLE));
         }
@@ -51,7 +52,7 @@ PUBLIC VIRTUAL ProcessingCallBlockRule::Result ProcessingCallBlockRule::Check(
         return Result(Result::Status::BLOCKED, CallReasonInfo(CODE_REJECT_ONGOING_CALL_SETUP));
     }
 
-    if (IsCallUpdating(lstCalls))
+    if (IsCallUpdating(lstCalls) && ePeerType == PeerType::MT)
     {
         return Result(Result::Status::BLOCKED, CallReasonInfo(CODE_REJECT_ONGOING_CALL_UPGRADE));
     }
