@@ -110,7 +110,6 @@ PRIVATE VIRTUAL IMS_BOOL XmlTransactionProvider::OnMessage(IN IMSMSG& objMsg)
                 if (pParam != IMS_NULL)
                 {
                     delete pParam;
-                    pParam = IMS_NULL;
                 }
                 break;
             }
@@ -122,9 +121,7 @@ PRIVATE VIRTUAL IMS_BOOL XmlTransactionProvider::OnMessage(IN IMSMSG& objMsg)
                 if (pParam != IMS_NULL)
                 {
                     delete pParam;
-                    pParam = IMS_NULL;
                 }
-
                 break;
             }
             default:
