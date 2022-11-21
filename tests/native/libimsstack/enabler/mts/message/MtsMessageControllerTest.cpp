@@ -290,4 +290,68 @@ TEST_F(MtsMessageControllerTest, ReceiveMtSmsAndSendAck)
     delete pMockMtsServiceState;
 }
 
+TEST_F(MtsMessageControllerTest, ReceiveMtSmsAndSendAck3gpp2)
+{
+    MockICoreService* pMockCoreService = new MockICoreService();
+    MockIMessage* pMockMessage = new MockIMessage();
+    MockIMessageBodyPart* pMockMessageBodyPart = new MockIMessageBodyPart();
+    MockIPageMessage* pMockPageMessage = new MockIPageMessage();
+    MockIMtsServiceState* pMockMtsServiceState = new MockIMtsServiceState();
+    ImsList<IMessage*> objMessages;
+    objMessages.Append(pMockMessage);
+
+    IMS_BOOL bEmergency = IMS_FALSE;
+    AString strContentType = "application/vnd.3gpp2.sms";
+    AString strTargetAddress = "sip:+12345678901@ims.google.com";
+    SipAddress objSipAddress;
+    objSipAddress.Create(strTargetAddress);
+    AString strHeaders = "<sip:+12345678901@ims.google.com>,<sip:+12345678902@ims.google.com>";
+    ImsList<AString> objHeaders = strHeaders.Split(TextParser::CHAR_COMMA);
+    ImsList<IMessageBodyPart*> objMessageBodies = ImsList<IMessageBodyPart*>();
+    objMessageBodies.Append(pMockMessageBodyPart);
+
+    ByteArray objRpData((IMS_BYTE)0x01);  // message type indicator(RP-MT-DATA)
+    objRpData.Append((IMS_BYTE)0x03);     // message reference
+    objRpData.Append((IMS_BYTE)0x0F);     // other required information elements
+
+    ByteArray objRpAck((IMS_BYTE)0x02);  // message type indicator(RP-ACK)
+    objRpAck.Append((IMS_BYTE)0x03);     // message reference
+    objRpAck.Append((IMS_BYTE)0x0F);     // other required information elements
+
+    ON_CALL(*pMockMtsService, GetICoreService(bEmergency)).WillByDefault(Return(pMockCoreService));
+    ON_CALL(*pMockMtsService, GetIMtsServiceState()).WillByDefault(Return(pMockMtsServiceState));
+    ON_CALL(*pMockMtsServiceState, IsMoServiceBlocked()).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pMockMtsServiceState, IsTemporaryServiceBlocked()).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pMockMtsServiceState, IsMtServiceBlocked()).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pMockCoreService, CreatePageMessage(_, _)).WillByDefault(Return(pMockPageMessage));
+    ON_CALL(*pMockCoreService, GetAuthorizedUserId()).WillByDefault(ReturnRef(objSipAddress));
+    ON_CALL(*pMockPageMessage, GetNextRequest()).WillByDefault(Return(pMockMessage));
+    ON_CALL(*pMockPageMessage, GetPreviousRequest(IMessage::PAGEMESSAGE_SEND))
+            .WillByDefault(Return(pMockMessage));
+    ON_CALL(*pMockPageMessage, GetPreviousResponses(IMessage::PAGEMESSAGE_SEND))
+            .WillByDefault(Return(objMessages));
+    ON_CALL(*pMockMessage, AddHeader(_, _)).WillByDefault(Return(IMS_SUCCESS));
+    ON_CALL(*pMockMessage, GetHeaders(_)).WillByDefault(Return(objHeaders));
+    ON_CALL(*pMockMessage, GetBodyParts()).WillByDefault(Return(objMessageBodies));
+    ON_CALL(*pMockMessage, GetStatusCode()).WillByDefault(Return(SipStatusCode::SC_202));
+    ON_CALL(*pMockMessageBodyPart, GetHeader(_)).WillByDefault(Return(strContentType));
+    ON_CALL(*pMockMessageBodyPart, GetContent()).WillByDefault(ReturnRef(objRpData));
+
+    EXPECT_CALL(*pMockMtsService, ReportMtSms(SmsFormatType::SMSFORMAT_3GPP2, _)).Times(1);
+    pMtsMessageController->NotifyMtSms(pMockPageMessage);
+
+    EXPECT_CALL(*pMockMtsService,
+            ReportMoStatus(MO_SUCCESS, SmsFormatType::SMSFORMAT_3GPP2, RETRY_AFTER, SEQ_ID))
+            .Times(1);
+    pMtsMessageController->NotifyMoSms(
+            SmsFormatType::SMSFORMAT_3GPP2, objRpAck, strTargetAddress, SEQ_ID, bEmergency);
+    pMtsMessageController->PageMessageDelivered(pMockPageMessage);
+
+    delete pMockCoreService;
+    delete pMockMessage;
+    delete pMockMessageBodyPart;
+    delete pMockPageMessage;
+    delete pMockMtsServiceState;
+}
+
 }  // namespace android

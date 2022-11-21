@@ -57,7 +57,7 @@ TEST_F(MtsErrorHandlerTest, Constructor)
     ASSERT_NE(pMtsErrorHandler, nullptr);
 }
 
-TEST_F(MtsErrorHandlerTest, SetListener_Success)
+TEST_F(MtsErrorHandlerTest, SetListener)
 {
     MockIMtsErrorHandlerListener* piListener = new MockIMtsErrorHandlerListener();
     pMtsErrorHandler->SetListener(piListener);
