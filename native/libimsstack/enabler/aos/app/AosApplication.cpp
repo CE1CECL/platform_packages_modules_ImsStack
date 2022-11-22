@@ -21,6 +21,7 @@
 #include "INetworkWatcher.h"
 #include "CarrierConfig.h"
 #include "AoSAppRequestType.h"
+#include "IImsAosInfo.h"
 #include "IImsAosMonitor.h"
 #include "ImsAosParameter.h"
 #include "interface/IAosAppContext.h"
@@ -303,6 +304,27 @@ PUBLIC VIRTUAL IMS_BOOL AosApplication::IsOn()
 PUBLIC VIRTUAL void AosApplication::SetActivation(IN IMS_BOOL bActivation)
 {
     m_bIsActivated = bActivation;
+}
+
+PUBLIC VIRTUAL void AosApplication::NotifyEpsFallbackCallState(IN IMS_UINT32 nState)
+{
+    A_IMS_TRACE_D(APPID, "NotifyEpsFallbackCallState :: %d", nState, 0, 0);
+
+    if (!IsRegTypeNormal())
+    {
+        return;
+    }
+
+    if (nState == IImsAosInfo::EPSFB_CALL_START)
+    {
+        CleanAll();
+        Report_StateChanged(IMS_FALSE);
+        m_pCondition->SetBlock(BLOCK_EPS_FALLBACK_STARTED, IMS_FALSE);
+    }
+    else if (nState == IImsAosInfo::EPSFB_CALL_FAILED)
+    {
+        m_pCondition->ResetBlock(BLOCK_EPS_FALLBACK_STARTED);
+    }
 }
 
 PUBLIC VIRTUAL void AosApplication::NotifyPublishState(IN IMS_BOOL bStart)
@@ -2516,7 +2538,7 @@ PROTECTED VIRTUAL void AosApplication::NetTracker_StatusChanged()
         return;
     }
 
-    IMS_UINT32 nNewRat = m_piContext->GetNetTracker()->GetNetworkType();
+    IMS_UINT32 nNewRat = m_piContext->GetNetTracker()->GetMobileNetworkType();
 
     if (nNewRat == NW_REPORT_RADIO_NOSRV)
     {
@@ -2528,19 +2550,16 @@ PROTECTED VIRTUAL void AosApplication::NetTracker_StatusChanged()
         return;
     }
 
-    if (m_pUtil->IsSupportedNetworkTypeForCellular(m_nRat) &&
+    if (nNewRat == NW_REPORT_RADIO_LTE)
+    {
+        m_pCondition->ResetBlock(BLOCK_EPS_FALLBACK_STARTED);
+    }
+
+    if (!m_piContext->GetConnection()->IsEpdgEnabled() &&
+            m_pUtil->IsSupportedNetworkTypeForCellular(m_nRat) &&
             m_pUtil->IsSupportedNetworkTypeForCellular(nNewRat))
     {
-        if (IsRegStateUpdatedByNrLteRatChange() && IsOn())
-        {
-            IAosRegStateManager* piRsm = AosProvider::GetInstance()->GetRegStateManager(m_nSlotId);
-            if (piRsm != IMS_NULL)
-            {
-                piRsm->UpdateRegServices(IMS_TRUE);
-            }
-        }
-
-        if (IsRegUpdatedByNrLteRatChange())
+        if (IsOn() && IsRegUpdatedByNrLteRatChange())
         {
             if (IsTimerRunning(TIMER_RECONFIG_GUARD))
             {

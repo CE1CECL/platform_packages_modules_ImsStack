@@ -277,7 +277,10 @@ PRIVATE VIRTUAL void AosInfo::NotifyEmergencySmsState(IN IMS_BOOL bIsInitialized
     }
 }
 
-PRIVATE VIRTUAL void AosInfo::NotifyEpsfbCallState(IN IMS_UINT32 /* nState */) {}
+PRIVATE VIRTUAL void AosInfo::NotifyEpsfbCallState(IN IMS_UINT32 nState)
+{
+    m_piContext->GetApp()->NotifyEpsFallbackCallState(nState);
+}
 
 PRIVATE
 IMS_BOOL AosInfo::IsForbiddenBlock()

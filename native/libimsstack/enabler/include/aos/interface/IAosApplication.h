@@ -43,6 +43,7 @@ public:
     virtual IMS_BOOL IsOn() = 0;
 
     virtual void SetActivation(IN IMS_BOOL bActivation) = 0;
+    virtual void NotifyEpsFallbackCallState(IN IMS_UINT32 nState) = 0;
     virtual void NotifyPublishState(IN IMS_BOOL bStart) = 0;
 
     /// GetState
