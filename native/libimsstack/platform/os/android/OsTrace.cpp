@@ -222,7 +222,7 @@ PRIVATE VIRTUAL void OsTrace::OutputString(
     {
         IMS_UINT32 nCurrentPos = 0;
         IMS_CHAR cRestoringChar = '\0';
-        IMS_CHAR* pszOutString = IMS_NULL;
+        IMS_CHAR* pszOutString;
         const IMS_UINT32 MAX_LOG_BUFF = OsTraceNode::MAX_TRACE_SIZE - 1;
 
         while (nLength > 0)

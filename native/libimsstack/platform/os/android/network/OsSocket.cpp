@@ -577,8 +577,6 @@ PROTECTED VIRTUAL ISocket* OsSocket::Accept()
         IMSSOCKET_DEBUG(errno);
 
         delete pNewSocket;
-        pNewSocket = IMS_NULL;
-
         return IMS_NULL;
     }
     else
@@ -607,8 +605,6 @@ PROTECTED VIRTUAL ISocket* OsSocket::Accept()
             pNewSocket->Close();
 
             delete pNewSocket;
-            pNewSocket = IMS_NULL;
-
             return IMS_NULL;
         }
 
@@ -623,8 +619,6 @@ PROTECTED VIRTUAL ISocket* OsSocket::Accept()
             pNewSocket->Close();
 
             delete pNewSocket;
-            pNewSocket = IMS_NULL;
-
             return IMS_NULL;
         }
 
