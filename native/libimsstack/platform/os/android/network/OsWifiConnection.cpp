@@ -643,7 +643,6 @@ IMS_BOOL OsWifiConnection::CacheLocalAddress()
 
     memset(&ifcfg, 0, sizeof(ifcfg));
 
-    ifcfg.ifc_buf = IMS_NULL;
     ifcfg.ifc_len = sizeof(struct ifreq) * MAX_INTERFACE_REQ;
     ifcfg.ifc_buf = static_cast<char*>(malloc(ifcfg.ifc_len));
 
