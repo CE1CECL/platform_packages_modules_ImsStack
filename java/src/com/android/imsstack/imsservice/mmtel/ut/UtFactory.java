@@ -22,15 +22,11 @@ import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 public final class UtFactory {
-    @VisibleForTesting
-    protected static UtFactory sUtFactory = new UtFactory();
-    private final IUtInterface[] mUtInterface = new IUtInterface[MSimUtils.getSupportedSimCount()];
+    private static final UtFactory sUtFactory = new UtFactory();
+    private final IUtInterface[] mUtInterfaces = new IUtInterface[MSimUtils.getSupportedSimCount()];
 
-    @VisibleForTesting
-    protected UtFactory() {
-        for (int i = 0; i < mUtInterface.length; i++) {
-            mUtInterface[i] = null;
-        }
+    private UtFactory() {
+        java.util.Arrays.fill(mUtInterfaces, null);
     }
 
     public static UtFactory getInstance() {
@@ -41,19 +37,19 @@ public final class UtFactory {
      * Object of IUtInterface is fetched.
      */
     public IUtInterface getUtInterface(int slotId) {
-        if (slotId < 0 || slotId >= mUtInterface.length) {
+        if (slotId < 0 || slotId >= mUtInterfaces.length) {
             return null;
         }
 
-        if (mUtInterface[slotId] == null) {
+        if (mUtInterfaces[slotId] == null) {
             setUtInterfaceForSlot(slotId, new SscServiceImpl(slotId));
         }
 
-        return mUtInterface[slotId];
+        return mUtInterfaces[slotId];
     }
 
     public void releaseUtInterface(int slotId) {
-        if (slotId < 0 || slotId >= mUtInterface.length) {
+        if (slotId < 0 || slotId >= mUtInterfaces.length) {
             return;
         }
 
@@ -61,11 +57,11 @@ public final class UtFactory {
     }
 
     @VisibleForTesting
-    protected void setUtInterfaceForSlot(int slotId, IUtInterface sscServiceImpl) {
-        if (mUtInterface[slotId] != null) {
-            mUtInterface[slotId].close();
+    public void setUtInterfaceForSlot(int slotId, IUtInterface sscServiceImpl) {
+        if (mUtInterfaces[slotId] != null) {
+            mUtInterfaces[slotId].close();
         }
 
-        mUtInterface[slotId] = sscServiceImpl;
+        mUtInterfaces[slotId] = sscServiceImpl;
     }
 }
