@@ -25,27 +25,28 @@
 #include "ServiceUtil.h"
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
+#include "dialingplan/ImsIdentityProxy.h"
 #include "dialingplan/NormalDialingPlan.h"
 #include "helper/IMtcAosConnector.h"
 #include "util/TextParser.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
-PUBLIC GLOBAL AString& NormalDialingPlan::GetTranslatedUri(
-        IN IMtcContext& objContext, IN AString& strNumber, Scheme eScheme)
+PUBLIC GLOBAL AString& NormalDialingPlan::GetTranslatedUri(IN IMtcContext& objContext,
+        IN AString& strNumber, Scheme eScheme, IN ImsIdentityProxy& objIdentityProxy)
 {
-    return Translate(objContext, strNumber, eScheme);
+    return Translate(objContext, strNumber, eScheme, objIdentityProxy);
 }
 
 PUBLIC GLOBAL AString& NormalDialingPlan::GetTranslatedUriForDialString(
-        IN IMtcContext& objContext, IN AString& strNumber)
+        IN IMtcContext& objContext, IN AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
 {
-    strNumber = ImsIdentity::CreateSipUserIdWithDialString(strNumber, objContext.GetSlotId());
+    strNumber = objIdentityProxy.CreateSipUserIdWithDialString(strNumber, objContext.GetSlotId());
     return strNumber;
 }
 
-PRIVATE GLOBAL AString& NormalDialingPlan::Translate(
-        IN IMtcContext& objContext, IN_OUT AString& strNumber, IN Scheme eScheme)
+PRIVATE GLOBAL AString& NormalDialingPlan::Translate(IN IMtcContext& objContext,
+        IN_OUT AString& strNumber, IN Scheme eScheme, IN ImsIdentityProxy& objIdentityProxy)
 {
     if (strNumber.GetLength() == 0)
     {
@@ -72,11 +73,11 @@ PRIVATE GLOBAL AString& NormalDialingPlan::Translate(
     if (eScheme == Scheme::TEL ||
             (eScheme == Scheme::UNKNOWN && GetScheme(objContext) == Scheme::TEL))
     {
-        FormTelUri(objContext, strNumber);
+        FormTelUri(objContext, strNumber, objIdentityProxy);
     }
     else
     {
-        FormSipUri(objContext, strNumber);
+        FormSipUri(objContext, strNumber, objIdentityProxy);
     }
 
     IMS_TRACE_D("Translate Dialed URI :: %s",
@@ -84,39 +85,39 @@ PRIVATE GLOBAL AString& NormalDialingPlan::Translate(
     return strNumber;
 }
 
-PRIVATE GLOBAL void NormalDialingPlan::FormSipUri(
-        IN IMtcContext& objContext, IN_OUT AString& strNumber)
+PRIVATE GLOBAL void NormalDialingPlan::FormSipUri(IN IMtcContext& objContext,
+        IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
 {
     IMS_TRACE_I("FormSipUri", 0, 0, 0);
 
-    LocalNumberPolicy ePolicy = GetLocalNumberPolicy(objContext);
     NumberFormat eDialedNumberFormat = GetDialedNumberFormat(strNumber);
 
     if (eDialedNumberFormat == NumberFormat::GLOBAL_FORMAT)
     {
         // global
-        strNumber = ImsIdentity::CreateSipUserId(strNumber, objContext.GetSlotId(), IMS_TRUE);
+        strNumber = objIdentityProxy.CreateSipUserId(strNumber, objContext.GetSlotId(), IMS_TRUE);
     }
     else
     {
         // local
         AccessNetworkInfo objAni;
-        AString strPhoneContext = ImsIdentity::GetPhoneContext(static_cast<IMS_SINT32>(ePolicy),
-                objContext.GetSlotId(), &GetAccessNetworkInfo(objContext, objAni));
-        strNumber = ImsIdentity::CreateSipUserIdWithPhone(
+        AString strPhoneContext = objIdentityProxy.GetPhoneContext(
+                ConvertDialingPolicy(GetLocalNumberPolicy(objContext)), objContext.GetSlotId(),
+                &GetAccessNetworkInfo(objContext, objAni));
+        strNumber = objIdentityProxy.CreateSipUserIdWithPhone(
                 strNumber, objContext.GetSlotId(), strPhoneContext);
     }
 }
 
-PRIVATE GLOBAL void NormalDialingPlan::FormTelUri(
-        IN IMtcContext& objContext, IN_OUT AString& strNumber)
+PRIVATE GLOBAL void NormalDialingPlan::FormTelUri(IN IMtcContext& objContext,
+        IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
 {
     IMS_TRACE_I("FormTelUri", 0, 0, 0);
 
     NumberFormat eFormat = GetNumberFormat(objContext);
     if (eFormat == NumberFormat::LOCAL_FORMAT)
     {
-        FormTelUriAsLocal(objContext, strNumber);
+        FormTelUriAsLocal(objContext, strNumber, objIdentityProxy);
     }
     else if (eFormat == NumberFormat::GLOBAL_FORMAT)
     {
@@ -158,8 +159,8 @@ PRIVATE GLOBAL void NormalDialingPlan::FormTelUriAsGlobal(
     }
 }
 
-PRIVATE GLOBAL void NormalDialingPlan::FormTelUriAsLocal(
-        IN IMtcContext& objContext, IN_OUT AString& strNumber)
+PRIVATE GLOBAL void NormalDialingPlan::FormTelUriAsLocal(IN IMtcContext& objContext,
+        IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
 {
     if (strNumber.StartsWith(TextParser::CHAR_PLUS))
     {
@@ -167,8 +168,8 @@ PRIVATE GLOBAL void NormalDialingPlan::FormTelUriAsLocal(
     }
 
     strNumber.Append(";phone-context=");
-    strNumber.Append(ImsIdentity::GetPhoneContext(
-            static_cast<IMS_SINT32>(GetLocalNumberPolicy(objContext)), objContext.GetSlotId()));
+    strNumber.Append(objIdentityProxy.GetPhoneContext(
+            ConvertDialingPolicy(GetLocalNumberPolicy(objContext)), objContext.GetSlotId()));
 }
 
 PRIVATE GLOBAL IMS_BOOL NormalDialingPlan::IsVisualSeparator(IN IMS_CHAR ch)
@@ -251,7 +252,7 @@ PRIVATE GLOBAL NormalDialingPlan::NumberFormat NormalDialingPlan::GetDialedNumbe
         {
             const IMS_CHAR c = strNumber[i];
 
-            if (!IMS_ISDIGIT(c) && !IsVisualSeparator(c) && (c != '*') &&
+            if (!IMS_ISDIGIT(c) && !IsVisualSeparator(c) && (c != TextParser::CHAR_ASTERISK) &&
                     (c != TextParser::CHAR_SHARP) && !((c >= 'A') && (c <= 'F')))
             {
                 return NumberFormat::NON_NUMBER;
@@ -287,7 +288,6 @@ PRIVATE GLOBAL NormalDialingPlan::Scheme NormalDialingPlan::GetScheme(IN IMtcCon
     IMS_TRACE_D("GetScheme config=[%d]", nValue, 0, 0);
     switch (nValue)
     {
-        // TODO: default is... TEL or SIP? Let's say SIP!
         case CarrierConfig::Ims::REQUEST_URI_FORMAT_TEL:
             return Scheme::TEL;
         default:
@@ -329,4 +329,10 @@ PRIVATE GLOBAL NormalDialingPlan::LocalNumberPolicy NormalDialingPlan::GetLocalN
         default:
             return LocalNumberPolicy::HOME;
     }
+}
+
+PRIVATE GLOBAL IMS_UINT32 NormalDialingPlan::ConvertDialingPolicy(IN LocalNumberPolicy ePolicy)
+{
+    return ePolicy == LocalNumberPolicy::GEO ? ImsIdentity::DIALING_POLICY_GEO_LOCAL
+                                             : ImsIdentity::DIALING_POLICY_HOME_LOCAL;
 }

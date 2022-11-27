@@ -26,13 +26,14 @@
 
 class IMtcContext;
 class ISubscriberInfo;
+class ImsIdentityProxy;
 struct CallInfo;
 
 using NumberFormat = NormalDialingPlan::NumberFormat;
 using LocalNumberPolicy = NormalDialingPlan::LocalNumberPolicy;
 using Scheme = NormalDialingPlan::Scheme;
 
-class MtcDialingPlan final : public IMtcDialingPlan
+class MtcDialingPlan : public IMtcDialingPlan
 {
 public:
     explicit MtcDialingPlan(IN IMtcContext& objContext, IN ISubscriberInfo& objSubscriberInfo);
@@ -53,6 +54,10 @@ private:
     AString GetMcc() const;
     AString GetMnc(IN IMS_UINT32 nLength) const;
 
+protected:
+    ImsIdentityProxy* m_pIdentityProxy;
+
+private:
     struct TemporaryServiceUrn final
     {
     public:

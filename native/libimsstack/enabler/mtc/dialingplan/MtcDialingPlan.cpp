@@ -30,6 +30,7 @@
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "dialingplan/EmergencyDialingPlan.h"
+#include "dialingplan/ImsIdentityProxy.h"
 #include "dialingplan/MtcDialingPlan.h"
 #include "util/TextParser.h"
 #include <memory>
@@ -38,6 +39,7 @@ __IMS_TRACE_TAG_COM_MTC__;
 
 PUBLIC
 MtcDialingPlan::MtcDialingPlan(IN IMtcContext& objContext, IN ISubscriberInfo& objSubscriberInfo) :
+        m_pIdentityProxy(new ImsIdentityProxy()),
         m_objContext(objContext),
         m_pTemporaryServiceUrn(nullptr),
         m_objSubscriberInfo(objSubscriberInfo)
@@ -49,6 +51,7 @@ PUBLIC
 MtcDialingPlan::~MtcDialingPlan()
 {
     IMS_TRACE_I("~MtcDialingPlan", 0, 0, 0);
+    delete m_pIdentityProxy;
 }
 
 PUBLIC
@@ -76,7 +79,8 @@ AString MtcDialingPlan::GetToUri(IN const AString& strNumber, IN const CallInfo&
 
     if (objCallInfo.bUssi)
     {
-        return NormalDialingPlan::GetTranslatedUriForDialString(m_objContext, strUri);
+        return NormalDialingPlan::GetTranslatedUriForDialString(
+                m_objContext, strUri, *m_pIdentityProxy);
     }
 
     if (objCallInfo.bConference)
@@ -90,7 +94,7 @@ AString MtcDialingPlan::GetToUri(IN const AString& strNumber, IN const CallInfo&
         return EmergencyDialingPlan::GetTranslatedUri(m_objContext, strUri);
     }
 
-    return NormalDialingPlan::GetTranslatedUri(m_objContext, strUri, eScheme);
+    return NormalDialingPlan::GetTranslatedUri(m_objContext, strUri, eScheme, *m_pIdentityProxy);
 }
 
 PUBLIC
