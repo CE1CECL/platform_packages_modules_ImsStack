@@ -42,17 +42,17 @@ public:
 
 private:
     // For geo-local number format
-    AccessNetworkInfo* GetAccessNetworkInfo(IN_OUT AccessNetworkInfo& objANI);
+    AccessNetworkInfo* GetAccessNetworkInfo(IN_OUT AccessNetworkInfo& objAni);
     IMS_BOOL FormNonTelUri(IN const AString& strTargetAddress, IN IMS_BOOL bAquot,
-            OUT AStringBuffer& objURI, IN const AString& strScheme = AString::ConstNull());
-    IMS_BOOL FormTelUri(IN const AString& strTargetAddress, OUT AStringBuffer& objURI);
-    IMS_BOOL FormUssiNonTelUri(IN const AString& strTargetAddress, OUT AStringBuffer& objURI,
+            OUT AStringBuffer& objUri, IN const AString& strScheme = AString::ConstNull());
+    IMS_BOOL FormTelUri(IN const AString& strTargetAddress, OUT AStringBuffer& objUri);
+    IMS_BOOL FormUssiNonTelUri(IN const AString& strTargetAddress, OUT AStringBuffer& objUri,
             IN const AString& strScheme = AString::ConstNull());
 
     IMS_SINT32 TranslateScheme() const;
 
     static IMS_SINT32 GetNumberFormat(IN const AString& strTargetAddress);
-    static IMS_BOOL IsVisualSeparator(IN IMS_CHAR ch);
+    static IMS_BOOL IsVisualSeparator(IN IMS_CHAR szCh);
 
 public:
     enum

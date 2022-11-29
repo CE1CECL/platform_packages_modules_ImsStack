@@ -155,7 +155,7 @@ SmsFormatType MtsSipFormUtils::FormContentTypeStrToEnum(IN const AString& strCon
     return eSmsFormat;
 }
 
-PUBLIC VIRTUAL IMS_BOOL MtsSipFormUtils::IsTelUrlParam(IN const AString& strParam) const
+PUBLIC VIRTUAL IMS_BOOL MtsSipFormUtils::IsTelUrlParam(IN const AString& strParam)
 {
     if (strParam.Equals("isub") || strParam.Equals("postd") || strParam.Equals("phone-context") ||
             strParam.Equals("tsp"))
@@ -208,7 +208,7 @@ PUBLIC VIRTUAL IMS_BOOL MtsSipFormUtils::IsNumberFormat(IN const AString& strDia
     }
 }
 
-PUBLIC VIRTUAL IMS_BOOL MtsSipFormUtils::IsIpAddress(IN const AString& strIp) const
+PUBLIC VIRTUAL IMS_BOOL MtsSipFormUtils::IsIpAddress(IN const AString& strIp)
 {
     IpAddress objHost;
 
@@ -221,12 +221,12 @@ PUBLIC VIRTUAL IMS_BOOL MtsSipFormUtils::IsIpAddress(IN const AString& strIp) co
 }
 
 PUBLIC
-IMS_SINT32 MtsSipFormUtils::CheckScheme(IN const AString& strNumber) const
+IMS_SINT32 MtsSipFormUtils::CheckScheme(IN const AString& strTargetAddress)
 {
-    if (strNumber.StartsWith('s') || strNumber.StartsWith('t') || strNumber.StartsWith('S') ||
-            strNumber.StartsWith('T'))
+    if (strTargetAddress.StartsWith('s') || strTargetAddress.StartsWith('t') ||
+            strTargetAddress.StartsWith('S') || strTargetAddress.StartsWith('T'))
     {
-        AString strTmp = strNumber.GetSubStr(0, 5).MakeLower();
+        AString strTmp = strTargetAddress.GetSubStr(0, 5).MakeLower();
 
         if (strTmp.StartsWith("tel"))
         {
@@ -261,7 +261,7 @@ IMS_SINT32 MtsSipFormUtils::GetRequestUriType()
 }
 
 PRIVATE
-IMS_BOOL MtsSipFormUtils::IsVisualSeparator(IN const IMS_CHAR ch) const
+IMS_BOOL MtsSipFormUtils::IsVisualSeparator(IN const IMS_CHAR ch)
 {
     // "-", ".", "(", ")"
     if ((ch == '-') || (ch == '.') || (ch == '(') || (ch == ')'))

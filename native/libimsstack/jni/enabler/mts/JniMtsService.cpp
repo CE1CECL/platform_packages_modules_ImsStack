@@ -81,8 +81,8 @@ PUBLIC VIRTUAL IJniEnablerThread* JniMtsService::GetJniThread() const
     return DYNAMIC_CAST(IJniEnablerThread*, m_pJniMtsServiceThread);
 }
 
-PROTECTED VIRTUAL void
-JniMtsService::HandleMessage(IN IMS_SINT32 nMsg, IN const Parcel& objParcel)
+PROTECTED VIRTUAL
+void JniMtsService::HandleMessage(IN IMS_SINT32 nMsg, IN const Parcel& objParcel)
 {
     IMS_TRACE_D("HandleMessage() MSG=[%d]", nMsg, 0, 0);
 
@@ -131,11 +131,14 @@ void JniMtsService::Initialize(IN Jni_SendDataToJava pfnSendDataToJava)
     strThreadName.Sprintf("JniMtsServiceThread_%d", GetSlotId());
 
     IMS_TRACE_D("Initialize()", 0, 0, 0);
-    auto fnEntry = []() -> BaseThread * { return new JniMtsServiceThread(); };
+    auto fnEntry = []() -> BaseThread*
+    {
+        return new JniMtsServiceThread();
+    };
 
     ImsProcess::GetInstance()->LoadThread(strThreadName, fnEntry, GetSlotId());
-    m_pJniMtsServiceThread =
-            (JniMtsServiceThread*)(ImsProcess::GetInstance()->GetThread(strThreadName));
+    m_pJniMtsServiceThread = reinterpret_cast<JniMtsServiceThread*>(
+            ImsProcess::GetInstance()->GetThread(strThreadName));
 
     if (m_pJniMtsServiceThread == IMS_NULL)
     {
