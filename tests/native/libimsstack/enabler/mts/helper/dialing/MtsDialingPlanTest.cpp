@@ -73,6 +73,14 @@ TEST_F(MtsDialingPlanTest, Translate)
     pMtsDialingPlan->SetScheme(SIP_URI_SCHEME.GetStr());
     strResult = pMtsDialingPlan->Translate(strTargetAddress);
     EXPECT_TRUE(strResult.Contains(SIP_URI_SCHEME));
+
+    strTargetAddress = "";
+    strResult = pMtsDialingPlan->Translate(strTargetAddress);
+    EXPECT_STREQ(strResult.GetStr(), strTargetAddress.GetStr());
+
+    strTargetAddress = "<sip:+12063130004@msg.pc.t-mobile.com;user=phone>";
+    strResult = pMtsDialingPlan->Translate(strTargetAddress);
+    EXPECT_STREQ(strResult.GetStr(), strTargetAddress.GetStr());
 }
 
 TEST_F(MtsDialingPlanTest, GetterSetterNetworkProfile)

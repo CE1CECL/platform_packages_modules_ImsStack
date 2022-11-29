@@ -89,7 +89,7 @@ TEST_F(MtsMessageTest, GetterAndSetterForSeqId)
 
 TEST_F(MtsMessageTest, GetterAndSetterForSlotId)
 {
-    IMS_SINT32 nSlotId = 0;
+    IMS_SINT32 nSlotId = 1;
     pMtsMessage->SetSlotId(nSlotId);
 
     EXPECT_EQ(nSlotId, pMtsMessage->GetSlotId());
@@ -101,6 +101,14 @@ TEST_F(MtsMessageTest, GetterAndSetterForSmsFormat)
     pMtsMessage->SetSmsFormat(eSmsFormat);
 
     EXPECT_EQ(eSmsFormat, pMtsMessage->GetSmsFormat());
+}
+
+TEST_F(MtsMessageTest, GetterAndSetterForSmSize)
+{
+    IMS_SINT32 nSmSize = 0;
+    pMtsMessage->SetSmSize(nSmSize);
+
+    EXPECT_EQ(nSmSize, pMtsMessage->GetSmSize());
 }
 
 TEST_F(MtsMessageTest, GetterAndSetterForTransactionType)

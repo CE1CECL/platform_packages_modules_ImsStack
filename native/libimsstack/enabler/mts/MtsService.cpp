@@ -39,7 +39,6 @@ __IMS_TRACE_TAG_COM_MTS__;
 
 MtsService::MtsService(IN IMS_SINT32 nSlotId) :
         ImsService(AString::ConstNull()),
-        m_bEmergencyActived(IMS_FALSE),
         m_piImsAos(IMS_NULL),
         m_piImsEmergencyAos(IMS_NULL),
         m_piNetWatcherInfo(IMS_NULL),
@@ -48,8 +47,8 @@ MtsService::MtsService(IN IMS_SINT32 nSlotId) :
         m_piCoreService(IMS_NULL),
         m_piEmergencyCoreService(IMS_NULL),
         m_piMtsServiceListener(IMS_NULL),
-        m_piMtsServiceState(new MtsServiceState(m_nSlotId)),
-        m_piImsRadio(ImsRadioService::GetImsRadioService()->GetImsRadio(m_nSlotId)),
+        m_piMtsServiceState(new MtsServiceState(nSlotId)),
+        m_piImsRadio(ImsRadioService::GetImsRadioService()->GetImsRadio(nSlotId)),
         m_objMtsTraffics(ImsList<IMtsTraffic*>()),
         m_pSmsInfo(IMS_NULL)
 {
@@ -269,10 +268,8 @@ void MtsService::ImsAos_Connected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan)
 
     m_piMtsServiceState->OnImsConnected();
 
-    if (!(m_bEmergencyActived) && (m_piImsEmergencyAos->IsImsConnected() == IMS_TRUE))
+    if (m_piImsEmergencyAos->IsImsConnected() == IMS_TRUE)
     {
-        m_bEmergencyActived = IMS_TRUE;
-
         if ((m_pSmsInfo != IMS_NULL) && m_pSmsInfo->bEmergency)
         {
             IMtsTraffic* piMtsTraffic =
@@ -302,11 +299,6 @@ PUBLIC
 void MtsService::ImsAos_Disconnected(IN IMS_UINT32 nReason)
 {
     IMS_TRACE_I("ImsAos_Disconnected : Reason[%d]", nReason, 0, 0);
-
-    if (m_piImsEmergencyAos->IsImsConnected() == IMS_FALSE)
-    {
-        m_bEmergencyActived = IMS_FALSE;
-    }
 
     m_piMtsServiceState->OnImsDisconnected(nReason);
     // if ims data connection is disconnected, terminate all pending messages.
@@ -379,6 +371,7 @@ PUBLIC
 void MtsService::Traffic_OnConnectionFailed(IN IMS_UINT32 nType, IN IMS_UINT32 nDirection,
         IN IMS_UINT32 nFailureReason, IN IMS_UINT32 nCauseCode, IN IMS_UINT32 nWaitTimeMillis)
 {
+    IMS_TRACE_I("Traffic_OnConnectionFailed", 0, 0, 0);
     /*
      * TODO(Mts): Consider of nFailureReason, nCauseCode and nWaitTimeMillis
      *            if there are some further required actions
@@ -425,8 +418,8 @@ void MtsService::Traffic_OnConnectionSetupPrepared(IN IMS_UINT32 nType, IN IMS_U
 PUBLIC
 void MtsService::Traffic_GuardTimerExpired(IN IMS_UINT32 nType, IN IMS_UINT32 nDirection)
 {
-    IMS_TRACE_I("Traffic_GuardTimerExpired : TrafficType[%s], Direction[%s]",
-            PS_TrafficType(nType), PS_TrafficDirection(nDirection), 0);
+    IMS_TRACE_I("Traffic_GuardTimerExpired : TrafficType[%s], Direction[%s]", PS_TrafficType(nType),
+            PS_TrafficDirection(nDirection), 0);
 
     IMtsTraffic* piMtsTraffic = GetTraffic(nType, nDirection);
     if (piMtsTraffic == IMS_NULL)

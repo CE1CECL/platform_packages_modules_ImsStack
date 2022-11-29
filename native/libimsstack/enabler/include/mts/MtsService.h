@@ -109,7 +109,6 @@ private:
     void Init();
     void DeInit();
 
-    IMS_BOOL m_bEmergencyActived;
     IImsAos* m_piImsAos;
     IImsAos* m_piImsEmergencyAos;
     INetworkWatcher* m_piNetWatcherInfo;
