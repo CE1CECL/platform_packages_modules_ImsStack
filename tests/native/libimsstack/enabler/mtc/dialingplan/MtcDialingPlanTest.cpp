@@ -19,6 +19,8 @@
 #include "call/IMtcCall.h"
 #include "configuration/MockIMtcConfigurationManager.h"
 #include "configuration/MtcConfigurationProxy.h"
+#include "dialingplan/ImsIdentityProxy.h"
+#include "dialingplan/MockImsIdentityProxy.h"
 #include "dialingplan/MtcDialingPlan.h"
 #include <gtest/gtest.h>
 
@@ -30,14 +32,32 @@ using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
+class TestMtcDialingPlan : public MtcDialingPlan
+{
+public:
+    inline explicit TestMtcDialingPlan(
+            IN IMtcContext& objContext, IN ISubscriberInfo& objSubscriberInfo) :
+            MtcDialingPlan(objContext, objSubscriberInfo)
+    {
+    }
+    inline ~TestMtcDialingPlan() {}
+
+    inline void ReplaceImsIdentityProxy(IN ImsIdentityProxy* pProxy)
+    {
+        delete m_pIdentityProxy;
+        m_pIdentityProxy = pProxy;
+    }
+};
+
 class MtcDialingPlanTest : public ::testing::Test
 {
 public:
-    MtcDialingPlan* pDialingPlan;
+    TestMtcDialingPlan* pDialingPlan;
     MockIMtcContext objContext;
     MockIMtcConfigurationManager* pConfigurationManager;
     MtcConfigurationProxy* pConfigurationProxy;
     MockISubscriberInfo objSubscriberInfo;
+    MockImsIdentityProxy* pIdentityProxy;
     CallInfo objCallInfo;
 
 protected:
@@ -47,7 +67,9 @@ protected:
         pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
 
-        pDialingPlan = new MtcDialingPlan(objContext, objSubscriberInfo);
+        pDialingPlan = new TestMtcDialingPlan(objContext, objSubscriberInfo);
+        pIdentityProxy = new MockImsIdentityProxy();
+        pDialingPlan->ReplaceImsIdentityProxy(pIdentityProxy);
     }
 
     virtual void TearDown() override
@@ -150,7 +172,7 @@ TEST_F(MtcDialingPlanTest, GetToUriReturnsDefaultUriInSipUriScheme)
     EXPECT_EQ(strUriWithScheme, pDialingPlan->GetToUri("", objCallInfo));
 }
 
-TEST_F(MtcDialingPlanTest, GetToUriReturnsInputValueIfItsUriForm)
+TEST_F(MtcDialingPlanTest, GetToUriReturnsInputValueIfItIsUriForm)
 {
     AString strUriWithScheme("sip:1234@ims.google.com");
 
@@ -165,5 +187,38 @@ TEST_F(MtcDialingPlanTest, GetToUriReturnsStoredServiceUrn)
     pDialingPlan->OnCountrySpecificServiceUrnReceived(strNumber, strServiceUrn);
     EXPECT_EQ(strServiceUrn, pDialingPlan->GetToUri(strNumber, objCallInfo));
 }
+
+TEST_F(MtcDialingPlanTest, GetToUriUsingDifferentNumberResetsTemporaryUrn)
+{
+    AString strNumber("123");
+    AString strServiceUrn("sos.country-specific.test");
+    AString strDifferentNumber("123");
+
+    pDialingPlan->OnCountrySpecificServiceUrnReceived(strNumber, strServiceUrn);
+    pDialingPlan->GetToUri(strDifferentNumber, objCallInfo);
+    EXPECT_NE(strServiceUrn, pDialingPlan->GetToUri(strNumber, objCallInfo));
+}
+
+TEST_F(MtcDialingPlanTest, GetToUriReturnsDialStringFormatIfUssi)
+{
+    objCallInfo.bUssi = IMS_TRUE;
+    AString strNumber("123");
+    AString strExpectedUri("sip:123;phone-context=ims.google.com@ims.google.com;user=dialstring");
+    ON_CALL(*pIdentityProxy, CreateSipUserIdWithDialString(strNumber, _, _))
+            .WillByDefault(Return(strExpectedUri));
+    EXPECT_STREQ(strExpectedUri.GetStr(), pDialingPlan->GetToUri(strNumber, objCallInfo).GetStr());
+}
+
+TEST_F(MtcDialingPlanTest, GetToUriReturnsDialNumberWithPhone)
+{
+    AString strNumber("+1123");
+    AString strExpectedUri("sip:+1123;user=phone");
+    ON_CALL(*pIdentityProxy, CreateSipUserId(strNumber, _, IMS_TRUE, _))
+            .WillByDefault(Return(strExpectedUri));
+    EXPECT_STREQ(strExpectedUri.GetStr(),
+            pDialingPlan->GetToUri(strNumber, objCallInfo, Scheme::SIP).GetStr());
+}
+
+// TODO: emergency type will be added after ESCV from C/F is merged
 
 }  // namespace android

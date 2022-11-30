@@ -31,9 +31,7 @@ PUBLIC GLOBAL AString& EmergencyDialingPlan::GetTranslatedUri(
         return strNumber;
     }
 
-    EmergencyNumberList* pEnl = new EmergencyNumberList(objContext.GetSlotId());
-    strNumber = pEnl->GetEmergencyServiceURN(strNumber);  // TODO:
-    delete pEnl;
+    strNumber = EmergencyNumberList(objContext.GetSlotId()).GetEmergencyServiceURN(strNumber);
 
     return strNumber;
 }
