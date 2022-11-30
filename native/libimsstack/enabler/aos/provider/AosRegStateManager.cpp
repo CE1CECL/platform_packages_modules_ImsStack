@@ -108,21 +108,6 @@ PUBLIC VIRTUAL void AosRegStateManager::SetRegState(
     }
 }
 
-PUBLIC VIRTUAL IMS_SINT32 AosRegStateManager::ConvertServiceType(IMS_UINT32 nServiceType)
-{
-    switch (nServiceType)
-    {
-        case ImsAosService::MTS:
-            return IUIMS::APP_MTS;
-
-        case ImsAosService::MTC:
-            return IUIMS::APP_MTC;
-
-        default:
-            return IUIMS::APP_UNKNOWN;
-    }
-}
-
 PUBLIC VIRTUAL void AosRegStateManager::SetDetailState(IN IMS_SINT32 nState)
 {
     m_nRegDetailState = nState;
@@ -218,6 +203,22 @@ PUBLIC VIRTUAL IMS_BOOL AosRegStateManager::IsLimitedMode() const
 }
 
 PROTECTED
+IMS_SINT32 AosRegStateManager::ConvertServiceType(IMS_UINT32 nServiceType)
+{
+    switch (nServiceType)
+    {
+        case ImsAosService::MTS:
+            return IUIMS::APP_MTS;
+
+        case ImsAosService::MTC:
+            return IUIMS::APP_MTC;
+
+        default:
+            return IUIMS::APP_UNKNOWN;
+    }
+}
+
+PROTECTED
 void AosRegStateManager::AddRegService(IN IMS_UINT32 nType)
 {
     m_nRegServices |= nType;
@@ -230,7 +231,7 @@ void AosRegStateManager::RemoveRegService(IN IMS_UINT32 nType)
 }
 
 PROTECTED
-IMS_BOOL AosRegStateManager::IsRegService(IN IMS_UINT32 nType)
+IMS_BOOL AosRegStateManager::IsRegService(IN IMS_UINT32 nType) const
 {
     return (m_nRegServices & nType);
 }
@@ -253,16 +254,4 @@ IMS_UINT32 AosRegStateManager::GetConvertedRegServices()
     A_IMS_TRACE_I(AOSTAG, "GetConvertedRegServices:: services (%d)", nServices, 0, 0);
 
     return nServices;
-}
-
-PROTECTED
-IMS_BOOL AosRegStateManager::IsRegistered(IN IMS_UINT32 nDetailState) const
-{
-    if (nDetailState == IMS_REGISTRATION_REGISTERED ||
-            nDetailState == IMS_REGISTRATION_REREGISTERING)
-    {
-        return IMS_TRUE;
-    }
-
-    return IMS_FALSE;
 }

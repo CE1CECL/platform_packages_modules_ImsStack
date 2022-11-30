@@ -47,8 +47,8 @@ public:
     static AosProvider* GetInstance();
     static AosLog* GetLog();
 
-    AosDnsQuery* CreateDnsQuery();
-    AosKeepAlive* CreateKeepAlive(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
+    static AosDnsQuery* CreateDnsQuery();
+    static AosKeepAlive* CreateKeepAlive(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
 
     IAosCallTracker* GetCallTracker(IN IMS_SINT32 nSlotId = IMS_SLOT_0);
     IAosLocationStarter* GetLocationStarter(IN IMS_SINT32 nSlotId = IMS_SLOT_0);

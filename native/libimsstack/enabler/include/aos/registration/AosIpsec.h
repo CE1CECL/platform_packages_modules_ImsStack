@@ -119,7 +119,7 @@ public:
     };
 
     /// IIpSecPolicyListener Interface
-    virtual void IpSecPolicy_OnSecurityAssociationExpired(IN IIpSecPolicy* piPolicy);
+    void IpSecPolicy_OnSecurityAssociationExpired(IN IIpSecPolicy* piPolicy) override;
 
     /// Create UE Transport Port and SPI Identity
     IMS_UINT32 CreateUePort();
@@ -171,12 +171,12 @@ public:
     IMS_UINT32 GetIntegrityAlgorithm();
 
     /// Get UE Port & Spi
-    const IPAddress& GetUeIpa();
+    const IPAddress& GetUeIpa() const;
     IMS_UINT32 GetUePort(IN IMS_UINT32 nType);
     IMS_UINT32 GetUeSpi(IN IMS_UINT32 nType);
 
     /// Get P-CSCF Port & Spi
-    const IPAddress& GetPcscfIpa();
+    const IPAddress& GetPcscfIpa() const;
     IMS_UINT32 GetPcscfPort(IN IMS_UINT32 nType);
     IMS_UINT32 GetPcscfSpi(IN IMS_UINT32 nType);
 

@@ -44,7 +44,7 @@ public:
     IMS_BOOL Terminate();
 
 private:
-    virtual void RunImp();
+    void RunImp() override;
 
     IMS_BOOL ResetEvent(IN IMS_UINT32 nEvent);
     IMS_BOOL SetEvent(IN IMS_UINT32 nEvent);
@@ -64,7 +64,7 @@ private:
 
     pthread_cond_t m_stSignal;
     OsMutex m_objMutex4Signal;
-    IMS_SINT32 m_nEvent;
+    IMS_UINT32 m_nEvent;
     OsMutex m_objMutex4Event;
     OsPthread* m_pThread;
     AString m_strDomainName;
@@ -115,7 +115,7 @@ PRIVATE VIRTUAL void AosDnsQueryPrivate::RunImp()
 {
     IMS_BOOL bLoop = IMS_TRUE;
     IMS_SINT32 nWaitResult;
-    IMS_SINT32 nEventCache;
+    IMS_UINT32 nEventCache;
 
     if (m_pQueryer != IMS_NULL)
     {
@@ -341,7 +341,7 @@ void AosDnsQuery::SetListener(IN IAosDnsQueryListener* piListener)
 }
 
 PUBLIC
-IMS_BOOL AosDnsQuery::Request(IN AString& strDomainName, IN INetworkConnection* piConnection)
+IMS_BOOL AosDnsQuery::Request(IN const AString& strDomainName, IN INetworkConnection* piConnection)
 {
     m_strDomainName = strDomainName;
     m_piConnection = piConnection;
