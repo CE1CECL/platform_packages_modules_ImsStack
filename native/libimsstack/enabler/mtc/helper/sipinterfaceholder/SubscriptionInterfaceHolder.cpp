@@ -200,7 +200,7 @@ void SubscriptionInterfaceHolder::StopTimer(IN ITimer* piTimer)
 }
 
 PRIVATE
-ITimer* SubscriptionInterfaceHolder::GetTimer(IN ISubscription* piSubscription) const
+ITimer* SubscriptionInterfaceHolder::GetTimer(IN const ISubscription* piSubscription) const
 {
     IMS_UINT32 nSize = m_objSubscriptionTerminatedGuardTimers.GetSize();
     IMS_TRACE_D("GetTimer subscription size = [%d]", nSize, 0, 0);

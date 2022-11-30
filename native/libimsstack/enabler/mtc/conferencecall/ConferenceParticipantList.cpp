@@ -241,8 +241,8 @@ IMS_SINT32 ConferenceParticipantList::FindParticipant(IN IMS_UINT32 nConnectionI
 }
 
 PUBLIC
-void ConferenceParticipantList::ReOrder(
-        IN IMtcCallManager& objCallManager, IN CallConnectionIdManager& objConnectionIdManager)
+void ConferenceParticipantList::ReOrder(IN IMtcCallManager& objCallManager,
+        IN const CallConnectionIdManager& objConnectionIdManager)
 {
     IMSList<ConferenceParticipant*> objTemp;
 

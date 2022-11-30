@@ -142,8 +142,8 @@ public:
     virtual AString GetReferInviteUri(IN const ConfUser* pConfUser);
 
     virtual IMS_SINT32 FindParticipant(IN IMS_UINT32 nConnectionId);
-    void ReOrder(
-            IN IMtcCallManager& objCallManager, IN CallConnectionIdManager& objConnectionIdManager);
+    void ReOrder(IN IMtcCallManager& objCallManager,
+            IN const CallConnectionIdManager& objConnectionIdManager);
     void Login();
 
     virtual inline IMS_UINT32 GetSize() const { return m_objParticipants.GetSize(); }

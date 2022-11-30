@@ -37,7 +37,7 @@ public:
     EpsFallbackTrigger(IN const EpsFallbackTrigger&) = delete;
     EpsFallbackTrigger& operator=(IN const EpsFallbackTrigger&) = delete;
 
-    static IMS_BOOL IsRequired(IN MtcConfigurationProxy& objConfigProxy);
+    static IMS_BOOL IsRequired(IN const MtcConfigurationProxy& objConfigProxy);
     virtual IMS_BOOL IsVoNr() const;
     virtual void StartWatchdog();
     virtual void OnEpsFallbackCompleted();

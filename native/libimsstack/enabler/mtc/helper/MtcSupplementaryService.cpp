@@ -541,7 +541,7 @@ IMS_SINT32 MtcSupplementaryService::ConvertCdivCause(IN IMS_SINT32 nCause)
 }
 
 PRIVATE
-IMS_SINT32 MtcSupplementaryService::GetCallingNumVerificationResult(IN AString& strValue)
+IMS_SINT32 MtcSupplementaryService::GetCallingNumVerificationResult(IN const AString& strValue)
 {
     IMS_SINT32 nVerstatResult = CALLING_NUM_VERSTAT_NONE;
 

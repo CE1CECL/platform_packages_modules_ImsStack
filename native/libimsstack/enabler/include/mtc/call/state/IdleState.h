@@ -69,7 +69,7 @@ private:
     AString GenerateSessionId();
     ImsList<AString> GetEntryUrisFromConferenceUsers(IN const ImsList<ConfUser*>& lstUsers);
     void SetResourceListForConference(
-            IN_OUT IMessage& objMessage, IN ImsList<AString>& lstEntryUris);
+            IN_OUT IMessage& objMessage, IN const ImsList<AString>& lstEntryUris);
     ImsList<IMtcBlockRule*> GetIncomingCallBlockRules();
     ImsList<IMtcBlockRule*> GetOutgoingCallBlockRules();
     void SetAcceptContact(IN ISipMessage* piSipMessage);

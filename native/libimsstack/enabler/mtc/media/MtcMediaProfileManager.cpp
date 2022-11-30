@@ -389,7 +389,7 @@ ISession* MtcMediaProfileManager::GetActiveSession()
 }
 
 PRIVATE
-IMS_BOOL MtcMediaProfileManager::IsMediaProfilePresent(IN ISession* piSession)
+IMS_BOOL MtcMediaProfileManager::IsMediaProfilePresent(IN const ISession* piSession)
 {
     for (IMS_UINT32 index = 0; index < m_objMediaProfiles.GetSize(); index++)
     {

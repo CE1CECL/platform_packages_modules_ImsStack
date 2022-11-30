@@ -132,7 +132,7 @@ private:
     void FinalizeMediaInfo(IN IMS_UINTP nNegoId);
     void UpdateLocalTone(IN ISession* piSession, IN IMessage* piMessage);
     void SetNetworkToneRTPTimer(IN IMS_UINT32 eMediaTypes, IN IMS_UINT32 nDuration);  // TBD
-    void SendAudioInfoToJava(IN ISession* piSession);
+    void SendAudioInfoToJava(IN const ISession* piSession);
 
     IMS_BOOL IsNecessaryToRunMedia(IN ISession* piSession, IN IMessage* piMessage);
     IMS_UINTP GetMediaNegoId(IN ISession* piSession);

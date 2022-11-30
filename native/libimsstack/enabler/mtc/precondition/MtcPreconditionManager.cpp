@@ -784,7 +784,7 @@ QosStatusTable* MtcPreconditionManager::GetQosStatusTable(IN ISession* piSession
 }
 
 PRIVATE
-void MtcPreconditionManager::HandleReservationFailureByTimerExpiration(IN QosTimer* pTimer)
+void MtcPreconditionManager::HandleReservationFailureByTimerExpiration(IN const QosTimer* pTimer)
 {
     ISession* piSession = IMS_NULL;
     for (IMS_UINT32 index = 0; index < m_objQosTimers.GetSize(); index++)

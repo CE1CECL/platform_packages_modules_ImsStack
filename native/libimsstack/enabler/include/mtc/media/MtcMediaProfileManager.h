@@ -103,7 +103,7 @@ public:
     virtual ISession* GetActiveSession();
 
 private:
-    IMS_BOOL IsMediaProfilePresent(IN ISession* piSession);
+    IMS_BOOL IsMediaProfilePresent(IN const ISession* piSession);
     MediaProfile* GetMediaProfile(IN ISession* piSession);
 
 private:

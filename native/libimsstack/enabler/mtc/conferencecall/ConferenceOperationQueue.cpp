@@ -274,7 +274,7 @@ void ConferenceOperationQueue::RemoveActiveOperation()
 
 PRIVATE
 IMS_BOOL ConferenceOperationQueue::IsSameOperation(
-        IN IMS_UINT32 nOperationType, IN ConfUser* pConfUser) const
+        IN IMS_UINT32 nOperationType, IN const ConfUser* pConfUser) const
 {
     ConferenceOperation* pCurrentOperation = m_objOperationQueue.GetAt(ACTIVE_OPERATION_NUMBER);
     if (pCurrentOperation->GetType() == nOperationType)

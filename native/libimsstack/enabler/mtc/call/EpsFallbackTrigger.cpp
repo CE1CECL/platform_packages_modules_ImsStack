@@ -65,7 +65,8 @@ PUBLIC VIRTUAL EpsFallbackTrigger::~EpsFallbackTrigger()
     }
 }
 
-PUBLIC GLOBAL IMS_BOOL EpsFallbackTrigger::IsRequired(IN MtcConfigurationProxy& objConfigProxy)
+PUBLIC GLOBAL IMS_BOOL EpsFallbackTrigger::IsRequired(
+        IN const MtcConfigurationProxy& objConfigProxy)
 {
     // without Watchdog timer, EPS fallback due to network no response isn't supported, either.
     return objConfigProxy.GetInt(Feature::EPS_FALLBACK_WATCHDOG_TIME) > 0;
