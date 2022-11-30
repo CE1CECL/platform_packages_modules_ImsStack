@@ -476,7 +476,7 @@ TEST_F(AosIpsecHelperTest, Create)
     // SetSecurityServerPortInRegistration()
     EXPECT_CALL(objMockAosConfig, IsSecurityServerPortInInitRegUsed())
             .Times(2)
-            .WillOnce(Return(IMS_TRUE));
+            .WillRepeatedly(Return(IMS_TRUE));
 
     // SetSecurityServerPortInRegContact - call if bInitial == IMS_TRUE
     EXPECT_CALL(objMockAosConfig, IsSecurityServerPortInRegContactOfInitRegUsed())
