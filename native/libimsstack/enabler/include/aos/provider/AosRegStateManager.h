@@ -25,37 +25,37 @@ public:
     AosRegStateManager();
     virtual ~AosRegStateManager();
 
-    virtual IMS_SINT32 GetSlotId() const;
-    virtual void SetSlotId(IN IMS_SINT32 nSlotId);
+    /// IAosRegStateManager Interface
+    IMS_SINT32 GetSlotId() const override;
+    void SetSlotId(IN IMS_SINT32 nSlotId) override;
 
-    virtual void SetImsRegState(IN IMS_UINT32 nState, IN IMS_BOOL bLimited);
-    virtual IMS_SINT32 GetImsRegState();
-    virtual void SetEImsRegState(IN IMS_UINT32 nState);
-    virtual void SetRegState(IN IMS_UINT32 nServiceType, IN IMS_UINT32 nState);
-    virtual IMS_SINT32 ConvertServiceType(IMS_UINT32 nServiceType);
+    void SetImsRegState(IN IMS_UINT32 nState, IN IMS_BOOL bLimited) override;
+    IMS_SINT32 GetImsRegState() override;
+    void SetEImsRegState(IN IMS_UINT32 nState) override;
+    void SetRegState(IN IMS_UINT32 nServiceType, IN IMS_UINT32 nState) override;
 
-    virtual void SetDetailState(IN IMS_SINT32 nState);
-    virtual IMS_SINT32 GetDetailState();
-    virtual void SetReason(IN IMS_UINT32 nReason);
-    virtual void EnforceUpdateRegistration();
-    virtual void UpdateRegistration();
+    void SetDetailState(IN IMS_SINT32 nState) override;
+    IMS_SINT32 GetDetailState() override;
+    void SetReason(IN IMS_UINT32 nReason) override;
+    void EnforceUpdateRegistration() override;
+    void UpdateRegistration() override;
 
-    virtual void ClearRegServices();
-    virtual IMS_UINT32 GetRegServices() const;
-    virtual void UpdateRegServices(IN IMS_BOOL bUpdateCurrState = IMS_FALSE);
+    void ClearRegServices() override;
+    IMS_UINT32 GetRegServices() const override;
+    void UpdateRegServices(IN IMS_BOOL bUpdateCurrState = IMS_FALSE) override;
 
     // registration response
-    virtual void SetRegRespCode(IN IMS_SINT32 nRespCode);
+    void SetRegRespCode(IN IMS_SINT32 nRespCode) override;
 
     // limited service mode for normal registration
-    virtual IMS_BOOL IsLimitedMode() const;
+    IMS_BOOL IsLimitedMode() const override;
 
 protected:
+    IMS_SINT32 ConvertServiceType(IMS_UINT32 nServiceType);
     void AddRegService(IN IMS_UINT32 nType);
     void RemoveRegService(IN IMS_UINT32 nType);
-    IMS_BOOL IsRegService(IN IMS_UINT32 nType);
+    IMS_BOOL IsRegService(IN IMS_UINT32 nType) const;
     IMS_UINT32 GetConvertedRegServices();
-    IMS_BOOL IsRegistered(IN IMS_UINT32 nDetailState) const;
 
 protected:
     IMS_SINT32 m_nSlotId;

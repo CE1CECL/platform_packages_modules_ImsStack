@@ -28,7 +28,7 @@ class AosDnsQueryPrivate;
 class AosDnsQuery : public ImsActivityEx
 {
 public:
-    AosDnsQuery(IN IMS_BOOL bIsTest = IMS_FALSE);
+    explicit AosDnsQuery(IN IMS_BOOL bIsTest = IMS_FALSE);
     virtual ~AosDnsQuery();
 
 private:
@@ -37,7 +37,7 @@ private:
 
 public:
     void SetListener(IN IAosDnsQueryListener* piListener);
-    IMS_BOOL Request(IN AString& strDomainName, IN INetworkConnection* piConnection);
+    IMS_BOOL Request(IN const AString& strDomainName, IN INetworkConnection* piConnection);
 
     // Delete myself
     IMS_BOOL Destroy();

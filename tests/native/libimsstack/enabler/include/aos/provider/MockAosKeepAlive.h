@@ -24,7 +24,7 @@
 class MockAosKeepAlive : public AosKeepAlive
 {
 public:
-    MockAosKeepAlive(IN IMS_SINT32 nSlotId) :
+    explicit MockAosKeepAlive(IN IMS_SINT32 nSlotId) :
             AosKeepAlive(nSlotId)
     {
     }

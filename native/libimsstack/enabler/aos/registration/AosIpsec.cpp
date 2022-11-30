@@ -322,7 +322,7 @@ IIpSecPolicy* AosIpsec::GetPolicy()
 }
 
 PUBLIC
-const IPAddress& AosIpsec::GetUeIpa()
+const IPAddress& AosIpsec::GetUeIpa() const
 {
     return m_pUeInfo->objIpa;
 }
@@ -407,7 +407,7 @@ IMS_UINT32 AosIpsec::GetPcscfSpi(IN IMS_UINT32 nType)
 }
 
 PUBLIC
-const IPAddress& AosIpsec::GetPcscfIpa()
+const IPAddress& AosIpsec::GetPcscfIpa() const
 {
     return m_pPcscfInfo->objIpa;
 }

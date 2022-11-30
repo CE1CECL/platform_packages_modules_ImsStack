@@ -27,7 +27,7 @@ class IAosKeepAliveListener;
 class AosKeepAlive : public ISipKeepAliveHelperListener, public ITimerListener
 {
 public:
-    AosKeepAlive(IN IMS_SINT32 nSlotId);
+    explicit AosKeepAlive(IN IMS_SINT32 nSlotId);
     virtual ~AosKeepAlive();
 
     virtual void SetListener(IN IAosKeepAliveListener* piListener);
@@ -63,10 +63,10 @@ private:
     void ClearTimer();
 
     // ISipKeepAliveHelperListener
-    virtual void KeepAliveHelper_PongReceived();
+    void KeepAliveHelper_PongReceived() override;
 
     // ITimerListener Interface
-    virtual void Timer_TimerExpired(IN ITimer* piTimer);
+    void Timer_TimerExpired(IN ITimer* piTimer) override;
 
     static const IMS_CHAR* TimerToString(IN IMS_UINT32 nType);
 

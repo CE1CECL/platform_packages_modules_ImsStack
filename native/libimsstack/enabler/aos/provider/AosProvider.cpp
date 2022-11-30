@@ -81,14 +81,12 @@ PUBLIC GLOBAL AosLog* AosProvider::GetLog()
     return s_pLog;
 }
 
-PUBLIC
-AosDnsQuery* AosProvider::CreateDnsQuery()
+PUBLIC GLOBAL AosDnsQuery* AosProvider::CreateDnsQuery()
 {
     return new AosDnsQuery();
 }
 
-PUBLIC
-AosKeepAlive* AosProvider::CreateKeepAlive(IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
+PUBLIC GLOBAL AosKeepAlive* AosProvider::CreateKeepAlive(IN IMS_SINT32 nSlotId /* = IMS_SLOT_0 */)
 {
     return new AosKeepAlive(nSlotId);
 }
