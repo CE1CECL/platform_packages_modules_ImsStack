@@ -29,7 +29,8 @@ __IMS_TRACE_TAG_COM_MTS__;
 
 PUBLIC
 MtsErrorHandler::MtsErrorHandler(IN ICarrierConfig* piCarrierConfig) :
-        m_piCarrierConfig(piCarrierConfig)
+        m_piCarrierConfig(piCarrierConfig),
+        m_piListener(IMS_NULL)
 {
     IMS_TRACE_I("+MtsErrorHandler", 0, 0, 0);
 }

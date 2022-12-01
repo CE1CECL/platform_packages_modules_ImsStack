@@ -25,23 +25,22 @@ class MtsDialingPlan;
 class MtsSipFormUtils final
 {
 public:
-    MtsSipFormUtils(IN IMS_SINT32 nSlotId);
+    explicit MtsSipFormUtils(IN IMS_SINT32 nSlotId);
     ~MtsSipFormUtils();
 
     IMS_BOOL FormDestination(IN const AString& strTargetAddress, IN const IMS_BOOL bIsAckorError,
             IN const AString& strLastIpSmgw, OUT AString& strDest);
-    AString FormContentTypeEnumToStr(IN SmsFormatType nType);
-    SmsFormatType FormContentTypeStrToEnum(IN const AString& strContentType);
-    IMS_BOOL IsTelUrlParam(IN const AString& strParam) const;
+    static AString FormContentTypeEnumToStr(IN SmsFormatType nType);
+    static SmsFormatType FormContentTypeStrToEnum(IN const AString& strContentType);
+    static IMS_BOOL IsTelUrlParam(IN const AString& strParam);
     IMS_BOOL IsNumberFormat(IN const AString& strDial) const;
-    IMS_BOOL IsIpAddress(IN const AString& strIp) const;
-    IMS_SINT32 CheckScheme(IN const AString& strScheme) const;
+    static IMS_BOOL IsIpAddress(IN const AString& strIp);
+    static IMS_SINT32 CheckScheme(IN const AString& strTargetAddress);
 
 private:
     IMS_SINT32 GetRequestUriType();
-    IMS_BOOL IsVisualSeparator(IN const IMS_CHAR ch) const;
+    static IMS_BOOL IsVisualSeparator(IN const IMS_CHAR ch);
 
-private:
     MtsDialingPlan* m_pMtsDialingPlan;
     IMS_SINT32 m_nSlotId;
 };

@@ -24,8 +24,8 @@ class ICarrierConfig;
 class MtsErrorHandler final : public IMtsErrorHandler
 {
 public:
-    MtsErrorHandler(IN ICarrierConfig* piCarrierConfig);
-    virtual ~MtsErrorHandler();
+    explicit MtsErrorHandler(IN ICarrierConfig* piCarrierConfig);
+    ~MtsErrorHandler();
 
     // IMtsErrorHandler
     IMS_SINT32 Handle(IN const IMessage* piMessage = IMS_NULL) override;

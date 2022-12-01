@@ -24,7 +24,7 @@
 class MtsDynamicLoader final
 {
 public:
-    MtsDynamicLoader(IN IMS_SINT32 nSlotId);
+    explicit MtsDynamicLoader(IN IMS_SINT32 nSlotId);
     ~MtsDynamicLoader();
 
     void Initialize();
