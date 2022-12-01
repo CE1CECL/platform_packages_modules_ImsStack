@@ -56,33 +56,33 @@ public:
         NGRAN,
     };
 
-    MediaNetworkConnectionWatcher(IN const IPAddress& objIpAddr);
+    explicit MediaNetworkConnectionWatcher(IN const IPAddress& objIpAddress);
     virtual ~MediaNetworkConnectionWatcher();
     virtual void SetListener(IN IMediaNetworkConnectionListener* piListener);
     /* INetworkConnectionListener Interface Impl */
-    virtual void NetworkConnection_OnConnected(IN INetworkConnection* pNetConnection);
+    virtual void NetworkConnection_OnConnected(IN INetworkConnection* pNetConnection) override;
     virtual void NetworkConnection_OnDisconnected(
-            IN INetworkConnection* pNetConnection, IN IMS_SINT32 nErrorCode);
+            IN INetworkConnection* pNetConnection, IN IMS_SINT32 nErrorCode) override;
     virtual void NetworkConnection_OnConnectionFailed(
-            IN INetworkConnection* pNetConnection, IN IMS_SINT32 nErrorCode);
-    virtual void NetworkConnection_OnIpChanged(IN INetworkConnection* pNetConnection);
-    virtual void NetworkConnection_OnIpcanChanged(IN INetworkConnection* pNetConnection);
-    virtual void NetworkConnection_OnPcscfChanged(IN INetworkConnection* pNetConnection);
+            IN INetworkConnection* pNetConnection, IN IMS_SINT32 nErrorCode) override;
+    virtual void NetworkConnection_OnIpChanged(IN INetworkConnection* pNetConnection) override;
+    virtual void NetworkConnection_OnIpcanChanged(IN INetworkConnection* pNetConnection) override;
+    virtual void NetworkConnection_OnPcscfChanged(IN INetworkConnection* pNetConnection) override;
 
     /** Get the network connection type */
-    IMS_SINT32 GetNetworkType();
+    IMS_SINT32 GetNetworkType() const { return m_nMediaConnectionType; }
 
     /** Get the mtu size */
-    IMS_SINT32 GetMtu();
+    IMS_SINT32 GetMtu() const { return m_nMtu; }
 
 private:
-    IMS_SINT32 ConvertNetworkType(IN INetworkConnection* pNetConnection);
-    const IMS_CHAR* PrintNetworkType(IN IMS_SINT32 nMediaConnectionType);
+    static IMS_SINT32 ConvertNetworkType(IN INetworkConnection* pNetConnection);
+    static const IMS_CHAR* PrintNetworkType(IN IMS_SINT32 nMediaConnectionType);
     void UpdateParameters(IN INetworkConnection* pNetConnection);
 
-    IMediaNetworkConnectionListener* m_pListener;
+    IMediaNetworkConnectionListener* m_piListener;
     INetworkConnection* m_pNetConnection;
     IMS_SINT32 m_nMediaConnectionType;
     IMS_SINT32 m_nMtu;
 };
-#endif /* _INTERFACE_IMS_MEDIA_CONNECTION_WATCHER_H_ */
+#endif /* _MEDIA_NETWORK_CONNECTION_WATCHER_H_ */

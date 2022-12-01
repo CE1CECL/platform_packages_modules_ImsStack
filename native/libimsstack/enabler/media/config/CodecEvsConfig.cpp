@@ -122,10 +122,11 @@ PUBLIC VIRTUAL IMS_BOOL CodecEvsConfig::Create(IN ICarrierConfig* piCc, IN IMS_S
     }
 
     m_nBwList = piCc->GetInt(CarrierConfig::Assets::KEY_ASSET_EVS_CODEC_ATTRIBUTE_BANDWIDTH_INT);
-    if (m_nBwList >= 0)
+    if (m_nBwList < 0)
     {
-        m_nBwList = CheckEvsBandwidthWithBitrate(m_nBwList, m_nBrList);
+        m_nBwList = DEFAULT_BW_LIST;
     }
+    m_nBwList = CheckEvsBandwidthWithBitrate(m_nBwList, m_nBrList);
 
     m_nCmr = piCc->GetInt(CarrierConfig::Assets::KEY_ASSET_EVS_CODEC_ATTRIBUTE_CMR_INT);
     m_nChAwRecv = piCc->GetInt(CarrierConfig::Assets::KEY_ASSET_EVS_CODEC_ATTRIBUTE_CH_AW_RECV_INT);
@@ -134,8 +135,18 @@ PUBLIC VIRTUAL IMS_BOOL CodecEvsConfig::Create(IN ICarrierConfig* piCc, IN IMS_S
     m_nAmrWbIoModeSetList =
             piCc->GetInt(CarrierConfig::Assets::KEY_ASSET_EVS_AMRWB_IO_MODE_SET_INT);
 
+    if (m_nAmrWbIoModeSetList < 0)
+    {
+        m_nAmrWbIoModeSetList = DEFAULT_AMRWB_IO_MODESET;
+    }
+
     m_nDefaultRtpModeSet = piCc->GetInt(
             CarrierConfig::Assets::KEY_AUDIO_AMRWB_CODEC_ATTRIBUTE_DEFAULT_MODESET_INT_ARRAY);
+
+    if (m_nDefaultRtpModeSet < 0)
+    {
+        m_nDefaultRtpModeSet = DEFAULT_AMRWB_IO_MODESET;
+    }
 
     IMS_TRACE_D("Create - EvsCodecConfig - m_nCmr: %d m_nChAwRecv: %d m_nAmrWbIoModeSetList: %d",
             m_nCmr, m_nChAwRecv, m_nAmrWbIoModeSetList);
@@ -176,11 +187,9 @@ PUBLIC VIRTUAL void CodecEvsConfig::ToDebugString() const
 }
 
 PRIVATE
-IMS_UINT32 CodecEvsConfig::ConvertEvsBitrateToList(
-        IN IMS_SINT32 nBrStart, IN IMS_SINT32 nBrEnd) const
+IMS_SINT32 CodecEvsConfig::ConvertEvsBitrateToList(IN IMS_SINT32 nBrStart, IN IMS_SINT32 nBrEnd)
 {
-    IMS_SINT32 nBitrate = 0;
-    IMS_UINT32 nBitrateSet = 0;
+    IMS_SINT32 nBitrateSet = 0;
 
     IMS_TRACE_D("ConvertEvsBitrateToList nBrStart(%d) nBrEnd(%d)", nBrStart, nBrEnd, 0);
 
@@ -193,20 +202,18 @@ IMS_UINT32 CodecEvsConfig::ConvertEvsBitrateToList(
         nBrEnd = DEFAULT_BR_LIST;
     }
 
-    for (IMS_UINT32 i = nBrStart; i <= nBrEnd; i++)
+    for (IMS_SINT8 nBitrate = nBrStart; nBitrate <= nBrEnd; nBitrate++)
     {
-        nBitrate = i;
-
         IMS_TRACE_D("ConvertEvsBitrateToList nBitrate (%d) ", nBitrate, 0, 0);
         nBitrateSet = (nBitrateSet | (1 << nBitrate));
     }
 
-    return (IMS_UINT32)nBitrateSet;
+    return nBitrateSet;
 }
 
 PRIVATE
-IMS_UINT32 CodecEvsConfig::CheckEvsBandwidthWithBitrate(
-        IN IMS_UINT32 nBwList, IN IMS_UINT32 nBrList) const
+IMS_SINT32 CodecEvsConfig::CheckEvsBandwidthWithBitrate(
+        IN IMS_SINT32 nBwList, IN IMS_SINT32 nBrList)
 {
     IMS_TRACE_D("CheckEvsBandwidthWithBitrate nBwList(%d) nBrList(%d)", nBwList, nBrList, 0);
 
@@ -288,26 +295,7 @@ IMS_UINT32 CodecEvsConfig::CheckEvsBandwidthWithBitrate(
 }
 
 PRIVATE
-IMS_SINT32 CodecEvsConfig::GetEvsBandwidthFromList(IN IMS_UINT32 nBandwidthList) const
-{
-    if (nBandwidthList == 0)
-    {
-        return EVS_BANDWIDTH_WB;
-    }
-
-    for (IMS_SINT32 nFindBandwidth = EVS_BANDWIDTH_MAX; nFindBandwidth >= 0; nFindBandwidth--)
-    {
-        if (nBandwidthList & (1 << nFindBandwidth))
-        {
-            return nFindBandwidth;
-        }
-    }
-
-    return EVS_BANDWIDTH_WB;
-}
-
-PRIVATE
-IMS_SINT32 CodecEvsConfig::GetEvsBitrateFromList(IN IMS_UINT32 nBitrateList) const
+IMS_SINT32 CodecEvsConfig::GetEvsBitrateFromList(IN IMS_SINT32 nBitrateList)
 {
     if (nBitrateList == 0)
     {
@@ -323,25 +311,6 @@ IMS_SINT32 CodecEvsConfig::GetEvsBitrateFromList(IN IMS_UINT32 nBitrateList) con
     }
 
     return EVS_PRIMARY_MODE_BITRATE_24_4_KBPS;
-}
-
-PRIVATE
-IMS_SINT32 CodecEvsConfig::GetAmrIoModeSetFromList(IN IMS_UINT32 nAmrIoModeSet) const
-{
-    if (nAmrIoModeSet == 0)
-    {
-        return DEFAULT_AMRWB_IO_MODESET;
-    }
-
-    for (IMS_SINT32 nFindModeSet = DEFAULT_AMRWB_IO_MODESET; nFindModeSet >= 0; nFindModeSet--)
-    {
-        if (nAmrIoModeSet & (1 << nFindModeSet))
-        {
-            return nFindModeSet;
-        }
-    }
-
-    return DEFAULT_AMRWB_IO_MODESET;
 }
 
 PUBLIC
@@ -383,7 +352,7 @@ IMS_SINT32 CodecEvsConfig::GetEvsModeSwitch() const
 PUBLIC
 IMS_UINT32 CodecEvsConfig::GetBrList() const
 {
-    return m_nBrList;
+    return static_cast<IMS_UINT32>(m_nBrList);
 }
 
 PUBLIC
@@ -395,13 +364,7 @@ IMS_SINT32 CodecEvsConfig::GetBr() const
 PUBLIC
 IMS_UINT32 CodecEvsConfig::GetBwList() const
 {
-    return m_nBwList;
-}
-
-PUBLIC
-IMS_SINT32 CodecEvsConfig::GetBw() const
-{
-    return GetEvsBandwidthFromList(m_nBwList);
+    return static_cast<IMS_UINT32>(m_nBwList);
 }
 
 PUBLIC
@@ -425,13 +388,13 @@ IMS_BOOL CodecEvsConfig::GetShowAmrwbIoModeSet() const
 PUBLIC
 IMS_UINT32 CodecEvsConfig::GetAmrWbIoModeSetList() const
 {
-    return m_nAmrWbIoModeSetList;
+    return static_cast<IMS_UINT32>(m_nAmrWbIoModeSetList);
 }
 
 PUBLIC
 IMS_UINT32 CodecEvsConfig::GetDefaultModeSetList() const
 {
-    return m_nDefaultRtpModeSet;
+    return static_cast<IMS_UINT32>(m_nDefaultRtpModeSet);
 }
 
 PUBLIC

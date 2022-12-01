@@ -42,12 +42,12 @@ public:
      * @return IMS_BOOL Return true if the create function is executed without error
      * Return false if the create function is failed
      */
-    virtual IMS_BOOL Create(IN ICarrierConfig* piCc, IN IMS_SINT32 nCodecIdx);
+    virtual IMS_BOOL Create(IN ICarrierConfig* piCc, IN IMS_SINT32 nCodecIdx) override;
     /**
      * @brief Print debug string
      *
      */
-    virtual void ToDebugString() const;
+    virtual void ToDebugString() const override;
     /**
      * @brief Get the red level
      *

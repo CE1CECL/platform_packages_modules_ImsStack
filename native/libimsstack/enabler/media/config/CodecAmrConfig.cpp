@@ -21,8 +21,8 @@
 __IMS_TRACE_TAG_USER_DECL__("MED.CONF");
 
 PUBLIC
-CodecAmrConfig::CodecAmrConfig(IN IMS_SINT32 nType_, IN IMS_SINT32 nPayloadTypeNum) :
-        CodecConfig(nType_, nPayloadTypeNum),
+CodecAmrConfig::CodecAmrConfig(IN IMS_SINT32 nType, IN IMS_SINT32 nPayloadTypeNum) :
+        CodecConfig(nType, nPayloadTypeNum),
         m_nChannel(DEFAULT_CHANNEL),
         m_bShowModeSet(IMS_FALSE),
         m_nModeSetList(DEFAULT_MODESET_AMR_WB),
@@ -31,7 +31,7 @@ CodecAmrConfig::CodecAmrConfig(IN IMS_SINT32 nType_, IN IMS_SINT32 nPayloadTypeN
         m_nSamplingRate(DEFAULT_SAMPLING_RATE_AMRWB),
         m_bDtx(DEFAULT_AMR_DTX)
 {
-    IMS_TRACE_D("+CodecAmrConfig Type[%d]", nType_, 0, 0);
+    IMS_TRACE_D("+CodecAmrConfig Type[%d]", nType, 0, 0);
 }
 
 PUBLIC VIRTUAL CodecAmrConfig::~CodecAmrConfig()

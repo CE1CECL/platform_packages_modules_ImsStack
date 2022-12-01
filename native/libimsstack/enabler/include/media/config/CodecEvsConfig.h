@@ -125,12 +125,12 @@ public:
      * @return IMS_BOOL Return true if the create function is executed without error
      * Return false if the create function is failed
      */
-    virtual IMS_BOOL Create(IN ICarrierConfig* piCc, IN IMS_SINT32 nCodecIdx);
+    virtual IMS_BOOL Create(IN ICarrierConfig* piCc, IN IMS_SINT32 nCodecIdx) override;
     /**
      * @brief Print debug string
      *
      */
-    virtual void ToDebugString() const;
+    virtual void ToDebugString() const override;
     /**
      * @brief Get the channel
      *
@@ -189,12 +189,6 @@ public:
      */
     IMS_UINT32 GetBwList() const;
     /**
-     * @brief Get the bandwidth
-     *
-     * @return IMS_SINT32 Return the bandwidth
-     */
-    IMS_SINT32 GetBw() const;
-    /**
      * @brief Get the cmr
      *
      * @return IMS_SINT32 Return cmr (code-mode_request) value
@@ -233,12 +227,10 @@ public:
     IMS_SINT32 GetAmrWbIoModeSet() const;
 
 private:
-    IMS_UINT32 ConvertEvsBitrateToList(IN IMS_SINT32 nBrStart, IN IMS_SINT32 nBrEnd) const;
-    IMS_UINT32 ConvertEvsBandwidthToList(IN AString strBandwidth) const;
-    IMS_SINT32 GetEvsBandwidthFromList(IN IMS_UINT32 nBandwidthList) const;
-    IMS_SINT32 GetEvsBitrateFromList(IN IMS_UINT32 nBitrateList) const;
-    IMS_SINT32 GetAmrIoModeSetFromList(IN IMS_UINT32 nAmrIoModeSet) const;
-    IMS_UINT32 CheckEvsBandwidthWithBitrate(IN IMS_UINT32 m_nBwList, IN IMS_UINT32 m_nBrList) const;
+    static IMS_SINT32 ConvertEvsBitrateToList(IN IMS_SINT32 nBrStart, IN IMS_SINT32 nBrEnd);
+    static IMS_SINT32 ConvertEvsBandwidthToList(IN AString strBandwidth);
+    static IMS_SINT32 GetEvsBitrateFromList(IN IMS_SINT32 nBitrateList);
+    static IMS_SINT32 CheckEvsBandwidthWithBitrate(IN IMS_SINT32 nBwList, IN IMS_SINT32 nBrList);
 
 private:
     IMS_SINT32 m_nChannel;
@@ -247,13 +239,13 @@ private:
     IMS_BOOL m_bDtxRecv;          // 1(default) is turn on DTX
     IMS_SINT32 m_nHfOnly;         // 0(default) is both used, other is only hf format used
     IMS_SINT32 m_nEvsModeSwitch;  // 0(default) is "primary mode start"
-    IMS_UINT32 m_nBrList;  // EVS primary mode bitrate range (kbps)
-    IMS_UINT32 m_nBwList;  // bw has a value from the set: nb, wb, swb, fb, nb-wb, nb-swb, and nb-fb
+    IMS_SINT32 m_nBrList;         // EVS primary mode bitrate range (kbps)
+    IMS_SINT32 m_nBwList;  // bw has a value from the set: nb, wb, swb, fb, nb-wb, nb-swb, and nb-fb
     IMS_SINT32 m_nCmr;
     IMS_SINT32 m_nChAwRecv;            // -1: disabled / 0(default)
     IMS_BOOL m_bShowAmrwbIoModeSet;  // Indicate whether AmrwbIoModeSetList attribute to display in
                                      // SDP
-    IMS_UINT32 m_nAmrWbIoModeSetList;  // AMR-WB IO parameter
-    IMS_UINT32 m_nDefaultRtpModeSet;   // default mode-set for EVS AMR-WB IO mode
+    IMS_SINT32 m_nAmrWbIoModeSetList;  // AMR-WB IO parameter
+    IMS_SINT32 m_nDefaultRtpModeSet;   // default mode-set for EVS AMR-WB IO mode
 };
 #endif  // _CODEC_EVS_CONFIG_H_

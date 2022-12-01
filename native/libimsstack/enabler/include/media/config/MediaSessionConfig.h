@@ -36,7 +36,7 @@ public:
      * @param nSlotId SIM slot id
      * @param eServiceType service type (ex: default, emergency)
      */
-    MediaSessionConfig(
+    explicit MediaSessionConfig(
             IN IMS_SINT32 nSlotId = 0, IN MEDIA_SERVICE_TYPE eServiceType = MEDIA_SERVICE_DEFAULT);
     /**
      * @brief Destroy the media session config

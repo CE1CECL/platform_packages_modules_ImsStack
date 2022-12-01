@@ -21,10 +21,12 @@
 __IMS_TRACE_TAG_USER_DECL__("MED.CW");
 
 PUBLIC MediaNetworkConnectionWatcher::MediaNetworkConnectionWatcher(
-        IN const IPAddress& objIpAddress)
+        IN const IPAddress& objIpAddress) :
+        m_piListener(IMS_NULL),
+        m_pNetConnection(NetworkService::GetNetworkService()->FindConnection(objIpAddress)),
+        m_nMediaConnectionType(0),
+        m_nMtu(0)
 {
-    m_pListener = IMS_NULL;
-    m_pNetConnection = NetworkService::GetNetworkService()->FindConnection(objIpAddress);
     UpdateParameters(m_pNetConnection);
 
     if (m_pNetConnection != NULL)
@@ -46,11 +48,11 @@ PUBLIC MediaNetworkConnectionWatcher::~MediaNetworkConnectionWatcher()
 }
 
 PUBLIC void MediaNetworkConnectionWatcher::SetListener(
-        IN IMediaNetworkConnectionListener* pListener)
+        IN IMediaNetworkConnectionListener* piListener)
 {
     IMS_TRACE_D("SetListener()", 0, 0, 0);
 
-    m_pListener = pListener;
+    m_piListener = piListener;
 }
 
 PUBLIC void MediaNetworkConnectionWatcher::NetworkConnection_OnConnected(
@@ -172,9 +174,9 @@ PRIVATE void MediaNetworkConnectionWatcher::UpdateParameters(IN INetworkConnecti
     {
         m_nMediaConnectionType = nMediaConnectionType;
 
-        if (m_pListener != IMS_NULL)
+        if (m_piListener != IMS_NULL)
         {
-            m_pListener->OnNetworkConnectionChanged(m_nMediaConnectionType);
+            m_piListener->OnNetworkConnectionChanged(m_nMediaConnectionType);
         }
     }
 
@@ -182,19 +184,9 @@ PRIVATE void MediaNetworkConnectionWatcher::UpdateParameters(IN INetworkConnecti
     {
         m_nMtu = nMtu;
 
-        if (m_pListener != IMS_NULL)
+        if (m_piListener != IMS_NULL)
         {
-            m_pListener->OnMediaMtuChanged(nMtu);
+            m_piListener->OnMediaMtuChanged(nMtu);
         }
     }
-}
-
-IMS_SINT32 MediaNetworkConnectionWatcher::GetNetworkType()
-{
-    return m_nMediaConnectionType;
-}
-
-IMS_SINT32 MediaNetworkConnectionWatcher::GetMtu()
-{
-    return m_nMtu;
 }
