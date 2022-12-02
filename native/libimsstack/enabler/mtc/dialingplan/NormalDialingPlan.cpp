@@ -33,20 +33,20 @@
 __IMS_TRACE_TAG_COM_MTC__;
 
 PUBLIC GLOBAL AString& NormalDialingPlan::GetTranslatedUri(IN IMtcContext& objContext,
-        IN AString& strNumber, Scheme eScheme, IN ImsIdentityProxy& objIdentityProxy)
+        IN AString& strNumber, Scheme eScheme, IN const ImsIdentityProxy& objIdentityProxy)
 {
     return Translate(objContext, strNumber, eScheme, objIdentityProxy);
 }
 
-PUBLIC GLOBAL AString& NormalDialingPlan::GetTranslatedUriForDialString(
-        IN IMtcContext& objContext, IN AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
+PUBLIC GLOBAL AString& NormalDialingPlan::GetTranslatedUriForDialString(IN IMtcContext& objContext,
+        IN AString& strNumber, IN const ImsIdentityProxy& objIdentityProxy)
 {
     strNumber = objIdentityProxy.CreateSipUserIdWithDialString(strNumber, objContext.GetSlotId());
     return strNumber;
 }
 
 PRIVATE GLOBAL AString& NormalDialingPlan::Translate(IN IMtcContext& objContext,
-        IN_OUT AString& strNumber, IN Scheme eScheme, IN ImsIdentityProxy& objIdentityProxy)
+        IN_OUT AString& strNumber, IN Scheme eScheme, IN const ImsIdentityProxy& objIdentityProxy)
 {
     if (strNumber.GetLength() == 0)
     {
@@ -86,7 +86,7 @@ PRIVATE GLOBAL AString& NormalDialingPlan::Translate(IN IMtcContext& objContext,
 }
 
 PRIVATE GLOBAL void NormalDialingPlan::FormSipUri(IN IMtcContext& objContext,
-        IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
+        IN_OUT AString& strNumber, IN const ImsIdentityProxy& objIdentityProxy)
 {
     IMS_TRACE_I("FormSipUri", 0, 0, 0);
 
@@ -110,7 +110,7 @@ PRIVATE GLOBAL void NormalDialingPlan::FormSipUri(IN IMtcContext& objContext,
 }
 
 PRIVATE GLOBAL void NormalDialingPlan::FormTelUri(IN IMtcContext& objContext,
-        IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
+        IN_OUT AString& strNumber, IN const ImsIdentityProxy& objIdentityProxy)
 {
     IMS_TRACE_I("FormTelUri", 0, 0, 0);
 
@@ -160,7 +160,7 @@ PRIVATE GLOBAL void NormalDialingPlan::FormTelUriAsGlobal(
 }
 
 PRIVATE GLOBAL void NormalDialingPlan::FormTelUriAsLocal(IN IMtcContext& objContext,
-        IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy)
+        IN_OUT AString& strNumber, IN const ImsIdentityProxy& objIdentityProxy)
 {
     if (strNumber.StartsWith(TextParser::CHAR_PLUS))
     {

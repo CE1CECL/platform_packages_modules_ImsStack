@@ -191,7 +191,7 @@ void ReferenceInterfaceHolder::StopTimer(IN ITimer* piTimer)
 }
 
 PRIVATE
-ITimer* ReferenceInterfaceHolder::GetTimer(IN IReference* piReference) const
+ITimer* ReferenceInterfaceHolder::GetTimer(IN const IReference* piReference) const
 {
     IMS_UINT32 nSize = m_objReferenceTerminatedGuardTimers.GetSize();
     IMS_TRACE_D("GetTimer reference size = [%d]", nSize, 0, 0);

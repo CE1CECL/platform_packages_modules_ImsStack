@@ -830,7 +830,7 @@ void MtcMediaManager::SetNetworkToneRTPTimer(IN IMS_UINT32 eMediaTypes, IN IMS_U
 }
 
 PRIVATE
-void MtcMediaManager::SendAudioInfoToJava(IN ISession* piSession)
+void MtcMediaManager::SendAudioInfoToJava(IN const ISession* piSession)
 {
     UNUSED_PARAM(piSession);
     // IMS_EVENT_CALL_MEIDA_INFO, SlotId, MediaSession::GetNegotiatedQuality(), CodecBitrate()

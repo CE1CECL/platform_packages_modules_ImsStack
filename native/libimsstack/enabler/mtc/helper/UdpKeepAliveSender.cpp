@@ -48,7 +48,8 @@ PUBLIC VIRTUAL UdpKeepAliveSender::~UdpKeepAliveSender()
     m_pKeepAliveHelper->Destroy();
 }
 
-PUBLIC GLOBAL IMS_BOOL UdpKeepAliveSender::IsRequired(IN MtcConfigurationProxy& objConfigProxy)
+PUBLIC GLOBAL IMS_BOOL UdpKeepAliveSender::IsRequired(
+        IN const MtcConfigurationProxy& objConfigProxy)
 {
     return objConfigProxy.GetInt(Feature::SEND_UDP_KEEP_ALIVE_INTERVAL_TIME) > 0;
 }

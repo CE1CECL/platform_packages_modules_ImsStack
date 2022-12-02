@@ -68,7 +68,7 @@ private:
     IMS_RESULT StartTimer(IN ISubscription* piSubscription, IN IMS_SINT32 nDuration);
     void StopTimer(IN ITimer* piTimer);
 
-    ITimer* GetTimer(IN ISubscription* piSubscription) const;
+    ITimer* GetTimer(IN const ISubscription* piSubscription) const;
 
 private:
     IInterfaceHolderListener& m_objListener;

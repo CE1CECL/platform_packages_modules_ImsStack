@@ -428,14 +428,14 @@ IMSList<AString> IdleState::GetEntryUrisFromConferenceUsers(IN const IMSList<Con
 
 PRIVATE
 void IdleState::SetResourceListForConference(
-        IN_OUT IMessage& objMessage, IN IMSList<AString>& lstEntryUris)
+        IN_OUT IMessage& objMessage, IN const IMSList<AString>& lstEntryUris)
 {
     if (lstEntryUris.GetSize() == 0)
     {
         return;
     }
     objMessage.AddHeader(SipHeaderName::CONTENT_TYPE, "multipart/mixed");
-    // messageSender->SetResourceListsBody(pIMessage, AString::ConstNull(), lstEntryUris, IMS_TRUE);
+    // TODO: SetResourceListsBody(pIMessage, AString::ConstNull(), lstEntryUris, IMS_TRUE);
 }
 
 PRIVATE

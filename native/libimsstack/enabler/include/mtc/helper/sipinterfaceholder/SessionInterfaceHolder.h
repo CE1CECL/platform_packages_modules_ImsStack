@@ -80,7 +80,7 @@ private:
 
     IMS_RESULT StartTimer(IN ISession* piSession, IN IMS_SINT32 nDuration);
     void StopTimer(IN ITimer* piTimer);
-    ITimer* GetTimer(IN ISession* piSession) const;
+    ITimer* GetTimer(IN const ISession* piSession) const;
 
 private:
     IInterfaceHolderListener& m_objListener;

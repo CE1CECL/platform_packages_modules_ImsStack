@@ -120,7 +120,7 @@ private:
     QosTimer* GetQosTimer(IN ISession* piSession);
     QosStatusTable* GetQosStatusTable(IN ISession* piSession);
 
-    void HandleReservationFailureByTimerExpiration(IN QosTimer* pTimer);
+    void HandleReservationFailureByTimerExpiration(IN const QosTimer* pTimer);
     QosLossPolicy GetActionForQosLoss(IN ISession* piSession);
     void InitializeStatusForLostQos(IN ISession* piSession);
     void UpdateStatusRecords(IN ISession* piSession);

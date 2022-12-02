@@ -108,7 +108,7 @@ protected:
         ON_CALL(*pInfo, Parse(MALFORMED_EVENT_PACKAGE_BODY)).WillByDefault(Return(IMS_FALSE));
     }
 
-    void AddUserToInfo(IN AString& strEntity, IN IMS_UINT32 nStatus,
+    void AddUserToInfo(IN const AString& strEntity, IN IMS_UINT32 nStatus,
             IN IMS_UINT32 nState = ANY_STATE, IN AString strDisplayText = AString::ConstNull())
     {
         // assumption1 : User and Endpoint use same entity value

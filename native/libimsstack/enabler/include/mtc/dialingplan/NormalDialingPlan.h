@@ -52,21 +52,21 @@ public:
 
     // TODO: removing bAquot is for VZW GetEntryUri. should not be required.
     static AString& GetTranslatedUri(IN IMtcContext& objContext, IN_OUT AString& strNumber,
-            Scheme eScheme, IN ImsIdentityProxy& objIdentityProxy);
+            Scheme eScheme, IN const ImsIdentityProxy& objIdentityProxy);
     static AString& GetTranslatedUriForDialString(IN IMtcContext& objContext,
-            IN_OUT AString& strNumber, IN ImsIdentityProxy& objIdentityProxy);
+            IN_OUT AString& strNumber, IN const ImsIdentityProxy& objIdentityProxy);
 
 private:
     static AString& Translate(IN IMtcContext& objContext, IN_OUT AString& strNumber,
-            IN Scheme eScheme, IN ImsIdentityProxy& objIdentityProxy);
+            IN Scheme eScheme, IN const ImsIdentityProxy& objIdentityProxy);
 
     static void FormSipUri(IN IMtcContext& objContext, IN_OUT AString& strNumber,
-            IN ImsIdentityProxy& objIdentityProxy);
+            IN const ImsIdentityProxy& objIdentityProxy);
     static void FormTelUri(IN IMtcContext& objContext, IN_OUT AString& strNumber,
-            IN ImsIdentityProxy& objIdentityProxy);
+            IN const ImsIdentityProxy& objIdentityProxy);
     static void FormTelUriAsGlobal(IN IMtcContext& objContext, IN_OUT AString& strNumber);
     static void FormTelUriAsLocal(IN IMtcContext& objContext, IN_OUT AString& strNumber,
-            IN ImsIdentityProxy& objIdentityProxy);
+            IN const ImsIdentityProxy& objIdentityProxy);
 
     static IMS_BOOL IsVisualSeparator(IN IMS_CHAR ch);
     static IMS_BOOL IsNameAddress(IN const AString& strNumber);

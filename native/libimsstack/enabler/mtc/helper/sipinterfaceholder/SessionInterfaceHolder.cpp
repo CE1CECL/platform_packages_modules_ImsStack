@@ -201,7 +201,7 @@ void SessionInterfaceHolder::StopTimer(IN ITimer* piTimer)
 }
 
 PRIVATE
-ITimer* SessionInterfaceHolder::GetTimer(IN ISession* piSession) const
+ITimer* SessionInterfaceHolder::GetTimer(IN const ISession* piSession) const
 {
     IMS_UINT32 nSize = m_objTerminatedGuardTimers.GetSize();
     IMS_TRACE_D("GetTimer size = [%d]", nSize, 0, 0);

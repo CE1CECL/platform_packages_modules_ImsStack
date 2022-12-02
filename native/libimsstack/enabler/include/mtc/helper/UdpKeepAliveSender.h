@@ -32,7 +32,7 @@ public:
     UdpKeepAliveSender(IN const UdpKeepAliveSender&) = delete;
     UdpKeepAliveSender& operator=(IN const UdpKeepAliveSender&) = delete;
 
-    static IMS_BOOL IsRequired(IN MtcConfigurationProxy& objConfigProxy);
+    static IMS_BOOL IsRequired(IN const MtcConfigurationProxy& objConfigProxy);
 
     void Timer_TimerExpired(IN ITimer* piTimer) override;
     void Start();

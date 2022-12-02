@@ -156,7 +156,7 @@ public:
 private:
     void Put(IN ConferenceOperation* pOperation, IN IMS_BOOL bStandAloneOperation);
     void RemoveActiveOperation();
-    IMS_BOOL IsSameOperation(IN IMS_UINT32 nOperationType, IN ConfUser* pConfUser) const;
+    IMS_BOOL IsSameOperation(IN IMS_UINT32 nOperationType, IN const ConfUser* pConfUser) const;
     IMS_UINT32 GetAndResetDelay();
 
     IMS_RESULT StartTimer(IN IMS_SINT32 nDuration);
