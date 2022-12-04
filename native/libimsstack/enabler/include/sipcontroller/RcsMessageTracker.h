@@ -16,12 +16,6 @@
 #ifndef RCS_MESSAGE_TRACKER_H_
 #define RCS_MESSAGE_TRACKER_H_
 
-#include "ImsStateMachine.h"
-#include "ISipClientConnectionListener.h"
-#include "ISipConnectionFactory.h"
-#include "IURcsMessageService.h"
-class ICoreService;
-
 class RcsMessageTracker : public ImsStateMachine, public ISipClientConnectionListener
 {
     DECLARE_STATE_MAP()
