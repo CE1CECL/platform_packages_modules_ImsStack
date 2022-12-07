@@ -1188,7 +1188,7 @@ IMS_BOOL AosHandle::UpdateIpcan()
 }
 
 PROTECTED
-IMS_BOOL AosHandle::IsHandleBlocked(IN IMS_UINT32& nBlocks, IN IMS_UINT32 nType) const
+IMS_BOOL AosHandle::IsHandleBlocked(IN const IMS_UINT32& nBlocks, IN IMS_UINT32 nType) const
 {
     return (nBlocks & nType);
 }

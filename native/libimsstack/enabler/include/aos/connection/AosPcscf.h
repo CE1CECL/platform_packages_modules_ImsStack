@@ -55,7 +55,7 @@ public:
     }
 
     inline IMS_BOOL IsTried() { return m_bIsTried; }
-    inline void SetAddress(IN AString& strAddress) { m_strAddress = strAddress; }
+    inline void SetAddress(IN const AString& strAddress) { m_strAddress = strAddress; }
 
     inline void SetAvailable(IN IMS_BOOL bAvailable)
     {
@@ -255,7 +255,7 @@ protected:
 private:
     static const IMS_SINT32 DNS_QEUERY_RETRY_WAITING_TIME_MILLS = 4000;
     IMS_SINT32 GetPcscfPort();
-    void ProcessReorder(IN AString& strCurrentPcscf, IN AStringArray& objNewPcscfs);
+    void ProcessReorder(IN const AString& strCurrentPcscf, IN const AStringArray& objNewPcscfs);
     void UpdatePcscfs(IN const AStringArray& objPcscfs, IN IMS_SINT32 nPort);
 
 protected:

@@ -283,7 +283,7 @@ protected:
     }
 
     IMS_BOOL IsEqualCapabilities(IN const IMSMap<IMS_UINT32, IMS_UINT32>& objSrcCapabilities,
-            IN IMSMap<IMS_UINT32, IMS_UINT32>& objDestCapabilities)
+            IN const IMSMap<IMS_UINT32, IMS_UINT32>& objDestCapabilities)
     {
         if (objSrcCapabilities.GetSize() != objDestCapabilities.GetSize())
         {

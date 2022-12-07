@@ -104,7 +104,7 @@ public:
         return m_objMonitorListeners;
     }
 
-    void SetPuids(IN AStringArray& objPuids, IN IMS_UINT32 nType)
+    void SetPuids(IN const AStringArray& objPuids, IN IMS_UINT32 nType)
     {
         if (nType == IAosSubscriber::FAKE)
         {
@@ -162,7 +162,7 @@ public:
         }
     }
 
-    void SetImsIdentityPriority(IN IMSVector<IMS_SINT32> objImsIdentityPriority)
+    void SetImsIdentityPriority(IN const IMSVector<IMS_SINT32>& objImsIdentityPriority)
     {
         m_objImsIdentityPriority = objImsIdentityPriority;
     }

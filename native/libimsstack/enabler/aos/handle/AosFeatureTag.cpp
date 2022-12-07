@@ -306,7 +306,7 @@ void AosFeatureTagList::Copy(IN AosFeatureTagList& objSourceList)
 }
 
 PUBLIC
-void AosFeatureTagList::CopyFeatures(IN AosFeatureTagList& objSourceList)
+void AosFeatureTagList::CopyFeatures(IN const AosFeatureTagList& objSourceList)
 {
     m_nFeatures = objSourceList.m_nFeatures;
     m_nUnavailableFeatures = objSourceList.m_nUnavailableFeatures;

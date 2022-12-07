@@ -80,7 +80,7 @@ public:
 
     IMS_BOOL Equals(IN AosFeatureTagList& objTargetList);
     void Copy(IN AosFeatureTagList& objSourceList);
-    void CopyFeatures(IN AosFeatureTagList& objSourceList);
+    void CopyFeatures(IN const AosFeatureTagList& objSourceList);
     void CopyFeatureTags(IN IMSList<ImsAosFeatureTag*>& objFeatureTag);
 
     IMS_UINT32 GetSize();

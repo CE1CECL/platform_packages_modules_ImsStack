@@ -184,7 +184,7 @@ protected:
 
     IMS_BOOL IsHandleBlocked(IN IMS_UINT32 nBlock) { return m_pAosHandle->IsHandleBlocked(nBlock); }
 
-    IMS_BOOL IsHandleBlocked(IN IMS_UINT32& nBlocks, IN IMS_UINT32 nBlock) const
+    IMS_BOOL IsHandleBlocked(IN const IMS_UINT32& nBlocks, IN IMS_UINT32 nBlock) const
     {
         return m_pAosHandle->IsHandleBlocked(nBlocks, nBlock);
     }

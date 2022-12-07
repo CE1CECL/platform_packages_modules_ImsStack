@@ -219,7 +219,7 @@ protected:
     IMS_BOOL UpdateIpcan();
 
     IMS_BOOL IsHandleBlocked(IN IMS_UINT32 nType) const;
-    IMS_BOOL IsHandleBlocked(IN IMS_UINT32& nBlocks, IN IMS_UINT32 nType) const;
+    IMS_BOOL IsHandleBlocked(IN const IMS_UINT32& nBlocks, IN IMS_UINT32 nType) const;
 
     virtual IMS_BOOL IsHandleBlocked() const;
     virtual void ProcessBlockChanged();

@@ -941,7 +941,8 @@ IMS_SINT32 AosPcscf::GetPcscfPort()
 }
 
 PRIVATE
-void AosPcscf::ProcessReorder(IN AString& strCurrentPcscf, IN AStringArray& objNewPcscfs)
+void AosPcscf::ProcessReorder(
+        IN const AString& strCurrentPcscf, IN const AStringArray& objNewPcscfs)
 {
     A_IMS_TRACE_D(APPPROFILE, "ProcessReorder", 0, 0, 0);
 
