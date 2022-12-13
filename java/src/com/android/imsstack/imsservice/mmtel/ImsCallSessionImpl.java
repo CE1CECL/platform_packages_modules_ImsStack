@@ -4629,7 +4629,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                         mLocalCallProfile.setCallExtraBoolean(EXTRA_CALL_CONTROLLED_BY_IMS, true);
                         return true;
                     } catch (Throwable t) {
-                        t.printStackTrace();
+                        loge(t.toString());
                     }
                 }
             }
