@@ -375,8 +375,4 @@ public class ImsCallSessionCallbackTest extends ImsStackTest {
         mImsCallSessionCallback = null;
         mProfile = null;
     }
-
-    private void postAndRunTask(Runnable task) {
-        mMessageExecutor.execute(task);
-    }
 }
