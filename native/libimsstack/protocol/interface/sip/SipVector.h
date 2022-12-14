@@ -305,7 +305,8 @@ inline SIP_SLONG SipVector<T>::ReplaceAt(IN SIP_UINT32 nIndex)
         return (-1);
     }
 
-    mVector.at(nIndex) = std::is_pointer<T>::value ? nullptr : T();
+    auto element = std::is_pointer<T>::value ? nullptr : T();
+    mVector.at(nIndex) = element;
     return nIndex;
 }
 
