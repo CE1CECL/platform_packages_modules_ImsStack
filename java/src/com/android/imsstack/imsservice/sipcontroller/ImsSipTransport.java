@@ -38,6 +38,7 @@ import com.android.imsstack.imsservice.sipcontroller.sipdelegate.ActiveSipDelega
 import com.android.imsstack.imsservice.sipcontroller.sipdelegate.SipDelegateImpl;
 import com.android.imsstack.imsservice.sipcontroller.sipdelegate.SipDelegateRequestData;
 import com.android.imsstack.util.MessageExecutor;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -89,11 +90,20 @@ public class ImsSipTransport extends SipTransportImplBase {
      */
     public ImsSipTransport(int slotId, Context context, Executor sipTransportRequestExecutor,
             Executor callBackExecutor, ImsRegistrationImpl registration) {
+        this(slotId, context, sipTransportRequestExecutor, callBackExecutor, registration,
+                SipControllerAgent.getInstance(slotId));
+    }
+
+    @VisibleForTesting
+    public ImsSipTransport(int slotId, Context context, Executor sipTransportRequestExecutor,
+            Executor callBackExecutor, ImsRegistrationImpl registration,
+            SipControllerAgent sipControllerAgent) {
         super(sipTransportRequestExecutor);
         mCallBackExecutor = callBackExecutor;
         mSlotId = slotId;
         mContext = context;
         mImsRegistrationBaseImpl = registration;
+        mISipTransportRemote = sipControllerAgent;
         initializeSipTransport();
     }
     //END constructor methods
@@ -154,6 +164,25 @@ public class ImsSipTransport extends SipTransportImplBase {
         return new ImsSipTransport(slotId, context, new MessageExecutor("ImsSipTransport"),
                 callBackExecutor, registration);
     }
+
+    /**
+     * Create SipTransport for specific slot id.
+     *
+     * @param slotId for which sip transport belongs to
+     * @param context ims service context
+     * @param callBackExecutor executor used for callback method execution
+     * @param registration base registration to interact with sip transport
+     * @param sipControllerAgent SipControllerAgent Agent for SIPTransport
+     * @return sip transport implementation for specified slot id.
+     */
+    @VisibleForTesting
+    public static ImsSipTransport createImsSipTransport(int slotId, Context context,
+            Executor callBackExecutor, ImsRegistrationImpl registration,
+            SipControllerAgent sipControllerAgent) {
+        return new ImsSipTransport(slotId, context, new MessageExecutor("ImsSipTransport"),
+                callBackExecutor, registration, sipControllerAgent);
+    }
+
 
     /**
      * Update config for all the active sip delegates.
@@ -270,7 +299,6 @@ public class ImsSipTransport extends SipTransportImplBase {
             Log.w(LOG_TAG, "mImsRegistrationBaseImpl is null");
         }
         //SipTransportController initialization
-        mISipTransportRemote = SipControllerAgent.getInstance(mSlotId);
         mRemoteListener = new SipTransportRemoteListener();
         mISipTransportRemote.setSipTransportListener(mRemoteListener);
     }

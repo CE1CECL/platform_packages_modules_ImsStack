@@ -18,8 +18,10 @@ package com.android.imsstack.imsservice.mmtel;
 
 import android.content.Context;
 
+import com.android.imsstack.enabler.sipcontroller.impl.SipControllerAgent;
 import com.android.imsstack.imsservice.sipcontroller.ImsSipTransport;
 import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
+import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -35,8 +37,8 @@ public class ImsServiceRecordTest {
     private ImsServiceRegistry mImsServiceRegistry;
     private Executor mExecutor;
     private ImsMmTelService mImsMmTelService;
-    private ImsServiceRecord mImsServiceRecord;
-
+    private TestImsServiceRecord mImsServiceRecord;
+    private SipControllerAgent mSipControllerAgent;
     @Before
     public void setUp() {
         mMockContext = Mockito.mock(Context.class);
@@ -44,9 +46,11 @@ public class ImsServiceRecordTest {
         mImsCallApp = Mockito.mock(ImsCallApp.class);
         mImsMmTelService = Mockito.mock(ImsMmTelService.class);
         mImsServiceRegistry = Mockito.mock(ImsServiceRegistry.class);
+        AppContext.init(mMockContext);
         int phoneId = 1;
-        mImsServiceRecord = new ImsServiceRecord(mMockContext, mExecutor, phoneId);
+        mImsServiceRecord = new TestImsServiceRecord(mMockContext, mExecutor, phoneId);
         mImsServiceRecord.setListener(mImsMmTelService);
+        mSipControllerAgent = Mockito.mock(SipControllerAgent.class);
     }
 
     @Test
@@ -125,4 +129,25 @@ public class ImsServiceRecordTest {
     public void cleanUp() {
         mImsServiceRecord = null;
     }
+
+    class TestImsServiceRecord extends ImsServiceRecord {
+        private final Object mLock = new Object();
+        ImsSipTransport mSipTransport;
+        int mPhoneId = -1;
+        TestImsServiceRecord(Context context, Executor executor, int phoneId) {
+            super(context, executor, phoneId);
+            mPhoneId = phoneId;
+        }
+
+        public ImsSipTransport getSipTransport() {
+            synchronized (mLock) {
+                if (mSipTransport == null) {
+                    mSipTransport = ImsSipTransport.createImsSipTransport(mPhoneId,
+                            mMockContext, mExecutor, getRegistration(), mSipControllerAgent);
+                }
+                return mSipTransport;
+            }
+        }
+    }
+
 }
