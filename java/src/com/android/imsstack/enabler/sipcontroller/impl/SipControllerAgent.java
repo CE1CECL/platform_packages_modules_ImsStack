@@ -79,7 +79,8 @@ public class SipControllerAgent implements ISipTransportRemote, JniImsListener {
 
         mSlotId = slotId;
         mSubId = MSimUtils.getSubId(slotId);
-        initService(slotId);
+        // to avoid crash
+        //initService(slotId);
         mSipMsgMap = new HashMap<>();
     }
 
