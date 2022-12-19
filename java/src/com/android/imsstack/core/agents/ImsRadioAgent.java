@@ -21,9 +21,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.telephony.BarringInfo;
 import android.telephony.BarringInfo.BarringServiceInfo;
+import android.telephony.ims.feature.MmTelFeature;
 
 import com.android.imsstack.core.agents.dcm.DcFactory;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
+import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
 import com.android.imsstack.system.IJNIUpCallEvt;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.JNIUpCallEvtManager;
@@ -195,7 +197,16 @@ public class ImsRadioAgent implements ImsRadioInterface, SystemRadioInterface {
     @Override
     public int triggerEpsFallback(int reason) {
         ImsLog.d(mSlotId, "triggerEpsFallback - reason=" + reason);
-        return SystemRadioInterface.RESULT_OK;
+
+        ImsServiceRegistry isr = ImsServiceRegistry.getInstance(mSlotId);
+        MmTelFeature mtf = isr.getMmTelFeature();
+
+        if (mtf != null) {
+            mtf.triggerEpsFallback(reason);
+            return SystemRadioInterface.RESULT_OK;
+        }
+
+        return SystemRadioInterface.RESULT_ERROR;
     }
 
     private static IDcNetWatcher getDcNetWatcher(int slotId) {
