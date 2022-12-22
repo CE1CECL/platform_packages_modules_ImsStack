@@ -27,6 +27,7 @@ extern SIP_BOOL MockFsm_FetchTransaction(SIP_VOID*, SIP_INT32, SIP_VOID**, SIP_V
 extern SIP_BOOL MockFsm_StartTimer(SIP_UINT32, SipTimerCallback, SIP_VOID*, SIP_VOID**);
 extern SIP_BOOL MockFsm_ReleaseTransaction(SIP_VOID*, SIP_INT32, SIP_VOID**, SIP_VOID**);
 extern SIP_VOID* MockFsm_CreateAckRequest(SIP_VOID*, ISipUserData*);
+extern SIP_VOID MockFsm_ResetTimerCount();
 
 namespace android
 {
@@ -80,6 +81,7 @@ CSeq: 1 INVITE\r\n\
         };
 
         SipStackCallback_SetCallbacks(stTestCallbacks);
+        MockFsm_ResetTimerCount();
     }
 
     virtual void TearDown() override
@@ -166,18 +168,14 @@ TEST_F(Sip_txn_InvSerFsmTest, InvSer_ProceedingState)
     delete pTxnFsmData;
 
     pTxnFsmData = new SipTxnFsmData(pRespSipMsg, pSipTranspParam, pSipUserData);
-    /* Calling with resp msg */
-    EXPECT_EQ(SIP_TRUE,
-            gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
-                              [SipTxn::INV_SER_SEND_NON_100_PROV_RESP_EVT](
-                                      pTxn, pTxnFsmData, &nError));
-    /* Calling once time to make startTimer for TimerG failure */
+
+    /* Calling once timer to make startTimer for TimerG failure */
     EXPECT_EQ(SIP_FALSE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_SEND_NON_100_PROV_RESP_EVT](
                                       pTxn, pTxnFsmData, &nError));
 
-    /* Calling once to make startTimer for TimerG success */
+    /* Calling again to make startTimer for TimerG success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_SEND_3XX_6XX_FAILURE_RESP_EVT](
@@ -206,22 +204,22 @@ TEST_F(Sip_txn_InvSerFsmTest, InvSer_ProceedingState)
 
     pTranspInfo->SetMsgSentTranspParam(pSipSendTranspParam);
     pTxn->UpdateTranspInfo(pTranspInfo);
-    /* Calling once time to make startTimer for Timer G success */
+    /* Calling once timer to make startTimer for Timer G success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_SEND_3XX_6XX_FAILURE_RESP_EVT](
                                       pTxn, pTxnFsmData, &nError));
-    /* Calling once time to make startTimer for Timer G fail */
+    /* Calling again timer to make startTimer for Timer G fail */
     EXPECT_EQ(SIP_FALSE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_SEND_3XX_6XX_FAILURE_RESP_EVT](
                                       pTxn, pTxnFsmData, &nError));
-    /* Calling once time to make startTimer for Timer H success */
+    /* Calling once timer to make startTimer for Timer H success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_SEND_2XX_SUCCESS_RESP_EVT](
                                       pTxn, pTxnFsmData, &nError));
-    /* Calling once time to make startTimer for Timer H fail */
+    /* Calling again timer to make startTimer for Timer H fail */
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_SEND_2XX_SUCCESS_RESP_EVT](
@@ -242,7 +240,7 @@ TEST_F(Sip_txn_InvSerFsmTest, InvSer_ProceedingState)
     pTxn->SetMaxDuration(4000);
     pTxn->SetCurrentDuration(2000);
     SipTimeoutData* pTimeoutData = new SipTimeoutData(SipTxn::INV_SER_TXN, SipTxn::TIMERG, pTxnKey);
-    /* Calling once time to make startTimer for Timer G return success */
+    /* Calling once timer to make startTimer for Timer G return success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_TIMER_G_H_TIME_OUT_EVT](
@@ -250,7 +248,7 @@ TEST_F(Sip_txn_InvSerFsmTest, InvSer_ProceedingState)
 
     pTxn->SetMaxDuration(8000);
     pTxn->SetCurrentDuration(2000);
-    /* Calling once time to make startTimer for Timer G fail */
+    /* Calling again timer to make startTimer for Timer G fail */
     EXPECT_EQ(SIP_FALSE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_PROCEEDING_ST]
                               [SipTxn::INV_SER_TIMER_G_H_TIME_OUT_EVT](
@@ -288,13 +286,13 @@ TEST_F(Sip_txn_InvSerFsmTest, InvSer_CompletedState)
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_COMPLETED_ST][SipTxn::INV_SER_TRANSP_ERROR_EVT](
                     pTxn, pTxnFsmData, &nError));
 
-    /* Calling once time to make startTimer for Timer I return success */
-    EXPECT_EQ(SIP_TRUE,
+    /* Calling once timer to make startTimer for Timer I return fail */
+    EXPECT_EQ(SIP_FALSE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_COMPLETED_ST][SipTxn::INV_SER_RECV_ACK_REQ_EVT](
                     pTxn, pTxnFsmData, &nError));
 
-    /* Calling once time to make startTimer for Timer I return fail */
-    EXPECT_EQ(SIP_FALSE,
+    /* Calling again timer to make startTimer for Timer I return success */
+    EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_COMPLETED_ST][SipTxn::INV_SER_RECV_ACK_REQ_EVT](
                     pTxn, pTxnFsmData, &nError));
 
@@ -343,14 +341,21 @@ TEST_F(Sip_txn_InvSerFsmTest, InvSer_CompletedState)
 
     pTxn->SetMaxDuration(4000);
     pTxn->SetCurrentDuration(2000);
-    /* Calling once time to make startTimer for Timer G return success */
+    /* Calling once timer to make startTimer for Timer G return failure */
+    EXPECT_EQ(SIP_FALSE,
+            gpfSipInvSerTxnFsm[SipTxn::INV_SER_COMPLETED_ST]
+                              [SipTxn::INV_SER_TIMER_G_H_TIME_OUT_EVT](pTxn, pTxnFsmData, &nError));
+
+    pTxn->SetMaxDuration(4000);
+    pTxn->SetCurrentDuration(2000);
+    /* Calling again timer to make startTimer for Timer G return success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_COMPLETED_ST]
                               [SipTxn::INV_SER_TIMER_G_H_TIME_OUT_EVT](pTxn, pTxnFsmData, &nError));
 
     pTxn->SetMaxDuration(8000);
     pTxn->SetCurrentDuration(2000);
-    /* Calling once time to make startTimer for Timer G return fail */
+    /* Calling once timer to make startTimer for Timer G return fail */
     EXPECT_EQ(SIP_FALSE,
             gpfSipInvSerTxnFsm[SipTxn::INV_SER_COMPLETED_ST]
                               [SipTxn::INV_SER_TIMER_G_H_TIME_OUT_EVT](pTxn, pTxnFsmData, &nError));
