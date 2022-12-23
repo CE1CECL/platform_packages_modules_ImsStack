@@ -18,6 +18,7 @@
 #include "txn/SipTxn.h"
 #include "include/MockSipTransaction.h"
 
+static int count = 0;
 SipVector<MockSipTransaction*> objFsmTxnList;
 SIP_BOOL MockFsm_FetchTransaction(
         SIP_VOID* pvTxnKey, SIP_INT32 nOption, SIP_VOID** /*ppvOutTxnKey*/, SIP_VOID** ppvTxn)
@@ -94,7 +95,6 @@ SIP_BOOL MockFsm_FetchTransaction(
 */
 SIP_BOOL MockFsm_StartTimer(SIP_UINT32, SipTimerCallback, SIP_VOID*, SIP_VOID**)
 {
-    static int count = 0;
     if (count == 0)
     {
         count++;
@@ -139,4 +139,9 @@ SIP_BOOL MockFsm_ReleaseTransaction(SIP_VOID* pvTxnKey, SIP_INT32, SIP_VOID** pp
 SIP_VOID* MockFsm_CreateAckRequest(SIP_VOID*, ISipUserData*)
 {
     return SIP_NULL;
+}
+
+SIP_VOID MockFsm_ResetTimerCount()
+{
+    count = 0;
 }

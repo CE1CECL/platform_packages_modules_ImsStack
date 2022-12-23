@@ -26,6 +26,7 @@
 extern SIP_BOOL MockFsm_FetchTransaction(SIP_VOID*, SIP_INT32, SIP_VOID**, SIP_VOID**);
 extern SIP_BOOL MockFsm_StartTimer(SIP_UINT32, SipTimerCallback, SIP_VOID*, SIP_VOID**);
 extern SIP_BOOL MockFsm_ReleaseTransaction(SIP_VOID*, SIP_INT32, SIP_VOID**, SIP_VOID**);
+extern SIP_VOID MockFsm_ResetTimerCount();
 
 namespace android
 {
@@ -65,6 +66,7 @@ CSeq: 1 REGISTER\r\n\
         };
 
         SipStackCallback_SetCallbacks(stTestCallbacks);
+        MockFsm_ResetTimerCount();
     }
 
     virtual void TearDown() override
@@ -87,25 +89,9 @@ TEST_F(Sip_txn_NonInvCliFsmTest, NonInvCli_IdleState)
     ISipUserData* pSipUserData = new ISipUserData(SIP_NULL);
     SipTransportParameter* pSipTranspParam = new SipTransportParameter(
             const_cast<char*>("192.168.35.156"), 5060, SipTransportInfo::PROTOCOL_UDP);
-    SipTxnFsmData* pTxnFsmData = new SipTxnFsmData(pSipMsg, pSipTranspParam, pSipUserData);
+    SipTxnFsmData* pTxnFsmData = new SipTxnFsmData(pSipMsg, pSipTranspParam, SIP_NULL);
     SipTxnKey* pTxnKey = new SipTxnKey(pSipMsg, &nError);
     SipTxn* pTxn = new SipTxn(SipTxn::NON_INV_CLI_TXN, pTxnKey, pSipMsg, SIP_NULL, &nError);
-
-    EXPECT_EQ(SIP_TRUE,
-            gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_IDLE_ST]
-                                    [SipTxn::NON_INV_CLI_SEND_NON_INV_REQ_EVT](
-                                            pTxn, pTxnFsmData, &nError));
-
-    pTxn->SipDelete();
-    delete pSipTranspParam;
-    delete pTxnFsmData;
-    delete pTxnKey;
-
-    pSipTranspParam = new SipTransportParameter(
-            const_cast<char*>("192.168.35.156"), 5060, SipTransportInfo::PROTOCOL_UDP);
-    pTxnFsmData = new SipTxnFsmData(pSipMsg, pSipTranspParam, SIP_NULL);
-    pTxnKey = new SipTxnKey(pSipMsg, &nError);
-    pTxn = new SipTxn(SipTxn::NON_INV_CLI_TXN, pTxnKey, pSipMsg, SIP_NULL, &nError);
 
     /* Calling with null SipUserData */
     EXPECT_EQ(SIP_FALSE,
@@ -114,6 +100,22 @@ TEST_F(Sip_txn_NonInvCliFsmTest, NonInvCli_IdleState)
                                             pTxn, pTxnFsmData, &nError));
 
     pTxn->RemoveFromTxnPool();
+    pTxn->SipDelete();
+    delete pSipTranspParam;
+    delete pTxnFsmData;
+    delete pTxnKey;
+
+    pSipTranspParam = new SipTransportParameter(
+            const_cast<char*>("192.168.35.156"), 5060, SipTransportInfo::PROTOCOL_UDP);
+    pTxnFsmData = new SipTxnFsmData(pSipMsg, pSipTranspParam, pSipUserData);
+    pTxnKey = new SipTxnKey(pSipMsg, &nError);
+    pTxn = new SipTxn(SipTxn::NON_INV_CLI_TXN, pTxnKey, pSipMsg, SIP_NULL, &nError);
+
+    EXPECT_EQ(SIP_TRUE,
+            gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_IDLE_ST]
+                                    [SipTxn::NON_INV_CLI_SEND_NON_INV_REQ_EVT](
+                                            pTxn, pTxnFsmData, &nError));
+
     pTxn->SipDelete();
     delete pSipTranspParam;
     delete pTxnFsmData;
@@ -130,14 +132,13 @@ TEST_F(Sip_txn_NonInvCliFsmTest, NonInvCli_IdleState)
     pTxnFsmData = new SipTxnFsmData(pSipMsg, pSipTranspParam, pSipUserData);
     pTxnKey = new SipTxnKey(pSipMsg, &nError);
     pTxn = new SipTxn(SipTxn::NON_INV_CLI_TXN, pTxnKey, pSipMsg, SIP_NULL, &nError);
-    /* Calling once time to make startTimer for Timer F return success */
-    EXPECT_EQ(SIP_TRUE,
+    /* Calling once timer to make startTimer for Timer F return fail */
+    EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_IDLE_ST]
                                     [SipTxn::NON_INV_CLI_SEND_NON_INV_REQ_EVT](
                                             pTxn, pTxnFsmData, &nError));
-
-    /* Calling once time to make startTimer for Timer F return fail */
-    EXPECT_EQ(SIP_FALSE,
+    /* Calling again timer to make startTimer for Timer F return success */
+    EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_IDLE_ST]
                                     [SipTxn::NON_INV_CLI_SEND_NON_INV_REQ_EVT](
                                             pTxn, pTxnFsmData, &nError));
@@ -184,14 +185,13 @@ TEST_F(Sip_txn_NonInvCliFsmTest, NonInvCli_TryingState)
                                     [SipTxn::NON_INV_CLI_RECV_1XX_RESP_EVT](
                                             pTxn, pTxnFsmData, &nError));
 
-    /* Calling to make Timer K return success */
-    EXPECT_EQ(SIP_TRUE,
+    /* Calling once timer to make startTimer for Timer K return fail */
+    EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
                                     [SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT](
                                             pTxn, pTxnFsmData, &nError));
-
-    /* Calling once time to make startTimer for Timer K return fail */
-    EXPECT_EQ(SIP_FALSE,
+    /* Calling to make Timer K return success */
+    EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
                                     [SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT](
                                             pTxn, pTxnFsmData, &nError));
@@ -236,15 +236,18 @@ TEST_F(Sip_txn_NonInvCliFsmTest, NonInvCli_ProceedingState)
             gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_PROCEEDING_ST]
                                     [SipTxn::NON_INV_CLI_TIMER_E_F_TIME_OUT_EVT](
                                             pTxn, pTxnFsmData, &nError));
-
     pTxn->SetMaxDuration(4000);
     pTxn->SetTxnState(SipTxn::NON_INV_CLI_PROCEEDING_ST);
-
+    EXPECT_EQ(SIP_FALSE,
+            gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_PROCEEDING_ST]
+                                    [SipTxn::NON_INV_CLI_TIMER_E_F_TIME_OUT_EVT](
+                                            pTxn, pTxnFsmData, &nError));
+    pTxn->SetMaxDuration(4000);
+    pTxn->SetTxnState(SipTxn::NON_INV_CLI_PROCEEDING_ST);
     EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_PROCEEDING_ST]
                                     [SipTxn::NON_INV_CLI_TIMER_E_F_TIME_OUT_EVT](
                                             pTxn, pTxnFsmData, &nError));
-
     delete pTxnKey;
     pTxn->SipDelete();
     delete pTxnFsmData;
@@ -305,18 +308,16 @@ TEST_F(Sip_txn_NonInvCliFsmTest, NonInvCli_ProceedingState)
     pTranspInfo->SetMsgSentTranspParam(pSipSendTranspParam);
     pTxn->UpdateTranspInfo(pTranspInfo);
 
-    /* Calling once time to make startTimer for Timer K return fail */
+    /* Calling timer to make startTimer for Timer K return fail */
     EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_PROCEEDING_ST]
                                     [SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT](
                                             pTxn, pTxnFsmData, &nError));
-
-    /* Calling once time to make startTimer for Timer K return success */
+    /* Calling timer to make startTimer for Timer K return success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvClientTxnFsm[SipTxn::NON_INV_CLI_PROCEEDING_ST]
                                     [SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT](
                                             pTxn, pTxnFsmData, &nError));
-
     delete pTxnKey;
     pTxn->SipDelete();
     delete pTxnFsmData;

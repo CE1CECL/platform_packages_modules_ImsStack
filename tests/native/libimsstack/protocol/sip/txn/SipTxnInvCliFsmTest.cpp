@@ -27,6 +27,7 @@ extern SIP_BOOL MockFsm_FetchTransaction(SIP_VOID*, SIP_INT32, SIP_VOID**, SIP_V
 extern SIP_BOOL MockFsm_StartTimer(SIP_UINT32, SipTimerCallback, SIP_VOID*, SIP_VOID**);
 extern SIP_BOOL MockFsm_ReleaseTransaction(SIP_VOID*, SIP_INT32, SIP_VOID**, SIP_VOID**);
 extern SIP_VOID* MockFsm_CreateAckRequest(SIP_VOID*, ISipUserData*);
+extern SIP_VOID MockFsm_ResetTimerCount();
 
 namespace android
 {
@@ -85,6 +86,7 @@ CSeq: 1 INVITE\r\n\
         };
 
         SipStackCallback_SetCallbacks(stTestCallbacks);
+        MockFsm_ResetTimerCount();
     }
 
     virtual void TearDown() override
@@ -185,21 +187,20 @@ TEST_F(Sip_txn_InvCliFsmTest, InvCli_CallingState)
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
                                  [SipTxn::INV_CLI_TIMERA_B_TIME_OUT_EVT](
                                          pTxn, pTxnFsmData, &nError));
-
-    pTxn->SetMaxDuration(4000);
+    pTxn->SetMaxDuration(8000);
     pTxn->SetTxnState(SipTxn::INV_CLI_CALLING_ST);
     /* Increase max duration to continue retransmission timer A
-       first time calling starttimer to make timer A return success */
-    EXPECT_EQ(SIP_TRUE,
+       calling starttimer once to make timer A return failure */
+    EXPECT_EQ(SIP_FALSE,
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
                                  [SipTxn::INV_CLI_TIMERA_B_TIME_OUT_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
-    pTxn->SetMaxDuration(8000);
+    pTxn->SetMaxDuration(4000);
     pTxn->SetTxnState(SipTxn::INV_CLI_CALLING_ST);
     /* Increase max duration to continue retransmission timer A
-       second time calling starttimer to make timer A return failure */
-    EXPECT_EQ(SIP_FALSE,
+       calling starttimer again to make timer A return success */
+    EXPECT_EQ(SIP_TRUE,
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
                                  [SipTxn::INV_CLI_TIMERA_B_TIME_OUT_EVT](
                                          pTxn, pTxnFsmData, &nError));
@@ -246,18 +247,17 @@ TEST_F(Sip_txn_InvCliFsmTest, InvCli_CallingState)
     pTranspInfo->SetMsgSentTranspParam(pSipSendTranspParam);
     pTxn->UpdateTranspInfo(pTranspInfo);
 
-    /* Calling once to make startTimer for timer D success */
-    EXPECT_EQ(SIP_TRUE,
-            gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
-                                 [SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT](
-                                         pTxn, pTxnFsmData, &nError));
-
-    /* Calling again to make startTimer for timer D failure */
+    /* Calling once to make startTimer for timer D failure */
     EXPECT_EQ(SIP_FALSE,
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
                                  [SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
+    /* Calling again to make startTimer for timer D success */
+    EXPECT_EQ(SIP_TRUE,
+            gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST]
+                                 [SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT](
+                                         pTxn, pTxnFsmData, &nError));
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_CALLING_ST][SipTxn::INV_CLI_TRANSP_ERROR_EVT](
                     pTxn, pTxnFsmData, &nError));
@@ -383,17 +383,18 @@ RSeq: 2\r\n\
     EXPECT_EQ(SIP_TRUE,
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_PROCEEDING_ST][SipTxn::INV_CLI_RECV_2XX_RESP_EVT](
                     pTxn, pTxnFsmData, &nError));
-    /* Calling once to make startTimer for timer D success */
-    EXPECT_EQ(SIP_TRUE,
-            gpfSipInvClientTxnFsm[SipTxn::INV_CLI_PROCEEDING_ST]
-                                 [SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT](
-                                         pTxn, pTxnFsmData, &nError));
-    /* Calling again to make startTimer for timer D failure */
+
+    /* Calling once to make startTimer for timer D failure */
     EXPECT_EQ(SIP_FALSE,
             gpfSipInvClientTxnFsm[SipTxn::INV_CLI_PROCEEDING_ST]
                                  [SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
+    /* Calling again to make startTimer for timer D success */
+    EXPECT_EQ(SIP_TRUE,
+            gpfSipInvClientTxnFsm[SipTxn::INV_CLI_PROCEEDING_ST]
+                                 [SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT](
+                                         pTxn, pTxnFsmData, &nError));
     delete pTxnKey;
     pTxn->SipDelete();
     delete pTxnFsmData;
