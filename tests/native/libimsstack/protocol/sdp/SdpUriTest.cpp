@@ -57,6 +57,7 @@ TEST_F(SdpUriTest, OperatorAssignment)
 
     SdpUri objNewUri;
     objNewUri = objUri;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewUri.GetValue(), objUri.GetValue());
 }
 

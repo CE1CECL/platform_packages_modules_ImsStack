@@ -143,6 +143,7 @@ TEST_F(SdpTimezoneTest, OperatorAssignment)
     {
         const SdpTimezone::ZoneAdjustment& objZa1 = objNewTimezone.GetAdjustments().GetAt(i);
         const SdpTimezone::ZoneAdjustment& objZa2 = objTimezone.GetAdjustments().GetAt(i);
+        // cppcheck-suppress knownConditionTrueFalse
         EXPECT_EQ(objZa1, objZa2);
     }
 }

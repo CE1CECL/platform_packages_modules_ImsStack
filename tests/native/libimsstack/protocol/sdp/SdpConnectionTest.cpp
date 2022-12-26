@@ -144,7 +144,9 @@ TEST_F(SdpConnectionTest, OperatorAssignment)
 
     SdpConnection objNewConnection;
     objNewConnection = objConnection;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewConnection.GetAddressType(), objConnection.GetAddressType());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewConnection.GetAddress(), objConnection.GetAddress());
 }
 

@@ -129,8 +129,11 @@ TEST_F(SdpEncryptionKeyTest, OperatorAssignment)
 
     SdpEncryptionKey objNewEncryptionKey;
     objNewEncryptionKey = objEncryptionKey;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewEncryptionKey.GetMethod(), objEncryptionKey.GetMethod());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewEncryptionKey.GetKey(), objEncryptionKey.GetKey());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewEncryptionKey.GetValue(), objEncryptionKey.GetValue());
 }
 

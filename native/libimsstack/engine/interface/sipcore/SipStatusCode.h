@@ -25,6 +25,7 @@
 class SipStatusCode
 {
 public:
+    // cppcheck-suppress noExplicitConstructor
     SipStatusCode(IN IMS_SINT32 nCode = SC_INVALID);
     SipStatusCode(IN IMS_SINT32 nCode, IN const IMS_CHAR* pszReasonPhrase);
     SipStatusCode(IN const SipStatusCode& other);

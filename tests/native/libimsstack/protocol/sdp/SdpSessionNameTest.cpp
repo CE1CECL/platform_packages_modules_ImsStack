@@ -61,6 +61,7 @@ TEST_F(SdpSessionNameTest, OperatorAssignment)
 
     SdpSessionName objNewSessionName;
     objNewSessionName = objSessionName;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewSessionName.GetValue(), objSessionName.GetValue());
 }
 

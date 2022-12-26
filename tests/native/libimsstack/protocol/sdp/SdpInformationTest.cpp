@@ -57,6 +57,7 @@ TEST_F(SdpInformationTest, OperatorAssignment)
 
     SdpInformation objNewInformation;
     objNewInformation = objInformation;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewInformation.GetValue(), objInformation.GetValue());
 }
 
