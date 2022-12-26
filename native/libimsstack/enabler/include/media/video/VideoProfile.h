@@ -307,25 +307,27 @@ public:
 
         Payload& operator=(IN const Payload& obj)
         {
-            this->objRtpMap = obj.objRtpMap;
-
-            deleteFmtp();
-
-            if (objRtpMap.strPayloadType.Equals("H264"))
+            if (this != &obj)
             {
-                pFmtp = new VideoProfile::AvcFmtp(
-                        reinterpret_cast<VideoProfile::AvcFmtp*>(obj.pFmtp));
-            }
-            else if (objRtpMap.strPayloadType.Equals("H265"))
-            {
-                pFmtp = new VideoProfile::HevcFmtp(
-                        reinterpret_cast<VideoProfile::HevcFmtp*>(obj.pFmtp));
-            }
+                this->objRtpMap = obj.objRtpMap;
+                deleteFmtp();
 
-            this->bIncludeImageAttr = obj.bIncludeImageAttr;
-            this->bIncludeFrameSize = obj.bIncludeFrameSize;
-            this->strImageAttr = obj.strImageAttr;
-            this->objRtcpFbAttr = obj.objRtcpFbAttr;
+                if (objRtpMap.strPayloadType.Equals("H264"))
+                {
+                    pFmtp = new VideoProfile::AvcFmtp(
+                            reinterpret_cast<VideoProfile::AvcFmtp*>(obj.pFmtp));
+                }
+                else if (objRtpMap.strPayloadType.Equals("H265"))
+                {
+                    pFmtp = new VideoProfile::HevcFmtp(
+                            reinterpret_cast<VideoProfile::HevcFmtp*>(obj.pFmtp));
+                }
+
+                this->bIncludeImageAttr = obj.bIncludeImageAttr;
+                this->bIncludeFrameSize = obj.bIncludeFrameSize;
+                this->strImageAttr = obj.strImageAttr;
+                this->objRtcpFbAttr = obj.objRtcpFbAttr;
+            }
 
             return *this;
         }

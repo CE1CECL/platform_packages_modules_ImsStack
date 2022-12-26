@@ -118,12 +118,15 @@ public:
 
         Payload& operator=(IN const Payload& obj)
         {
-            this->objRtpMap = obj.objRtpMap;
-
-            if (objRtpMap.strPayloadType.Equals("red"))
+            if (this != &obj)
             {
-                pFmtp = new TextProfile::RedFmtp(
-                        *reinterpret_cast<TextProfile::RedFmtp*>(obj.pFmtp));
+                this->objRtpMap = obj.objRtpMap;
+
+                if (objRtpMap.strPayloadType.Equals("red"))
+                {
+                    pFmtp = new TextProfile::RedFmtp(
+                            *reinterpret_cast<TextProfile::RedFmtp*>(obj.pFmtp));
+                }
             }
 
             return *this;
