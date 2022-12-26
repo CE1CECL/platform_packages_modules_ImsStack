@@ -270,11 +270,15 @@ PUBLIC GLOBAL AString Sdp::IncreaseSessionVersion(IN const AString& strValue)
 
         if (objChar == '9')
         {
+            // Character replacement.
+            // cppcheck-suppress unreadVariable
             objChar = '0';
         }
         else
         {
             const IMS_CHAR ch = objChar;
+            // Character replacement.
+            // cppcheck-suppress unreadVariable
             objChar = ch + 1;
             break;
         }

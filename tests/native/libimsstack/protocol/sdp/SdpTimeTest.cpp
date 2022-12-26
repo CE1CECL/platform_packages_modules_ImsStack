@@ -65,7 +65,9 @@ TEST_F(SdpTimeTest, OperatorAssignment)
 
     SdpTime objNewTime;
     objNewTime = objTime;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewTime.GetStartTime(), objTime.GetStartTime());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewTime.GetStopTime(), objTime.GetStopTime());
 }
 

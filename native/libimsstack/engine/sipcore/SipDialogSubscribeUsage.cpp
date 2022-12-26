@@ -293,6 +293,7 @@ PUBLIC GLOBAL IMS_SINT32 SipDialogSubscribeUsage::GetNextState(
         return SipDState::STATE_MAX;
     }
 
+    // cppcheck-suppress arrayIndexOutOfBoundsCond
     return STATE_TABLE[nState][nTrigger];
 }
 

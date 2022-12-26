@@ -196,11 +196,17 @@ TEST_F(SdpOriginTest, OperatorAssignment)
 
     SdpOrigin objNewOrigin;
     objNewOrigin = objOrigin;
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewOrigin.GetUsername(), objOrigin.GetUsername());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewOrigin.GetSessionId(), objOrigin.GetSessionId());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewOrigin.GetSessionVersion(), objOrigin.GetSessionVersion());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewOrigin.GetAddressType(), objOrigin.GetAddressType());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewOrigin.GetAddressTypeToString(), objOrigin.GetAddressTypeToString());
+    // cppcheck-suppress knownConditionTrueFalse
     EXPECT_EQ(objNewOrigin.GetAddress(), objOrigin.GetAddress());
 }
 

@@ -24,6 +24,7 @@
 class SipMethod
 {
 public:
+    // cppcheck-suppress noExplicitConstructor
     SipMethod(IN IMS_SINT32 nMethod = SipMethod::INVALID);
     explicit SipMethod(IN const IMS_CHAR* pszMethod);
     explicit SipMethod(IN const AString& strMethod);

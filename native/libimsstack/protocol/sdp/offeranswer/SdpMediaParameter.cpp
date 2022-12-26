@@ -183,6 +183,8 @@ IMS_SINT32 SdpMediaParameter::Compare(IN IMS_BOOL bInitialOffer, IN IMS_BOOL bIs
 
                     m_objMedia.SetTransportProtocol(nPeerTransportProtocol);
                 }
+                // Both values can be same.
+                // cppcheck-suppress knownConditionTrueFalse
                 else if (nLocalTransportProtocol != nPeerTransportProtocol)
                 {
                     // Overwrite the transport protocol according to the SDP answer
