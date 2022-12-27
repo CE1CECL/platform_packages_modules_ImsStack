@@ -255,7 +255,7 @@ void MediaManager::ClearMediaSessionNode()
 PRIVATE
 void MediaManager::DeleteMediaSessionNode(IN MediaSessionNode* pSessionNode, IMS_UINT32 nIndex)
 {
-    if (pSessionNode)
+    if (pSessionNode != IMS_NULL)
     {
         IMS_TRACE_D("DeleteMediaSessionNode() - Index[%d]", nIndex, 0, 0);
 
@@ -270,8 +270,8 @@ void MediaManager::DeleteMediaSessionNode(IN MediaSessionNode* pSessionNode, IMS
         }
 
         delete pSessionNode;
-        pSessionNode = IMS_NULL;
     }
+
     m_lstSessionNode.RemoveAt(nIndex);
 }
 

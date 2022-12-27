@@ -363,15 +363,15 @@ IMS_BOOL AudioMediaSession::UpdateRtpConfig(IN const IMS_UINT32 nAccessNetwork,
             objAudioConfig.getTxDtmfPayloadTypeNumber(),
             objAudioConfig.getRxDtmfPayloadTypeNumber(), objAudioConfig.getDtmfsamplingRateKHz());
 
-    AudioConfig* pPrevAudioConfig = REINTERPRET_CAST(AudioConfig*, m_pRtpConfig);
-
-    if (objAudioConfig == *pPrevAudioConfig)
-    {
-        return IMS_FALSE;
-    }
-
     if (m_pRtpConfig != IMS_NULL)
     {
+        AudioConfig* pPrevAudioConfig = REINTERPRET_CAST(AudioConfig*, m_pRtpConfig);
+
+        if (objAudioConfig == *pPrevAudioConfig)
+        {
+            return IMS_FALSE;
+        }
+
         delete m_pRtpConfig;
     }
 

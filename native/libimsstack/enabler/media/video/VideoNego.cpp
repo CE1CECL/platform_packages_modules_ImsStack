@@ -32,6 +32,7 @@ PUBLIC VideoNego::VideoNego(IN const IMS_SINT32 nSlotId) :
         m_listOaModel(IMSList<OaModel*>()),
         m_objBaseProfile(VideoProfile()),
         m_pEnvironment(IMS_NULL),
+        m_pConfig(IMS_NULL),
         m_eSessionType(MEDIA_TYPE_INVALID),
         m_bNegotiatedCvoResult(IMS_FALSE)
 {
@@ -2627,7 +2628,7 @@ VideoProfile::Payload* VideoNego::FindPayloadInProfile(
         return IMS_NULL;
     }
 
-    VideoProfile::Payload* pTempPayload = IMS_NULL;    // To keep secondary payload
+    VideoProfile::Payload* pTempPayload = IMS_NULL;  // To keep secondary payload
 
     if (m_pConfig == IMS_NULL)
     {

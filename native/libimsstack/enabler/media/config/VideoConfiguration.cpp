@@ -39,9 +39,9 @@ VideoConfiguration::VideoConfiguration(IN MEDIA_CONTENT_TYPE _nSessionType) :
         m_nVideoSamplingRate(DEFAULT_VIDEO_SAMPLING_RATE)
 {
     IMS_TRACE_D("+VideoConfiguration eSessionType(%d)", eSessionType, 0, 0);
-    nAsBandwidthKbps = DEFAULT_AS;
-    nRsBandwidthBps = DEFAULT_RR;
-    nRrBandwidthBps = DEFAULT_RS;
+    nAsBandwidthKbps = DEFAULT_AS_VIDEO;
+    nRsBandwidthBps = DEFAULT_RR_VIDEO;
+    nRrBandwidthBps = DEFAULT_RS_VIDEO;
 }
 
 PUBLIC VIRTUAL VideoConfiguration::~VideoConfiguration()

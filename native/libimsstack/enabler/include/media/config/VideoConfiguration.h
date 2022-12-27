@@ -39,17 +39,9 @@ public:
         SEND_FOR_10SEC = 2
     };
 
-    static const IMS_SINT32 DEFAULT_RTP_PORT = 50010;
-    static const IMS_SINT32 DEFAULT_RTP_PORT_END = 50060;
-    static const IMS_SINT32 DEFAULT_RTCP_PORT = 50011;
-    static const IMS_SINT32 DEFAULT_RTCP_INVERVAL_LIVE = 5;
-    static const IMS_SINT32 DEFAULT_RTCP_INVERVAL = 5;
-    static const IMS_SINT32 DEFAULT_AS = 960;
-    static const IMS_SINT32 DEFAULT_RS = 8000;
-    static const IMS_SINT32 DEFAULT_RR = 6000;
-    static const IMS_SINT32 DEFAULT_RTP_INACTIVITY = 20000;
-    static const IMS_SINT32 DEFAULT_RTCP_INACTIVITY = 200000;
-
+    static const IMS_SINT32 DEFAULT_AS_VIDEO = 960;
+    static const IMS_SINT32 DEFAULT_RS_VIDEO = 8000;
+    static const IMS_SINT32 DEFAULT_RR_VIDEO = 6000;
     static const IMS_SINT32 DEFAULT_VIDEO_DSCP = 160;  // converted value from 40
     static const IMS_SINT32 DEFAULT_SEND_PERIODIC_SPS_PPS = SEND_EVERY_TIME;
     static const IMS_SINT32 DEFAULT_CVO_ID = -1;  // TODO: need to check.

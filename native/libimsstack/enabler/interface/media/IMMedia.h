@@ -376,6 +376,7 @@ class ImsMediaNotifyInactivityParam
 {
 public:
     ImsMediaNotifyInactivityParam() :
+            m_eMediaProtocolType(RTP),
             m_eMediaType(MEDIA_TYPE_INVALID){};
 
 public:
