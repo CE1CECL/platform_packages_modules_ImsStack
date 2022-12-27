@@ -327,7 +327,7 @@ PUBLIC VIRTUAL IMS_UINT32 AosPcscf::GetCurrentPcscfTriedCount()
 
 PUBLIC VIRTUAL void AosPcscf::IncreaseCurrentPcscfTriedCount()
 {
-    if (!IsRegRetryCountPerPcscfConfigured())
+    if (!IsRegRetryCountPerPcscfConfigured() && !IsRegRetryCountOnSinglePcscfConfigured())
     {
         return;
     }
@@ -344,7 +344,7 @@ PUBLIC VIRTUAL void AosPcscf::IncreaseCurrentPcscfTriedCount()
 
 PUBLIC VIRTUAL void AosPcscf::ResetCurrentPcscfTriedCount()
 {
-    if (!IsRegRetryCountPerPcscfConfigured())
+    if (!IsRegRetryCountPerPcscfConfigured() && !IsRegRetryCountOnSinglePcscfConfigured())
     {
         return;
     }
@@ -361,7 +361,7 @@ PUBLIC VIRTUAL void AosPcscf::ResetCurrentPcscfTriedCount()
 
 PUBLIC VIRTUAL void AosPcscf::ResetAllPcscfTriedCount()
 {
-    if (!IsRegRetryCountPerPcscfConfigured())
+    if (!IsRegRetryCountPerPcscfConfigured() && !IsRegRetryCountOnSinglePcscfConfigured())
     {
         return;
     }
@@ -1173,6 +1173,12 @@ void AosPcscf::UpdatePcscfs(IN const AStringArray& objPcscfs, IN IMS_SINT32 nPor
             AddPcscf(objIpa.ToString(), nPort);
         }
     }
+}
+
+PRIVATE
+IMS_BOOL AosPcscf::IsRegRetryCountOnSinglePcscfConfigured()
+{
+    return (m_piAosNConfig->GetRegRetryCountOnSinglePcscf() > 0);
 }
 
 PRIVATE

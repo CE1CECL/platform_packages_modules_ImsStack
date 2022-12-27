@@ -502,6 +502,11 @@ PUBLIC VIRTUAL IMS_SINT32 AosNConfiguration::GetRegRetrySip503CodePolicy() const
     return m_objAsset.nRegRetry503Policy;
 }
 
+PUBLIC VIRTUAL IMS_SINT32 AosNConfiguration::GetRegRetryCountOnSinglePcscf() const
+{
+    return m_objAsset.nRegRetryCntOnSinglePcscf;
+}
+
 PUBLIC VIRTUAL IMS_SINT32 AosNConfiguration::GetRegRetryCountPerPcscf() const
 {
     return m_objAsset.nRegRetryCntPerPcscf;
@@ -1225,6 +1230,8 @@ void AosNConfiguration::InitAssetsConfig(IN const ICarrierConfig* piCc)
             piCc->GetInt(CarrierConfig::Assets::KEY_REG_RETRY_305_POLICY_INT);
     m_objAsset.nRegRetry503Policy =
             piCc->GetInt(CarrierConfig::Assets::KEY_REG_RETRY_503_POLICY_INT);
+    m_objAsset.nRegRetryCntOnSinglePcscf =
+            piCc->GetInt(CarrierConfig::Assets::KEY_REG_RETRY_CNT_ON_SINGLE_PCSCF_INT);
     m_objAsset.nRegRetryCntPerPcscf =
             piCc->GetInt(CarrierConfig::Assets::KEY_REG_RETRY_CNT_PER_PCSCF_INT);
     m_objAsset.nRegRetryCntResetPolicy =

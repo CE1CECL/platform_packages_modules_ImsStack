@@ -64,6 +64,7 @@ public:
             nRegPcscfUpdatePolicy(CarrierConfig::Assets::REG_PCSCF_UPDATE_POLICY_DEFAULT),
             nRegRetry305Policy(CarrierConfig::Assets::SIP_305_CODE_POLICY_DEFAULT),
             nRegRetry503Policy(CarrierConfig::Assets::SIP_503_CODE_POLICY_DEFAULT),
+            nRegRetryCntOnSinglePcscf(0),
             nRegRetryCntPerPcscf(0),
             nRegRetryCntResetPolicy(CarrierConfig::Assets::REG_RETRY_CNT_RESET_POLICY_REGISTRATION),
             nRegRetryDefaultPolicy(CarrierConfig::Assets::DEFAULT_RETRY_POLICY_SPEC),
@@ -132,6 +133,7 @@ public:
     IMS_SINT32 nRegPcscfUpdatePolicy;
     IMS_SINT32 nRegRetry305Policy;
     IMS_SINT32 nRegRetry503Policy;
+    IMS_SINT32 nRegRetryCntOnSinglePcscf;
     IMS_SINT32 nRegRetryCntPerPcscf;
     IMS_SINT32 nRegRetryCntResetPolicy;
     IMS_SINT32 nRegRetryDefaultPolicy;

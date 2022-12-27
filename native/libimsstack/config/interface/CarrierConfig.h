@@ -825,6 +825,7 @@ public:
         static const IMS_CHAR KEY_REG_PCSCF_UPDATE_POLICY_INT[];
         static const IMS_CHAR KEY_REG_RETRY_305_POLICY_INT[];
         static const IMS_CHAR KEY_REG_RETRY_503_POLICY_INT[];
+        static const IMS_CHAR KEY_REG_RETRY_CNT_ON_SINGLE_PCSCF_INT[];
         static const IMS_CHAR KEY_REG_RETRY_CNT_PER_PCSCF_INT[];
         static const IMS_CHAR KEY_REG_RETRY_CNT_RESET_POLICY_INT[];
         static const IMS_CHAR KEY_REG_RETRY_DEFAULT_POLICY_INT[];
