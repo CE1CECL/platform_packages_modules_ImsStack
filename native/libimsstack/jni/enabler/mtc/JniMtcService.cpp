@@ -167,14 +167,15 @@ void JniMtcService::SetTerminalBasedCallWaiting(IN const android::Parcel& objPar
 }
 
 PRIVATE
-void JniMtcService::OpenEmergencyService(IN const android::Parcel& /* objParcel */)
+void JniMtcService::OpenEmergencyService(IN const android::Parcel& objParcel)
 {
     IMtcService* piNativeService = GetNativeService();
     if (piNativeService == IMS_NULL)
     {
         return;
     }
-    piNativeService->OpenEmergencyService();
+    piNativeService->OpenEmergencyService(
+            static_cast<IuMtcService::EmergencyCallRoutingPdn>(objParcel.readInt32()));
 }
 
 PRIVATE

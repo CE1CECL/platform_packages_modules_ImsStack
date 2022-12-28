@@ -176,9 +176,9 @@ PUBLIC VIRTUAL void MtcService::SetTerminalBasedCallWaiting(IN IMS_BOOL bEnabled
     }
 }
 
-PUBLIC VIRTUAL void MtcService::OpenEmergencyService()
+PUBLIC VIRTUAL void MtcService::OpenEmergencyService(IN EmergencyCallRoutingPdn ePdn)
 {
-    m_objContext.GetEmergencyServiceManager().OpenEmergencyService();
+    m_objContext.GetEmergencyServiceManager().OpenEmergencyService(ePdn);
 }
 
 PUBLIC VIRTUAL void MtcService::ProcessTestCommand(

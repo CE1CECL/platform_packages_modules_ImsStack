@@ -23,6 +23,9 @@
 
 class IMtcContext;
 
+using EmergencyCallRoutingPdn = IuMtcService::EmergencyCallRoutingPdn;
+using EmergencyServiceState = IuMtcService::EmergencyServiceState;
+
 class MtcEmergencyServiceManager : public IMtcAosStateListener
 {
 public:
@@ -31,7 +34,7 @@ public:
     MtcEmergencyServiceManager(IN const MtcEmergencyServiceManager&) = delete;
     MtcEmergencyServiceManager& operator=(IN const MtcEmergencyServiceManager&) = delete;
 
-    virtual void OpenEmergencyService();
+    virtual void OpenEmergencyService(IN EmergencyCallRoutingPdn ePdn);
 
     void OnAosStateChanged(IN IMtcService& objMtcService, IN MtcAosState eState,
             IN IMS_UINT32 eAosReason) override;
@@ -40,14 +43,15 @@ public:
 private:
     void HandleServiceIdle(OUT IMS_BOOL& bStateChanged);
     void HandleServiceActive(OUT IMS_BOOL& bStateChanged);
-    void SetState(IN IuMtcService::EmergencyServiceState eState, OUT IMS_BOOL& bChanged);
+    void HandleEmergencyCallOverImsPdn();
+    void SetState(IN EmergencyServiceState eState, OUT IMS_BOOL& bChanged);
     void NotifyEmergencyServiceChanged(IN IMS_SINT32 eReason);
 
     IMtcContext& m_objContext;
 
 protected:
     // open to unit test
-    IuMtcService::EmergencyServiceState m_eState;
+    EmergencyServiceState m_eState;
 };
 
 #endif

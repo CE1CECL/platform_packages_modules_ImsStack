@@ -73,6 +73,13 @@ public:
         IN_CALL = 4,
     };
 
+    enum class EmergencyCallRoutingPdn
+    {
+        UNKNOWN,
+        EMERGENCY,
+        NORMAL
+    };
+
     enum
     {
         SERVICESTATUS_REASON_UNKNOWN = 0,

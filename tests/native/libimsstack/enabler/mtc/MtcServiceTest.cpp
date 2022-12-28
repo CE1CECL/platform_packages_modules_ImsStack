@@ -417,8 +417,9 @@ TEST_F(MtcServiceTest, SetAndCheckTerminalBasedCallWaiting)
 
 TEST_F(MtcServiceTest, OpenEmergencyServiceCallsEmergencyServiceManager)
 {
-    EXPECT_CALL(*pMockEmergencyManager, OpenEmergencyService()).Times(1);
-    pNormalMtcService->OpenEmergencyService();
+    EXPECT_CALL(*pMockEmergencyManager, OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY))
+            .Times(1);
+    pNormalMtcService->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
 }
 
 TEST_F(MtcServiceTest, NotifyJniEnablerSetDoesNothing)

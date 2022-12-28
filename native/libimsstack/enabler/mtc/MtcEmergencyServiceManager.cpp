@@ -26,7 +26,7 @@ __IMS_TRACE_TAG_COM_MTC__;
 PUBLIC
 MtcEmergencyServiceManager::MtcEmergencyServiceManager(IN IMtcContext& objContext) :
         m_objContext(objContext),
-        m_eState(IuMtcService::EmergencyServiceState::IDLE)
+        m_eState(EmergencyServiceState::IDLE)
 {
     IMS_TRACE_I("+MtcEmergencyServiceManager", 0, 0, 0);
     IMtcService* pEmergencyService = m_objContext.GetServiceByType(ServiceType::EMERGENCY);
@@ -47,15 +47,18 @@ PUBLIC VIRTUAL MtcEmergencyServiceManager::~MtcEmergencyServiceManager()
 }
 
 PUBLIC
-void MtcEmergencyServiceManager::OpenEmergencyService()
+void MtcEmergencyServiceManager::OpenEmergencyService(IN EmergencyCallRoutingPdn ePdn)
 {
-    IMS_TRACE_D("OpenEmergencyService", 0, 0, 0);
+    IMS_TRACE_D("OpenEmergencyService PDN=[%d]", ePdn, 0, 0);
+    if (ePdn == EmergencyCallRoutingPdn::NORMAL)
+    {
+        return HandleEmergencyCallOverImsPdn();
+    }
 
     IMS_BOOL bStateChanged = IMS_FALSE;
-    if (m_eState == IuMtcService::EmergencyServiceState::OPENED ||
-            m_eState == IuMtcService::EmergencyServiceState::IN_CALL)
+    if (m_eState == EmergencyServiceState::OPENED || m_eState == EmergencyServiceState::IN_CALL)
     {
-        SetState(IuMtcService::EmergencyServiceState::OPENED, bStateChanged);
+        SetState(EmergencyServiceState::OPENED, bStateChanged);
         NotifyEmergencyServiceChanged(-1);
         return;
     }
@@ -67,14 +70,15 @@ void MtcEmergencyServiceManager::OpenEmergencyService()
     }
 
     pAosConnector->Control(ImsAosControl::REGISTER_START);
-    SetState(IuMtcService::EmergencyServiceState::OPENING, bStateChanged);
+    SetState(EmergencyServiceState::OPENING, bStateChanged);
     if (bStateChanged)
     {
         NotifyEmergencyServiceChanged(-1);
     }
 }
+
 PUBLIC VIRTUAL void MtcEmergencyServiceManager::OnAosStateChanged(
-        IN IMtcService& /*objMtcService*/, IN MtcAosState eState, IN IMS_UINT32 /*eAosReason*/)
+        IN IMtcService& /*objMtcService*/, IN MtcAosState eState, IN IMS_UINT32 eAosReason)
 {
     IMS_TRACE_D("OnAosStateChanged :: %d", eState, 0, 0);
 
@@ -89,12 +93,12 @@ PUBLIC VIRTUAL void MtcEmergencyServiceManager::OnAosStateChanged(
             HandleServiceActive(bStateChanged);
             break;
         default:
-            break;
+            return;
     }
 
     if (bStateChanged)
     {
-        NotifyEmergencyServiceChanged(-1);
+        NotifyEmergencyServiceChanged(static_cast<IMS_SINT32>(eAosReason));
     }
 }
 
@@ -103,13 +107,13 @@ void MtcEmergencyServiceManager::HandleServiceIdle(IN IMS_BOOL& bStateChanged)
 {
     IMS_TRACE_D("HandleServiceIdle", 0, 0, 0);
 
-    if (m_eState == IuMtcService::EmergencyServiceState::OPENING)
+    if (m_eState == EmergencyServiceState::OPENING)
     {
-        SetState(IuMtcService::EmergencyServiceState::UNAVAILABLE, bStateChanged);
+        SetState(EmergencyServiceState::UNAVAILABLE, bStateChanged);
     }
     else
     {
-        SetState(IuMtcService::EmergencyServiceState::IDLE, bStateChanged);
+        SetState(EmergencyServiceState::IDLE, bStateChanged);
     }
 }
 
@@ -118,15 +122,36 @@ void MtcEmergencyServiceManager::HandleServiceActive(IN IMS_BOOL& bStateChanged)
 {
     IMS_TRACE_D("HandleServiceActive", 0, 0, 0);
 
-    if (m_eState == IuMtcService::EmergencyServiceState::OPENING)
+    if (m_eState == EmergencyServiceState::OPENING)
     {
-        SetState(IuMtcService::EmergencyServiceState::OPENED, bStateChanged);
+        SetState(EmergencyServiceState::OPENED, bStateChanged);
     }
 }
 
 PRIVATE
-void MtcEmergencyServiceManager::SetState(
-        IN IuMtcService::EmergencyServiceState eState, OUT IMS_BOOL& bChanged)
+void MtcEmergencyServiceManager::HandleEmergencyCallOverImsPdn()
+{
+    IMS_TRACE_D("HandleEmergencyCallOverImsPdn", 0, 0, 0);
+    IMtcService* pNormalService = m_objContext.GetServiceByType(ServiceType::NORMAL);
+    if (!pNormalService)
+    {
+        // TODO: change IMtcContext#GetServiceByType to return reference.
+        return;
+    }
+
+    IJniMtcServiceThread* pThread = pNormalService->GetJniServiceThread();
+    if (pThread)
+    {
+        IMS_SINT32 eState = pNormalService->GetStatus() == ServiceStatus::SERVICE_ACTIVE
+                ? static_cast<IMS_SINT32>(EmergencyServiceState::OPENED)
+                : static_cast<IMS_SINT32>(EmergencyServiceState::UNAVAILABLE);
+        pThread->OnEmergencyServiceChanged(
+                eState, -1, static_cast<IMS_SINT32>(ServiceType::NORMAL));
+    }
+}
+
+PRIVATE
+void MtcEmergencyServiceManager::SetState(IN EmergencyServiceState eState, OUT IMS_BOOL& bChanged)
 {
     IMS_TRACE_D("SetState :: [%d] -> [%d]", m_eState, eState, 0);
 
@@ -138,14 +163,20 @@ PRIVATE
 void MtcEmergencyServiceManager::NotifyEmergencyServiceChanged(IN IMS_SINT32 eReason)
 {
     IMS_TRACE_D("NotifyEmergencyServiceChanged :: state=%d, reason=%d", m_eState, eReason, 0);
-    IJniMtcServiceThread* pThread =
-            m_objContext.GetServiceByType(ServiceType::NORMAL)->GetJniServiceThread();
+    IMtcService* pNormalService = m_objContext.GetServiceByType(ServiceType::NORMAL);
+    if (!pNormalService)
+    {
+        // TODO: change IMtcContext#GetServiceByType to return reference.
+        return;
+    }
+
+    IJniMtcServiceThread* pThread = pNormalService->GetJniServiceThread();
     if (pThread == IMS_NULL)
     {
         IMS_TRACE_E(0, "IJniMtcServiceThread is null", 0, 0, 0);
         return;
     }
 
-    pThread->OnEmergencyServiceChanged(
-            static_cast<IMS_SINT32>(m_eState), -1, static_cast<IMS_SINT32>(ServiceType::EMERGENCY));
+    pThread->OnEmergencyServiceChanged(static_cast<IMS_SINT32>(m_eState), eReason,
+            static_cast<IMS_SINT32>(ServiceType::EMERGENCY));
 }

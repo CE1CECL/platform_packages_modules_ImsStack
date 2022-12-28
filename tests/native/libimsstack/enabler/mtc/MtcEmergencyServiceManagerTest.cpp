@@ -17,7 +17,6 @@
 #include "IMtcService.h"
 #include "ImsAosParameter.h"
 #include "ImsTypeDef.h"
-#include "IuMtcService.h"
 #include "MockIJniMtcServiceThread.h"
 #include "MockIMtcContext.h"
 #include "MockIMtcService.h"
@@ -40,8 +39,8 @@ public:
     {
     }
 
-    inline IuMtcService::EmergencyServiceState GetState() const { return m_eState; }
-    inline void SetState(IN IuMtcService::EmergencyServiceState eState) { m_eState = eState; }
+    inline EmergencyServiceState GetState() const { return m_eState; }
+    inline void SetState(IN EmergencyServiceState eState) { m_eState = eState; }
 };
 
 class MtcEmergencyServiceManagerTest : public ::testing::Test
@@ -85,67 +84,65 @@ protected:
 
 TEST_F(MtcEmergencyServiceManagerTest, GetDefaultStateReturnsIdle)
 {
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::IDLE);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::IDLE);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OpenServiceDoesNotChangeStateifAosConnectorIsNull)
 {
     ON_CALL(objContext, GetAosConnector(ServiceType::EMERGENCY)).WillByDefault(Return(nullptr));
 
-    pEsm->OpenEmergencyService();
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::IDLE);
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::IDLE);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OpenServiceInvokesRegisterStart)
 {
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_START));
-    pEsm->OpenEmergencyService();
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::OPENING);
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::OPENING);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OpenServiceSetsStateOpenedIfCurrentStateIsInCall)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::IN_CALL);
-    pEsm->OpenEmergencyService();
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::OPENED);
+    pEsm->SetState(EmergencyServiceState::IN_CALL);
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::OPENED);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OpenServiceSetsStateOpenedIfCurrentStateIsOpened)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::OPENED);
-    pEsm->OpenEmergencyService();
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::OPENED);
+    pEsm->SetState(EmergencyServiceState::OPENED);
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::OPENED);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OnAosDisconnectedSetsStateByCurrentState)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::OPENING);
+    pEsm->SetState(EmergencyServiceState::OPENING);
     pEsm->OnAosStateChanged(objService, MtcAosState::DISCONNECTED, 0);
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::UNAVAILABLE);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::UNAVAILABLE);
 
-    pEsm->SetState(IuMtcService::EmergencyServiceState::IDLE);
+    pEsm->SetState(EmergencyServiceState::IDLE);
     pEsm->OnAosStateChanged(objService, MtcAosState::DISCONNECTED, 0);
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::IDLE);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::IDLE);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OnAosConnectedSetsOpenedStateIfOpening)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::OPENING);
+    pEsm->SetState(EmergencyServiceState::OPENING);
     pEsm->OnAosStateChanged(objService, MtcAosState::CONNECTED, 0);
-    EXPECT_EQ(pEsm->GetState(), IuMtcService::EmergencyServiceState::OPENED);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::OPENED);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OnAosSuspendedDoesNothing)
 {
     //clang-format off
-    std::vector<IuMtcService::EmergencyServiceState> objStates{
-            IuMtcService::EmergencyServiceState::IDLE, IuMtcService::EmergencyServiceState::OPENING,
-            IuMtcService::EmergencyServiceState::OPENED,
-            IuMtcService::EmergencyServiceState::UNAVAILABLE,
-            IuMtcService::EmergencyServiceState::IN_CALL};
+    std::vector<EmergencyServiceState> objStates{EmergencyServiceState::IDLE,
+            EmergencyServiceState::OPENING, EmergencyServiceState::OPENED,
+            EmergencyServiceState::UNAVAILABLE, EmergencyServiceState::IN_CALL};
     //clang-format on
 
-    for (IuMtcService::EmergencyServiceState eState : objStates)
+    for (EmergencyServiceState eState : objStates)
     {
         pEsm->SetState(eState);
         pEsm->OnAosStateChanged(objService, MtcAosState::SUSPENDED, 0);
@@ -153,9 +150,15 @@ TEST_F(MtcEmergencyServiceManagerTest, OnAosSuspendedDoesNothing)
     }
 }
 
+TEST_F(MtcEmergencyServiceManagerTest, OnIpcanChangedDoesNothing)
+{
+    pEsm->OnIpcanChanged(objService, 0);
+    EXPECT_EQ(pEsm->GetState(), EmergencyServiceState::IDLE);
+}
+
 TEST_F(MtcEmergencyServiceManagerTest, SetSameStateDoesNotNotify)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::IDLE);
+    pEsm->SetState(EmergencyServiceState::IDLE);
 
     EXPECT_CALL(*pMockServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
 
@@ -164,37 +167,80 @@ TEST_F(MtcEmergencyServiceManagerTest, SetSameStateDoesNotNotify)
 
 TEST_F(MtcEmergencyServiceManagerTest, OpenEmergencyServiceNotifiesOpenedIfStateIsOpened)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::OPENED);
+    pEsm->SetState(EmergencyServiceState::OPENED);
 
     EXPECT_CALL(*pMockServiceThread,
-            OnEmergencyServiceChanged(
-                    static_cast<IMS_SINT32>(IuMtcService::EmergencyServiceState::OPENED), -1,
+            OnEmergencyServiceChanged(static_cast<IMS_SINT32>(EmergencyServiceState::OPENED), -1,
                     static_cast<IMS_SINT32>(ServiceType::EMERGENCY)));
 
-    pEsm->OpenEmergencyService();
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, OpenEmergencyServiceNotifiesOpenedIfStateIsInCall)
 {
-    pEsm->SetState(IuMtcService::EmergencyServiceState::IN_CALL);
+    pEsm->SetState(EmergencyServiceState::IN_CALL);
 
     EXPECT_CALL(*pMockServiceThread,
-            OnEmergencyServiceChanged(
-                    static_cast<IMS_SINT32>(IuMtcService::EmergencyServiceState::OPENED), -1,
+            OnEmergencyServiceChanged(static_cast<IMS_SINT32>(EmergencyServiceState::OPENED), -1,
                     static_cast<IMS_SINT32>(ServiceType::EMERGENCY)));
 
-    pEsm->OpenEmergencyService();
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
 }
 
 TEST_F(MtcEmergencyServiceManagerTest, NoJniThreadDoesNotNotify)
 {
     ON_CALL(objService, GetJniServiceThread).WillByDefault(Return(nullptr));
-
-    pEsm->SetState(IuMtcService::EmergencyServiceState::OPENED);
-
+    pEsm->SetState(EmergencyServiceState::OPENED);
     EXPECT_CALL(*pMockServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
 
-    pEsm->OpenEmergencyService();
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
+}
+
+TEST_F(MtcEmergencyServiceManagerTest, NoNormalServiceDoesNotNotify)
+{
+    ON_CALL(objContext, GetServiceByType(_)).WillByDefault(Return(nullptr));
+    pEsm->SetState(EmergencyServiceState::OPENED);
+    EXPECT_CALL(*pMockServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
+
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::EMERGENCY);
+}
+
+TEST_F(MtcEmergencyServiceManagerTest, OpenEmergencyServiceWithImsPdnNotifiesOpendIfActiveState)
+{
+    ON_CALL(objService, GetStatus).WillByDefault(Return(ServiceStatus::SERVICE_ACTIVE));
+
+    EXPECT_CALL(*pMockServiceThread,
+            OnEmergencyServiceChanged(static_cast<IMS_SINT32>(EmergencyServiceState::OPENED), -1,
+                    static_cast<IMS_SINT32>(ServiceType::NORMAL)));
+
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::NORMAL);
+}
+
+TEST_F(MtcEmergencyServiceManagerTest, OpenEmergencyServiceWithImsPdnNotifiesUnavailableIfIdleState)
+{
+    ON_CALL(objService, GetStatus).WillByDefault(Return(ServiceStatus::SERVICE_IDLE));
+
+    EXPECT_CALL(*pMockServiceThread,
+            OnEmergencyServiceChanged(static_cast<IMS_SINT32>(EmergencyServiceState::UNAVAILABLE),
+                    -1, static_cast<IMS_SINT32>(ServiceType::NORMAL)));
+
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::NORMAL);
+}
+
+TEST_F(MtcEmergencyServiceManagerTest, NoNormalServiceDoesNotNotifyForImsPdn)
+{
+    ON_CALL(objContext, GetServiceByType(_)).WillByDefault(Return(nullptr));
+    EXPECT_CALL(*pMockServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
+
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::NORMAL);
+}
+
+TEST_F(MtcEmergencyServiceManagerTest, NoJniThreadDoesNotNotifyForImsPdn)
+{
+    ON_CALL(objService, GetJniServiceThread).WillByDefault(Return(nullptr));
+    EXPECT_CALL(*pMockServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
+
+    pEsm->OpenEmergencyService(EmergencyCallRoutingPdn::NORMAL);
 }
 
 }  // namespace android
