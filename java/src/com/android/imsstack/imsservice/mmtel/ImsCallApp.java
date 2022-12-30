@@ -28,10 +28,12 @@ import com.android.imsstack.imsservice.mmtel.base.IMmTelFeatureCapabilityListene
 import com.android.imsstack.imsservice.mmtel.base.ImsApp;
 import com.android.imsstack.imsservice.mmtel.base.TtyModeTracker;
 import com.android.imsstack.test.IImsTestMode;
+import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.concurrent.Executor;
+
 public class ImsCallApp extends ImsApp {
     private final Object mLock = new Object();
     private final ImsCallContext mCallContext;
@@ -107,7 +109,7 @@ public class ImsCallApp extends ImsApp {
             try {
                 mUt.close();
             } catch (Throwable t) {
-                loge("UtInterface Exception:" + t.toString());
+                ImsLog.e("UtInterface Exception: " + t.toString());
             }
 
             mFeatureManager.setUtInterface(null);
