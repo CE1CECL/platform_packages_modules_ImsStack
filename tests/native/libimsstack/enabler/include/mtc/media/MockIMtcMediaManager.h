@@ -18,9 +18,11 @@
 #define MOCK_I_MTC_MEDIA_MANAGER_H_
 
 #include "ImsTypeDef.h"
+#include "helper/ISrvccStateListener.h"
 #include "media/IMtcMediaManager.h"
 #include "media/MediaNego.h"
 #include <gmock/gmock.h>
+
 class IMediaQosEventListener;
 class IMediaReportEventListener;
 class IMessage;
@@ -74,6 +76,7 @@ public:
     MOCK_METHOD(IMS_BOOL, IsAudioInactive, (), (override));
     MOCK_METHOD(void, AdjustDirectionForAutoAccept, (IN IMS_BOOL bSendOffer, IN IMS_BOOL bHeldByMe),
             (override));
+    MOCK_METHOD(void, SetSrvccState, (IN SrvccState eState), (override));
 };
 
 #endif

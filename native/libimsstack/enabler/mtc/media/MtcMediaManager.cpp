@@ -25,6 +25,7 @@
 #include "call/IMtcSession.h"
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
+#include "helper/ISrvccStateListener.h"
 #include "helper/MtcSupplementaryService.h"
 #include "media/IMediaQosEventListener.h"
 #include "media/IMtcMediaManager.h"
@@ -585,6 +586,30 @@ PUBLIC VIRTUAL void MtcMediaManager::AdjustDirectionForAutoAccept(
         AdjustDirectionForAutoAnswerIfHeldByMe(m_pMediaInfo->eVideoDirection);
         AdjustDirectionForAutoAnswerIfHeldByMe(m_pMediaInfo->eTextDirection);
     }
+}
+
+PUBLIC VIRTUAL void MtcMediaManager::SetSrvccState(IN SrvccState eState)
+{
+    MEDIA_SRVCC_STATUS eMediaSrvccStatus;
+    switch (eState)
+    {
+        case SrvccState::IDLE:
+            eMediaSrvccStatus = MEDIA_SRVCC_STATUS::MEDIA_SRVCC_IDLE;
+            break;
+        case SrvccState::STARTED:
+            eMediaSrvccStatus = MEDIA_SRVCC_STATUS::MEDIA_SRVCC_STARTED;
+            break;
+        case SrvccState::SUCCEEDED:
+            eMediaSrvccStatus = MEDIA_SRVCC_STATUS::MEDIA_SRVCC_SUCCEED;
+            break;
+        case SrvccState::FAILED:
+            eMediaSrvccStatus = MEDIA_SRVCC_STATUS::MEDIA_SRVCC_FAILED;
+            break;
+        default:  // SrvccState::CANCLED:
+            eMediaSrvccStatus = MEDIA_SRVCC_STATUS::MEDIA_SRVCC_CANCELED;
+            break;
+    }
+    m_piMediaSession->NotifySrvccStatus(eMediaSrvccStatus);
 }
 
 PRIVATE

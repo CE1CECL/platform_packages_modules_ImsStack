@@ -438,6 +438,7 @@ PUBLIC VIRTUAL CallStateName MtcCallState::OnMediaFailed(IN const CallReasonInfo
 
 PUBLIC VIRTUAL CallStateName MtcCallState::OnSrvccStateUpdated(IN SrvccState eState)
 {
+    m_objContext.GetMediaManager().SetSrvccState(eState);
     switch (eState)
     {
         case SrvccState::IDLE:
