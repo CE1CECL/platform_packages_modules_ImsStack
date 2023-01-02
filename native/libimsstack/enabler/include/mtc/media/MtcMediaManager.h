@@ -25,6 +25,7 @@
 #include "MtcDef.h"
 #include "call/IMtcCall.h"
 #include "call/IMtcCallContext.h"
+#include "helper/ISrvccStateListener.h"
 #include "media/IMediaReportEventListener.h"
 #include "media/IMediaSessionClientListener.h"
 #include "media/IMtcMediaManager.h"
@@ -115,6 +116,7 @@ public:
     virtual IMS_BOOL IsAudioInactive() override;
     virtual void AdjustDirectionForAutoAccept(
             IN IMS_BOOL bSendOffer, IN IMS_BOOL bHeldByMe) override;
+    void SetSrvccState(IN SrvccState eState) override;
 
 private:
     void DestroyMediaSession();

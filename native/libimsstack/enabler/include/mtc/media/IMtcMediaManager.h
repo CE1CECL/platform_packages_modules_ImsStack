@@ -18,6 +18,7 @@
 #define INTERFACE_MTC_MEDIA_MANAGER_H_
 
 #include "ImsTypeDef.h"
+#include "helper/ISrvccStateListener.h"
 #include "media/MediaNego.h"
 
 class IMediaQosEventListener;
@@ -238,6 +239,13 @@ public:
      * @param bHeldByMe
      */
     virtual void AdjustDirectionForAutoAccept(IN IMS_BOOL bSendOffer, IN IMS_BOOL bHeldByMe) = 0;
+
+    /**
+     * @brief Sets
+     *
+     * @param eState
+     */
+    virtual void SetSrvccState(IN SrvccState eState) = 0;
 };
 
 enum class MediaState
