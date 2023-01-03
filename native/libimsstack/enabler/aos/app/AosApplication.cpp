@@ -2597,16 +2597,11 @@ PROTECTED VIRTUAL void AosApplication::NetTracker_StatusChanged()
         return;
     }
 
-    IMS_UINT32 nNewRat = m_piContext->GetNetTracker()->GetMobileNetworkType();
-
-    if (nNewRat == NW_REPORT_RADIO_NOSRV)
-    {
-        return;
-    }
-
     ProcessImsEstablishmentStart();
 
-    if (m_nRat == nNewRat)
+    IMS_UINT32 nNewRat = m_piContext->GetNetTracker()->GetMobileNetworkType();
+
+    if (nNewRat == NW_REPORT_RADIO_NOSRV || m_nRat == nNewRat)
     {
         return;
     }
