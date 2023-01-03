@@ -44,6 +44,7 @@ private:
     void HandleServiceIdle(OUT IMS_BOOL& bStateChanged);
     void HandleServiceActive(OUT IMS_BOOL& bStateChanged);
     void HandleEmergencyCallOverImsPdn();
+    IMS_BOOL IsRetryOverImsPdnRequired(IN IMS_SINT32 eAosReason) const;
     void SetState(IN EmergencyServiceState eState, OUT IMS_BOOL& bChanged);
     void NotifyEmergencyServiceChanged(IN IMS_SINT32 eReason);
 
