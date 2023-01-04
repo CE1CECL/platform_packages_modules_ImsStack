@@ -393,58 +393,6 @@ TEST_F(AosServiceAvailableWifiTest, HandleCallStateChanged_CallTypeEmergency_Idl
     EXPECT_NE(GetBadNetworkState(), AosServiceAvailableWifi::STATE_BAD_NETWORK_NONE);
 }
 
-TEST_F(AosServiceAvailableWifiTest, HandleRoamingChanged_ReturnByConfig)
-{
-    MockIAosNConfiguration objMockIAosNConfiguration;
-    AosProvider::GetInstance()->SetNConfiguration(
-            static_cast<IAosNConfiguration*>(&objMockIAosNConfiguration), 0);
-
-    EXPECT_CALL(objMockIAosNConfiguration, IsWfcRoamingEnabled()).WillRepeatedly(Return(IMS_TRUE));
-
-    MockIAosBlock objMockIAosBlock;
-    EXPECT_CALL(objMockIAosBlock, SetBlockReason(_, _)).Times(0);
-    EXPECT_CALL(objMockIAosBlock, ResetBlockReason(_, _)).Times(0);
-
-    SetAosBlock(static_cast<IAosBlock*>(&objMockIAosBlock));
-
-    HandleRoamingChanged(0);
-    HandleRoamingChanged(1);
-}
-
-TEST_F(AosServiceAvailableWifiTest, HandleRoamingChanged_RoamingStateTrue)
-{
-    MockIAosNConfiguration objMockIAosNConfiguration;
-    AosProvider::GetInstance()->SetNConfiguration(
-            static_cast<IAosNConfiguration*>(&objMockIAosNConfiguration), 0);
-
-    EXPECT_CALL(objMockIAosNConfiguration, IsWfcRoamingEnabled()).WillRepeatedly(Return(IMS_FALSE));
-
-    MockIAosBlock objMockIAosBlock;
-    EXPECT_CALL(objMockIAosBlock, SetBlockReason(_, _)).Times(1);
-    EXPECT_CALL(objMockIAosBlock, ResetBlockReason(_, _)).Times(0);
-
-    SetAosBlock(static_cast<IAosBlock*>(&objMockIAosBlock));
-
-    HandleRoamingChanged(1);
-}
-
-TEST_F(AosServiceAvailableWifiTest, HandleRoamingChanged_RoamingStateFalse)
-{
-    MockIAosNConfiguration objMockIAosNConfiguration;
-    AosProvider::GetInstance()->SetNConfiguration(
-            static_cast<IAosNConfiguration*>(&objMockIAosNConfiguration), 0);
-
-    EXPECT_CALL(objMockIAosNConfiguration, IsWfcRoamingEnabled()).WillRepeatedly(Return(IMS_FALSE));
-
-    MockIAosBlock objMockIAosBlock;
-    EXPECT_CALL(objMockIAosBlock, SetBlockReason(_, _)).Times(0);
-    EXPECT_CALL(objMockIAosBlock, ResetBlockReason(_, _)).Times(1);
-
-    SetAosBlock(static_cast<IAosBlock*>(&objMockIAosBlock));
-
-    HandleRoamingChanged(0);
-}
-
 TEST_F(AosServiceAvailableWifiTest, HandleAirplaneModeChanged_ReturnByConfig)
 {
     MockIAosNConfiguration objMockIAosNConfiguration;

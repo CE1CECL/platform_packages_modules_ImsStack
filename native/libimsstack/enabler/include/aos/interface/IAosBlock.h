@@ -83,8 +83,6 @@ typedef enum
     BLOCK_WIFI_AIRPLANE_MODE_ON,
     /// wifi is not connected.
     BLOCK_WIFI_NO_WIFI,
-    /// wifi service is blocked in Roaming
-    BLOCK_WIFI_ROAMING,
     /// wifi service is blocked temporarily
     BLOCK_WIFI_TEMPORARILY_BLOCKED,
     /// End wifi Block reason

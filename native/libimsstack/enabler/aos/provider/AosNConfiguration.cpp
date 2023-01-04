@@ -139,12 +139,6 @@ PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsWfcImsAvailable() const
     return m_objCarrierConfig.bCarrierWfcImsAvailable;
 }
 
-PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsWfcRoamingEnabled() const
-{
-    // TODO: KEY_CARRIER_WFC_ROAMING_ENABLED_BOOL (?)
-    return IMS_TRUE;
-}
-
 PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsImsSingleRegistrationRequired() const
 {
     return m_objCarrierConfig.bImsSingleRegistrationRequired;

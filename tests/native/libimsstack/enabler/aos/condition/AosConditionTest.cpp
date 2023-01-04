@@ -350,7 +350,6 @@ TEST_F(AosConditionTest, SetBlock)
     m_pAosCondition->SetBlock(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE);
     m_pAosCondition->SetBlock(BLOCK_WIFI_AIRPLANE_MODE_ON);
     m_pAosCondition->SetBlock(BLOCK_WIFI_NO_WIFI);
-    m_pAosCondition->SetBlock(BLOCK_WIFI_ROAMING);
     m_pAosCondition->SetBlock(BLOCK_WIFI_TEMPORARILY_BLOCKED);
 
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_AC_INCOMPLETED));
@@ -375,7 +374,6 @@ TEST_F(AosConditionTest, SetBlock)
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_AIRPLANE_MODE_ON));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_NO_WIFI));
-    EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_ROAMING));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_TEMPORARILY_BLOCKED));
 }
 
@@ -405,7 +403,6 @@ TEST_F(AosConditionTest, ResetBlock)
     m_pAosCondition->SetBlock(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE);
     m_pAosCondition->SetBlock(BLOCK_WIFI_AIRPLANE_MODE_ON);
     m_pAosCondition->SetBlock(BLOCK_WIFI_NO_WIFI);
-    m_pAosCondition->SetBlock(BLOCK_WIFI_ROAMING);
     m_pAosCondition->SetBlock(BLOCK_WIFI_TEMPORARILY_BLOCKED);
 
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_AC_INCOMPLETED));
@@ -430,7 +427,6 @@ TEST_F(AosConditionTest, ResetBlock)
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_AIRPLANE_MODE_ON));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_NO_WIFI));
-    EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_ROAMING));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_TEMPORARILY_BLOCKED));
 
     m_pAosCondition->ResetBlock(BLOCK_AC_INCOMPLETED);
@@ -455,7 +451,6 @@ TEST_F(AosConditionTest, ResetBlock)
     m_pAosCondition->ResetBlock(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE);
     m_pAosCondition->ResetBlock(BLOCK_WIFI_AIRPLANE_MODE_ON);
     m_pAosCondition->ResetBlock(BLOCK_WIFI_NO_WIFI);
-    m_pAosCondition->ResetBlock(BLOCK_WIFI_ROAMING);
     m_pAosCondition->ResetBlock(BLOCK_WIFI_TEMPORARILY_BLOCKED);
 
     EXPECT_TRUE(m_pAosBlock->IsCleared());
@@ -487,7 +482,6 @@ TEST_F(AosConditionTest, IsReasonBlocked)
     m_pAosCondition->SetBlock(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE);
     m_pAosCondition->SetBlock(BLOCK_WIFI_AIRPLANE_MODE_ON);
     m_pAosCondition->SetBlock(BLOCK_WIFI_NO_WIFI);
-    m_pAosCondition->SetBlock(BLOCK_WIFI_ROAMING);
     m_pAosCondition->SetBlock(BLOCK_WIFI_TEMPORARILY_BLOCKED);
 
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_AC_INCOMPLETED));
@@ -512,7 +506,6 @@ TEST_F(AosConditionTest, IsReasonBlocked)
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_AIRPLANE_MODE_ON));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_NO_WIFI));
-    EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_ROAMING));
     EXPECT_TRUE(m_pAosCondition->IsReasonBlocked(BLOCK_WIFI_TEMPORARILY_BLOCKED));
 }
 
@@ -846,10 +839,6 @@ TEST_F(AosConditionTest, NConfiguration_NotifyConfigChanged_NConfigIsNotNull)
             .Times(1)
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_CALL(objMockIAosNConfiguration, IsWfcRoamingEnabled())
-            .Times(1)
-            .WillRepeatedly(Return(IMS_TRUE));
-
     NConfiguration_NotifyConfigChanged();
 }
 
@@ -860,8 +849,6 @@ TEST_F(AosConditionTest, NConfiguration_NotifyConfigChanged_NConfigIsNull)
     AosProvider::GetInstance()->SetNConfiguration(IMS_NULL, 0);
 
     EXPECT_CALL(objMockIAosNConfiguration, IsVoLteRoamingAvailable()).Times(0);
-
-    EXPECT_CALL(objMockIAosNConfiguration, IsWfcRoamingEnabled()).Times(0);
 
     NConfiguration_NotifyConfigChanged();
 }

@@ -200,25 +200,6 @@ PRIVATE VIRTUAL void AosServiceAvailableWifi::HandleCallStateChanged(
     }
 }
 
-PRIVATE VIRTUAL void AosServiceAvailableWifi::HandleRoamingChanged(IN IMS_UINT32 nState)
-{
-    AosServiceAvailable::HandleRoamingChanged(nState);
-
-    if (GET_N_CONFIG(m_nSlotId) != IMS_NULL &&
-            GET_N_CONFIG(m_nSlotId)->IsWfcRoamingEnabled() == IMS_FALSE)
-    {
-        if (m_bRoamingState)
-        {
-            RequestCommand(AosCondition::REQUEST_PDN_DISCONNECT, AosReason::NOT_SPECIFIED);
-            m_piBlock->SetBlockReason(BLOCK_WIFI_ROAMING);
-        }
-        else
-        {
-            m_piBlock->ResetBlockReason(BLOCK_WIFI_ROAMING);
-        }
-    }
-}
-
 PRIVATE VIRTUAL void AosServiceAvailableWifi::HandleAirplaneModeChanged(IN IMS_UINT32 nState)
 {
     AosServiceAvailable::HandleAirplaneModeChanged(nState);

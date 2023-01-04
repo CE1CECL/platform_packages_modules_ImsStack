@@ -94,13 +94,6 @@ public:
     virtual IMS_BOOL IsWfcImsAvailable() const = 0;
 
     /**
-     * @brief Check if WFC roaming is enabled.
-     *
-     * @return IMS_TRUE if enabled, IMS_FALSE if not enabled.
-     */
-    virtual IMS_BOOL IsWfcRoamingEnabled() const = 0;
-
-    /**
      * @brief Check if single registration is required.
      *
      * @return IMS_TRUE if required, IMS_FALSE if not required.

@@ -35,7 +35,6 @@ public:
     MOCK_METHOD(IMS_BOOL, IsVoLteRoamingAvailable, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsVtAvailable, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsWfcImsAvailable, (), (const, override));
-    MOCK_METHOD(IMS_BOOL, IsWfcRoamingEnabled, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsImsSingleRegistrationRequired, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsRttSupported, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsSupportLimitedAdminSmsMode, (), (const, override));
