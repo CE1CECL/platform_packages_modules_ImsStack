@@ -52,7 +52,6 @@ private:
     void NetworkPing_NotifyResult(IN INetworkPing* piPing, IN IMS_SINT32 nResult) final;
 
     void HandleCallStateChanged(IN IMS_UINT32 nState, IN IMS_SINT32 nStateEx) final;
-    void HandleRoamingChanged(IN IMS_UINT32 nState) final;
     void HandleAirplaneModeChanged(IN IMS_UINT32 nState) final;
     void HandleWiFiConnectionChanged() final;
     void HandleLocationInfoChanged() final;

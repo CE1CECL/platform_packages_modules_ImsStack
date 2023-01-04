@@ -523,7 +523,6 @@ TEST_F(AosBlockTest, BlockReasonToString_ParamValid) {
     EXPECT_STREQ(
             m_pAosBlock->BlockReasonToString(BLOCK_WIFI_AIRPLANE_MODE_ON), "WIFI_AIRPLANE_MODE_ON");
     EXPECT_STREQ(m_pAosBlock->BlockReasonToString(BLOCK_WIFI_NO_WIFI), "WIFI_NO_WIFI");
-    EXPECT_STREQ(m_pAosBlock->BlockReasonToString(BLOCK_WIFI_ROAMING), "WIFI_ROAMING");
     EXPECT_STREQ(m_pAosBlock->BlockReasonToString(BLOCK_WIFI_TEMPORARILY_BLOCKED),
             "WIFI_TEMPORARILY_BLOCKED");
 }

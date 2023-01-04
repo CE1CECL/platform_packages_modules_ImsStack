@@ -1052,8 +1052,3 @@ TEST_F(AosNConfigurationTest, InitBundleConfig)
     objErrCode = pAosNConfiguration->GetSubErrorSubTerminated();
     EXPECT_EQ(3, objErrCode.GetSize());
 }
-
-TEST_F(AosNConfigurationTest, TempConfig)
-{
-    EXPECT_TRUE(pAosNConfiguration->IsWfcRoamingEnabled());
-}

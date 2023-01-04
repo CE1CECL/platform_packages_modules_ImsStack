@@ -330,8 +330,7 @@ PROTECTED VIRTUAL void AosCondition::AddEventListener()
         return;
     }
 
-    if (GET_N_CONFIG(m_nSlotId)->IsVoLteRoamingAvailable() == IMS_FALSE ||
-            GET_N_CONFIG(m_nSlotId)->IsWfcRoamingEnabled() == IMS_FALSE)
+    if (GET_N_CONFIG(m_nSlotId)->IsVoLteRoamingAvailable() == IMS_FALSE)
     {
         IMS_EVENT_AddListenerForSlotId(IMS_EVENT_ROAMING_STATE, this, m_nSlotId);
     }
@@ -499,7 +498,7 @@ PROTECTED VIRTUAL void AosCondition::NConfiguration_NotifyConfigChanged()
 
     m_eServiceType = GetServiceType();
 
-    if (!piNConfig->IsVoLteRoamingAvailable() || !piNConfig->IsWfcRoamingEnabled())
+    if (!piNConfig->IsVoLteRoamingAvailable())
     {
         IMS_EVENT_AddListenerForSlotId(IMS_EVENT_ROAMING_STATE, this, m_nSlotId);
     }
@@ -736,7 +735,7 @@ void AosCondition::ProcessRoamingEvent(IN IMS_UINT32 nPsState, IN IMS_UINT32 nCs
         return;
     }
 
-    SendConditionEvent(AosServiceAvailable::EVENT_ROAMING, nState);
+    SendConditionEvent(AosServiceAvailable::EVENT_ROAMING, nState, SERVICE_CELLULAR);
 
     ResetImsDisableReason();
 }

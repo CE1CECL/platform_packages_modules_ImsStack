@@ -50,7 +50,6 @@ public:
     IMS_BOOL IsVoLteRoamingAvailable() const override;
     IMS_BOOL IsVtAvailable() const override;
     IMS_BOOL IsWfcImsAvailable() const override;
-    IMS_BOOL IsWfcRoamingEnabled() const override;
     IMS_BOOL IsImsSingleRegistrationRequired() const override;
     IMS_BOOL IsRttSupported() const override;
     IMS_BOOL IsSupportLimitedAdminSmsMode() const override;
