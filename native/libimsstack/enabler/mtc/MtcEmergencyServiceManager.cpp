@@ -17,8 +17,11 @@
 #include "IJniMtcServiceThread.h"
 #include "IMtcContext.h"
 #include "ImsAosParameter.h"
+#include "ImsAosReason.h"
 #include "MtcEmergencyServiceManager.h"
 #include "ServiceTrace.h"
+#include "configuration/ConfigDef.h"
+#include "configuration/MtcConfigurationProxy.h"
 #include "helper/IMtcAosConnector.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
@@ -87,6 +90,10 @@ PUBLIC VIRTUAL void MtcEmergencyServiceManager::OnAosStateChanged(
     switch (eState)
     {
         case MtcAosState::DISCONNECTED:
+            if (IsRetryOverImsPdnRequired(eAosReason))
+            {
+                return HandleEmergencyCallOverImsPdn();
+            }
             HandleServiceIdle(bStateChanged);
             break;
         case MtcAosState::CONNECTED:
@@ -148,6 +155,17 @@ void MtcEmergencyServiceManager::HandleEmergencyCallOverImsPdn()
         pThread->OnEmergencyServiceChanged(
                 eState, -1, static_cast<IMS_SINT32>(ServiceType::NORMAL));
     }
+}
+
+PRIVATE
+IMS_BOOL MtcEmergencyServiceManager::IsRetryOverImsPdnRequired(IN IMS_SINT32 eAosReason) const
+{
+    if (m_objContext.GetConfigurationProxy().Is(Feature::RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
+    {
+        return eAosReason == ImsAosReason::DATA_DISCONNECTED;
+    }
+
+    return IMS_FALSE;
 }
 
 PRIVATE
