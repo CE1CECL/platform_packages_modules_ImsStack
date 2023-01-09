@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -74,7 +75,7 @@ public class ImsCallAppTest {
     @Mock private IMmTelFeatureCapabilityListener mMockFeatureCapabilityListener;
     @Mock private IMmTelCallListener mMockCallListener;
     @Mock private ImsCallManager mMockImsCallManager;
-    @Mock private ImsFeatureManager mFeatureManager, mFeatureManager1;
+    @Mock private ImsFeatureManager mFeatureManager;
     @Mock private ImsRegistrationTracker mRegTracker;
 
     @Before
@@ -134,9 +135,10 @@ public class ImsCallAppTest {
         //for mInitCompleted == true
         mImsCallApp.unbindCallApp();
         verify(mFeatureManager).updateFeaturesOnServiceUpDown(false);
+        clearInvocations(mFeatureManager);
         //for mInitCompleted == false
         mImsCallApp.unbindCallApp();
-        verify(mFeatureManager1, never()).updateFeaturesOnServiceUpDown(false);
+        verify(mFeatureManager, never()).updateFeaturesOnServiceUpDown(false);
         //for mInitCompleted == false
         mImsCallApp.bindCallApp();
         verify(mRegTracker, times(2)).refreshCallRegistrationState();
