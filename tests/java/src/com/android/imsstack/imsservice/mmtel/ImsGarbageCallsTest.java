@@ -19,6 +19,8 @@ package com.android.imsstack.imsservice.mmtel;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.telephony.ims.stub.ImsCallSessionImplBase;
@@ -80,7 +82,11 @@ public class ImsGarbageCallsTest {
 
     @Test
     public void testRemove() {
-        ImsCallSessionImplBase callSession = Mockito.mock(ImsCallSessionImplBase.class);
+        ImsCallSessionImplBase callSession = null;
+        //For null session it will simply return
+        mImsGarbageCalls.remove(callSession);
+
+        callSession = Mockito.mock(ImsCallSessionImplBase.class);
         mImsGarbageCalls.add(mSlotId, callSession);
 
         ImsCallSessionImplBase callSession1 = Mockito.mock(ImsCallSessionImplBase.class);
@@ -91,6 +97,15 @@ public class ImsGarbageCallsTest {
         when(callSession.getCallId()).thenReturn("1");
         mImsGarbageCalls.remove(callSession);
         assertEquals(mImsGarbageCalls.getCount(mSlotId), 1);
+    }
+
+    @Test
+    public void testGetCallIdForException() {
+        ImsCallSessionImplBase mockCallSession = Mockito.mock(ImsCallSessionImplBase.class);
+        RuntimeException mockRuntimeException = Mockito.mock(RuntimeException.class);
+        doThrow(mockRuntimeException).when(mockCallSession).getCallId();
+        mImsGarbageCalls.add(mSlotId, mockCallSession);
+        verify(mockRuntimeException).printStackTrace();
     }
 
     @Test

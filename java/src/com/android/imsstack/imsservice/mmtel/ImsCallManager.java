@@ -565,7 +565,8 @@ public class ImsCallManager {
 
             mMmTelCallListener.onIncomingCallReceived(session);
         } catch (Throwable t) {
-            loge("onCallIncomingReceived :: exception occurred, drop the incoming call", t);
+            loge("onCallIncomingReceived :: exception occurred, drop the incoming call"
+                    + t.getMessage(), t);
             rejectAndDestroyCall(session, true);
         }
     }
@@ -652,7 +653,7 @@ public class ImsCallManager {
                     callSession.close();
                     count++;
                 } catch (Throwable t) {
-                    loge("terminateAllSessions Exception" + t.toString(), t);
+                    loge("terminateAllSessions Exception" + t.getMessage(), t);
                 }
             }
 
@@ -677,7 +678,7 @@ public class ImsCallManager {
                         callSession.close();
                         count++;
                     } catch (Throwable t) {
-                        loge("terminateAllPendingSessions exception:" + t.toString(), t);
+                        loge("terminateAllPendingSessions exception:" + t.getMessage(), t);
                     }
                 }
             }

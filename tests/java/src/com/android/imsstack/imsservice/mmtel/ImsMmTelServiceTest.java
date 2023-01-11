@@ -16,12 +16,16 @@
 
 package com.android.imsstack.imsservice.mmtel;
 
+import static android.telephony.PreciseCallState.PRECISE_CALL_STATE_INCOMING_SETUP;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,8 +34,10 @@ import static org.mockito.Mockito.when;
 import android.telecom.TelecomManager;
 import android.telephony.ims.ImsCallProfile;
 import android.telephony.ims.ImsExternalCallState;
+import android.telephony.ims.SrvccCall;
 import android.telephony.ims.aidl.IImsMmTelListener;
 import android.telephony.ims.feature.CapabilityChangeRequest;
+import android.telephony.ims.feature.ImsFeature;
 import android.telephony.ims.feature.MmTelFeature.MmTelCapabilities;
 import android.telephony.ims.stub.ImsCallSessionImplBase;
 import android.telephony.ims.stub.ImsEcbmImplBase;
@@ -45,6 +51,7 @@ import com.android.imsstack.enabler.IContext;
 import com.android.imsstack.imsservice.base.ImsContext;
 import com.android.imsstack.imsservice.mmtel.sms.SmsTransferLayer;
 import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
+import com.android.imsstack.internal.imsservice.MmTelFeatureRegistry;
 import com.android.imsstack.util.MessageExecutor;
 
 import org.junit.After;
@@ -57,6 +64,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 @RunWith(JUnit4.class)
 public class ImsMmTelServiceTest extends ImsStackTest {
@@ -70,12 +78,15 @@ public class ImsMmTelServiceTest extends ImsStackTest {
     private ImsServiceManager mServiceManager;
     private TestImsMmTelService mMmTelFeature;
     private MessageExecutor mExecutor;
+    private MmTelFeatureRegistry mMmTelFeatureRegistry;
+
+    private static final int SLOT_ID = 0;
 
     @Before
     public void setUp() throws Exception {
         mMockImsContext = Mockito.mock(ImsContext.class);
         when(mMockImsContext.getContext()).thenReturn(mContext);
-        when(mMockImsContext.getSlotId()).thenReturn(0);
+        when(mMockImsContext.getSlotId()).thenReturn(SLOT_ID);
         mMockServiceRegistry = Mockito.mock(ImsServiceRegistry.class);
         mMockServiceRecord = Mockito.mock(ImsServiceRecord.class);
         mMockRegTracker = Mockito.mock(ImsRegistrationTracker.class);
@@ -89,6 +100,7 @@ public class ImsMmTelServiceTest extends ImsStackTest {
         when(mMockImsContext.getExecutor()).thenReturn(mExecutor);
         mMmTelFeature.setDefaultExecutor(mExecutor);
         mMmTelFeature.getBinder().setListener(mMockMmTelListener);
+        mMmTelFeatureRegistry = ImsServiceRegistry.getInstance(SLOT_ID).getMmTelFeatureRegistry();
     }
 
     @After
@@ -172,10 +184,15 @@ public class ImsMmTelServiceTest extends ImsStackTest {
                 MmTelCapabilities.CAPABILITY_TYPE_SMS,
                 ImsRegistrationImplBase.REGISTRATION_TECH_LTE);
         assertFalse(result);
+
+        result = mMmTelFeature.queryCapabilityConfiguration(
+                MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER,
+                ImsRegistrationImplBase.REGISTRATION_TECH_LTE);
+        assertFalse(result);
     }
 
     @Test
-    public void testChangeEnabledCapabilities() {
+    public void testChangeEnabledCapabilities() throws Exception {
         mMmTelFeature.changeEnabledCapabilities(null, null);
         verify(mMockRegTracker, never()).changeCapabilities(any(), any());
 
@@ -191,6 +208,10 @@ public class ImsMmTelServiceTest extends ImsStackTest {
         mMmTelFeature.start();
         mMmTelFeature.changeEnabledCapabilities(capabilityRequest, null);
         verify(mMockRegTracker).changeCapabilities(any(), any());
+
+        mMmTelFeature.onCapabilitiesUpdateFailed(MmTelCapabilities.CAPABILITY_TYPE_VOICE,
+                ImsRegistrationImplBase.REGISTRATION_TECH_NONE,
+                ImsFeature.CAPABILITY_ERROR_GENERIC);
     }
 
     @Test
@@ -369,6 +390,43 @@ public class ImsMmTelServiceTest extends ImsStackTest {
         List<ImsExternalCallState> states = new ArrayList<ImsExternalCallState>();
         mMmTelFeature.onStateChange(states);
         verify(mockMultiEndpointImpl).updateDialogState(states);
+    }
+
+    @Test
+    public void testShouldProcessCall() {
+        String[] number = {"IMS"};
+        assertEquals(0, mMmTelFeature.shouldProcessCall(number));
+    }
+
+    @Test
+    public void testNotifySrvccStates() {
+        MmTelFeatureRegistry.Listener mMmtelFeatureListener =
+                Mockito.mock(MmTelFeatureRegistry.Listener.class);
+        mMmTelFeatureRegistry.addListener(mMmtelFeatureListener);
+
+        ImsCallManager mockImsCallManager = Mockito.mock(ImsCallManager.class);
+        when(mMockImsCallApp.getCallManager()).thenReturn(mockImsCallManager);
+
+        SrvccCall srvccProfile = new SrvccCall("", PRECISE_CALL_STATE_INCOMING_SETUP,
+                new ImsCallProfile());
+
+        Consumer<List<SrvccCall>> consumer = value -> List.of(srvccProfile);
+        mMmTelFeature.notifySrvccStarted(consumer);
+        verify(mMmtelFeatureListener).onSrvccStateChanged(MmTelFeatureRegistry.SRVCC_STATE_STARTED);
+        clearInvocations(mMmtelFeatureListener);
+
+        mMmTelFeature.notifySrvccCompleted();
+        verify(mMmtelFeatureListener)
+                .onSrvccStateChanged(MmTelFeatureRegistry.SRVCC_STATE_COMPLETED);
+        clearInvocations(mMmtelFeatureListener);
+
+        mMmTelFeature.notifySrvccFailed();
+        verify(mMmtelFeatureListener).onSrvccStateChanged(MmTelFeatureRegistry.SRVCC_STATE_FAILED);
+        clearInvocations(mMmtelFeatureListener);
+
+        mMmTelFeature.notifySrvccCanceled();
+        verify(mMmtelFeatureListener)
+                .onSrvccStateChanged(MmTelFeatureRegistry.SRVCC_STATE_CANCELED);
     }
 
     private TestImsMmTelService createMmTelService(ImsServiceRecord sr) {

@@ -16,6 +16,9 @@
 
 package com.android.imsstack.imsservice.mmtel;
 
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+
 import android.content.Context;
 
 import com.android.imsstack.enabler.sipcontroller.impl.SipControllerAgent;
@@ -71,6 +74,11 @@ public class ImsServiceRecordTest {
         mImsServiceRecord.setListener(mImsMmTelService);
         mImsServiceRecord.broadcastServiceUp();
         Mockito.verify(mImsMmTelService).onServiceRecordStateChanged();
+        clearInvocations(mImsMmTelService);
+
+        //return when ImsService is already up
+        mImsServiceRecord.broadcastServiceUp();
+        Mockito.verify(mImsMmTelService, never()).onServiceRecordStateChanged();
     }
 
     @Test
@@ -84,6 +92,7 @@ public class ImsServiceRecordTest {
     public void getConfigTest() {
         ImsConfigImpl Config = mImsServiceRecord.getConfig();
         Assert.assertNotNull(Config);
+        mImsServiceRecord.reconfigure();
     }
 
     @Test
@@ -126,7 +135,7 @@ public class ImsServiceRecordTest {
     }
 
     @After
-    public void cleanUp() {
+    public void tearDown() {
         mImsServiceRecord = null;
     }
 

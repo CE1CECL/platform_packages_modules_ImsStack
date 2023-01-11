@@ -19,6 +19,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
@@ -34,6 +35,7 @@ import android.telephony.ims.ImsCallProfile;
 import android.telephony.ims.ImsCallSession;
 import android.telephony.ims.ImsReasonInfo;
 import android.telephony.ims.ImsStreamMediaProfile;
+import android.telephony.ims.SrvccCall;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -54,6 +56,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ImsCallManagerTest {
@@ -427,6 +430,36 @@ public class ImsCallManagerTest {
     }
 
     @Test
+    public void getSrvccCallsTest() {
+        int preciseState = 0;
+        ImsCallProfile profile = new ImsCallProfile();
+
+        //For valid values of pending session
+        ImsCallSessionImpl pendingCallSession = Mockito.mock(ImsCallSessionImpl.class);
+        when(pendingCallSession.getCallId()).thenReturn(PENDING_CALL_ID);
+        when(pendingCallSession.getPreciseState()).thenReturn(preciseState);
+        when(pendingCallSession.getCallProfile()).thenReturn(profile);
+        mImsCallManager.getPendingSession().put(PENDING_CALL_ID, pendingCallSession);
+
+        //For valid values of session
+        when(mMockImsCallSession.getCallId()).thenReturn(CALL_ID);
+        when(mMockImsCallSession.getPreciseState()).thenReturn(preciseState);
+        when(mMockImsCallSession.getCallProfile()).thenReturn(profile);
+        mImsCallManager.getSession().put(CALL_ID, mMockImsCallSession);
+        SrvccCall srvccCall = new SrvccCall(CALL_ID, preciseState, profile);
+
+        List<SrvccCall> newSrvccCall = mImsCallManager.getSrvccCalls();
+        Assert.assertEquals(CALL_ID, newSrvccCall.get(0).getCallId());
+        Assert.assertEquals(preciseState, newSrvccCall.get(0).getPreciseCallState());
+        Assert.assertTrue(newSrvccCall.contains(srvccCall));
+
+        srvccCall = new SrvccCall(CALL_ID, 1, profile);
+        newSrvccCall = mImsCallManager.getSrvccCalls();
+        Assert.assertFalse(newSrvccCall.contains(srvccCall));
+        profile = null;
+    }
+
+    @Test
     public void getPhoneIdTest() {
         int result = mImsCallManager.getPhoneId();
         Assert.assertEquals(1, result);
@@ -617,6 +650,42 @@ public class ImsCallManagerTest {
         info.mOIR = IncomingCallInfo.OIPTYPE_IDENTITY;
         mMtcAppCallListenerProxy.onIncomingCallInfoReceived(info);
         Assert.assertNotNull(mImsCallManager.getIncomingCallInfo());
+    }
+
+    @Test
+    public void rejectAndDestroyCallExceptionTest() {
+        ImsCallSessionImpl mPendingSession = Mockito.mock(ImsCallSessionImpl.class);
+        RuntimeException mockRuntimeException = Mockito.mock(RuntimeException.class);
+        doThrow(mockRuntimeException).when(mMockIMmTelCallListener)
+            .onIncomingCallReceived(mPendingSession);
+        doThrow(mockRuntimeException).when(mPendingSession)
+            .reject(ImsReasonInfo.CODE_LOCAL_SERVICE_UNAVAILABLE);
+        mImsCallTracker.updateCallState(mPendingSession, CallTracker.CALL_EVENT_INCOMING_RECEIVED,
+                null);
+        verify(mockRuntimeException).getMessage();
+    }
+
+    @Test
+    public void terminateAllSessionsExceptionTest() {
+        when(mMockImsCallSession.getCallId()).thenReturn(CALL_ID);
+        mImsCallManager.getSession().put(CALL_ID, mMockImsCallSession);
+        RuntimeException mockRuntimeException = Mockito.mock(RuntimeException.class);
+        doThrow(mockRuntimeException).when(mMockImsCallSession).close();
+        mImsCallManager.closeAllSessions();
+        verify(mockRuntimeException).getMessage();
+        verify(mMockImsCallSession).close();
+    }
+
+    @Test
+    public void terminateAllPendingSessionsExceptionTest() {
+        ImsCallSessionImpl pendingCallSession = Mockito.mock(ImsCallSessionImpl.class);
+        when(pendingCallSession.getCallId()).thenReturn(PENDING_CALL_ID);
+        mImsCallManager.getPendingSession().put(PENDING_CALL_ID, pendingCallSession);
+        RuntimeException mockRuntimeException = Mockito.mock(RuntimeException.class);
+        doThrow(mockRuntimeException).when(pendingCallSession).close();
+        mImsCallManager.closeAllSessions();
+        verify(mockRuntimeException).getMessage();
+        verify(pendingCallSession).close();
     }
 
     class TestImsCallManager extends ImsCallManager {
