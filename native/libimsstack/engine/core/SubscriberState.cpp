@@ -58,29 +58,29 @@ IMS_SINT32 SubscriberState::s_nState[SubState::STATE_MAX][SubscriberState::MESSA
 PUBLIC GLOBAL
 const SipHeaderProperty SubscriberState::RESTRICTED_HEADER_PROPERTIES[] =
 {
-        // Header type, Header name, Is single header ?
-        {ISipHeader::ACCEPT_CONTACT,        IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::AUTHORIZATION,         IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::ALLOW,                 IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::CALL_ID,               IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::CONTACT_ANY,           IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::CONTENT_LENGTH,        IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::CSEQ,                  IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::FROM,                  IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::MAX_FORWARDS,          IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::MIN_EXPIRES,           IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::P_ACCESS_NETWORK_INFO, IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::P_ASSERTED_IDENTITY,   IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::P_PREFERRED_IDENTITY,  IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::PROXY_AUTHORIZATION,   IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::ROUTE,                 IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::TO,                    IMS_NULL,                      IMS_TRUE },
-        {ISipHeader::SECURITY_CLIENT,       IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::SECURITY_VERIFY,       IMS_NULL,                      IMS_FALSE},
-        {ISipHeader::VIA,                   IMS_NULL,                      IMS_FALSE},
+        // Header name, Header type, Is single header ?
+        {IMS_NULL,                      ISipHeader::ACCEPT_CONTACT,        IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::AUTHORIZATION,         IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::ALLOW,                 IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::CALL_ID,               IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::CONTACT_ANY,           IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::CONTENT_LENGTH,        IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::CSEQ,                  IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::FROM,                  IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::MAX_FORWARDS,          IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::MIN_EXPIRES,           IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::P_ACCESS_NETWORK_INFO, IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::P_ASSERTED_IDENTITY,   IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::P_PREFERRED_IDENTITY,  IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::PROXY_AUTHORIZATION,   IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::ROUTE,                 IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::TO,                    IMS_TRUE },
+        {IMS_NULL,                      ISipHeader::SECURITY_CLIENT,       IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::SECURITY_VERIFY,       IMS_FALSE},
+        {IMS_NULL,                      ISipHeader::VIA,                   IMS_FALSE},
         // SIP: Content-Length header is handled as unknown header
-        {ISipHeader::UNKNOWN,               SipHeaderName::CONTENT_LENGTH, IMS_TRUE },
-        {ISipHeader::UNKNOWN,               "l",                           IMS_TRUE }
+        {SipHeaderName::CONTENT_LENGTH, ISipHeader::UNKNOWN,               IMS_TRUE },
+        {"l",                           ISipHeader::UNKNOWN,               IMS_TRUE }
 };
 // clang-format on
 

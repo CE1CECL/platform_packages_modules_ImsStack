@@ -553,8 +553,6 @@ PRIVATE VIRTUAL IMS_BOOL Capabilities::SendRequestToChallenge(IN ISipClientConne
 
 PRIVATE VIRTUAL IMS_BOOL Capabilities::NotifySipRequest(IN ISipServerConnection* piSsc)
 {
-    ISipMessage* piSipMsg = piSsc->GetMessage();
-
     IMS_TRACE_I("Capabilities - OPTIONS REQUEST RECEIVED ...", 0, 0, 0);
 
     if (!UpdateRequestOnReceived(IMessage::CAPABILITIES_QUERY, piSsc))
@@ -581,6 +579,7 @@ PRIVATE VIRTUAL IMS_BOOL Capabilities::NotifySipRequest(IN ISipServerConnection*
 
     AString strContactHeader;
     AString strSdp;
+    ISipMessage* piSipMsg;
     ISipMessageBodyPart* piSipBodyPart;
     IMS_BOOL bIsContactGruu = IMS_FALSE;
 
