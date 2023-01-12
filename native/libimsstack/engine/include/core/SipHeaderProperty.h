@@ -20,8 +20,8 @@
 //    : It is usually used by the refresh helper (subscription/publication/ ...).
 struct SipHeaderProperty
 {
-    IMS_SINT32 nType;
     const IMS_CHAR* pszName;
+    IMS_SINT32 nType;
     IMS_BOOL bSingleHeader;
 };
 

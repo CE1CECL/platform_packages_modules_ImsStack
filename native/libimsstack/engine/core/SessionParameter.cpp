@@ -769,7 +769,10 @@ IMS_SINT32 SessionParameter::CompareMediaParameters(IN IMS_BOOL bInitialOffer, I
 
                 IMS_TRACE_D("Count of media formats :: Proposal (%d), Peer (%d)",
                         pProposalMedia->GetMediaFormats().GetSize(),
-                        pNegotiatedPeerParam->GetMediaFormats().GetSize(), 0);
+                        (pNegotiatedPeerParam != IMS_NULL)
+                                ? pNegotiatedPeerParam->GetMediaFormats().GetSize()
+                                : 0,
+                        0);
             }
         }
         else
