@@ -264,23 +264,17 @@ public class MtcCall extends Call implements ConferenceTracker {
     private class AudioSessionListener extends MtcMediaSession.AudioListener {
         @Override
         public void onAudioSessionOpened() {
-            if (mListener != null) {
-                mListener.onAudioSessionOpened(MtcCall.this);
-            }
+            Message.obtain(mHandler, MSG_AUDIO_SESSION_OPENED).sendToTarget();
         }
 
         @Override
         public void onAudioSessionClosed() {
-            if (mListener != null) {
-                mListener.onAudioSessionClosed(MtcCall.this);
-            }
+            Message.obtain(mHandler, MSG_AUDIO_SESSION_CLOSED).sendToTarget();
         }
 
         @Override
         public void onCallQualityChanged(CallQuality callQuality) {
-            if (mListener != null) {
-                mListener.onCallQualityChanged(MtcCall.this, callQuality);
-            }
+            Message.obtain(mHandler, MSG_AUDIO_QUALITY_CHANGED, callQuality).sendToTarget();
         }
     }
 
@@ -349,6 +343,10 @@ public class MtcCall extends Call implements ConferenceTracker {
     private static final int MSG_CALL_TERMINATED = 206;
     /** Args: None */
     private static final int MSG_CALL_INITIATING = 301;
+
+    private static final int MSG_AUDIO_SESSION_OPENED = 401;
+    private static final int MSG_AUDIO_SESSION_CLOSED = 402;
+    private static final int MSG_AUDIO_QUALITY_CHANGED = 403;
 
     private final MessageHandler mHandler;
     private final JNIImsListenerProxy mNativeListener = new JNIImsListenerProxy();
@@ -1618,6 +1616,18 @@ public class MtcCall extends Call implements ConferenceTracker {
                 }
                 case MSG_CALL_TERMINATED: {
                     listener.onCallTerminated(MtcCall.this, (CallReasonInfo) msg.obj);
+                    break;
+                }
+                case MSG_AUDIO_SESSION_OPENED: {
+                    listener.onAudioSessionOpened(MtcCall.this);
+                    break;
+                }
+                case MSG_AUDIO_SESSION_CLOSED: {
+                    listener.onAudioSessionClosed(MtcCall.this);
+                    break;
+                }
+                case MSG_AUDIO_QUALITY_CHANGED: {
+                    listener.onCallQualityChanged(MtcCall.this, (CallQuality) msg.obj);
                     break;
                 }
                 default:

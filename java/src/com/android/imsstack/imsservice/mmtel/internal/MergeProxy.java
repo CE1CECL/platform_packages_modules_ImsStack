@@ -16,6 +16,8 @@
 
 package com.android.imsstack.imsservice.mmtel.internal;
 
+import android.telephony.CallQuality;
+
 import com.android.imsstack.enabler.mtc.CallInfo;
 import com.android.imsstack.enabler.mtc.CallReasonInfo;
 import com.android.imsstack.enabler.mtc.MediaInfo;
@@ -398,6 +400,57 @@ public class MergeProxy extends ConferenceProxy {
         });
     }
 
+    private void notifyAudioSessionOpened(MtcCall call) {
+        postAndRun(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (ListenerWrapper lw : mListeners) {
+                        if (lw.mListener != null) {
+                            lw.mListener.onAudioSessionOpened(call);
+                        }
+                    }
+                } catch (Throwable t) {
+                    loge("notifyAudioSessionOpened", t);
+                }
+            }
+        });
+    }
+
+    private void notifyCallQualityChanged(MtcCall call, CallQuality callQuality) {
+        postAndRun(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (ListenerWrapper lw : mListeners) {
+                        if (lw.mListener != null) {
+                            lw.mListener.onCallQualityChanged(call, callQuality);
+                        }
+                    }
+                } catch (Throwable t) {
+                    loge("notifyCallQualityChanged", t);
+                }
+            }
+        });
+    }
+
+    private void notifyAudioSessionClosed(MtcCall call) {
+        postAndRun(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (ListenerWrapper lw : mListeners) {
+                        if (lw.mListener != null) {
+                            lw.mListener.onAudioSessionClosed(call);
+                        }
+                    }
+                } catch (Throwable t) {
+                    loge("notifyAudioSessionClosed", t);
+                }
+            }
+        });
+    }
+
     @VisibleForTesting
     protected boolean isBackgroundCallRecoveryRequired() {
         return (mCallRecoveryRequired & FLAG_RECOVER_BACKGROUND_CALL) != 0;
@@ -719,6 +772,33 @@ public class MergeProxy extends ConferenceProxy {
                 notifySessionInfoUpdated(call, type, strValue, intValue, booleanValue);
             }
         }
+
+        /* MtcCall.Listener will not be available for Conference ImsCallSessionImpl session
+         * When onAudioSessionOpened is triggered from Media for Conferencesession.
+         * So pass this callback to ImsCallSessionImpl via MtcConference.Listener
+         * notifyAudioSessionOpenedForConference() callback.
+        */
+        @Override
+        public void onAudioSessionOpened(MtcCall call) {
+            logi("onAudioSessionOpened");
+            notifyAudioSessionOpened(call);
+        }
+
+        @Override
+        public void onCallQualityChanged(MtcCall call, CallQuality callQuality) {
+            logi("onCallQualityChanged");
+
+            if (call.equals(getConferenceCall())) {
+                call = mForegroundCall;
+            }
+            notifyCallQualityChanged(call, callQuality);
+        }
+
+        @Override
+        public void onAudioSessionClosed(MtcCall call) {
+            logi("onAudioSessionClosed");
+            notifyAudioSessionClosed(call);
+        }
     }
 
     private class MtcConferenceListenerProxy extends MtcConference.Listener {
@@ -739,7 +819,6 @@ public class MergeProxy extends ConferenceProxy {
                 // Checks if the call merge is executed to extend to the conference initially
                 notifySessionMergeStarted(callInfo, mediaInfo, suppInfo);
             }
-
             notifySessionMerged(callInfo, mediaInfo, suppInfo, usersInfo);
         }
 
