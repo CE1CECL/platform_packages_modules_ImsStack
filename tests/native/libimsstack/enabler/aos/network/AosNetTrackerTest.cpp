@@ -198,7 +198,7 @@ protected:
 
     void NotifyConnectionFailed() { m_pAosNetTracker->AosConnection_ConnectionFailed(); }
 
-    IMS_CHAR* FeaturesToString() { return m_pAosNetTracker->FeaturesToString().GetStr(); }
+    AString FeaturesToString() { return m_pAosNetTracker->FeaturesToString(); }
 
     const IMS_CHAR* RadioTypeToString(IMS_UINT32 nState)
     {
@@ -864,7 +864,7 @@ TEST_F(AosNetTrackerTest, FeaturesToString)
 {
     SetFeature(AosNetTracker::FEATURE_IN_GUARD | AosNetTracker::FEATURE_OUT_GUARD |
             AosNetTracker::FEATURE_RAT_GUARD | AosNetTracker::FEATURE_VOICE_RAT_GUARD);
-    EXPECT_STREQ(FeaturesToString(),
+    EXPECT_STREQ(FeaturesToString().GetStr(),
             "| FEATURE_IN_GUARD | FEATURE_OUT_GUARD | FEATURE_RAT_GUARD | FEATURE_VOICE_RAT_GUARD "
             "| ");
 }
