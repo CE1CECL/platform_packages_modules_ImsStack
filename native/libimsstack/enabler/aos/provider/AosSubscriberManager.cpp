@@ -1593,20 +1593,21 @@ void AosSubscriberManager::ServicePhone_IsimStateChanged(IN IsimState eState)
 
 PROTECTED const IMS_CHAR* AosSubscriberManager::IdentityPriorityToString()
 {
-    AString strPriority;
+    m_strPriority.Resize(0);
+
     if (m_objImsIdentityPriority.IsEmpty())
     {
-        return strPriority.Append("[Empty]").GetStr();
+        return m_strPriority.Append("[Empty]").GetStr();
     }
 
     for (IMS_UINT32 i = 0; i < m_objImsIdentityPriority.GetSize(); ++i)
     {
-        strPriority.Append("[");
-        strPriority.Append(PrintIdentity(GetIdentity(static_cast<Index>(i))));
-        strPriority.Append("]");
+        m_strPriority.Append("[");
+        m_strPriority.Append(PrintIdentity(GetIdentity(static_cast<Index>(i))));
+        m_strPriority.Append("]");
     }
 
-    return strPriority.GetStr();
+    return m_strPriority.GetStr();
 }
 
 PROTECTED GLOBAL const IMS_CHAR* AosSubscriberManager::PrintIdentity(IN IMS_UINT32 nIdentity)

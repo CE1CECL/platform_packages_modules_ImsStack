@@ -183,6 +183,8 @@ protected:
     AStringArray m_objPuids;
     AStringArray m_objPuidsForFake;
 
+    AString m_strPriority;
+
     IAosNConfiguration* m_piNConfig;
 
     // Carrier Configuration
