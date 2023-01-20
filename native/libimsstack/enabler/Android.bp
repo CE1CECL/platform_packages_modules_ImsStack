@@ -76,6 +76,7 @@ cc_library_static {
         "libimsstack_jni_media_headers",
         "libimsstack_jni_aos_headers",
         "libimsstack_jni_uce_headers",
+        "libimsstack_jni_sipcontroller_headers",
     ],
     include_dirs: [
         "system/libbase/include",

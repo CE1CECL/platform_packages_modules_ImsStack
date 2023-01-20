@@ -18,13 +18,12 @@
 #define INTERFACE_UI_SIP_CONTROLLER_SERVICEH_
 
 #include "AString.h"
+#include "AStringArray.h"
 #include "ByteArray.h"
 #include "ImsMessageDef.h"
 #include "ServiceMemory.h"
 #include "ServiceTrace.h"
 
-#define IMS_SOLUTION_MSG_SOURCE_LEN 64
-#define IMS_SOLUTION_URI_LEN        128
 #define INTERNAL_RCS_IM             (IMS_MSG_USER + 5000)  // 105000
 
 enum IMINTERNALMSG
@@ -45,6 +44,14 @@ enum IMINTERNALMSG
     TIMER_EXPIRED,
 };
 
+enum class RcsRegState
+{
+    STATE_DEREGISTERING = 0,
+    STATE_DEREGISTERED,
+    STATE_REGISTERING,
+    STATE_REGISTERED
+};
+
 class IUSncService
 {
 public:
@@ -54,7 +61,6 @@ public:
     static const IMS_SINT32 SEND_MESSAGE_CMD = (IMS_MSG_SIP_DELEGATE + 11);
     static const IMS_SINT32 CLOSE_SESSION_CMD = (IMS_MSG_SIP_DELEGATE + 12);
     static const IMS_SINT32 NOTIFY_MESSAGE_RECEIVE_ERROR_CMD = (IMS_MSG_SIP_DELEGATE + 13);
-    static const IMS_SINT32 UPDATE_DELEGATE_REGISTRATION_CMD = (IMS_MSG_SIP_DELEGATE + 14);
 
     static const IMS_SINT32 MESSAGE_RECEIVED_IND = (IMS_MSG_SIP_DELEGATE + 21);
     static const IMS_SINT32 MESSAGE_SENT_IND = (IMS_MSG_SIP_DELEGATE + 22);
@@ -212,6 +218,43 @@ public:
 
 public:
     AString m_strTId;
+};
+
+class IUSncFeatureTagsParam : public IUSncSessionData
+{
+public:
+    inline IUSncFeatureTagsParam() :
+            m_objFeatureTags()
+    {
+        IMS_TRACE_MEM("SNC_MSG", "IM_M : IUSncFeatureTagsParam = %" PFLS_u,
+                sizeof(IUSncFeatureTagsParam), 0, 0);
+        m_nFeatureCount = 0;
+    }
+    inline ~IUSncFeatureTagsParam()
+    {
+        IMS_TRACE_MEM("SNC_MSG", "IM_F : IUSncFeatureTagsParam = %" PFLS_u,
+                sizeof(IUSncFeatureTagsParam), 0, 0);
+    }
+
+public:
+    AStringArray m_objFeatureTags;
+    IMS_SINT32 m_nFeatureCount;
+    IMS_SINT32 m_nRegState;
+};
+
+class IUSncTriggerDeregistrationParam : public IUSncSessionData
+{
+public:
+    inline IUSncTriggerDeregistrationParam()
+    {
+        IMS_TRACE_MEM("SNC_MSG", "IM_M : IUSncTriggerDeregistrationParam = %" PFLS_u,
+                sizeof(IUSncTriggerDeregistrationParam), 0, 0);
+    }
+    inline ~IUSncTriggerDeregistrationParam()
+    {
+        IMS_TRACE_MEM("SNC_MSG", "IM_F : IUSncTriggerDeregistrationParam = %" PFLS_u,
+                sizeof(IUSncTriggerDeregistrationParam), 0, 0);
+    }
 };
 
 class IUSncSentMessageIndParam : public IUSncSessionData

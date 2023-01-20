@@ -65,6 +65,7 @@ cc_test {
         "enabler/interface/mtc",
         "enabler/interface/mts",
         "enabler/interface/uce",
+        "enabler/interface/sipcontroller",
     ],
     header_libs: [
         "libimsstack_config_headers",

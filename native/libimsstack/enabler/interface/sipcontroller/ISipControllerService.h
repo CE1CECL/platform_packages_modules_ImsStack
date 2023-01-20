@@ -59,7 +59,7 @@ public:
      *
      * @param nParam viaTransactionId and error reason
      */
-    virtual void NotifyMessageReceiveError(IN IN IMS_UINTP nParam) = 0;
+    virtual void NotifyMessageReceiveError(IN IMS_UINTP nParam) = 0;
 
     /**
      * The remote IMS application has closed a SIP session and the routing resources associated

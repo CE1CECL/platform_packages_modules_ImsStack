@@ -20,7 +20,11 @@
 #include "BaseService.h"
 
 class JniSipControllerServiceThread;
+class IJniEnablerThread;
+class ISipControllerService;
 class IUSncSendMessageParam;
+class IUSncFeatureTagsParam;
+class IUSncNotifyErrorCmdParam;
 
 using namespace android;
 
@@ -31,18 +35,28 @@ public:
             Jni_SendDataToJava pfnSendDataToJava, IN IMS_UINT32 nSimSlot = 0);
     virtual ~JniSipControllerService();
 
+    inline void NotifyNativeEnablerSet() override {}
+    IJniEnablerThread* GetJniThread() const override;
     int SendData(const Parcel& pParcel) override;
 
+protected:
+    void HandleMessage(int nMsg, const Parcel& pParcel) override;
+
 private:
-    void HandleMsg(int nMsg, const Parcel& pParcel);
-    IUSncSendMessageParam* makeSendMessageParamFromParcel(const android::Parcel& objParcel);
+    ISipControllerService* GetNativeService();
+    void OpenMessageTracker();
+    void SendMessage(IN ISipControllerService* piSipService, IN IUSncSendMessageParam* pParam);
+    void NotifyMessageReceiveError(
+            IN ISipControllerService* piSipService, IN IUSncNotifyErrorCmdParam* pParam);
+    void TriggerDelegateDeregistration(IN ISipControllerService* piSipService);
+    void CloseSession(IN ISipControllerService* piSipService, IN const AString& strCallId);
+    void UpdateRegistration(
+            IN ISipControllerService* piSipService, IN IUSncFeatureTagsParam* pParam);
+    IUSncSendMessageParam* makeSendMessageParamFromParcel(IN const android::Parcel& objParcel);
     void ConvertString(IN const android::String16& strSource, OUT AString& strDest);
 
 private:
     JniSipControllerServiceThread* m_pJniSipControllerServiceThread;
-    AString m_strTarget;
     AString m_strThreadName;
-    IMS_SINTP m_nSessionId;
 };
-
 #endif  // JNI_SIP_CONTROLLER_SERVICE_H_

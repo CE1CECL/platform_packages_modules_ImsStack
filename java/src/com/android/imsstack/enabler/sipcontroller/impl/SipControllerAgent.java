@@ -246,7 +246,11 @@ public class SipControllerAgent implements ISipTransportRemote, JniImsListener {
         ImsLog.i(mSlotId, "updateSipDelegateRegistration");
         Parcel parcel = Parcel.obtain();
         parcel.writeInt(SipControllerConstants.UPDATE_DELEGATE_REGISTRATION_CMD);
-        parcel.writeStringArray((String[]) featureTags.toArray());
+        parcel.writeInt(featureTags.size());
+
+        for (String str : featureTags) {
+            parcel.writeString(str);
+        }
         sendMessageToJNI(parcel);
     }
 

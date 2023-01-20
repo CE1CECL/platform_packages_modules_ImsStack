@@ -98,7 +98,7 @@ PRIVATE void SipControllerManager::DisableService()
     }
 }
 
-PROTECTED VIRTUAL void SipControllerManager::UpdateDelegateRegistration(IN IMS_UINTP /*nParam*/)
+PROTECTED VIRTUAL void SipControllerManager::UpdateDelegateRegistration(IN IMS_UINTP nParam)
 {
     IMS_TRACE_D("HandleUpdateDelegateRegistration()", 0, 0, 0);
     if (m_pRcsRegService == IMS_NULL)
@@ -106,6 +106,7 @@ PROTECTED VIRTUAL void SipControllerManager::UpdateDelegateRegistration(IN IMS_U
         IMS_TRACE_E(0, "m_pRcsRegService is null", 0, 0, 0);
         return;
     }
+    m_pRcsRegService->UpdateDelegateRegistration(nParam);
 }
 
 PROTECTED VIRTUAL void SipControllerManager::TriggerDelegateDeregistration()
@@ -116,6 +117,7 @@ PROTECTED VIRTUAL void SipControllerManager::TriggerDelegateDeregistration()
         IMS_TRACE_E(0, "m_pRcsRegService is null", 0, 0, 0);
         return;
     }
+    m_pRcsRegService->TriggerDelegateDeregistration();
 }
 
 PROTECTED VIRTUAL void SipControllerManager::OpenMessageTracker(IN const AString& /*strThreadName*/)
@@ -126,6 +128,8 @@ PROTECTED VIRTUAL void SipControllerManager::OpenMessageTracker(IN const AString
         IMS_TRACE_E(0, "m_pRcsMsgService is null", 0, 0, 0);
         return;
     }
+    // TODO
+    // RcsMessageService call
 }
 
 PROTECTED VIRTUAL void SipControllerManager::SendMessage(IN IMS_UINTP /*nParam*/)
@@ -136,6 +140,8 @@ PROTECTED VIRTUAL void SipControllerManager::SendMessage(IN IMS_UINTP /*nParam*/
         IMS_TRACE_E(0, "m_pRcsMsgService is null", 0, 0, 0);
         return;
     }
+    // TODO
+    // RcsMessageService call
 }
 
 PROTECTED VIRTUAL void SipControllerManager::NotifyMessageReceiveError(IN IMS_UINTP /*nParam*/)
@@ -146,6 +152,8 @@ PROTECTED VIRTUAL void SipControllerManager::NotifyMessageReceiveError(IN IMS_UI
         IMS_TRACE_E(0, "m_pRcsMsgService is null", 0, 0, 0);
         return;
     }
+    // TODO
+    // RcsMessageService call
 }
 
 PROTECTED VIRTUAL void SipControllerManager::CloseSession(IN const AString& /*strCallId*/)
@@ -156,4 +164,6 @@ PROTECTED VIRTUAL void SipControllerManager::CloseSession(IN const AString& /*st
         IMS_TRACE_E(0, "m_pRcsMsgService is null", 0, 0, 0);
         return;
     }
+    // TODO
+    // RcsMessageService call
 }

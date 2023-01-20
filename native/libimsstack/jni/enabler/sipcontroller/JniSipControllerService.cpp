@@ -19,7 +19,9 @@
 #include <utils/String8.h>
 #include "EnablerUtils.h"
 #include "ImsProcess.h"
+#include "ISipControllerService.h"
 #include "IURcsMessageService.h"
+#include "JniEnablerConnector.h"
 #include "JniSipControllerService.h"
 #include "JniSipControllerServiceThread.h"
 #include "ServiceMemory.h"
@@ -28,18 +30,14 @@
 
 __IMS_TRACE_TAG_USER_DECL__("IMS_SNC");
 
-JniSipControllerService::JniSipControllerService(
+PUBLIC JniSipControllerService::JniSipControllerService(
         Jni_SendDataToJava pfnSendDataToJava, IN IMS_UINT32 nSimSlot /*= 0*/) :
         BaseService(nSimSlot),
-        m_strTarget(EnablerUtils::GetEnablerThreadName(nSimSlot)),
-        m_strThreadName(AString::ConstNull()),
-        m_nSessionId(-1)
+        m_strThreadName(AString::ConstNull())
 {
-    IMS_TRACE_MEM("SNC_MEM", "JniSipControllerService = %" PFLS_u "/%" PFLS_x,
+    IMS_TRACE_MEM("SNC_MSG", "JniSipControllerService = %" PFLS_u "/%" PFLS_x,
             sizeof(JniSipControllerService), this, 0);
-    m_strTarget.Append(".RcsMessageService");
-    IMS_TRACE_D("JniSipControllerService [%s]", m_strTarget.GetStr(), 0, 0);
-    m_nSessionId = reinterpret_cast<IMS_SINTP>(this);
+    IMS_TRACE_I("[%d] +JniSipControllerService :", GetSlotId(), 0, 0);
 
     if (pfnSendDataToJava == NULL)
     {
@@ -63,133 +61,195 @@ JniSipControllerService::JniSipControllerService(
 
     m_pJniSipControllerServiceThread->SetCallback(
             reinterpret_cast<IMS_UINTP>(this), pfnSendDataToJava);
-
-    IUSncOpenCmdParam* pParam = new IUSncOpenCmdParam();
-    pParam->m_nSessionID = m_nSessionId;
-    pParam->m_strThread = m_strThreadName;
-    IMSMSG objMSG(IUSncService::OPEN_MESSAGE_CMD, 0, reinterpret_cast<IMS_UINTP>(pParam));
-    MessageService::PostMessage(m_strTarget, objMSG);
+    JniEnablerConnector::GetInstance().SetJniEnabler(GetSlotId(), EnablerType::SIP_DELEGATE, this);
+    OpenMessageTracker();
 }
 
-JniSipControllerService::~JniSipControllerService()
+PUBLIC JniSipControllerService::~JniSipControllerService()
 {
-    IMS_TRACE_I("~JniSipControllerService :", 0, 0, 0);
-    IMS_TRACE_MEM("SNC_MEM", "JniSipControllerService = %" PFLS_u "/%" PFLS_x,
+    IMS_TRACE_MEM("SNC_MSG", "JniSipControllerService = %" PFLS_u "/%" PFLS_x,
             sizeof(JniSipControllerService), this, 0);
+    IMS_TRACE_I("[%d] ~JniSipControllerService :", GetSlotId(), 0, 0);
 
+    JniEnablerConnector::GetInstance().SetJniEnabler(
+            GetSlotId(), EnablerType::SIP_DELEGATE, IMS_NULL);
     if (m_pJniSipControllerServiceThread != NULL)
     {
         ImsProcess::GetInstance()->UnloadAppThread(m_strThreadName);
         m_pJniSipControllerServiceThread = NULL;
     }
-    IUSncCloseSessionCmdParam* pParam = new IUSncCloseSessionCmdParam();
-    pParam->m_nSessionID = m_nSessionId;
-    IMSMSG objMSG(IUSncService::CLOSE_SESSION_CMD, 0, reinterpret_cast<IMS_UINTP>(pParam));
-    MessageService::PostMessage(m_strTarget, objMSG);
+    // need to check if this function should be called ate the end of the class.
+    // CloseSession(AString::ConstEmpty());
 }
 
-int JniSipControllerService::SendData(const Parcel& pParcel)
+PUBLIC VIRTUAL IJniEnablerThread* JniSipControllerService::GetJniThread() const
+{
+    return DYNAMIC_CAST(IJniEnablerThread*, m_pJniSipControllerServiceThread);
+}
+
+PUBLIC int JniSipControllerService::SendData(const android::Parcel& pParcel)
 {
     int nMsg = pParcel.readInt32();
 
-    IMS_TRACE_I("SendData : msg = %d", nMsg, 0, 0);
-    HandleMsg(nMsg, pParcel);
+    IMS_TRACE_I("[%d] SendData : msg = %d", GetSlotId(), nMsg, 0);
+
+    if (IsThreadSwitchingRequired(nMsg))
+    {
+        SendDataUsingEnablerThread(pParcel);
+    }
+    else
+    {
+        HandleMessage(nMsg, pParcel);
+    }
+
     return 1;
 }
 
-PRIVATE
-void JniSipControllerService::HandleMsg(int nMsg, const Parcel& pParcel)
+PROTECTED VIRTUAL void JniSipControllerService::HandleMessage(
+        int nMsg, const android::Parcel& pParcel)
 {
     AString strDest = AString::ConstEmpty();
-    IMS_TRACE_I("msg = %d", nMsg, 0, 0);
+    IMS_TRACE_I("[%d] msg = %d", GetSlotId(), nMsg, 0);
+
+    ISipControllerService* piSipService = GetNativeService();
+    if (piSipService == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "HandleMessage:GetNativeService is null", 0, 0, 0);
+        return;
+    }
 
     switch (nMsg)
     {
         case IUSncService::SEND_MESSAGE_CMD:
         {
             IUSncSendMessageParam* pParam = makeSendMessageParamFromParcel(pParcel);
-            pParam->m_nSessionID = m_nSessionId;
             pParam->m_strThread = m_strThreadName;
-            IMSMSG objMSG(IUSncService::SEND_MESSAGE_CMD, 0, reinterpret_cast<IMS_UINTP>(pParam));
-            MessageService::PostMessage(m_strTarget, objMSG);
+            SendMessage(piSipService, pParam);
         }
         break;
         case IUSncService::CLOSE_SESSION_CMD:
         {
             IUSncCloseSessionCmdParam* pParam = new IUSncCloseSessionCmdParam();
-            pParam->m_nSessionID = m_nSessionId;
             pParam->m_strThread = m_strThreadName;
             ConvertString(pParcel.readString16(), strDest);
-            pParam->m_strCallId = strDest;
-            IMSMSG objMSG(IUSncService::CLOSE_SESSION_CMD, 0, reinterpret_cast<IMS_UINTP>(pParam));
-            MessageService::PostMessage(m_strTarget, objMSG);
+            CloseSession(piSipService, strDest);
         }
         break;
         case IUSncService::NOTIFY_MESSAGE_RECEIVE_ERROR_CMD:
         {
             IUSncNotifyErrorCmdParam* pParam = new IUSncNotifyErrorCmdParam();
-            pParam->m_nSessionID = m_nSessionId;
             pParam->m_strThread = m_strThreadName;
             ConvertString(pParcel.readString16(), strDest);
             pParam->m_strTId = strDest;
-            IMSMSG objMSG(IUSncService::NOTIFY_MESSAGE_RECEIVE_ERROR_CMD, 0,
-                    reinterpret_cast<IMS_UINTP>(pParam));
-            MessageService::PostMessage(m_strTarget, objMSG);
+            NotifyMessageReceiveError(piSipService, pParam);
         }
         break;
         case IUSncControl::UPDATE_SIPREGISTRATION_CMD:
         {
-            // TODO : hakjunc
-            IMS_TRACE_E(
-                    0, "HandleMsg : UPDATESIPREGISTRATION_CMD by hakjunc, name %d\n", nMsg, 0, 0);
+            IUSncFeatureTagsParam* pParam = new IUSncFeatureTagsParam();
+            pParam->m_nFeatureCount = pParcel.readInt32();
+            IMS_TRACE_D("UPDATEDELEGATEREGISTRATION_CMD featuretag : %d", pParam->m_nFeatureCount,
+                    0, 0);
+
+            AString strFeatureTag = AString::ConstEmpty();
+            for (IMS_SINT32 i = 0; i < pParam->m_nFeatureCount; i++)
+            {
+                ConvertString(pParcel.readString16(), strFeatureTag);
+                IMS_TRACE_D("UPDATEDELEGATEREGISTRATION_CMD featuretag : [%s]",
+                        strFeatureTag.GetStr(), 0, 0);
+                pParam->m_objFeatureTags.AddElement(strFeatureTag);
+            }
+            UpdateRegistration(piSipService, pParam);
         }
         break;
         case IUSncControl::TRIGGER_SIPDEREGISTRATION_CMD:
         {
-            // TODO : hakjunc
-            IMS_TRACE_E(0, "HandleMsg : TRIGGERSIPDEREGISTRATION_CMD by hakjunc, name %d\n", nMsg,
-                    0, 0);
+            TriggerDelegateDeregistration(piSipService);
         }
         break;
         default:
-            IMS_TRACE_E(0, "HandleMsg : Can't analysis message, name %d\n", nMsg, 0, 0);
+            IMS_TRACE_E(0, "HandleMessage : Can't analysis message, name %d\n", nMsg, 0, 0);
             break;
     }
 }
 
-PRIVATE
-IUSncSendMessageParam* JniSipControllerService::makeSendMessageParamFromParcel(
-        const android::Parcel& objParcel)
+PRIVATE ISipControllerService* JniSipControllerService::GetNativeService()
+{
+    return DYNAMIC_CAST(ISipControllerService*,
+            JniEnablerConnector::GetInstance().GetNativeEnabler(
+                    GetSlotId(), EnablerType::SIP_DELEGATE));
+}
+
+PRIVATE void JniSipControllerService::OpenMessageTracker()
+{
+    IMS_TRACE_I("[%d] OpenMessageTracker()", GetSlotId(), 0, 0);
+    ISipControllerService* piSipService = GetNativeService();
+    if (piSipService == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "HandleMessage:GetNativeService is null", 0, 0, 0);
+        return;
+    }
+    piSipService->OpenMessageTracker(m_strThreadName);
+}
+
+PRIVATE void JniSipControllerService::SendMessage(
+        IN ISipControllerService* piSipService, IN IUSncSendMessageParam* pParam)
+{
+    IMS_TRACE_I("[%d] SendMessage()", GetSlotId(), 0, 0);
+    piSipService->SendMessage(reinterpret_cast<IMS_UINTP>(pParam));
+}
+
+PRIVATE void JniSipControllerService::NotifyMessageReceiveError(
+        IN ISipControllerService* piSipService, IN IUSncNotifyErrorCmdParam* pParam)
+{
+    piSipService->NotifyMessageReceiveError(reinterpret_cast<IMS_UINTP>(pParam));
+}
+
+PRIVATE void JniSipControllerService::TriggerDelegateDeregistration(
+        IN ISipControllerService* piSipService)
+{
+    piSipService->TriggerDelegateDeregistration();
+}
+
+PRIVATE void JniSipControllerService::CloseSession(
+        IN ISipControllerService* piSipService, IN const AString& strCallId)
+{
+    IMS_TRACE_I("[%d] CloseSession()", GetSlotId(), 0, 0);
+    piSipService->CloseSession(strCallId);
+}
+
+PRIVATE void JniSipControllerService::UpdateRegistration(
+        IN ISipControllerService* piSipService, IN IUSncFeatureTagsParam* pParam)
+{
+    IMS_TRACE_I("[%d] UpdateRegistration", GetSlotId(), 0, 0);
+    piSipService->UpdateDelegateRegistration(reinterpret_cast<IMS_UINTP>(pParam));
+}
+
+PRIVATE IUSncSendMessageParam* JniSipControllerService::makeSendMessageParamFromParcel(
+        IN const android::Parcel& objParcel)
 {
     AString strDest = AString::ConstEmpty();
     IUSncSendMessageParam* pParam = new IUSncSendMessageParam();
 
     ConvertString(objParcel.readString16(), strDest);
     pParam->m_strStartLine = strDest;
-
     ConvertString(objParcel.readString16(), strDest);
     pParam->m_strHeaderSection = strDest;
-
     pParam->m_nContentLength = objParcel.readInt32();
-
     ConvertString(objParcel.readString16(), strDest);
     pParam->m_strContent = strDest;
-
     ConvertString(objParcel.readString16(), strDest);
     pParam->m_strMethod = strDest;
-
     ConvertString(objParcel.readString16(), strDest);
     pParam->m_strFromParameter = strDest;
-
     ConvertString(objParcel.readString16(), strDest);
     pParam->m_strToParameter = strDest;
-
     pParam->m_nType = objParcel.readInt32();
     return pParam;
 }
 
 PRIVATE GLOBAL void JniSipControllerService::ConvertString(
-        IN const String16& strSource, OUT AString& strDest)
+        IN const android::String16& strSource, OUT AString& strDest)
 {
     String8 str8(strSource);
     strDest = str8.string();

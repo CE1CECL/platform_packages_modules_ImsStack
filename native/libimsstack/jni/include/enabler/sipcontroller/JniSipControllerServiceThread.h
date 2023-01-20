@@ -17,32 +17,21 @@
 #ifndef JNI_SIP_CONTROLLER_SERVICE_THREAD_H_
 #define JNI_SIP_CONTROLLER_SERVICE_THREAD_H_
 
-#include "BaseService.h"
-#include "ImsAppThread.h"
+#include "BaseServiceThread.h"
+#include "IJniSipControllerServiceThread.h"
 
-class JniSipControllerServiceThread : public ImsAppThread
+class JniSipControllerServiceThread :
+        public BaseServiceThread,
+        public IJniSipControllerServiceThread
 {
 public:
     JniSipControllerServiceThread();
-
-public:
-    static ImsAppThread* GetInstance();
     virtual ~JniSipControllerServiceThread();
 
-    int SetCallback(IN IMS_UINTP nNativeObj, IN Jni_SendDataToJava pfnSendDataToJava);
-
-private:
-    IMS_BOOL Initialize() override;
-    void Uninitialize() override;
-    IMS_BOOL OnStart(IN IMSMSG& objMSG) override;
-    IMS_BOOL OnTerminate(IN IMSMSG& objMSG) override;
-    IMS_BOOL OnMessage(IN IMSMSG& objMSG) override;
-    void HandleMsg(IN IMSMSG& objMSG);
-    inline void WriteStringToParcel(IN AString pszValue, OUT android::Parcel& parcel);
-
-private:
-    IMS_UINTP m_nNativeObj;
-    Jni_SendDataToJava m_pfnSendDataToJava;
+    virtual void OnMessageReceived() override;
+    virtual void OnMessageSent() override;
+    virtual void OnMessageSendFailure() override;
+    virtual void OnRegistrationUpdated(IN IMS_UINTP nParam) override;
+    virtual void OnConfigurationUpdated() override;
 };
-
 #endif  // JNI_SIP_CONTROLLER_SERVICE_THREAD_H_

@@ -16,26 +16,21 @@
 
 #include "JniSipControllerServiceThread.h"
 
+#include <binder/Parcel.h>
 #include "IURcsMessageService.h"
 #include "ImsMessageDef.h"
-#include "ServiceTrace.h"
 #include "ServiceMemory.h"
+#include "ServiceTrace.h"
+
+using namespace android;
 
 __IMS_TRACE_TAG_USER_DECL__("IMS_SNC");
 
-PRIVATE
-JniSipControllerServiceThread::JniSipControllerServiceThread() :
-        m_nNativeObj(0),
-        m_pfnSendDataToJava(NULL)
+PUBLIC JniSipControllerServiceThread::JniSipControllerServiceThread()
 {
     IMS_TRACE_I("+JniSipControllerServiceThread : ", 0, 0, 0);
     IMS_TRACE_MEM("SNC_MSG", "IM_M : JniSipControllerServiceThread = %" PFLS_u,
             sizeof(JniSipControllerServiceThread), 0, 0);
-}
-
-PUBLIC GLOBAL ImsAppThread* JniSipControllerServiceThread::GetInstance()
-{
-    return new JniSipControllerServiceThread();
 }
 
 PUBLIC VIRTUAL JniSipControllerServiceThread::~JniSipControllerServiceThread()
@@ -45,117 +40,43 @@ PUBLIC VIRTUAL JniSipControllerServiceThread::~JniSipControllerServiceThread()
             sizeof(JniSipControllerServiceThread), 0, 0);
 }
 
-PUBLIC VIRTUAL int JniSipControllerServiceThread::SetCallback(
-        IN IMS_UINTP nNativeObj, IN Jni_SendDataToJava pfnSendDataToJava)
+PUBLIC void JniSipControllerServiceThread::OnMessageReceived()
 {
-    IMS_TRACE_I("SetCallback : ", 0, 0, 0);
-    this->m_nNativeObj = nNativeObj;
-    this->m_pfnSendDataToJava = pfnSendDataToJava;
-    return 1;
+    IMS_TRACE_I("OnMessageReceived : ", 0, 0, 0);
+    // TODO Implementation
 }
 
-PRIVATE VIRTUAL IMS_BOOL JniSipControllerServiceThread::Initialize()
+PUBLIC void JniSipControllerServiceThread::OnMessageSent()
 {
-    IMS_TRACE_I("Initialize : ", 0, 0, 0);
-    return IMS_TRUE;
+    IMS_TRACE_I("OnMessageSent : ", 0, 0, 0);
+    // TODO Implementation
 }
 
-PRIVATE VIRTUAL void JniSipControllerServiceThread::Uninitialize()
+PUBLIC void JniSipControllerServiceThread::OnMessageSendFailure()
 {
-    IMS_TRACE_I("Uninitialize : ", 0, 0, 0);
+    IMS_TRACE_I("OnMessageSendFailure : ", 0, 0, 0);
+    // TODO Implementation
 }
 
-PRIVATE VIRTUAL IMS_BOOL JniSipControllerServiceThread::OnStart(IN IMSMSG& objMSG)
+PUBLIC void JniSipControllerServiceThread::OnRegistrationUpdated(IN IMS_UINTP nParam)
 {
-    IMS_TRACE_I("OnStart : %d", objMSG.GetName(), 0, 0);
-    return IMS_TRUE;
-}
+    IMS_TRACE_I("OnRegistrationUpdated : ", 0, 0, 0);
+    IUSncFeatureTagsParam* pParam = reinterpret_cast<IUSncFeatureTagsParam*>(nParam);
 
-PRIVATE VIRTUAL IMS_BOOL JniSipControllerServiceThread::OnTerminate(IN IMSMSG& objMSG)
-{
-    IMS_TRACE_I("OnTerminate : %d", objMSG.GetName(), 0, 0);
-    return IMS_TRUE;
-}
-
-PRIVATE VIRTUAL IMS_BOOL JniSipControllerServiceThread::OnMessage(IN IMSMSG& objMSG)
-{
-    IMS_TRACE_D("OnMessage : MSG = %d, wParam = %" PFLS_u ", lParam = %" PFLS_u, objMSG.nMSG,
-            objMSG.nWparam, objMSG.nLparam);
-    IMS_TRACE_D("OnMessage : target = %s", objMSG.GetTargetName(), 0, 0);
-
-    HandleMsg(objMSG);
-
-    return IMS_TRUE;
-}
-
-PRIVATE
-void JniSipControllerServiceThread::HandleMsg(IN IMSMSG& objMSG)
-{
-    android::Parcel parcel;
-    parcel.writeInt32(objMSG.nMSG);
-
-    switch (objMSG.nMSG)
+    Parcel objParcel;
+    objParcel.writeInt32(IUSncControl::ONREGISTRATION_UPDATED_IND);
+    objParcel.writeInt32(pParam->m_nFeatureCount);
+    objParcel.writeInt32(pParam->m_nRegState);
+    for (IMS_UINT32 i = 0; i < pParam->m_nFeatureCount; i++)
     {
-        case IUSncService::MESSAGE_RECEIVED_IND:
-        {
-            IUSncMessageParam* pParam = reinterpret_cast<IUSncMessageParam*>(objMSG.nLparam);
-
-            WriteStringToParcel(pParam->m_strStartLine, parcel);
-            WriteStringToParcel(pParam->m_strHeaderSection, parcel);
-            parcel.writeInt32(pParam->m_nContentLength);
-            WriteStringToParcel(pParam->m_strContent, parcel);
-        }
-        break;
-        case IUSncService::MESSAGE_SENT_IND:
-        {
-            IUSncSentMessageIndParam* pParam =
-                    reinterpret_cast<IUSncSentMessageIndParam*>(objMSG.nLparam);
-            parcel.writeString16(android::String16(pParam->m_strTId.GetStr()));
-        }
-        break;
-        case IUSncService::SEND_MESSAGE_FAILURE_IND:
-        {
-            IUSncSendFailureIndParam* pParam =
-                    reinterpret_cast<IUSncSendFailureIndParam*>(objMSG.nLparam);
-            parcel.writeString16(android::String16(pParam->m_strTId.GetStr()));
-        }
-        break;
-        case IUSncControl::ONREGISTRATION_UPDATED_IND:
-        {
-            // TODO : hakjunc
-            IMS_TRACE_E(0, "HandleMsg : ONREGISTRATIONUPDATED_IND by hakjunc,  name %d\n",
-                    objMSG.nMSG, 0, 0);
-        }
-        break;
-        case IUSncControl::ONCONFIGURATION_UPDATED_IND:
-        {
-            // TODO : hakjunc
-            IMS_TRACE_E(0, "HandleMsg : ONCONFIGURATIONUPDATED_IND by hakjunc, name %d\n",
-                    objMSG.nMSG, 0, 0);
-        }
-        break;
-        default:
-            IMS_TRACE_E(0, "HandleMsg : Can't analysis message, name %d\n", objMSG.nMSG, 0, 0);
-            break;
+        objParcel.writeString16(
+                android::String16(pParam->m_objFeatureTags.GetElementAt(i).GetStr()));
     }
-    if (m_pfnSendDataToJava != NULL)
-    {
-        m_pfnSendDataToJava(m_nNativeObj, parcel);
-    }
-    else
-    {
-        IMS_TRACE_E(0, "HandleMsg : Callback is NULL\n", 0, 0, 0);
-    }
+    SendData2Java(objParcel);
 }
 
-PRIVATE
-inline void JniSipControllerServiceThread::WriteStringToParcel(
-        IN AString strValue, OUT android::Parcel& parcel)
+PUBLIC void JniSipControllerServiceThread::OnConfigurationUpdated()
 {
-    if (strValue == IMS_NULL)
-    {
-        parcel.writeString16(android::String16(""));
-        return;
-    }
-    parcel.writeString16(android::String16(strValue.GetStr()));
+    IMS_TRACE_I("OnConfigurationUpdated : ", 0, 0, 0);
+    // TODO Implementation
 }

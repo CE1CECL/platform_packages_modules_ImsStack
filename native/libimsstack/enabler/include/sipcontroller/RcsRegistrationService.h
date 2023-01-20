@@ -18,14 +18,38 @@
 
 #include "ImsService.h"
 #include "IMSTypeDef.h"
+#include "IImsAosListener.h"
+#include "ImsMap.h"
 
-class RcsRegistrationService : public ImsService
+class IImsAos;
+class IJniSipControllerServiceThread;
+
+class RcsRegistrationService : public ImsService, public IImsAosListener
 {
 public:
     RcsRegistrationService(IN const AString& strAppName, IN const IMS_SINT32 nSlotId);
     virtual ~RcsRegistrationService();
+    IMS_BOOL UpdateDelegateRegistration(IN IMS_UINTP nParam);
+    IMS_BOOL TriggerDelegateDeregistration(void);
+
+private:
+    void RcsFeatureTags();
+    IMS_BOOL isPreDefindedFeature(IN const AString& feature);
+    void EnableAoS();
+    IJniSipControllerServiceThread* GetJniThread();
+    IMSList<AString> GetFeatureTags(IN IMS_UINT32 nFeatures);
+
+    virtual void ImsAos_Connected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan) override;
+    virtual void ImsAos_Connecting() override;
+    virtual void ImsAos_Disconnecting(IN IMS_UINT32 nReason) override;
+    virtual void ImsAos_Disconnected(IN IMS_UINT32 nReason) override;
+    virtual void ImsAos_Suspended(IN IMS_UINT32 nReason) override;
+    virtual void ImsAos_Resumed() override;
 
 private:
     IMS_SINT32 m_nSlotId;
+    IImsAos* m_piImsAos;
+    IMSMap<AString, IMS_UINT32> m_objDefinedFeatures;
+    IMSList<AString> m_objCurrentFeatures;
 };
 #endif  // RCS_REGISTRATION_SERVICE_H_
