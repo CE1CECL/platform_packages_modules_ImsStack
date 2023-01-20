@@ -28,6 +28,7 @@ class RcsRegistrationService : public ImsService, public IImsAosListener
 {
 public:
     RcsRegistrationService(IN const AString& strAppName, IN const IMS_SINT32 nSlotId);
+    RcsRegistrationService(IN IImsAos* piImsAos, IN const IMS_SINT32 nSlotId);
     virtual ~RcsRegistrationService();
     IMS_BOOL UpdateDelegateRegistration(IN IMS_UINTP nParam);
     IMS_BOOL TriggerDelegateDeregistration(void);
@@ -39,6 +40,7 @@ private:
     IJniSipControllerServiceThread* GetJniThread();
     IMSList<AString> GetFeatureTags(IN IMS_UINT32 nFeatures);
 
+protected:
     virtual void ImsAos_Connected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan) override;
     virtual void ImsAos_Connecting() override;
     virtual void ImsAos_Disconnecting(IN IMS_UINT32 nReason) override;

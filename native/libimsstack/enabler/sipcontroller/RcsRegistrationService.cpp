@@ -50,6 +50,16 @@ PUBLIC VIRTUAL RcsRegistrationService::~RcsRegistrationService()
         m_piImsAos = IMS_NULL;
     }
 }
+PUBLIC RcsRegistrationService::RcsRegistrationService(
+        IN IImsAos* piImsAos, IN const IMS_SINT32 nSlotId) :
+        ImsService("RcsRegistrationService"),
+        m_nSlotId(nSlotId),
+        m_piImsAos(piImsAos),
+        m_objDefinedFeatures(IMSMap<AString, IMS_UINT32>())
+{
+    IMS_TRACE_MEM("SNC_MSG", "RCSRegService = %" PFLS_u, sizeof(RcsRegistrationService), 0, 0);
+    RcsFeatureTags();
+}
 
 PUBLIC IMS_BOOL RcsRegistrationService::UpdateDelegateRegistration(IN IMS_UINTP nParam)
 {
@@ -257,7 +267,8 @@ PRIVATE void RcsRegistrationService::RcsFeatureTags()
     m_objDefinedFeatures.Add(IMConstants::TAG_CHATBOT_ROLE, 0x00400000);
 }
 
-PRIVATE void RcsRegistrationService::ImsAos_Connected(IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan)
+PROTECTED void RcsRegistrationService::ImsAos_Connected(
+        IN IMS_UINT32 nFeatures, IN IMS_UINT32 nIpcan)
 {
     (void)nIpcan;
     IMS_TRACE_I("ImsAos_Connected() Features: %d", nFeatures, 0, 0);
@@ -290,7 +301,7 @@ PRIVATE void RcsRegistrationService::ImsAos_Connected(IN IMS_UINT32 nFeatures, I
     piJniThread->OnRegistrationUpdated(reinterpret_cast<IMS_UINTP>(pParam));
 }
 
-PRIVATE void RcsRegistrationService::ImsAos_Connecting()
+PROTECTED void RcsRegistrationService::ImsAos_Connecting()
 {
     IMS_TRACE_I("ImsAos_Connecting()", 0, 0, 0);
     IUSncFeatureTagsParam* pParam = new IUSncFeatureTagsParam();
@@ -311,7 +322,7 @@ PRIVATE void RcsRegistrationService::ImsAos_Connecting()
     piJniThread->OnRegistrationUpdated(reinterpret_cast<IMS_UINTP>(pParam));
 }
 
-PRIVATE void RcsRegistrationService::ImsAos_Disconnecting(IN IMS_UINT32 nReason)
+PROTECTED void RcsRegistrationService::ImsAos_Disconnecting(IN IMS_UINT32 nReason)
 {
     (void)nReason;
     IMS_TRACE_I("ImsAos_Connecting()", 0, 0, 0);
@@ -333,7 +344,7 @@ PRIVATE void RcsRegistrationService::ImsAos_Disconnecting(IN IMS_UINT32 nReason)
     piJniThread->OnRegistrationUpdated(reinterpret_cast<IMS_UINTP>(pParam));
 }
 
-PRIVATE void RcsRegistrationService::ImsAos_Disconnected(IN IMS_UINT32 nReason)
+PROTECTED void RcsRegistrationService::ImsAos_Disconnected(IN IMS_UINT32 nReason)
 {
     (void)nReason;
     IMS_TRACE_I("ImsAos_Connecting()", 0, 0, 0);
