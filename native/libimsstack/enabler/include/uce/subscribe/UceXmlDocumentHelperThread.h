@@ -77,6 +77,7 @@ public:
 
 protected:
     IThread* m_piThread;
+    ImsQueue<IXmlTransaction*> m_objTransactionQueue;
 
 private:
     IMS_SINT32 m_nSimSlot;
@@ -84,7 +85,6 @@ private:
     AString m_strQueryName;
     AString m_strThreadName;
     IXmlTransactionProvider* m_pXMLTransactionProvider;
-    ImsQueue<IXmlTransaction*> m_objTransactionQueue;
     IMSList<AString> m_objRlmiCidList;
     UcePidfXmls* m_pPidfXmls;
     UceNonCapabilityUsers* m_pNonCapabilities;

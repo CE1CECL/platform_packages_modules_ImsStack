@@ -120,14 +120,27 @@ IMS_BOOL UceOptionsManager::ReceivedOptions(
         IMS_TRACE_I("ReceivedOptions:piCoreService or piCapabilities is null", 0, 0, 0);
         return IMS_FALSE;
     }
+
+    IMessage* piMessage = piCapabilities->GetPreviousRequest(IMessage::CAPABILITIES_QUERY);
+    if (piMessage == IMS_NULL)
+    {
+        IMS_TRACE_I("ReceivedOptions:IMessage is null", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
+    if (piSIPMessage == IMS_NULL)
+    {
+        IMS_TRACE_I("ReceivedOptions:ISipMessage is null", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
     IMS_UINT32 key = getReceivedKey();
 
     UceOptions* pOptions =
             new UceOptions(GetName(), m_piCoreService, piCapabilities, key, IMS_FALSE, m_nSimSlot);
     m_objReceivedUceOptionsMap.Add(key, pOptions);
 
-    ISipMessage* piSIPMessage =
-            piCapabilities->GetPreviousRequest(IMessage::CAPABILITIES_QUERY)->GetMessage();
     SipAddress objSIPAddress(piSIPMessage->GetHeader(ISipHeader::FROM));
     AString from = objSIPAddress.ToString();
     IMS_TRACE_D("ReceivedOptions:From [%s]", from.GetStr(), 0, 0);
@@ -199,7 +212,7 @@ IMS_UINT32 UceOptionsManager::getReceivedKey()
 void UceOptionsManager::SendOptionsReceivedInd(
         IN IMS_UINT32 nKey, IN AString from, IN IMS_UINT32 capabilities)
 {
-    IMS_TRACE_I("SendOptionsReceivedInd:key[%d], From[%s]", nKey, from.GetStr(), 0);
+    IMS_TRACE_D("SendOptionsReceivedInd:key[%d], From[%s]", nKey, from.GetStr(), 0);
     IUceJniThread* piJniThread = GetJniThread();
     if (piJniThread == IMS_NULL)
     {
@@ -211,7 +224,7 @@ void UceOptionsManager::SendOptionsReceivedInd(
 
 void UceOptionsManager::SendOptionsCommandError(IN IMS_UINT32 nKey, IN IMS_UINT32 code)
 {
-    IMS_TRACE_I("SendOptionsCommandError:key[%d], error[%d]", nKey, code, 0);
+    IMS_TRACE_D("SendOptionsCommandError:key[%d], error[%d]", nKey, code, 0);
     IUceJniThread* piJniThread = GetJniThread();
     if (piJniThread == IMS_NULL)
     {

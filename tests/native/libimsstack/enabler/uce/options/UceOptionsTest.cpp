@@ -47,12 +47,15 @@ public:
     }
     virtual ~TestUceOptions() {}
 
-    IMS_UINT32 GetKey() const { return m_nKey; }
+    IMS_UINT32 getKey() const { return m_nKey; }
 
-    IMS_BOOL GetSendingRequest() const { return m_bIsSendingRequest; }
+    IMS_BOOL getSendingRequest() const { return m_bIsSendingRequest; }
 
-    void SetSendingRequest(IMS_BOOL value) { m_bIsSendingRequest = value; }
-
+    void setSendingRequest(IMS_BOOL value) { m_bIsSendingRequest = value; }
+    IMS_BOOL handleOptionsRequest(ICapabilities* piCapabilities, IMS_UINT32 ownCapabilities)
+    {
+        return HandleOptionsRequest(piCapabilities, ownCapabilities);
+    }
     void capaDeliverd(ICapabilities* piCapabilities) { CapabilityQueryDelivered(piCapabilities); }
     void capaDeliveryFailed(ICapabilities* piCapabilities)
     {
@@ -91,9 +94,18 @@ protected:
     }
 };
 
-TEST_F(UceOptionsTest, SendOptionsRequest)
+TEST_F(UceOptionsTest, SendOptionsRequestWithNoCoreService)
 {
-    IMS_TRACE_D("SendOptionsRequest", 0, 0, 0);
+    IMS_TRACE_D("SendOptionsRequestWithNoCoreService", 0, 0, 0);
+    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
+    TestUceOptions* pUceOptionsNoSvc = new TestUceOptions(IMS_NULL, &objMockICapabilities);
+    EXPECT_FALSE(pUceOptionsNoSvc->SendOptionsRequest("RemoteURI", 0));
+    delete pUceOptionsNoSvc;
+}
+
+TEST_F(UceOptionsTest, SendOptionsRequestWithNoCapabilities)
+{
+    IMS_TRACE_D("SendOptionsRequestWithNoCapabilities", 0, 0, 0);
 
     AString strFrom = "From";
     ON_CALL(objMockICoreService, CreateCapabilities(_, _)).WillByDefault(ReturnNull());
@@ -103,60 +115,116 @@ TEST_F(UceOptionsTest, SendOptionsRequest)
             .WillRepeatedly(ReturnRef(strFrom));
     EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
 
-    pUceOptions->SendOptionsRequest("RemoteURI", 0);
+    EXPECT_FALSE(pUceOptions->SendOptionsRequest("RemoteURI", 0));
 
-    EXPECT_EQ(pUceOptions->GetKey(), 0);
+    EXPECT_EQ(pUceOptions->getKey(), 0);
 }
-/*
-TEST_F(UceOptionsTest, SendOptionsRequest1)
+
+TEST_F(UceOptionsTest, SendOptionsRequestWithNoMessage)
 {
-    IMS_TRACE_D("SendOptionsRequest1", 0, 0, 0);
-    MockICapabilities objMoMockICapabilities;
-    MockIMessage objMockIMessage;
-    MockISipMessage objMockISipMessage;
-    AString strFrom("From");
-    SipAddress objUserId("sip:123456@test.ims.com");
+    IMS_TRACE_D("SendOptionsRequestWithNoMessage", 0, 0, 0);
 
-    EXPECT_CALL(objMockICoreService, GetPublicGruu()).Times(AnyNumber())
-            .WillRepeatedly(Return(&objUserId));
-    EXPECT_CALL(objMoMockICapabilities, SetListener(_)).Times(1);
-    EXPECT_CALL(objMockICoreService, GetUserIdentity(_)).Times(1)
-            .WillRepeatedly(ReturnRef(strFrom));
-    EXPECT_CALL(objMockISipMessage, AddHeader).Times(AnyNumber())
-            .WillRepeatedly(Return(IMS_SUCCESS));
-    EXPECT_CALL(objMockISipMessage, SetHeader).Times(1)
-            .WillRepeatedly(Return(IMS_SUCCESS));
-    EXPECT_CALL(objMoMockICapabilities, QueryCapabilities(_)).Times(1)
-            .WillRepeatedly(Return(IMS_SUCCESS));;
+    ON_CALL(objMockICapabilities, GetNextRequest()).WillByDefault(ReturnNull());
 
-    ON_CALL(objMockICoreService, CreateCapabilities(_, _))
-            .WillByDefault(Return(&objMoMockICapabilities));
-    ON_CALL(objMoMockICapabilities, GetNextRequest).WillByDefault(Return(&objMockIMessage));
-    ON_CALL(objMockIMessage, GetMessage).WillByDefault(Return(&objMockISipMessage));
-    pUceOptions->SendOptionsRequest("RemoteURI", 0);
+    EXPECT_CALL(objMockICapabilities, SetListener(_)).Times(1);
+    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
+
+    EXPECT_FALSE(pUceOptions->handleOptionsRequest(&objMockICapabilities, 0));
+
+    EXPECT_EQ(pUceOptions->getKey(), 0);
 }
-*/
 
-TEST_F(UceOptionsTest, SendOptionsResponse)
+TEST_F(UceOptionsTest, SendOptionsRequestWithNoSipMessage)
+{
+    IMS_TRACE_D("SendOptionsRequestWithNoSipMessage", 0, 0, 0);
+
+    ON_CALL(objMockIMessage, GetMessage()).WillByDefault(ReturnNull());
+
+    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
+
+    EXPECT_FALSE(pUceOptions->handleOptionsRequest(&objMockICapabilities, 0));
+
+    EXPECT_EQ(pUceOptions->getKey(), 0);
+}
+
+TEST_F(UceOptionsTest, SendOptionsRequest)
+{
+    IMS_TRACE_D("SendOptionsRequest", 0, 0, 0);
+    MockISipMessage objMockISipMessage;
+
+    ON_CALL(objMockICoreService, GetPublicGruu).WillByDefault(ReturnNull());
+    ON_CALL(objMockIMessage, GetMessage()).WillByDefault(Return(&objMockISipMessage));
+
+    SipAddress objSipAddress("sip:1111@1.1.1.1");
+    EXPECT_CALL(objMockICoreService, GetContactAddress)
+            .Times(1)
+            .WillRepeatedly(ReturnRef(objSipAddress));
+
+    EXPECT_CALL(objMockISipMessage, SetHeader).Times(1);
+    EXPECT_CALL(objMockICapabilities, QueryCapabilities(ICapabilities::FLAG_ADD_CONTACT_HEADER))
+            .Times(1)
+            .WillOnce(Return(IMS_FAILURE));
+    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
+
+    EXPECT_FALSE(pUceOptions->handleOptionsRequest(&objMockICapabilities, 0));
+    EXPECT_EQ(pUceOptions->getKey(), 0);
+}
+
+TEST_F(UceOptionsTest, SendOptionsResponseWithNoCapa)
+{
+    IMS_TRACE_D("SendOptionsResponseWithNoCapa", 0, 0, 0);
+    TestUceOptions* pUceOptionsNoCapa = new TestUceOptions(&objMockICoreService, IMS_NULL);
+
+    EXPECT_FALSE(pUceOptionsNoCapa->SendOptionsResponse(404, "not found", 0));
+    delete pUceOptionsNoCapa;
+}
+
+TEST_F(UceOptionsTest, SendOptionsResponseWithNoSipMessage)
+{
+    IMS_TRACE_D("SendOptionsResponseWithNoSipMessage", 0, 0, 0);
+    ON_CALL(objMockIMessage, GetMessage()).WillByDefault(ReturnNull());
+
+    EXPECT_FALSE(pUceOptions->SendOptionsResponse(200, "OK", 0));
+}
+
+TEST_F(UceOptionsTest, SendOptionsResponseWithAccept)
+{
+    IMS_TRACE_D("SendOptionsResponse", 0, 0, 0);
+    MockISipMessage objMockISipMessage;
+
+    ON_CALL(objMockIMessage, GetMessage()).WillByDefault(Return(&objMockISipMessage));
+
+    SipAddress objSipAddress("sip:1111@1.1.1.1");
+    EXPECT_CALL(objMockICoreService, GetContactAddress)
+            .Times(1)
+            .WillRepeatedly(ReturnRef(objSipAddress));
+
+    EXPECT_CALL(objMockISipMessage, SetHeader).Times(1);
+    EXPECT_CALL(objMockICapabilities, Accept).Times(1).WillOnce(Return(IMS_FAILURE));
+
+    EXPECT_FALSE(pUceOptions->SendOptionsResponse(200, "OK", 0));
+}
+
+TEST_F(UceOptionsTest, SendOptionsResponseWithReject)
 {
     IMS_TRACE_D("SendOptionsResponse", 0, 0, 0);
 
-    EXPECT_CALL(objMockICapabilities, Reject(_, _)).Times(1);
+    EXPECT_CALL(objMockICapabilities, Reject(_, _)).Times(1).WillOnce(Return(IMS_FAILURE));
 
-    pUceOptions->SendOptionsResponse(404, "not found", 0);
+    EXPECT_FALSE(pUceOptions->SendOptionsResponse(404, "not found", 0));
 }
 
 TEST_F(UceOptionsTest, AoSDisconnected)
 {
     IMS_TRACE_D("AoSDisconnected", 0, 0, 0);
-    pUceOptions->SetSendingRequest(IMS_TRUE);
+    pUceOptions->setSendingRequest(IMS_TRUE);
 
     EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
 
     pUceOptions->AoSDisconnected();
 
-    EXPECT_EQ(pUceOptions->GetKey(), 0);
-    EXPECT_EQ(pUceOptions->GetSendingRequest(), IMS_FALSE);
+    EXPECT_EQ(pUceOptions->getKey(), 0);
+    EXPECT_EQ(pUceOptions->getSendingRequest(), IMS_FALSE);
 }
 
 TEST_F(UceOptionsTest, GetCapability)
@@ -167,20 +235,47 @@ TEST_F(UceOptionsTest, GetCapability)
     EXPECT_EQ(pUceOptions->GetCapability(objContactList), 0);
 
     objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.dp");
-    EXPECT_EQ(pUceOptions->GetCapability(objContactList), UceOptions::FEATURE_TAG_DP);
-
     objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.mmtel");
     objContactList.Append("video");
-    EXPECT_EQ(pUceOptions->GetCapability(objContactList),
-            UceOptions::FEATURE_TAG_DP | UceOptions::FEATURE_TAG_IPCALL_VOICE |
-                    UceOptions::FEATURE_TAG_IPCALL_VIDEO);
-
     objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg");
     objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.largemsg");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.session");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.im");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.fullsfgroupchat");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.ftthumb");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.ftstandfw");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.fthttp");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.geopush");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.ft");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.sharedmap");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.sharedsketch");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.callcomposer");
+    objContactList.Append("+g.gsma.callcomposer");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.callunanswered");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.ftsms");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.geosms");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot");
+    objContactList.Append("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot.sa");
+    objContactList.Append("+g.gsma.rcs.isbot");
+    objContactList.Append("+g.gsma.rcs.botversion=\"#=1\"");
+    objContactList.Append("+g.gsma.rcs.botversion=\"#=1,#=2\"");
     EXPECT_EQ(pUceOptions->GetCapability(objContactList),
             UceOptions::FEATURE_TAG_DP | UceOptions::FEATURE_TAG_IPCALL_VOICE |
                     UceOptions::FEATURE_TAG_IPCALL_VIDEO | UceOptions::FEATURE_TAG_PAGER_MESSAGING |
-                    UceOptions::FEATURE_TAG_LARGE_MESSAGING);
+                    UceOptions::FEATURE_TAG_LARGE_MESSAGING | UceOptions::FEATURE_TAG_CPM_CHAT |
+                    UceOptions::FEATURE_TAG_SIMPLE_IM |
+                    UceOptions::FEATURE_TAG_STORE_FORWARD_GROUP_CHAT |
+                    UceOptions::FEATURE_TAG_FT_THUMBNAIL |
+                    UceOptions::FEATURE_TAG_FT_STORE_FORWARD | UceOptions::FEATURE_TAG_FT_HTTP |
+                    UceOptions::FEATURE_TAG_GEOLOCATION_PUSH | UceOptions::FEATURE_TAG_FT |
+                    UceOptions::FEATURE_TAG_SHARED_MAP | UceOptions::FEATURE_TAG_SHARED_SKETCH |
+                    UceOptions::FEATURE_TAG_CALL_COMPOSER |
+                    UceOptions::FEATURE_TAG_CALL_COMPOSER_MMTEL |
+                    UceOptions::FEATURE_TAG_POST_CALL | UceOptions::FEATURE_TAG_FT_SMS |
+                    UceOptions::FEATURE_TAG_GEOLOCATION_SMS |
+                    UceOptions::FEATURE_TAG_CHATBOT_SESSION | UceOptions::FEATURE_TAG_CHATBOT_SA |
+                    UceOptions::FEATURE_TAG_IS_BOT | UceOptions::FEATURE_TAG_CHATBOT_VERSION_V1 |
+                    UceOptions::FEATURE_TAG_CHATBOT_VERSION_V2);
 }
 
 TEST_F(UceOptionsTest, SetIARIFeatureTag)
@@ -191,40 +286,60 @@ TEST_F(UceOptionsTest, SetIARIFeatureTag)
     EXPECT_STREQ(strIari.GetStr(), "urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.dp");
 
     strIari = AString::ConstEmpty();
-    pUceOptions->SetIARIFeatureTag(UceOptions::FEATURE_TAG_DP |
-                    UceOptions::FEATURE_TAG_IPCALL_VOICE | UceOptions::FEATURE_TAG_IPCALL_VIDEO,
-            strIari);
-    EXPECT_STREQ(strIari.GetStr(), "urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.dp");
-
-    strIari = AString::ConstEmpty();
     pUceOptions->SetIARIFeatureTag(UceOptions::FEATURE_TAG_DP | UceOptions::FEATURE_TAG_SIMPLE_IM |
-                    UceOptions::FEATURE_TAG_FT_HTTP,
+                    UceOptions::FEATURE_TAG_STORE_FORWARD_GROUP_CHAT,
             strIari);
     EXPECT_STREQ(strIari.GetStr(),
-            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.dp,urn%3Aurn-7%3A3gpp-application.ims."
-            "iari.rcse.im,urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.fthttp");
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.dp,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.im,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.fullsfgroupchat");
+
+    strIari = AString::ConstEmpty();
+    pUceOptions->SetIARIFeatureTag(UceOptions::FEATURE_TAG_FT_THUMBNAIL |
+                    UceOptions::FEATURE_TAG_FT_STORE_FORWARD | UceOptions::FEATURE_TAG_FT_HTTP,
+            strIari);
+    EXPECT_STREQ(strIari.GetStr(),
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.ftthumb,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.ftstandfw,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.fthttp");
+
+    strIari = AString::ConstEmpty();
+    pUceOptions->SetIARIFeatureTag(UceOptions::FEATURE_TAG_GEOLOCATION_PUSH |
+                    UceOptions::FEATURE_TAG_FT | UceOptions::FEATURE_TAG_FT_SMS |
+                    UceOptions::FEATURE_TAG_GEOLOCATION_SMS |
+                    UceOptions::FEATURE_TAG_CHATBOT_SESSION | UceOptions::FEATURE_TAG_CHATBOT_SA,
+            strIari);
+    EXPECT_STREQ(strIari.GetStr(),
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.geopush,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.ft,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.ftsms,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.geosms,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot,"
+            "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot.sa");
 }
 
 TEST_F(UceOptionsTest, SetICSIFeatureTag)
 {
     IMS_TRACE_D("SetIARIFeatureTag", 0, 0, 0);
     AString strIcsi = AString::ConstEmpty();
-    pUceOptions->SetICSIFeatureTag(UceOptions::FEATURE_TAG_IPCALL_VOICE, strIcsi);
+    pUceOptions->SetICSIFeatureTag(
+            UceOptions::FEATURE_TAG_IPCALL_VOICE | UceOptions::FEATURE_TAG_IPCALL_VIDEO, strIcsi);
     EXPECT_STREQ(strIcsi.GetStr(), "urn%3Aurn-7%3A3gpp-service.ims.icsi.mmtel");
 
     strIcsi = AString::ConstEmpty();
-    pUceOptions->SetICSIFeatureTag(UceOptions::FEATURE_TAG_DP |
-                    UceOptions::FEATURE_TAG_IPCALL_VOICE | UceOptions::FEATURE_TAG_IPCALL_VIDEO,
-            strIcsi);
-    EXPECT_STREQ(strIcsi.GetStr(), "urn%3Aurn-7%3A3gpp-service.ims.icsi.mmtel");
-
-    strIcsi = AString::ConstEmpty();
-    pUceOptions->SetICSIFeatureTag(UceOptions::FEATURE_TAG_CPM_CHAT |
-                    UceOptions::FEATURE_TAG_IPCALL_VOICE | UceOptions::FEATURE_TAG_IPCALL_VIDEO,
+    pUceOptions->SetICSIFeatureTag(UceOptions::FEATURE_TAG_PAGER_MESSAGING |
+                    UceOptions::FEATURE_TAG_LARGE_MESSAGING | UceOptions::FEATURE_TAG_CPM_CHAT |
+                    UceOptions::FEATURE_TAG_SHARED_MAP | UceOptions::FEATURE_TAG_SHARED_SKETCH |
+                    UceOptions::FEATURE_TAG_CALL_COMPOSER | UceOptions::FEATURE_TAG_POST_CALL,
             strIcsi);
     EXPECT_STREQ(strIcsi.GetStr(),
-            "urn%3Aurn-7%3A3gpp-service.ims.icsi.mmtel,urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm."
-            "session");
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg,"
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.largemsg,"
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.session,"
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.sharedmap,"
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.sharedsketch,"
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.callcomposer,"
+            "urn%3Aurn-7%3A3gpp-service.ims.icsi.gsma.callunanswered");
 }
 
 TEST_F(UceOptionsTest, SetNoTypeFeatureTag)
@@ -235,19 +350,49 @@ TEST_F(UceOptionsTest, SetNoTypeFeatureTag)
     EXPECT_STREQ(strTag.GetStr(), "video");
 
     strTag = AString::ConstEmpty();
-    pUceOptions->SetNoTypeFeatureTag(
-            UceOptions::FEATURE_TAG_DP | UceOptions::FEATURE_TAG_IPCALL_VIDEO, strTag);
-    EXPECT_STREQ(strTag.GetStr(), "video");
-
-    strTag = AString::ConstEmpty();
-    pUceOptions->SetNoTypeFeatureTag(
-            UceOptions::FEATURE_TAG_IPCALL_VIDEO | UceOptions::FEATURE_TAG_IS_BOT, strTag);
-    EXPECT_STREQ(strTag.GetStr(), "video;+g.gsma.rcs.isbot");
+    pUceOptions->SetNoTypeFeatureTag(UceOptions::FEATURE_TAG_CALL_COMPOSER_MMTEL |
+                    UceOptions::FEATURE_TAG_IS_BOT | UceOptions::FEATURE_TAG_CHATBOT_VERSION_V1 |
+                    UceOptions::FEATURE_TAG_CHATBOT_VERSION_V2,
+            strTag);
+    EXPECT_STREQ(strTag.GetStr(),
+            "+g.gsma.callcomposer;"
+            "+g.gsma.rcs.isbot;"
+            "+g.gsma.rcs.botversion=\"#=1\";"
+            "+g.gsma.rcs.botversion=\"#=1,#=2\"");
 }
 
 TEST_F(UceOptionsTest, capaDeliverd)
 {
     IMS_TRACE_D("capaDeliverd", 0, 0, 0);
+    MockISipMessage objMockISipMessage;
+
+    ON_CALL(objMockICapabilities, GetPreviousResponse(IMessage::CAPABILITIES_QUERY))
+            .WillByDefault(Return(&objMockIMessage));
+    ON_CALL(objMockIMessage, GetMessage()).WillByDefault(Return(&objMockISipMessage));
+    IMSList<AString> objHeaders;
+    objHeaders.Clear();
+    AString reason = "OK";
+
+    ON_CALL(objMockISipMessage, GetHeaders).WillByDefault(Return(objHeaders));
+    ON_CALL(objMockIMessage, GetStatusCode).WillByDefault(Return(200));
+    ON_CALL(objMockIMessage, GetReasonPhrase).WillByDefault(ReturnRef(reason));
+
+    EXPECT_CALL(objMockIUceJniThread, OptionsResponseInd(_, _, _, _)).Times(1);
+
+    pUceOptions->capaDeliverd(&objMockICapabilities);
+}
+
+TEST_F(UceOptionsTest, capaDeliverdWithNoCapa)
+{
+    IMS_TRACE_D("capaDeliverdWithNoCapa", 0, 0, 0);
+
+    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
+    pUceOptions->capaDeliverd(IMS_NULL);
+}
+
+TEST_F(UceOptionsTest, capaDeliverdWithNoMessage)
+{
+    IMS_TRACE_D("capaDeliverdWithNoMessage", 0, 0, 0);
 
     EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
 
@@ -257,22 +402,49 @@ TEST_F(UceOptionsTest, capaDeliverd)
     pUceOptions->capaDeliverd(&objMockICapabilities);
 }
 
-TEST_F(UceOptionsTest, capaDeliveryFailed)
+TEST_F(UceOptionsTest, capaDeliverdWithNoSipMessage)
 {
-    IMS_TRACE_D("capaDeliveryFailed", 0, 0, 0);
+    IMS_TRACE_D("capaDeliverdWithNoSipMessage", 0, 0, 0);
+
+    ON_CALL(objMockICapabilities, GetPreviousResponse(IMessage::CAPABILITIES_QUERY))
+            .WillByDefault(Return(&objMockIMessage));
+    ON_CALL(objMockIMessage, GetMessage()).WillByDefault(ReturnNull());
+
+    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(1);
+
+    pUceOptions->capaDeliverd(&objMockICapabilities);
+}
+
+TEST_F(UceOptionsTest, capaDeliveryFailedWithNoCapa)
+{
+    IMS_TRACE_D("capaDeliveryFailedWithNoCapa", 0, 0, 0);
+    EXPECT_CALL(objMockIUceJniThread, OptionsResponseInd(_, _, _, _)).Times(1);
+
+    pUceOptions->capaDeliveryFailed(IMS_NULL);
+}
+
+TEST_F(UceOptionsTest, capaDeliveryFailedWithNoMessage)
+{
+    IMS_TRACE_D("capaDeliveryFailedWithNoMessage", 0, 0, 0);
 
     EXPECT_CALL(objMockIUceJniThread, OptionsResponseInd(_, _, _, _)).Times(1);
 
     ON_CALL(objMockICapabilities, GetPreviousResponse(IMessage::CAPABILITIES_QUERY))
             .WillByDefault(ReturnNull());
-    /*
-        MockISipMessage objMockISipMessage;
+    pUceOptions->capaDeliveryFailed(&objMockICapabilities);
+}
 
-        ON_CALL(objMockIMessage, GetMessage).WillByDefault(Return(&objMockISipMessage));
-        ON_CALL(objMockISipMessage, GetStatusCode).WillByDefault(Return(404));
+TEST_F(UceOptionsTest, capaDeliveryFailed)
+{
+    IMS_TRACE_D("capaDeliveryFailed", 0, 0, 0);
 
-        AString reason("not found");
-        ON_CALL(objMockISipMessage, GetReasonPhrase).WillByDefault(ReturnRef(reason));
-    */
+    ON_CALL(objMockICapabilities, GetPreviousResponse(IMessage::CAPABILITIES_QUERY))
+            .WillByDefault(Return(&objMockIMessage));
+    AString reason = "Not Found";
+    ON_CALL(objMockIMessage, GetStatusCode).WillByDefault(Return(404));
+    ON_CALL(objMockIMessage, GetReasonPhrase).WillByDefault(ReturnRef(reason));
+
+    EXPECT_CALL(objMockIUceJniThread, OptionsResponseInd(_, _, _, _)).Times(1);
+
     pUceOptions->capaDeliveryFailed(&objMockICapabilities);
 }

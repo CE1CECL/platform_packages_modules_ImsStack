@@ -257,6 +257,19 @@ IMS_BOOL UceConfig::IsImsRegistrationRequired(
     return IMS_FALSE;
 }
 
+void UceConfig::SetConfig(IN IMS_SINT32 nSimSlot, IN UceAssetItems* pAssetItems)
+{
+    IMS_SLONG nIndex = m_objAssetMap.GetIndexOfKey(nSimSlot);
+    if (nIndex < 0)
+    {
+        m_objAssetMap.SetValue(nSimSlot, pAssetItems);
+    }
+    else
+    {
+        m_objAssetMap.SetValueAt(nIndex, pAssetItems);
+    }
+}
+
 PUBLIC VIRTUAL void UceConfig::CarrierConfig_NotifyConfigChanged(IN IMS_SINT32 nSlotId)
 {
     ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
@@ -352,13 +365,5 @@ void UceConfig::Update(IN ICarrierConfig* piCc, IN IMS_SINT32 nSimSlot)
     objNew->m_objReAttemptRegistrationSubscribeResponse = piCc->GetIntArray(
             CarrierConfig::ImsUce::KEY_REATTEMPT_REGISTRATION_SUBSCRIBE_RESPONSE_INT_ARRAY);
 
-    IMS_SLONG nIndex = m_objAssetMap.GetIndexOfKey(nSimSlot);
-    if (nIndex < 0)
-    {
-        m_objAssetMap.SetValue(nSimSlot, objNew);
-    }
-    else
-    {
-        m_objAssetMap.SetValueAt(nIndex, objNew);
-    }
+    SetConfig(nSimSlot, objNew);
 }

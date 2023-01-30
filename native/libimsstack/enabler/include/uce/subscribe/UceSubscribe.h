@@ -128,7 +128,7 @@ private:
 
     IMS_BOOL SetHeaderForSingleSubscription(IN_OUT ISipMessage* piSIPMessage) const;
     AString GetListSubscribeUri();
-    IMS_BOOL SetHeaderForListSubscription(
+    void SetHeaderForListSubscription(
             IN_OUT ISipMessage* piSIPMessage, IN const AString& strListSubscriptionRequestUri);
     IMS_BOOL SetContentBody(IN_OUT ISipMessage* piSIPMessage, IN const AString& strXMLBody);
     ISipMessage* GetISIPMessage();
@@ -172,7 +172,11 @@ protected:
     AString m_strRemoteUser;
     IMSList<AString> m_objRemoteUsers;
     IMS_UINT32 m_eState;
-
+    ITimer* m_pWaitNotifyMsgTimer;
+    ITimer* m_pRetryAfterTimer;
+    IMS_UINT32 m_eQueryType;
+    IMS_SINT32 m_nThreadRunningCompleted;
+    IMS_BOOL m_bSubscriptionTerminated;
     enum INTERNAL_MSG
     {
         SINGLE_REQUESTED = 1,
@@ -193,15 +197,11 @@ private:
     };
     UceXmlDocumentHelperThread* m_pUceXmlDocumentHelperThread;
     AString m_strXMLDocumentHelperThreadName;
-    IMS_SINT32 m_nThreadRunningCompleted;
     AString m_strExpireValueInListSub;
     IMS_UINT32 m_nAnonymousMethod;
-    IMS_UINT32 m_eQueryType;
-    IMS_BOOL m_bSubscriptionTerminated;
+
     AString m_strUceSubscribeManagerName;  // deleted
     UceRlmiComposer* m_pRLMIComposer;
     IMS_UINT32 m_nWaitNotiTimerValue;
-    ITimer* m_pWaitNotifyMsgTimer;
-    ITimer* m_pRetryAfterTimer;
 };
 #endif  // _UCE_SUBSCRIBE_H_

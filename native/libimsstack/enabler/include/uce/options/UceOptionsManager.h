@@ -54,11 +54,11 @@ private:
 protected:
     IMS_BOOL m_bAoSConnected;
     IMSMap<IMS_UINT32, UceOptions*> m_objSentUceOptionsMap;
+    IMSMap<IMS_UINT32, UceOptions*> m_objReceivedUceOptionsMap;
 
 private:
     IMS_SINT32 m_nSimSlot;
     ICoreService* m_piCoreService;
-    IMSMap<IMS_UINT32, UceOptions*> m_objReceivedUceOptionsMap;
     IMS_UINT32 m_nReceivedOptionKey;
 };
 #endif  // _UCE_OPTIONS_MANAGER_H_

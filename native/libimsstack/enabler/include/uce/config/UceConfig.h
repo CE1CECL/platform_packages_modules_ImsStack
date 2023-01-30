@@ -86,6 +86,7 @@ public:
     IMS_UINT32 GetPublishRetryType(IN IMS_SINT32 nResponseCode, IN IMS_SINT32 nSimSlot = 0);
     IMS_BOOL IsImsRegistrationRequired(
             IN IMS_BOOL isPublish, IN IMS_SINT32 nResponseCode, IN IMS_SINT32 nSimSlot = 0);
+    void SetConfig(IN IMS_SINT32 nSimSlot, IN UceAssetItems* pAssetItems);
 
 protected:
     void CarrierConfig_NotifyConfigChanged(IN IMS_SINT32 nSlotId) override;

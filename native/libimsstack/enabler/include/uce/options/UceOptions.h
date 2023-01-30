@@ -44,6 +44,7 @@ public:
     static void SetNoTypeFeatureTag(IN IMS_UINT32 capabilities, OUT AString& strTag);
 
 protected:
+    IMS_BOOL HandleOptionsRequest(IN ICapabilities* piCapabilities, IN IMS_UINT32 ownCapabilities);
     // ICapabilitiesListener
     virtual void CapabilityQueryDelivered(IN ICapabilities* piCapabilities) override;
     virtual void CapabilityQueryDeliveryFailed(IN ICapabilities* piCapabilities) override;

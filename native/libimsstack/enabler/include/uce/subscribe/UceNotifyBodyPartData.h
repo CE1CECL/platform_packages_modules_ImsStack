@@ -15,7 +15,8 @@
  */
 #ifndef UCE_NOTIFY_BODY_PART_DATA_H_
 #define UCE_NOTIFY_BODY_PART_DATA_H_
-
+#include "AString.h"
+#include "ByteArray.h"
 class UceNotifyBodyPartData
 {
 public:

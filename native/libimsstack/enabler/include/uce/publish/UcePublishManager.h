@@ -261,6 +261,9 @@ protected:
     // save registered service feature tags which included in contact header.
     IMS_UINT32 m_nConnectedServices;
     IPublication* m_piPublication;
+    ITimer* m_pExponentialTimer;
+    ITimer* m_pRetryTimer;
+    ITimer* m_pRetryAfterTimer;
 
 private:
     AString m_strPidfXml;
@@ -281,10 +284,6 @@ private:
     IMS_BOOL m_bEnablePIDFCompression;
     IMS_BOOL m_bSetPublishStarted;
     IMS_BOOL m_bUnpublishSent;
-
-    ITimer* m_pExponentialTimer;
-    ITimer* m_pRetryTimer;
-    ITimer* m_pRetryAfterTimer;
 
     IMS_UINT32 m_nImmediatelyRetryCount;
     IMS_UINT32 m_nRetryCount;
