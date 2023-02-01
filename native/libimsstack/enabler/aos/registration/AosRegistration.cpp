@@ -2499,6 +2499,15 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::IsRetryOnSamePcscfRequired() const
         return (nRegRetryCountPerPcscf >= m_piContext->GetPcscf()->GetCurrentPcscfTriedCount());
     }
 
+    IMS_SINT32 nRegRetryCountOnSinglePcscf =
+            GET_N_CONFIG(m_nSlotId)->GetRegRetryCountOnSinglePcscf();
+
+    if (nRegRetryCountOnSinglePcscf > 0 && m_piContext->GetPcscf()->GetPcscfCount() == 1)
+    {
+        return (nRegRetryCountOnSinglePcscf >=
+                m_piContext->GetPcscf()->GetCurrentPcscfTriedCount());
+    }
+
     return IMS_FALSE;
 }
 
@@ -3875,10 +3884,14 @@ PROTECTED VIRTUAL void AosRegistration::ProcessStartFailed_TxnTimeout()
         return;
     }
 
+    m_piContext->GetPcscf()->IncreaseCurrentPcscfTriedCount();
     IncreaseConsecutiveFailCount();
 
     IMS_UINT32 nAwt = GetActualWaitTime();
-    m_piContext->GetPcscf()->SetCurrentPcscfInvalid(IMS_TRUE, nAwt);
+    if (!IsRetryOnSamePcscfRequired())
+    {
+        m_piContext->GetPcscf()->SetCurrentPcscfInvalid(IMS_TRUE, nAwt);
+    }
 
     if (TryNextPcscf())
     {
@@ -4086,12 +4099,18 @@ PROTECTED VIRTUAL void AosRegistration::ProcessUpdateFailed_Others(IN IMS_SINT32
 PROTECTED VIRTUAL void AosRegistration::ProcessStandardPcscfSelection(
         IN IMS_UINT32 nRetryAfter /* = 0 */)
 {
+    A_IMS_TRACE_D(REGID, "ProcessStandardPcscfSelection :: nRetryAfter(%d)", nRetryAfter, 0, 0);
+
+    m_piContext->GetPcscf()->IncreaseCurrentPcscfTriedCount();
+
     if (TryNextPcscf())
     {
         SetState(STATE_REGISTERING);
         ReportTryingState();
         return;
     }
+
+    SetState(STATE_REGSTOP);
 
     if (nRetryAfter > 0)
     {

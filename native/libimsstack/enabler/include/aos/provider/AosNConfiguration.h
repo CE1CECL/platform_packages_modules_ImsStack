@@ -119,6 +119,7 @@ public:
     IMS_SINT32 GetRegRetrySip305CodePolicy() const override;
     IMS_SINT32 GetReregRetrySip305CodePolicy() const override;
     IMS_SINT32 GetRegRetrySip503CodePolicy() const override;
+    IMS_SINT32 GetRegRetryCountOnSinglePcscf() const override;
     IMS_SINT32 GetRegRetryCountPerPcscf() const override;
     IMS_SINT32 GetRegRetryCountResetPolicy() const override;
     IMS_SINT32 GetRegRetryDefaultPolicy() const override;

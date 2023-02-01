@@ -745,6 +745,16 @@ public:
     virtual IMS_SINT32 GetRegRetrySip503CodePolicy() const = 0;
 
     /**
+     * @brief Get the number of registration retry when there is only one PCSCF.
+     *
+     *        Indicate the number of retry for the PCSCF when there is only one PCSCF.
+     *        If the value is 0, it is not applicable.
+     *
+     * @return IMS_SINT32 Return the number of retry
+     */
+    virtual IMS_SINT32 GetRegRetryCountOnSinglePcscf() const = 0;
+
+    /**
      * @brief Get the number of registration retry for each PCSCF
      *
      *        Indicate the number of retry for each PCSCF.

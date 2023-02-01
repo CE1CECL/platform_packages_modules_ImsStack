@@ -264,6 +264,7 @@ private:
     IMS_SINT32 GetPcscfPort();
     void ProcessReorder(IN const AString& strCurrentPcscf, IN const AStringArray& objNewPcscfs);
     void UpdatePcscfs(IN const AStringArray& objPcscfs, IN IMS_SINT32 nPort);
+    IMS_BOOL IsRegRetryCountOnSinglePcscfConfigured();
     IMS_BOOL IsRegRetryCountPerPcscfConfigured();
 
 protected:
