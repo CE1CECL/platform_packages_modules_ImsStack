@@ -33,6 +33,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telecom.Connection.RttModifyStatus;
+import android.telephony.PreciseCallState;
 import android.telephony.ims.ImsCallProfile;
 import android.telephony.ims.ImsCallSessionListener;
 import android.telephony.ims.ImsReasonInfo;
@@ -634,6 +635,58 @@ public class ImsCallSessionImplTest {
         mCallFeaturemap.put(ImsCallSessionImpl.CF_RTT, true);
         mImsCallSession.sendRttMessage("Hello");
         verify(mMockMtcCall).sendRttMessage(eq("Hello"));
+    }
+
+    @Test
+    public void testGetPreciseState() {
+        mImsCallSession.setState(ImsCallSessionImplBase.State.ESTABLISHED);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_ACTIVE, mImsCallSession.getPreciseState());
+
+        mImsCallSession.setState(ImsCallSessionImplBase.State.ESTABLISHING);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_ALERTING,
+                mImsCallSession.getPreciseState());
+
+        mImsCallSession.setState(ImsCallSessionImplBase.State.TERMINATED);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_DISCONNECTED,
+                mImsCallSession.getPreciseState());
+
+        mImsCallSession.setState(ImsCallSessionImplBase.State.TERMINATING);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_DISCONNECTING,
+                mImsCallSession.getPreciseState());
+
+        mImsCallSession.setState(ImsCallSessionImplBase.State.ESTABLISHED);
+        when(mMockMtcCall.isOnHold()).thenReturn(true);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_HOLDING,
+                mImsCallSession.getPreciseState());
+
+        when(mMockMtcCall.isOnHold()).thenReturn(false);
+        mImsCallSession.setState(ImsCallSessionImplBase.State.RENEGOTIATING);
+        mImsCallSession.getCallDetails().set(0x01000000);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_HOLDING,
+                mImsCallSession.getPreciseState());
+
+        mImsCallSession.setState(ImsCallSessionImplBase.State.NEGOTIATING);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_DIALING,
+                mImsCallSession.getPreciseState());
+
+        mImsCallSession.getCallDetails().clear(0x00000001);
+        mImsCallSession.setState(ImsCallSessionImplBase.State.NEGOTIATING);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_INCOMING,
+                mImsCallSession.getPreciseState());
+
+        when(mMockCallTracker.getActiveCalls()).thenReturn(1);
+        mImsCallSession.setState(ImsCallSessionImplBase.State.IDLE);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_WAITING,
+                mImsCallSession.getPreciseState());
+
+        when(mMockMtcCall.isOnPreIncoming()).thenReturn(true);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_INCOMING_SETUP,
+                mImsCallSession.getPreciseState());
+
+        when(mMockMtcCall.isOnPreIncoming()).thenReturn(false);
+        mImsCallSession.setState(ImsCallSessionImplBase.State.INVALID);
+        assertEquals(PreciseCallState.PRECISE_CALL_STATE_NOT_VALID,
+                mImsCallSession.getPreciseState());
     }
 
     private void verifyWaitOrNotifyCallTerminated() {
