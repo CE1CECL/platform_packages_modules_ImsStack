@@ -29,6 +29,7 @@ class ICapabilities;
 class IPageMessage;
 class IReference;
 class ISession;
+class IFeatureCaps;
 
 class UceService : public ImsService, public ICoreServiceListener
 {
@@ -73,6 +74,8 @@ protected:
             IN ICoreService* piService, IN ICapabilities* piCapabilities) override;
     void EnableManager();
     void DisableManager();
+    void SetFeatures(
+            IFeatureCaps* piFCaps, IMS_BOOL bAddVideoTagInPublish, IMS_UINT32 conectedService);
 
 private:
     void EnableCoreService();

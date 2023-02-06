@@ -107,22 +107,7 @@ void UceService::AoSConnected(IMS_UINT32 conectedService)
         }
         IMS_BOOL bAddVideoTagInPublish = UceConfig::GetInstance()->GetBoolValue(
                 UceConfig::KEY_ADD_VIDEO_TAG_CONTACT_HEADER_IN_PUBLISH, m_nSlotId);
-        if (bAddVideoTagInPublish)
-        {
-            piFCaps->RemoveFeature("video", AString::ConstEmpty(), SipMethod::PUBLISH);
-            if (conectedService & CONNECTED_SERVICE_VIDEO)
-            {
-                piFCaps->AddFeature("video", AString::ConstEmpty(), SipMethod::PUBLISH);
-            }
-        }
-        else
-        {
-            piFCaps->RemoveFeature("video", AString::ConstEmpty());
-            if (conectedService & CONNECTED_SERVICE_VIDEO)
-            {
-                piFCaps->AddFeature("video", AString::ConstEmpty());
-            }
-        }
+        SetFeatures(piFCaps, bAddVideoTagInPublish, conectedService);
     }
 }
 
@@ -329,6 +314,29 @@ void UceService::DisableManager()
     {
         delete m_pUceOptionsManager;
         m_pUceOptionsManager = IMS_NULL;
+    }
+}
+
+void UceService::SetFeatures(
+        IFeatureCaps* piFCaps, IMS_BOOL bAddVideoTagInPublish, IMS_UINT32 conectedService)
+{
+    IMS_TRACE_D("SetFeatures:bAddVideoTagInPublish[%d], conectedService[%d]", bAddVideoTagInPublish,
+            conectedService, 0);
+    if (bAddVideoTagInPublish)
+    {
+        piFCaps->RemoveFeature("video", AString::ConstEmpty(), SipMethod::PUBLISH);
+        if (conectedService & CONNECTED_SERVICE_VIDEO)
+        {
+            piFCaps->AddFeature("video", AString::ConstEmpty(), SipMethod::PUBLISH);
+        }
+    }
+    else
+    {
+        piFCaps->RemoveFeature("video", AString::ConstEmpty());
+        if (conectedService & CONNECTED_SERVICE_VIDEO)
+        {
+            piFCaps->AddFeature("video", AString::ConstEmpty());
+        }
     }
 }
 

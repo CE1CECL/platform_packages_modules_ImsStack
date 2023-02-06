@@ -117,6 +117,9 @@ UcePublishManager::UcePublishManager(
         m_pPendingPublicationData(IMS_NULL),
         m_nConnectedServices(0),
         m_piPublication(IMS_NULL),
+        m_pExponentialTimer(IMS_NULL),
+        m_pRetryTimer(IMS_NULL),
+        m_pRetryAfterTimer(IMS_NULL),
         m_strPidfXml(AString::ConstNull()),
         m_strEtag(AString::ConstNull()),
         m_nCapability(0),
@@ -129,9 +132,6 @@ UcePublishManager::UcePublishManager(
         m_bEnablePIDFCompression(IMS_FALSE),
         m_bSetPublishStarted(IMS_FALSE),
         m_bUnpublishSent(IMS_FALSE),
-        m_pExponentialTimer(IMS_NULL),
-        m_pRetryTimer(IMS_NULL),
-        m_pRetryAfterTimer(IMS_NULL),
         m_nImmediatelyRetryCount(0),
         m_nRetryCount(0),
         m_nExponentialRetryCount(0)
@@ -400,17 +400,17 @@ IMS_RESULT UcePublishManager::MessageMediator_AdjustMessage(
         strContactHeaderValue.Append(TextParser::STR_DQUOTE);
     }
 
-    if (strContactHeader.Contains(UceTag::TAG_CHATBOT_VERSION_V1) == IMS_FALSE &&
-            (m_nConnectedServices & CONNECTED_SERVICE_CHATBOT_V1) == CONNECTED_SERVICE_CHATBOT_V1)
-    {
-        strContactHeaderValue.Append(TextParser::CHAR_SEMICOLON);
-        strContactHeaderValue.Append(UceTag::TAG_CHATBOT_VERSION_V1);
-    }
-    else if (strContactHeader.Contains(UceTag::TAG_CHATBOT_VERSION_V2) == IMS_FALSE &&
+    if (strContactHeader.Contains(UceTag::TAG_CHATBOT_VERSION_V2) == IMS_FALSE &&
             (m_nConnectedServices & CONNECTED_SERVICE_CHATBOT_V2) == CONNECTED_SERVICE_CHATBOT_V2)
     {
         strContactHeaderValue.Append(TextParser::CHAR_SEMICOLON);
         strContactHeaderValue.Append(UceTag::TAG_CHATBOT_VERSION_V2);
+    }
+    else if (strContactHeader.Contains(UceTag::TAG_CHATBOT_VERSION_V1) == IMS_FALSE &&
+            (m_nConnectedServices & CONNECTED_SERVICE_CHATBOT_V1) == CONNECTED_SERVICE_CHATBOT_V1)
+    {
+        strContactHeaderValue.Append(TextParser::CHAR_SEMICOLON);
+        strContactHeaderValue.Append(UceTag::TAG_CHATBOT_VERSION_V1);
     }
 
     if (strContactHeader.IsEmpty() == IMS_TRUE)
@@ -757,16 +757,8 @@ IMS_BOOL UcePublishManager::StatePUBLISHING_Published(IN IMSMSG& objMsg)
     {
         GetEtagAndExpireValue(piMessage);
         IPublishResponseData* pResponseData = GetPublishResponseData(piMessage);
-        if (pResponseData != IMS_NULL)
-        {
-            SendPublishResponseInd(m_nKey, pResponseData->m_nResponseCode,
-                    pResponseData->m_strReason, pResponseData->m_nReasonCause,
-                    pResponseData->m_strReasonText, m_strEtag);
-        }
-        else
-        {
-            SendPublishResponseInd(m_nKey, SipStatusCode::SC_200, "OK", 0, "", m_strEtag);
-        }
+        SendPublishResponseInd(m_nKey, pResponseData->m_nResponseCode, pResponseData->m_strReason,
+                pResponseData->m_nReasonCause, pResponseData->m_strReasonText, m_strEtag);
     }
     m_nKey = 0;
     m_nImmediatelyRetryCount = 0;
@@ -837,13 +829,6 @@ IMS_BOOL UcePublishManager::StatePUBLISHING_Failed(IN IMSMSG& objMsg)
     }
 
     IPublishResponseData* pResponseData = GetPublishResponseData(piMessage);
-    if (pResponseData == IMS_NULL)
-    {
-        IMS_TRACE_I("StatePUBLISHING_Failed:IPublishResponseData is null", 0, 0, 0);
-        SendPublishCommandErrorInd(m_nKey, IUUceService::COMMAND_CODE_GENERIC_FAILURE);
-        SetState(ON);
-        return IMS_TRUE;
-    }
 
     if (m_bEnablePIDFCompression == IMS_TRUE)
     {
@@ -1071,13 +1056,9 @@ IMS_BOOL UcePublishManager::StateREFRESHING_RefreshFailed(IN IMSMSG& objMsg)
     else
     {
         IPublishResponseData* pResponseData = GetPublishResponseData(piMessage);
-        if (pResponseData != IMS_NULL)
-        {
-            nResponseCode = pResponseData->m_nResponseCode;
-            SendPublishResponseInd(m_nKey, pResponseData->m_nResponseCode,
-                    pResponseData->m_strReason, pResponseData->m_nReasonCause,
-                    pResponseData->m_strReasonText, m_strEtag);
-        }
+        nResponseCode = pResponseData->m_nResponseCode;
+        SendPublishResponseInd(m_nKey, pResponseData->m_nResponseCode, pResponseData->m_strReason,
+                pResponseData->m_nReasonCause, pResponseData->m_strReasonText, m_strEtag);
     }
 
     if (m_bReceivedUnPublishRequest == IMS_TRUE)
@@ -1247,33 +1228,29 @@ void UcePublishManager::LoadConfigValue()
 
 IPublishResponseData* UcePublishManager::GetPublishResponseData(ISipMessage* piMessage)
 {
-    IPublishResponseData* pPublishResponseData = IMS_NULL;
+    IMS_SINT32 nReasonCause = -1;
+    AString strReasonText = "";
 
-    if (piMessage != IMS_NULL)
+    IPublishResponseData* pPublishResponseData = new IPublishResponseData();
+
+    IMS_TRACE_D("GetPublishResponseData:StatusCode[%d], reason[%s]", piMessage->GetStatusCode(),
+            piMessage->GetReasonPhrase().GetStr(), 0);
+    pPublishResponseData->m_nResponseCode = piMessage->GetStatusCode();
+    pPublishResponseData->m_strReason = piMessage->GetReasonPhrase();
+
+    IMSList<AString> objReasonHeaders = piMessage->GetHeaders(ISipHeader::UNKNOWN, "Reason");
+    if (objReasonHeaders.IsEmpty())
     {
-        IMS_SINT32 nReasonCause = -1;
-        AString strReasonText = "";
-
-        pPublishResponseData = new IPublishResponseData();
-
-        IMS_TRACE_D("GetPublishResponseData:StatusCode[%d], reason[%s]", piMessage->GetStatusCode(),
-                piMessage->GetReasonPhrase().GetStr(), 0);
-        pPublishResponseData->m_nResponseCode = piMessage->GetStatusCode();
-        pPublishResponseData->m_strReason = piMessage->GetReasonPhrase();
-
-        IMSList<AString> objReasonHeaders = piMessage->GetHeaders(ISipHeader::UNKNOWN, "Reason");
-        if (objReasonHeaders.IsEmpty())
-        {
-            return pPublishResponseData;
-        }
-        AString strReasonHdr = SipParsingHelper::GetSipReasonHeader(objReasonHeaders);
-        SipParsingHelper::ParseReasonHeader(strReasonHdr, nReasonCause, strReasonText);
-        IMS_TRACE_D("GetPublishResponseData:cause[%d], text[%s]", nReasonCause,
-                strReasonText.GetStr(), 0);
-
-        pPublishResponseData->m_nReasonCause = nReasonCause;
-        pPublishResponseData->m_strReasonText = strReasonText;
+        return pPublishResponseData;
     }
+    AString strReasonHdr = SipParsingHelper::GetSipReasonHeader(objReasonHeaders);
+    SipParsingHelper::ParseReasonHeader(strReasonHdr, nReasonCause, strReasonText);
+    IMS_TRACE_D(
+            "GetPublishResponseData:cause[%d], text[%s]", nReasonCause, strReasonText.GetStr(), 0);
+
+    pPublishResponseData->m_nReasonCause = nReasonCause;
+    pPublishResponseData->m_strReasonText = strReasonText;
+
     return pPublishResponseData;
 }
 

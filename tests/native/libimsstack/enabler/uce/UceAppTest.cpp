@@ -21,7 +21,15 @@
 #include "MockIJniEnabler.h"
 #include "MockIUceJniThread.h"
 #include "MockIImsAos.h"
+#include "MockIImsAosInfo.h"
+#include "MockINetworkWatcher.h"
+#include "MockITimer.h"
+#include "PlatformContext.h"
+#include "TestTimerService.h"
 #include "JniEnablerConnector.h"
+#include "AoSAppRequestType.h"
+#include "def/UceDef.h"
+#include "UceService.h"
 
 #include "ServiceMessage.h"
 #include "ServiceTimer.h"
@@ -45,16 +53,36 @@ public:
         AOS_RESUMED,
     };
 
+    enum
+    {
+        AMSG_BASE = IMS_MSG_USER + 1,
+        AMSG_CREATE_SERVICE,
+        AMSG_MAX
+    };
+
 public:
     inline explicit TestUceApp(IImsAos* piImsAos) :
             UceApp(0, piImsAos)
     {
     }
     virtual ~TestUceApp() {}
-    IMS_BOOL SendMessage(IMSMSG objUIMsg) { return OnMessage(objUIMsg); }
-    void SetAoSState(IMS_SINT32 state) { m_eAoSStatus = state; }
-    IMS_SINT32 GetAoSState() const { return m_eAoSStatus; }
-    IMS_BOOL IsTimerNull()
+    IMS_BOOL callPre(IMSMSG objUIMsg) { return OnPreprocess(objUIMsg); }
+    IMS_BOOL sendMessage(IMSMSG& objMSG) { return OnMessage(objMSG); }
+    IMS_BOOL callPost(IMSMSG objUIMsg) { return OnPostprocess(objUIMsg); }
+    IMS_BOOL callControl() { return Control(0, 0, IMS_NULL); }
+    void notifyNetworkStatus(INetworkWatcher* piNetWatcherInfo)
+    {
+        NetworkWatcher_NotifyStatus(piNetWatcherInfo);
+    }
+    void setNetworkWatcher(INetworkWatcher* piNetWatcherInfo)
+    {
+        m_piNetWatcherInfo = piNetWatcherInfo;
+    }
+    void setNetworkType(IMS_SINT32 network) { m_eCurrentNetwork = network; }
+    IMS_SINT32 getNetworkType() const { return m_eCurrentNetwork; }
+    void setAoSState(IMS_SINT32 state) { m_eAoSStatus = state; }
+    IMS_SINT32 getAoSState() const { return m_eAoSStatus; }
+    IMS_BOOL isTimerNull()
     {
         if (GetTimer() == IMS_NULL)
         {
@@ -62,9 +90,11 @@ public:
         }
         return IMS_FALSE;
     }
+    void setTimer(ITimer* piTimer) { m_piDeBounceTimer = piTimer; }
     void startTimer() { StartTimer(TIMER_NETWORK_CHANGED, 10000); }
     void stopTimer() { StopTimer(TIMER_NETWORK_CHANGED); }
     void clearTimer() { ClearTimer(); }
+    void expiredTimer(ITimer* piTimer) { Timer_TimerExpired(piTimer); }
     void aosConnecting() { ImsAos_Connecting(); }
     void aosDisConnecting() { ImsAos_Disconnecting(0); }
     void aosDisConnected() { ImsAos_Disconnected(0); }
@@ -72,49 +102,35 @@ public:
     void aosResume() { ImsAos_Resumed(); }
     void aosMonitorConnected() { ImsAosMonitor_Connected(0, 0); }
     void registrationCheck() { ImsRegistrationCheck(); }
-
-    void SendPublishCmd(IMS_UINT32 key, IMS_UINT32 extended, IMS_UINT32 capability,
-            const AString& pidfXml, const AString& eTag) override
+    IMS_UINT32 getService(IMS_UINT32 features) { return GetRegisteredService(features); }
+    IMS_BOOL sendPublishCmd() { return SendPublishCmd(0, 0, 0, "", ""); }
+    IMS_BOOL sendSingleSubscribeCmd() { return SendSingleSubscribeCmd(0, ""); }
+    IMS_BOOL sendListSubscribeCmd()
     {
-        (void)key;
-        (void)extended;
-        (void)capability;
-        (void)pidfXml;
-        (void)eTag;
+        const IMSList<AString> userList;
+        return SendListSubscribeCmd(0, userList);
     }
-    void SendSingleSubscribeCmd(IMS_UINT32 key, const AString& user) override
-    {
-        (void)key;
-        (void)user;
-    }
-    void SendListSubscribeCmd(IMS_UINT32 key, const IMSList<AString>& userList) override
-    {
-        (void)key;
-        (void)userList;
-    }
-    void SendOptionsCmd(IMS_UINT32 key, IMS_UINT32 myCaps, const AString& remoteUri) override
-    {
-        (void)key;
-        (void)myCaps;
-        (void)remoteUri;
-    }
-    void SendOptionsRespCmd(IMS_UINT32 key, IMS_SINT32 responseCode, const AString& reason,
-            IMS_UINT32 myCaps) override
-    {
-        (void)key;
-        (void)responseCode;
-        (void)reason;
-        (void)myCaps;
-    }
+    IMS_BOOL sendOptionsCmd() { return SendOptionsCmd(0, 0, ""); }
+    IMS_BOOL sendOptionsRespCmd() { return SendOptionsRespCmd(0, 0, "", 0); }
+    void setUceService(UceService* pUceService) { m_pUceService = pUceService; }
 };
 
 class UceAppTest : public ::testing::Test
 {
 public:
+    inline UceAppTest() :
+            objTimerService(),
+            objTimer(objTimerService.GetMockTimer())
+    {
+        pUceApp = IMS_NULL;
+    }
+    TestTimerService objTimerService;
+    MockITimer& objTimer;
     TestUceApp* pUceApp;
     MockIJniEnabler objMockJniEnabler;
     MockIUceJniThread objMockIUceJniThread;
     MockIImsAos objMockIImsAos;
+    MockIImsAosInfo objMockIImsAosInfo;
 
 protected:
     virtual void SetUp() override
@@ -122,7 +138,10 @@ protected:
         pUceApp = new TestUceApp(&objMockIImsAos);
         ASSERT_TRUE(pUceApp != nullptr);
         ON_CALL(objMockJniEnabler, GetJniThread()).WillByDefault(Return(&objMockIUceJniThread));
+        ON_CALL(objMockIImsAos, GetAosInfo()).WillByDefault(Return(&objMockIImsAosInfo));
         JniEnablerConnector::GetInstance().SetJniEnabler(0, EnablerType::UCE, &objMockJniEnabler);
+        PlatformContext::GetInstance()->SetService(
+                PlatformContext::SERVICE_TIMER, &objTimerService);
     }
 
     virtual void TearDown() override
@@ -132,100 +151,290 @@ protected:
             delete pUceApp;
         }
         JniEnablerConnector::GetInstance().SetJniEnabler(0, EnablerType::UCE, IMS_NULL);
+        PlatformContext::GetInstance()->SetService(PlatformContext::SERVICE_TIMER, IMS_NULL);
     }
 };
 
-TEST_F(UceAppTest, stopTimer)
+TEST_F(UceAppTest, CallPre)
 {
-    IMS_TRACE_D("stopTimer", 0, 0, 0);
-    EXPECT_TRUE(pUceApp->IsTimerNull());
+    IMS_TRACE_D("CallPre", 0, 0, 0);
+    IMSMSG objMsg(AoSAppRequest::COMMAND_SET_PUBLISH_STARTED, 0, IMS_NULL);
+
+    EXPECT_FALSE(pUceApp->callPre(objMsg));
+}
+
+TEST_F(UceAppTest, SendMessage)
+{
+    IMS_TRACE_D("SendMessage", 0, 0, 0);
+    IMSMSG objMsg(TestUceApp::AMSG_CREATE_SERVICE, 0, IMS_NULL);
+    EXPECT_TRUE(pUceApp->sendMessage(objMsg));
+
+    IMSMSG objMsg2(AoSAppRequest::COMMAND_SET_PUBLISH_TERMINATED, 0, IMS_NULL);
+    EXPECT_TRUE(pUceApp->sendMessage(objMsg2));
+
+    IMSMSG objMsg3(AoSAppRequest::COMMAND_REGISTER_RECOVERY, 0, IMS_NULL);
+    EXPECT_TRUE(pUceApp->sendMessage(objMsg3));
+}
+
+TEST_F(UceAppTest, NotifyPublishState)
+{
+    IMS_TRACE_D("NotifyPublishState", 0, 0, 0);
+    EXPECT_CALL(objMockIImsAosInfo, NotifyPublishState(_)).Times(1);
+
+    IMSMSG objMsg(AoSAppRequest::COMMAND_SET_PUBLISH_STARTED, 0, IMS_NULL);
+    EXPECT_TRUE(pUceApp->sendMessage(objMsg));
+}
+
+TEST_F(UceAppTest, AoSControl)
+{
+    IMS_TRACE_D("NotifyPublishState", 0, 0, 0);
+    EXPECT_CALL(objMockIImsAos, Control(_)).Times(1);
+    pUceApp->setNetworkType(eUCE_RAT_GERAN);
+    IMSMSG objMsg(AoSAppRequest::COMMAND_REGISTER_RECOVERY, 0, ImsAosControl::REGISTER_REINITIATE);
+    EXPECT_TRUE(pUceApp->sendMessage(objMsg));
+}
+
+TEST_F(UceAppTest, CallPost)
+{
+    IMS_TRACE_D("CallPost", 0, 0, 0);
+    IMSMSG objMsg(AoSAppRequest::COMMAND_SET_PUBLISH_STARTED, 0, IMS_NULL);
+
+    EXPECT_TRUE(pUceApp->callPost(objMsg));
+}
+
+TEST_F(UceAppTest, CallControl)
+{
+    IMS_TRACE_D("CallControl", 0, 0, 0);
+    EXPECT_FALSE(pUceApp->callControl());
+}
+
+TEST_F(UceAppTest, NotifyNetworkStatus)
+{
+    IMS_TRACE_D("NotifyNetworkStatus", 0, 0, 0);
+    MockINetworkWatcher objMockINetworkWatcher;
+    ON_CALL(objMockINetworkWatcher, GetNetworkType())
+            .WillByDefault(Return(INetworkWatcher::RADIOTECH_TYPE_UMTS));
+
+    pUceApp->setNetworkWatcher(&objMockINetworkWatcher);
+    pUceApp->notifyNetworkStatus(&objMockINetworkWatcher);
+    EXPECT_EQ(pUceApp->getNetworkType(), eUCE_RAT_UTRAN);
+}
+
+TEST_F(UceAppTest, NotifyNetworkStatusWithNoMatched)
+{
+    IMS_TRACE_D("NotifyNetworkStatusWithNoMatched", 0, 0, 0);
+    MockINetworkWatcher objMockINetworkWatcher;
+    pUceApp->notifyNetworkStatus(&objMockINetworkWatcher);
+    EXPECT_EQ(pUceApp->getNetworkType(), eUCE_RAT_INVALID);
+}
+
+TEST_F(UceAppTest, TimerExpired)
+{
+    MockINetworkWatcher objMockINetworkWatcher;
+    ON_CALL(objMockINetworkWatcher, GetNetworkType())
+            .WillByDefault(Return(INetworkWatcher::RADIOTECH_TYPE_EHRPD));
+
+    EXPECT_CALL(objTimer, KillTimer).Times(1);
+    EXPECT_CALL(objMockIUceJniThread, NotifyNetworkChanged(_)).Times(1);
+
+    pUceApp->setNetworkWatcher(&objMockINetworkWatcher);
+    pUceApp->setTimer(&objTimer);
+    pUceApp->expiredTimer(&objTimer);
+}
+
+TEST_F(UceAppTest, StopTimer)
+{
+    IMS_TRACE_D("StopTimer", 0, 0, 0);
+    EXPECT_TRUE(pUceApp->isTimerNull());
     pUceApp->startTimer();
-    EXPECT_FALSE(pUceApp->IsTimerNull());
+    EXPECT_FALSE(pUceApp->isTimerNull());
     pUceApp->stopTimer();
-    EXPECT_TRUE(pUceApp->IsTimerNull());
+    EXPECT_TRUE(pUceApp->isTimerNull());
 }
 
-TEST_F(UceAppTest, clearTimer)
+TEST_F(UceAppTest, ClearTimer)
 {
-    IMS_TRACE_D("clearTimer", 0, 0, 0);
-    EXPECT_TRUE(pUceApp->IsTimerNull());
+    IMS_TRACE_D("ClearTimer", 0, 0, 0);
+    EXPECT_TRUE(pUceApp->isTimerNull());
     pUceApp->startTimer();
-    EXPECT_FALSE(pUceApp->IsTimerNull());
+    EXPECT_FALSE(pUceApp->isTimerNull());
     pUceApp->clearTimer();
-    EXPECT_TRUE(pUceApp->IsTimerNull());
+    EXPECT_TRUE(pUceApp->isTimerNull());
 }
 
-TEST_F(UceAppTest, aosConnecting)
+TEST_F(UceAppTest, AoSConnecting)
 {
-    IMS_TRACE_D("aosConnecting", 0, 0, 0);
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTED);
+    IMS_TRACE_D("AoSConnecting", 0, 0, 0);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
     pUceApp->aosConnecting();
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_CONNECTING);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_CONNECTING);
 }
 
-TEST_F(UceAppTest, aosDisConnecting)
+TEST_F(UceAppTest, AoSDisConnecting)
 {
-    IMS_TRACE_D("aosDisConnecting", 0, 0, 0);
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTED);
+    IMS_TRACE_D("AoSDisConnecting", 0, 0, 0);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
     pUceApp->aosDisConnecting();
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTING);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTING);
+    pUceApp->aosDisConnecting();
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTING);
 }
 
-TEST_F(UceAppTest, aosDisConnected)
+TEST_F(UceAppTest, AoSDisConnected)
 {
-    IMS_TRACE_D("aosDisConnected", 0, 0, 0);
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTED);
-    pUceApp->SetAoSState(TestUceApp::AOS_CONNECTED);
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_CONNECTED);
+    IMS_TRACE_D("AoSDisConnected", 0, 0, 0);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
+    pUceApp->setAoSState(TestUceApp::AOS_CONNECTED);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_CONNECTED);
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
     pUceApp->aosDisConnected();
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTED);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
+    pUceApp->aosDisConnected();
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
 }
 
 TEST_F(UceAppTest, NotifyImsDeregistered)
 {
     IMS_TRACE_D("NotifyImsDeregistered", 0, 0, 0);
-    pUceApp->SetAoSState(TestUceApp::AOS_CONNECTED);
+    pUceApp->setAoSState(TestUceApp::AOS_CONNECTED);
 
     EXPECT_CALL(objMockIUceJniThread, NotifyImsDeregistered()).Times(1);
     pUceApp->aosDisConnected();
 }
 
-TEST_F(UceAppTest, aosSuspend)
+TEST_F(UceAppTest, NotNotifyImsDeregistered)
 {
-    IMS_TRACE_D("aosSuspend", 0, 0, 0);
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTED);
+    IMS_TRACE_D("NotNotifyImsDeregistered", 0, 0, 0);
+    ON_CALL(objMockJniEnabler, GetJniThread).WillByDefault(Return(nullptr));
+    pUceApp->setAoSState(TestUceApp::AOS_CONNECTED);
+
+    EXPECT_CALL(objMockIUceJniThread, NotifyImsDeregistered()).Times(0);
+    pUceApp->aosDisConnected();
+}
+
+TEST_F(UceAppTest, AoSSuspend)
+{
+    IMS_TRACE_D("AoSSuspend", 0, 0, 0);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
     pUceApp->aosSuspend();
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_SUSPENDED);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_SUSPENDED);
 }
 
-TEST_F(UceAppTest, aosResume)
+TEST_F(UceAppTest, AoSResume)
 {
-    IMS_TRACE_D("aosResume", 0, 0, 0);
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_DISCONNECTED);
+    IMS_TRACE_D("AoSResume", 0, 0, 0);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_DISCONNECTED);
     pUceApp->aosResume();
-    EXPECT_EQ(pUceApp->GetAoSState(), TestUceApp::AOS_RESUMED);
+    EXPECT_EQ(pUceApp->getAoSState(), TestUceApp::AOS_RESUMED);
 }
 
-TEST_F(UceAppTest, aosMonitorConnected)
+TEST_F(UceAppTest, AoSMonitorConnected)
 {
-    IMS_TRACE_D("aosMonitorConnected", 0, 0, 0);
+    IMS_TRACE_D("AoSMonitorConnected", 0, 0, 0);
     EXPECT_CALL(objMockIUceJniThread, NotifyImsRegistered(_, _)).Times(1);
     pUceApp->aosMonitorConnected();
 
-    pUceApp->SetAoSState(TestUceApp::AOS_CONNECTED);
+    pUceApp->setAoSState(TestUceApp::AOS_CONNECTED);
 
     EXPECT_CALL(objMockIUceJniThread, NotifyImsRegiRefreshed(_)).Times(1);
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
     pUceApp->aosMonitorConnected();
 }
 
-TEST_F(UceAppTest, registrationCheck)
+TEST_F(UceAppTest, AoSMonitorConnectedWithNullJniThread)
 {
-    IMS_TRACE_D("registrationCheck", 0, 0, 0);
+    IMS_TRACE_D("AoSMonitorConnectedWithNullJniThread", 0, 0, 0);
+    ON_CALL(objMockJniEnabler, GetJniThread).WillByDefault(Return(nullptr));
+    EXPECT_CALL(objMockIUceJniThread, NotifyImsRegistered(_, _)).Times(0);
+    pUceApp->aosMonitorConnected();
+}
+
+TEST_F(UceAppTest, RegistrationCheck)
+{
+    IMS_TRACE_D("RegistrationCheck", 0, 0, 0);
     EXPECT_CALL(objMockIUceJniThread, NotifyImsDeregistered()).Times(1);
     pUceApp->registrationCheck();
 
-    pUceApp->SetAoSState(TestUceApp::AOS_CONNECTED);
+    pUceApp->setAoSState(TestUceApp::AOS_CONNECTED);
 
     EXPECT_CALL(objMockIUceJniThread, NotifyImsRegistered(_, _)).Times(1);
     pUceApp->registrationCheck();
+}
+
+TEST_F(UceAppTest, SendPublishCmd)
+{
+    IMS_TRACE_D("SendPublishCmd", 0, 0, 0);
+    EXPECT_FALSE(pUceApp->sendPublishCmd());
+
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
+    EXPECT_TRUE(pUceApp->sendPublishCmd());
+}
+
+TEST_F(UceAppTest, SendSingleSubscribeCmd)
+{
+    IMS_TRACE_D("SendSingleSubscribeCmd", 0, 0, 0);
+    EXPECT_FALSE(pUceApp->sendSingleSubscribeCmd());
+
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
+    EXPECT_TRUE(pUceApp->sendSingleSubscribeCmd());
+}
+
+TEST_F(UceAppTest, SendListSubscribeCmd)
+{
+    IMS_TRACE_D("SendListSubscribeCmd", 0, 0, 0);
+    EXPECT_FALSE(pUceApp->sendListSubscribeCmd());
+
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
+    EXPECT_TRUE(pUceApp->sendListSubscribeCmd());
+}
+
+TEST_F(UceAppTest, SendOptionsCmd)
+{
+    IMS_TRACE_D("SendOptionsCmd", 0, 0, 0);
+    EXPECT_FALSE(pUceApp->sendOptionsCmd());
+
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
+    EXPECT_TRUE(pUceApp->sendOptionsCmd());
+}
+
+TEST_F(UceAppTest, SendOptionsRespCmd)
+{
+    IMS_TRACE_D("SendOptionsRespCmd", 0, 0, 0);
+    EXPECT_FALSE(pUceApp->sendOptionsRespCmd());
+
+    UceService* pUceService = new UceService(IMS_NULL);
+    pUceApp->setUceService(pUceService);
+    EXPECT_TRUE(pUceApp->sendOptionsRespCmd());
+}
+
+TEST_F(UceAppTest, GetService)
+{
+    IMS_TRACE_D("GetService", 0, 0, 0);
+    IMS_UINT32 features = ImsAosFeature::VIDEO | ImsAosFeature::STANDALONE_MSG |
+            ImsAosFeature::CHAT_SESSION | ImsAosFeature::FILE_TRANSFER |
+            ImsAosFeature::FILE_TRANSFER_VIA_SMS | ImsAosFeature::CALL_COMPOSER_ENRICHED_CALLING |
+            ImsAosFeature::GEO_PUSH | ImsAosFeature::GEO_PUSH_VIA_SMS |
+            ImsAosFeature::CHATBOT_COMMUNICATION_USING_SESSION |
+            ImsAosFeature::CHATBOT_COMMUNICATION_USING_STANDALONE_MSG |
+            ImsAosFeature::CHATBOT_VERSION_SUPPORTED | ImsAosFeature::CHATBOT_VERSION_V2_SUPPORTED |
+            ImsAosFeature::PRESENCE;
+    IMS_UINT32 registeredService = 0;
+
+    IMS_UINT32 expectedService = CONNECTED_SERVICE_VIDEO | CONNECTED_SERVICE_CPM_MSG |
+            CONNECTED_SERVICE_CPM_LARGEMSG | CONNECTED_SERVICE_CPM_SESSION |
+            CONNECTED_SERVICE_HTTPFT | CONNECTED_SERVICE_FTSMS | CONNECTED_SERVICE_CALL_COMPOSER |
+            CONNECTED_SERVICE_GEOPUSH | CONNECTED_SERVICE_GEOSMS | CONNECTED_SERVICE_CHATBOT |
+            CONNECTED_SERVICE_CHATBOT_STANDALONE_MSG | CONNECTED_SERVICE_CHATBOT_V1 |
+            CONNECTED_SERVICE_CHATBOT_V2 | CONNECTED_SERVICE_PRESENCE;
+
+    registeredService = pUceApp->getService(features);
+    EXPECT_EQ(registeredService, expectedService);
 }

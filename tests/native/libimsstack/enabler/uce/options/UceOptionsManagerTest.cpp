@@ -33,6 +33,7 @@
 
 using ::testing::_;
 using ::testing::Return;
+using ::testing::ReturnNull;
 
 __IMS_TRACE_TAG_USER_DECL__("UCE");
 
@@ -47,9 +48,16 @@ public:
 
     void setAosConnected(IMS_BOOL connected) { m_bAoSConnected = connected; }
     IMS_BOOL getAosConnected() { return m_bAoSConnected; }
-    void addOptions(IMS_UINT32 key, UceOptions* pOptions)
+    void addOptions(IMS_BOOL isSent, IMS_UINT32 key, UceOptions* pOptions)
     {
-        m_objSentUceOptionsMap.Add(key, pOptions);
+        if (isSent)
+        {
+            m_objSentUceOptionsMap.Add(key, pOptions);
+        }
+        else
+        {
+            m_objReceivedUceOptionsMap.Add(key, pOptions);
+        }
     }
     IMS_UINT32 getListCount() const { return m_objSentUceOptionsMap.GetSize(); }
     IMS_BOOL sendMsg(IMSMSG& objMsg) { return OnMessage(objMsg); }
@@ -91,22 +99,30 @@ TEST_F(UceOptionsManagerTest, SendOptionsRequestInAosDisconnected)
 
     pUceOptionsManager->SendOptionsRequest(0, "RemoteURI", 0);
 }
-/*
+
 TEST_F(UceOptionsManagerTest, SendOptionsRequestInAosConnected)
 {
     IMS_TRACE_D("SendOptionsRequestInAosConnected", 0, 0, 0);
+    TestUceOptionsManager* pTestUceOptionsManager;
+    pTestUceOptionsManager = new TestUceOptionsManager(IMS_NULL);
+    pTestUceOptionsManager->setAosConnected(IMS_TRUE);
 
-    pUceOptionsManager->setAosConnected(IMS_TRUE);
-    EXPECT_CALL(objMockIUceJniThread, OptionsErrorInd(_, _)).Times(0);
-
-    pUceOptionsManager->SendOptionsRequest(0, "RemoteURI", 0);
+    EXPECT_TRUE(pTestUceOptionsManager->SendOptionsRequest(0, "RemoteURI", 0));
+    delete pTestUceOptionsManager;
 }
-*/
+
 TEST_F(UceOptionsManagerTest, SendOptionsResponse)
 {
     IMS_TRACE_D("SendOptionsResponse", 0, 0, 0);
-
     EXPECT_FALSE(pUceOptionsManager->SendOptionsResponse(0, 0, "reason", 0));
+
+    IMS_UINT32 key = 3;
+    pUceOptionsManager->addOptions(IMS_FALSE, key, IMS_NULL);
+    EXPECT_FALSE(pUceOptionsManager->SendOptionsResponse(key, 0, "reason", 0));
+
+    UceOptions* pOptions = new UceOptions("Options", IMS_NULL, IMS_NULL, 0, IMS_TRUE, 0);
+    pUceOptionsManager->addOptions(IMS_FALSE, key, pOptions);
+    EXPECT_TRUE(pUceOptionsManager->SendOptionsResponse(key, 0, "reason", 0));
 }
 
 TEST_F(UceOptionsManagerTest, ReceivedOptionsWithNoMatchService)
@@ -114,10 +130,26 @@ TEST_F(UceOptionsManagerTest, ReceivedOptionsWithNoMatchService)
     IMS_TRACE_D("ReceivedOptionsWithNoMatchService", 0, 0, 0);
 
     EXPECT_FALSE(pUceOptionsManager->ReceivedOptions(IMS_NULL, IMS_NULL));
+}
 
-    // MockICapabilities objMockICapabilities;
-    // EXPECT_CALL(objMockIUceJniThread, OptionsReceivedInd(_, _, _)).Times(0);
-    // pUceOptionsManager->ReceivedOptions(&objMockICoreService, &objMockICapabilities);
+TEST_F(UceOptionsManagerTest, ReceivedOptionsWithNoMessage)
+{
+    IMS_TRACE_D("ReceivedOptionsWithNoMessage", 0, 0, 0);
+    MockICapabilities objMockICapabilities;
+    ON_CALL(objMockICapabilities, GetPreviousRequest).WillByDefault(ReturnNull());
+    EXPECT_FALSE(pUceOptionsManager->ReceivedOptions(&objMockICoreService, &objMockICapabilities));
+}
+
+TEST_F(UceOptionsManagerTest, ReceivedOptionsWithNoSipMessage)
+{
+    IMS_TRACE_D("ReceivedOptionsWithNoSipMessage", 0, 0, 0);
+    MockICapabilities objMockICapabilities;
+    MockIMessage objMockIMessage;
+    ON_CALL(objMockICapabilities, GetPreviousRequest(IMessage::CAPABILITIES_QUERY))
+            .WillByDefault(Return(&objMockIMessage));
+    ON_CALL(objMockIMessage, GetMessage).WillByDefault(ReturnNull());
+
+    EXPECT_FALSE(pUceOptionsManager->ReceivedOptions(&objMockICoreService, &objMockICapabilities));
 }
 
 TEST_F(UceOptionsManagerTest, AoSConnected)
@@ -140,6 +172,10 @@ TEST_F(UceOptionsManagerTest, ClosedService)
 {
     IMS_TRACE_D("ClosedService", 0, 0, 0);
 
+    IMS_UINT32 key = 3;
+    UceOptions* pOptions = new UceOptions("Options", IMS_NULL, IMS_NULL, 0, IMS_TRUE, 0);
+    pUceOptionsManager->addOptions(IMS_TRUE, key, pOptions);
+
     EXPECT_TRUE(pUceOptionsManager->ClosedService());
 }
 
@@ -150,11 +186,19 @@ TEST_F(UceOptionsManagerTest, sendMsg)
     IMSMSG objMsg(IUUceService::UCE_SUBSCRIBE_DELETED_IND, 0, key);
     EXPECT_FALSE(pUceOptionsManager->sendMsg(objMsg));
 
-    UceOptions* pOptions = new UceOptions("Options", IMS_NULL, IMS_NULL, 0, IMS_TRUE, 0);
-    pUceOptionsManager->addOptions(key, pOptions);
+    IMSMSG objMsg2(IUUceService::UCE_OPTIONS_DELETED_IND, 0, key);
+    EXPECT_FALSE(pUceOptionsManager->sendMsg(objMsg2));
 
-    IMSMSG objSecondMsg(IUUceService::UCE_OPTIONS_DELETED_IND, 0, key);
+    pUceOptionsManager->addOptions(IMS_TRUE, key, IMS_NULL);
+    IMSMSG objMsg3(IUUceService::UCE_OPTIONS_DELETED_IND, 0, key);
+    EXPECT_FALSE(pUceOptionsManager->sendMsg(objMsg3));
+
+    UceOptions* pOptions = new UceOptions("Options", IMS_NULL, IMS_NULL, 0, IMS_TRUE, 0);
+    pUceOptionsManager->addOptions(IMS_TRUE, key, pOptions);
+
+    IMSMSG objMsg4(IUUceService::UCE_OPTIONS_DELETED_IND, 0, key);
     EXPECT_EQ(pUceOptionsManager->getListCount(), 1);
-    EXPECT_TRUE(pUceOptionsManager->sendMsg(objSecondMsg));
+    EXPECT_TRUE(pUceOptionsManager->sendMsg(objMsg4));
+
     EXPECT_EQ(pUceOptionsManager->getListCount(), 0);
 }

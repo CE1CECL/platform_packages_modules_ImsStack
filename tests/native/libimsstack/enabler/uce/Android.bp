@@ -32,6 +32,7 @@ cc_test {
         "packages/modules/ImsStack/tests/native/libimsstack/enabler/interface/uce",
         "packages/modules/ImsStack/tests/native/libimsstack/engine/interface/core",
         "packages/modules/ImsStack/tests/native/libimsstack/engine/interface/service",
+        "packages/modules/ImsStack/tests/native/libimsstack/protocol/interface/xml",
     ],
     test_config: "ImsStackNativeEnablerUceTests.xml",
 }

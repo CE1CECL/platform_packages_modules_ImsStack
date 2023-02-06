@@ -131,17 +131,28 @@ PUBLIC VIRTUAL IMS_RESULT UceXmlDocumentHelperThread::XmlTransaction_NotifyParsi
 {
     //---------------------------------------------------------------------------------------------
     IMS_RESULT eResult = IMS_FAILURE;
+    if (m_objTransactionQueue.IsEmpty())
+    {
+        IMS_TRACE_E(0, "[ERROR]NotifyParsingCompleted - m_objTransactionQueue is empty", 0, 0, 0);
+        return eResult;
+    }
     IXmlTransaction* piXMLTxn = m_objTransactionQueue.GetFront();
     XMLInfo eXMLInfoType = XMLINFO_INVALID;
     m_objTransactionQueue.Pop();
 
     if (piXMLTxn == IMS_NULL || piXMLTxn != piXMLTransaction)
     {
-        IMS_TRACE_E(0, "[ERROR]XML_ParseCompleted - No matched XML transaction", 0, 0, 0);
+        IMS_TRACE_E(0, "[ERROR]NotifyParsingCompleted - No matched XML transaction", 0, 0, 0);
         return eResult;
     }
 
     IXmlResponse* piResponse = piXMLTxn->GetResponse();
+    if (piResponse == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "[ERROR]NotifyParsingCompleted - IXmlResponse is null", 0, 0, 0);
+        return eResult;
+    }
+
     if (piResponse->GetResponseCode() == IXmlResponse::RESPONSE_CODE_SUCCESS)
     {
         IDocument* piDocument = piResponse->GetDocument();
@@ -161,12 +172,12 @@ PUBLIC VIRTUAL IMS_RESULT UceXmlDocumentHelperThread::XmlTransaction_NotifyParsi
         strRootName = piRootElement->GetTagName();
         if (strRootName.GetLength() == 0)
         {
-            IMS_TRACE_E(0, "[ERROR]strRootName is empty.", 0, 0, 0);
+            IMS_TRACE_E(0, "[ERROR]NotifyParsingCompleted - strRootName is empty.", 0, 0, 0);
             m_pXMLTransactionProvider->DestroyTransaction(piXMLTransaction);
             piDocument->DestroyDocument();
             return eResult;
         }
-        IMS_TRACE_D("XML_ParseCompleted:strRootName [%s]", strRootName.GetStr(), 0, 0);
+        IMS_TRACE_D("NotifyParsingCompleted:strRootName [%s]", strRootName.GetStr(), 0, 0);
         if (strRootName.Contains("list"))
         {
             if (ParseRLMIList(piDocument) != IMS_SUCCESS)

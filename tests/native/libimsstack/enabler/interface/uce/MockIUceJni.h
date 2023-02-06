@@ -25,16 +25,16 @@ class MockIUceJni : public IUceJni
 {
 public:
     virtual ~MockIUceJni() {}
-    MOCK_METHOD(void, SendPublishCmd,
+    MOCK_METHOD(IMS_BOOL, SendPublishCmd,
             (IMS_UINT32, IMS_UINT32, IMS_UINT32, const AString&, const AString&), (override));
-    MOCK_METHOD(void, SendSingleSubscribeCmd, (IMS_UINT32, const AString&), (override));
-    MOCK_METHOD(void, SendListSubscribeCmd, (IMS_UINT32, const IMSList<AString>&), (override));
-    MOCK_METHOD(void, SendOptionsCmd, (IMS_UINT32 key, IMS_UINT32 myCaps, const AString& remoteUri),
-            (override));
-    MOCK_METHOD(void, SendOptionsRespCmd,
+    MOCK_METHOD(IMS_BOOL, SendSingleSubscribeCmd, (IMS_UINT32, const AString&), (override));
+    MOCK_METHOD(IMS_BOOL, SendListSubscribeCmd, (IMS_UINT32, const IMSList<AString>&), (override));
+    MOCK_METHOD(IMS_BOOL, SendOptionsCmd,
+            (IMS_UINT32 key, IMS_UINT32 myCaps, const AString& remoteUri), (override));
+    MOCK_METHOD(IMS_BOOL, SendOptionsRespCmd,
             (IMS_UINT32 key, IMS_SINT32 responseCode, const AString& reason, IMS_UINT32 myCaps),
             (override));
-    MOCK_METHOD(void, ImsRegistrationCheck, (), (override));
+    MOCK_METHOD(IMS_BOOL, ImsRegistrationCheck, (), (override));
 
     // IEnablerService
     MOCK_METHOD(void, NotifyJniEnablerSet, (), (override));

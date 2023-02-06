@@ -69,44 +69,14 @@ IMS_BOOL UceOptions::SendOptionsRequest(IN AString strRemoteURI, IN IMS_UINT32 o
     AString strFrom = m_piCoreService->GetUserIdentity(Sip::URI_SCHEME_TEL);
     DestroyCapabilities();
     m_piCapabilities = m_piCoreService->CreateCapabilities(strFrom, strRemoteURI);
-
     if (m_piCapabilities == IMS_NULL)
     {
-        IMS_TRACE_I("SendOptionsRequest:m_piCapabilities is null", 0, 0, 0);
+        IMS_TRACE_I("SendOptionsRequest:piCapabilities is null", 0, 0, 0);
         SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
         OptionsTerminated();
         return IMS_FALSE;
     }
-    m_piCapabilities->SetListener(this);
-
-    IMessage* piMessage = m_piCapabilities->GetNextRequest();
-    if (piMessage == IMS_NULL)
-    {
-        SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
-        OptionsTerminated();
-        IMS_TRACE_I("SendOptionsRequest:IMessage is null", 0, 0, 0);
-        return IMS_FALSE;
-    }
-
-    ISipMessage* piSIPMessage = piMessage->GetMessage();
-    if (piSIPMessage == IMS_NULL)
-    {
-        SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
-        OptionsTerminated();
-        IMS_TRACE_I("SendOptionsRequest:ISipMessage is null", 0, 0, 0);
-        return IMS_FALSE;
-    }
-
-    SetContactHeader(ownCapabilities, piSIPMessage);
-
-    if (m_piCapabilities->QueryCapabilities(ICapabilities::FLAG_ADD_CONTACT_HEADER) == IMS_FAILURE)
-    {
-        IMS_TRACE_I("SendOptionsRequest:QueryCapabilities is failed", 0, 0, 0);
-        SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
-        OptionsTerminated();
-        return IMS_FALSE;
-    }
-    return IMS_TRUE;
+    return HandleOptionsRequest(m_piCapabilities, ownCapabilities);
 }
 
 IMS_BOOL UceOptions::SendOptionsResponse(
@@ -249,11 +219,12 @@ IMS_UINT32 UceOptions::GetCapability(IMSList<AString> objContactList)
         {
             capabilities |= FEATURE_TAG_GEOLOCATION_SMS;
         }
-        else if (featureTag.Contains("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot"))
+        else if (featureTag.EqualsIgnoreCase("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot"))
         {
             capabilities |= FEATURE_TAG_CHATBOT_SESSION;
         }
-        else if (featureTag.Contains("urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot.sa"))
+        else if (featureTag.EqualsIgnoreCase(
+                         "urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.chatbot.sa"))
         {
             capabilities |= FEATURE_TAG_CHATBOT_SA;
         }
@@ -427,6 +398,41 @@ void UceOptions::SetNoTypeFeatureTag(IN IMS_UINT32 capabilities, OUT AString& st
     }
 }
 
+IMS_BOOL UceOptions::HandleOptionsRequest(
+        IN ICapabilities* piCapabilities, IN IMS_UINT32 ownCapabilities)
+{
+    piCapabilities->SetListener(this);
+
+    IMessage* piMessage = piCapabilities->GetNextRequest();
+    if (piMessage == IMS_NULL)
+    {
+        SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
+        OptionsTerminated();
+        IMS_TRACE_I("SendOptionsRequest:IMessage is null", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    ISipMessage* piSIPMessage = piMessage->GetMessage();
+    if (piSIPMessage == IMS_NULL)
+    {
+        SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
+        OptionsTerminated();
+        IMS_TRACE_I("SendOptionsRequest:ISipMessage is null", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    SetContactHeader(ownCapabilities, piSIPMessage);
+
+    if (piCapabilities->QueryCapabilities(ICapabilities::FLAG_ADD_CONTACT_HEADER) == IMS_FAILURE)
+    {
+        IMS_TRACE_I("SendOptionsRequest:QueryCapabilities is failed", 0, 0, 0);
+        SendOptionsCommandError(IUUceService::COMMAND_CODE_GENERIC_FAILURE);
+        OptionsTerminated();
+        return IMS_FALSE;
+    }
+    return IMS_TRUE;
+}
+
 PROTECTED VIRTUAL void UceOptions::CapabilityQueryDelivered(IN ICapabilities* piCapabilities)
 {
     // received success response to options request
@@ -481,7 +487,7 @@ PROTECTED VIRTUAL void UceOptions::CapabilityQueryDeliveryFailed(IN ICapabilitie
         OptionsTerminated();
         return;
     }
-
+    /*
     ISipMessage* piSIPMessage = piMessage->GetMessage();
     if (piSIPMessage == IMS_NULL)
     {
@@ -490,6 +496,7 @@ PROTECTED VIRTUAL void UceOptions::CapabilityQueryDeliveryFailed(IN ICapabilitie
         OptionsTerminated();
         return;
     }
+    */
     SendOptionsResponseInd(piMessage->GetStatusCode(), piMessage->GetReasonPhrase(), 0);
     OptionsTerminated();
 }

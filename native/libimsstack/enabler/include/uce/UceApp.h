@@ -60,6 +60,7 @@ protected:
     void StartTimer(IN IMS_UINT32 nType, IN IMS_UINT32 nDuration);
     void StopTimer(IN IMS_UINT32 nType);
     void ClearTimer();
+    IMS_UINT32 GetRegisteredService(IN IMS_UINT32 features);
 
     // ITimerListener Interface
     virtual void Timer_TimerExpired(IN ITimer* piTimer) override;
@@ -79,15 +80,16 @@ protected:
     inline void NotifyJniEnablerSet() override {}
 
     // JNI -> Native
-    virtual void SendPublishCmd(IMS_UINT32 key, IMS_UINT32 extended, IMS_UINT32 capability,
+    virtual IMS_BOOL SendPublishCmd(IMS_UINT32 key, IMS_UINT32 extended, IMS_UINT32 capability,
             const AString& pidfXml, const AString& eTag) override;
-    virtual void SendSingleSubscribeCmd(IMS_UINT32 key, const AString& user) override;
-    virtual void SendListSubscribeCmd(IMS_UINT32 key, const IMSList<AString>& userList) override;
-    virtual void SendOptionsCmd(
+    virtual IMS_BOOL SendSingleSubscribeCmd(IMS_UINT32 key, const AString& user) override;
+    virtual IMS_BOOL SendListSubscribeCmd(
+            IMS_UINT32 key, const IMSList<AString>& userList) override;
+    virtual IMS_BOOL SendOptionsCmd(
             IMS_UINT32 key, IMS_UINT32 myCaps, const AString& remoteUri) override;
-    virtual void SendOptionsRespCmd(IMS_UINT32 key, IMS_SINT32 responseCode, const AString& reason,
-            IMS_UINT32 myCaps) override;
-    virtual void ImsRegistrationCheck() override;
+    virtual IMS_BOOL SendOptionsRespCmd(IMS_UINT32 key, IMS_SINT32 responseCode,
+            const AString& reason, IMS_UINT32 myCaps) override;
+    virtual IMS_BOOL ImsRegistrationCheck() override;
 
 private:
     void EnableUceService(void);
@@ -120,6 +122,10 @@ protected:
     AString m_strAppID;
     AString m_strServiceID;
     IMS_SINT32 m_eAoSStatus;
+    INetworkWatcher* m_piNetWatcherInfo;
+    IMS_SINT32 m_eCurrentNetwork;
+    ITimer* m_piDeBounceTimer;
+    UceService* m_pUceService;
 
 private:
     enum
@@ -133,11 +139,6 @@ private:
     };
 
     IImsAos* m_piImsAos;
-
-    INetworkWatcher* m_piNetWatcherInfo;
-    ITimer* m_piDeBounceTimer;
     IMS_SINT32 m_RegisteredNetwork;
-    IMS_SINT32 m_eCurrentNetwork;
-    UceService* m_pUceService;
 };
 #endif /* _UCE_APP_H_ */
