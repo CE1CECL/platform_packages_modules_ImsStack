@@ -311,6 +311,9 @@ PUBLIC GLOBAL const IMS_CHAR* AosLog::AppRequestToString(IN IMS_UINT32 nType)
         case ImsAosControl::RETRY_COUNT_INCREASE:
             return "RETRY_COUNT_INCREASE";
 
+        case ImsAosControl::RETRY_COUNT_INCREASE_WITH_INITIAL_REGISTRATION:
+            return "RETRY_COUNT_INCREASE_WITH_INITIAL_REGISTRATION";
+
         case ImsAosControl::UPDATE_SIP_DELEGATE_REGISTRATION:
             return "UPDATE_SIP_DELEGATE_REGISTRATION";
 

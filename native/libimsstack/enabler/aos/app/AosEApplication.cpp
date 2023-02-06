@@ -86,6 +86,11 @@ PUBLIC VIRTUAL IMS_BOOL AosEApplication::RequestCmd(
             }
             break;
 
+        case ImsAosControl::RETRY_COUNT_INCREASE:  // FALL-THROUGH
+        case ImsAosControl::RETRY_COUNT_INCREASE_WITH_INITIAL_REGISTRATION:
+            AosApplication::RequestCmd(nCmdType);
+            break;
+
         default:
             bResult = IMS_FALSE;
             break;
@@ -128,6 +133,10 @@ PROTECTED VIRTUAL IMS_BOOL AosEApplication::ProcessMessage(IN IMSMSG& objMsg)
 
         case MSG_DESTROY:
             ProcessDestroy(objMsg);
+            break;
+
+        case MSG_RETRY_COUNT_INCREASE:
+            ProcessRegRetryCount(objMsg);
             break;
 
         default:

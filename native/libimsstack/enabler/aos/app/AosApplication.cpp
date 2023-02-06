@@ -41,6 +41,7 @@
 #include "provider/AosUtil.h"
 #include "provider/AosLog.h"
 #include "provider/AosLocationStarter.h"
+#include "provider/AosRetryRepository.h"
 #include "provider/AosStaticProfile.h"
 #include "app/AosApplication.h"
 
@@ -216,7 +217,14 @@ PUBLIC VIRTUAL IMS_BOOL AosApplication::RequestCmd(
                     IAosRegistration::CMD_SET_IPSEC, IAosRegistration::REASON_SET_IPSEC_DISABLE);
             break;
 
-        case ImsAosControl::RETRY_COUNT_INCREASE:              // FALL-THROUGH
+        case ImsAosControl::RETRY_COUNT_INCREASE:
+            PostMessage(MSG_RETRY_COUNT_INCREASE, RETRY_COUNT_REG_NONE, 0);
+            break;
+
+        case ImsAosControl::RETRY_COUNT_INCREASE_WITH_INITIAL_REGISTRATION:
+            PostMessage(MSG_RETRY_COUNT_INCREASE, RETRY_COUNT_REG_RECOVER, 0);
+            break;
+
         case ImsAosControl::UPDATE_SIP_DELEGATE_REGISTRATION:  // FALL-THROUGH
         case ImsAosControl::TRIGGER_SIP_DELEGATE_DEREGISTRATION:
             // TODO
@@ -898,6 +906,10 @@ PROTECTED VIRTUAL IMS_BOOL AosApplication::ProcessMessage(IN IMSMSG& objMsg)
             ProcessPlmnBlockWithTimeout();
             break;
 
+        case MSG_RETRY_COUNT_INCREASE:
+            ProcessRegRetryCount(objMsg);
+            break;
+
         case MSG_OTHERS:
             ProcessOthers(objMsg);
             break;
@@ -1122,6 +1134,44 @@ PROTECTED VIRTUAL void AosApplication::ProcessScscfRestoration(IN IMSMSG& objMsg
     }
 
     m_piRegistration->RequestCmd(IAosRegistration::CMD_SCSCF_RESTORATION, 0);
+}
+
+PROTECTED VIRTUAL void AosApplication::ProcessRegRetryCount(IN IMSMSG& objMsg)
+{
+    IMS_BOOL bSupported =
+            GET_N_CONFIG(m_nSlotId)->IsExtraRegErrRetryCntSharedForRegAndSubRequired();
+    IMS_SINT32 nMaxCount = GET_N_CONFIG(m_nSlotId)->GetExtraRegErrMaxCount();
+
+    if (!bSupported || nMaxCount <= 0)
+    {
+        return;
+    }
+
+    IMS_UINT32 nReason = LONG_TO_INT(objMsg.nWparam);
+    A_IMS_TRACE_I(APPID, "ProcessRegRetryCount :: reason (%d)", nReason, 0, 0);
+
+    IMS_BOOL bIncreseRetryCnt =
+            AosProvider::GetInstance()->GetRetryRepository(m_nSlotId)->IncreaseRetryCount(
+                    (IsEmergency()) ? AosRetryRepository::TYPE_EMERGENCY
+                                    : AosRetryRepository::TYPE_NORMAL);
+
+    if (!bIncreseRetryCnt)
+    {
+        if (m_piContext->GetPcscf()->HasNextPcscf())
+        {
+            PostMessage(MSG_PCSCF_RECOVER, AoSRegRecoveryType::PCSCF_CHANGE, 0);
+        }
+        else
+        {
+            ProcessPdnDisconnect();
+        }
+        return;
+    }
+
+    if (nReason == RETRY_COUNT_REG_RECOVER)
+    {
+        PostMessage(MSG_REG_RECOVER, 0, 0);
+    }
 }
 
 PROTECTED VIRTUAL void AosApplication::ProcessOthers(IN IMSMSG& /* objMsg */) {}

@@ -158,6 +158,7 @@ protected:
     virtual void ProcessAutoConfigurationComplete(IN IMSMSG& objMsg);
     virtual void ProcessPcscfRecovery(IN IMSMSG& objMsg);
     virtual void ProcessScscfRestoration(IN IMSMSG& objMsg);
+    virtual void ProcessRegRetryCount(IN IMSMSG& objMsg);
     virtual void ProcessOthers(IN IMSMSG& objMsg);
 
     // StateMachine
@@ -306,6 +307,7 @@ protected:
         MSG_PCSCF_RECOVER,
         MSG_SCSCF_RESTORATION,
         MSG_PLMN_BLOCK_WITH_TIMEOUT,
+        MSG_RETRY_COUNT_INCREASE,
         MSG_OTHERS
     };
 
@@ -326,6 +328,13 @@ protected:
         REG_EXCHANGE_NEED = 0,
         REG_EXCHANGE_NO_NEED,
         REG_EXCHANGE_AVAILABLE
+    };
+
+    // MSG_RETRY_COUNT_INCREASE wparam
+    enum
+    {
+        RETRY_COUNT_REG_NONE = 0,
+        RETRY_COUNT_REG_RECOVER
     };
 
     enum

@@ -60,6 +60,9 @@ public:
         /// The number of retry failures increases.
         RETRY_COUNT_INCREASE,
 
+        /// The number of retry failures increases and the initial registration is attempted.
+        RETRY_COUNT_INCREASE_WITH_INITIAL_REGISTRATION,
+
         /// Update of registration is attempted for SipDelegate include initial registration.
         /// This is the replace of ImsRegistrationImplBase.updateSipDelegateRegistration().
         UPDATE_SIP_DELEGATE_REGISTRATION,
