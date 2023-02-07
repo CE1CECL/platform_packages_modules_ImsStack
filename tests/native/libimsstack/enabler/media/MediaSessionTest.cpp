@@ -37,6 +37,10 @@ public:
     {
     }
     virtual ~FakeMediaSession() {}
+    IMS_BOOL ModifySession(IN IMS_UINTP nNegoId)
+    {
+        return m_objAudioController.ModifySession(nNegoId);
+    }
 
     IMS_BOOL MediaSession_SendMsgToMediaManager(
             IN IMS_SINT32 eEvent, IN ImsMediaMsgParamBase* pParam) override
@@ -159,16 +163,32 @@ TEST_F(MediaSessionTest, testQosCallback)
 TEST_F(MediaSessionTest, testNotifySrvccSuccess)
 {
     createAudioSession();
+
+    EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_STARTED), IMS_FALSE);
+    EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_SUCCEED), IMS_TRUE);
+
+    destroyAudioSession();
+
+    m_pSession->ModifySession(createAudioSession());
+
     EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_STARTED), IMS_TRUE);
     EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_SUCCEED), IMS_TRUE);
+
     destroyAudioSession();
 }
 
 TEST_F(MediaSessionTest, testNotifySrvccFailed)
 {
-    createAudioSession();
+    IMS_UINTP negoId = createAudioSession();
+
+    EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_STARTED), IMS_FALSE);
+    EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_FAILED), IMS_FALSE);
+
+    m_pSession->ModifySession(negoId);
+
     EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_STARTED), IMS_TRUE);
     EXPECT_EQ(m_pSession->NotifySrvccStatus(MEDIA_SRVCC_FAILED), IMS_TRUE);
+
     destroyAudioSession();
 }
 
