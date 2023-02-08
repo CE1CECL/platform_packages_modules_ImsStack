@@ -42,7 +42,8 @@ public:
         return m_objAudioController.ModifySession(nNegoId);
     }
 
-    virtual QosRequestParam* createQosParam(IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eMediaType)
+    virtual QosRequestParam* createQosParam(
+            IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eMediaType) override
     {
         (void)nNegoId;
         return new QosRequestParam(eMediaType, IpAddress(REMOTE_IP), REMOTE_PORT);
