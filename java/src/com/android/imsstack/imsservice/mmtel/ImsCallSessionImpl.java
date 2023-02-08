@@ -1132,7 +1132,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
     }
 
     public int getPreciseState() {
-        if (mState == ImsCallSessionImplBase.State.ESTABLISHED) {
+        if (!mCall.isOnHold() && (mState == ImsCallSessionImplBase.State.ESTABLISHED)) {
             return PreciseCallState.PRECISE_CALL_STATE_ACTIVE;
         } else if (mState == ImsCallSessionImplBase.State.ESTABLISHING) {
             return PreciseCallState.PRECISE_CALL_STATE_ALERTING;
@@ -1140,19 +1140,22 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             return PreciseCallState.PRECISE_CALL_STATE_DISCONNECTED;
         } else if (mState == ImsCallSessionImplBase.State.TERMINATING) {
             return PreciseCallState.PRECISE_CALL_STATE_DISCONNECTING;
-        } else if (mCall.isOnHold()) {
+        } else if (mCall.isOnHold() || (mCallDetails.is(CallDetails.ON_HOLDING)
+                && (mState == ImsCallSessionImplBase.State.RENEGOTIATING))) {
             return PreciseCallState.PRECISE_CALL_STATE_HOLDING;
         } else if (mCall.isOnPreIncoming()) {
             return PreciseCallState.PRECISE_CALL_STATE_INCOMING_SETUP;
         } else if (mCallDetails.is(CallDetails.MO)
-                && (mState == ImsCallSessionImplBase.State.IDLE)) {
+                && ((mState != ImsCallSessionImplBase.State.INVALID)
+                && (mState <= ImsCallSessionImplBase.State.NEGOTIATING))) {
             return PreciseCallState.PRECISE_CALL_STATE_DIALING;
-        } else if (!mCallDetails.is(CallDetails.MO)
-                && (mState == ImsCallSessionImplBase.State.IDLE)) {
-            return PreciseCallState.PRECISE_CALL_STATE_INCOMING;
         } else if ((mCT.getActiveCalls() > 0) && !mCallDetails.is(CallDetails.MO)
                 && (mState == ImsCallSessionImplBase.State.IDLE)) {
             return PreciseCallState.PRECISE_CALL_STATE_WAITING;
+        } else if (!mCallDetails.is(CallDetails.MO)
+                && ((mState != ImsCallSessionImplBase.State.INVALID)
+                && (mState <= ImsCallSessionImplBase.State.NEGOTIATING))) {
+            return PreciseCallState.PRECISE_CALL_STATE_INCOMING;
         }
 
         return PreciseCallState.PRECISE_CALL_STATE_NOT_VALID;
