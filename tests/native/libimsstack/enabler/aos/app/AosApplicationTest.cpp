@@ -41,6 +41,7 @@
 #include "interface/MockIAosPcscf.h"
 #include "interface/MockIAosRegistration.h"
 #include "interface/MockIAosRegStateManager.h"
+#include "interface/MockIAosRetryRepository.h"
 
 #include "AosReason.h"
 #include "ImsAosParameter.h"
@@ -56,6 +57,7 @@
 #include "interface/IAosRegistrationControlListener.h"
 
 #include "provider/AosProvider.h"
+#include "provider/AosRetryRepository.h"
 #include "provider/AosStaticProfile.h"
 
 using ::testing::_;
@@ -100,6 +102,7 @@ enum
     MSG_PCSCF_RECOVER,
     MSG_SCSCF_RESTORATION,
     MSG_PLMN_BLOCK_WITH_TIMEOUT,
+    MSG_RETRY_COUNT_INCREASE,
     MSG_OTHERS
 };
 
@@ -108,6 +111,12 @@ enum
     CONNECTION_ACTIVATED = 10,
     CONNECTION_DEACTIVATED,
     CONNECTION_UPDATED
+};
+
+enum
+{
+    RETRY_COUNT_REG_NONE = 0,
+    RETRY_COUNT_REG_RECOVER
 };
 
 enum
@@ -192,6 +201,7 @@ class TestAosApplication : public AosApplication
     FRIEND_TEST(AosApplicationTest, IsPdnDisconnectRequired);
     FRIEND_TEST(AosApplicationTest, Reconfig);
     FRIEND_TEST(AosApplicationTest, ProcessMessage);
+    FRIEND_TEST(AosApplicationTest, RegRetryCount);
     FRIEND_TEST(AosApplicationTest, StateMachine);
     FRIEND_TEST(AosApplicationTest, Process);
     FRIEND_TEST(AosApplicationTest, Callback);
@@ -266,6 +276,7 @@ public:
     IAosNConfiguration* m_piAosNConfiguration;
     IAosRegStateManager* m_piAosRegStateManager;
     IAosService* m_piAosService;
+    IAosRetryRepository* m_piAosRetryRepository;
 
     MockIAosAppContext m_objMockIAosAppContext;
     MockIAosBlock m_objMockIAosBlock;
@@ -279,6 +290,7 @@ public:
     MockIAosRegistration m_objMockIAosRegistration;
     MockIAosRegStateManager m_objMockIAosRegStateManager;
     MockIAosService m_objMockIAosService;
+    MockIAosRetryRepository m_objMockAosRetryRepository;
 
     IMSMap<AString, IAosHandle*> m_objHandles;
     AStringArray m_objPcscfs;
@@ -397,6 +409,10 @@ protected:
         AosProvider::GetInstance()->SetService(
                 static_cast<IAosService*>(&m_objMockIAosService), SLOT_ID);
 
+        m_piAosRetryRepository = AosProvider::GetInstance()->GetRetryRepository(SLOT_ID);
+        AosProvider::GetInstance()->SetRetryRepository(
+                static_cast<IAosRetryRepository*>(&m_objMockAosRetryRepository), SLOT_ID);
+
         m_piAosRegStateManager = AosProvider::GetInstance()->GetRegStateManager();
         AosProvider::GetInstance()->SetRegStateManager(
                 static_cast<IAosRegStateManager*>(&m_objMockIAosRegStateManager), SLOT_ID);
@@ -424,6 +440,7 @@ protected:
     virtual void TearDown() override
     {
         AosProvider::GetInstance()->SetRegStateManager(m_piAosRegStateManager, SLOT_ID);
+        AosProvider::GetInstance()->SetRetryRepository(m_piAosRetryRepository, SLOT_ID);
         AosProvider::GetInstance()->SetService(m_piAosService, SLOT_ID);
         AosProvider::GetInstance()->SetNConfiguration(m_piAosNConfiguration, SLOT_ID);
         AosProvider::GetInstance()->SetLocationStarter(m_piAosLocationStarter, SLOT_ID);
@@ -855,9 +872,61 @@ TEST_F(AosApplicationTest, ProcessMessage)
             .Times(1);
     EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
 
+    // MSG_RETRY_COUNT_INCREASE
+    // TEST_F : ProcessRegRetryCount
+    objMessage.nMSG = MSG_RETRY_COUNT_INCREASE;
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsExtraRegErrRetryCntSharedForRegAndSubRequired())
+            .Times(1)
+            .WillOnce(Return(IMS_FALSE));
+    EXPECT_CALL(m_objMockIAosNConfiguration, GetExtraRegErrMaxCount()).Times(1).WillOnce(Return(0));
+    EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
+
     // MSG_OTHERS
     // TEST_F : ProcessOthers
     objMessage.nMSG = MSG_OTHERS;
+    EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
+}
+
+TEST_F(AosApplicationTest, RegRetryCount)
+{
+    ImsMessage objMessage(MSG_RETRY_COUNT_INCREASE, RETRY_COUNT_REG_NONE, 0);
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsExtraRegErrRetryCntSharedForRegAndSubRequired())
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(IMS_TRUE));
+    EXPECT_CALL(m_objMockIAosNConfiguration, GetExtraRegErrMaxCount())
+            .Times(AnyNumber())
+            .WillOnce(Return(0))
+            .WillRepeatedly(Return(3));
+
+    EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
+
+    m_pTestAosApplication->SetAppType(AosRegistrationType::NORMAL);
+    EXPECT_CALL(m_objMockAosRetryRepository, IncreaseRetryCount(AosRetryRepository::TYPE_NORMAL))
+            .Times(AnyNumber())
+            .WillOnce(Return(IMS_TRUE))
+            .WillOnce(Return(IMS_TRUE))
+            .WillRepeatedly(Return(IMS_FALSE));
+
+    EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
+
+    objMessage.nWparam = RETRY_COUNT_REG_RECOVER;
+    EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
+
+    EXPECT_CALL(m_objMockIAosPcscf, HasNextPcscf())
+            .Times(AnyNumber())
+            .WillOnce(Return(IMS_FALSE))
+            .WillOnce(Return(IMS_TRUE));
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, GetExtraRegErrFinalType())
+            .Times(1)
+            .WillRepeatedly(Return(CarrierConfig::Assets::ERROR_TYPE_REPEATED));
+
+    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT))
+            .Times(1);
+
+    EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
+
+    // HasNextPcscf: IMS_TRUE
     EXPECT_TRUE(m_pTestAosApplication->ProcessMessage(objMessage));
 }
 
