@@ -29,6 +29,7 @@ class IPassiveTimerHolder
 public:
     enum class Type
     {
+        CALL_BLOCKED_BY_RETRY_AFTER,
     };
 
     virtual ~IPassiveTimerHolder() = default;
