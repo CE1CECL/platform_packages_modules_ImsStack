@@ -17,7 +17,16 @@
 package com.android.imsstack.enabler.ssc;
 
 import static android.telephony.ServiceState.STATE_IN_SERVICE;
+import static android.telephony.ims.feature.CapabilityChangeRequest.CapabilityPair;
+import static android.telephony.ims.feature.MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_UT;
+import static android.telephony.ims.feature.MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE;
+import static android.telephony.ims.stub.ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM;
 
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkSpecifier;
+import android.net.TelephonyNetworkSpecifier;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -35,6 +44,7 @@ import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.enabler.aos.AosFactory;
 import com.android.imsstack.enabler.aos.IAosRegistration;
 import com.android.imsstack.enabler.aos.IAosRegistrationListener;
+import com.android.imsstack.enabler.aos.IAosRegistrationListener.RegistrationState;
 import com.android.imsstack.imsservice.mmtel.ut.UtFactory;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtInterface;
 import com.android.imsstack.util.AppContext;
@@ -42,9 +52,12 @@ import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.List;
+
 public class SscServiceState {
     // internal events
-    private static final int EVENT_UT_CAPABILITY_CHANGED = 1000;
+    @VisibleForTesting
+    protected static final int EVENT_UT_CAPABILITY_CHANGED = 1000;
     @VisibleForTesting
     protected static final int EVENT_UT_BLOCK_TIMER_EXPIRED = 1001;
 
@@ -59,6 +72,8 @@ public class SscServiceState {
     protected static final int EVENT_DATA_RAT_CHANGED = 2003;
     @VisibleForTesting
     protected static final int EVENT_DATA_ROAMING_STATE_CHANGED = 2004;
+    @VisibleForTesting
+    protected static final int EVENT_CROSS_SIM_DATA_STATE_CHANGED = 2005;
 
     private final int mSlotId;
     private int mSubId = MSimUtils.INVALID_SUB_ID;
@@ -69,11 +84,17 @@ public class SscServiceState {
     @VisibleForTesting
     final SscCarrierConfigListener mCarrierConfigListener;
     @VisibleForTesting
-    final SscRegiStateListener mRegiStateListener;
+    SscRegiStateListener mRegiStateListener = null;
     @VisibleForTesting
-    final SscMobileDataStateListener mMobileDataStateListener;
+    SscMobileDataStateListener mMobileDataStateListener = null;
+    @VisibleForTesting
+    SscCrossSimDataStateListener mCrossSimDataStateListener =  null;
 
-    private boolean mIsUtFeatureEnabled = true;
+    private boolean mIsInitialized = false;
+    @VisibleForTesting
+    boolean mIsUtFeatureEnabled = true;
+    @VisibleForTesting
+    boolean mIsCrossSimFeatureEnabled = false;
     @VisibleForTesting
     boolean mUtAvailability = false;
     private int mUtBlockTimerId = -1;
@@ -85,17 +106,10 @@ public class SscServiceState {
         mHandler = new SscServiceStateHandler(looper);
         mSimStateListener = new SscSimStateListener();
         mCarrierConfigListener = new SscCarrierConfigListener();
-        mRegiStateListener = new SscRegiStateListener();
-        mMobileDataStateListener = new SscMobileDataStateListener();
     }
 
     protected void init() {
         ImsLog.d(mSlotId, "");
-
-        IWifiState ws = getWifiStateAgent();
-        if (ws != null) {
-            ws.registerForWifiStateChanged(mHandler, EVENT_WIFI_STATE_CHANGED, null);
-        }
 
         IDcNetWatcher dnw = getDcNetWatcher();
         if (dnw != null) {
@@ -103,7 +117,6 @@ public class SscServiceState {
             dnw.registerForDataServiceStateChanged(mHandler, EVENT_DATA_SERVICE_STATE_CHANGED,
                     null);
             dnw.registerForRatChanged(mHandler, EVENT_DATA_RAT_CHANGED, null);
-            dnw.registerForRoamingStateChanged(mHandler, EVENT_DATA_ROAMING_STATE_CHANGED, null);
         }
 
         SimInterface sim = getSimInterface();
@@ -117,13 +130,14 @@ public class SscServiceState {
             config.addListener(mCarrierConfigListener);
         }
 
-        IAosRegistration aosService = getAosRegistration();
-        if (aosService != null) {
-            aosService.addListener(mRegiStateListener);
-        }
+        // register listeners related to carrier configuration
+        registerWifiStateChangedEvent();
+        registerMobileDataRoamingStateEvent();
+        registerImsRegistrationStateListener();
+        registerMobileDataStateListener(mSubId);
+        registerCrossSimDataStateListener();
 
-        registerTelephonyCallback(mSubId);
-
+        mIsInitialized = true;
         handleUtFeatureCapabilityChanged();
     }
 
@@ -132,17 +146,11 @@ public class SscServiceState {
 
         resetAllUtStatus();
 
-        IWifiState ws = getWifiStateAgent();
-        if (ws != null) {
-            ws.unregisterForWifiStateChanged(mHandler);
-        }
-
         IDcNetWatcher dnw = getDcNetWatcher();
         if (dnw != null) {
             dnw.unregisterForAirplaneModeChanged(mHandler);
             dnw.unregisterForDataServiceStateChanged(mHandler);
             dnw.unregisterForRatChanged(mHandler);
-            dnw.unregisterForRoamingStateChanged(mHandler);
         }
 
         SimInterface sim = getSimInterface();
@@ -155,12 +163,15 @@ public class SscServiceState {
             config.removeListener(mCarrierConfigListener);
         }
 
-        IAosRegistration aosService = getAosRegistration();
-        if (aosService != null) {
-            aosService.removeListener(mRegiStateListener);
-        }
+        // unregister listeners related to carrier configuration
+        unregisterWifiStateChangedEvent();
+        unregisterMobileDataRoamingStateEvent();
+        unregisterImsRegistrationStateListener();
+        unregisterMobileDataStateListener(mSubId);
+        unregisterCrossSimDataStateListener();
 
-        unregisterTelephonyCallback(mSubId);
+        mIsInitialized = false;
+        notifyUtFeatureCapabilityChanged();
     }
 
     protected boolean isUtAvailable() {
@@ -168,14 +179,46 @@ public class SscServiceState {
         return mUtAvailability;
     }
 
-    protected void changeCapability(boolean enable) {
-        ImsLog.i(mSlotId, "changeCapability : " + enable);
+    /**
+     * Updating Ut feature capability when capabilities are changed. Currently, radio technologies
+     * of Uts are ignored because they're not updated properly. Only CrossSim technology for voice
+     * is handled to check if Ut can support over CrossSim or not.
+     * See also {@link com.android.ims.ImsManager#updateUtFeatureValue} and
+     * {@link com.android.ims.ImsManager.updateCrossSimFeatureAndProvisionedValues}
+     *
+     * @param enabledCaps list of CapabilityPair of features which are enabled.
+     * @param disabledCaps list of CapabilityPair of features which are disabled.
+     */
+    protected void changeCapabilities(List<CapabilityPair> enabledCaps,
+            List<CapabilityPair> disabledCaps) {
+        boolean utEnabled = enabledCaps.stream().anyMatch(capabilityPair ->
+                capabilityPair.getCapability() == CAPABILITY_TYPE_UT);
+        boolean utDisabled = disabledCaps.stream().anyMatch(capabilityPair ->
+                capabilityPair.getCapability() == CAPABILITY_TYPE_UT);
 
-        if (mIsUtFeatureEnabled == enable) {
-            return;
+        if (utEnabled) {
+            ImsLog.d(mSlotId, "Ut enabled");
+            mIsUtFeatureEnabled = true;
+        } else if (utDisabled) {
+            ImsLog.d(mSlotId, "Ut Disabled");
+            mIsUtFeatureEnabled = false;
         }
 
-        mIsUtFeatureEnabled = enable;
+        boolean crossSimEnabled = enabledCaps.stream().anyMatch(capabilityPair ->
+                (capabilityPair.getCapability() == CAPABILITY_TYPE_VOICE)
+                        && (capabilityPair.getRadioTech() == REGISTRATION_TECH_CROSS_SIM));
+        boolean crossSimDisabled = disabledCaps.stream().anyMatch(capabilityPair ->
+                (capabilityPair.getCapability() == CAPABILITY_TYPE_VOICE)
+                        && (capabilityPair.getRadioTech() == REGISTRATION_TECH_CROSS_SIM));
+
+        if (crossSimEnabled) {
+            ImsLog.d(mSlotId, "CrossSim enabled");
+            mIsCrossSimFeatureEnabled = true;
+        } else if (crossSimDisabled) {
+            ImsLog.d(mSlotId, "CrossSim disabled");
+            mIsCrossSimFeatureEnabled = false;
+        }
+
         handleUtFeatureCapabilityChanged();
     }
 
@@ -237,8 +280,6 @@ public class SscServiceState {
         authAgent.setETag("");
 
         stopUtBlockTimer(true);
-
-        notifyUtFeatureCapabilityChanged();
     }
 
     private boolean getCurrentUtAvailability() {
@@ -247,32 +288,38 @@ public class SscServiceState {
             return false;
         }
 
-        if (!mIsUtFeatureEnabled) {
-            ImsLog.w(mSlotId, "Ut feature disabled");
+        if (!mIsInitialized) {
+            ImsLog.i(mSlotId, "Not initialized");
             return false;
         }
 
-        if (!isValidNetwork()) {
-            ImsLog.w(mSlotId, "invalid network");
+        if (!mIsUtFeatureEnabled) {
+            ImsLog.i(mSlotId, "Ut feature disabled");
             return false;
         }
 
         if (!SscConfig.isUtSupportedWhenPsDataOff(mSlotId)) {
-            if (!mMobileDataStateListener.getUserMobileDataState()) {
-                ImsLog.w(mSlotId, "PS Data off");
+            if (mMobileDataStateListener != null
+                    && !mMobileDataStateListener.getUserMobileDataState()) {
+                ImsLog.d(mSlotId, "PS Data off");
                 return false;
             }
         }
 
         if (SscConfig.isImsRegistrationRequired(mSlotId)) {
-            if (!mRegiStateListener.getImsRegistrationState()) {
-                ImsLog.w(mSlotId, "Ims not registered");
+            if (mRegiStateListener != null && !mRegiStateListener.getImsRegistrationState()) {
+                ImsLog.d(mSlotId, "Ims not registered");
                 return false;
             }
         }
 
         if (mUtBlockReason != SscConstant.BLOCK_REASON_NONE) {
-            ImsLog.w(mSlotId, "mUtBlockReason = " + getBlockedReasonString(mUtBlockReason));
+            ImsLog.d(mSlotId, "mUtBlockReason = " + getBlockedReasonString(mUtBlockReason));
+            return false;
+        }
+
+        if (!isValidNetwork()) {
+            ImsLog.d(mSlotId, "invalid network");
             return false;
         }
 
@@ -282,28 +329,36 @@ public class SscServiceState {
     }
 
     private boolean isValidNetwork() {
-        IWifiState ws = getWifiStateAgent();
-        if (ws != null && ws.isWifiConnected()) {
-            if (SscConfig.isSupportedNetwork(mSlotId, SscConstant.NETWORK_TYPE_IWLAN)) {
+        if (SscConfig.isSupportedNetwork(mSlotId, SscConstant.NETWORK_TYPE_IWLAN)) {
+            IWifiState ws = getWifiStateAgent();
+            if (ws != null && ws.isWifiConnected()) {
                 ImsLog.d(mSlotId, "support Ut over wifi");
                 return true;
+            }
+
+            if (mIsCrossSimFeatureEnabled) {
+                if (mCrossSimDataStateListener != null
+                        && mCrossSimDataStateListener.getCrossSimDataState()) {
+                    ImsLog.d(mSlotId, "support Ut over cross SIM");
+                    return true;
+                }
             }
         }
 
         IDcNetWatcher dnw = getDcNetWatcher();
         if (dnw == null) {
-            ImsLog.w(mSlotId, "DcNetWatcher is null");
+            ImsLog.d(mSlotId, "DcNetWatcher is null");
             return false;
         }
 
         if (dnw.getDataServiceState() != STATE_IN_SERVICE) {
-            ImsLog.w(mSlotId, "Out of service");
+            ImsLog.d(mSlotId, "Out of service");
             return false;
         }
 
         if (dnw.isRoaming()) {
             if (!SscConfig.isUtSupportedWhenRoaming(mSlotId)) {
-                ImsLog.w(mSlotId, "Ut not supported when roaming");
+                ImsLog.d(mSlotId, "Ut not supported when roaming");
                 return false;
             }
         }
@@ -452,21 +507,127 @@ public class SscServiceState {
         return (IDcNetWatcher) DcFactory.getDc(DcFactory.NETWORK_WATCHER, mSlotId);
     }
 
-    private void registerTelephonyCallback(int subId) {
+    private void registerWifiStateChangedEvent() {
+        if (!SscConfig.isSupportedNetwork(mSlotId, SscConstant.NETWORK_TYPE_IWLAN)) {
+            return;
+        }
+
+        IWifiState ws = getWifiStateAgent();
+        if (ws != null) {
+            ws.registerForWifiStateChanged(mHandler, EVENT_WIFI_STATE_CHANGED, null);
+        }
+    }
+
+    private void unregisterWifiStateChangedEvent() {
+        IWifiState ws = getWifiStateAgent();
+        if (ws != null) {
+            ws.unregisterForWifiStateChanged(mHandler);
+        }
+    }
+
+    private void registerMobileDataRoamingStateEvent() {
+        if (SscConfig.isUtSupportedWhenRoaming(mSlotId)) {
+            return;
+        }
+
+        IDcNetWatcher dnw = getDcNetWatcher();
+        if (dnw != null) {
+            dnw.registerForRoamingStateChanged(mHandler, EVENT_DATA_ROAMING_STATE_CHANGED, null);
+        }
+    }
+
+    private void unregisterMobileDataRoamingStateEvent() {
+        IDcNetWatcher dnw = getDcNetWatcher();
+        if (dnw != null) {
+            dnw.unregisterForRoamingStateChanged(mHandler);
+        }
+    }
+
+    private void registerImsRegistrationStateListener() {
+        if (!SscConfig.isImsRegistrationRequired(mSlotId)) {
+            return;
+        }
+
+        IAosRegistration aosService = getAosRegistration();
+        if (aosService != null) {
+            boolean isRegistered =
+                    aosService.getRegistrationState() == RegistrationState.REGISTERED;
+            mRegiStateListener =  new SscRegiStateListener(isRegistered);
+            aosService.addListener(mRegiStateListener);
+        }
+    }
+
+    private void unregisterImsRegistrationStateListener() {
+        if (mRegiStateListener == null) {
+            return;
+        }
+
+        IAosRegistration aosService = getAosRegistration();
+        if (aosService != null) {
+            aosService.removeListener(mRegiStateListener);
+            mRegiStateListener = null;
+        }
+    }
+
+    private void registerMobileDataStateListener(int subId) {
+        if (SscConfig.isUtSupportedWhenPsDataOff(mSlotId)) {
+            return;
+        }
+
         if (subId != MSimUtils.INVALID_SUB_ID) {
             TelephonyManager tm = AppContext.getTelephonyManager(subId);
             if (tm != null) {
+                mMobileDataStateListener = new SscMobileDataStateListener();
                 tm.registerTelephonyCallback(AppContext.getInstance().getMainExecutor(),
                         mMobileDataStateListener);
             }
         }
     }
 
-    private void unregisterTelephonyCallback(int subId) {
+    private void unregisterMobileDataStateListener(int subId) {
+        if (mMobileDataStateListener == null) {
+            return;
+        }
+
         if (subId != MSimUtils.INVALID_SUB_ID) {
             TelephonyManager tm = AppContext.getTelephonyManager(subId);
             if (tm != null) {
                 tm.unregisterTelephonyCallback(mMobileDataStateListener);
+                mMobileDataStateListener = null;
+            }
+        }
+    }
+
+    private void registerCrossSimDataStateListener() {
+        if (!SscConfig.isCrossSimFeatureEnabled(mSlotId)) {
+            return;
+        }
+
+        ConnectivityManager cm =
+                AppContext.getInstance().getSystemService(ConnectivityManager.class);
+        if (cm != null) {
+            try {
+                mCrossSimDataStateListener = new SscCrossSimDataStateListener();
+                cm.registerDefaultNetworkCallback(mCrossSimDataStateListener);
+            } catch (Exception e) {
+                ImsLog.e(mSlotId, e.toString());
+            }
+        }
+    }
+
+    private void unregisterCrossSimDataStateListener() {
+        if (mCrossSimDataStateListener == null) {
+            return;
+        }
+
+        ConnectivityManager cm =
+                AppContext.getInstance().getSystemService(ConnectivityManager.class);
+        if (cm != null) {
+            try {
+                cm.unregisterNetworkCallback(mCrossSimDataStateListener);
+                mCrossSimDataStateListener = null;
+            } catch (Exception e) {
+                ImsLog.e(mSlotId, e.toString());
             }
         }
     }
@@ -478,10 +639,10 @@ public class SscServiceState {
             return;
         }
 
-        unregisterTelephonyCallback(mSubId);
+        unregisterMobileDataStateListener(mSubId);
 
         mSubId = subId;
-        registerTelephonyCallback(mSubId);
+        registerMobileDataStateListener(mSubId);
     }
 
     /**
@@ -536,7 +697,8 @@ public class SscServiceState {
                 case EVENT_WIFI_STATE_CHANGED: // FALL-THROUGH
                 case EVENT_DATA_SERVICE_STATE_CHANGED: // FALL-THROUGH
                 case EVENT_DATA_RAT_CHANGED: // FALL-THROUGH
-                case EVENT_DATA_ROAMING_STATE_CHANGED:
+                case EVENT_DATA_ROAMING_STATE_CHANGED: // FALL-THROUGH
+                case EVENT_CROSS_SIM_DATA_STATE_CHANGED:
                     handleUtFeatureCapabilityChanged();
                     break;
                 default:
@@ -581,8 +743,10 @@ public class SscServiceState {
 
                 if (simCardState == Sim.STATE_ABSENT) {
                     resetAllUtStatus();
+                    handleUtFeatureCapabilityChanged();
                 } else if (simCardState == Sim.STATE_LOADED) {
                     updateSubscription(sim.getSubId());
+                    handleUtFeatureCapabilityChanged();
                 }
             }
         }
@@ -593,6 +757,19 @@ public class SscServiceState {
         @Override
         public void onCarrierConfigChanged(int slotId, int subId) {
             ImsLog.d(mSlotId, "slotId : " + slotId + ", subId : " + subId);
+
+            unregisterWifiStateChangedEvent();
+            unregisterMobileDataRoamingStateEvent();
+            unregisterImsRegistrationStateListener();
+            unregisterMobileDataStateListener(mSubId);
+            unregisterCrossSimDataStateListener();
+
+            registerWifiStateChangedEvent();
+            registerMobileDataRoamingStateEvent();
+            registerImsRegistrationStateListener();
+            registerMobileDataStateListener(mSubId);
+            registerCrossSimDataStateListener();
+
             handleUtFeatureCapabilityChanged();
         }
     }
@@ -600,7 +777,11 @@ public class SscServiceState {
     @VisibleForTesting
     final class SscRegiStateListener implements IAosRegistrationListener {
         @VisibleForTesting
-        boolean mImsRegistrationState = false;
+        boolean mImsRegistrationState;
+
+        SscRegiStateListener(boolean isRegistered) {
+            mImsRegistrationState = isRegistered;
+        }
 
         @Override
         public void notifyRegistered(int networkType, int featureTagBits,
@@ -670,6 +851,60 @@ public class SscServiceState {
 
         public boolean getUserMobileDataState() {
             return mMobileDataState;
+        }
+    }
+
+    final class SscCrossSimDataStateListener extends ConnectivityManager.NetworkCallback {
+
+        @VisibleForTesting
+        boolean mCrossSimDataAvailable = false;
+
+        @Override
+        public void onLost(Network network) {
+            if (!mCrossSimDataAvailable) {
+                return;
+            }
+
+            ImsLog.d(mSlotId, "Cross SIM data not available : " + network);
+
+            mCrossSimDataAvailable = false;
+            mHandler.sendEmptyMessage(EVENT_CROSS_SIM_DATA_STATE_CHANGED);
+        }
+
+        @Override
+        public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+            boolean isAvailable = isCrossSimDataAvailable(capabilities);
+            if (mCrossSimDataAvailable == isAvailable) {
+                return;
+            }
+
+            ImsLog.d(mSlotId, "network = " + network + ", capabilities = " + capabilities);
+
+            mCrossSimDataAvailable = isAvailable;
+            mHandler.sendEmptyMessage(EVENT_CROSS_SIM_DATA_STATE_CHANGED);
+        }
+
+        private boolean isCrossSimDataAvailable(NetworkCapabilities networkCapabilities) {
+            if (!networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return false;
+            }
+
+            NetworkSpecifier specifier = networkCapabilities.getNetworkSpecifier();
+            if (!(specifier instanceof TelephonyNetworkSpecifier)) {
+                return false;
+            }
+
+            int connectedSubId = ((TelephonyNetworkSpecifier) specifier).getSubscriptionId();
+            if (connectedSubId == mSubId) {
+                return false;
+            }
+
+            ImsLog.d(mSlotId, "Cross SIM data available");
+            return true;
+        }
+
+        public boolean getCrossSimDataState() {
+            return mCrossSimDataAvailable;
         }
     }
 
