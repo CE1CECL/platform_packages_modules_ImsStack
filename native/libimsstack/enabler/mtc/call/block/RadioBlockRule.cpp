@@ -75,9 +75,13 @@ PRIVATE
 CallReasonInfo RadioBlockRule::CovertConnectionFailureToCallReasonInfo(
         IN IMS_UINT32 nFailureReason, IN IMS_UINT32 nWaitTimeMillis) const
 {
-    if (nFailureReason == IImsRadio::REASON_RRC_REJECT)
+    switch (nFailureReason)
     {
-        return CallReasonInfo(CODE_INTERNAL_RRC_REJECT, nWaitTimeMillis);
+        case IImsRadio::REASON_RRC_REJECT:
+            return CallReasonInfo(CODE_INTERNAL_RRC_REJECT, nWaitTimeMillis);
+        case IImsRadio::REASON_ACCESS_DENIED:
+            return CallReasonInfo(CODE_ACCESS_CLASS_BLOCKED);
+        default:
+            return CallReasonInfo(CODE_LOCAL_NETWORK_NO_SERVICE);
     }
-    return CallReasonInfo(CODE_LOCAL_NETWORK_NO_SERVICE);
 }

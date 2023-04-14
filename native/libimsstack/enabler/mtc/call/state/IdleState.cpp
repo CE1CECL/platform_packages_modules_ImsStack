@@ -286,7 +286,10 @@ PROTECTED VIRTUAL CallStateName IdleState::HandleAosConnected()
     if (m_objContext.GetEpsFallbackTrigger().IsWaitingEpsFallbackForNoTrigger())
     {
         m_objContext.GetEpsFallbackTrigger().OnEpsFallbackCompleted();
-        return m_objOperationAfterBlockCheck();
+
+        m_pBlockChecker = std::unique_ptr<IMtcBlockChecker>(
+                m_objContext.CreateBlockChecker(GetBlockRulesAfterEpsFallback()));
+        return OnBlockChecked(m_pBlockChecker->Check());
     }
 
     return GetStateName();
@@ -530,6 +533,16 @@ ImsList<IMtcBlockRule*> IdleState::GetOutgoingCallBlockRules()
     lstRules.Append(new RadioBlockRule(m_objContext, m_objContext.GetCallInfo().eInitialCallType));
     lstRules.Append(new TimerBlockRule(
             m_objContext.GetPassiveTimerHolder(), m_objContext.GetCallInfo().bEmergency));
+
+    return lstRules;
+}
+
+PRIVATE
+ImsList<IMtcBlockRule*> IdleState::GetBlockRulesAfterEpsFallback()
+{
+    ImsList<IMtcBlockRule*> lstRules;
+
+    lstRules.Append(new SsacBlockRule(m_objContext, m_objContext.GetCallInfo().eInitialCallType));
 
     return lstRules;
 }

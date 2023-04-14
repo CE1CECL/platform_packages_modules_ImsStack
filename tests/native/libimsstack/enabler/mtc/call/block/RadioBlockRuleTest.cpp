@@ -109,11 +109,29 @@ TEST_F(RadioBlockRuleTest, OnConnectionFailedNotifiesNoService)
     pRadioBlockRule->Check(BlockRuleCheckListener);
 
     const IMS_UINT32 nRejectWaitTimeMillis = 2;
-    const IMS_UINT32 nFailureReason = IImsRadio::REASON_ACCESS_DENIED;
+    const IMS_UINT32 nFailureReason = IImsRadio::REASON_NAS_FAILURE;
 
     EXPECT_CALL(BlockRuleCheckListener,
             OnBlockRuleChecked(
                     Result(Result::Status::BLOCKED, CallReasonInfo(CODE_LOCAL_NETWORK_NO_SERVICE))))
+            .Times(1);
+    pRadioBlockRule->OnConnectionFailed(nFailureReason, nRejectWaitTimeMillis);
+}
+
+TEST_F(RadioBlockRuleTest, OnConnectionFailedNotifiesAcBlockedWhenAccessDenied)
+{
+    CreateRadioBlockRuleWithGivenValue(CallType::VT, PeerType::MO, IMS_TRUE);
+
+    ON_CALL(objMockIMtcRadioChecker, Check(_, _, _, _, _))
+            .WillByDefault(Return(CheckResult::PENDING));
+    pRadioBlockRule->Check(BlockRuleCheckListener);
+
+    const IMS_UINT32 nRejectWaitTimeMillis = 2;
+    const IMS_UINT32 nFailureReason = IImsRadio::REASON_ACCESS_DENIED;
+
+    EXPECT_CALL(BlockRuleCheckListener,
+            OnBlockRuleChecked(
+                    Result(Result::Status::BLOCKED, CallReasonInfo(CODE_ACCESS_CLASS_BLOCKED))))
             .Times(1);
     pRadioBlockRule->OnConnectionFailed(nFailureReason, nRejectWaitTimeMillis);
 }

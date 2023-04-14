@@ -74,6 +74,7 @@ private:
             IN_OUT IMessage& objMessage, IN const ImsList<ConfUser*>& lstUsers);
     ImsList<IMtcBlockRule*> GetIncomingCallBlockRules();
     ImsList<IMtcBlockRule*> GetOutgoingCallBlockRules();
+    ImsList<IMtcBlockRule*> GetBlockRulesAfterEpsFallback();
     IMS_BOOL IsCallPull() const;
     IMS_RESULT HandleCallPull(IN const AString& strTarget);
 

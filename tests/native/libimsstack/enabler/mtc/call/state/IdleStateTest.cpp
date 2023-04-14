@@ -1171,3 +1171,23 @@ TEST_F(IdleStateTest, OnBlockCheckedDoesNotTriggerEpsFbForRrcRejectIfRejectTimeI
     ON_CALL(*pEpsFbTrigger, IsVoNr()).WillByDefault(Return(IMS_TRUE));
     EXPECT_EQ(CallStateName::TERMINATING, pIdleState->OnBlockChecked(objBlockResult));
 }
+
+TEST_F(IdleStateTest, HandleAosConnectedDoesNothingIfNoEpsFallbackOngoing)
+{
+    ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallbackForNoTrigger()).WillByDefault(Return(IMS_FALSE));
+
+    EXPECT_CALL(*pEpsFbTrigger, OnEpsFallbackCompleted()).Times(0);
+    EXPECT_EQ(CallStateName::IDLE, pIdleState->OnAosStateChanged(MtcAosState::CONNECTED, 0));
+}
+
+TEST_F(IdleStateTest, HandleAosConnectedNotifiesEpsFallbackCompletedIfEpsFallbackOngoing)
+{
+    ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallbackForNoTrigger()).WillByDefault(Return(IMS_TRUE));
+
+    ON_CALL(*pBlockChecker, Check)
+            .WillByDefault(
+                    Return(IMtcBlockChecker::Result(IMtcBlockChecker::Result::Status::PENDING)));
+
+    EXPECT_CALL(*pEpsFbTrigger, OnEpsFallbackCompleted()).Times(1);
+    EXPECT_EQ(CallStateName::IDLE, pIdleState->OnAosStateChanged(MtcAosState::CONNECTED, 0));
+}
