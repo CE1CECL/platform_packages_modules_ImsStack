@@ -558,7 +558,7 @@ IMS_BOOL AosApplication::IsPdnDisconnectRequired() const
 }
 
 PROTECTED
-IMS_BOOL AosApplication::IsPlmnBlockWithTimeoutRequired() const
+IMS_BOOL AosApplication::IsPlmnBlockRequired() const
 {
     if (m_piNetTracker->GetMobileNetworkType() == NW_REPORT_RADIO_LTE &&
             m_nLteAttachState == IMS_LTE_INFO_COMBINED_ATTACHED &&
@@ -940,7 +940,7 @@ PROTECTED VIRTUAL IMS_BOOL AosApplication::ProcessMessage(IN IMSMSG& objMsg)
             break;
 
         case MSG_PLMN_BLOCK_WITH_TIMEOUT:
-            ProcessPlmnBlockWithTimeout();
+            ProcessPlmnBlock(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
             break;
 
         case MSG_RETRY_COUNT_INCREASE:
@@ -1122,7 +1122,7 @@ PROTECTED VIRTUAL void AosApplication::ProcessImsEstablishmentControl(IN IMSMSG&
             return;
         }
 
-        if (!IsPlmnBlockWithTimeoutRequired() || !m_piNetTracker->IsImsVoiceCallSupported())
+        if (!IsPlmnBlockRequired() || !m_piNetTracker->IsImsVoiceCallSupported())
         {
             return;
         }
@@ -1379,8 +1379,10 @@ PROTECTED VIRTUAL IMS_BOOL AosApplication::StateReady_Connection(IN IMSMSG& objM
             {
                 if (nReason == AosConnector::REASON_PERMANENTLY_FAILED)
                 {
+                    ProcessPlmnBlock(AosReasonCode::PLMN_BLOCK);
+
                     m_pCondition->SetBlock(BLOCK_PERMANENT_DATA_FAILED);
-                    m_pConnector->Stop();
+                    m_pConnector->Stop(PLMN_BLOCK_PDN_STOP_WAITING_TIME_SECONDS);
                 }
                 else
                 {
@@ -1653,11 +1655,11 @@ PROTECTED VIRTUAL void AosApplication::ProcessRegFailed_StateConnecting(IN IMS_U
             break;
 
         case IAosRegistration::REASON_FAILURE_PCO_LIMITED_SERVICE:
-            ProcessPlmnBlockWithTimeout();
+            ProcessPlmnBlock(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
             break;
 
         case IAosRegistration::REASON_FAILURE_PLMN_BLOCK_WITH_TIMEOUT:
-            ProcessPlmnBlockWithTimeout();
+            ProcessPlmnBlock(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
             ProcessRegFailed_Start(nReason);
             break;
 
@@ -2073,40 +2075,38 @@ PROTECTED VIRTUAL void AosApplication::ProcessPdnDisconnect()
         }
     }
 
+    if (GetOffReason() == AosReason::DATA_PERMANENTLY_FAILED)
+    {
+        ProcessPlmnBlock(AosReasonCode::PLMN_BLOCK);
+        m_pConnector->Stop(PLMN_BLOCK_PDN_STOP_WAITING_TIME_SECONDS);
+        return;
+    }
+
+    IMS_BOOL bPlmnBlockByConfig = IMS_FALSE;
     if (nFinalErr == CarrierConfig::Assets::ERROR_TYPE_REPEATED)
     {
-        NotifyDeregistered(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
-        m_pConnector->Stop(PLMN_BLOCK_PDN_STOP_WAITING_TIME_SECONDS);
+        bPlmnBlockByConfig = IMS_TRUE;
     }
     else if (nFinalErr == CarrierConfig::Assets::ERROR_TYPE_REPEATED_WITH_ONLY_ATTACHED_NETWORK)
     {
-        IMS_BOOL bPlmnBlock = IMS_TRUE;
-
-        if (m_nRat != NW_REPORT_RADIO_NR)
+        if (m_nRat == NW_REPORT_RADIO_NR)
         {
-            if (m_nRat != NW_REPORT_RADIO_LTE)
+            bPlmnBlockByConfig = IMS_TRUE;
+        }
+        else if (m_nRat == NW_REPORT_RADIO_LTE)
+        {
+            if (m_nLteAttachState != IMS_LTE_INFO_COMBINED_ATTACHED ||
+                        m_nLteExtraInfo != IMS_LTE_INFO_EXTRA_NONE)
             {
-                bPlmnBlock = IMS_FALSE;
-            }
-            else
-            {
-                if (m_nLteAttachState == IMS_LTE_INFO_COMBINED_ATTACHED &&
-                        m_nLteExtraInfo == IMS_LTE_INFO_EXTRA_NONE)
-                {
-                    bPlmnBlock = IMS_FALSE;
-                }
+                bPlmnBlockByConfig = IMS_TRUE;
             }
         }
+    }
 
-        if (bPlmnBlock)
-        {
-            NotifyDeregistered(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
-            m_pConnector->Stop(PLMN_BLOCK_PDN_STOP_WAITING_TIME_SECONDS);
-        }
-        else
-        {
-            m_pConnector->Stop();
-        }
+    if (bPlmnBlockByConfig)
+    {
+        NotifyDeregistered(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
+        m_pConnector->Stop(PLMN_BLOCK_PDN_STOP_WAITING_TIME_SECONDS);
     }
     else
     {
@@ -2267,7 +2267,7 @@ PROTECTED VIRTUAL void AosApplication::ProcessImsEstablishmentTimerExpired()
 {
     StopTimer(TIMER_IMS_ESTABLISHMENT);
 
-    if (IsImsCall() || !IsPlmnBlockWithTimeoutRequired())
+    if (IsImsCall() || !IsPlmnBlockRequired())
     {
         return;
     }
@@ -2336,7 +2336,7 @@ PROTECTED VIRTUAL void AosApplication::ProcessImsEstablishmentStart()
 
         if (m_pUtil->IsSupportedNetworkTypeForCellular(nNewRat))
         {
-            if (!IsPlmnBlockWithTimeoutRequired())
+            if (!IsPlmnBlockRequired())
             {
                 StopTimer(TIMER_IMS_ESTABLISHMENT);
                 return;
@@ -2383,9 +2383,10 @@ PROTECTED VIRTUAL void AosApplication::ProcessImsEstablishmentStart()
     }
 }
 
-PROTECTED VIRTUAL void AosApplication::ProcessPlmnBlockWithTimeout()
+PROTECTED VIRTUAL void AosApplication::ProcessPlmnBlock(IN AosReasonCode eReason)
 {
-    if (!GET_N_CONFIG(m_nSlotId)->IsPlmnBlockWithTimeoutOnVoiceCallUnavailable())
+    if (eReason == AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT &&
+            !GET_N_CONFIG(m_nSlotId)->IsPlmnBlockWithTimeoutOnVoiceCallUnavailable())
     {
         return;
     }
@@ -2395,7 +2396,7 @@ PROTECTED VIRTUAL void AosApplication::ProcessPlmnBlockWithTimeout()
         return;
     }
 
-    if (!IsPlmnBlockWithTimeoutRequired())
+    if (!IsPlmnBlockRequired())
     {
         return;
     }
@@ -2403,10 +2404,10 @@ PROTECTED VIRTUAL void AosApplication::ProcessPlmnBlockWithTimeout()
     StopTimer(TIMER_IMS_ESTABLISHMENT);
 
     A_IMS_TRACE_D(APPID,
-            "ProcessPlmnBlockWithTimeout :: Stop Ims Estb. Timer due to plmn block request", 0, 0,
-            0);
+            "ProcessPlmnBlock :: Stop Ims Estb. Timer due to plmn block request with reason = %d",
+            eReason, 0, 0);
 
-    NotifyDeregistered(AosReasonCode::PLMN_BLOCK_WITH_TIMEOUT);
+    NotifyDeregistered(eReason);
 }
 
 PROTECTED VIRTUAL void AosApplication::Report_StateChanged(
