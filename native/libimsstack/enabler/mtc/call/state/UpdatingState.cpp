@@ -408,12 +408,12 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckDelivered(IN ISession* p
     pSession->HandleResponse(ResponseType::PRACK_RESPONSE, *piMessage);
 
     const IMtcPreconditionManager& objPreconditionManager = m_objContext.GetPreconditionManager();
-    if (!objPreconditionManager.IsEarlyUpdateRequired(piSession))
+    if (!objPreconditionManager.IsLocalResourceConfirmationRequired(piSession))
     {
         return GetStateName();
     }
 
-    if (!objPreconditionManager.IsAvailableToSendEarlyUpdate(piSession))
+    if (!objPreconditionManager.IsAvailableToSendLocalResourceConfirmation(piSession))
     {
         return GetStateName();
     }
@@ -596,12 +596,12 @@ PUBLIC VIRTUAL CallStateName UpdatingState::QosReserved(
     {
         const IMtcPreconditionManager& objPreconditionManager =
                 m_objContext.GetPreconditionManager();
-        if (!objPreconditionManager.IsEarlyUpdateRequired(piSession))
+        if (!objPreconditionManager.IsLocalResourceConfirmationRequired(piSession))
         {
             return GetStateName();
         }
 
-        if (!objPreconditionManager.IsAvailableToSendEarlyUpdate(piSession))
+        if (!objPreconditionManager.IsAvailableToSendLocalResourceConfirmation(piSession))
         {
             return GetStateName();
         }
