@@ -17,12 +17,12 @@
 package com.android.imsstack.imsservice.mmtel.videocall;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.telecom.Connection;
 import android.telecom.VideoProfile;
 import android.telephony.ims.ImsStreamMediaProfile;
 import android.util.Size;
 
-import com.android.imsstack.core.ImsGlobal;
 import com.android.imsstack.enabler.mtc.CallFeature;
 import com.android.imsstack.enabler.mtc.MtcCallUtils;
 import com.android.imsstack.enabler.mtc.MtcMediaSession;
@@ -273,7 +273,7 @@ public class ImsVideoCallProviderImpl extends ImsVideoCallProviderBase {
     private Handler getCallHandler() {
         ICallContext callContext = getVideoCallSession().getCallContext();
         return (callContext != null) ? callContext.getCallHandler()
-                : ImsGlobal.getInstance().getCallHandler();
+                : new Handler(Looper.myLooper());
     }
 
     private static int getCameraIdInt(String cameraId) {

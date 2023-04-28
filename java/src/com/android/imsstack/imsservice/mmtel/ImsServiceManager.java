@@ -20,7 +20,6 @@ import android.text.TextUtils;
 
 import com.android.imsstack.core.CommonStarter;
 import com.android.imsstack.core.ICommonPackageListener;
-import com.android.imsstack.core.ImsGlobal;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ISubscription;
 import com.android.imsstack.core.agents.SubscriptionListener;
@@ -32,6 +31,7 @@ import com.android.imsstack.imsservice.mmtel.base.IMmTelCallListener;
 import com.android.imsstack.imsservice.mmtel.base.IMmTelFeatureCapabilityListener;
 import com.android.imsstack.util.ImsConstants;
 import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.util.ImsPrivateProperties;
 import com.android.imsstack.util.MSimUtils;
 import com.android.imsstack.util.MessageExecutor;
 import com.android.internal.annotations.VisibleForTesting;
@@ -139,8 +139,8 @@ public class ImsServiceManager {
 
         if (callApp == null) {
             if (mOperator[phoneId] == null) {
-                mOperator[phoneId] = new String(ImsGlobal.getOperator(phoneId));
-                mCountry[phoneId] = new String(ImsGlobal.getCountry(phoneId));
+                mOperator[phoneId] = new String(ImsPrivateProperties.getSimOperator(phoneId));
+                mCountry[phoneId] = new String(ImsPrivateProperties.getSimCountry(phoneId));
                 mServiceFeatures[phoneId] = getServiceFeatures(phoneId);
                 mVoLteServiceFeatures[phoneId] = getVoLteServiceFeatures(phoneId);
             }
@@ -447,11 +447,11 @@ public class ImsServiceManager {
             return;
         }
 
-        String newOperator = ImsGlobal.getOperator(phoneId);
+        String newOperator = ImsPrivateProperties.getSimOperator(phoneId);
 
         if (TextUtils.isEmpty(mOperator[phoneId])) {
             mOperator[phoneId] = new String(newOperator);
-            mCountry[phoneId] = new String(ImsGlobal.getCountry(phoneId));
+            mCountry[phoneId] = new String(ImsPrivateProperties.getSimCountry(phoneId));
             mServiceFeatures[phoneId] = getServiceFeatures(phoneId);
             mVoLteServiceFeatures[phoneId] = getVoLteServiceFeatures(phoneId);
 
@@ -475,7 +475,7 @@ public class ImsServiceManager {
 
             mOperator[phoneId] = null;
             mOperator[phoneId] = new String(newOperator);
-            mCountry[phoneId] = new String(ImsGlobal.getCountry(phoneId));
+            mCountry[phoneId] = new String(ImsPrivateProperties.getSimCountry(phoneId));
             mServiceFeatures[phoneId] = serviceFeatures;
             mVoLteServiceFeatures[phoneId] = getVoLteServiceFeatures(phoneId);
 
@@ -503,7 +503,7 @@ public class ImsServiceManager {
 
                 mVoLteServiceFeatures[phoneId] = voLteServiceFeatures;
 
-                if (!"KR".equals(ImsGlobal.getCountry(phoneId))) {
+                if (!"KR".equals(ImsPrivateProperties.getSimCountry(phoneId))) {
                     operatorOrServiceFeaturesChanged = true;
                 }
             }

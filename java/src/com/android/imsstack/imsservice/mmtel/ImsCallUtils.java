@@ -26,7 +26,6 @@ import android.telephony.ims.ImsReasonInfo;
 import android.telephony.ims.ImsStreamMediaProfile;
 import android.text.TextUtils;
 
-import com.android.imsstack.core.ImsGlobal;
 import com.android.imsstack.enabler.mtc.CallFeature;
 import com.android.imsstack.enabler.mtc.CallInfo;
 import com.android.imsstack.enabler.mtc.CallReasonInfo;
@@ -39,6 +38,7 @@ import com.android.imsstack.enabler.mtc.SuppInfo;
 import com.android.imsstack.enabler.mtc.conf.UsersInfo;
 import com.android.imsstack.imsservice.mmtel.base.ICallContext;
 import com.android.imsstack.util.ImsConstants;
+import com.android.imsstack.util.ImsPrivateProperties;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -254,7 +254,7 @@ public class ImsCallUtils {
                 profile.setCallExtraBoolean(ImsCallProfile.EXTRA_CONFERENCE, false);
             }
 
-            if (ImsGlobal.isOperator(context.getSlotId(), "LGU")) {
+            if ("LGU".equals(ImsPrivateProperties.getSimOperator(context.getSlotId()))) {
                 removeCallExtra(profile, ImsCallProfile.EXTRA_CNAP);
             }
         }
@@ -606,7 +606,7 @@ public class ImsCallUtils {
 
     public static boolean isCallOnNativeAppsAndCountryKR(ICallContext context) {
         return ImsConstants.USE_GOOGLE_NATIVE_APPS
-                && ImsGlobal.isCountry(context.getSlotId(), "KR");
+                && "KR".equals(ImsPrivateProperties.getSimCountry(context.getSlotId()));
     }
 
     public static boolean isCallTypeChanged(int callType, int otherCallType) {
@@ -705,7 +705,7 @@ public class ImsCallUtils {
         if ((callReasonInfo.mCode == CallReasonInfo.CODE_SIP_NOT_SUPPORTED)
                 && (callReasonInfo.mExtraCode == 415)
                 && ImsCallUtils.isVideoCall(profile.getCallType())
-                && ImsGlobal.isOperator(context.getSlotId(), "LGU")) {
+                && "LGU".equals(ImsPrivateProperties.getSimOperator(context.getSlotId()))) {
             callReasonInfo.mCode = CallReasonInfo.CODE_LOCAL_CALL_VOLTE_RETRY_REQUIRED;
         }
     }

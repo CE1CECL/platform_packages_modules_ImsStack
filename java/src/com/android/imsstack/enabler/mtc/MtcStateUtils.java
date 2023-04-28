@@ -17,9 +17,10 @@ package com.android.imsstack.enabler.mtc;
 
 import android.content.Context;
 
-import com.android.imsstack.core.ImsGlobal;
 import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.ConfigInterface;
 import com.android.imsstack.core.agents.ISubscription;
+import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.core.config.ServiceCaps;
 import com.android.imsstack.internal.enabler.ImsStateStore;
 import com.android.imsstack.util.ImsLog;
@@ -53,10 +54,12 @@ public class MtcStateUtils {
         boolean isVoLteEnabled = ServiceCaps.isVoLteEnabledByPlatform(slotId);
         boolean isWfcEnabled = ServiceCaps.isWfcEnabledByPlatform(slotId);
         boolean isVtEnabled = ServiceCaps.isVtEnabledByPlatform(slotId);
-        boolean isVoLteProvisioningRequired
-                = ImsGlobal.isVoLteProvisioningRequired(context, slotId);
-        boolean isVtProvisioningRequired = ImsGlobal.isVtProvisioningRequired(context, slotId);
-        boolean isWfcProvisioningRequired = ImsGlobal.isWfcProvisioningRequired(context, slotId);
+        ConfigInterface config = AgentFactory.getInstance().getAgent(ConfigInterface.class, slotId);
+        CarrierConfig cc = (config != null) ? config.getCarrierConfig() : null;
+        boolean isVoLteProvisioningRequired =
+                (cc != null) ? cc.isVoLteProvisioningRequired() : false;
+        boolean isVtProvisioningRequired = isVoLteProvisioningRequired;
+        boolean isWfcProvisioningRequired = false;
         boolean isImsStateSyncRequired = isVoLteProvisioningRequired || isVtProvisioningRequired;
 
         logi("initializeState :: slotId=" + slotId
@@ -86,11 +89,7 @@ public class MtcStateUtils {
         } else if (isVtEnabled) {
             vtProvisioned = STATE_ACTIVE;
         } else {
-            if (!ImsGlobal.isCountry(slotId, "KR")) {
-                vtProvisioned = STATE_INACTIVE;
-            } else {
-                vtProvisioned = STATE_ACTIVE;
-            }
+            vtProvisioned = STATE_INACTIVE;
         }
 
         if (isWfcProvisioningRequired) {

@@ -336,8 +336,6 @@ public class ImsStackApp extends Application {
     private void startVoLteService(int slotId) {
         Log.i(TAG, "startVoLteService(" + slotId + ")");
 
-        com.android.imsstack.core.ImsGlobal.create(this);
-
         ImsServiceController.start(this, slotId);
 
         if (ImsTestMode.getInstance().getTestMode(slotId).isGenericTestMode()) {

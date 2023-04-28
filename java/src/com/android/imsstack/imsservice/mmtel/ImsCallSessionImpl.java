@@ -37,7 +37,6 @@ import android.telephony.ims.RtpHeaderExtension;
 import android.telephony.ims.stub.ImsCallSessionImplBase;
 import android.text.TextUtils;
 
-import com.android.imsstack.core.ImsGlobal;
 import com.android.imsstack.core.agents.Usat;
 import com.android.imsstack.core.agents.UsatInterface;
 import com.android.imsstack.core.agents.dcmif.ApnStateListener;
@@ -72,6 +71,7 @@ import com.android.imsstack.imsservice.mmtel.internal.ConferenceProxy;
 import com.android.imsstack.imsservice.mmtel.videocall.ImsVideoCallProviderFactory;
 import com.android.imsstack.imsservice.mmtel.videocall.base.ImsVideoCallProviderBase;
 import com.android.imsstack.util.ImsLog;
+import com.android.imsstack.util.ImsPrivateProperties;
 import com.android.imsstack.util.SimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -2269,7 +2269,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                     profile.getMediaProfile().getAudioQuality());
         }
 
-        if (ImsGlobal.isOperator(mCallContext.getSlotId(), "LGU")) {
+        if ("LGU".equals(ImsPrivateProperties.getSimOperator(mCallContext.getSlotId()))) {
             // All the EVS qualities should be an UHD voice based on LGU+ requirement.
             if (((mediaInfo != null) && MtcCallUtils.isAudioEvsCategory(mediaInfo.AQuality))
                     || ImsCallMediaUtils.isAudioEvsCategory(
@@ -2576,7 +2576,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             mServiceType = serviceType;
 
             if ((mServiceType == ImsCallProfile.SERVICE_TYPE_EMERGENCY)
-                    && ImsGlobal.isCountry(mCallContext.getSlotId(), "KR")) {
+                    && "KR".equals(ImsPrivateProperties.getSimCountry(mCallContext.getSlotId()))) {
                 mImsRegWaitingTimerRequired = true;
             }
         }
@@ -2762,13 +2762,13 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
                     // TODO : need to modify this
                     // after emergency domain selection policy is decided.
-                    /*if (ImsGlobal.isOperator(slotId, "VZW")) {
+                    /*if ("VZW") {
                         code = IUMtcCall.Fail_Reason.FAIL_REASON_SESSION_RETRY_RAT;
                     }*/
                 } else {
+                    String operator = ImsPrivateProperties.getSimOperator(slotId);
                     if (ImsCallUtils.isVideoCall(mCallProfile.getCallType())
-                            && (ImsGlobal.isOperator(slotId, "SKT")
-                                || ImsGlobal.isOperator(slotId, "KT"))) {
+                            && ("SKT".equals(operator) || "KT".equals(operator))) {
                         code = CallReasonInfo.CODE_LOCAL_CALL_CS_RETRY_REQUIRED;
                         extraCode = CallReasonInfo.EXTRA_CODE_CALL_RETRY_SILENT_REDIAL;
                     }
@@ -3476,13 +3476,6 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                     delayForCallback = 100;
                     log("invokeStartFailed after 100ms");
                 }
-            }
-
-            if ((delayForCallback == 0)
-                    && (mCallProfile.getServiceType() == ImsCallProfile.SERVICE_TYPE_EMERGENCY)
-                    && (reasonInfo.getCode() == ImsReasonInfo.CODE_LOCAL_CALL_CS_RETRY_REQUIRED)
-                    && ImsGlobal.isOperator(mCallContext.getSlotId(), "KT")) {
-                delayForCallback = 2000;
             }
 
             notifyCallStartFailedWithDelay(reasonInfo, delayForCallback);

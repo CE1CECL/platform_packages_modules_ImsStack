@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.android.imsstack.core.ImsGlobal;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigInterface;
 import com.android.imsstack.core.config.CarrierConfig;
@@ -340,12 +339,6 @@ public class MtcECallStateTracker implements IECallStateTracker {
      */
     private void sendStatus(int status, int reason) {
         // TODO : need to consider this after modem side work is finished
-        int slotId = mContext.getSlotId();
-        if (ImsGlobal.isOperator(slotId, "SPR")
-                && (status != EMERGENCY_CALL_STOP_WITH_ECB)) {
-            return;
-        }
-
         log("ECallState(forModem) :: status="
                 + e911StatusToString(status) + ", reason=" + reason);
     }
