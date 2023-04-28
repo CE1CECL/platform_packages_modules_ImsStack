@@ -344,9 +344,9 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionForkedResponseReceived(
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName OutgoingState::SessionPRAckDelivered(IN ISession* piSession)
+PUBLIC VIRTUAL CallStateName OutgoingState::SessionPrackDelivered(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPRAckDelivered", 0, 0, 0);
+    IMS_TRACE_D("SessionPrackDelivered", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousResponse(IMessage::SESSION_PRACK);
     if (piMessage == IMS_NULL)
     {
@@ -394,17 +394,17 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionPRAckDelivered(IN ISession* p
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName OutgoingState::SessionPRAckDeliveryFailed(IN ISession* piSession)
+PUBLIC VIRTUAL CallStateName OutgoingState::SessionPrackDeliveryFailed(IN ISession* piSession)
 {
     if (m_objContext.GetConfigurationProxy().Is(Feature::IGNORE_PRACK_DELIVERY_FAILURE))
     {
-        IMS_TRACE_D("SessionPRAckDeliveryFailed : Ignore", 0, 0, 0);
+        IMS_TRACE_D("SessionPrackDeliveryFailed : Ignore", 0, 0, 0);
         return GetStateName();
     }
 
     IMS_SINT32 nStatusCode = m_objContext.GetMessageUtils().GetResponseStatusCode(
             piSession, IMessage::SESSION_PRACK);
-    IMS_TRACE_D("SessionPRAckDeliveryFailed statusCode[%d]", nStatusCode, 0, 0);
+    IMS_TRACE_D("SessionPrackDeliveryFailed statusCode[%d]", nStatusCode, 0, 0);
 
     CallReasonInfo objReason = CallReasonInfo(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_PRACK);
     if (nStatusCode != SipStatusCode::SC_INVALID)
@@ -485,10 +485,10 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionProvisionalResponseReceived(
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName OutgoingState::SessionRPRReceived(
+PUBLIC VIRTUAL CallStateName OutgoingState::SessionRprReceived(
         IN ISession* piSession, IN IMS_UINT32 nIndex)
 {
-    IMS_TRACE_D("SessionRPRReceived", 0, 0, 0);
+    IMS_TRACE_D("SessionRprReceived", 0, 0, 0);
     StopTimer(TIMER_MO_100_WAIT);
     StopTimer(TIMER_MO_18X_WAIT);
 

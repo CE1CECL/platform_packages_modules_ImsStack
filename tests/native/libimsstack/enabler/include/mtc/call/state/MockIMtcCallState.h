@@ -105,13 +105,13 @@ public:
             CallStateName, SessionEarlyMediaUpdateReceived, (IN ISession* piSession), (override));
     MOCK_METHOD(CallStateName, SessionForkedResponseReceived,
             (IN ISession* piSession, IN ISession* piForkedSession), (override));
-    MOCK_METHOD(CallStateName, SessionPRAckDelivered, (IN ISession* piSession), (override));
-    MOCK_METHOD(CallStateName, SessionPRAckDeliveryFailed, (IN ISession* piSession), (override));
-    MOCK_METHOD(CallStateName, SessionPRAckReceived, (IN ISession* piSession), (override));
+    MOCK_METHOD(CallStateName, SessionPrackDelivered, (IN ISession* piSession), (override));
+    MOCK_METHOD(CallStateName, SessionPrackDeliveryFailed, (IN ISession* piSession), (override));
+    MOCK_METHOD(CallStateName, SessionPrackReceived, (IN ISession* piSession), (override));
     MOCK_METHOD(CallStateName, SessionProvisionalResponseReceived,
             (IN ISession* piSession, IN IMS_UINT32 nIndex), (override));
-    MOCK_METHOD(CallStateName, SessionRPRDeliveryFailed, (IN ISession* piSession), (override));
-    MOCK_METHOD(CallStateName, SessionRPRReceived, (IN ISession* piSession, IN IMS_UINT32 nIndex),
+    MOCK_METHOD(CallStateName, SessionRprDeliveryFailed, (IN ISession* piSession), (override));
+    MOCK_METHOD(CallStateName, SessionRprReceived, (IN ISession* piSession, IN IMS_UINT32 nIndex),
             (override));
     MOCK_METHOD(CallStateName, SessionTransactionReceived,
             (IN ISession* piSession, IN ISipServerConnection* piSipServerConnection), (override));

@@ -220,11 +220,11 @@ TEST_F(OutgoingStateTest, OnExitStopsUdpKeepAliveSenderIfSupported)
     pOutgoingState->OnExit();
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveryFailedIgnoredIfConfigOn)
+TEST_F(OutgoingStateTest, SessionPrackDeliveryFailedIgnoredIfConfigOn)
 {
     ON_CALL(*pConfigurationManager, IsIgnorePrackDeliveryFailure).WillByDefault(Return(IMS_TRUE));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDeliveryFailed(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDeliveryFailed(&objSession));
 }
 
 TEST_F(OutgoingStateTest, HandleB1TimerIsNotHandledIfNoUserTerminateCase)
@@ -1026,15 +1026,15 @@ TEST_F(OutgoingStateTest, SessionForkedResponseReceivedDoesNotTerminateOriginalS
             pOutgoingState->SessionForkedResponseReceived(&objSession, &objForkedSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingAndDoesNothingIfNoMessageFound)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredReturnsOutgoingAndDoesNothingIfNoMessageFound)
 {
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
             .WillByDefault(Return(nullptr));
     EXPECT_CALL(objMtcSession, HandleResponse(_, _)).Times(0);
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIfNoPreconditionSupported)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredReturnsOutgoingIfNoPreconditionSupported)
 {
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
@@ -1043,10 +1043,10 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIfNoPreconditionSu
     ON_CALL(objPreconditionManager, IsLocalResourceConfirmationRequired(&objSession))
             .WillByDefault(Return(IMS_FALSE));
     EXPECT_CALL(objMtcSession, HandleResponse(_, _)).Times(1);
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIfNotAvailableToSendEarlyUpdate)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredReturnsOutgoingIfNotAvailableToSendEarlyUpdate)
 {
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
@@ -1057,10 +1057,10 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIfNotAvailableToSe
     ON_CALL(objPreconditionManager, IsAvailableToSendLocalResourceConfirmation(&objSession))
             .WillByDefault(Return(IMS_FALSE));
     EXPECT_CALL(objMessageUtils, GetResponseStatusCode(_, _, _)).Times(0);
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIfCodeIs183ButNotNegotiated)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredReturnsOutgoingIfCodeIs183ButNotNegotiated)
 {
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
@@ -1075,10 +1075,10 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIfCodeIs183ButNotN
     ON_CALL(objMediaManager, GetNegotiationState(&objSession))
             .WillByDefault(Return(NegotiationState::STATE_OFFER_SENT));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredSendsEarlyUpdateIfAvailable)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredSendsEarlyUpdateIfAvailable)
 {
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
@@ -1095,10 +1095,10 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveredSendsEarlyUpdateIfAvailable)
 
     EXPECT_CALL(objMtcSession, SendEarlyUpdate(UpdateType::NORMAL)).WillOnce(Return(IMS_SUCCESS));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredTerminatesCallIfSendingUpdateFails)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredTerminatesCallIfSendingUpdateFails)
 {
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
@@ -1118,10 +1118,10 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveredTerminatesCallIfSendingUpdateFail
     EXPECT_CALL(objMtcSession, Terminate(_, CallReasonInfo(CODE_REJECT_INTERNAL_ERROR)));
     EXPECT_CALL(objNotifier, SendStartFailed(CallReasonInfo(CODE_REJECT_INTERNAL_ERROR)));
 
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIf200OkIsAlreadyReceived)
+TEST_F(OutgoingStateTest, SessionPrackDeliveredReturnsOutgoingIf200OkIsAlreadyReceived)
 {
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
@@ -1136,17 +1136,17 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveredReturnsOutgoingIf200OkIsAlreadyRe
 
     EXPECT_CALL(objMtcSession, SendEarlyUpdate(UpdateType::NORMAL)).Times(0);
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDelivered(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDelivered(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveryFailedDoesNothingIfNeedToIgnoreByConfig)
+TEST_F(OutgoingStateTest, SessionPrackDeliveryFailedDoesNothingIfNeedToIgnoreByConfig)
 {
     ON_CALL(*pConfigurationManager, IsIgnorePrackDeliveryFailure).WillByDefault(Return(IMS_TRUE));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPRAckDeliveryFailed(&objSession));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDeliveryFailed(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveryFailedByErrorResponseTerminatesCall)
+TEST_F(OutgoingStateTest, SessionPrackDeliveryFailedByErrorResponseTerminatesCall)
 {
     ON_CALL(*pConfigurationManager, IsIgnorePrackDeliveryFailure).WillByDefault(Return(IMS_FALSE));
     ON_CALL(objMessageUtils, GetResponseStatusCode(&objSession, IMessage::SESSION_PRACK, -1))
@@ -1157,10 +1157,10 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveryFailedByErrorResponseTerminatesCal
     EXPECT_CALL(objNotifier,
             SendStartFailed(CallReasonInfo(CODE_SIP_METHOD_NOT_ALLOWED, EXTRA_CODE_METHOD_PRACK)));
 
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPRAckDeliveryFailed(&objSession));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPrackDeliveryFailed(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionPRAckDeliveryFailedByNoResponseTerminatesCall)
+TEST_F(OutgoingStateTest, SessionPrackDeliveryFailedByNoResponseTerminatesCall)
 {
     ON_CALL(*pConfigurationManager, IsIgnorePrackDeliveryFailure).WillByDefault(Return(IMS_FALSE));
     ON_CALL(objMessageUtils, GetResponseStatusCode(&objSession, IMessage::SESSION_PRACK, -1))
@@ -1171,7 +1171,7 @@ TEST_F(OutgoingStateTest, SessionPRAckDeliveryFailedByNoResponseTerminatesCall)
     EXPECT_CALL(objNotifier,
             SendStartFailed(CallReasonInfo(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_PRACK)));
 
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPRAckDeliveryFailed(&objSession));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPrackDeliveryFailed(&objSession));
 }
 
 TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedStopsTimersIfNot100)
@@ -1307,7 +1307,7 @@ TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedInvokesSendProgressi
             pOutgoingState->SessionProvisionalResponseReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedStopsTimers)
+TEST_F(OutgoingStateTest, SessionRprReceivedStopsTimers)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1325,10 +1325,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedStopsTimers)
             .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objTimer, Stop(MtcCallState::TimerType::TIMER_MO_18X_WAIT));
 
-    pOutgoingState->SessionRPRReceived(&objSession, 0);
+    pOutgoingState->SessionRprReceived(&objSession, 0);
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedStopOrStartMoNoanswerTimerByContext)
+TEST_F(OutgoingStateTest, SessionRprReceivedStopOrStartMoNoanswerTimerByContext)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1350,7 +1350,7 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedStopOrStartMoNoanswerTimerByContext)
             .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objTimer, Stop(MtcCallState::TimerType::TIMER_MO_NOANSWER));
 
-    pOutgoingState->SessionRPRReceived(&objSession, 0);
+    pOutgoingState->SessionRprReceived(&objSession, 0);
 
     // config is false
     ON_CALL(*pConfigurationManager, IsStopRingbackTimerBy183WithSdpBody)
@@ -1358,10 +1358,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedStopOrStartMoNoanswerTimerByContext)
 
     EXPECT_CALL(objTimer, Start(MtcCallState::TimerType::TIMER_MO_NOANSWER, _));
 
-    pOutgoingState->SessionRPRReceived(&objSession, 0);
+    pOutgoingState->SessionRprReceived(&objSession, 0);
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfRequiredExtensionIsNotSupported)
+TEST_F(OutgoingStateTest, SessionRprReceivedTerminatesCallIfRequiredExtensionIsNotSupported)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1380,10 +1380,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfRequiredExtensionIsN
     EXPECT_CALL(objMtcSession, Terminate(_, CallReasonInfo(CODE_LOCAL_SERVICE_UNAVAILABLE)));
     EXPECT_CALL(objNotifier, SendStartFailed(CallReasonInfo(CODE_LOCAL_SERVICE_UNAVAILABLE)));
 
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedReturnsOutgoingStateIf199)
+TEST_F(OutgoingStateTest, SessionRprReceivedReturnsOutgoingStateIf199)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1394,10 +1394,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedReturnsOutgoingStateIf199)
     ON_CALL(objMessageUtils, GetPreviousResponse(&objSession, IMessage::SESSION_START, 0))
             .WillByDefault(Return(&objMessage));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfSdpOaFails)
+TEST_F(OutgoingStateTest, SessionRprReceivedTerminatesCallIfSdpOaFails)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1413,10 +1413,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfSdpOaFails)
 
     EXPECT_CALL(objMtcSession, Terminate(_, CallReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE)));
     EXPECT_CALL(objNotifier, SendStartFailed(CallReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE)));
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedUpdatesQosPreconditionInfo)
+TEST_F(OutgoingStateTest, SessionRprReceivedUpdatesQosPreconditionInfo)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1432,10 +1432,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedUpdatesQosPreconditionInfo)
     SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover OnMessageReceived()
     EXPECT_CALL(objPreconditionManager, OnMessageReceived(&objSession, &objMessage));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfRemoteAudioPortIsZero)
+TEST_F(OutgoingStateTest, SessionRprReceivedTerminatesCallIfRemoteAudioPortIsZero)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1455,10 +1455,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfRemoteAudioPortIsZer
     EXPECT_CALL(objNotifier,
             SendStartFailed(CallReasonInfo(
                     CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL)));
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfSendingPrackFails)
+TEST_F(OutgoingStateTest, SessionRprReceivedTerminatesCallIfSendingPrackFails)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1473,10 +1473,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedTerminatesCallIfSendingPrackFails)
 
     EXPECT_CALL(objMtcSession, Terminate(_, CallReasonInfo(CODE_LOCAL_INTERNAL_ERROR)));
     EXPECT_CALL(objNotifier, SendStartFailed(CallReasonInfo(CODE_LOCAL_INTERNAL_ERROR)));
-    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedInvokesSendProgressing)
+TEST_F(OutgoingStateTest, SessionRprReceivedInvokesSendProgressing)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1493,10 +1493,10 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedInvokesSendProgressing)
     EXPECT_CALL(objMediaManager, Run(&objSession, &objMessage, IMS_TRUE));
     EXPECT_CALL(objNotifier, SendProgressing(_, _, _, _));
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
-TEST_F(OutgoingStateTest, SessionRPRReceivedInvokesStartWatchdogIfSupportedAndSdpAnswerIncluded)
+TEST_F(OutgoingStateTest, SessionRprReceivedInvokesStartWatchdogIfSupportedAndSdpAnswerIncluded)
 {
     const AString strSupportedOptionTag("supportedExtension");
     ON_CALL(objMtcSession, GetExtensionSet)
@@ -1518,7 +1518,7 @@ TEST_F(OutgoingStateTest, SessionRPRReceivedInvokesStartWatchdogIfSupportedAndSd
 
     EXPECT_CALL(*pEpsFbTrigger, StartWatchdog);
 
-    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRPRReceived(&objSession, 0));
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
 
 TEST_F(OutgoingStateTest, UssiStartedInvokesSendStartedToUi)

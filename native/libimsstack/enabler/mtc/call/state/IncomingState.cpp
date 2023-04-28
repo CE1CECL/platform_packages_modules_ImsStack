@@ -153,9 +153,9 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionEarlyMediaUpdateReceived(IN I
     return CallStateName::ALERTING;
 }
 
-PUBLIC VIRTUAL CallStateName IncomingState::SessionPRAckReceived(IN ISession* piSession)
+PUBLIC VIRTUAL CallStateName IncomingState::SessionPrackReceived(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPRAckReceived", 0, 0, 0);
+    IMS_TRACE_D("SessionPrackReceived", 0, 0, 0);
 
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_PRACK);
     IMtcSession* pSession = m_objContext.GetSession();
@@ -187,9 +187,9 @@ PUBLIC VIRTUAL CallStateName IncomingState::SessionPRAckReceived(IN ISession* pi
     return CallStateName::ALERTING;
 }
 
-PUBLIC VIRTUAL CallStateName IncomingState::SessionRPRDeliveryFailed(IN ISession* /* piSession*/)
+PUBLIC VIRTUAL CallStateName IncomingState::SessionRprDeliveryFailed(IN ISession* /* piSession*/)
 {
-    IMS_TRACE_D("SessionRPRDeliveryFailed", 0, 0, 0);
+    IMS_TRACE_D("SessionRprDeliveryFailed", 0, 0, 0);
     return RejectIncomingAndToTerminating(
             CallReasonInfo(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_PRACK));
 }

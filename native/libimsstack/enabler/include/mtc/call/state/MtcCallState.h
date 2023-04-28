@@ -109,13 +109,13 @@ public:
     CallStateName SessionEarlyMediaUpdateReceived(IN ISession* piSession) override;
     CallStateName SessionForkedResponseReceived(
             IN ISession* piSession, IN ISession* piForkedSession) override;
-    CallStateName SessionPRAckDelivered(IN ISession* piSession) override;
-    CallStateName SessionPRAckDeliveryFailed(IN ISession* piSession) override;
-    CallStateName SessionPRAckReceived(IN ISession* piSession) override;
+    CallStateName SessionPrackDelivered(IN ISession* piSession) override;
+    CallStateName SessionPrackDeliveryFailed(IN ISession* piSession) override;
+    CallStateName SessionPrackReceived(IN ISession* piSession) override;
     CallStateName SessionProvisionalResponseReceived(
             IN ISession* piSession, IN IMS_UINT32 nIndex) override;
-    CallStateName SessionRPRDeliveryFailed(IN ISession* piSession) override;
-    CallStateName SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
+    CallStateName SessionRprDeliveryFailed(IN ISession* piSession) override;
+    CallStateName SessionRprReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
     CallStateName SessionTransactionReceived(
             IN ISession* piSession, IN ISipServerConnection* piSipServerConnection) override;
 

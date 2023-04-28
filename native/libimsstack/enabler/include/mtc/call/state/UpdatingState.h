@@ -60,11 +60,11 @@ public:
     CallStateName SessionEarlyMediaUpdated(IN ISession* piSession) override;
     CallStateName SessionEarlyMediaUpdateFailed(IN ISession* piSession) override;
     CallStateName SessionEarlyMediaUpdateReceived(IN ISession* piSession) override;
-    CallStateName SessionPRAckDelivered(IN ISession* piSession) override;
-    CallStateName SessionPRAckDeliveryFailed(IN ISession* piSession) override;
-    CallStateName SessionPRAckReceived(IN ISession* piSession) override;
-    CallStateName SessionRPRDeliveryFailed(IN ISession* piSession) override;
-    CallStateName SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
+    CallStateName SessionPrackDelivered(IN ISession* piSession) override;
+    CallStateName SessionPrackDeliveryFailed(IN ISession* piSession) override;
+    CallStateName SessionPrackReceived(IN ISession* piSession) override;
+    CallStateName SessionRprDeliveryFailed(IN ISession* piSession) override;
+    CallStateName SessionRprReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
 
     CallStateName Refresh_NotifyTimerExpired(OUT IMS_BOOL& bDoImplicitRefresh) override;
 

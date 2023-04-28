@@ -283,17 +283,17 @@ PUBLIC VIRTUAL CallStateName MtcCallState::SessionForkedResponseReceived(
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::SessionPRAckDelivered(IN ISession* /* piSession */)
+PUBLIC VIRTUAL CallStateName MtcCallState::SessionPrackDelivered(IN ISession* /* piSession */)
 {
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::SessionPRAckDeliveryFailed(IN ISession* /* piSession */)
+PUBLIC VIRTUAL CallStateName MtcCallState::SessionPrackDeliveryFailed(IN ISession* /* piSession */)
 {
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::SessionPRAckReceived(IN ISession* /* piSession */)
+PUBLIC VIRTUAL CallStateName MtcCallState::SessionPrackReceived(IN ISession* /* piSession */)
 {
     return GetStateName();
 }
@@ -304,12 +304,12 @@ PUBLIC VIRTUAL CallStateName MtcCallState::SessionProvisionalResponseReceived(
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::SessionRPRDeliveryFailed(IN ISession* /* piSession */)
+PUBLIC VIRTUAL CallStateName MtcCallState::SessionRprDeliveryFailed(IN ISession* /* piSession */)
 {
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::SessionRPRReceived(
+PUBLIC VIRTUAL CallStateName MtcCallState::SessionRprReceived(
         IN ISession* /* piSession */, IN IMS_UINT32 /* nIndex */)
 {
     return GetStateName();

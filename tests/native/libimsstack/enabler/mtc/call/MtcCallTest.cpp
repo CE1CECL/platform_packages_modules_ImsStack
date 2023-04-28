@@ -1629,7 +1629,7 @@ TEST_F(MtcCallTest, SessionPrackDeliveredCallsState)
     MockISession objSession;
 
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionPRAckDelivered(&objSession)).Times(1);
+    EXPECT_CALL(*pState, SessionPrackDelivered(&objSession)).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
@@ -1639,7 +1639,7 @@ TEST_F(MtcCallTest, SessionPrackDeliveredCallsState)
 TEST_F(MtcCallTest, SessionPrackDeliveredFailsIfSessionIsNull)
 {
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionPRAckDelivered(_)).Times(0);
+    EXPECT_CALL(*pState, SessionPrackDelivered(_)).Times(0);
     EXPECT_CALL(*pState, OnInternalFailure).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
@@ -1652,7 +1652,7 @@ TEST_F(MtcCallTest, SessionPrackDeliveryFailedCallsState)
     MockISession objSession;
 
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionPRAckDeliveryFailed(&objSession)).Times(1);
+    EXPECT_CALL(*pState, SessionPrackDeliveryFailed(&objSession)).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
@@ -1662,7 +1662,7 @@ TEST_F(MtcCallTest, SessionPrackDeliveryFailedCallsState)
 TEST_F(MtcCallTest, SessionPrackDeliveryFailedFailsIfSessionIsNull)
 {
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionPRAckDeliveryFailed(_)).Times(0);
+    EXPECT_CALL(*pState, SessionPrackDeliveryFailed(_)).Times(0);
     EXPECT_CALL(*pState, OnInternalFailure).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
@@ -1675,7 +1675,7 @@ TEST_F(MtcCallTest, SessionPrackReceivedCallsState)
     MockISession objSession;
 
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionPRAckReceived(&objSession)).Times(1);
+    EXPECT_CALL(*pState, SessionPrackReceived(&objSession)).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
@@ -1685,7 +1685,7 @@ TEST_F(MtcCallTest, SessionPrackReceivedCallsState)
 TEST_F(MtcCallTest, SessionPrackReceivedFailsIfSessionIsNull)
 {
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionPRAckReceived(_)).Times(0);
+    EXPECT_CALL(*pState, SessionPrackReceived(_)).Times(0);
     EXPECT_CALL(*pState, OnInternalFailure).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
@@ -1724,7 +1724,7 @@ TEST_F(MtcCallTest, SessionRprDeliveryFailedCallsState)
     MockISession objSession;
 
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionRPRDeliveryFailed(&objSession)).Times(1);
+    EXPECT_CALL(*pState, SessionRprDeliveryFailed(&objSession)).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
@@ -1734,7 +1734,7 @@ TEST_F(MtcCallTest, SessionRprDeliveryFailedCallsState)
 TEST_F(MtcCallTest, SessionRprDeliveryFailedFailsIfSessionIsNull)
 {
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionRPRDeliveryFailed(_)).Times(0);
+    EXPECT_CALL(*pState, SessionRprDeliveryFailed(_)).Times(0);
     EXPECT_CALL(*pState, OnInternalFailure).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
@@ -1748,7 +1748,7 @@ TEST_F(MtcCallTest, SessionRprReceivedCallsState)
     IMS_UINT32 nIndex = 0;
 
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionRPRReceived(&objSession, nIndex)).Times(1);
+    EXPECT_CALL(*pState, SessionRprReceived(&objSession, nIndex)).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));
 
@@ -1760,7 +1760,7 @@ TEST_F(MtcCallTest, SessionRprReceivedFailsIfSessionIsNull)
     IMS_UINT32 nIndex = 0;
 
     MockIMtcCallState* pState = new MockIMtcCallState();
-    EXPECT_CALL(*pState, SessionRPRReceived(_, _)).Times(0);
+    EXPECT_CALL(*pState, SessionRprReceived(_, _)).Times(0);
     EXPECT_CALL(*pState, OnInternalFailure).Times(1);
 
     MtcCall objCall(objContext, objService, objCallInfo, std::move(CreateStateFactory(pState)));

@@ -50,8 +50,8 @@ public:
     CallStateName SessionEarlyMediaUpdated(IN ISession* piSession) override;
     CallStateName SessionEarlyMediaUpdateFailed(IN ISession* piSession) override;
     CallStateName SessionEarlyMediaUpdateReceived(IN ISession* piSession) override;
-    CallStateName SessionPRAckReceived(IN ISession* piSession) override;
-    CallStateName SessionRPRDeliveryFailed(IN ISession* piSession) override;
+    CallStateName SessionPrackReceived(IN ISession* piSession) override;
+    CallStateName SessionRprDeliveryFailed(IN ISession* piSession) override;
     CallStateName SessionStartFailed(IN ISession* piSession) override;
     CallStateName OnTimerExpired(IN IMS_SINT32 nType) override;
     CallStateName QosReserved(IN ISession* piSession, IN IMS_UINT32 eMediaType) override;

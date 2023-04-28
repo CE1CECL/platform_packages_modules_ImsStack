@@ -400,9 +400,9 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdateReceived(IN I
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckDelivered(IN ISession* piSession)
+PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackDelivered(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPRAckDelivered", 0, 0, 0);
+    IMS_TRACE_D("SessionPrackDelivered", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousResponse(IMessage::SESSION_PRACK);
     IMtcSession* pSession = m_objContext.GetSession(piSession);
     pSession->HandleResponse(ResponseType::PRACK_RESPONSE, *piMessage);
@@ -435,7 +435,7 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckDelivered(IN ISession* p
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckDeliveryFailed(IN ISession*)
+PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackDeliveryFailed(IN ISession*)
 {
     // TODO: send CANCEL.
     RecoverModificationFailure();
@@ -443,9 +443,9 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckDeliveryFailed(IN ISessi
     return CallStateName::ESTABLISHED;
 }
 
-PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckReceived(IN ISession* piSession)
+PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackReceived(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPRAckReceived", 0, 0, 0);
+    IMS_TRACE_D("SessionPrackReceived", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_PRACK);
     IMtcSession* pSession = m_objContext.GetSession(piSession);
     pSession->HandleRequest(RequestType::PRACK, *piMessage);
@@ -471,9 +471,9 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionPRAckReceived(IN ISession* pi
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName UpdatingState::SessionRPRDeliveryFailed(IN ISession*)
+PUBLIC VIRTUAL CallStateName UpdatingState::SessionRprDeliveryFailed(IN ISession*)
 {
-    IMS_TRACE_D("SessionRPRDeliveryFailed", 0, 0, 0);
+    IMS_TRACE_D("SessionRprDeliveryFailed", 0, 0, 0);
 
     // TODO: send CANCEL.
     RecoverModificationFailure();
@@ -481,10 +481,10 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionRPRDeliveryFailed(IN ISession
     return CallStateName::ESTABLISHED;
 }
 
-PUBLIC VIRTUAL CallStateName UpdatingState::SessionRPRReceived(
+PUBLIC VIRTUAL CallStateName UpdatingState::SessionRprReceived(
         IN ISession* piSession, IN IMS_UINT32 nIndex)
 {
-    IMS_TRACE_D("SessionRPRReceived", 0, 0, 0);
+    IMS_TRACE_D("SessionRprReceived", 0, 0, 0);
     IMessage* piMessage = m_objContext.GetMessageUtils().GetPreviousResponse(
             piSession, IMessage::SESSION_UPDATE, nIndex);
     IMtcSession* pSession = m_objContext.GetSession(piSession);

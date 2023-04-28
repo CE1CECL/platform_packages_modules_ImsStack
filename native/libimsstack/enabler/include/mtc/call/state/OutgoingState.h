@@ -51,11 +51,11 @@ public:
     CallStateName SessionEarlyMediaUpdateReceived(IN ISession* piSession) override;
     CallStateName SessionForkedResponseReceived(
             IN ISession* piSession, IN ISession* piForkedSession) override;
-    CallStateName SessionPRAckDelivered(IN ISession* piSession) override;
-    CallStateName SessionPRAckDeliveryFailed(IN ISession* piSession) override;
+    CallStateName SessionPrackDelivered(IN ISession* piSession) override;
+    CallStateName SessionPrackDeliveryFailed(IN ISession* piSession) override;
     CallStateName SessionProvisionalResponseReceived(
             IN ISession* piSession, IN IMS_UINT32 nIndex) override;
-    CallStateName SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
+    CallStateName SessionRprReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) override;
     CallStateName OnTimerExpired(IN IMS_SINT32 nType) override;
 
     CallStateName UssiStarted(IN ISession* piSession) override;

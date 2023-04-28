@@ -855,7 +855,7 @@ PUBLIC VIRTUAL void MtcCall::SessionForkedResponseReceived(
 
 PUBLIC VIRTUAL void MtcCall::SessionPrackDelivered(IN ISession* piSession)
 {
-    IMS_TRACE_I("SessionPRAckDelivered : key[%d]", m_nKey, 0, 0);
+    IMS_TRACE_I("SessionPrackDelivered : key[%d]", m_nKey, 0, 0);
 
     if (piSession == IMS_NULL)
     {
@@ -866,13 +866,13 @@ PUBLIC VIRTUAL void MtcCall::SessionPrackDelivered(IN ISession* piSession)
     m_objStateMachine.RunStateOperation(
             [&](IMtcCallState* pState)
             {
-                return pState->SessionPRAckDelivered(piSession);
+                return pState->SessionPrackDelivered(piSession);
             });
 }
 
 PUBLIC VIRTUAL void MtcCall::SessionPrackDeliveryFailed(IN ISession* piSession)
 {
-    IMS_TRACE_I("SessionPRAckDeliveryFailed : key[%d]", m_nKey, 0, 0);
+    IMS_TRACE_I("SessionPrackDeliveryFailed : key[%d]", m_nKey, 0, 0);
 
     if (piSession == IMS_NULL)
     {
@@ -883,13 +883,13 @@ PUBLIC VIRTUAL void MtcCall::SessionPrackDeliveryFailed(IN ISession* piSession)
     m_objStateMachine.RunStateOperation(
             [&](IMtcCallState* pState)
             {
-                return pState->SessionPRAckDeliveryFailed(piSession);
+                return pState->SessionPrackDeliveryFailed(piSession);
             });
 }
 
 PUBLIC VIRTUAL void MtcCall::SessionPrackReceived(IN ISession* piSession)
 {
-    IMS_TRACE_I("SessionPRAckReceived : key[%d]", m_nKey, 0, 0);
+    IMS_TRACE_I("SessionPrackReceived : key[%d]", m_nKey, 0, 0);
 
     if (piSession == IMS_NULL)
     {
@@ -900,7 +900,7 @@ PUBLIC VIRTUAL void MtcCall::SessionPrackReceived(IN ISession* piSession)
     m_objStateMachine.RunStateOperation(
             [&](IMtcCallState* pState)
             {
-                return pState->SessionPRAckReceived(piSession);
+                return pState->SessionPrackReceived(piSession);
             });
 }
 
@@ -924,7 +924,7 @@ PUBLIC VIRTUAL void MtcCall::SessionProvisionalResponseReceived(
 
 PUBLIC VIRTUAL void MtcCall::SessionRprDeliveryFailed(IN ISession* piSession)
 {
-    IMS_TRACE_I("SessionRPRDeliveryFailed : key[%d]", m_nKey, 0, 0);
+    IMS_TRACE_I("SessionRprDeliveryFailed : key[%d]", m_nKey, 0, 0);
 
     if (piSession == IMS_NULL)
     {
@@ -935,13 +935,13 @@ PUBLIC VIRTUAL void MtcCall::SessionRprDeliveryFailed(IN ISession* piSession)
     m_objStateMachine.RunStateOperation(
             [&](IMtcCallState* pState)
             {
-                return pState->SessionRPRDeliveryFailed(piSession);
+                return pState->SessionRprDeliveryFailed(piSession);
             });
 }
 
 PUBLIC VIRTUAL void MtcCall::SessionRprReceived(IN ISession* piSession, IN IMS_UINT32 nIndex)
 {
-    IMS_TRACE_I("SessionRPRReceived : key[%d]", m_nKey, 0, 0);
+    IMS_TRACE_I("SessionRprReceived : key[%d]", m_nKey, 0, 0);
 
     if (piSession == IMS_NULL)
     {
@@ -952,7 +952,7 @@ PUBLIC VIRTUAL void MtcCall::SessionRprReceived(IN ISession* piSession, IN IMS_U
     m_objStateMachine.RunStateOperation(
             [&](IMtcCallState* pState)
             {
-                return pState->SessionRPRReceived(piSession, nIndex);
+                return pState->SessionRprReceived(piSession, nIndex);
             });
 }
 

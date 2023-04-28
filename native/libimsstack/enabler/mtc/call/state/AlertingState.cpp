@@ -277,9 +277,9 @@ PUBLIC VIRTUAL CallStateName AlertingState::SessionEarlyMediaUpdateReceived(IN I
     return CallStateName::ALERTING;
 }
 
-PUBLIC VIRTUAL CallStateName AlertingState::SessionPRAckReceived(IN ISession* piSession)
+PUBLIC VIRTUAL CallStateName AlertingState::SessionPrackReceived(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPRAckReceived", 0, 0, 0);
+    IMS_TRACE_D("SessionPrackReceived", 0, 0, 0);
     // FIXME: It's same as IncomingState except QoS check and UI notifying
 
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_PRACK);
@@ -301,9 +301,9 @@ PUBLIC VIRTUAL CallStateName AlertingState::SessionPRAckReceived(IN ISession* pi
     return CallStateName::ALERTING;
 }
 
-PUBLIC VIRTUAL CallStateName AlertingState::SessionRPRDeliveryFailed(IN ISession* /* piSession*/)
+PUBLIC VIRTUAL CallStateName AlertingState::SessionRprDeliveryFailed(IN ISession* /* piSession*/)
 {
-    IMS_TRACE_D("SessionRPRDeliveryFailed", 0, 0, 0);
+    IMS_TRACE_D("SessionRprDeliveryFailed", 0, 0, 0);
     return RejectIncomingAndToTerminating(
             CallReasonInfo(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_PRACK));
 }

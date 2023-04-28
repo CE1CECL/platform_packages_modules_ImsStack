@@ -364,7 +364,7 @@ TEST_F(AlertingStateTest, SessionEarlyMediaUpdateReceivedInvokesRespondToEarlyUp
             CallStateName::ALERTING, pAlertingState->SessionEarlyMediaUpdateReceived(&objISession));
 }
 
-TEST_F(AlertingStateTest, SessionPRAckReceivedInvokesRespondToPrack)
+TEST_F(AlertingStateTest, SessionPrackReceivedInvokesRespondToPrack)
 {
     ON_CALL(objISession, GetPreviousRequest(IMessage::SESSION_PRACK))
             .WillByDefault(Return(&objIMessage));
@@ -373,7 +373,7 @@ TEST_F(AlertingStateTest, SessionPRAckReceivedInvokesRespondToPrack)
             .WillByDefault(Return(NegotiationState::STATE_NEGOTIATED));
 
     EXPECT_CALL(objMtcSession, RespondToPrack(SipStatusCode::SC_200)).Times(1);
-    EXPECT_EQ(CallStateName::ALERTING, pAlertingState->SessionPRAckReceived(&objISession));
+    EXPECT_EQ(CallStateName::ALERTING, pAlertingState->SessionPrackReceived(&objISession));
 
     // RespondToPrack fails
     EXPECT_CALL(objMtcSession, RespondToPrack(SipStatusCode::SC_200))
@@ -382,10 +382,10 @@ TEST_F(AlertingStateTest, SessionPRAckReceivedInvokesRespondToPrack)
     const CallReasonInfo objReason(CODE_REJECT_INTERNAL_ERROR);
     EXPECT_CALL(objMtcSession, Reject(objReason));
     EXPECT_CALL(objUiNotifier, SendStartFailed(objReason));
-    EXPECT_EQ(CallStateName::TERMINATING, pAlertingState->SessionPRAckReceived(&objISession));
+    EXPECT_EQ(CallStateName::TERMINATING, pAlertingState->SessionPrackReceived(&objISession));
 }
 
-TEST_F(AlertingStateTest, SessionPRAckReceivedInvokesRejectIncomingIfOfferAnswerFails)
+TEST_F(AlertingStateTest, SessionPrackReceivedInvokesRejectIncomingIfOfferAnswerFails)
 {
     ON_CALL(objISession, GetPreviousRequest(IMessage::SESSION_PRACK))
             .WillByDefault(Return(&objIMessage));
@@ -404,16 +404,16 @@ TEST_F(AlertingStateTest, SessionPRAckReceivedInvokesRejectIncomingIfOfferAnswer
     EXPECT_CALL(objMtcSession, RespondToPrack(SipStatusCode::SC_200));
     EXPECT_CALL(objMtcSession, Reject(objReason));
     EXPECT_CALL(objUiNotifier, SendStartFailed(objReason));
-    EXPECT_EQ(CallStateName::TERMINATING, pAlertingState->SessionPRAckReceived(&objISession));
+    EXPECT_EQ(CallStateName::TERMINATING, pAlertingState->SessionPrackReceived(&objISession));
 }
 
-TEST_F(AlertingStateTest, SessionRPRDeliveryFailedRejectsIncomingCall)
+TEST_F(AlertingStateTest, SessionRprDeliveryFailedRejectsIncomingCall)
 {
     const CallReasonInfo objReason(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_PRACK);
     EXPECT_CALL(objMtcSession, Reject(objReason));
     EXPECT_CALL(objUiNotifier, SendStartFailed(objReason));
 
-    EXPECT_EQ(CallStateName::TERMINATING, pAlertingState->SessionRPRDeliveryFailed(&objISession));
+    EXPECT_EQ(CallStateName::TERMINATING, pAlertingState->SessionRprDeliveryFailed(&objISession));
 }
 
 TEST_F(AlertingStateTest, AcceptUssiInvokesAccept)

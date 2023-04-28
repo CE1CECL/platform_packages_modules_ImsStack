@@ -317,19 +317,19 @@ TEST_F(MtcCallStateTest, SessionForkedResponseReceivedDoesNothing)
             INITIAL_CALL_STATE, pState->SessionForkedResponseReceived(&objISession, &objISession));
 }
 
-TEST_F(MtcCallStateTest, SessionPRAckDeliveredDoesNothing)
+TEST_F(MtcCallStateTest, SessionPrackDeliveredDoesNothing)
 {
-    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionPRAckDelivered(&objISession));
+    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionPrackDelivered(&objISession));
 }
 
-TEST_F(MtcCallStateTest, SessionPRAckDeliveryFailedDoesNothing)
+TEST_F(MtcCallStateTest, SessionPrackDeliveryFailedDoesNothing)
 {
-    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionPRAckDeliveryFailed(&objISession));
+    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionPrackDeliveryFailed(&objISession));
 }
 
-TEST_F(MtcCallStateTest, SessionPRAckReceivedDoesNothing)
+TEST_F(MtcCallStateTest, SessionPrackReceivedDoesNothing)
 {
-    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionPRAckReceived(&objISession));
+    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionPrackReceived(&objISession));
 }
 
 TEST_F(MtcCallStateTest, SessionProvisionalResponseReceivedDoesNothing)
@@ -337,14 +337,14 @@ TEST_F(MtcCallStateTest, SessionProvisionalResponseReceivedDoesNothing)
     EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionProvisionalResponseReceived(&objISession, 0));
 }
 
-TEST_F(MtcCallStateTest, SessionRPRDeliveryFailedDoesNothing)
+TEST_F(MtcCallStateTest, SessionRprDeliveryFailedDoesNothing)
 {
-    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionRPRDeliveryFailed(&objISession));
+    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionRprDeliveryFailed(&objISession));
 }
 
-TEST_F(MtcCallStateTest, SessionRPRReceivedDoesNothing)
+TEST_F(MtcCallStateTest, SessionRprReceivedDoesNothing)
 {
-    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionRPRReceived(&objISession, 0));
+    EXPECT_EQ(INITIAL_CALL_STATE, pState->SessionRprReceived(&objISession, 0));
 }
 
 TEST_F(MtcCallStateTest, SessionTransactionReceivedDoesNothing)

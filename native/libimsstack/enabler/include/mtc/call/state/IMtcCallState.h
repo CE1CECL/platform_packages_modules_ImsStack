@@ -417,7 +417,7 @@ public:
      * @param piSession
      * @return
      */
-    virtual CallStateName SessionPRAckDelivered(IN ISession* piSession) = 0;
+    virtual CallStateName SessionPrackDelivered(IN ISession* piSession) = 0;
 
     /**
      * @brief Sessions
@@ -425,7 +425,7 @@ public:
      * @param piSession
      * @return
      */
-    virtual CallStateName SessionPRAckDeliveryFailed(IN ISession* piSession) = 0;
+    virtual CallStateName SessionPrackDeliveryFailed(IN ISession* piSession) = 0;
 
     /**
      * @brief Sessions
@@ -433,7 +433,7 @@ public:
      * @param piSession
      * @return
      */
-    virtual CallStateName SessionPRAckReceived(IN ISession* piSession) = 0;
+    virtual CallStateName SessionPrackReceived(IN ISession* piSession) = 0;
 
     /**
      * @brief Sessions
@@ -451,7 +451,7 @@ public:
      * @param piSession
      * @return
      */
-    virtual CallStateName SessionRPRDeliveryFailed(IN ISession* piSession) = 0;
+    virtual CallStateName SessionRprDeliveryFailed(IN ISession* piSession) = 0;
 
     /**
      * @brief Sessions
@@ -460,7 +460,7 @@ public:
      * @param nIndex
      * @return
      */
-    virtual CallStateName SessionRPRReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) = 0;
+    virtual CallStateName SessionRprReceived(IN ISession* piSession, IN IMS_UINT32 nIndex) = 0;
 
     /**
      * @brief Sessions
