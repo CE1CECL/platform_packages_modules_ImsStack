@@ -107,15 +107,18 @@ public class MergeProxyTest extends ImsStackTest {
         mMtcCallListenerProxy = mMergeProxy.getMtcCallListener();
         mMtcConferencelistenerProxy = mMergeProxy.getMtcConferenceListener();
         mFailInfo = new CallReasonInfo();
+        mockCarrierConfig();
     }
 
     @After
     public void tearDown()throws Exception {
         super.tearDown();
+        int slotId = 0;
         mMergeProxy = null;
         mFailInfo = null;
         mMtcCallListenerProxy = null;
         mMtcConferencelistenerProxy = null;
+        AgentFactory.getInstance().setAgent(ConfigInterface.class, null, slotId);
     }
 
     @Test
@@ -194,6 +197,9 @@ public class MergeProxyTest extends ImsStackTest {
         verify(mMockMtcConferencelistenerProxy).onCallMergeFailed(mtcConferenceFg, mFailInfo);
 
         //NotifySessionMergeStarted and NotifySessionMerged()
+        when(mMockCarrierConfig.getBoolean(
+                CarrierConfig.Assets.KEY_CALL_MERGEABLE_ON_CONFERENCE_ON_HOLD_BOOL))
+                .thenReturn(false);
         mMtcConferencelistenerProxy.onCallMerged(mMockMtcConference, mMockCallInfo, mMockMediaInfo,
                 mMockSuppInfo, mMockUsersInfo);
         processAllMessages();
@@ -249,7 +255,6 @@ public class MergeProxyTest extends ImsStackTest {
         assertTrue(mIsHoldCalled);
         mIsHoldCalled = false;
 
-        mockCarrierConfig();
         when(mMockCarrierConfig.getBoolean(
                 CarrierConfig.Assets.KEY_CALL_MERGEABLE_ON_CONFERENCE_ON_HOLD_BOOL))
                 .thenReturn(false)
@@ -273,7 +278,6 @@ public class MergeProxyTest extends ImsStackTest {
 
         mMockMtcCall = null;
         assertFalse(mMergeProxy.startInternal(true));
-        AgentFactory.getInstance().setAgent(ConfigInterface.class, null, slotId);
     }
 
     private void mockCarrierConfig() {
