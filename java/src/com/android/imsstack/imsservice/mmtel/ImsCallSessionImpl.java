@@ -4846,7 +4846,13 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                     // CALL_CONNECTION_ID
                     log("Peer participant of conference host dropped");
                     setCallConnectionId(0);
-                    closeSession();
+                    /* When foreground session is disconnected by user, close it with delay while
+                     * {@link#onCallMerged} is in progress. So when {@link#invokeMergeComplete}
+                     * is called followed by {@link#notifyCallSessionConferenceStateUpdated}
+                     * foreground session callback will be available to update it to framework.
+                     */
+                    mCallSession.mCallDetails.set(CallDetails.CLOSE_PENDING);
+                    mCallSession.closeSessionWithDelay(mCallSession, 500);
                 }
             }
         }
@@ -5053,11 +5059,10 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 updateConferenceSession(ImsCallSessionImpl.this, transientConfSession,
                         usersInfo, conferenceParticipants);
 
-                mCallback.invokeMergeComplete(ImsCallSessionImpl.this, transientConfSession);
-
                 logi("Conference participants notified in initial merge");
                 notifyCallSessionConferenceStateUpdated(
                         transientConfSession.getMtcCall().getCallId());
+                mCallback.invokeMergeComplete(ImsCallSessionImpl.this, transientConfSession);
             } else if (mCall.isConference()) {
                 updateCallProfile(callInfo, mediaInfo);
                 mCallback.invokeMergeComplete(ImsCallSessionImpl.this, null);
