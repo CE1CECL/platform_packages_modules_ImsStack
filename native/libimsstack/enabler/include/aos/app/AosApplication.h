@@ -116,7 +116,7 @@ protected:
     IMS_BOOL IsRegTypeNormal() const;
     IMS_BOOL IsRegStateUpdatedByNrLteRatChange() const;
     IMS_BOOL IsPdnDisconnectRequired() const;
-    IMS_BOOL IsPlmnBlockWithTimeoutRequired() const;
+    IMS_BOOL IsPlmnBlockRequired() const;
 
     // Create
     virtual void CreateAosCondition();
@@ -229,7 +229,7 @@ protected:
     virtual void ProcessPdnBlockWithTime();
 
     virtual void ProcessImsEstablishmentStart();
-    virtual void ProcessPlmnBlockWithTimeout();
+    virtual void ProcessPlmnBlock(IN AosReasonCode eReason);
 
     // Report to Handle
     virtual void Report_StateChanged(IN IMS_BOOL bIsStateChecked = IMS_TRUE);
