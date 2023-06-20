@@ -95,15 +95,11 @@ PUBLIC IMS_BOOL TextMediaSession::UpdateRtpConfig(
     {
         switch (pNegoProfile->eDirection)
         {
-            case MEDIA_DIRECTION_RECEIVE:
-                nTextDirection = RtpConfig::MEDIA_DIRECTION_RECEIVE_ONLY;
-                break;
-            case MEDIA_DIRECTION_SEND:
-                nTextDirection = RtpConfig::MEDIA_DIRECTION_SEND_ONLY;
-                break;
             case MEDIA_DIRECTION_SEND_RECEIVE:
                 nTextDirection = RtpConfig::MEDIA_DIRECTION_SEND_RECEIVE;
                 break;
+            case MEDIA_DIRECTION_RECEIVE:  // FALL-THROUGH
+            case MEDIA_DIRECTION_SEND:     // FALL-THROUGH
             case MEDIA_DIRECTION_INACTIVE:
                 nTextDirection = RtpConfig::MEDIA_DIRECTION_INACTIVE;
                 break;
