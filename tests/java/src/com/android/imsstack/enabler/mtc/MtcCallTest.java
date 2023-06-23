@@ -44,6 +44,7 @@ import com.android.imsstack.enabler.media.MediaTestUtils;
 import com.android.imsstack.enabler.mtc.conf.UsersInfo;
 import com.android.imsstack.jni.JniImsListener;
 import com.android.imsstack.util.ImsArgs;
+import com.android.imsstack.util.ImsLog;
 
 import org.junit.After;
 import org.junit.Before;
@@ -144,6 +145,8 @@ public class MtcCallTest extends ImsStackTest {
                 mMtcConference, mMtcMediaSession, mTestMtcJniProxy, mCallInfo, mMediaInfo);
         mTestMtcCallWithMockJniProxy = new TestMtcCall(mBaseContext, mCT, 0, "", Looper.myLooper(),
                 mMtcConference, mMtcMediaSession, mMtcJniProxy, mCallInfo, mMediaInfo);
+
+        ImsLog.setDebugOn(true);
     }
 
     @After
