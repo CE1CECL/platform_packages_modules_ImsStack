@@ -22,7 +22,6 @@ import android.os.Message;
 import android.os.Parcel;
 import android.telephony.emergency.EmergencyNumber.EmergencyCallRouting;
 
-import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.NativeStateInterface;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.enabler.mtc.externalcalls.ExternalCalls;
@@ -156,8 +155,7 @@ public class MtcApp implements Closeable {
         }
 
         if (mNativeStateListener != null) {
-            NativeStateInterface nsi = AgentFactory.getInstance().getAgent(
-                    NativeStateInterface.class, mContext.getSlotId());
+            NativeStateInterface nsi = mContext.getNativeStateInterface();
             if (nsi != null) {
                 nsi.removeListener(mNativeStateListener);
             }
@@ -270,8 +268,7 @@ public class MtcApp implements Closeable {
         initializeState();
 
         if (mNativeStateListener != null) {
-            NativeStateInterface nsi = AgentFactory.getInstance().getAgent(
-                    NativeStateInterface.class, mContext.getSlotId());
+            NativeStateInterface nsi = mContext.getNativeStateInterface();
             if (nsi != null) {
                 nsi.removeListener(mNativeStateListener);
             }

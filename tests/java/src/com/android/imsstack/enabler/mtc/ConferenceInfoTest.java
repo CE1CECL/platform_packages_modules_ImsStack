@@ -25,6 +25,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.android.imsstack.util.ImsLog;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +67,8 @@ public class ConferenceInfoTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         mTestConferenceInfo = new ConferenceInfo(mCcid);
+
+        ImsLog.setDebugOn(true);
     }
 
     @After

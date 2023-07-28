@@ -18,6 +18,9 @@ package com.android.imsstack.enabler.mtc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -66,6 +69,7 @@ public class MtcAppTest extends ImsStackTest {
     @Mock private MtcCall mMtcCall;
     @Mock private Executor mExecutor;
     @Captor ArgumentCaptor<ImsStackRegistry.ImsServiceListener> mImsServiceListenerCaptor;
+    @Captor ArgumentCaptor<NativeStateInterface.Listener> mNativeStateListenerCaptor;
     int mCommand;
 
     private TestMtcJniProxy mTestMtcJniProxy;
@@ -135,7 +139,6 @@ public class MtcAppTest extends ImsStackTest {
 
     @After
     public void tearDown() throws Exception {
-        mTestMtcApp.clear();
         mTestMtcApp = null;
         mTestMtcJniProxy = null;
         AppContext.deinit();
@@ -143,7 +146,7 @@ public class MtcAppTest extends ImsStackTest {
     }
 
     @Test
-    public void testInit() {
+    public void testInitWithNativeServiceIsReady() {
         doReturn(0).when(mBaseContext).getSlotId();
         doReturn(true).when(mBaseContext).isImsServiceStarted();
         doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
@@ -156,6 +159,45 @@ public class MtcAppTest extends ImsStackTest {
         verify(mCM, times(1)).init();
         verify(mBaseContext, times(1)).addImsServiceListener(any());
         verify(mEmergencyServiceManager, times(1)).init();
+        verify(mEmergencyServiceManager, times(1)).setNativeObject(anyLong());
+
+        processAllMessages();
+
+        assertEquals(IUMtcService.SET_TERMINAL_BASED_CALL_WAITING, mCommand);
+        assertTrue(mTestMtcApp.isServiceValid());
+    }
+
+    @Test
+    public void testInitWithNativeServiceIsNotReadyAndFinallyReady() {
+        doReturn(0).when(mBaseContext).getSlotId();
+        doReturn(true).when(mBaseContext).isImsServiceStarted();
+        doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
+        doReturn(false).when(mNativeStateInterface).isServiceReady();
+
+        assertFalse(mTestMtcApp.isServiceValid());
+
+        mTestMtcApp.init();
+
+        verify(mCM, times(1)).init();
+        verify(mBaseContext, times(1)).addImsServiceListener(any());
+        verify(mEmergencyServiceManager, times(1)).init();
+        verify(mNativeStateInterface, times(1)).addListener(mNativeStateListenerCaptor.capture());
+
+        mTestMtcApp.init();
+
+        verify(mNativeStateInterface, times(1)).removeListener(
+                any(NativeStateInterface.Listener.class));
+        verify(mNativeStateInterface, times(2)).addListener(
+                any(NativeStateInterface.Listener.class));
+
+
+        assertFalse(mTestMtcApp.isServiceValid());
+
+        doReturn(true).when(mNativeStateInterface).isServiceReady();
+        mNativeStateListenerCaptor.getValue().onNativeServiceReady();
+
+        verify(mNativeStateInterface, times(2)).removeListener(
+                any(NativeStateInterface.Listener.class));
         verify(mEmergencyServiceManager, times(1)).setNativeObject(anyLong());
 
         processAllMessages();
@@ -205,39 +247,53 @@ public class MtcAppTest extends ImsStackTest {
     }
 
     @Test
-    public void testClearWithNativeObj() {
+    public void testClearWithoutNativeObj() {
         assertFalse(mTestMtcApp.isServiceValid());
+
+        doReturn(0).when(mBaseContext).getSlotId();
+        doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
+        doReturn(true).when(mBaseContext).isImsServiceStarted();
+        doReturn(false).when(mNativeStateInterface).isServiceReady();
+        mTestMtcApp.init();
 
         mTestMtcApp.clear();
 
         verify(mEmergencyServiceManager, times(0)).setNativeObject(anyLong());
-
-        verify(mBaseContext, times(1)).removeImsServiceListener(any());
         verify(mEmergencyServiceManager, times(1)).clear();
         verify(mBaseContext, times(1)).removeImsServiceListener(any());
         verify(mCM, times(1)).clear();
+        verify(mNativeStateInterface, times(1)).removeListener(
+                any(NativeStateInterface.Listener.class));
 
         assertFalse(mTestMtcApp.isServiceValid());
     }
 
     @Test
-    public void testClearWithoutNativeObj() {
-        mTestMtcApp.setNativeObj(1);
-        mTestMtcApp.getMmtelFeatureListener();
+    public void testClearWithNativeObj() {
+        doReturn(0).when(mBaseContext).getSlotId();
+        doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
+        doReturn(true).when(mBaseContext).isImsServiceStarted();
+        doReturn(true).when(mNativeStateInterface).isServiceReady();
+        mTestMtcApp.init();
 
         assertTrue(mTestMtcApp.isServiceValid());
 
         mTestMtcApp.clear();
 
-        verify(mEmergencyServiceManager, times(1)).setNativeObject(anyLong());
-
+        verify(mEmergencyServiceManager, times(1)).setNativeObject(0);
         verify(mBaseContext, times(1)).removeImsServiceListener(any());
         verify(mEmergencyServiceManager, times(1)).clear();
-        verify(mBaseContext, times(1)).removeImsServiceListener(any());
         verify(mCM, times(1)).clear();
+        verify(mNativeStateInterface, times(0)).removeListener(
+                any(NativeStateInterface.Listener.class));
 
         assertEquals(null, mTestMtcApp.mMmtelFeatureListener);
         assertFalse(mTestMtcApp.isServiceValid());
+    }
+
+    @Test
+    public void testGetCallManager() {
+        assertEquals(mCM, mTestMtcApp.getCallManager());
     }
 
     @Test
@@ -251,23 +307,33 @@ public class MtcAppTest extends ImsStackTest {
     }
 
     @Test
-    public void testCreateCall() {
+    public void testcreateMtcCallAndAttachWithoutJniService() {
+        assertFalse(mTestMtcApp.isServiceValid());
+
+        doReturn(0).when(mBaseContext).getSlotId();
+        doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
+        doReturn(true).when(mBaseContext).isImsServiceStarted();
+        doReturn(false).when(mNativeStateInterface).isServiceReady();
+
+        assertNull(mTestMtcApp.createMtcCallAndAttach(0));
+    }
+
+    @Test
+    public void testcreateMtcCallAndAttachWithJniService() {
+        assertFalse(mTestMtcApp.isServiceValid());
+
         mTestMtcApp.setNativeObj(1);
-
-        assertTrue(mTestMtcApp.isServiceValid());
-
         doReturn(true).when(mMtcCall).isMO();
+
         mTestMtcApp.createMtcCallAndAttach(0);
 
+        assertTrue(mTestMtcApp.isServiceValid());
         verify(mCM, times(1)).attachCall(any(MtcCall.class));
 
         doReturn(false).when(mMtcCall).isMO();
         mTestMtcApp.createMtcCallAndAttach(0);
 
         verify(mCM, times(1)).attachPreIncomingCall(any(MtcCall.class));
-
-        int sessionAttributes = MtcCall.FLAG_EMERGENCY;
-        mTestMtcApp.createMtcCallAndAttach(sessionAttributes);
     }
 
     @Test
@@ -277,7 +343,14 @@ public class MtcAppTest extends ImsStackTest {
     }
 
     @Test
+    public void testCreateMtcCall() {
+        assertNotNull(mTestMtcApp.createMtcCall(0));
+    }
+
+    @Test
     public void testGetPendingCall() {
+        assertNull(mTestMtcApp.getPendingCall(1));
+
         doReturn(mMtcCall).when(mCM).getPendingCall(1);
         doReturn(false).when(mMtcCall).isTerminated();
 
@@ -295,17 +368,50 @@ public class MtcAppTest extends ImsStackTest {
     }
 
     @Test
-    public void testClose() {
+    public void testCloseWithNotBoundJniService() {
+        doReturn(0).when(mBaseContext).getSlotId();
+        doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
+        doReturn(true).when(mBaseContext).isImsServiceStarted();
+        doReturn(false).when(mNativeStateInterface).isServiceReady();
+        mTestMtcApp.init();
+
         mTestMtcApp.close();
+
+        verify(mEmergencyServiceManager, times(0)).setNativeObject(anyLong());
         verify(mCM, times(1)).dispose();
+        verify(mNativeStateInterface, times(1)).removeListener(
+                any(NativeStateInterface.Listener.class));
+    }
+
+    @Test
+    public void testCloseWithBoundJniService() {
+        doReturn(0).when(mBaseContext).getSlotId();
+        doReturn(mNativeStateInterface).when(mBaseContext).getNativeStateInterface();
+        doReturn(true).when(mBaseContext).isImsServiceStarted();
+        doReturn(true).when(mNativeStateInterface).isServiceReady();
+        mTestMtcApp.init();
+
+        verify(mEmergencyServiceManager, times(1)).setNativeObject(anyLong());
+
+        mTestMtcApp.close();
+
+        verify(mEmergencyServiceManager, times(2)).setNativeObject(anyLong());
+        verify(mCM, times(1)).dispose();
+        verify(mNativeStateInterface, times(0)).removeListener(
+                any(NativeStateInterface.Listener.class));
     }
 
     @Test
     public void testNotifySrvccStateChanged() {
+        MmTelFeatureRegistry.Listener mmtelFeatureListener = mTestMtcApp.getMmtelFeatureListener();
+        mmtelFeatureListener.onSrvccStateChanged(MmTelFeatureRegistry.SRVCC_STATE_STARTED);
+        processAllMessages();
+
+        assertNotEquals(IUMtcService.SRVCC_STATE_CHANGED, mCommand);
+
         mTestMtcApp.setNativeObj(1);
         assertTrue(mTestMtcApp.isServiceValid());
 
-        MmTelFeatureRegistry.Listener mmtelFeatureListener = mTestMtcApp.getMmtelFeatureListener();
         mmtelFeatureListener.onSrvccStateChanged(MmTelFeatureRegistry.SRVCC_STATE_STARTED);
         processAllMessages();
 
@@ -314,10 +420,15 @@ public class MtcAppTest extends ImsStackTest {
 
     @Test
     public void testSetTerminalBasedCallWaiting() {
+        MmTelFeatureRegistry.Listener mmtelFeatureListener = mTestMtcApp.getMmtelFeatureListener();
+        mmtelFeatureListener.onTerminalBasedCallWaitingStatusChanged();
+        processAllMessages();
+
+        assertNotEquals(IUMtcService.SET_TERMINAL_BASED_CALL_WAITING, mCommand);
+
         mTestMtcApp.setNativeObj(1);
         assertTrue(mTestMtcApp.isServiceValid());
 
-        MmTelFeatureRegistry.Listener mmtelFeatureListener = mTestMtcApp.getMmtelFeatureListener();
         mmtelFeatureListener.onTerminalBasedCallWaitingStatusChanged();
         processAllMessages();
 

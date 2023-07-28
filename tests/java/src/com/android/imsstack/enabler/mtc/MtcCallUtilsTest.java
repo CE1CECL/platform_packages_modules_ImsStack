@@ -25,6 +25,7 @@ import com.android.imsstack.enabler.mtc.conf.UsersInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class MtcCallUtilsTest {
@@ -251,6 +252,7 @@ public class MtcCallUtilsTest {
     @Test
     public void testIsLocalHoldToneEnforced() {
         SuppInfo suppInfo = new SuppInfo();
+        suppInfo.addService_bool(SuppInfo.TYPE_VM, true);
 
         assertFalse(MtcCallUtils.isLocalHoldToneEnforced(suppInfo));
 
@@ -272,6 +274,30 @@ public class MtcCallUtilsTest {
     }
 
     @Test
+    public void testisSuppInfoBoolean() {
+        MtcCall call = Mockito.mock(MtcCall.class);
+
+        assertFalse(MtcCallUtils.isSuppInfoBoolean(SuppInfo.TYPE_DUALNUMBER));
+        assertTrue(MtcCallUtils.isSuppInfoBoolean(SuppInfo.TYPE_ENFORCE_LT));
+    }
+
+    @Test
+    public void isSuppInfoInt() {
+        MtcCall call = Mockito.mock(MtcCall.class);
+
+        assertFalse(MtcCallUtils.isSuppInfoInt(SuppInfo.TYPE_DUALNUMBER));
+        assertTrue(MtcCallUtils.isSuppInfoInt(SuppInfo.TYPE_CALLING_NUM_VERIFICATION));
+    }
+
+    @Test
+    public void isSuppInfoString() {
+        MtcCall call = Mockito.mock(MtcCall.class);
+
+        assertFalse(MtcCallUtils.isSuppInfoString(SuppInfo.TYPE_GEOLOCATION));
+        assertTrue(MtcCallUtils.isSuppInfoString(SuppInfo.TYPE_DUALNUMBER));
+    }
+
+    @Test
     public void testReverseMediaDirection() {
         MediaInfo mediaInfo = new MediaInfo();
         mediaInfo.ADir = MediaInfo.DIRECTION_SEND_RECEIVE;
@@ -289,5 +315,13 @@ public class MtcCallUtilsTest {
 
         assertEquals(MediaInfo.DIRECTION_SEND, mediaInfo.ADir);
         assertEquals(MediaInfo.DIRECTION_SEND, mediaInfo.VDir);
+
+        mediaInfo.ADir = MediaInfo.DIRECTION_SEND;
+        mediaInfo.VDir = MediaInfo.DIRECTION_SEND;
+
+        MtcCallUtils.reverseMediaDirection(mediaInfo);
+
+        assertEquals(MediaInfo.DIRECTION_RECEIVE, mediaInfo.ADir);
+        assertEquals(MediaInfo.DIRECTION_RECEIVE, mediaInfo.VDir);
     }
 }
