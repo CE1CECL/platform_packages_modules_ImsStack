@@ -16,8 +16,6 @@
 package com.android.imsstack.system;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.os.Looper;
 import android.os.Parcel;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -131,11 +129,17 @@ public class SystemInterface implements JniSystemListener {
     private static SystemInterface sSystemInterface = null;
     private long mNativeObject = 0;
     private final SparseArray<ImsSystem> mSystems = new SparseArray<>(2);
-    private final MessageExecutor mDefaultExecutor =
-            new MessageExecutor(SystemInterface.class.getSimpleName());
+    private final MessageExecutor mDefaultExecutor;
     private DefaultSystemCallInterface mDefaultSystemCall;
 
-    private SystemInterface() {}
+    private SystemInterface() {
+        this(new MessageExecutor(SystemInterface.class.getSimpleName()));
+    }
+
+    @VisibleForTesting
+    protected SystemInterface(@NonNull MessageExecutor executor) {
+        mDefaultExecutor = executor;
+    }
 
     /**
      * Returns a singleton System interface.
@@ -181,23 +185,8 @@ public class SystemInterface implements JniSystemListener {
             JniImsProxy.releaseInterface(mNativeObject);
             mNativeObject = 0;
         }
-    }
 
-    /**
-     * Returns the executor's looper for testing.
-     */
-    @VisibleForTesting
-    protected @NonNull Looper getLooper() {
-        return mDefaultExecutor.getLooper();
-    }
-
-    /**
-     * Returns the {@link ISystem}'s looper for testing.
-     */
-    @VisibleForTesting
-    protected @Nullable Looper getLooperForSystem(int slotId) {
-        ImsSystem system = getSystemForSlot(slotId);
-        return (system != null) ? system.getLooper() : null;
+        mDefaultExecutor.removeCallbacksAndMessages(null);
     }
 
     private ImsSystem getSystemForSlot(int slotId) {
@@ -220,16 +209,18 @@ public class SystemInterface implements JniSystemListener {
      * Starts the {@link ISystem} object for the specified slot.
      *
      * @param slotId The slot id.
+     * @param executor The message executor.
      * @param mmTelFeatureRegistry The MmTel feature registry.
      */
     @VisibleForTesting
-    protected void start(int slotId, @NonNull MmTelFeatureRegistry mmTelFeatureRegistry) {
+    protected void start(int slotId, MessageExecutor executor,
+            @NonNull MmTelFeatureRegistry mmTelFeatureRegistry) {
         Objects.requireNonNull(mmTelFeatureRegistry, "mmTelFeatureRegistry must not be null");
         ImsLog.d(slotId, "ImsSystem" + slotId + " is started.");
         ImsSystem system = getSystemForSlot(slotId);
 
         if (system == null) {
-            system = new ImsSystem(slotId, mmTelFeatureRegistry);
+            system = new ImsSystem(slotId, executor, mmTelFeatureRegistry);
             synchronized (mSystems) {
                 mSystems.put(slotId, system);
             }
@@ -242,7 +233,7 @@ public class SystemInterface implements JniSystemListener {
      * @param slotId The slot id.
      */
     public void start(int slotId) {
-        start(slotId, ImsServiceRegistry.getInstance(slotId).getMmTelFeatureRegistry());
+        start(slotId, null, ImsServiceRegistry.getInstance(slotId).getMmTelFeatureRegistry());
     }
 
     /**
@@ -633,23 +624,16 @@ public class SystemInterface implements JniSystemListener {
         private final MmTelFeatureRegistry mMmTelFeatureRegistry;
         private SystemCallInterface mSystemCall;
 
-        ImsSystem(int slotId, MmTelFeatureRegistry mmTelFeatureRegistry) {
+        ImsSystem(int slotId, MessageExecutor executor, MmTelFeatureRegistry mmTelFeatureRegistry) {
             mSlotId = slotId;
-            mExecutor = new MessageExecutor("ImsSystem" + mSlotId);
+            mExecutor = (executor != null) ? executor : new MessageExecutor("ImsSystem" + mSlotId);
             mMmTelFeatureRegistry = mmTelFeatureRegistry;
             mMmTelFeatureRegistry.addListener(this);
         }
 
         public void dispose() {
             mMmTelFeatureRegistry.removeListener(this);
-        }
-
-        /**
-         * Returns the executor's looper for testing.
-         */
-        @VisibleForTesting
-        public @NonNull Looper getLooper() {
-            return mExecutor.getLooper();
+            mExecutor.removeCallbacksAndMessages(null);
         }
 
         @Override
@@ -1250,7 +1234,7 @@ public class SystemInterface implements JniSystemListener {
 
                     int length = (ipAddrs != null) ? ipAddrs.length : 0;
                     out.writeInt(length);
-                    for (int i = 0; i < ipAddrs.length; ++i) {
+                    for (int i = 0; i < length; ++i) {
                         out.writeString(ipAddrs[i]);
                     }
                     break;

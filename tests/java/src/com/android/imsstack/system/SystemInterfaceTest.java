@@ -35,12 +35,12 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.os.Parcel;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.telephony.ims.ImsMmTelManager;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.testing.TestableLooper;
 
 import com.android.imsstack.ContextFixture;
 import com.android.imsstack.core.agents.ImsRadioInterface;
@@ -52,6 +52,7 @@ import com.android.imsstack.core.agents.dcmif.EIpVersion;
 import com.android.imsstack.core.agents.dcmif.IApn;
 import com.android.imsstack.core.agents.dcmif.IDcUtils;
 import com.android.imsstack.core.config.CarrierConfig;
+import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
 import com.android.imsstack.internal.imsservice.MmTelFeatureRegistry;
 import com.android.imsstack.jni.JniIms;
 import com.android.imsstack.jni.JniImsProxy;
@@ -60,6 +61,7 @@ import com.android.imsstack.jni.JniSystemListener;
 import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsPrivateProperties;
 import com.android.imsstack.util.MSimUtils;
+import com.android.imsstack.util.MessageExecutor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -75,6 +77,17 @@ import java.util.List;
 
 @RunWith(JUnit4.class)
 public class SystemInterfaceTest {
+    private static class TestMessageExecutor extends MessageExecutor {
+        TestMessageExecutor(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void execute(Runnable r) {
+            r.run();
+        }
+    }
+
     private static final int SLOT0 = 0;
     private static final long NATIVE_OBJECT = 1L;
 
@@ -86,47 +99,42 @@ public class SystemInterfaceTest {
     @Mock private DefaultSystemCallInterface mDefaultSystemCall;
     @Mock private SystemCallInterface mSystemCall;
 
+    private MessageExecutor mMessageExecutor;
     private ContextFixture mContextFixture;
-    private TestableLooper mDefaultTestableLooper;
-    private TestableLooper mTestableLooper;
     private SystemInterface mSystemInterface;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        mMessageExecutor = new TestMessageExecutor(Looper.getMainLooper());
         mContextFixture = new ContextFixture();
         Context context = mContextFixture.getTestDouble();
         AppContext.init(context);
         when(mJniIms.getInterface(eq(JniObjectId.SYSTEM), eq(SLOT0))).thenReturn(NATIVE_OBJECT);
         JniImsProxy.setJniIms(mJniIms);
-        mSystemInterface = SystemInterface.getInstance();
+        mSystemInterface = new SystemInterface(mMessageExecutor);
+        SystemInterface.setSystemInterface(mSystemInterface);
     }
 
     @After
     public void tearDown() throws Exception {
-        if (mDefaultTestableLooper != null) {
-            mDefaultTestableLooper.destroy();
-            mDefaultTestableLooper = null;
-        }
-
-        if (mTestableLooper != null) {
-            mTestableLooper.destroy();
-            mTestableLooper = null;
-        }
-
         mSystemInterface.stop(SLOT0);
+        mSystemInterface.cleanup();
         SystemInterface.setSystemInterface(null);
         JniImsProxy.setJniIms(null);
-        AppContext.init(null);
+        AppContext.deinit();
 
         mSp = null;
         mSpEditor = null;
         mWifiInterface = null;
         mMmTelFeatureRegistry = null;
         mJniIms = null;
+        mDefaultSystemCall = null;
+        mSystemCall = null;
         mSystemInterface = null;
         mContextFixture = null;
+        mMessageExecutor = null;
     }
 
     @Test
@@ -185,11 +193,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyLowBatteryStateChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_POWER_LOW_BATTERY);
 
         mSystemInterface.notifyLowBatteryStateChanged();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -205,11 +212,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyLowBatteryState() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_POWER_LOW_BATTERY);
 
         mSystemInterface.notifyLowBatteryState();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -225,11 +231,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyLowBatteryStateForSlot() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_POWER_LOW_BATTERY);
 
         mSystemInterface.notifyLowBatteryState(SLOT0);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -245,11 +250,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyTimerExpired() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
 
         long tid = 1L;
         mSystemInterface.notifyTimerExpired(tid);
-        processAllMessages(mDefaultTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -264,11 +268,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyBatteryLevelChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
 
         int level = 5;
         mSystemInterface.notifyBatteryLevelChanged(level);
-        processAllMessages(mDefaultTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -283,11 +286,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyWifiStateChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
 
         int state = WifiInterface.STATE_ENABLED;
         mSystemInterface.notifyWifiStateChanged(state);
-        processAllMessages(mDefaultTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -302,11 +304,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyWifiConnectionStateChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
 
         int state = WifiInterface.CONNECTION_STATE_CONNECTED;
         mSystemInterface.notifyWifiConnectionStateChanged(state);
-        processAllMessages(mDefaultTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -321,12 +322,11 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyAirplaneModeChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int airplaneMode = 1;
         system.notifyAirplaneModeChanged(airplaneMode);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -341,11 +341,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyDataConnectionFailed() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         system.notifyDataConnectionFailed(EApnType.IMS.getType());
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -360,12 +359,11 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyDataConnectionIpcanChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         system.notifyDataConnectionIpcanChanged(
                 EApnType.IMS.getType(), IApn.IPCAN_CATEGORY_MOBILE);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -381,12 +379,11 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyDataConnectionStateChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         system.notifyDataConnectionStateChanged(
                 EApnType.IMS.getType(), TelephonyManager.DATA_CONNECTED);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -402,12 +399,11 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyNetworkTypeChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int networkType = 1;
         system.notifyNetworkTypeChanged(networkType);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -422,12 +418,11 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyVoiceNetworkTypeChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int networkType = 1;
         system.notifyVoiceNetworkTypeChanged(networkType);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -442,11 +437,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyServiceStateChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         system.notifyServiceStateChanged(ServiceState.STATE_IN_SERVICE);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -461,11 +455,10 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyVoiceCallStateChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         system.notifyVoiceCallStateChanged(TelephonyManager.CALL_STATE_OFFHOOK);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -480,12 +473,11 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyConfigurationChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int configs = 0;
         system.notifyConfigurationChanged(configs);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -500,7 +492,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyEvent() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         registerEvent(ImsEventDef.IMS_EVENT_VOLTE_SETTING);
@@ -508,7 +500,6 @@ public class SystemInterfaceTest {
         int param1 = 1;
         int param2 = 200;
         system.notifyEvent(event, param1, param2);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -524,7 +515,6 @@ public class SystemInterfaceTest {
         // sendDataForSystem will not be called.
         unregisterEvent(ImsEventDef.IMS_EVENT_VOLTE_SETTING);
         system.notifyEvent(event, param1, param2);
-        processAllMessages(mTestableLooper);
 
         // Expected: sendDataForSystem is called only once totally.
         verify(mJniIms).sendDataForSystem(anyLong(), any());
@@ -533,13 +523,12 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyIsimState() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 102;
         String state = "LOADED";
         system.notifyIsimState(event, state);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -555,7 +544,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyIsimFileAttributesResponse() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 103;
@@ -563,7 +552,6 @@ public class SystemInterfaceTest {
         int size = 1;
         String[] values = new String[] { "sip:1234@ims.com" };
         system.notifyIsimFileAttributesResponse(event, fileId, size, values);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -583,7 +571,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyIsimRecordResponse() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 104;
@@ -591,7 +579,6 @@ public class SystemInterfaceTest {
         int index = 0;
         String value = "sip:1234@ims.com";
         system.notifyIsimRecordResponse(event, fileId, index, value);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -609,14 +596,13 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyIsimAuthenticationResponse() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 105;
         String response = "2wiJcwlEJWIKiBAxNH/V4c5hU1tz7uOGFzKaEJ86XNgRATMNIe3uyjb0nToA";
         long owner = 1L;
         system.notifyIsimAuthenticationResponse(event, response, owner);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -633,14 +619,13 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyUsimAuthenticationResponse() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 106;
         String response = "2wiJcwlEJWIKiBAxNH/V4c5hU1tz7uOGFzKaEJ86XNgRATMNIe3uyjb0nToA";
         long owner = 1L;
         system.notifyUsimAuthenticationResponse(event, response, owner);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -657,7 +642,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyRadioConnectionFailed() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 1;
@@ -666,7 +651,6 @@ public class SystemInterfaceTest {
         int causeCode = 3;
         int waitTimeMillis = 3000;
         system.notifyRadioConnectionFailed(event, id, failureReason, causeCode, waitTimeMillis);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -685,13 +669,12 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifyRadioConnectionSetupPrepared() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 2;
         int id = 100;
         system.notifyRadioConnectionSetupPrepared(event, id);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -707,7 +690,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testNotifySsacInfo() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         ISystem system = setUpSystemWithLooper();
 
         int event = 3;
@@ -716,7 +699,6 @@ public class SystemInterfaceTest {
         int videoFactor = 95;
         int videoTimeSec = 300;
         system.notifySsacInfo(event, voiceFactor, voiceTimeSec, videoFactor, videoTimeSec);
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -735,13 +717,12 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testOnAdvancedCallingSettingChangedWhenEnabled() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_VOLTE_SETTING, mMmTelFeatureRegistry);
 
         when(mMmTelFeatureRegistry.isAdvancedCallingSettingEnabled()).thenReturn(true);
         MmTelFeatureRegistry.Listener listener = getMmTelFeatureRegistryListener();
         listener.onAdvancedCallingSettingChanged();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -757,13 +738,12 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testOnAdvancedCallingSettingChangedWhenDisabled() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_VOLTE_SETTING, mMmTelFeatureRegistry);
 
         when(mMmTelFeatureRegistry.isAdvancedCallingSettingEnabled()).thenReturn(false);
         MmTelFeatureRegistry.Listener listener = getMmTelFeatureRegistryListener();
         listener.onAdvancedCallingSettingChanged();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -779,7 +759,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testOnVoWiFiSettingChangedWhenEnabled() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_WFC_SETTING_CHANGED, mMmTelFeatureRegistry);
 
         when(mMmTelFeatureRegistry.isVoWiFiSettingEnabled()).thenReturn(true);
@@ -787,7 +767,6 @@ public class SystemInterfaceTest {
                 .thenReturn(ImsMmTelManager.WIFI_MODE_WIFI_PREFERRED);
         MmTelFeatureRegistry.Listener listener = getMmTelFeatureRegistryListener();
         listener.onVoWiFiSettingChanged();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -804,7 +783,7 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testOnVoWiFiSettingChangedWhenDisabled() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_WFC_SETTING_CHANGED, mMmTelFeatureRegistry);
 
         when(mMmTelFeatureRegistry.isVoWiFiSettingEnabled()).thenReturn(false);
@@ -812,7 +791,6 @@ public class SystemInterfaceTest {
                 .thenReturn(ImsMmTelManager.WIFI_MODE_WIFI_PREFERRED);
         MmTelFeatureRegistry.Listener listener = getMmTelFeatureRegistryListener();
         listener.onVoWiFiSettingChanged();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -829,14 +807,13 @@ public class SystemInterfaceTest {
     @Test
     @SmallTest
     public void testOnRttModeChanged() throws Exception {
-        setUpSystemInterfaceWithLooper();
+        setUpSystemInterface();
         setUpSystemWithLooper(ImsEventDef.IMS_EVENT_RTT_SETTING, mMmTelFeatureRegistry);
 
         int rttMode = 1;
         when(mMmTelFeatureRegistry.getRttMode()).thenReturn(rttMode);
         MmTelFeatureRegistry.Listener listener = getMmTelFeatureRegistryListener();
         listener.onRttModeChanged();
-        processAllMessages(mTestableLooper);
 
         Parcel data = getDataForSystem();
         try {
@@ -2794,36 +2771,27 @@ public class SystemInterfaceTest {
         when(mDefaultSystemCall.getWifiInterface()).thenReturn(mWifiInterface);
     }
 
-    private void setUpSystemInterfaceWithLooper() throws Exception {
-        mSystemInterface.init();
-        mSystemInterface.setSystemCallInterface(mDefaultSystemCall);
-        mDefaultTestableLooper = new TestableLooper(mSystemInterface.getLooper());
-    }
-
-    private void setUpSystem() {
-        mSystemInterface.start(SLOT0, mMmTelFeatureRegistry);
+    private ISystem setUpSystem() {
+        mSystemInterface.start(SLOT0, mMessageExecutor, mMmTelFeatureRegistry);
         ISystem system = mSystemInterface.getSystem(SLOT0);
         system.setSystemCallInterface(mSystemCall);
+        return system;
     }
 
-    private ISystem setUpSystemWithLooper() throws Exception {
-        return setUpSystemWithLooper(-1, null);
+    private ISystem setUpSystemWithLooper() {
+        return setUpSystemWithLooper(-1,
+                ImsServiceRegistry.getInstance(SLOT0).getMmTelFeatureRegistry());
     }
 
-    private ISystem setUpSystemWithLooper(int event) throws Exception {
-        return setUpSystemWithLooper(event, null);
+    private ISystem setUpSystemWithLooper(int event) {
+        return setUpSystemWithLooper(event,
+                ImsServiceRegistry.getInstance(SLOT0).getMmTelFeatureRegistry());
     }
 
-    private ISystem setUpSystemWithLooper(int event, MmTelFeatureRegistry mmTelFeatureRegistry)
-            throws Exception {
-        if (mmTelFeatureRegistry == null) {
-            mSystemInterface.start(SLOT0);
-        } else {
-            mSystemInterface.start(SLOT0, mmTelFeatureRegistry);
-        }
+    private ISystem setUpSystemWithLooper(int event, MmTelFeatureRegistry mmTelFeatureRegistry) {
+        mSystemInterface.start(SLOT0, mMessageExecutor, mmTelFeatureRegistry);
         ISystem system = mSystemInterface.getSystem(SLOT0);
         system.setSystemCallInterface(mSystemCall);
-        mTestableLooper = new TestableLooper(mSystemInterface.getLooperForSystem(SLOT0));
 
         if (event > 0) {
             registerEvent(event);
@@ -2885,11 +2853,5 @@ public class SystemInterfaceTest {
         data.unmarshall(value, 0, value.length);
         data.setDataPosition(0);
         return data;
-    }
-
-    private static void processAllMessages(TestableLooper testableLooper) {
-        while (!testableLooper.getLooper().getQueue().isIdle()) {
-            testableLooper.processAllMessages();
-        }
     }
 }
