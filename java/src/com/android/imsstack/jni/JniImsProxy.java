@@ -30,7 +30,7 @@ public final class JniImsProxy {
     /** Byte array representation of the failure result of the JNI operations. */
     public static final byte[] RESULT_FAILURE = JniIms.RESULT_FAILURE;
 
-    private static JniIms sJniIms = new JniIms();
+    private static JniIms sJniIms = null;
 
     @VisibleForTesting
     public static void setJniIms(JniIms jniIms) {
@@ -39,69 +39,76 @@ public final class JniImsProxy {
 
     /** Initializes the native resources.*/
     public static void init() {
-        sJniIms.init();
+        getJniIms().init();
     }
 
     /** Deinitializes the native resources. */
     public static void deinit() {
-        sJniIms.deinit();
+        getJniIms().deinit();
     }
 
     /** Creates the native object with a specified interface type and slot-id. */
     public static long getInterface(int interfaceType, int slotId) {
-        return sJniIms.getInterface(interfaceType, slotId);
+        return getJniIms().getInterface(interfaceType, slotId);
     }
 
     /** Releases the native object. */
     public static void releaseInterface(long nativeObject) {
-        sJniIms.releaseInterface(nativeObject);
+        getJniIms().releaseInterface(nativeObject);
     }
 
     /** Sends an event from Java to native. */
     public static int sendData(long nativeObject, byte[] data) {
-        return sJniIms.sendData(nativeObject, data);
+        return getJniIms().sendData(nativeObject, data);
     }
 
     /** Sends a system event from Java to native. */
     public static byte[] sendDataForSystem(long nativeObject, byte[] data) {
-        return sJniIms.sendDataForSystem(nativeObject, data);
+        return getJniIms().sendDataForSystem(nativeObject, data);
     }
 
     /** Sends a command to control and manage the native logics. */
     public static int sendCommand(int cmd, int slotId, byte[] data) {
-        return sJniIms.sendCommand(cmd, slotId, data);
+        return getJniIms().sendCommand(cmd, slotId, data);
     }
 
     /** Enabler's interface */
     /** Sets the listener to receive an event from native. */
     public static int setListener(long nativeObject, JniImsListener listener) {
-        return sJniIms.setListener(nativeObject, listener);
+        return getJniIms().setListener(nativeObject, listener);
     }
 
     /** Returns the listener for a specified native object. */
     public static JniImsListener getListener(long nativeObject) {
-        return sJniIms.getListener(nativeObject);
+        return getJniIms().getListener(nativeObject);
     }
 
     /** Removes the listener for a specified native object. */
     public static int removeListener(long nativeObject) {
-        return sJniIms.removeListener(nativeObject);
+        return getJniIms().removeListener(nativeObject);
     }
 
     /** System interface */
     /** Sets the listener to receive a system call from native. */
     public static int setSystemListener(long nativeObject, JniSystemListener systemListener) {
-        return sJniIms.setSystemListener(nativeObject, systemListener);
+        return getJniIms().setSystemListener(nativeObject, systemListener);
     }
 
     /** Returns the listener for a specified native object. */
     public static JniSystemListener getSystemListener(long nativeObject) {
-        return sJniIms.getSystemListener(nativeObject);
+        return getJniIms().getSystemListener(nativeObject);
     }
 
     /** Removes the listener for a specified native object. */
     public static int removeSystemListener(long nativeObject) {
-        return sJniIms.removeSystemListener(nativeObject);
+        return getJniIms().removeSystemListener(nativeObject);
+    }
+
+    private static JniIms getJniIms() {
+        if (sJniIms == null) {
+            sJniIms = new JniIms();
+        }
+        return sJniIms;
     }
 
     private JniImsProxy() {}
