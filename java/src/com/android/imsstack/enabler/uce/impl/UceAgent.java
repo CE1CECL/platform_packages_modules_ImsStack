@@ -526,7 +526,7 @@ public class UceAgent extends Thread implements IUceJNIListener {
             int mRadioTechType = parcel.readInt();
             ImsLog.d(mSlotId, "IMS registered");
             msg.arg1 = mRadioTechType;
-            msg.obj = (Object)parcel.readLong();
+            msg.obj = Long.valueOf(parcel.readLong());
         } else {
             ImsLog.d(mSlotId, "IMS de-registered");
         }

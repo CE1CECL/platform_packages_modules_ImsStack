@@ -98,7 +98,9 @@ public class UceAgentTest extends ImsStackTest {
         @Override
         public void addListener(int nSimSlot, IUceJNIListener mListener, int nMsgType) {
             mUceJniListener = mListener;
-            mLatch.countDown();
+            if (mLatch != null) {
+                mLatch.countDown();
+            }
         }
 
         public void setCountDownLatch(CountDownLatch cl) {
@@ -178,17 +180,20 @@ public class UceAgentTest extends ImsStackTest {
         mUceJni.setCountDownLatch(lock);
         lock.await(10, TimeUnit.SECONDS);
 
-        Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_IMS_AGENT_CONNECTED_IND);
-        parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_LTE);
-        parcel.writeLong(0);
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
         mAgent.setPublishController(publishController);
         mAgent.setSubscribeController(subscribeController);
-        mUceJni.mUceJniListener.onServiceStatusMessage(parcel);
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+
+        Parcel parcel = Parcel.obtain();
+        try {
+            parcel.writeInt(UceMessage.UCE_IMS_AGENT_CONNECTED_IND);
+            parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_LTE);
+            parcel.writeLong(0);
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onServiceStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(publishController, timeout(MAX_WAIT_TIME)).setImsRegistrationStatus(eq(true));
         verify(publishController, timeout(MAX_WAIT_TIME)).setUseExpiredEtag(anyBoolean());
@@ -216,12 +221,14 @@ public class UceAgentTest extends ImsStackTest {
         mAgent.setSubscribeController(subscribeController);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_IMS_AGENT_DISCONNECTED_IND);
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
-        mUceJni.mUceJniListener.onServiceStatusMessage(parcel);
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_IMS_AGENT_DISCONNECTED_IND);
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onServiceStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(publishController, timeout(MAX_WAIT_TIME)).setImsRegistrationStatus(eq(false));
         verify(subscribeController, timeout(MAX_WAIT_TIME)).setImsRegistrationStatus(eq(false));
@@ -265,15 +272,18 @@ public class UceAgentTest extends ImsStackTest {
         mUceJni.setCountDownLatch(lock);
         lock.await(10, TimeUnit.SECONDS);
 
-        Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_NETWORK_CHANGED);
-        parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_LTE); // network type
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
         mAgent.setImsRegistered(false);
-        mUceJni.mUceJniListener.onNetworkStatusMessage(parcel);
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+
+        Parcel parcel = Parcel.obtain();
+        try {
+            parcel.writeInt(UceMessage.UCE_NETWORK_CHANGED);
+            parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_LTE); // network type
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onNetworkStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         verifyNoMoreInteractions(listener);
     }
@@ -288,16 +298,18 @@ public class UceAgentTest extends ImsStackTest {
         mUceJni.setCountDownLatch(lock);
         lock.await(10, TimeUnit.SECONDS);
 
-        Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_NETWORK_CHANGED);
-        parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_UNKNOWN); // network type
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
         mAgent.setImsRegistered(true);
-        mUceJni.mUceJniListener.onNetworkStatusMessage(parcel);
 
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        Parcel parcel = Parcel.obtain();
+        try {
+            parcel.writeInt(UceMessage.UCE_NETWORK_CHANGED);
+            parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_UNKNOWN); // network type
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onNetworkStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         verifyNoMoreInteractions(listener);
     }
@@ -314,14 +326,17 @@ public class UceAgentTest extends ImsStackTest {
         Handler handler = mAgent.getHandler();
         waitForHandlerActionDelayed(handler, 100, 150);
 
-        Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_NETWORK_CHANGED);
-        parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_LTE); // network type
-        parcel.setDataPosition(0);
-
         mAgent.setImsRegistered(true);
-        mUceJni.mUceJniListener.onNetworkStatusMessage(parcel);
 
+        Parcel parcel = Parcel.obtain();
+        try {
+            parcel.writeInt(UceMessage.UCE_NETWORK_CHANGED);
+            parcel.writeInt(UceConstant.RADIO_TECHNOLOGY_TYPE_LTE); // network type
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onNetworkStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
         waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 50);
 
         verify(listener).onRequestPublishCapabilities(eq(
@@ -349,20 +364,21 @@ public class UceAgentTest extends ImsStackTest {
         mAgent.setSubscribeController(subscribeController);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_PUBLISH_UPDATED_IND);
-        parcel.writeLong(capability); // capability
-        parcel.writeInt(responseCode); // responseCode
-        parcel.writeString(reason); // reason
-        parcel.writeInt(reasonHeaderCause); // reasonHeaderCause
-        parcel.writeString(reasonHeaderText); // reasonHeaderText
-        parcel.writeString(""); // etag
-        parcel.writeInt(needToRetry); // needToRetry
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
-        mUceJni.mUceJniListener.onPublishStatusMessage(parcel);
-
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_PUBLISH_UPDATED_IND);
+            parcel.writeLong(capability); // capability
+            parcel.writeInt(responseCode); // responseCode
+            parcel.writeString(reason); // reason
+            parcel.writeInt(reasonHeaderCause); // reasonHeaderCause
+            parcel.writeString(reasonHeaderText); // reasonHeaderText
+            parcel.writeString(""); // etag
+            parcel.writeInt(needToRetry); // needToRetry
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onPublishStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(publishController, timeout(MAX_WAIT_TIME)).setCapability(eq(capability));
         verify(publishController, timeout(MAX_WAIT_TIME)).handlePendingRequest();
@@ -399,13 +415,14 @@ public class UceAgentTest extends ImsStackTest {
         mAgent.setSubscribeController(subscribeController);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_UNPUBLISHED_IND);
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
-        mUceJni.mUceJniListener.onPublishStatusMessage(parcel);
-
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_UNPUBLISHED_IND);
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onPublishStatusMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(publishController, timeout(MAX_WAIT_TIME)).deletePendingRequest();
         verify(listener, timeout(MAX_WAIT_TIME)).onUnPublish();
@@ -427,16 +444,17 @@ public class UceAgentTest extends ImsStackTest {
         mAgent.setSubscribeController(subscribeController);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_OPTIONS_RECEIVED_IND);
-        parcel.writeInt(testKey);
-        parcel.writeString(number);
-        parcel.writeLong(UceFeatureTags.Tags.FEATURE_TAG_PRESENCE.getCapa());
-        parcel.setDataPosition(0);
-
-        Handler handler = mAgent.getHandler();
-        mUceJni.mUceJniListener.onReceivedRemoteOptionsMessage(parcel);
-
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_OPTIONS_RECEIVED_IND);
+            parcel.writeInt(testKey);
+            parcel.writeString(number);
+            parcel.writeLong(UceFeatureTags.Tags.FEATURE_TAG_PRESENCE.getCapa());
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onReceivedRemoteOptionsMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mAgent.getHandler(), MAX_WAIT_TIME, 0);
 
         doAnswer(new Answer<Void>() {
             @Override

@@ -160,18 +160,19 @@ public class UceSubscribeRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_SUBSCRIBE_RESPONSE_IND);
-        parcel.writeInt(key); // key
-        parcel.writeInt(responseCode); // responseCode
-        parcel.writeString(reason); // reason
-        parcel.writeInt(reasonCause); // reasonHeaderCause
-        parcel.writeString(reasonCauseText); // reasonHeaderText
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_SUBSCRIBE_RESPONSE_IND);
+            parcel.writeInt(key); // key
+            parcel.writeInt(responseCode); // responseCode
+            parcel.writeString(reason); // reason
+            parcel.writeInt(reasonCause); // reasonHeaderCause
+            parcel.writeString(reasonCauseText); // reasonHeaderText
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(request, timeout(MAX_WAIT_TIME)).informNetworkResponse(eq(responseCode),
                 eq(reason), eq(reasonCause), eq(reasonCauseText));
@@ -189,16 +190,17 @@ public class UceSubscribeRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_PRESENCE_NOTIFY_IND);
-        parcel.writeInt(key); // key
-        parcel.writeInt(count); // count
-        parcel.writeString(pidfxml); // pidfxml
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_PRESENCE_NOTIFY_IND);
+            parcel.writeInt(key); // key
+            parcel.writeInt(count); // count
+            parcel.writeString(pidfxml); // pidfxml
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 
@@ -221,15 +223,16 @@ public class UceSubscribeRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_SUBSCRIBE_CMD_ERROR_IND);
-        parcel.writeInt(key); // key
-        parcel.writeInt(commandCode); // command error code
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_SUBSCRIBE_CMD_ERROR_IND);
+            parcel.writeInt(key); // key
+            parcel.writeInt(commandCode); // command error code
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(request, timeout(MAX_WAIT_TIME)).informCommandError(eq(commandCode));
         verifyNoMoreInteractions(request);
@@ -246,16 +249,17 @@ public class UceSubscribeRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_SUBSCRIBE_TERMINATED_IND);
-        parcel.writeInt(key); // key
-        parcel.writeString(reason); // reason
-        parcel.writeInt(retryAfter); // retryAfterMillsecond
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_SUBSCRIBE_TERMINATED_IND);
+            parcel.writeInt(key); // key
+            parcel.writeString(reason); // reason
+            parcel.writeInt(retryAfter); // retryAfterMillsecond
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(request, timeout(MAX_WAIT_TIME)).informTerminate(eq(reason), eq(retryAfter));
         verifyNoMoreInteractions(request);
@@ -273,19 +277,20 @@ public class UceSubscribeRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_SUBSCRIBE_RESOURCE_TERMINATED_IND);
-        parcel.writeInt(key); // key
-        parcel.writeInt(count); // count
-        parcel.writeString(id[0]); // id
-        parcel.writeString(reason[0]); // reason
-        parcel.writeString(id[1]); // id
-        parcel.writeString(reason[1]); // reason
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_SUBSCRIBE_RESOURCE_TERMINATED_IND);
+            parcel.writeInt(key); // key
+            parcel.writeInt(count); // count
+            parcel.writeString(id[0]); // id
+            parcel.writeString(reason[0]); // reason
+            parcel.writeString(id[1]); // id
+            parcel.writeString(reason[1]); // reason
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onSubscribeResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         ArgumentCaptor<ArrayList> captor = ArgumentCaptor.forClass(ArrayList.class);
 

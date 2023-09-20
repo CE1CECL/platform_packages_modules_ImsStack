@@ -350,21 +350,22 @@ public class UcePublishRequestControllerTest {
         mController.setPendingRequest(pending);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_PUBLISH_RESPONSE_IND);
-        parcel.writeInt(key); // key
-        parcel.writeLong(capability); // capability
-        parcel.writeInt(responseCode); // responseCode
-        parcel.writeString(reason); // reason
-        parcel.writeInt(reasonCause); // reasonHeaderCause
-        parcel.writeString(reasonCauseText); // reasonHeaderText
-        parcel.writeString(eTag); // etag
-        parcel.writeInt(0); // need to retry
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onPublishResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_PUBLISH_RESPONSE_IND);
+            parcel.writeInt(key); // key
+            parcel.writeLong(capability); // capability
+            parcel.writeInt(responseCode); // responseCode
+            parcel.writeString(reason); // reason
+            parcel.writeInt(reasonCause); // reasonHeaderCause
+            parcel.writeString(reasonCauseText); // reasonHeaderText
+            parcel.writeString(eTag); // etag
+            parcel.writeInt(0); // need to retry
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onPublishResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(active, times(1)).informNetworkResponse(eq(responseCode),
                 eq(reason), eq(reasonCause), eq(reasonCauseText), eq(eTag));
@@ -385,15 +386,16 @@ public class UcePublishRequestControllerTest {
         mController.setPendingRequest(pending);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_PUBLISH_CMD_ERROR_IND);
-        parcel.writeInt(key); // key
-        parcel.writeLong(commandCode); // commandErrorCode
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onPublishResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_PUBLISH_CMD_ERROR_IND);
+            parcel.writeInt(key); // key
+            parcel.writeLong(commandCode); // commandErrorCode
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onPublishResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(active, times(1)).informCommandError(eq(commandCode));
 

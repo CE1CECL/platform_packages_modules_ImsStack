@@ -136,17 +136,18 @@ public class UceOptionsRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_OPTIONS_RESPONSE_IND);
-        parcel.writeInt(key); // key
-        parcel.writeInt(responseCode); // responseCode
-        parcel.writeString(reason); // reason
-        parcel.writeLong(capabilities); // capabilities
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onOptionsResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_OPTIONS_RESPONSE_IND);
+            parcel.writeInt(key); // key
+            parcel.writeInt(responseCode); // responseCode
+            parcel.writeString(reason); // reason
+            parcel.writeLong(capabilities); // capabilities
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onOptionsResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(request, timeout(MAX_WAIT_TIME)).informNetworkResponse(eq(responseCode),
                 eq(reason), eq(capabilities));
@@ -163,15 +164,16 @@ public class UceOptionsRequestControllerTest {
         mController.setRequestWithKey(key, request);
 
         Parcel parcel = Parcel.obtain();
-        parcel.writeInt(UceMessage.UCE_OPTIONS_CMD_ERROR_IND);
-        parcel.writeInt(key); // key
-        parcel.writeInt(commandCode); // commandCode
-        parcel.setDataPosition(0);
-
-        mUceJni.mUceJniListener.onOptionsResponseMessage(parcel);
-
-        Handler handler = mController.getHandler();
-        waitForHandlerActionDelayed(handler, MAX_WAIT_TIME, 0);
+        try {
+            parcel.writeInt(UceMessage.UCE_OPTIONS_CMD_ERROR_IND);
+            parcel.writeInt(key); // key
+            parcel.writeInt(commandCode); // commandCode
+            parcel.setDataPosition(0);
+            mUceJni.mUceJniListener.onOptionsResponseMessage(parcel);
+        } finally {
+            parcel.recycle();
+        }
+        waitForHandlerActionDelayed(mController.getHandler(), MAX_WAIT_TIME, 0);
 
         verify(request, timeout(MAX_WAIT_TIME)).informCommandError(eq(commandCode));
         verifyNoMoreInteractions(request);
