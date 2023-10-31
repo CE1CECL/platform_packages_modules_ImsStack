@@ -20,7 +20,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.util.ImsLog;
 
 import java.util.Locale;

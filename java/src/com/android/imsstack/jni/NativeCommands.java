@@ -18,8 +18,8 @@ package com.android.imsstack.jni;
 import android.content.Context;
 import android.os.Parcel;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.config.ServiceCaps;
-import com.android.imsstack.util.MSimUtils;
 
 /**
  * This class provides an interface to control and manage the native logics and the configurations.

@@ -35,11 +35,11 @@ import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.internal.PhoneStateEvents;
 import com.android.imsstack.core.agents.internal.PhoneStateNotifier;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;

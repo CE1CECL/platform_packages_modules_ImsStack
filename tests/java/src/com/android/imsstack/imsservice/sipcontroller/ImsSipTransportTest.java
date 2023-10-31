@@ -31,9 +31,9 @@ import android.telephony.ims.DelegateStateCallback;
 import android.telephony.ims.SipDelegateManager;
 import android.telephony.ims.stub.SipDelegate;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.enabler.sipcontroller.impl.SipControllerAgent;
 import com.android.imsstack.imsservice.mmtel.ImsRegistrationImpl;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

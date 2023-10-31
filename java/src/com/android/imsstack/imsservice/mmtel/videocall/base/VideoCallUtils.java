@@ -24,10 +24,10 @@ import android.os.ParcelFileDescriptor;
 import android.telephony.ims.ImsCallProfile;
 import android.telephony.ims.ImsStreamMediaProfile;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.enabler.mtc.IUMtcMedia;
 import com.android.imsstack.enabler.mtc.MediaInfo;
 import com.android.imsstack.imsservice.mmtel.util.VideoDimension;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsConstants;
 import com.android.imsstack.util.ImsLog;
 

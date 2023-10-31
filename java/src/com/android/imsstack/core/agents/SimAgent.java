@@ -28,11 +28,11 @@ import android.os.Message;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 import com.android.imsstack.util.SimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 

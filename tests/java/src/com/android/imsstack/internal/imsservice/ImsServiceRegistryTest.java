@@ -29,7 +29,7 @@ import android.content.Context;
 import android.telephony.ims.feature.MmTelFeature;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

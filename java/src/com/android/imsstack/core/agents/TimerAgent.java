@@ -29,8 +29,8 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.ArrayMap;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.ImsWakeLock;
 import com.android.imsstack.util.MapIntLong;

@@ -40,9 +40,9 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.android.imsstack.ContextFixture;
 import com.android.imsstack.ImsStackTest;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.imsservice.mmtel.ImsMmTelService;
-import com.android.imsstack.util.AppContext;
-import com.android.imsstack.util.MSimUtils;
 
 import org.junit.After;
 import org.junit.Before;

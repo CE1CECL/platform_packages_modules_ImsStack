@@ -30,8 +30,8 @@ import android.provider.Settings;
 import android.test.mock.MockContentResolver;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;

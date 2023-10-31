@@ -25,7 +25,7 @@ import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.imsstack.ContextFixture;
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

@@ -18,26 +18,12 @@ package com.android.imsstack.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
-import android.content.SharedPreferences;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.android.imsstack.ContextFixture;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 
@@ -49,36 +35,6 @@ public class ImsLogTest {
     private static final String TEST = "Test";
     private static final String DELIMITER = ".";
     private static final String TEST_LOG_MESSAGE = TEST + DELIMITER + LOG_MESSAGE;
-
-    static ContextFixture sContext;
-
-    @Mock SharedPreferences mSp;
-
-    @BeforeClass
-    public static void setUpOnce() {
-        sContext = new ContextFixture();
-        AppContext.init(sContext.getTestDouble());
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
-        doReturn(mSp).when(sContext.getTestDouble()).getSharedPreferences(anyString(), anyInt());
-
-        when(mSp.getString(eq(ImsPrivateProperties.Persistent.KEY_TEST_DEBUG_ENABLED), anyString()))
-                .thenReturn(String.valueOf(false));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownOnce() {
-        AppContext.deinit();
-        sContext = null;
-    }
 
     @Test
     @SmallTest
@@ -140,7 +96,7 @@ public class ImsLogTest {
     @Test
     @SmallTest
     public void logOperations_optionDebugEnabled() throws Exception {
-        setLogEnabledFor(LogUtils.TRACE_OPTION_D);
+        setLogEnabledFor(Log.TRACE_OPTION_D);
 
         Exception throwable = null;
 
@@ -169,7 +125,7 @@ public class ImsLogTest {
     @Test
     @SmallTest
     public void logOperations_optionInfoEnabled() throws Exception {
-        setLogEnabledFor(LogUtils.TRACE_OPTION_I);
+        setLogEnabledFor(Log.TRACE_OPTION_I);
 
         Exception throwable = null;
 
@@ -198,7 +154,7 @@ public class ImsLogTest {
     @Test
     @SmallTest
     public void logOperations_optionErrorEnabled() throws Exception {
-        setLogEnabledFor(LogUtils.TRACE_OPTION_E);
+        setLogEnabledFor(Log.TRACE_OPTION_E);
 
         Exception throwable = null;
 
@@ -230,9 +186,9 @@ public class ImsLogTest {
         setLogEnabledForAllLevels();
 
         assertTrue(ImsLog.isLogEnabled());
-        assertTrue(ImsLog.isOptionEnabled(LogUtils.TRACE_OPTION_D));
-        assertTrue(ImsLog.isOptionEnabled(LogUtils.TRACE_OPTION_I));
-        assertTrue(ImsLog.isOptionEnabled(LogUtils.TRACE_OPTION_E));
+        assertTrue(ImsLog.isOptionEnabled(Log.TRACE_OPTION_D));
+        assertTrue(ImsLog.isOptionEnabled(Log.TRACE_OPTION_I));
+        assertTrue(ImsLog.isOptionEnabled(Log.TRACE_OPTION_E));
     }
 
     @Test
@@ -384,23 +340,17 @@ public class ImsLogTest {
     }
 
     private void setLogDisabled() {
-        when(mSp.getString(eq(ImsPrivateProperties.Persistent.KEY_TEST_LOG_OPTIONS), anyString()))
-                .thenReturn("0x" + Integer.toHexString(0));
-
+        Log.init(0, false);
         ImsLog.init();
     }
 
     private void setLogEnabledForAllLevels() {
-        when(mSp.getString(eq(ImsPrivateProperties.Persistent.KEY_TEST_LOG_OPTIONS), anyString()))
-                .thenReturn(LogUtils.DEFAULT_LOG_OPTIONS);
-
+        Log.init(SystemUtils.hexStringToInt(Log.DEFAULT_LOG_OPTIONS), false);
         ImsLog.init();
     }
 
     private void setLogEnabledFor(int traceOption) {
-        when(mSp.getString(eq(ImsPrivateProperties.Persistent.KEY_TEST_LOG_OPTIONS), anyString()))
-                .thenReturn("0x" + Integer.toHexString(traceOption));
-
+        Log.init(traceOption, false);
         ImsLog.init();
         ImsLog.setLogEnabled(true);
     }

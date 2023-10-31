@@ -44,9 +44,9 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.testing.TestableLooper;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.SimUtils;
 
 import org.junit.After;

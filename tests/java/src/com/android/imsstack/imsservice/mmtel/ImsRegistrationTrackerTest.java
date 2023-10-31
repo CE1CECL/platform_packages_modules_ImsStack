@@ -33,6 +33,7 @@ import android.test.mock.MockContentResolver;
 import android.util.ArraySet;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.ConfigInterface;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.core.config.CarrierConfig;
@@ -43,7 +44,6 @@ import com.android.imsstack.enabler.aos.IAosRegistration.CapabilityPairs;
 import com.android.imsstack.enabler.aos.IAosRegistrationListener;
 import com.android.imsstack.imsservice.mmtel.base.IMmTelFeatureCapabilityListener;
 import com.android.imsstack.internal.ImsStackRegistry;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.MessageExecutor;
 
 import static org.junit.Assert.assertEquals;

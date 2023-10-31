@@ -18,8 +18,8 @@ package com.android.imsstack.core.agents;
 import android.content.Context;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.Log;
-import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Collection;

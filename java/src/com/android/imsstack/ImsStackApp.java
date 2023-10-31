@@ -25,6 +25,9 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.ImsPrivateProperties;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.Sim;
 import com.android.imsstack.core.carrier.CarrierInfo;
 import com.android.imsstack.core.carrier.ImsCarrierResolver;
@@ -33,11 +36,8 @@ import com.android.imsstack.core.config.ServiceCaps;
 import com.android.imsstack.imsservice.ImsServiceController;
 import com.android.imsstack.test.ImsTestHelper;
 import com.android.imsstack.test.ImsTestMode;
-import com.android.imsstack.util.AppContext;
-import com.android.imsstack.util.ImsPrivateProperties;
 import com.android.imsstack.util.Log;
-import com.android.imsstack.util.LogUtils;
-import com.android.imsstack.util.MSimUtils;
+import com.android.imsstack.util.SystemUtils;
 
 /**
  * This is a main entry point to run ImsStack process.
@@ -58,7 +58,11 @@ public class ImsStackApp extends Application {
         // so it should be initialized first at the creation time of ImsStack application.
         AppContext.init(this);
         // Sets the log options once when ImsStack is created.
-        Log.setLogOptions(LogUtils.getLogOptions(0));
+        String logOptions = ImsPrivateProperties.Persistent.get(
+                ImsPrivateProperties.Persistent.KEY_TEST_LOG_OPTIONS, Log.DEFAULT_LOG_OPTIONS, 0);
+        boolean debugEnabled = ImsPrivateProperties.Persistent.getBoolean(
+                ImsPrivateProperties.Persistent.KEY_TEST_DEBUG_ENABLED, 0);
+        Log.init(SystemUtils.hexStringToInt(logOptions), debugEnabled);
 
         Log.i(TAG, "onCreate");
         init();

@@ -17,6 +17,8 @@ package com.android.imsstack;
 
 import android.content.Context;
 
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigAgent;
 import com.android.imsstack.core.agents.ConfigInterface;
@@ -32,10 +34,8 @@ import com.android.imsstack.jni.NativeCommands;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.SystemInterface;
 import com.android.imsstack.test.ImsTestMode;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.Log;
-import com.android.imsstack.util.MSimUtils;
 
 /**
  * A main entry for initializing, starting, and stopping the internal modules of ImsStack.

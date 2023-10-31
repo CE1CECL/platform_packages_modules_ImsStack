@@ -24,10 +24,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.enabler.acs.AcService;
 import com.android.imsstack.enabler.acs.AcServiceClientInfo;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashMap;

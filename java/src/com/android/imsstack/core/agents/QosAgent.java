@@ -30,10 +30,10 @@ import android.telephony.data.NrQosSessionAttributes;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.dcm.DcFactory;
 import com.android.imsstack.core.agents.dcmif.EApnType;
 import com.android.imsstack.core.agents.dcmif.IDcApn;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.IoUtils;
 

@@ -16,8 +16,8 @@
 
 package com.android.imsstack.imsservice.mmtel;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

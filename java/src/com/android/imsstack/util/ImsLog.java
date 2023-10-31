@@ -34,7 +34,7 @@ public final class ImsLog {
 
     /** Sends a {@link Log#VERBOSE} log message. */
     public static void v(String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_D)
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_D)
                 && !isOptionEnabled(OPT_HIDE_PRIVACY)) {
             Log.v(Log.TAG, getMessage(log));
         }
@@ -42,7 +42,7 @@ public final class ImsLog {
 
     /** Sends a {@link Log#VERBOSE} log message with a slot id. */
     public static void v(int slotId, String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_D)
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_D)
                 && !isOptionEnabled(OPT_HIDE_PRIVACY)) {
             Log.v(Log.TAG, getMessage("[" + slotId + "] " + log));
         }
@@ -50,7 +50,7 @@ public final class ImsLog {
 
     /** Sends a {@link Log#DEBUG} log message. */
     public static void d(String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_D)
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_D)
                 && !isOptionEnabled(OPT_HIDE_PRIVACY)) {
             Log.d(Log.TAG, getMessage(log));
         }
@@ -58,7 +58,7 @@ public final class ImsLog {
 
     /** Sends a {@link Log#DEBUG} log message with a slot id. */
     public static void d(int slotId, String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_D)
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_D)
                 && !isOptionEnabled(OPT_HIDE_PRIVACY)) {
             Log.d(Log.TAG, getMessage("[" + slotId + "] " + log));
         }
@@ -66,7 +66,7 @@ public final class ImsLog {
 
     /** Sends a {@link Log#INFO} log message. */
     public static void i(String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_I)
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_I)
                 && !isOptionEnabled(OPT_HIDE_PRIVACY)) {
             Log.i(Log.TAG, getMessage(log));
         }
@@ -74,7 +74,7 @@ public final class ImsLog {
 
     /** Sends a {@link Log#INFO} log message with a slot id. */
     public static void i(int slotId, String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_I)
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_I)
                 && !isOptionEnabled(OPT_HIDE_PRIVACY)) {
             Log.i(Log.TAG, getMessage("[" + slotId + "] " + log));
         }
@@ -82,42 +82,42 @@ public final class ImsLog {
 
     /** Sends a {@link Log#WARN} log message. */
     public static void w(String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_E)) {
             Log.w(Log.TAG, getMessage(log));
         }
     }
 
     /** Sends a {@link Log#WARN} log message with a slot id. */
     public static void w(int slotId, String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_E)) {
             Log.w(Log.TAG, getMessage("[" + slotId + "] " + log));
         }
     }
 
     /** Sends a {@link Log#ERROR} log message. */
     public static void e(String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_E)) {
             Log.e(Log.TAG, getMessage(log));
         }
     }
 
     /** Sends a {@link Log#ERROR} log message with a slot id. */
     public static void e(int slotId, String log) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_E)) {
             Log.e(Log.TAG, getMessage("[" + slotId + "] " + log));
         }
     }
 
     /** Sends a {@link Log#ERROR} log message with an exception. */
     public static void e(String log, Throwable t) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_E)) {
             Log.e(Log.TAG, getMessage(log), t);
         }
     }
 
     /** Sends a {@link Log#ERROR} log message with an exception and a slot id. */
     public static void e(int slotId, String log, Throwable t) {
-        if (isLogEnabled() && isOptionEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled() && isOptionEnabled(Log.TRACE_OPTION_E)) {
             Log.e(Log.TAG, getMessage("[" + slotId + "] " + log), t);
         }
     }
@@ -139,8 +139,8 @@ public final class ImsLog {
 
     /** Initializes the logging options from the configuration. */
     public static void init() {
-        int option = LogUtils.getLogOptions(0);
-        boolean debugOn = LogUtils.isDebugOn(0);
+        int option = Log.getLogOptions();
+        boolean debugOn = Log.isImsDebugEnabled();
 
         Log.d(Log.TAG, "ImsLog :: option=0x" + Integer.toHexString(option) + ", debug=" + debugOn);
 
@@ -267,9 +267,9 @@ public final class ImsLog {
         setOption(option);
 
         Log.w(Log.TAG, "LOG is " + (isLogEnabled() ? "ON" : "OFF")
-                + " :: D=" + isOptionEnabled(LogUtils.TRACE_OPTION_D)
-                + ", E=" + isOptionEnabled(LogUtils.TRACE_OPTION_E)
-                + ", I=" + isOptionEnabled(LogUtils.TRACE_OPTION_I)
+                + " :: D=" + isOptionEnabled(Log.TRACE_OPTION_D)
+                + ", E=" + isOptionEnabled(Log.TRACE_OPTION_E)
+                + ", I=" + isOptionEnabled(Log.TRACE_OPTION_I)
                 + ", HidePrivacy=" + isOptionEnabled(OPT_HIDE_PRIVACY));
     }
 

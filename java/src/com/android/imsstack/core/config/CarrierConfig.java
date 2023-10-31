@@ -24,7 +24,7 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
 
 import java.util.Arrays;
 import java.util.List;

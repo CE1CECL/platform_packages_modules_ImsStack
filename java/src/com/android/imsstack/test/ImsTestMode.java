@@ -15,9 +15,9 @@
  */
 package com.android.imsstack.test;
 
+import com.android.imsstack.base.ImsPrivateProperties;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.ImsPrivateProperties;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.HashMap;
 import java.util.Map;

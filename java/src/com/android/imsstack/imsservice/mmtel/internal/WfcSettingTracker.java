@@ -19,10 +19,10 @@ import android.telephony.SubscriptionManager;
 import android.telephony.ims.ImsManager;
 import android.telephony.ims.ImsMmTelManager;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.config.ServiceCaps;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 public class WfcSettingTracker {
     private final IBaseContext mContext;

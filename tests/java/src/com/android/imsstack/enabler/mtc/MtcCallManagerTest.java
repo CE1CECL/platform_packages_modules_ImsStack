@@ -33,12 +33,12 @@ import android.testing.AndroidTestingRunner;
 import android.testing.TestableLooper;
 
 import com.android.imsstack.ImsStackTest;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigInterface;
 import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.internal.enabler.ImsStateStore;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.MessageExecutor;
 
 import org.junit.After;

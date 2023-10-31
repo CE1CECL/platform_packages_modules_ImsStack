@@ -29,6 +29,7 @@ import android.telephony.TelephonyManager;
 import android.telephony.ims.ImsReasonInfo;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.Usat;
 import com.android.imsstack.core.agents.UsatInterface;
 import com.android.imsstack.enabler.IBaseContext;
@@ -37,7 +38,6 @@ import com.android.imsstack.enabler.ssc.SscServiceClassUtil;
 import com.android.imsstack.imsservice.mmtel.ImsUtImpl;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtInterface;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtListener;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.AfterClass;

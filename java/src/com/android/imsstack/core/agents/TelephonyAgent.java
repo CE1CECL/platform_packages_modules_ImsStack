@@ -24,11 +24,11 @@ import android.telephony.TelephonyManager;
 import android.telephony.TelephonyManager.SimState;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.dcm.DcFactory;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 /**
  * A class for accessing the Telephony or SIM states through {@link TelephonyManager} or

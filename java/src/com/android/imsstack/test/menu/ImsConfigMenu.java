@@ -25,11 +25,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.android.imsstack.R;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.carrier.CarrierInfo;
 import com.android.imsstack.core.carrier.ImsCarrierResolver;
 import com.android.imsstack.core.carrier.SimCarrierId;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.ArrayList;
 

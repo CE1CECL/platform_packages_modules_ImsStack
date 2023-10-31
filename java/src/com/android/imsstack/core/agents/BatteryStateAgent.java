@@ -22,8 +22,8 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Handler;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
 

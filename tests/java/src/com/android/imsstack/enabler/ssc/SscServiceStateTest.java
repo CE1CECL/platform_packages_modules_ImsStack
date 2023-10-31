@@ -51,6 +51,7 @@ import android.testing.AndroidTestingRunner;
 import android.testing.TestableLooper;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigAgent;
 import com.android.imsstack.core.agents.ConfigInterface;
@@ -70,7 +71,6 @@ import com.android.imsstack.enabler.ssc.SscServiceState.SscMobileDataStateListen
 import com.android.imsstack.enabler.ssc.SscServiceState.SscRegiStateListener;
 import com.android.imsstack.imsservice.mmtel.ut.UtFactory;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtInterface;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

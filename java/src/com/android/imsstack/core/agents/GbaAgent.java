@@ -24,9 +24,9 @@ import android.telephony.gba.UaSecurityProtocolIdentifier;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;

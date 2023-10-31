@@ -29,6 +29,7 @@ import android.os.SystemClock;
 import android.telephony.ServiceState;
 import android.text.TextUtils;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.dcm.DcFactory;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.core.carrier.CarrierInfo;
@@ -37,7 +38,6 @@ import com.android.imsstack.core.config.ServiceCaps;
 import com.android.imsstack.enabler.aos.AosFactory;
 import com.android.imsstack.enabler.aos.IAosInfo;
 import com.android.imsstack.enabler.aos.IAosInfo.LocationInfo;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.GeocoderProxy;
 import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.MessageExecutor;

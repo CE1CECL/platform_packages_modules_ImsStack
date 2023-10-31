@@ -38,6 +38,7 @@ import android.telephony.ims.stub.ImsCallSessionImplBase;
 import android.telephony.imscallext.ImsCallExtManager;
 import android.text.TextUtils;
 
+import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.core.agents.Usat;
 import com.android.imsstack.core.agents.UsatInterface;
 import com.android.imsstack.core.agents.dcmif.ApnStateListener;
@@ -72,7 +73,6 @@ import com.android.imsstack.imsservice.mmtel.internal.ConferenceProxy;
 import com.android.imsstack.imsservice.mmtel.videocall.ImsVideoCallProviderFactory;
 import com.android.imsstack.imsservice.mmtel.videocall.base.ImsVideoCallProviderBase;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.ImsPrivateProperties;
 import com.android.imsstack.util.SimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 

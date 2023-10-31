@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.util;
+package com.android.imsstack.base;
 
 import android.annotation.NonNull;
 import android.telephony.SubscriptionManager;

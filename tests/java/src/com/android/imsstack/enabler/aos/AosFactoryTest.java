@@ -28,11 +28,11 @@ import android.os.Looper;
 import android.telephony.TelephonyManager;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.enabler.aos.service.AosService;
 import com.android.imsstack.jni.JniIms;
 import com.android.imsstack.jni.JniImsProxy;
-import com.android.imsstack.util.AppContext;
-import com.android.imsstack.util.ImsPrivateProperties;
 
 import org.junit.After;
 import org.junit.AfterClass;

@@ -31,26 +31,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
 public class DeviceUtilsTest {
-    private ContextFixture mContextFixture;
     private Context mContext;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        mContextFixture = new ContextFixture();
-        mContext = mContextFixture.getTestDouble();
-        AppContext.init(mContext);
+        mContext = new ContextFixture().getTestDouble();
     }
 
     @After
     public void tearDown() throws Exception {
-        AppContext.deinit();
         mContext = null;
-        mContextFixture = null;
     }
 
     @Test
@@ -61,11 +54,11 @@ public class DeviceUtilsTest {
         contentResolver.addProvider(Settings.AUTHORITY, new FakeSettingsProvider());
         Settings.Global.putString(contentResolver, Settings.Global.DEVICE_NAME, null);
 
-        assertEquals("", DeviceUtils.getDeviceName());
+        assertEquals("", DeviceUtils.getDeviceName(mContext));
 
         Settings.Global.putString(contentResolver, Settings.Global.DEVICE_NAME, testDeviceName);
 
-        assertEquals(testDeviceName, DeviceUtils.getDeviceName());
+        assertEquals(testDeviceName, DeviceUtils.getDeviceName(mContext));
     }
 
     @Test

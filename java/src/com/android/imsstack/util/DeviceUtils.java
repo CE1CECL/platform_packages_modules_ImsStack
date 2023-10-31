@@ -15,6 +15,7 @@
  */
 package com.android.imsstack.util;
 
+import android.content.Context;
 import android.os.Environment;
 import android.provider.Settings;
 
@@ -25,11 +26,12 @@ public final class DeviceUtils {
     /**
      * Returns the current device name.
      *
+     * @param c A {@link Context} object.
      * @return A device name.
      */
-    public static String getDeviceName() {
+    public static String getDeviceName(Context c) {
         String deviceName = Settings.Global.getString(
-                AppContext.getInstance().getContentResolver(), Settings.Global.DEVICE_NAME);
+                c.getContentResolver(), Settings.Global.DEVICE_NAME);
 
         if (deviceName == null) {
             ImsLog.w("Device name is empty.");

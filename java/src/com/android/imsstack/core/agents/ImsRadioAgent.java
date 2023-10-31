@@ -28,12 +28,12 @@ import android.telephony.ims.feature.ImsTrafficSessionCallback;
 import android.telephony.ims.feature.MmTelFeature;
 import android.util.Pair;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.dcm.DcFactory;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 
 import java.util.HashMap;

@@ -32,10 +32,10 @@ import android.net.Network;
 import android.util.Pair;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.dcm.DcFactory;
 import com.android.imsstack.core.agents.dcmif.EApnType;
 import com.android.imsstack.core.agents.dcmif.IDcApn;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

@@ -40,8 +40,8 @@ import android.telephony.TelephonyManager;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.imsstack.ImsStackTest;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.dcmif.IDcUtils;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

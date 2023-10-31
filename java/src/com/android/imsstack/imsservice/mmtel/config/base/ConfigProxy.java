@@ -23,6 +23,7 @@ import android.telephony.ims.ProvisioningManager;
 import android.telephony.ims.stub.ImsConfigImplBase;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigInterface;
 import com.android.imsstack.core.agents.SimInterface;
@@ -31,7 +32,6 @@ import com.android.imsstack.core.carrier.SimCarrierId;
 import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.enabler.IContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.Queue;
 import java.util.Set;

@@ -29,9 +29,9 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.dcmif.EIpVersion;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 
 import java.io.FileDescriptor;

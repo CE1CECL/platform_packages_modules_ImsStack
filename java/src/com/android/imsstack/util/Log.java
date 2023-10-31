@@ -25,6 +25,14 @@ public final class Log {
     public static final String HIDDEN = "****";
     public static final String EMPTY = "(empty)";
     public static final String NULL = "(null)";
+    /**
+     * Logging options.
+     */
+    public static final int TRACE_OPTION_D = 0x00000001;
+    public static final int TRACE_OPTION_E = 0x00000002;
+    public static final int TRACE_OPTION_I = 0x00000004;
+    // logcat + all levels(D / E / I / TEXT)
+    public static final String DEFAULT_LOG_OPTIONS = "0x0001000F";
 
     private static int sDebug = -1;
     private static int sImsDebug = -1;
@@ -34,6 +42,17 @@ public final class Log {
         if (!"user".equals(android.os.Build.TYPE)) {
             sDebug = 1;
         }
+    }
+
+    /**
+     * Initializes the logging configuration.
+     *
+     * @param logOptions A logging options.
+     * @param debugEnabled Flag specifying whether the debug option is enabled or not.
+     */
+    public static void init(int logOptions, boolean debugEnabled) {
+        setLogOptions(logOptions);
+        setImsDebug(debugEnabled);
     }
 
     /**
@@ -60,7 +79,7 @@ public final class Log {
      * Prints the debug level log.
      */
     public static void d(String tag, String msg) {
-        if (isLogEnabled(LogUtils.TRACE_OPTION_D)) {
+        if (isLogEnabled(TRACE_OPTION_D)) {
             android.util.Log.d(tag, msg);
         }
     }
@@ -69,7 +88,7 @@ public final class Log {
      * Prints the error level log.
      */
     public static void e(String tag, String msg) {
-        if (isLogEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled(TRACE_OPTION_E)) {
             android.util.Log.e(tag, msg);
         }
     }
@@ -78,7 +97,7 @@ public final class Log {
      * Prints the error level log.
      */
     public static void e(String tag, String msg, Throwable t) {
-        if (isLogEnabled(LogUtils.TRACE_OPTION_E)) {
+        if (isLogEnabled(TRACE_OPTION_E)) {
             android.util.Log.e(tag, msg, t);
         }
     }
@@ -87,7 +106,7 @@ public final class Log {
      * Prints the information level log.
      */
     public static void i(String tag, String msg) {
-        if (isLogEnabled(LogUtils.TRACE_OPTION_I)) {
+        if (isLogEnabled(TRACE_OPTION_I)) {
             android.util.Log.i(tag, msg);
         }
     }
@@ -96,7 +115,7 @@ public final class Log {
      * Prints the verbose level log.
      */
     public static void v(String tag, String msg) {
-        if (isLogEnabled(LogUtils.TRACE_OPTION_D)) {
+        if (isLogEnabled(TRACE_OPTION_D)) {
             android.util.Log.v(tag, msg);
         }
     }
@@ -105,7 +124,7 @@ public final class Log {
      * Prints the warning level log.
      */
     public static void w(String tag, String msg) {
-        if (isLogEnabled(LogUtils.TRACE_OPTION_I)) {
+        if (isLogEnabled(TRACE_OPTION_I)) {
             android.util.Log.w(tag, msg);
         }
     }
@@ -150,9 +169,19 @@ public final class Log {
         sDebug = isLoggable(DEBUG) ? 1 : 0;
     }
 
+    /** Checks whether the IMS debug is enabled or not. */
+    /* package */ static boolean isImsDebugEnabled() {
+        return sImsDebug == 1;
+    }
+
     /** Sets the debuggable value from the specified flag. */
     public static void setImsDebug(boolean imsDebug) {
         sImsDebug = imsDebug ? 1 : 0;
+    }
+
+    /** Returns the log options. */
+    /* package */ static int getLogOptions() {
+        return sLogOptions;
     }
 
     /** Sets the log options. */

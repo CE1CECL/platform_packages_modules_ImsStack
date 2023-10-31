@@ -43,6 +43,7 @@ import android.testing.TestableLooper;
 import android.text.TextUtils;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.ConfigAgent;
 import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.enabler.ssc.data.ErrorResponseData;
@@ -51,7 +52,6 @@ import com.android.imsstack.enabler.ssc.data.SscServiceData;
 import com.android.imsstack.enabler.ssc.data.SscServiceQueryData;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtListener;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtServiceStateListener;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

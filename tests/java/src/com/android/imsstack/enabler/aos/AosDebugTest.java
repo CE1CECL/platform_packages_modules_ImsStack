@@ -61,6 +61,8 @@ import android.telephony.TelephonyManager;
 import android.telephony.data.ApnSetting;
 
 import com.android.imsstack.ImsStackTest;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.IPhoneStateNotifier;
 import com.android.imsstack.core.agents.ImsPhoneStateListener;
@@ -71,8 +73,6 @@ import com.android.imsstack.core.agents.SimInterface;
 import com.android.imsstack.core.agents.TelephonyInterface;
 import com.android.imsstack.core.carrier.SimCarrierId;
 import com.android.imsstack.enabler.aos.service.AosService;
-import com.android.imsstack.util.AppContext;
-import com.android.imsstack.util.MSimUtils;
 
 import org.junit.After;
 import org.junit.Before;

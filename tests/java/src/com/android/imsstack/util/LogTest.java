@@ -35,6 +35,16 @@ public class LogTest {
 
     @Test
     @SmallTest
+    public void testInit() {
+        int logOptions = SystemUtils.hexStringToInt(Log.DEFAULT_LOG_OPTIONS);
+        Log.init(logOptions, true);
+
+        assertTrue(Log.isImsDebugEnabled());
+        assertEquals(logOptions, Log.getLogOptions());
+    }
+
+    @Test
+    @SmallTest
     public void logOperations() throws Exception {
         Log.setImsDebug(true);
 

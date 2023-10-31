@@ -26,6 +26,7 @@ import android.telephony.ims.ImsReasonInfo;
 import android.telephony.ims.ImsStreamMediaProfile;
 import android.text.TextUtils;
 
+import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.enabler.mtc.CallFeature;
 import com.android.imsstack.enabler.mtc.CallInfo;
 import com.android.imsstack.enabler.mtc.CallReasonInfo;
@@ -38,7 +39,6 @@ import com.android.imsstack.enabler.mtc.SuppInfo;
 import com.android.imsstack.enabler.mtc.conf.UsersInfo;
 import com.android.imsstack.imsservice.mmtel.base.ICallContext;
 import com.android.imsstack.util.ImsConstants;
-import com.android.imsstack.util.ImsPrivateProperties;
 import com.android.internal.telephony.imsphone.ImsExternalCallTracker;
 
 import java.util.LinkedHashMap;

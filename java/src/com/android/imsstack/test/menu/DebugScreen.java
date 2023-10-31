@@ -28,14 +28,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.imsstack.R;
+import com.android.imsstack.base.ImsPrivateProperties;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.carrier.CarrierInfo;
 import com.android.imsstack.core.carrier.ImsCarrierResolver;
 import com.android.imsstack.core.carrier.SimCarrierId;
 import com.android.imsstack.enabler.aos.AosFactory;
 import com.android.imsstack.enabler.aos.IAosDebug;
 import com.android.imsstack.test.menu.ImsConfigMenu;
-import com.android.imsstack.util.ImsPrivateProperties;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;

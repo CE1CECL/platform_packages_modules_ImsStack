@@ -54,6 +54,8 @@ import android.test.mock.MockContentResolver;
 
 import com.android.imsstack.ContextFixture;
 import com.android.imsstack.ImsStackTest;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.imsservice.base.ImsContext;
 import com.android.imsstack.imsservice.mmtel.sms.SmsTransferLayer;
@@ -62,8 +64,6 @@ import com.android.imsstack.imsservice.mmtel.ut.base.IUtInterface;
 import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
 import com.android.imsstack.internal.imsservice.MmTelFeatureRegistry;
 import com.android.imsstack.internal.imsservice.MmTelMediaRegistry;
-import com.android.imsstack.util.AppContext;
-import com.android.imsstack.util.MSimUtils;
 
 import org.junit.After;
 import org.junit.Before;

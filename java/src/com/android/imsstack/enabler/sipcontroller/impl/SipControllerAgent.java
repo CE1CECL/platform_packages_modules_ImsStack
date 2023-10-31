@@ -37,13 +37,13 @@ import android.telephony.ims.SipMessage;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.imsservice.sipcontroller.remote.ISipTransportRemote;
 import com.android.imsstack.imsservice.sipcontroller.remote.SipTransportRemoteListener;
 import com.android.imsstack.jni.JniImsListener;
 import com.android.imsstack.jni.JniImsProxy;
 import com.android.imsstack.jni.JniObjectId;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.SipMessageParsingUtils;
 

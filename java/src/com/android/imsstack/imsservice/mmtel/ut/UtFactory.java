@@ -16,9 +16,9 @@
 
 package com.android.imsstack.imsservice.mmtel.ut;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.enabler.ssc.SscServiceImpl;
 import com.android.imsstack.imsservice.mmtel.ut.base.IUtInterface;
-import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 public final class UtFactory {

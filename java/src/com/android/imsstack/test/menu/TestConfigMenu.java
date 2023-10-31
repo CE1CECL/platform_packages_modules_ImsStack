@@ -31,15 +31,15 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
 
 import com.android.imsstack.R;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.ImsPrivateProperties;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.enabler.aos.AosFactory;
 import com.android.imsstack.enabler.aos.IAosInfo;
 import com.android.imsstack.enabler.aos.IAosRegistrationListener;
 import com.android.imsstack.test.DebugScreen;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.ImsPrivateProperties;
-import com.android.imsstack.util.LogUtils;
-import com.android.imsstack.util.MSimUtils;
+import com.android.imsstack.util.Log;
 import com.android.imsstack.util.SystemUtils;
 
 @SuppressWarnings("deprecation")
@@ -268,7 +268,7 @@ public class TestConfigMenu extends PreferenceActivity {
         if (mLogOptions != null) {
             String logOptions = ImsPrivateProperties.Persistent.get(
                     ImsPrivateProperties.Persistent.KEY_TEST_LOG_OPTIONS,
-                    LogUtils.DEFAULT_LOG_OPTIONS, mSlotId);
+                    Log.DEFAULT_LOG_OPTIONS, mSlotId);
             mLogOptions.setText(logOptions);
             mLogOptions.setSummary(logOptions);
             mLogOptions.setOnPreferenceChangeListener(new EditTextItemChangeListener());

@@ -19,9 +19,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.SparseArray;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 import java.util.Map;
 import java.util.Set;

@@ -36,13 +36,13 @@ import android.telephony.ims.stub.RcsCapabilityExchangeImplBase;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.enabler.IContext;
 import com.android.imsstack.enabler.uce.impl.RcsCapOptionsResponseCallBack;
 import com.android.imsstack.enabler.uce.impl.RcsCapPublishResponseCallBack;
 import com.android.imsstack.enabler.uce.impl.RcsCapSubscribeResponseCallBack;
 import com.android.imsstack.enabler.uce.interf.IUceApi;
 import com.android.imsstack.imsservice.base.ImsContext;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.Log;
 import com.android.imsstack.util.MessageExecutor;
 

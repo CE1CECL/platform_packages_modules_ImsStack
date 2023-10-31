@@ -31,10 +31,10 @@ import android.telephony.TelephonyManager;
 import android.telephony.gba.UaSecurityProtocolIdentifier;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.GbaInterface.GbaCredentials;
 import com.android.imsstack.enabler.ssc.SscConfig;
 import com.android.imsstack.enabler.ssc.SscConstant;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

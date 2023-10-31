@@ -20,9 +20,9 @@ import android.telephony.CarrierConfigManager;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 /**
  * This class provides the APIs to getting FEATURE_XXX in gims_feature table

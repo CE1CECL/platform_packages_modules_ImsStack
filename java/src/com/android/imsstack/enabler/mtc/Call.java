@@ -19,9 +19,9 @@ package com.android.imsstack.enabler.mtc;
 import android.os.Bundle;
 import android.os.SystemClock;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 
 import java.io.Closeable;
 

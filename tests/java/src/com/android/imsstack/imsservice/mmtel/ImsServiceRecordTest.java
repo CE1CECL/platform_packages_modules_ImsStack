@@ -23,10 +23,10 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.test.mock.MockContentResolver;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.enabler.sipcontroller.impl.SipControllerAgent;
 import com.android.imsstack.imsservice.sipcontroller.ImsSipTransport;
 import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.MessageExecutor;
 
 import org.junit.After;

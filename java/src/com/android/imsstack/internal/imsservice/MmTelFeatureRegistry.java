@@ -27,9 +27,9 @@ import android.telephony.SubscriptionManager;
 import android.telephony.ims.ImsManager;
 import android.telephony.ims.ImsMmTelManager;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.util.ImsLog;
-import com.android.imsstack.util.MSimUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Set;

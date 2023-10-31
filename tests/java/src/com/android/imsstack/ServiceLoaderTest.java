@@ -37,6 +37,7 @@ import android.telephony.TelephonyManager;
 import android.test.mock.MockContentResolver;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigAgent;
 import com.android.imsstack.core.agents.ConfigInterface;
@@ -47,7 +48,6 @@ import com.android.imsstack.jni.JniIms;
 import com.android.imsstack.jni.JniImsProxy;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.SystemInterface;
-import com.android.imsstack.util.AppContext;
 import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;

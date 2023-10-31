@@ -34,12 +34,12 @@ import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 
 import com.android.imsstack.ContextFixture;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.NativeStateInterface;
 import com.android.imsstack.core.agents.Sim;
 import com.android.imsstack.core.agents.SimInterface;
 import com.android.imsstack.enabler.aos.service.AosService;
-import com.android.imsstack.util.AppContext;
 
 import org.junit.After;
 import org.junit.Before;

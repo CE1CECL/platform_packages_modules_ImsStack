@@ -21,9 +21,9 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.telephony.ims.stub.ImsSmsImplBase;
 
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.enabler.mts.MtsController;
 import com.android.imsstack.imsservice.mmtel.ImsCallContext;
-import com.android.imsstack.util.AppContext;
 import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.uicc.IccUtils;

@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
-import com.android.imsstack.util.MSimUtils;
+import com.android.imsstack.base.MSimUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

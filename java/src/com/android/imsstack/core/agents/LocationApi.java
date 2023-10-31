@@ -22,7 +22,7 @@ import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.util.ArraySet;
 
-import com.android.imsstack.util.AppContext;
+import com.android.imsstack.base.AppContext;
 import com.android.imsstack.util.ImsLog;
 
 import java.util.Set;
