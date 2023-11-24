@@ -18,7 +18,7 @@ package com.android.imsstack.core.agents;
 import android.content.Context;
 import android.util.SparseArray;
 
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.util.Log;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -39,7 +39,7 @@ public final class AgentFactory {
     private static AgentFactory sInstance = null;
 
     private AgentFactory() {
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
         mSystemCallAgents = new SparseArray<>(supportedSimCount);
         mAgentsForSlot = new SparseArray<>(supportedSimCount);
 

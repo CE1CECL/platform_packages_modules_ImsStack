@@ -35,6 +35,7 @@ import android.telephony.TelephonyManager;
 import android.telephony.data.ApnSetting;
 
 import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.base.SystemServiceProxy.ConnectivityManagerProxy;
 import com.android.imsstack.core.agents.AgentFactory;
@@ -347,7 +348,7 @@ public abstract class Apn extends Handler implements IApn {
         NetworkRequest.Builder nrb = new NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
 
-        if (MSimUtils.isMultiSimEnabled()) {
+        if (DeviceConfig.isMultiSimEnabled()) {
             mSubId = MSimUtils.getSubId(mSlotId);
             registerConfigListener();
 
@@ -401,7 +402,7 @@ public abstract class Apn extends Handler implements IApn {
         NetworkRequest.Builder nrb = new NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
 
-        if (MSimUtils.isMultiSimEnabled()) {
+        if (DeviceConfig.isMultiSimEnabled()) {
             boolean setSubId = true;
             int subId = MSimUtils.getSubId(mSlotId);
 
@@ -664,7 +665,7 @@ public abstract class Apn extends Handler implements IApn {
 
     protected boolean isAllSimAbsentOrLocked() {
         boolean allSimAbsentOrLocked = true;
-        int activeSimCount = MSimUtils.getActiveSimCount();
+        int activeSimCount = DeviceConfig.getActiveSimCount();
 
         for (int i = 0; i < activeSimCount; ++i) {
             SimInterface sim = AgentFactory.getInstance().getAgent(SimInterface.class, i);

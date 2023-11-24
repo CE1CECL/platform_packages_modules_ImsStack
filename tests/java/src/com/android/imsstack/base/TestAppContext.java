@@ -85,6 +85,7 @@ public class TestAppContext {
         AppContext.getInstance().setBroadcastReceiverProxy(mBroadcastReceiverProxy);
         AppContext.getInstance().setContentProviderProxy(mContentProviderProxy);
         AppContext.getInstance().setSystemServiceProxy(mSystemServiceProxy);
+        DeviceConfig.init(AppContext.getInstance());
     }
 
     public void tearDown() {

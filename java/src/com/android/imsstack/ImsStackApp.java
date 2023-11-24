@@ -26,6 +26,7 @@ import android.telephony.TelephonyManager;
 import android.util.SparseArray;
 
 import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.base.SystemServiceProxy.CarrierConfigManagerProxy;
@@ -65,8 +66,9 @@ public class ImsStackApp extends Application {
         boolean debugEnabled = ImsPrivateProperties.Persistent.getBoolean(
                 ImsPrivateProperties.Persistent.KEY_TEST_DEBUG_ENABLED, 0);
         Log.init(SystemUtils.hexStringToInt(logOptions), debugEnabled);
-
         Log.i(TAG, "onCreate");
+
+        DeviceConfig.init(AppContext.getInstance());
         init();
     }
 
@@ -87,9 +89,9 @@ public class ImsStackApp extends Application {
     }
 
     private void init() {
-        mActiveSimCount = MSimUtils.getActiveSimCount();
+        mActiveSimCount = DeviceConfig.getActiveSimCount();
 
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
 
         // Clear Ephemeral properties for IMS internal usage
         for (int i = 0; i < supportedSimCount; ++i) {
@@ -140,7 +142,7 @@ public class ImsStackApp extends Application {
 
     private void handleSimStateChanged(Intent intent) {
         boolean userUnlocked = intent.getBooleanExtra(Intent.EXTRA_REBROADCAST_ON_UNLOCK, false);
-        int defaultSlotId = MSimUtils.isMultiSimEnabled()
+        int defaultSlotId = DeviceConfig.isMultiSimEnabled()
                 ? MSimUtils.INVALID_SLOT_ID
                 : MSimUtils.DEFAULT_SLOT_ID;
         int slotId = Sim.getExtraSlotIndex(intent, defaultSlotId);

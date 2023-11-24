@@ -18,6 +18,7 @@ package com.android.imsstack.core.carrier;
 import android.util.SparseArray;
 
 import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.base.TelephonyManagerProxy;
@@ -33,7 +34,7 @@ public final class CarrierInfo {
     private final SparseArray<SimCarrierId> mSimCarrierIds;
 
     CarrierInfo() {
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
 
         mSimCarrierIds = new SparseArray<>(supportedSimCount);
 
@@ -155,7 +156,7 @@ public final class CarrierInfo {
     }
 
     private static TelephonyManagerProxy getTelephonyManagerProxy(int slotId) {
-        if (MSimUtils.isMultiSimEnabled()) {
+        if (DeviceConfig.isMultiSimEnabled()) {
             int subId = MSimUtils.getSubId(slotId);
             if (MSimUtils.isValidSubId(subId)) {
                 return AppContext.getTelephonyManagerProxy(subId);

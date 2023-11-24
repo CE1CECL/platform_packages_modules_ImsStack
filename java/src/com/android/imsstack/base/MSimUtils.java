@@ -34,40 +34,6 @@ public final class MSimUtils {
     // Intent extra: Hidden menu
     public static final String EXTRA_KEY_SLOT_ID = "SLOT_ID";
 
-    /** Returns the default data subscription id. */
-    public static int getDefaultDataSubId() {
-        SubscriptionManagerProxy smp =
-                AppContext.getInstance().getSystemServiceProxy(SubscriptionManagerProxy.class);
-        return smp.getDefaultDataSubscriptionId();
-    }
-
-    /** Returns the default subscription id that can be used by ImsStack. */
-    public static int getImsDefaultSubId() {
-        if (isMultiSimEnabled()) {
-            return getDefaultDataSubId();
-        } else {
-            return getSubId(DEFAULT_PHONE_ID);
-        }
-    }
-
-    /**
-     * Returns the number of logical SIMs currently configured to be activated.
-     */
-    public static int getActiveSimCount() {
-        return getTelephonyManagerProxy().getActiveModemCount();
-    }
-
-    /**
-     * Returns how many logical SIM can be potentially active simultaneously, in terms of hardware
-     * capability.
-     * It might return different value from {@link #getActiveSimCount}. For example, for a
-     * dual-SIM capable device operating in single SIM mode (only one logical modem is turned on),
-     * {@link #getActiveSimCount} returns 1 while this API returns 2.
-     */
-    public static int getSupportedSimCount() {
-        return getTelephonyManagerProxy().getSupportedModemCount();
-    }
-
     /** Returns the phone id from the specified subscription id. */
     public static int getPhoneId(int subId) {
         return getPhoneId(subId, DEFAULT_PHONE_ID);
@@ -78,7 +44,7 @@ public final class MSimUtils {
         SubscriptionManagerProxy smp = getSubscriptionManagerProxy();
         int slotId = smp.getSlotIndex(subId);
 
-        if (slotId < DEFAULT_PHONE_ID || slotId >= getActiveSimCount()) {
+        if (slotId < DEFAULT_PHONE_ID) {
             // Set the phoneId as a default
             slotId = defaultPhoneId;
         }
@@ -144,11 +110,6 @@ public final class MSimUtils {
     /** Checks if the multiple IMS is capable when the multiple SIMs support. */
     public static boolean isMultiImsEnabled() {
         return true;
-    }
-
-    /** Checks if the device supports the multiple SIM cards. */
-    public static boolean isMultiSimEnabled() {
-        return getActiveSimCount() > 1;
     }
 
     /** Checks if the specified subscription id is usable or not. */

@@ -19,7 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.telephony.ims.feature.MmTelFeature;
 
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.Sim;
 import com.android.imsstack.core.agents.SimInterface;
@@ -210,7 +210,7 @@ public class ImsFeatureManager {
 
     private static boolean isAllSimAbsent() {
         boolean allSimAbsent = true;
-        int activeSimCount = MSimUtils.getActiveSimCount();
+        int activeSimCount = DeviceConfig.getActiveSimCount();
 
         for (int i = 0; i < activeSimCount; ++i) {
             SimInterface sim = AgentFactory.getInstance().getAgent(SimInterface.class, i);

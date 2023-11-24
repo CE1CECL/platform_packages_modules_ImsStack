@@ -17,6 +17,7 @@ package com.android.imsstack.enabler.mtc;
 
 import android.content.Context;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ConfigInterface;
@@ -109,8 +110,8 @@ public class MtcStateUtils {
         if (phoneId >= MSimUtils.DEFAULT_PHONE_ID) {
             initializeImsStateInternal(phoneId, initFlags);
         } else {
-            if (MSimUtils.isMultiSimEnabled()) {
-                int activeSimCount = MSimUtils.getActiveSimCount();
+            if (DeviceConfig.isMultiSimEnabled()) {
+                int activeSimCount = DeviceConfig.getActiveSimCount();
                 for (int i = 0; i < activeSimCount; ++i) {
                     initializeImsStateInternal(i, initFlags);
                 }

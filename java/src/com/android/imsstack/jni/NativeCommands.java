@@ -18,6 +18,7 @@ package com.android.imsstack.jni;
 import android.content.Context;
 import android.os.Parcel;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.config.ServiceCaps;
 
@@ -34,8 +35,8 @@ public class NativeCommands {
 
     /** Sets the device configuration. */
     public static void setDeviceConfig(Context c) {
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
-        int activeSimCount = MSimUtils.getActiveSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
+        int activeSimCount = DeviceConfig.getActiveSimCount();
         boolean imsEmergencyEnabled = true;
         boolean voLteEnabled = ServiceCaps.isVoLteEnabledByDevice(c, MSimUtils.DEFAULT_PHONE_ID);
         boolean vtEnabled = ServiceCaps.isVtEnabledByDevice(c, MSimUtils.DEFAULT_PHONE_ID);

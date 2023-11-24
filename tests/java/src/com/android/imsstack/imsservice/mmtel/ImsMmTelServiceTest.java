@@ -18,13 +18,15 @@ package com.android.imsstack.imsservice.mmtel;
 
 import static android.telephony.PreciseCallState.PRECISE_CALL_STATE_INCOMING_SETUP;
 
+import static com.android.imsstack.base.TestAppContext.SLOT0;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
@@ -32,11 +34,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.telecom.TelecomManager;
-import android.telephony.TelephonyManager;
 import android.telephony.ims.ImsCallProfile;
 import android.telephony.ims.ImsExternalCallState;
 import android.telephony.ims.MediaQualityStatus;
@@ -51,12 +51,10 @@ import android.telephony.ims.stub.ImsMultiEndpointImplBase;
 import android.telephony.ims.stub.ImsRegistrationImplBase;
 import android.telephony.ims.stub.ImsSmsImplBase;
 import android.telephony.ims.stub.ImsUtImplBase;
-import android.test.mock.MockContentResolver;
 
-import com.android.imsstack.ContextFixture;
 import com.android.imsstack.ImsStackTest;
-import com.android.imsstack.base.AppContext;
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.ContentProviderProxy.SettingsProxy;
+import com.android.imsstack.base.TestAppContext;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.imsservice.base.ImsContext;
 import com.android.imsstack.imsservice.mmtel.sms.SmsTransferLayer;
@@ -82,72 +80,59 @@ import java.util.function.Consumer;
 
 @RunWith(JUnit4.class)
 public class ImsMmTelServiceTest extends ImsStackTest {
-    private ImsContext mMockImsContext;
-    private IBaseContext mMockBaseContext;
-    private ImsCallContext mMockCallContext;
-    private ImsServiceRegistry mMockServiceRegistry;
-    private ImsServiceRecord mMockServiceRecord;
-    private ImsRegistrationTracker mMockRegTracker;
-    private IUtInterface mMockUtInterface;
-    private ImsCallApp mMockImsCallApp;
-    private ImsServiceManager mServiceManager;
-    private TestImsMmTelService mMmTelFeature;
-    private MmTelFeatureRegistry mMmTelFeatureRegistry;
-    private MockContentResolver mContentResolver;
+    @Mock private ImsContext mMockImsContext;
+    @Mock private IBaseContext mMockBaseContext;
+    @Mock private ImsCallContext mMockCallContext;
+    @Mock private ImsServiceRegistry mMockServiceRegistry;
+    @Mock private ImsServiceRecord mMockServiceRecord;
+    @Mock private ImsRegistrationTracker mMockRegTracker;
+    @Mock private IUtInterface mMockUtInterface;
+    @Mock private ImsCallApp mMockImsCallApp;
+    @Mock private SettingsProxy mGlobalSettings;
 
-    @Mock Context mMockContext;
-    @Mock TelephonyManager mMockTelephonyManager;
+    private TestAppContext mTestAppContext;
+    private ImsServiceManager mServiceManager;
+    private MmTelFeatureRegistry mMmTelFeatureRegistry;
+    private TestImsMmTelService mMmTelFeature;
 
     @Before
     public void setUp() throws Exception {
+        super.setUp(ImsMmTelServiceTest.class.getSimpleName());
         MockitoAnnotations.initMocks(this);
-        mContextFixture = new ContextFixture();
-        AppContext.init(mContextFixture.getTestDouble());
-        mContentResolver = new MockContentResolver();
+        mTestAppContext = new TestAppContext(mContext);
+        mTestAppContext.setUp();
 
-        mMockImsContext = Mockito.mock(ImsContext.class);
-        mMockBaseContext = Mockito.mock(IBaseContext.class);
-        when(mMockImsContext.getContext()).thenReturn(mMockContext);
-        when(mMockImsContext.getSlotId()).thenReturn(MSimUtils.DEFAULT_SLOT_ID);
-        when(mMockBaseContext.getSlotId()).thenReturn(MSimUtils.DEFAULT_SLOT_ID);
-        mMockServiceRegistry = Mockito.mock(ImsServiceRegistry.class);
-        mMockServiceRecord = Mockito.mock(ImsServiceRecord.class);
-        mMockRegTracker = Mockito.mock(ImsRegistrationTracker.class);
-        mMockUtInterface = Mockito.mock(IUtInterface.class);
-        mMockImsCallApp = Mockito.mock(ImsCallApp.class);
-        mMockCallContext = Mockito.mock(ImsCallContext.class);
-        when(mMockContext.getContentResolver()).thenReturn(mContentResolver);
-
-        mServiceManager = new ImsServiceManager(mMockContext, null);
-        mMmTelFeature = createMmTelService(mMockServiceRecord);
+        when(mMockImsContext.getContext()).thenReturn(mContext);
+        when(mMockImsContext.getSlotId()).thenReturn(SLOT0);
         when(mMockImsContext.getExecutor()).thenReturn(Runnable::run);
+        when(mMockBaseContext.getSlotId()).thenReturn(SLOT0);
+
+        when(mTestAppContext.getContentProviderProxy().getGlobalSettings())
+                .thenReturn(mGlobalSettings);
+        UtFactory.getInstance().setUtInterfaceForSlot(SLOT0, mMockUtInterface);
+        when(mMockServiceRecord.getRegistrationTracker()).thenReturn(mMockRegTracker);
+        mServiceManager = new ImsServiceManager(mContext, null);
+        mMmTelFeatureRegistry = ImsServiceRegistry.getInstance(SLOT0).getMmTelFeatureRegistry();
+        mMmTelFeature = createMmTelService(mMockServiceRecord);
         mMmTelFeature.setDefaultExecutor(Runnable::run);
-        mMmTelFeatureRegistry = ImsServiceRegistry
-                .getInstance(MSimUtils.DEFAULT_SLOT_ID).getMmTelFeatureRegistry();
-        mMockTelephonyManager = mContextFixture.getTestDouble()
-                .getSystemService(TelephonyManager.class);
-        when(mMockTelephonyManager.createForSubscriptionId(anyInt()))
-                .thenReturn(mMockTelephonyManager);
-        when(mMockTelephonyManager.getSupportedModemCount()).thenReturn(1);
-        UtFactory.getInstance().setUtInterfaceForSlot(0, mMockUtInterface);
     }
 
     @After
     public void tearDown() throws Exception {
+        super.tearDown();
         mMmTelFeature = null;
-        mServiceManager.getServiceRecordMap().clear();
         ImsServiceManager.setDefault(null);
-        mServiceManager.dispose();
-        mServiceManager = null;
-        mContextFixture = null;
-        mContentResolver = null;
-        UtFactory.getInstance().setUtInterfaceForSlot(MSimUtils.DEFAULT_SLOT_ID, null);
-        AppContext.deinit();
+        if (mServiceManager != null) {
+            mServiceManager.dispose();
+            mServiceManager = null;
+        }
+        UtFactory.getInstance().setUtInterfaceForSlot(SLOT0, null);
+        mTestAppContext.tearDown();
+        mTestAppContext = null;
     }
 
     @Test
     public void testStart() {
-        when(mMockServiceRecord.getRegistrationTracker()).thenReturn(mMockRegTracker);
         when(mMockServiceRecord.isServiceUp()).thenReturn(false);
         mMmTelFeature.start();
         verify(mMockServiceRecord, times(1)).setListener(any(ImsMmTelService.class));
@@ -177,9 +162,10 @@ public class ImsMmTelServiceTest extends ImsStackTest {
 
     @Test
     public void testOnServiceRecordStateChanged() {
+        ImsServiceManager.setDefault(null);
         mMmTelFeature = createMmTelService(null);
         mMmTelFeature.onServiceRecordStateChanged();
-        verify(mMockServiceRegistry, never()).setMmTelFeature(null);
+        verify(mMockServiceRegistry, never()).setMmTelFeature(eq(null));
 
         mMockServiceRecord = Mockito.mock(ImsServiceRecord.class);
         mMmTelFeature = createMmTelService(mMockServiceRecord);
@@ -241,7 +227,6 @@ public class ImsMmTelServiceTest extends ImsStackTest {
         capabilityRequest.addCapabilitiesToDisableForTech(MmTelCapabilities.CAPABILITY_TYPE_VIDEO,
                 ImsRegistrationImplBase.REGISTRATION_TECH_LTE);
 
-        when(mMockServiceRecord.getRegistrationTracker()).thenReturn(mMockRegTracker);
         when(mMockServiceRecord.isServiceUp()).thenReturn(false);
         mMmTelFeature.start();
         mMmTelFeature.changeEnabledCapabilities(capabilityRequest, null);
@@ -378,11 +363,11 @@ public class ImsMmTelServiceTest extends ImsStackTest {
 
         ConcurrentHashMap<Integer, ImsCallApp> callApps;
         callApps = mServiceManager.getCallAppMap();
-        callApps.put(0, mMockImsCallApp);
+        callApps.put(SLOT0, mMockImsCallApp);
         mMmTelFeature = createMmTelService(null);
         mMmTelFeature.start();
         ImsServiceManager.setDefault(mServiceManager);
-        when(mMockImsContext.getPhoneId()).thenReturn(0);
+        when(mMockImsContext.getPhoneId()).thenReturn(SLOT0);
         mMmTelFeature.onFeatureRemoved();
         verify(mMockServiceRegistry).setMmTelFeature(null);
         callApps.clear();
@@ -390,14 +375,17 @@ public class ImsMmTelServiceTest extends ImsStackTest {
 
     @Test
     public void testOnFeatureReady() {
-        ImsServiceManager serviceManager = new ImsServiceManager(mMockContext, null);
+        ImsServiceManager serviceManager = new ImsServiceManager(mContext, null);
         ImsServiceManager.setDefault(serviceManager);
-        when(mMockImsContext.getPhoneId()).thenReturn(0);
-        mMockImsCallApp = null;
-        mMmTelFeature.onFeatureReady();
-        assertNotNull(mMockImsCallApp);
-        serviceManager.dispose();
-        ImsServiceManager.setDefault(null);
+        try {
+            when(mMockImsContext.getPhoneId()).thenReturn(SLOT0);
+            mMockImsCallApp = null;
+            mMmTelFeature.onFeatureReady();
+            assertNotNull(mMockImsCallApp);
+        } finally {
+            serviceManager.dispose();
+            ImsServiceManager.setDefault(null);
+        }
     }
 
     @Test
@@ -506,9 +494,7 @@ public class ImsMmTelServiceTest extends ImsStackTest {
             ConcurrentHashMap<Integer, ImsServiceRecord> serviceRecords =
                     mServiceManager.getServiceRecordMap();
             ImsServiceManager.setDefault(mServiceManager);
-            serviceRecords.put(0, sr);
-        } else {
-            ImsServiceManager.setDefault(null);
+            serviceRecords.put(SLOT0, sr);
         }
 
         return imsMmTelFeature;

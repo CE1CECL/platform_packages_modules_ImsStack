@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.android.imsstack.R;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.carrier.CarrierInfo;
 import com.android.imsstack.core.carrier.ImsCarrierResolver;
@@ -108,7 +109,7 @@ public class ImsConfigMenu extends PreferenceActivity {
     private void showSimList() {
         mSimList = new ArrayList<>();
 
-        int activeSimCount = MSimUtils.getActiveSimCount();
+        int activeSimCount = DeviceConfig.getActiveSimCount();
 
         for (int i = 0; i < activeSimCount; i++) {
             SimCarrierId cid = CarrierInfo.getInstance().getCarrierId(i);

@@ -34,6 +34,7 @@ import android.telephony.TelephonyManager;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.base.SystemServiceProxy.SubscriptionManagerProxy;
@@ -80,13 +81,9 @@ public class CarrierInfoTest {
 
         mTestAppContext = new TestAppContext();
         mTestAppContext.setUp();
-
-        doReturn(mSp).when(mTestAppContext.getContext())
-                .getSharedPreferences(anyString(), anyInt());
+        DeviceConfig.setSimCount(MAX_SIM_SLOT, MAX_SIM_SLOT);
 
         mTelephonyManagerProxy = mTestAppContext.getSystemServiceProxy(TelephonyManagerProxy.class);
-        when(mTelephonyManagerProxy.getActiveModemCount()).thenReturn(MAX_SIM_SLOT);
-        when(mTelephonyManagerProxy.getSupportedModemCount()).thenReturn(MAX_SIM_SLOT);
         when(mTelephonyManagerProxy.getSimSerialNumber()).thenReturn(SIM_ICCID);
         when(mTelephonyManagerProxy.getSimCarrierId()).thenReturn(SIM_CARRIER_ID);
         when(mTelephonyManagerProxy.getSimSpecificCarrierId()).thenReturn(SIM_SPECIFIC_CARRIER_ID);
@@ -94,6 +91,8 @@ public class CarrierInfoTest {
         when(mTelephonyManagerProxy.getSubscriberId()).thenReturn(SIM_IMSI);
         when(mTelephonyManagerProxy.getGroupIdLevel1()).thenReturn(SIM_GID1);
         when(mTelephonyManagerProxy.getSimOperatorName()).thenReturn(SIM_OPERATOR_NAME);
+        doReturn(mSp).when(mTestAppContext.getContext())
+                .getSharedPreferences(anyString(), anyInt());
 
         mCi = new CarrierInfo();
     }
@@ -103,6 +102,7 @@ public class CarrierInfoTest {
         mCi = null;
         mSp = null;
         mTelephonyManagerProxy = null;
+        DeviceConfig.setSimCount(1, 1);
         mTestAppContext.tearDown();
         mTestAppContext = null;
     }

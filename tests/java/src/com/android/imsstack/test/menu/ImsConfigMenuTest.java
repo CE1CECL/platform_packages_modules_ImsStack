@@ -20,13 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 import android.app.Instrumentation;
-import android.content.Context;
 import android.content.Intent;
 import android.preference.Preference;
-import android.telephony.TelephonyManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -34,8 +31,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.android.imsstack.ContextFixture;
-import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.carrier.CarrierInfo;
 
@@ -48,34 +44,23 @@ import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
 public class ImsConfigMenuTest {
-    private static final int MAX_MODEM_COUNT = 2;
-
     private Instrumentation mInstrumentation;
-    private ContextFixture mContextFixture;
     private ImsConfigMenu mImsConfigMenu;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
-
-        mContextFixture = new ContextFixture();
-        Context context = mContextFixture.getTestDouble();
-        AppContext.init(context);
-        TelephonyManager tm = context.getSystemService(TelephonyManager.class);
-        when(tm.getActiveModemCount()).thenReturn(MAX_MODEM_COUNT);
-        when(tm.getSupportedModemCount()).thenReturn(MAX_MODEM_COUNT);
-
+        DeviceConfig.setSimCount(2, 2);
         CarrierInfo.clear();
     }
 
     @After
     public void tearDown() throws Exception {
         mImsConfigMenu = null;
-        mContextFixture = null;
         mInstrumentation = null;
         CarrierInfo.clear();
-        AppContext.deinit();
+        DeviceConfig.setSimCount(1, 1);
     }
 
     @Test

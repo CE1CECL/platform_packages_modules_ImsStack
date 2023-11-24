@@ -18,6 +18,7 @@ package com.android.imsstack.imsservice.mmtel;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.ImsPrivateProperties;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.AgentFactory;
@@ -40,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ImsServiceManager {
-    private static ImsServiceManager sServiceManager;
+    private static ImsServiceManager sServiceManager = null;
     private final Context mContext;
     private final MessageExecutor mExecutor;
     protected final ImsServiceListener mImsServiceListener;
@@ -61,7 +62,7 @@ public class ImsServiceManager {
         mContext = context;
         mExecutor = executor;
 
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
 
         mOperator = new String[supportedSimCount];
         mCountry = new String[supportedSimCount];
@@ -188,7 +189,7 @@ public class ImsServiceManager {
 
     public ImsCallApp getCallAppByPhoneId(int phoneId) {
         if (getDefaultPhoneId() != phoneId) {
-            if (MSimUtils.isMultiSimEnabled() && !isMultiImsEnabled()) {
+            if (DeviceConfig.isMultiSimEnabled() && !isMultiImsEnabled()) {
                 return null;
             }
         }
@@ -296,7 +297,7 @@ public class ImsServiceManager {
     }
 
     private void createServiceRecords() {
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
 
         for (int i = 0; i < supportedSimCount; ++i) {
             mServiceRecords.put(i, new ImsServiceRecord(mContext, mExecutor, i));
@@ -333,7 +334,7 @@ public class ImsServiceManager {
         }
 
         // As default, first one will be selected
-        if (!MSimUtils.isMultiSimEnabled()) {
+        if (!DeviceConfig.isMultiSimEnabled()) {
             return mServiceRecords.get(MSimUtils.DEFAULT_PHONE_ID);
         }
 
@@ -388,7 +389,7 @@ public class ImsServiceManager {
             }
 
             // reset old mOperator value for non DSDV SIM-hotswap case
-            if (MSimUtils.isMultiSimEnabled()) {
+            if (DeviceConfig.isMultiSimEnabled()) {
                 mOperator[oldPhoneId] = null;
             }
 
@@ -413,7 +414,7 @@ public class ImsServiceManager {
 
     // Operator changed by hotswap
     private void checkOperatorAndRebindCallApp(int phoneId) {
-        if (phoneId < MSimUtils.DEFAULT_PHONE_ID || phoneId >= MSimUtils.getActiveSimCount()) {
+        if (phoneId < MSimUtils.DEFAULT_PHONE_ID || phoneId >= DeviceConfig.getActiveSimCount()) {
             return;
         }
 
@@ -606,7 +607,8 @@ public class ImsServiceManager {
         public void onImsServiceStopped(int slotId) {
             logi("onImsServiceStopped: slotId=" + slotId);
 
-            if (slotId < MSimUtils.DEFAULT_PHONE_ID || slotId >= MSimUtils.getSupportedSimCount()) {
+            if (slotId < MSimUtils.DEFAULT_PHONE_ID
+                    || slotId >= DeviceConfig.getSupportedSimCount()) {
                 return;
             }
 

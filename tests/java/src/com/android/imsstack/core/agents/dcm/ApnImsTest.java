@@ -16,6 +16,8 @@
 
 package com.android.imsstack.core.agents.dcm;
 
+import static com.android.imsstack.base.TestAppContext.SLOT0;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -28,7 +30,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkRequest;
 import android.os.Handler;
@@ -39,7 +40,9 @@ import android.testing.AndroidTestingRunner;
 import android.testing.TestableLooper;
 
 import com.android.imsstack.ContextFixture;
-import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.DeviceConfig;
+import com.android.imsstack.base.SystemServiceProxy.ConnectivityManagerProxy;
+import com.android.imsstack.base.TestAppContext;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ImsTrafficInterface;
 import com.android.imsstack.core.agents.SubsInfoInterface;
@@ -66,7 +69,6 @@ import java.lang.reflect.Field;
 @RunWith(AndroidTestingRunner.class)
 @TestableLooper.RunWithLooper
 public class ApnImsTest {
-    private static final int SLOT_0 = 0;
     ApnIms mApnIms;
 
     @Mock private Apn.ImsNetworkCallback mMockNetworkCallback;
@@ -80,26 +82,25 @@ public class ApnImsTest {
     @Mock private SubsInfoInterface mMockSubsInfoInterface;
     @Mock private RuntimeException mMockRuntimeException;
 
-    private Context mContext;
+    private ContextFixture mContextFixture;
     private TestableLooper mTestableLooper;
-    private ConnectivityManager mConnectivityManager;
-    private TelephonyManager mTelephonyManager;
+    private TestAppContext mTestAppContext;
+    private ConnectivityManagerProxy mConnectivityManagerProxy;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        mContext = new ContextFixture().getTestDouble();
-        AppContext.init(mContext);
+        mContextFixture = new ContextFixture();
+        mTestAppContext = new TestAppContext(mContextFixture.getTestDouble());
+        mTestAppContext.setUp();
 
-        // create the instance to test
-        mApnIms = new ApnIms(AppContext.getInstance(), SLOT_0);
-        mConnectivityManager = AppContext.getInstance().getSystemService(ConnectivityManager.class);
-        mTelephonyManager = AppContext.getInstance().getSystemService(TelephonyManager.class);
+        mConnectivityManagerProxy =
+                mTestAppContext.getSystemServiceProxy(ConnectivityManagerProxy.class);
 
+        mApnIms = new ApnIms(mContextFixture.getTestDouble(), SLOT0);
         mTestableLooper = TestableLooper.get(ApnImsTest.this);
         mTestableLooper.processAllMessages();
-
         replaceInstance(Apn.class, "mSystem", mApnIms, mMockISystem);
         replaceInstance(Apn.class, "mDcSettings", mApnIms, mMockIDcSettings);
     }
@@ -113,11 +114,11 @@ public class ApnImsTest {
 
         TestableLooper.remove(ApnImsTest.this);
         mTestableLooper = null;
-        mConnectivityManager = null;
-        mTelephonyManager = null;
-
-        AppContext.deinit();
-        mContext = null;
+        mConnectivityManagerProxy = null;
+        mContextFixture = null;
+        DeviceConfig.setSimCount(1, 1);
+        mTestAppContext.tearDown();
+        mTestAppContext = null;
     }
 
     @Test
@@ -125,7 +126,7 @@ public class ApnImsTest {
         assertTrue(mApnIms.connect());
         assertEquals(EApnReqState.APN_REQUEST_DONE, mApnIms.getApnReqState());
         assertEquals(TelephonyManager.DATA_CONNECTING, mApnIms.getDataState());
-        verify(mConnectivityManager).requestNetwork(any(NetworkRequest.class),
+        verify(mConnectivityManagerProxy).requestNetwork(any(NetworkRequest.class),
                 any(ConnectivityManager.NetworkCallback.class), any(Handler.class));
 
         // return true without request to connect because request is already done
@@ -135,15 +136,16 @@ public class ApnImsTest {
     @Test
     public void testConnect_imsOff() throws Exception {
         AgentFactory.getInstance()
-                .setAgent(SubsInfoInterface.class, mMockSubsInfoInterface, SLOT_0);
+                .setAgent(SubsInfoInterface.class, mMockSubsInfoInterface, SLOT0);
 
         // If IMS is not enabled, do not handle connect request and return false
         when(mMockSubsInfoInterface.isImsEnabled()).thenReturn(false);
         assertFalse(mApnIms.connect());
-        verify(mConnectivityManager, never()).requestNetwork(
-                any(NetworkRequest.class), any(ConnectivityManager.NetworkCallback.class));
+        verify(mConnectivityManagerProxy, never())
+                .requestNetwork(any(NetworkRequest.class),
+                        any(ConnectivityManager.NetworkCallback.class), any(Handler.class));
 
-        AgentFactory.getInstance().setAgent(SubsInfoInterface.class, null, SLOT_0);
+        AgentFactory.getInstance().setAgent(SubsInfoInterface.class, null, SLOT0);
     }
 
     @Test
@@ -159,7 +161,7 @@ public class ApnImsTest {
         mApnIms.mDataState = TelephonyManager.DATA_CONNECTED;
 
         assertTrue(mApnIms.disconnect());
-        verify(mConnectivityManager).unregisterNetworkCallback(mMockNetworkCallback);
+        verify(mConnectivityManagerProxy).unregisterNetworkCallback(mMockNetworkCallback);
         assertEquals(EApnReqState.APN_REQUEST_IDLE, mApnIms.getApnReqState());
         assertEquals(TelephonyManager.DATA_DISCONNECTED, mApnIms.getDataState());
         mTestableLooper.processAllMessages();
@@ -192,18 +194,18 @@ public class ApnImsTest {
     @Test
     public void testHandleCarrierConfigChanged() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(true);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
 
         mApnIms.registerDefaultNetworkCallback();
 
         // do not handle the event for other slot
-        mApnIms.handleCarrierConfigChanged(SLOT_0 + 1, 1);
+        mApnIms.handleCarrierConfigChanged(SLOT0 + 1, 1);
         // only handle the event for my slot
-        mApnIms.handleCarrierConfigChanged(SLOT_0, 1);
+        mApnIms.handleCarrierConfigChanged(SLOT0, 1);
 
-        verify(mConnectivityManager)
+        verify(mConnectivityManagerProxy)
                 .unregisterNetworkCallback(any(ConnectivityManager.NetworkCallback.class));
-        verify(mConnectivityManager, times(2)).registerDefaultNetworkCallback(
+        verify(mConnectivityManagerProxy, times(2)).registerDefaultNetworkCallback(
                 any(ConnectivityManager.NetworkCallback.class), any(Handler.class));
     }
 
@@ -232,40 +234,41 @@ public class ApnImsTest {
     @Test
     public void testRegisterDefaultNetworkCallback_SingleSim() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(true);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(1);
 
         mApnIms.registerDefaultNetworkCallback();
-        verify(mConnectivityManager, never())
-                .registerDefaultNetworkCallback(any(ConnectivityManager.NetworkCallback.class));
+        verify(mConnectivityManagerProxy, never())
+                .registerDefaultNetworkCallback(any(ConnectivityManager.NetworkCallback.class),
+                        any(Handler.class));
     }
 
     @Test
     public void testRegisterDefaultNetworkCallback_crossSimDisabled() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(false);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
 
         mApnIms.registerDefaultNetworkCallback();
-        verify(mConnectivityManager, never())
-                .registerDefaultNetworkCallback(any(ConnectivityManager.NetworkCallback.class));
+        verify(mConnectivityManagerProxy, never())
+                .registerDefaultNetworkCallback(any(ConnectivityManager.NetworkCallback.class),
+                        any(Handler.class));
     }
 
     @Test
     public void testRegisterDefaultNetworkCallback_alreadyRegistered() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(true);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
 
         // do not invoke registerDefaultNetworkCallback if it has registered networkCallback once
         mApnIms.registerDefaultNetworkCallback();
         mApnIms.registerDefaultNetworkCallback();
-        verify(mConnectivityManager).registerDefaultNetworkCallback(
+        verify(mConnectivityManagerProxy).registerDefaultNetworkCallback(
                 any(ConnectivityManager.NetworkCallback.class), any(Handler.class));
     }
 
     @Test
     public void testRegisterDefaultNetworkCallback_runtimeException() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(true);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
-        doThrow(mMockRuntimeException).when(mConnectivityManager)
+        DeviceConfig.setSimCount(2, 2);
+        doThrow(mMockRuntimeException).when(mConnectivityManagerProxy)
                 .registerDefaultNetworkCallback(
                         any(ConnectivityManager.NetworkCallback.class), any(Handler.class));
 
@@ -276,28 +279,28 @@ public class ApnImsTest {
     @Test
     public void testUnregisterDefaultNetworkCallback() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(true);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
 
         // do not invoke unregisterNetworkCallback() if callback has not been registered
         mApnIms.unregisterDefaultNetworkCallback();
-        verify(mConnectivityManager, never())
+        verify(mConnectivityManagerProxy, never())
                 .unregisterNetworkCallback(any(ConnectivityManager.NetworkCallback.class));
 
         mApnIms.registerDefaultNetworkCallback();
-        verify(mConnectivityManager).registerDefaultNetworkCallback(
+        verify(mConnectivityManagerProxy).registerDefaultNetworkCallback(
                 any(ConnectivityManager.NetworkCallback.class), any(Handler.class));
 
         mApnIms.unregisterDefaultNetworkCallback();
-        verify(mConnectivityManager)
+        verify(mConnectivityManagerProxy)
                 .unregisterNetworkCallback(any(ConnectivityManager.NetworkCallback.class));
     }
 
     @Test
     public void testUnRegisterDefaultNetworkCallback_runtimeException() throws Exception {
         when(mMockIDcSettings.isCrossSimEnabledByPlatform()).thenReturn(true);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
         mApnIms.registerDefaultNetworkCallback();
-        doThrow(mMockRuntimeException).when(mConnectivityManager)
+        doThrow(mMockRuntimeException).when(mConnectivityManagerProxy)
                 .unregisterNetworkCallback(any(ConnectivityManager.NetworkCallback.class));
 
         mApnIms.unregisterDefaultNetworkCallback();
@@ -388,7 +391,7 @@ public class ApnImsTest {
         verify(mMockISystem).notifyDataConnectionIpcanChanged(
                 mApnIms.mType.getType(), Apn.IPCAN_CATEGORY_WLAN);
         verify(mMockIDcNetWatcher).getNetworkType();
-        verify(mMockImsTrafficInterface).setWlan(true, SLOT_0);
+        verify(mMockImsTrafficInterface).setWlan(true, SLOT0);
 
         AgentFactory.getInstance().setAgent(ImsTrafficInterface.class, null);
     }

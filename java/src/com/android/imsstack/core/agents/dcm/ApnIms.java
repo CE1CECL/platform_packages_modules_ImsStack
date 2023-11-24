@@ -22,7 +22,7 @@ import android.telephony.Annotation.NetworkType;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.SystemServiceProxy.ConnectivityManagerProxy;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.ImsTrafficInterface;
@@ -206,7 +206,7 @@ public class ApnIms extends Apn {
     }
 
     protected void registerDefaultNetworkCallback() {
-        if (!MSimUtils.isMultiSimEnabled()) {
+        if (!DeviceConfig.isMultiSimEnabled()) {
             ImsLog.i(mSlotId, "MultiSim is not enabled");
             return;
         }

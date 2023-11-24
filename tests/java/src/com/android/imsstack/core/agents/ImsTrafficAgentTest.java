@@ -15,19 +15,20 @@
  */
 package com.android.imsstack.core.agents;
 
+import static com.android.imsstack.base.TestAppContext.SLOT0;
+import static com.android.imsstack.base.TestAppContext.SLOT1;
+
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
-import android.telephony.TelephonyManager;
 import android.testing.TestableLooper;
 
 import androidx.test.filters.SmallTest;
 
-import com.android.imsstack.ContextFixture;
 import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.DeviceConfig;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,14 +40,9 @@ import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
 public class ImsTrafficAgentTest {
-    private static final int SLOT0 = 0;
-    private static final int SLOT1 = 1;
+    @Mock private ImsTrafficInterface.PriorityListener mPriorityListener;
+    @Mock private Context mContext;
 
-    @Mock ImsTrafficInterface.PriorityListener mPriorityListener;
-
-    private TelephonyManager mTelephonyManager;
-    private ContextFixture mContextFixture;
-    private Context mContext;
     private TestableLooper mTestableLooper;
     private ImsTrafficAgent mImsTrafficAgent;
 
@@ -54,11 +50,8 @@ public class ImsTrafficAgentTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        mContextFixture = new ContextFixture();
-        mContext = mContextFixture.getTestDouble();
         AppContext.init(mContext);
-        mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
-        when(mTelephonyManager.getSupportedModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
         mTestableLooper = new TestableLooper(AppContext.getInstance().getMainLooper());
 
         mImsTrafficAgent = new ImsTrafficAgent();
@@ -79,9 +72,9 @@ public class ImsTrafficAgentTest {
             mTestableLooper = null;
         }
 
+        DeviceConfig.setSimCount(1, 1);
         AppContext.deinit();
         mContext = null;
-        mContextFixture = null;
     }
 
     @Test

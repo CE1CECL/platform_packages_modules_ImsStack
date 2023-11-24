@@ -16,7 +16,7 @@
 
 package com.android.imsstack.imsservice.mmtel;
 
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.util.ImsLog;
 
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public final class ImsCallConnectionIds {
 
     static {
         sCallConnectionIdTable = new HashMap<Integer, List<Integer>>();
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
 
         for (int i = 0; i < supportedSimCount; i++) {
             sCallConnectionIdTable.put(i, new ArrayList<Integer>());

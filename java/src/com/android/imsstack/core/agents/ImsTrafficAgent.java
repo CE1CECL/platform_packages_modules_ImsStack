@@ -20,7 +20,7 @@ import android.os.Handler;
 import android.util.SparseArray;
 
 import com.android.imsstack.base.AppContext;
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.util.ImsLog;
 
 import java.util.Map;
@@ -56,7 +56,7 @@ public class ImsTrafficAgent implements ImsTrafficInterface {
             new CopyOnWriteArraySet<PriorityListener>();
 
     public ImsTrafficAgent() {
-        int supportedSimCount = MSimUtils.getSupportedSimCount();
+        int supportedSimCount = DeviceConfig.getSupportedSimCount();
         mTraffics = new SparseArray<>(supportedSimCount);
 
         for (int i = 0; i < supportedSimCount; i++) {

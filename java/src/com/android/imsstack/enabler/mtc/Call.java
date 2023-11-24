@@ -19,7 +19,7 @@ package com.android.imsstack.enabler.mtc;
 import android.os.Bundle;
 import android.os.SystemClock;
 
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.enabler.IBaseContext;
 import com.android.imsstack.util.ImsLog;
 
@@ -487,7 +487,7 @@ public class Call implements Closeable {
 
     private String createLogTag() {
         String id = "";
-        if (MSimUtils.isMultiSimEnabled()) {
+        if (DeviceConfig.isMultiSimEnabled()) {
             if (mContext.getSlotId() == 0) {
                 id = mCallIndex + "x";
             } else {

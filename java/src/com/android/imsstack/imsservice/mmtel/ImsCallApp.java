@@ -21,6 +21,7 @@ import android.telephony.TelephonyManager;
 import android.telephony.ims.ImsCallProfile;
 import android.telephony.ims.ImsStreamMediaProfile;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.enabler.mtc.MtcStateUtils;
@@ -446,7 +447,7 @@ public class ImsCallApp extends ImsApp {
     private void initializeImsStates(int initFlags) {
         int phoneId = MSimUtils.DEFAULT_PHONE_ID;
 
-        if (MSimUtils.isMultiSimEnabled()) {
+        if (DeviceConfig.isMultiSimEnabled()) {
             phoneId = getPhoneId();
         }
 

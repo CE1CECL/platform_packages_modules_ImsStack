@@ -40,6 +40,7 @@ import android.telephony.TelephonyManager;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.TelephonyManagerProxy;
 import com.android.imsstack.base.TestAppContext;
 import com.android.imsstack.core.agents.dcmif.IDcUtils;
@@ -258,13 +259,16 @@ public class DcUtilsTest {
     @Test
     @SmallTest
     public void getServiceState_multiSim() {
-        when(mTelephonyManagerProxy.getActiveModemCount()).thenReturn(2);
-        when(mTelephonyManagerProxy.getSupportedModemCount()).thenReturn(2);
+        DeviceConfig.setSimCount(2, 2);
 
-        ServiceState ss = mDcUtils.getServiceState();
+        try {
+            ServiceState ss = mDcUtils.getServiceState();
 
-        verify(mTelephonyManagerProxy).createForSubscriptionId(anyInt());
-        assertEquals(mServiceState, ss);
+            verify(mTelephonyManagerProxy).createForSubscriptionId(anyInt());
+            assertEquals(mServiceState, ss);
+        } finally {
+            DeviceConfig.setSimCount(1, 1);
+        }
     }
 
     @Test

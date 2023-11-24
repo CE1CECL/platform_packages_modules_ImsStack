@@ -25,7 +25,7 @@ import android.telephony.ims.stub.ImsFeatureConfiguration;
 import android.telephony.ims.stub.ImsRegistrationImplBase;
 import android.telephony.ims.stub.SipTransportImplBase;
 
-import com.android.imsstack.base.MSimUtils;
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.imsservice.mmtel.ImsServiceManager;
 import com.android.imsstack.imsservice.mmtel.ImsServiceRecord;
 import com.android.imsstack.util.IndentingPrintWriter;
@@ -80,7 +80,7 @@ public class ImsService extends android.telephony.ims.ImsService {
         // It will return the supported features by this ImsService.
         // Generally, the features are the same as defined in AndroidManifest.xml.
         ImsFeatureConfiguration.Builder fcBuilder = new ImsFeatureConfiguration.Builder();
-        int simCount = MSimUtils.getActiveSimCount();
+        int simCount = DeviceConfig.getActiveSimCount();
 
         for (int i = 0; i < simCount; i++) {
             fcBuilder.addFeature(i, ImsFeature.FEATURE_MMTEL);

@@ -93,6 +93,11 @@ public class ImsCallLocationPolicyTest extends ImsStackTest {
         mContextFixture = null;
         AgentFactory.getInstance().setAgent(ConfigInterface.class, null, MSimUtils.DEFAULT_SLOT_ID);
         AppContext.deinit();
+        ImsServiceManager ism = ImsServiceManager.getDefault();
+        if (ism != null) {
+            ism.dispose();
+            ImsServiceManager.setDefault(null);
+        }
     }
 
     @Test

@@ -15,8 +15,8 @@
  */
 package com.android.imsstack.enabler.aos;
 
+import com.android.imsstack.base.DeviceConfig;
 import com.android.imsstack.base.ImsPrivateProperties;
-import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.enabler.aos.service.AosService;
 import com.android.imsstack.util.ImsLog;
 import com.android.internal.annotations.VisibleForTesting;
@@ -33,13 +33,13 @@ public class AosFactory {
 
     @VisibleForTesting
     public final Map<Integer, AosService> mAosServices =
-            new HashMap<Integer, AosService>(MSimUtils.getSupportedSimCount());
+            new HashMap<Integer, AosService>(DeviceConfig.getSupportedSimCount());
     @VisibleForTesting
     protected final Map<Integer, AosSettingService> mAosSettingServices =
-            new HashMap<Integer, AosSettingService>(MSimUtils.getSupportedSimCount());
+            new HashMap<Integer, AosSettingService>(DeviceConfig.getSupportedSimCount());
     @VisibleForTesting
     protected final Map<Integer, AosDebug> mAosDebugs =
-            new HashMap<Integer, AosDebug>(MSimUtils.getSupportedSimCount());
+            new HashMap<Integer, AosDebug>(DeviceConfig.getSupportedSimCount());
 
     public static AosFactory getInstance() {
         if (sFactory == null) {

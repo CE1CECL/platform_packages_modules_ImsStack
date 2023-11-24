@@ -15,6 +15,11 @@
  */
 package com.android.imsstack.base;
 
+import static com.android.imsstack.base.TestAppContext.SLOT0;
+import static com.android.imsstack.base.TestAppContext.SLOT1;
+import static com.android.imsstack.base.TestAppContext.SUB_ID_1;
+import static com.android.imsstack.base.TestAppContext.SUB_ID_2;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -37,10 +42,7 @@ import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
 public class MSimUtilsTest {
-    private static final int[] MAX_SUPPORTED_SIM_COUNT = { 1, 2 };
-    private static final int[] MAX_ACTIVE_SIM_COUNT = { 1, 2 };
     private static final boolean[] HAS_ICC_CARD = { true, false };
-    private static final int DEFAULT_DATA_SUB_ID = 3;
 
     @Mock private Context mContext;
 
@@ -56,16 +58,10 @@ public class MSimUtilsTest {
         mTestAppContext.setUp();
 
         mTelephonyManagerProxy = mTestAppContext.getSystemServiceProxy(TelephonyManagerProxy.class);
-        when(mTelephonyManagerProxy.getActiveModemCount())
-                .thenReturn(MAX_ACTIVE_SIM_COUNT[0], MAX_ACTIVE_SIM_COUNT[1]);
-        when(mTelephonyManagerProxy.getSupportedModemCount())
-                .thenReturn(MAX_SUPPORTED_SIM_COUNT[0], MAX_SUPPORTED_SIM_COUNT[1]);
         when(mTelephonyManagerProxy.hasIccCard()).thenReturn(HAS_ICC_CARD[0], HAS_ICC_CARD[1]);
 
         mSubscriptionManagerProxy =
                 mTestAppContext.getSystemServiceProxy(SubscriptionManagerProxy.class);
-        when(mSubscriptionManagerProxy.getDefaultDataSubscriptionId())
-                .thenReturn(DEFAULT_DATA_SUB_ID);
     }
 
     @After
@@ -80,19 +76,11 @@ public class MSimUtilsTest {
     @Test
     @SmallTest
     public void testGetMethods() {
-        assertEquals(DEFAULT_DATA_SUB_ID, MSimUtils.getDefaultDataSubId());
+        assertEquals(SLOT0, MSimUtils.getSlotId(SUB_ID_1));
+        assertEquals(SLOT1, MSimUtils.getSlotId(SUB_ID_2));
 
-        assertEquals(TestAppContext.SLOT0, MSimUtils.getSlotId(TestAppContext.SUB_ID_1));
-        assertEquals(TestAppContext.SLOT1, MSimUtils.getSlotId(TestAppContext.SUB_ID_2));
-
-        assertEquals(MAX_ACTIVE_SIM_COUNT[0], MSimUtils.getActiveSimCount());
-        assertEquals(MAX_ACTIVE_SIM_COUNT[1], MSimUtils.getActiveSimCount());
-
-        assertEquals(MAX_SUPPORTED_SIM_COUNT[0], MSimUtils.getSupportedSimCount());
-        assertEquals(MAX_SUPPORTED_SIM_COUNT[1], MSimUtils.getSupportedSimCount());
-
-        assertEquals(TestAppContext.SUB_ID_1, MSimUtils.getSubId(TestAppContext.SLOT0));
-        assertEquals(TestAppContext.SUB_ID_2, MSimUtils.getSubId(TestAppContext.SLOT1));
+        assertEquals(SUB_ID_1, MSimUtils.getSubId(SLOT0));
+        assertEquals(SUB_ID_2, MSimUtils.getSubId(SLOT1));
     }
 
     @Test
@@ -100,31 +88,21 @@ public class MSimUtilsTest {
     public void testCheckMethods() {
         assertTrue(MSimUtils.isMultiImsEnabled());
 
-        MSimUtils.isMultiSimEnabled();
-        verify(mTelephonyManagerProxy).getActiveModemCount();
+        MSimUtils.isUsableSubId(SUB_ID_1);
+        verify(mSubscriptionManagerProxy).isUsableSubscriptionId(eq(SUB_ID_1));
 
-        MSimUtils.isUsableSubId(TestAppContext.SUB_ID_1);
-        verify(mSubscriptionManagerProxy).isUsableSubscriptionId(eq(TestAppContext.SUB_ID_1));
+        MSimUtils.isValidSubId(SUB_ID_1);
+        verify(mSubscriptionManagerProxy).isValidSubscriptionId(eq(SUB_ID_1));
 
-        MSimUtils.isValidSubId(TestAppContext.SUB_ID_1);
-        verify(mSubscriptionManagerProxy).isValidSubscriptionId(eq(TestAppContext.SUB_ID_1));
-
-        MSimUtils.hasIccCard(TestAppContext.SLOT0);
+        MSimUtils.hasIccCard(SLOT0);
         verify(mTelephonyManagerProxy).hasIccCard();
     }
 
     @Test
     @SmallTest
-    public void testGetImsDefaultSubId() {
-        assertEquals(TestAppContext.SUB_ID_1, MSimUtils.getImsDefaultSubId());
-        assertEquals(DEFAULT_DATA_SUB_ID, MSimUtils.getImsDefaultSubId());
-    }
-
-    @Test
-    @SmallTest
     public void testGetPhoneId() {
-        assertEquals(TestAppContext.SLOT0, MSimUtils.getPhoneId(TestAppContext.SUB_ID_1));
-        assertEquals(TestAppContext.SLOT1, MSimUtils.getPhoneId(TestAppContext.SUB_ID_2));
+        assertEquals(SLOT0, MSimUtils.getPhoneId(SUB_ID_1));
+        assertEquals(SLOT1, MSimUtils.getPhoneId(SUB_ID_2));
         assertEquals(MSimUtils.DEFAULT_PHONE_ID, MSimUtils.getPhoneId(MSimUtils.INVALID_SUB_ID));
     }
 }

@@ -16,25 +16,25 @@
 
 package com.android.imsstack.core.agents;
 
+import static com.android.imsstack.base.TestAppContext.SLOT0;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.net.Uri;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.testing.TestableLooper;
 
 import androidx.test.filters.SmallTest;
 
 import com.android.imsstack.ContextFixture;
-import com.android.imsstack.base.AppContext;
+import com.android.imsstack.base.TelephonyManagerProxy;
+import com.android.imsstack.base.TestAppContext;
 import com.android.imsstack.util.SimUtils;
 
 import org.junit.After;
@@ -51,9 +51,6 @@ import java.util.Set;
 
 @RunWith(JUnit4.class)
 public class UsatAgentTest {
-    private static final int MAX_SIM_SLOT = 1;
-    private static final int SLOT0 = 0;
-    private static final int[] SUB_ID = { 1 };
     private static final byte[] USIM_SERVICE_TABLE =
             SimUtils.hexStringToBytes("000000FF00000000000000F0FF");
     private static final String SEND_ENVELOPE_OK = "9000";
@@ -69,9 +66,11 @@ public class UsatAgentTest {
 
     @Mock private SimInterface mSimInterface;
     @Mock private Usat.Listener mListener;
+
     private ContextFixture mContextFixture;
     private TestableLooper mTestableLooper;
-    private TelephonyManager mTelephonyManager;
+    private TestAppContext mTestAppContext;
+    private TelephonyManagerProxy mTelephonyManagerProxy;
     private UsatAgent mUsatAgent;
 
     @Before
@@ -79,17 +78,10 @@ public class UsatAgentTest {
         MockitoAnnotations.initMocks(this);
 
         mContextFixture = new ContextFixture();
-        AppContext.init(mContextFixture.getTestDouble());
-        SubscriptionManager sm =
-                mContextFixture.getTestDouble().getSystemService(SubscriptionManager.class);
-        when(sm.getSubscriptionIds(anyInt())).thenReturn(SUB_ID);
+        mTestAppContext = new TestAppContext(mContextFixture.getTestDouble());
+        mTestAppContext.setUp();
 
-        mTelephonyManager =
-                mContextFixture.getTestDouble().getSystemService(TelephonyManager.class);
-        when(mTelephonyManager.createForSubscriptionId(anyInt())).thenReturn(mTelephonyManager);
-        when(mTelephonyManager.getActiveModemCount()).thenReturn(MAX_SIM_SLOT);
-        when(mTelephonyManager.getSupportedModemCount()).thenReturn(MAX_SIM_SLOT);
-
+        mTelephonyManagerProxy = mTestAppContext.getSystemServiceProxy(TelephonyManagerProxy.class);
         when(mSimInterface.getSlotId()).thenReturn(SLOT0);
 
         mUsatAgent = new UsatAgent(mSimInterface);
@@ -108,11 +100,12 @@ public class UsatAgentTest {
         }
 
         mUsatAgent = null;
-        mTelephonyManager = null;
+        mTelephonyManagerProxy = null;
         mListener = null;
         mSimInterface = null;
         mContextFixture = null;
-        AppContext.deinit();
+        mTestAppContext.tearDown();
+        mTestAppContext = null;
     }
 
     @Test
@@ -232,7 +225,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_callControlAllowed() {
-        doReturn(SEND_ENVELOPE_OK).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_OK);
 
         Usat.CallControlCommand cmd = mUsatAgent.createCallControlCommand(
                 Usat.CALL_CONTROL_TYPE_MO_CALL, DIALED_STRING,
@@ -253,7 +246,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_callControlNotAllowed() {
-        doReturn(SEND_ENVELOPE_ERROR).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_ERROR);
 
         Usat.CallControlCommand cmd = mUsatAgent.createCallControlCommand(
                 Usat.CALL_CONTROL_TYPE_MO_CALL, DIALED_STRING,
@@ -274,7 +267,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_smsPpDownloadOk() {
-        doReturn(SEND_ENVELOPE_OK).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_OK);
 
         Usat.SmsPpDownloadCommand cmd = mUsatAgent.createSmsPpDownloadCommand(SMSC_ORIGIN_ADDRESS,
                 true, SMS_TPDU, ORIGIN_ADDRESS, mListener);
@@ -294,7 +287,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_smsPpDownloadError() {
-        doReturn(SEND_ENVELOPE_ERROR).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_ERROR);
 
         Usat.SmsPpDownloadCommand cmd = mUsatAgent.createSmsPpDownloadCommand(SMSC_ORIGIN_ADDRESS,
                 true, SMS_TPDU, ORIGIN_ADDRESS, mListener);
@@ -314,7 +307,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_moSmsControlAllowed() {
-        doReturn(SEND_ENVELOPE_OK).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_OK);
 
         Usat.MoSmsControlCommand cmd = mUsatAgent.createMoSmsControlCommand(TARGET_NUMBER,
                 SMSC_DEST_ADDRESS, TelephonyManager.NETWORK_TYPE_LTE, mListener);
@@ -334,7 +327,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_moSmsControlNotAllowed() {
-        doReturn(SEND_ENVELOPE_ERROR).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_ERROR);
 
         Usat.MoSmsControlCommand cmd = mUsatAgent.createMoSmsControlCommand(TARGET_NUMBER,
                 SMSC_DEST_ADDRESS, TelephonyManager.NETWORK_TYPE_LTE, mListener);
@@ -354,7 +347,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_regEventDownloadAllowed() {
-        doReturn(SEND_ENVELOPE_OK).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_OK);
 
         Set<Uri> impus = Set.of(Uri.parse("sip:test1@ims.com"), Uri.parse("sip:test2@ims.com"));
 
@@ -376,7 +369,7 @@ public class UsatAgentTest {
     @Test
     @SmallTest
     public void testSendCommand_regEventDownloadNotAllowed() {
-        doReturn(SEND_ENVELOPE_ERROR).when(mTelephonyManager).sendEnvelopeWithStatus(any());
+        when(mTelephonyManagerProxy.sendEnvelopeWithStatus(any())).thenReturn(SEND_ENVELOPE_ERROR);
 
         Set<Uri> impus = Set.of(Uri.parse("sip:test1@ims.com"), Uri.parse("sip:test2@ims.com"));
 
