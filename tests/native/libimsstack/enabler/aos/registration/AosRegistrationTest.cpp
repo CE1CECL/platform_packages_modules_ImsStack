@@ -146,7 +146,6 @@ public:
     FRIEND_TEST(AosRegistrationTest, UpdateFailed_TxnTimeout);
     FRIEND_TEST(AosRegistrationTest, UpdateTransactionStarted);
     FRIEND_TEST(AosRegistrationTest, StandardPcscfSelection);
-    FRIEND_TEST(AosRegistrationTest, Terminated);
     FRIEND_TEST(AosRegistrationTest, SendRegisterEx);
     FRIEND_TEST(AosRegistrationTest, UpdateFeatureTag);
     FRIEND_TEST(AosRegistrationTest, SetStaticIpQos);
@@ -291,6 +290,12 @@ public:
             RegistrationUpdateFailedWithTransactionTimeoutWhileInRoamingReportsFailure);
     FRIEND_TEST(AosRegistrationTest, RegistrationUpdateFailedWithOtherReasonTriggersFlowRecovery);
     FRIEND_TEST(AosRegistrationTest, RegistrationRemovedDestroysRegistration);
+    FRIEND_TEST(AosRegistrationTest, RegTerminatedDoesNotStartInternalErrorTimerAgainIfExist);
+    FRIEND_TEST(AosRegistrationTest, RegTerminatedStartsInternalErrorTimerIfNotExist);
+    FRIEND_TEST(
+            AosRegistrationTest, RegTerminatedTriggersReinitiateIfReconnectingServerIsNotAllowed);
+    FRIEND_TEST(AosRegistrationTest, RegTerminatedWhileInCallReportsFailureAsPdnReconnectReason);
+    FRIEND_TEST(AosRegistrationTest, RegTerminatedReportsFailureAsTerminatedReason);
     FRIEND_TEST(AosRegistrationTest, StopTimer);
     FRIEND_TEST(AosRegistrationTest, ClearTimer);
     FRIEND_TEST(AosRegistrationTest, TimerExpired);
@@ -1506,52 +1511,6 @@ TEST_F(AosRegistrationTest, StandardPcscfSelection)
     m_pAosRegistration->ProcessStandardPcscfSelection(30);
 }
 
-TEST_F(AosRegistrationTest, Terminated)
-{
-    // IsHandlingServerSocketErrorRequired - IMS_TRUE
-    m_pAosRegistration->m_eRegType = AosRegistrationType::NORMAL;
-    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
-    EXPECT_TRUE(m_pAosRegistration->IsReconnectingServerSocketErrorAllowed());
-
-    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_SERVER_SOCKET_ERROR);
-    EXPECT_EQ(m_pAosRegistration->m_nErrorCountForServerSocket, 1);
-    EXPECT_TRUE(m_pAosRegistration->IsTimerRunning(TestAosRegistration::TIMER_INTERNAL_ERROR));
-
-    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_SERVER_SOCKET_ERROR);
-    EXPECT_EQ(m_pAosRegistration->m_nErrorCountForServerSocket, 1);
-    m_pAosRegistration->StopTimer(TestAosRegistration::TIMER_INTERNAL_ERROR);
-    m_pAosRegistration->SetState(IAosRegistration::STATE_OFFLINE);
-
-    // IsHandlingServerSocketErrorRequired - IMS_FALSE
-    EXPECT_CALL(m_objMockIAosNConfiguration, IsCallEndAndPdnReactivationByRegTerminated())
-            .Times(AnyNumber())
-            .WillOnce(Return(IMS_TRUE))
-            .WillOnce(Return(IMS_TRUE))
-            .WillOnce(Return(IMS_FALSE));
-
-    // IsCallEndAndPdnReactivationByRegTerminated - IMS_TRUE
-    m_pAosRegistration->SetImsCall(IMS_TRUE);
-    EXPECT_CALL(m_objMockIAosRegistrationListener,
-            Registration_StateChanged(IAosRegistration::RESULT_FAILURE,
-                    IAosRegistration::REASON_FAILURE_PDN_RECONNECT));
-
-    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_REFRESH_TIMEOUT);
-
-    m_pAosRegistration->SetImsCall(IMS_FALSE);
-    EXPECT_CALL(m_objMockIAosRegistrationListener,
-            Registration_StateChanged(
-                    IAosRegistration::RESULT_FAILURE, IAosRegistration::REASON_FAILURE_TERMINATED));
-
-    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_REFRESH_TIMEOUT);
-
-    // IsCallEndAndPdnReactivationByRegTerminated - IMS_FALSE
-    EXPECT_CALL(m_objMockIAosRegistrationListener,
-            Registration_StateChanged(
-                    IAosRegistration::RESULT_FAILURE, IAosRegistration::REASON_FAILURE_TERMINATED));
-
-    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_REFRESH_TIMEOUT);
-}
-
 TEST_F(AosRegistrationTest, SendRegisterEx)
 {
     // m_piRegistration is null
@@ -1956,7 +1915,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForNormalTypeIfPidfIsSuppor
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).WillOnce(Return(IMS_FALSE));
 
-    EXPECT_TRUE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_TRUE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForNormalTypeIfPidfIsSupportedForWifi)
@@ -1971,7 +1932,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForNormalTypeIfPidfIsSuppor
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable()).WillOnce(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).WillOnce(Return(IMS_FALSE));
 
-    EXPECT_TRUE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_TRUE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForEmergencyTypeIfPidfIsSupportedForCellular)
@@ -1982,7 +1945,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForEmergencyTypeIfPidfIsSup
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).WillOnce(Return(IMS_FALSE));
 
-    EXPECT_TRUE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_TRUE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForEmergencyTypeIfPidfIsSupportedForWifi)
@@ -1997,7 +1962,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForEmergencyTypeIfPidfIsSup
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable()).WillOnce(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).WillOnce(Return(IMS_FALSE));
 
-    EXPECT_TRUE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_TRUE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsNotRequiredForFakeType)
@@ -2006,7 +1973,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsNotRequiredForFakeType)
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).Times(0);
 
-    EXPECT_FALSE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_FALSE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForNormalTypeIfPidfIsNotSupportedForCellular)
@@ -2017,7 +1986,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsRequiredForNormalTypeIfPidfIsNotSup
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).Times(0);
 
-    EXPECT_FALSE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_FALSE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsNotRequiredIfIpsecHelperIsNull)
@@ -2029,7 +2000,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsNotRequiredIfIpsecHelperIsNull)
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).WillOnce(Return(IMS_TRUE));
 
-    EXPECT_FALSE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_FALSE(bResult);
 }
 
 TEST_F(AosRegistrationTest, GeolocationInfoIsNotRequiredIfIpsecIsNotEstablished)
@@ -2042,7 +2015,9 @@ TEST_F(AosRegistrationTest, GeolocationInfoIsNotRequiredIfIpsecIsNotEstablished)
     EXPECT_CALL(m_objMockIAosNConfiguration, IsIpsecEnabled()).WillOnce(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockAosIpsecHelper, IsEstablished()).WillOnce(Return(IMS_FALSE));
 
-    EXPECT_FALSE(m_pAosRegistration->IsGeolocationInfoRequired());
+    IMS_BOOL bResult = m_pAosRegistration->IsGeolocationInfoRequired();
+
+    EXPECT_FALSE(bResult);
 }
 
 TEST_F(AosRegistrationTest, CheckPendingWhilePendingReconfigExistSendsRegReconfigMessage)
@@ -4713,6 +4688,76 @@ TEST_F(AosRegistrationTest, RegistrationRemovedDestroysRegistration)
                     IAosRegistration::RESULT_SUCCESS, IAosRegistration::REASON_NONE));
 
     m_pAosRegistration->Registration_Removed();
+
+    EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_OFFLINE);
+}
+
+TEST_F(AosRegistrationTest, RegTerminatedDoesNotStartInternalErrorTimerAgainIfExist)
+{
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+    m_pAosRegistration->m_nErrorCountForServerSocket = 1;
+    m_pAosRegistration->StartTimer(TestAosRegistration::TIMER_INTERNAL_ERROR, 3000);
+
+    EXPECT_CALL(m_objMockITimer, SetTimer(_, _)).Times(0);
+
+    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_SERVER_SOCKET_ERROR);
+
+    EXPECT_EQ(m_pAosRegistration->m_nErrorCountForServerSocket, 1);
+}
+
+TEST_F(AosRegistrationTest, RegTerminatedStartsInternalErrorTimerIfNotExist)
+{
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+    m_pAosRegistration->m_nErrorCountForServerSocket = 0;
+
+    EXPECT_CALL(m_objMockITimer, SetTimer(_, _)).Times(1);
+
+    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_SERVER_SOCKET_ERROR);
+
+    EXPECT_TRUE(m_pAosRegistration->m_piInternalErrorTimer != IMS_NULL);
+    EXPECT_EQ(m_pAosRegistration->m_nErrorCountForServerSocket, 1);
+}
+
+TEST_F(AosRegistrationTest, RegTerminatedTriggersReinitiateIfReconnectingServerIsNotAllowed)
+{
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+    m_pAosRegistration->m_nErrorCountForServerSocket =
+            TestAosRegistration::RECONNECT_SERVER_SOCKET_ERROR_MAX_COUNT;
+
+    EXPECT_CALL(m_objMockThread, PostMessageI(IsSameMsg(TestAosRegistration::MSG_REG_REINITIATE)));
+
+    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_SERVER_SOCKET_ERROR);
+
+    EXPECT_EQ(m_pAosRegistration->m_nErrorCountForServerSocket, 0);
+}
+
+TEST_F(AosRegistrationTest, RegTerminatedWhileInCallReportsFailureAsPdnReconnectReason)
+{
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+    m_pAosRegistration->SetImsCall(IMS_TRUE);
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsCallEndAndPdnReactivationByRegTerminated())
+            .WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(m_objMockIAosRegistrationListener,
+            Registration_StateChanged(IAosRegistration::RESULT_FAILURE,
+                    IAosRegistration::REASON_FAILURE_PDN_RECONNECT));
+
+    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_CLIENT_SOCKET_ERROR);
+
+    EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_OFFLINE);
+}
+
+TEST_F(AosRegistrationTest, RegTerminatedReportsFailureAsTerminatedReason)
+{
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsCallEndAndPdnReactivationByRegTerminated())
+            .WillOnce(Return(IMS_FALSE));
+    EXPECT_CALL(m_objMockIAosRegistrationListener,
+            Registration_StateChanged(
+                    IAosRegistration::RESULT_FAILURE, IAosRegistration::REASON_FAILURE_TERMINATED));
+
+    m_pAosRegistration->Registration_Terminated(IRegistration::REASON_CLIENT_SOCKET_ERROR);
 
     EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_OFFLINE);
 }
