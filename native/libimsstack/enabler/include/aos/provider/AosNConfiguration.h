@@ -73,6 +73,7 @@ public:
     IMS_BOOL IsSmsOverImsSupported() const override;
     IMS_BOOL IsImsOverNrEnabled() const override;
     IMS_BOOL IsEmergencyCallBasedOnPauOfNormalRegistrationSupported() const override;
+    IMS_BOOL IsEmcRegOnRandomPcscf() const override;
     IMS_BOOL IsRegWithIpcanChangedDuringImsCallHeld() const override;
     IMS_BOOL IsDeregOn3gNetwork() const override;
     IMS_BOOL IsIpsecInitializedWithNewPcscf() const override;

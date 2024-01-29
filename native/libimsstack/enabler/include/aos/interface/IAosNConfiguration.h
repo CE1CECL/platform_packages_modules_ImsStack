@@ -262,6 +262,16 @@ public:
     virtual IMS_BOOL IsEmergencyCallBasedOnPauOfNormalRegistrationSupported() const = 0;
 
     /**
+     * @brief Flag specifying if UE tries emergency registration on a random pcscf.
+     *
+     *        If this is set as TRUE, UE will choose P-CSCF randomly for emergency registration if
+     *        UE receives multiple P-CSCF addresses from P-CSCF discovery for emergency.
+     *
+     * @return IMS_BOOL Return wherther UE tries emergency registration on random pcscf.
+     */
+    virtual IMS_BOOL IsEmcRegOnRandomPcscf() const = 0;
+
+    /**
      * @brief Flag specifying whether the re-registration is held when IPCAN is changed
      *        during IMS calls and performed immediately after they are released.
      *

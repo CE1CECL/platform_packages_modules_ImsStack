@@ -683,6 +683,8 @@ const IMS_CHAR CarrierConfig::Assets::KEY_DESTROY_UNSECURE_TCP_SOCKET_ON_ACCOMPL
         "destroy_unsecure_tcp_socket_on_accomplishing_reg_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_EMC_CALL_BASED_ON_P_ASSOCIATED_URI_OF_NORMAL_REG_BOOL[] =
         "emc_call_based_on_p_associated_uri_of_normal_reg_bool";
+const IMS_CHAR CarrierConfig::Assets::KEY_EMC_REG_ON_RANDOM_PCSCF_BOOL[] =
+        "emc_reg_on_random_pcscf_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_HOLD_REG_WITH_IPCAN_CHANGED_DURING_IMS_CALL_BOOL[] =
         "hold_reg_with_ipcan_changed_during_ims_call_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_IGNORE_VOPS_FOR_VOLTE_ENABLE_BOOL[] =
