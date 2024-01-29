@@ -5207,6 +5207,7 @@ TEST_F(AosRegistrationTest,
             &m_objMockISipMessage, IMessageMediator::MESSAGE_NORMAL);
 
     EXPECT_EQ(nResult, IMS_SUCCESS);
+    GeolocationHelper::GetInstance()->DestroyPidfCreator(SLOT_ID);
 }
 
 TEST_F(AosRegistrationTest, StopTimer)
