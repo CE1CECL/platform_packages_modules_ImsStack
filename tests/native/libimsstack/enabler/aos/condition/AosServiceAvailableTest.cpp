@@ -67,6 +67,12 @@ public:
     IAosCallTracker* m_pOriginIAosCallTracker;
     MockIAosCallTracker m_objMockIAosCallTracker;
 
+    MockIAosServiceAvailableListener m_objListener1;
+    MockIAosServiceAvailableListener m_objListener2;
+    MockIAosServiceAvailableListener m_objListener3;
+    MockIAosServiceAvailableListener m_objListener4;
+    MockIAosServiceAvailableListener m_objListener5;
+
 protected:
     virtual void SetUp() override
     {
@@ -125,14 +131,13 @@ TEST_F(AosServiceAvailableTest, SetListener_AlreadyExist)
 {
     m_pAosServiceAvailable->CleanUp();
 
-    IAosServiceAvailableListener* piListener = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    m_pAosServiceAvailable->SetListener(piListener);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    m_pAosServiceAvailable->SetListener(piListener);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 }
 
@@ -140,24 +145,19 @@ TEST_F(AosServiceAvailableTest, SetListener_Success)
 {
     m_pAosServiceAvailable->CleanUp();
 
-    IAosServiceAvailableListener* piListener1 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener1);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    IAosServiceAvailableListener* piListener2 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener2);
+    m_pAosServiceAvailable->SetListener(&m_objListener2);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
-    IAosServiceAvailableListener* piListener3 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener3);
+    m_pAosServiceAvailable->SetListener(&m_objListener3);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 3);
 
-    IAosServiceAvailableListener* piListener4 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener4);
+    m_pAosServiceAvailable->SetListener(&m_objListener4);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 4);
 
-    IAosServiceAvailableListener* piListener5 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener5);
+    m_pAosServiceAvailable->SetListener(&m_objListener5);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 5);
 }
 
@@ -165,12 +165,10 @@ TEST_F(AosServiceAvailableTest, RemoveListener_ParamIsNull)
 {
     m_pAosServiceAvailable->CleanUp();
 
-    IAosServiceAvailableListener* piListener1 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener1);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    IAosServiceAvailableListener* piListener2 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener2);
+    m_pAosServiceAvailable->SetListener(&m_objListener2);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
     m_pAosServiceAvailable->RemoveListener(IMS_NULL);
@@ -181,24 +179,19 @@ TEST_F(AosServiceAvailableTest, RemoveListener_NotExist)
 {
     m_pAosServiceAvailable->CleanUp();
 
-    IAosServiceAvailableListener* piListener1 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener1);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    IAosServiceAvailableListener* piListener2 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener2);
+    m_pAosServiceAvailable->SetListener(&m_objListener2);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
-    IAosServiceAvailableListener* piListener3 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->RemoveListener(piListener3);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener3);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
-    IAosServiceAvailableListener* piListener4 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->RemoveListener(piListener4);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener4);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
-    IAosServiceAvailableListener* piListener5 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->RemoveListener(piListener5);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener5);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 }
 
@@ -206,39 +199,34 @@ TEST_F(AosServiceAvailableTest, RemoveListener_Success)
 {
     m_pAosServiceAvailable->CleanUp();
 
-    IAosServiceAvailableListener* piListener1 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener1);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    IAosServiceAvailableListener* piListener2 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener2);
+    m_pAosServiceAvailable->SetListener(&m_objListener2);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
-    IAosServiceAvailableListener* piListener3 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener3);
+    m_pAosServiceAvailable->SetListener(&m_objListener3);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 3);
 
-    IAosServiceAvailableListener* piListener4 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener4);
+    m_pAosServiceAvailable->SetListener(&m_objListener4);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 4);
 
-    IAosServiceAvailableListener* piListener5 = new MockIAosServiceAvailableListener();
-    m_pAosServiceAvailable->SetListener(piListener5);
+    m_pAosServiceAvailable->SetListener(&m_objListener5);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 5);
 
-    m_pAosServiceAvailable->RemoveListener(piListener1);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener1);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 4);
 
-    m_pAosServiceAvailable->RemoveListener(piListener4);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener4);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 3);
 
-    m_pAosServiceAvailable->RemoveListener(piListener2);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener2);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 2);
 
-    m_pAosServiceAvailable->RemoveListener(piListener5);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener5);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 1);
 
-    m_pAosServiceAvailable->RemoveListener(piListener3);
+    m_pAosServiceAvailable->RemoveListener(&m_objListener3);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 0);
 }
 
@@ -264,19 +252,15 @@ TEST_F(AosServiceAvailableTest, RefreshServiceAvailablility_NotifyToListeners)
     EXPECT_CALL(objMockIAosBlock, GetBlockReasons(_, _)).Times(1);
     EXPECT_CALL(objMockIAosBlock, PrintBlockReasons()).Times(1);
 
-    MockIAosServiceAvailableListener objMockIListener1;
-    MockIAosServiceAvailableListener objMockIListener2;
-    MockIAosServiceAvailableListener objMockIListener3;
-
     ImsList<IAosServiceAvailableListener*> objListeners;
-    objListeners.Append(&objMockIListener1);
-    objListeners.Append(&objMockIListener2);
-    objListeners.Append(&objMockIListener3);
+    objListeners.Append(&m_objListener1);
+    objListeners.Append(&m_objListener2);
+    objListeners.Append(&m_objListener3);
     m_pAosServiceAvailable->m_objListeners = objListeners;
 
-    EXPECT_CALL(objMockIListener1, ServiceAvailable_Changed()).Times(1);
-    EXPECT_CALL(objMockIListener2, ServiceAvailable_Changed()).Times(1);
-    EXPECT_CALL(objMockIListener3, ServiceAvailable_Changed()).Times(1);
+    EXPECT_CALL(m_objListener1, ServiceAvailable_Changed()).Times(1);
+    EXPECT_CALL(m_objListener2, ServiceAvailable_Changed()).Times(1);
+    EXPECT_CALL(m_objListener3, ServiceAvailable_Changed()).Times(1);
 
     m_pAosServiceAvailable->m_bAvailableLastNotified = IMS_FALSE;
     m_pAosServiceAvailable->RefreshServiceAvailablility();
@@ -315,19 +299,15 @@ TEST_F(AosServiceAvailableTest, RequestCommand)
 {
     m_pAosServiceAvailable->CleanUp();
 
-    MockIAosServiceAvailableListener objIListener1;
-    MockIAosServiceAvailableListener objIListener2;
-    MockIAosServiceAvailableListener objIListener3;
+    EXPECT_CALL(m_objListener1, ServiceAvailable_RequestCommand(_, _)).Times(4);
 
-    EXPECT_CALL(objIListener1, ServiceAvailable_RequestCommand(_, _)).Times(4);
+    EXPECT_CALL(m_objListener2, ServiceAvailable_RequestCommand(_, _)).Times(4);
 
-    EXPECT_CALL(objIListener2, ServiceAvailable_RequestCommand(_, _)).Times(4);
+    EXPECT_CALL(m_objListener3, ServiceAvailable_RequestCommand(_, _)).Times(4);
 
-    EXPECT_CALL(objIListener3, ServiceAvailable_RequestCommand(_, _)).Times(4);
-
-    m_pAosServiceAvailable->SetListener(&objIListener1);
-    m_pAosServiceAvailable->SetListener(&objIListener2);
-    m_pAosServiceAvailable->SetListener(&objIListener3);
+    m_pAosServiceAvailable->SetListener(&m_objListener1);
+    m_pAosServiceAvailable->SetListener(&m_objListener2);
+    m_pAosServiceAvailable->SetListener(&m_objListener3);
     EXPECT_EQ(m_pAosServiceAvailable->m_objListeners.GetSize(), 3);
 
     m_pAosServiceAvailable->RequestCommand(AosCondition::REQUEST_STOP, AosReason::NOT_SPECIFIED);
