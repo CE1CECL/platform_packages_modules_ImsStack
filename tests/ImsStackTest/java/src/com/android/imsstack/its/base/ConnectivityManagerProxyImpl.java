@@ -46,15 +46,26 @@ import java.util.concurrent.Executor;
  * An implementation class to access the {@link ConnectivityManager}.
  */
 public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
+    private static final long DEFAULT_EVENT_DELAY_TIME_MILLIS = 20; // 20 ms
     private final ArraySet<NetworkCallbackRecord> mNetworkCallbackRecords = new ArraySet<>();
     private final ArraySet<QosCallbackRecord> mQosCallbackRecords = new ArraySet<>();
     private final SparseArray<LinkProperties> mLinkProperties = new SparseArray<>();
+    private int mQosSessionBearerType = 0;
+    private NetworkRecord mDefaultNetworkRecord;
+    private NetworkRecord mImsNetworkRecord;
+    private NetworkRecord mXcapNetworkRecord;
+    private NetworkRecord mEmergencyNetworkRecord;
 
     @Override
     public void registerQosCallback(@NonNull final QosSocketInfo socketInfo,
             @CallbackExecutor @NonNull final Executor executor,
             @NonNull final QosCallback callback) {
-        mQosCallbackRecords.add(new QosCallbackRecord(socketInfo, callback, executor));
+        QosCallbackRecord qcr = new QosCallbackRecord(socketInfo, callback, executor);
+        mQosCallbackRecords.add(qcr);
+
+        if (isQosSessionBearerTypeValid()) {
+            qcr.dispatchSessionAvailable(mQosSessionBearerType);
+        }
     }
 
     @Override
@@ -72,7 +83,17 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
     @Override
     public void registerNetworkCallback(@NonNull NetworkRequest request,
             @NonNull NetworkCallback networkCallback, @NonNull Handler handler) {
-        mNetworkCallbackRecords.add(new NetworkCallbackRecord(request, networkCallback, handler));
+        if (isNetworkRequestForWifi(request)) {
+            // The network callback for Wi-Fi connection will not be registered at the moment.
+            return;
+        }
+        NetworkCallbackRecord ncr = new NetworkCallbackRecord(request, networkCallback, handler);
+        mNetworkCallbackRecords.add(ncr);
+
+        NetworkRecord nr = getNetworkRecord(ncr);
+        if (nr != null) {
+            ncr.dispatchNetworkAvailable(nr);
+        }
     }
 
     @Override
@@ -89,45 +110,85 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
 
     @Override
     public @Nullable LinkProperties getLinkProperties(@Nullable Network network) {
-        return mLinkProperties.get(network.getNetId());
+        if (mImsNetworkRecord == null) {
+            return null;
+        }
+        return mImsNetworkRecord.isSameNetwork(network)
+                ? mImsNetworkRecord.getLinkProperties()
+                : null;
     }
 
     @Override
     public void requestNetwork(@NonNull NetworkRequest request,
             @NonNull NetworkCallback networkCallback, @NonNull Handler handler) {
-        mNetworkCallbackRecords.add(new NetworkCallbackRecord(request, networkCallback, handler));
+        NetworkCallbackRecord ncr = new NetworkCallbackRecord(request, networkCallback, handler);
+        mNetworkCallbackRecords.add(ncr);
+
+        NetworkRecord nr = getNetworkRecord(ncr);
+        if (nr != null) {
+            nr.setCapabilities(request);
+            ncr.dispatchNetworkAvailable(nr);
+        }
     }
 
     @Override
     public void registerDefaultNetworkCallback(@NonNull NetworkCallback networkCallback,
             @NonNull Handler handler) {
-        mNetworkCallbackRecords.add(new NetworkCallbackRecord(null, networkCallback, handler));
+        NetworkCallbackRecord ncr = new NetworkCallbackRecord(null, networkCallback, handler);
+        mNetworkCallbackRecords.add(ncr);
+
+        NetworkRecord nr = getNetworkRecord(ncr);
+        if (nr != null) {
+            nr.setCapabilities(null);
+            ncr.dispatchNetworkAvailable(nr);
+        }
     }
 
     /**
-     * Sets the {@link LinkProperties} for the given {@link Network}.
+     * Sets the bearer type of {@link QosSession}.
+     *
+     * @param bearerType The bearer type. Possible values are:
+     *                   {@link QosSession#TYPE_EPS_BEARER},
+     *                   {@link QosSession#TYPE_NR_BEARER}
+     */
+    public void setQosSessionBearerType(int bearerType) {
+        mQosSessionBearerType = bearerType;
+    }
+
+    /**
+     * Sets the network information with the specified {@link Network} and {@link LinkProperties}.
+     * If the {@link Network} object is null, all the network records will be set to null.
      *
      * @param network The {@link Network} object identifying the network.
      * @param properties The {@link LinkProperties} for the specified network.
      */
-    public void setLinkProperties(Network network, LinkProperties properties) {
-        mLinkProperties.put(network.getNetId(), properties);
+    public void setNetwork(@Nullable Network network, @Nullable LinkProperties properties) {
+        if (network == null) {
+            mDefaultNetworkRecord = null;
+            mImsNetworkRecord = null;
+            mXcapNetworkRecord = null;
+            mEmergencyNetworkRecord = null;
+        } else {
+            mDefaultNetworkRecord = new NetworkRecord(network, properties);
+            mImsNetworkRecord = new NetworkRecord(network, properties);
+            mXcapNetworkRecord = new NetworkRecord(network, properties);
+            mEmergencyNetworkRecord = new NetworkRecord(network, properties);
+        }
     }
 
     /**
      * Notifies the application that the network is connected and has declared
      * a new network ready for use.
      *
-     * @param network The {@link Network} of the satisfying network.
-     * @param networkCapabilities The {@link NetworkCapabilities} of the satisfying network.
-     * @param linkProperties The {@link LinkProperties} of the satisfying network.
+     * @param capability The network capability. Possible values are:
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_IMS},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_XCAP},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_EIMS}.
      */
-    public void notifyNetworkAvailable(@NonNull Network network,
-            @NonNull NetworkCapabilities networkCapabilities,
-            @NonNull LinkProperties linkProperties) {
+    public void notifyNetworkAvailable(int capability) {
         mNetworkCallbackRecords.forEach((r) -> {
-            if (!r.isForDefaultNetwork()) {
-                r.dispatchNetworkAvailable(network, networkCapabilities, linkProperties);
+            if (!r.isForDefaultNetwork() && r.hasCapability(capability)) {
+                r.dispatchNetworkAvailable(getNetworkRecord(r));
             }
         });
     }
@@ -137,12 +198,15 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
      * {@link #requestNetwork(NetworkRequest, NetworkCallback, int)} call or if the
      * requested network request cannot be fulfilled (whether or not a timeout was specified).
      *
-     * @param network The {@link Network} that is about to be unavailable.
+     * @param capability The network capability. Possible values are:
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_IMS},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_XCAP},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_EIMS}.
      */
-    public void notifyNetworkUnavailable(@NonNull Network network) {
+    public void notifyNetworkUnavailable(int capability) {
         mNetworkCallbackRecords.forEach((r) -> {
-            if (!r.isForDefaultNetwork()) {
-                r.dispatchNetworkUnavailable(network);
+            if (!r.isForDefaultNetwork() && r.hasCapability(capability)) {
+                r.dispatchNetworkUnavailable();
             }
         });
     }
@@ -154,15 +218,15 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
      * handover. This method is not guaranteed to be called before {@link #notifyNetworkLost}
      * is called, for example in case a network is suddenly disconnected.
      *
-     * @param network The {@link Network} that is about to be lost.
-     * @param maxMsToLive The time in milliseconds the system intends to keep the network
-     *                    connected for graceful handover; note that the network may still
-     *                    suffer a hard loss at any time.
+     * @param capability The network capability. Possible values are:
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_IMS},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_XCAP},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_EIMS}.
      */
-    public void notifyNetworkLosing(@NonNull Network network, int maxMsToLive) {
+    public void notifyNetworkLosing(int capability) {
         mNetworkCallbackRecords.forEach((r) -> {
-            if (!r.isForDefaultNetwork()) {
-                r.dispatchNetworkLosing(network, maxMsToLive);
+            if (!r.isForDefaultNetwork() && r.hasCapability(capability)) {
+                r.dispatchNetworkLosing(getNetworkRecord(r));
             }
         });
     }
@@ -171,12 +235,15 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
      * Notifies the application that a network disconnects or otherwise no longer satisfies
      * this request or callback.
      *
-     * @param network The {@link Network} that is about to be lost.
+     * @param capability The network capability. Possible values are:
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_IMS},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_XCAP},
+     *                   {@link NetworkCapabilities#NET_CAPABILITY_EIMS}.
      */
-    public void notifyNetworkLost(@NonNull Network network) {
+    public void notifyNetworkLost(int capability) {
         mNetworkCallbackRecords.forEach((r) -> {
-            if (!r.isForDefaultNetwork()) {
-                r.dispatchNetworkLost(network);
+            if (!r.isForDefaultNetwork() && r.hasCapability(capability)) {
+                r.dispatchNetworkLost(getNetworkRecord(r));
             }
         });
     }
@@ -184,17 +251,11 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
     /**
      * Notifies the application that the default network is connected and has declared
      * a new network ready for use.
-     *
-     * @param network The {@link Network} of the satisfying network.
-     * @param networkCapabilities The {@link NetworkCapabilities} of the satisfying network.
-     * @param linkProperties The {@link LinkProperties} of the satisfying network.
      */
-    public void notifyDefaultNetworkAvailable(@NonNull Network network,
-            @NonNull NetworkCapabilities networkCapabilities,
-            @NonNull LinkProperties linkProperties) {
+    public void notifyDefaultNetworkAvailable() {
         mNetworkCallbackRecords.forEach((r) -> {
             if (r.isForDefaultNetwork()) {
-                r.dispatchNetworkAvailable(network, networkCapabilities, linkProperties);
+                r.dispatchNetworkAvailable(getNetworkRecord(r));
             }
         });
     }
@@ -203,13 +264,11 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
      * Notifies the application that if no network is found within the timeout time specified in
      * {@link #requestNetwork(NetworkRequest, NetworkCallback, int)} call or if the
      * requested network request cannot be fulfilled (whether or not a timeout was specified).
-     *
-     * @param network The {@link Network} that is about to be unavailable.
      */
-    public void notifyDefaultNetworkUnavailable(@NonNull Network network) {
+    public void notifyDefaultNetworkUnavailable() {
         mNetworkCallbackRecords.forEach((r) -> {
             if (r.isForDefaultNetwork()) {
-                r.dispatchNetworkUnavailable(network);
+                r.dispatchNetworkUnavailable();
             }
         });
     }
@@ -220,16 +279,11 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
      * {@link #notifyDefaultNetworkAvailable} call with the new replacement network for graceful
      * handover. This method is not guaranteed to be called before {@link #notifyDefaultNetworkLost}
      * is called, for example in case a network is suddenly disconnected.
-     *
-     * @param network The {@link Network} that is about to be lost.
-     * @param maxMsToLive The time in milliseconds the system intends to keep the network
-     *                    connected for graceful handover; note that the network may still
-     *                    suffer a hard loss at any time.
      */
-    public void notifyDefaultNetworkLosing(@NonNull Network network, int maxMsToLive) {
+    public void notifyDefaultNetworkLosing() {
         mNetworkCallbackRecords.forEach((r) -> {
             if (r.isForDefaultNetwork()) {
-                r.dispatchNetworkLosing(network, maxMsToLive);
+                r.dispatchNetworkLosing(getNetworkRecord(r));
             }
         });
     }
@@ -237,13 +291,11 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
     /**
      * Notifies the application that a network disconnects or otherwise no longer satisfies
      * this request or callback.
-     *
-     * @param network The {@link Network} that is about to be lost.
      */
-    public void notifyDefaultNetworkLost(@NonNull Network network) {
+    public void notifyDefaultNetworkLost() {
         mNetworkCallbackRecords.forEach((r) -> {
             if (r.isForDefaultNetwork()) {
-                r.dispatchNetworkLost(network);
+                r.dispatchNetworkLost(getNetworkRecord(r));
             }
         });
     }
@@ -253,37 +305,106 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
      * the callback is automatically unregistered and the callback will no longer receive calls.
      */
     public void notifyQosError() {
+        if (!isQosSessionBearerTypeValid()) {
+            return;
+        }
         mQosCallbackRecords.forEach((r) -> r.dispatchError());
     }
 
     /**
-     * Notifies the application that a Qos Session for EPS first becomes available to the callback
-     * or if its attributes have changed.
+     * Notifies the application that a Qos Session for EPS/NR first becomes available to
+     * the callback or if its attributes have changed.
      */
-    public void notifyEpsQosSessionAvailable() {
-        mQosCallbackRecords.forEach((r) -> r.dispatchSessionAvailable(QosSession.TYPE_EPS_BEARER));
+    public void notifyQosSessionAvailable() {
+        if (!isQosSessionBearerTypeValid()) {
+            return;
+        }
+        mQosCallbackRecords.forEach((r) -> r.dispatchSessionAvailable(mQosSessionBearerType));
     }
 
     /**
      * Notifies the application that a Qos Session is lost.
      */
-    public void notifyEpsQosSessionLost() {
-        mQosCallbackRecords.forEach((r) -> r.dispatchSessionLost(QosSession.TYPE_EPS_BEARER));
+    public void notifyQosSessionLost() {
+        if (!isQosSessionBearerTypeValid()) {
+            return;
+        }
+        mQosCallbackRecords.forEach((r) -> r.dispatchSessionLost(mQosSessionBearerType));
     }
 
-    /**
-     * Notifies the application that a Qos Session for NR first becomes available to the callback
-     * or if its attributes have changed.
-     */
-    public void notifyNrQosSessionAvailable() {
-        mQosCallbackRecords.forEach((r) -> r.dispatchSessionAvailable(QosSession.TYPE_NR_BEARER));
+    private NetworkRecord getNetworkRecord(NetworkCallbackRecord ncr) {
+        if (ncr.isForDefaultNetwork()) {
+            return mDefaultNetworkRecord;
+        } else if (ncr.hasCapability(NetworkCapabilities.NET_CAPABILITY_IMS)) {
+            return mImsNetworkRecord;
+        } else if (ncr.hasCapability(NetworkCapabilities.NET_CAPABILITY_XCAP)) {
+            return mXcapNetworkRecord;
+        } else if (ncr.hasCapability(NetworkCapabilities.NET_CAPABILITY_EIMS)) {
+            return mEmergencyNetworkRecord;
+        }
+        return null;
     }
 
-    /**
-     * Notifies the application that a Qos Session is lost.
-     */
-    public void notifyNrQosSessionLost() {
-        mQosCallbackRecords.forEach((r) -> r.dispatchSessionLost(QosSession.TYPE_NR_BEARER));
+    private boolean isQosSessionBearerTypeValid() {
+        return mQosSessionBearerType == QosSession.TYPE_EPS_BEARER
+                || mQosSessionBearerType == QosSession.TYPE_NR_BEARER;
+    }
+
+    private static boolean isNetworkRequestForWifi(NetworkRequest request) {
+        return request.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                && request.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+    }
+
+    private static final class NetworkRecord {
+        private final Network mNetwork;
+        private final LinkProperties mLinkProperties;
+        private NetworkCapabilities mCapabilities;
+
+        NetworkRecord(Network network, LinkProperties properties) {
+            mNetwork = network;
+            mLinkProperties = properties;
+        }
+
+        Network getNetwork() {
+            return mNetwork;
+        }
+
+        NetworkCapabilities getCapabilities() {
+            return mCapabilities;
+        }
+
+        LinkProperties getLinkProperties() {
+            return mLinkProperties;
+        }
+
+        boolean isSameNetwork(Network network) {
+            return mNetwork.equals(network);
+        }
+
+        void setCapabilities(NetworkRequest request) {
+            NetworkCapabilities.Builder builder = new NetworkCapabilities.Builder();
+
+            if (request == null) {
+                // Default network capabilities.
+                builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+            } else {
+                int[] capabilities = request.getCapabilities();
+                int[] transportTypes = request.getTransportTypes();
+
+                for (int capability : capabilities) {
+                    builder.addCapability(capability);
+                }
+
+                for (int transportType : transportTypes) {
+                    builder.addTransportType(transportType);
+                }
+
+                builder.setNetworkSpecifier(request.getNetworkSpecifier());
+            }
+
+            mCapabilities = builder.build();
+        }
     }
 
     private static final class QosCallbackRecord {
@@ -355,36 +476,47 @@ public class ConnectivityManagerProxyImpl implements ConnectivityManagerProxy {
             return mCallback.equals(callback);
         }
 
+        boolean hasCapability(int capability) {
+            return mRequest.hasCapability(capability);
+        }
+
         boolean isForDefaultNetwork() {
             return mRequest == null;
         }
 
-        void dispatchNetworkAvailable(@NonNull Network network,
-                @NonNull NetworkCapabilities networkCapabilities,
-                @NonNull LinkProperties linkProperties) {
-            mScheduler.post(() -> {
-                mCallback.onAvailable(network);
-                mCallback.onCapabilitiesChanged(network, networkCapabilities);
-                mCallback.onLinkPropertiesChanged(network, linkProperties);
-            });
+        void dispatchNetworkAvailable(NetworkRecord nr) {
+            if (nr == null || nr.getCapabilities() == null) {
+                return;
+            }
+            mScheduler.postDelayed(() -> {
+                mCallback.onAvailable(nr.getNetwork());
+                mCallback.onCapabilitiesChanged(nr.getNetwork(), nr.getCapabilities());
+                mCallback.onLinkPropertiesChanged(nr.getNetwork(), nr.getLinkProperties());
+            }, DEFAULT_EVENT_DELAY_TIME_MILLIS);
         }
 
-        void dispatchNetworkUnavailable(@NonNull Network network) {
-            mScheduler.post(() -> {
+        void dispatchNetworkUnavailable() {
+            mScheduler.postDelayed(() -> {
                 mCallback.onUnavailable();
-            });
+            }, DEFAULT_EVENT_DELAY_TIME_MILLIS);
         }
 
-        void dispatchNetworkLosing(@NonNull Network network, int maxMsToLive) {
-            mScheduler.post(() -> {
-                mCallback.onLosing(network, maxMsToLive);
-            });
+        void dispatchNetworkLosing(NetworkRecord nr) {
+            if (nr == null) {
+                return;
+            }
+            mScheduler.postDelayed(() -> {
+                mCallback.onLosing(nr.getNetwork(), 0);
+            }, DEFAULT_EVENT_DELAY_TIME_MILLIS);
         }
 
-        void dispatchNetworkLost(@NonNull Network network) {
-            mScheduler.post(() -> {
-                mCallback.onLost(network);
-            });
+        void dispatchNetworkLost(NetworkRecord nr) {
+            if (nr == null) {
+                return;
+            }
+            mScheduler.postDelayed(() -> {
+                mCallback.onLost(nr.getNetwork());
+            }, DEFAULT_EVENT_DELAY_TIME_MILLIS);
         }
     }
 }
