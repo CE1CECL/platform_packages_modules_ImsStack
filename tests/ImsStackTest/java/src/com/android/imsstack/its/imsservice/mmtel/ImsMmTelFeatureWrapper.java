@@ -39,6 +39,7 @@ import android.telephony.ims.feature.ImsFeature;
 import android.telephony.ims.feature.MmTelFeature;
 
 import com.android.ims.internal.IImsCallSession;
+import com.android.ims.internal.IImsUt;
 import com.android.imsstack.util.Log;
 
 import java.util.List;
@@ -107,9 +108,9 @@ public final class ImsMmTelFeatureWrapper {
         }
     }
 
-    /** Cleanup. */
-    public void cleanup() {
-        logi("cleanup");
+    /** Destroy. */
+    public void destroy() {
+        logi("destroy");
 
         mHandler.removeCallbacksAndMessages(null);
         mIImsMmTelFeature = null;
@@ -168,8 +169,7 @@ public final class ImsMmTelFeatureWrapper {
      * For reporting a change to the RTP header extension types which should be offered
      * during SDP negotiation (see RFC8285 for more information).
      *
-     * @param extensionTypes The RTP header extensions to offer during
-     *                       outgoing and incoming call setup.
+     * @param types The RTP header extensions to offer during outgoing and incoming call setup.
      */
     public void changeOfferedRtpHeaderExtensionTypes(@NonNull List<RtpHeaderExtensionType> types) {
         try {
@@ -219,12 +219,25 @@ public final class ImsMmTelFeatureWrapper {
         }
     }
 
-    // IImsUt getUtInterface()
+    /**
+     * @return The Ut interface for the supplementary service configuration.
+     */
+    public IImsUt getUtInterface() {
+        try {
+            return mIImsMmTelFeature.getUtInterface();
+        } catch (RemoteException e) {
+            loge(e.toString());
+            return null;
+        } catch (NullPointerException e) {
+            loge(e.toString());
+            return null;
+        }
+    }
 
     /**
      * Sets the current UI TTY mode for the MmTelFeature.
      *
-     * @param mode An integer containing the new UI TTY Mode.
+     * @param uiTtyMode An integer containing the new UI TTY Mode.
      * @param onCompleteMessage If non-null, this MmTelFeature should call this {@link Message} when
      *         the operation is complete by using the associated {@link android.os.Messenger} in
      *         {@link Message#replyTo}.
@@ -393,7 +406,7 @@ public final class ImsMmTelFeatureWrapper {
     /**
      * Returns currently measured media quality status.
      *
-     * @param mediaSessionType media session type
+     * @param sessionType media session type
      * @return Current media quality status. It could be null if media quality status is not
      *         measured yet or {@link MediaThreshold} was not set corresponding to the media session
      *         type.
