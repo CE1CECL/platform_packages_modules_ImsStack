@@ -48,7 +48,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 
 /**
- * IMS MMTEL feature
+ * IMS MMTEL feature interface wrapper.
  */
 public final class ImsMmTelFeatureWrapper {
     private IImsMmTelFeature mIImsMmTelFeature;

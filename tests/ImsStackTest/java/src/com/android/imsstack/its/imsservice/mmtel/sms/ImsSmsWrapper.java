@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.its.imsservice.mmtel.ut;
+package com.android.imsstack.its.imsservice.mmtel.sms;
 
 import android.annotation.NonNull;
-
-import com.android.ims.internal.IImsUt;
+import android.telephony.ims.aidl.IImsMmTelFeature;
 
 /**
- * IMS UT interface wrapper.
+ * IMS SMS interface wrapper.
  */
-public final class ImsUtWrapper {
-    private IImsUt mIImsUt;
+public final class ImsSmsWrapper {
+    private IImsMmTelFeature mIImsMmTelFeature;
 
     /** Constructor. */
-    public ImsUtWrapper(@NonNull IImsUt imsUt) {
-        mIImsUt = imsUt;
+    public ImsSmsWrapper(@NonNull IImsMmTelFeature mmtelFeature) {
+        mIImsMmTelFeature = mmtelFeature;
     }
 
     /** Destroy. */
     public void destroy() {
-        mIImsUt = null;
+        mIImsMmTelFeature = null;
     }
 }

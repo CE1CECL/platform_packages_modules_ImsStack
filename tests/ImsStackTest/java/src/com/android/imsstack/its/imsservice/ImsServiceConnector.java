@@ -29,6 +29,7 @@ import com.android.imsstack.base.AppContext;
 import com.android.imsstack.imsservice.ImsService;
 import com.android.imsstack.its.base.TestConstants;
 import com.android.imsstack.its.imsservice.mmtel.ImsMmTelFeatureWrapper;
+import com.android.imsstack.its.imsservice.mmtel.sms.ImsSmsWrapper;
 import com.android.imsstack.its.imsservice.mmtel.ut.ImsUtWrapper;
 import com.android.imsstack.util.Log;
 
@@ -44,6 +45,7 @@ public final class ImsServiceConnector {
     private IImsServiceController mImsServiceBinder;
     private ImsServiceConnection mServiceConnection;
     private ImsMmTelFeatureWrapper mMmTelFeatureWrapper;
+    private ImsSmsWrapper mSmsWrapper;
     private ImsUtWrapper mUtWrapper;
 
     /**
@@ -72,6 +74,11 @@ public final class ImsServiceConnector {
             mUtWrapper = null;
         }
 
+        if (mSmsWrapper != null) {
+            mSmsWrapper.destroy();
+            mSmsWrapper = null;
+        }
+
         if (mMmTelFeatureWrapper != null) {
             mMmTelFeatureWrapper.destroy();
             mMmTelFeatureWrapper = null;
@@ -96,6 +103,13 @@ public final class ImsServiceConnector {
      */
     public ImsMmTelFeatureWrapper getMmTelFeature() {
         return mMmTelFeatureWrapper;
+    }
+
+    /**
+     * Gets SMS interface wrapper.
+     */
+    public ImsSmsWrapper getSms() {
+        return mSmsWrapper;
     }
 
     /**
@@ -131,6 +145,11 @@ public final class ImsServiceConnector {
                 mMmTelFeatureWrapper.destroy();
             }
             mMmTelFeatureWrapper = new ImsMmTelFeatureWrapper(imsMmTelFeature);
+
+            if (mSmsWrapper != null) {
+                mSmsWrapper.destroy();
+            }
+            mSmsWrapper = new ImsSmsWrapper(imsMmTelFeature);
 
             if (mUtWrapper != null) {
                 mUtWrapper.destroy();
