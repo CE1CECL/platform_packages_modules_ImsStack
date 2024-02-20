@@ -24,9 +24,12 @@ import android.os.RemoteException;
 import android.telephony.ims.aidl.IImsMmTelFeature;
 import android.telephony.ims.aidl.IImsServiceController;
 
+import com.android.ims.internal.IImsUt;
 import com.android.imsstack.base.AppContext;
 import com.android.imsstack.imsservice.ImsService;
+import com.android.imsstack.its.base.TestConstants;
 import com.android.imsstack.its.imsservice.mmtel.ImsMmTelFeatureWrapper;
+import com.android.imsstack.its.imsservice.mmtel.ut.ImsUtWrapper;
 import com.android.imsstack.util.Log;
 
 /**
@@ -41,6 +44,7 @@ public final class ImsServiceConnector {
     private IImsServiceController mImsServiceBinder;
     private ImsServiceConnection mServiceConnection;
     private ImsMmTelFeatureWrapper mMmTelFeatureWrapper;
+    private ImsUtWrapper mUtWrapper;
 
     /**
      * Gets static instance.
@@ -63,21 +67,42 @@ public final class ImsServiceConnector {
      * Stop.
      */
     public void stop() {
+        if (mUtWrapper != null) {
+            mUtWrapper.destroy();
+            mUtWrapper = null;
+        }
+
         if (mMmTelFeatureWrapper != null) {
-            mMmTelFeatureWrapper.cleanup();
+            mMmTelFeatureWrapper.destroy();
             mMmTelFeatureWrapper = null;
         }
 
+        try {
+            if (mImsServiceBinder != null) {
+                mImsServiceBinder.disableIms(TestConstants.SLOT0, TestConstants.SUB_ID_1);
+            }
+        } catch (RemoteException e) {
+            loge("stop:" + e.toString());
+        } finally {
+            mImsServiceBinder = null;
+            sImsService = null;
+        }
+
         unbindImsService();
-        mImsServiceBinder = null;
-        sImsService = null;
     }
 
     /**
-     * Gets MMTEL feature interface
+     * Gets MMTEL feature wrapper.
      */
     public ImsMmTelFeatureWrapper getMmTelFeature() {
         return mMmTelFeatureWrapper;
+    }
+
+    /**
+     * Gets UT interface wrapper.
+     */
+    public ImsUtWrapper getUt() {
+        return mUtWrapper;
     }
 
     private void bindImsService() {
@@ -89,22 +114,32 @@ public final class ImsServiceConnector {
     }
 
     private void unbindImsService() {
-        AppContext.getInstance().unbindService(mServiceConnection);
-        mServiceConnection = null;
+        if (mServiceConnection != null) {
+            AppContext.getInstance().unbindService(mServiceConnection);
+            mServiceConnection = null;
+        }
     }
 
     private void notifyOnServiceConnected(IBinder service) {
         mImsServiceBinder = IImsServiceController.Stub.asInterface(service);
 
         try {
-            mImsServiceBinder.enableIms(0, 0);
+            mImsServiceBinder.enableIms(TestConstants.SLOT0, TestConstants.SUB_ID_1);
+
             IImsMmTelFeature imsMmTelFeature = mImsServiceBinder.createMmTelFeature(0, 0);
-
             if (mMmTelFeatureWrapper != null) {
-                mMmTelFeatureWrapper.cleanup();
+                mMmTelFeatureWrapper.destroy();
             }
-
             mMmTelFeatureWrapper = new ImsMmTelFeatureWrapper(imsMmTelFeature);
+
+            if (mUtWrapper != null) {
+                mUtWrapper.destroy();
+                mUtWrapper = null;
+            }
+            IImsUt imsUt = mMmTelFeatureWrapper.getUtInterface();
+            if (imsUt != null) {
+                mUtWrapper = new ImsUtWrapper(imsUt);
+            }
         } catch (RemoteException e) {
             loge("notifyOnServiceConnected:" + e.toString());
         }
