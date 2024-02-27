@@ -52,6 +52,15 @@ using ::testing::ReturnRef;
 
 const IMS_SINT32 SLOT_ID = 0;
 
+#define DECLARE_USING(Base)                     \
+    using Base::SetState;                       \
+    using Base::IsRadioWaiting;                 \
+    using Base::IsTrafficPriorityBlocked;       \
+    using Base::SetRadioWaiting;                \
+    using Base::SetTrafficPriorityBlocked;      \
+    using Base::Transaction_OnConnectionFailed; \
+    using Base::Transaction_OnTrafficPriorityChanged;
+
 enum
 {
     AMSG_REG_SUBSCRIPTION_NOTIFY_RECEIVED = 0,
@@ -66,6 +75,8 @@ enum
 class TestAosSubscription : public AosSubscription
 {
 public:
+    DECLARE_USING(AosSubscription)
+
     inline TestAosSubscription(IN IAosAppContext* piAppContext,
             IN IRegSubscription* piRegSubscription, IN const AString& strAoR,
             IN const SipAddress& objContactAddress) :
@@ -135,9 +146,6 @@ public:
     FRIEND_TEST(AosSubscriptionTest, RegSubscription_End);
     FRIEND_TEST(AosSubscriptionTest, ProcessTimerExpired_StateInvalid);
     FRIEND_TEST(AosSubscriptionTest, ProcessTimerExpired);
-    FRIEND_TEST(AosSubscriptionTest, TransOnConnectionFailed);
-    FRIEND_TEST(AosSubscriptionTest, TransOnConnectionFailed_CallPrepared);
-    FRIEND_TEST(AosSubscriptionTest, TransOnTrafficPriorityChanged);
     FRIEND_TEST(AosSubscriptionTest, Print);
 
 public:
@@ -165,8 +173,6 @@ public:
     {
         m_objContactAddress = objContactAddress;
     }
-
-    void SetState(IN IMS_UINT32 nState) { AosSubscription::SetState(nState); }
 
     IMS_SINT32 GetAorState() { return m_nAorState; }
 
@@ -301,6 +307,9 @@ protected:
                 .WillByDefault(Return(&m_objMockIAosConnection));
         ON_CALL(m_objMockIAosAppContext, GetNetTracker())
                 .WillByDefault(Return(&m_objMockIAosNetTracker));
+
+        ON_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
+                .WillByDefault(Return(IMS_FALSE));
 
         ON_CALL(m_objMockIAosNetTracker, GetNetworkType())
                 .WillByDefault(Return(static_cast<IMS_UINT32>(AosNetworkType::LTE)));
@@ -1500,49 +1509,6 @@ TEST_F(AosSubscriptionTest, ProcessTimerExpired)
     EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHING);
 }
 
-TEST_F(AosSubscriptionTest, TransOnConnectionFailed)
-{
-    m_pAosSubscription->SetRadioWaiting(IMS_FALSE);
-    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_NO_SERVICE, 0, 0);
-    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
-
-    m_pAosSubscription->SetRadioWaiting(IMS_TRUE);
-    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_ACCESS_DENIED, 0, 0);
-    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
-
-    m_pAosSubscription->SetRadioWaiting(IMS_TRUE);
-    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_RRC_TIMEOUT, 0, 15000);
-    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
-}
-
-TEST_F(AosSubscriptionTest, TransOnConnectionFailed_CallPrepared)
-{
-    m_pAosSubscription->SetRadioWaiting(IMS_TRUE);
-
-    EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-            .WillRepeatedly(Return(IMS_TRUE));
-
-    EXPECT_CALL(m_objMockIAosTransaction, IsTransactionAllowed(_))
-            .Times(AnyNumber())
-            .WillOnce(Return(IMS_FALSE));
-
-    // call Transaction_OnConnectionSetupPrepared()
-    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_NO_SERVICE, 0, 0);
-    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
-}
-
-TEST_F(AosSubscriptionTest, TransOnTrafficPriorityChanged)
-{
-    // called Start() - return IMS_FALSE
-    m_pAosSubscription->SetTrafficPriorityBlocked(IMS_TRUE);
-    m_pAosSubscription->SetState(AosSubscription::STATE_OFFLINE);
-    EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-            .WillOnce(Return(IMS_FALSE));
-
-    m_pAosSubscription->Transaction_OnTrafficPriorityChanged();
-    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_OFFLINE);
-}
-
 TEST_F(AosSubscriptionTest, Print)
 {
     int nState = AosSubscription::STATE_OFFLINE;
@@ -2074,4 +2040,62 @@ TEST_F(AosSubscriptionTest,
     m_pAosSubscription->NotifyListenerEvent(
             AMSG_REG_SUBSCRIPTION_START_FAILED, IRegSubscription::REASON_INTERNAL_ERROR, 0);
     EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBSTOP);
+}
+
+/// Transaction_OnConnectionFailed():
+TEST_F(AosSubscriptionTest, ReturnImmediatelyWhenRadioIsNotWaiting)
+{
+    m_pAosSubscription->SetRadioWaiting(IMS_FALSE);
+
+    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_NO_SERVICE, 0, 0);
+
+    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
+}
+
+TEST_F(AosSubscriptionTest, RadioWaitingIsFalseWhenTransConnectionFailedWithAccessDenied)
+{
+    m_pAosSubscription->SetRadioWaiting(IMS_TRUE);
+
+    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_ACCESS_DENIED, 0, 0);
+
+    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
+}
+
+TEST_F(AosSubscriptionTest, RadioWaitingIsFalseWhenTransConnectionFailedWithRrcTimeoutAndWaitTime)
+{
+    m_pAosSubscription->SetRadioWaiting(IMS_TRUE);
+
+    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_RRC_TIMEOUT, 0, 15000);
+
+    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
+}
+
+/// Transaction_OnConnectionSetupPrepared()
+TEST_F(AosSubscriptionTest, CallPreparedWhenTransConnectionFailedWithNoService)
+{
+    m_pAosSubscription->SetRadioWaiting(IMS_TRUE);
+
+    // call Transaction_OnConnectionSetupPrepared()
+    m_pAosSubscription->Transaction_OnConnectionFailed(IImsRadio::REASON_NO_SERVICE, 0, 0);
+
+    EXPECT_FALSE(m_pAosSubscription->IsRadioWaiting());
+}
+
+/// Transaction_OnTrafficPriorityChanged()
+TEST_F(AosSubscriptionTest, TrafficPriorityBlockedIsFalseWhenPriorityChangedAndPriorityIsBlocked)
+{
+    m_pAosSubscription->SetTrafficPriorityBlocked(IMS_TRUE);
+
+    m_pAosSubscription->Transaction_OnTrafficPriorityChanged();
+
+    EXPECT_FALSE(m_pAosSubscription->IsTrafficPriorityBlocked());
+}
+
+TEST_F(AosSubscriptionTest, NothingWhenPriorityChangedAndPriotyIsNotBlocked)
+{
+    m_pAosSubscription->SetTrafficPriorityBlocked(IMS_FALSE);
+
+    m_pAosSubscription->Transaction_OnTrafficPriorityChanged();
+
+    EXPECT_FALSE(m_pAosSubscription->IsTrafficPriorityBlocked());
 }
