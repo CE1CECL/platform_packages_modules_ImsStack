@@ -59,6 +59,15 @@ public:
         DNS_QUERY_TERMINATE = 0x8000
     };
 
+    enum
+    {
+        MSG_READY = AOSMSG_SERVICE_INTERNAL,
+        MSG_REQUEST,
+        MSG_DONE,
+        MSG_DESTROY,
+        MSG_TERMINATED
+    };
+
 protected:
     // For Unit testing
     IMS_BOOL ResetEvent(IN IMS_UINT32 nEvent);
@@ -81,15 +90,6 @@ protected:
 
     // ImsActivityEx
     IMS_BOOL OnMessage(IN IMSMSG& objMsg) override;
-
-    enum
-    {
-        MSG_READY = AOSMSG_SERVICE_INTERNAL,
-        MSG_REQUEST,
-        MSG_DONE,
-        MSG_DESTROY,
-        MSG_TERMINATED
-    };
 
 public:
     static IMS_UINT32 m_nIdentity;
