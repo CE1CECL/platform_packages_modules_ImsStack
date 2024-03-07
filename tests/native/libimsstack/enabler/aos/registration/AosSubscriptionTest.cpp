@@ -52,13 +52,14 @@ using ::testing::ReturnRef;
 
 const IMS_SINT32 SLOT_ID = 0;
 
-#define DECLARE_USING(Base)                     \
-    using Base::SetState;                       \
-    using Base::IsRadioWaiting;                 \
-    using Base::IsTrafficPriorityBlocked;       \
-    using Base::SetRadioWaiting;                \
-    using Base::SetTrafficPriorityBlocked;      \
-    using Base::Transaction_OnConnectionFailed; \
+#define DECLARE_USING(Base)                          \
+    using Base::SetState;                            \
+    using Base::IsRadioWaiting;                      \
+    using Base::IsTrafficPriorityBlocked;            \
+    using Base::SetRadioWaiting;                     \
+    using Base::SetTrafficPriorityBlocked;           \
+    using Base::RegSubscription_RefreshTimerExpired; \
+    using Base::Transaction_OnConnectionFailed;      \
     using Base::Transaction_OnTrafficPriorityChanged;
 
 enum
@@ -133,8 +134,6 @@ public:
             ShouldNotRequestScscfRestorationIfRetryAfterIsSmallerThanOrEqualToTimerF);
 
     FRIEND_TEST(AosSubscriptionTest, CheckNotifyReceived);
-    FRIEND_TEST(AosSubscriptionTest, RegSubscription_RefreshTimerExpired);
-    FRIEND_TEST(AosSubscriptionTest, RefreshTimerExpired_RadioReadyAndSetRadioWaiting);
     FRIEND_TEST(AosSubscriptionTest, CheckRegSubscriptionStarted);
     FRIEND_TEST(AosSubscriptionTest, CheckRegSubscriptionUpdated);
     FRIEND_TEST(AosSubscriptionTest, CheckRegSubscriptionStartFailed_Others);
@@ -177,11 +176,6 @@ public:
     IMS_SINT32 GetAorState() { return m_nAorState; }
 
     ITimer* GetTimer() { return m_piRetryTimer; }
-
-    void RefreshTimerExpiredListener(OUT IMS_BOOL& bDoImplicitRefresh)
-    {
-        RegSubscription_RefreshTimerExpired(bDoImplicitRefresh);
-    }
 
     void NotifyListenerEvent(IMS_UINT32 nEvent, IMS_SINT32 nReason, IN IMS_BOOL bHasBody)
     {
@@ -309,7 +303,7 @@ protected:
                 .WillByDefault(Return(&m_objMockIAosNetTracker));
 
         ON_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-                .WillByDefault(Return(IMS_FALSE));
+                .WillByDefault(Return(IMS_TRUE));
 
         ON_CALL(m_objMockIAosNetTracker, GetNetworkType())
                 .WillByDefault(Return(static_cast<IMS_UINT32>(AosNetworkType::LTE)));
@@ -339,6 +333,9 @@ protected:
                 .WillByDefault(ReturnRef(m_objErrResubStopped));
         m_objErrResubStopped.Clear();
 
+        ON_CALL(m_objMockIAosTransaction, IsTransactionAllowed(_)).WillByDefault(Return(IMS_TRUE));
+        ON_CALL(m_objMockIAosTransaction, StartTraffic(_, _)).WillByDefault(Return(IMS_TRUE));
+
         m_pAosSubscription = new TestAosSubscription(&m_objMockIAosAppContext,
                 static_cast<IRegSubscription*>(&m_objMockIRegSubscription), *m_pAor,
                 *m_pContactAddress);
@@ -346,20 +343,6 @@ protected:
 
         m_pAosSubscription->SetListener(&m_objMockIAosSubscriptionListener);
         m_pAosSubscription->SetRegSubscription(&m_objMockIRegSubscription);
-        ON_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-                .WillByDefault(Return(IMS_TRUE));
-
-        EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_StateChanged(_, _))
-                .WillRepeatedly(Return());
-
-        EXPECT_CALL(m_objMockIAosTransaction, RemoveListener(_, _)).Times(AnyNumber());
-        EXPECT_CALL(m_objMockIAosTransaction, IsTransactionAllowed(_))
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(IMS_TRUE));
-        EXPECT_CALL(m_objMockIAosTransaction, StartTraffic(_, _))
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(IMS_TRUE));
-        EXPECT_CALL(m_objMockIAosTransaction, StopTraffic(_)).Times(AnyNumber());
     }
 
     virtual void TearDown() override
@@ -1108,54 +1091,6 @@ TEST_F(AosSubscriptionTest, CheckNotifyReceived)
 
     m_pAosSubscription->NotifyListenerEvent(AMSG_REG_SUBSCRIPTION_NOTIFY_RECEIVED, 0, IMS_TRUE);
     EXPECT_EQ(m_pAosSubscription->GetAorState(), IRegInfoContact::STATE_TERMINATED);
-}
-
-TEST_F(AosSubscriptionTest, RegSubscription_RefreshTimerExpired)
-{
-    IMS_BOOL bDoImplicitRefresh = IMS_TRUE;
-
-    // CheckRadioReadyAndSetRadioWaiting() - IMS_TRUE
-    EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-            .WillRepeatedly(Return(IMS_TRUE));
-    m_pAosSubscription->RefreshTimerExpiredListener(bDoImplicitRefresh);
-    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHING);
-    EXPECT_EQ(bDoImplicitRefresh, IMS_TRUE);
-
-    EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-            .WillRepeatedly(Return(IMS_FALSE));
-    m_pAosSubscription->RefreshTimerExpiredListener(bDoImplicitRefresh);
-    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_OFFLINE);
-    EXPECT_EQ(bDoImplicitRefresh, IMS_FALSE);
-}
-
-TEST_F(AosSubscriptionTest, RefreshTimerExpired_RadioReadyAndSetRadioWaiting)
-{
-    // CheckRadioReadyAndSetRadioWaiting() - IMS_FALSE (2 cases)
-    IMS_BOOL bDoImplicitRefresh = IMS_TRUE;
-
-    EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-            .WillRepeatedly(Return(IMS_TRUE));
-
-    EXPECT_CALL(m_objMockIAosTransaction, IsTransactionAllowed(_))
-            .Times(AnyNumber())
-            .WillOnce(Return(IMS_FALSE))
-            .WillRepeatedly(Return(IMS_TRUE));
-
-    m_pAosSubscription->RefreshTimerExpiredListener(bDoImplicitRefresh);
-    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHSTOP);
-
-    EXPECT_CALL(m_objMockIAosTransaction, StartTraffic(_, _))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(IMS_FALSE));
-
-    m_pAosSubscription->RefreshTimerExpiredListener(bDoImplicitRefresh);
-    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHSTOP);
-
-    // for checking SetRadioWaiting(IMS_TRUE)
-    EXPECT_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
-            .WillOnce(Return(IMS_FALSE));
-    // IsRadioWaiting()
-    m_pAosSubscription->Transaction_OnConnectionSetupPrepared();
 }
 
 TEST_F(AosSubscriptionTest, CheckRegSubscriptionStarted)
@@ -2040,6 +1975,53 @@ TEST_F(AosSubscriptionTest,
     m_pAosSubscription->NotifyListenerEvent(
             AMSG_REG_SUBSCRIPTION_START_FAILED, IRegSubscription::REASON_INTERNAL_ERROR, 0);
     EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBSTOP);
+}
+
+/// RegSubscription_RefreshTimerExpired - CheckRadioReadyAndSetRadioWaiting() - IMS_TRUE
+TEST_F(AosSubscriptionTest, SubRefreshingStateWhenTransmissionIsPossible)
+{
+    IMS_BOOL bDoImplicitRefresh = IMS_TRUE;
+    // Subscription_CanBeTransmitted() is IMS_TRUE in SetUp()
+
+    m_pAosSubscription->RegSubscription_RefreshTimerExpired(bDoImplicitRefresh);
+
+    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHING);
+    EXPECT_EQ(bDoImplicitRefresh, IMS_TRUE);
+}
+
+TEST_F(AosSubscriptionTest, OfflineStateWhenTransmissionIsNotPossible)
+{
+    IMS_BOOL bDoImplicitRefresh = IMS_TRUE;
+    ON_CALL(m_objMockIAosSubscriptionListener, Subscription_CanBeTransmitted())
+            .WillByDefault(Return(IMS_FALSE));
+
+    m_pAosSubscription->RegSubscription_RefreshTimerExpired(bDoImplicitRefresh);
+
+    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_OFFLINE);
+    EXPECT_EQ(bDoImplicitRefresh, IMS_FALSE);
+}
+
+/// RegSubscription_RefreshTimerExpired - CheckRadioReadyAndSetRadioWaiting() - IMS_FALSE
+TEST_F(AosSubscriptionTest, SubRefreshstopStateWhenTransmissionIsPossibleAndTransactionIsNotAllowed)
+{
+    IMS_BOOL bDoImplicitRefresh = IMS_TRUE;
+    ON_CALL(m_objMockIAosTransaction, IsTransactionAllowed(_)).WillByDefault(Return(IMS_FALSE));
+
+    m_pAosSubscription->RegSubscription_RefreshTimerExpired(bDoImplicitRefresh);
+    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHSTOP);
+    EXPECT_EQ(bDoImplicitRefresh, IMS_FALSE);
+}
+
+TEST_F(AosSubscriptionTest, SubRefreshstopStateWhenTransmissionIsPossibleAndTrafficIsNotStarted)
+{
+    IMS_BOOL bDoImplicitRefresh = IMS_TRUE;
+    ON_CALL(m_objMockIAosTransaction, StartTraffic(_, _)).WillByDefault(Return(IMS_FALSE));
+
+    m_pAosSubscription->RegSubscription_RefreshTimerExpired(bDoImplicitRefresh);
+
+    EXPECT_TRUE(m_pAosSubscription->IsRadioWaiting());
+    EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_SUBREFRESHSTOP);
+    EXPECT_EQ(bDoImplicitRefresh, IMS_FALSE);
 }
 
 /// Transaction_OnConnectionFailed():
