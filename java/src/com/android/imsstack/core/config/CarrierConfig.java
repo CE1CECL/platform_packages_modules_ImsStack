@@ -977,8 +977,8 @@ public class CarrierConfig {
                 "support_video_call_only_in_vops_off_status_bool";
         public static final String KEY_BLOCK_WIFI_EMERGENCY_CALL_IF_NOT_PROVISIONED_BOOL =
                 "block_wifi_emergency_call_if_not_provisioned_bool";
-        public static final String KEY_REGISTRATION_DISCONNECT_REASON_TO_TERMINATE_ONGOING_CALL_INT_ARRAY =
-                "registration_disconnect_reason_to_terminate_ongoing_call_int_array";
+        public static final String KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY =
+                "registration_disconnect_reason_to_ignore_int_array";
         public static final String KEY_WIFI_EMERGENCY_18X_TIMER_MILLIS_INT =
                 "wifi_emergency_18x_timer_millis_int";
         public static final String KEY_SUPPORT_CANID_INFO_BOOL =
