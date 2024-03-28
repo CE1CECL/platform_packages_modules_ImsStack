@@ -60,7 +60,8 @@ using ::testing::ReturnRef;
     using Base::SetSuspendedReason; \
     using Base::SetHandleState;     \
     using Base::Init;               \
-    using Base::CleanUp;
+    using Base::CleanUp;            \
+    using Base::IsHandleBlocked;
 
 class TestAosHandle : public AosHandle
 {
@@ -204,15 +205,6 @@ protected:
     void ClearHoldingBlocksForMobile() { m_pAosHandle->m_nHoldingBlocksForMobile = 0; }
 
     void ClearHoldingBlocksForWifi() { m_pAosHandle->m_nHoldingBlocksForWifi = 0; }
-
-    IMS_BOOL IsHandleBlocked() { return m_pAosHandle->IsHandleBlocked(); }
-
-    IMS_BOOL IsHandleBlocked(IN IMS_UINT32 nBlock) { return m_pAosHandle->IsHandleBlocked(nBlock); }
-
-    IMS_BOOL IsHandleBlocked(IN const IMS_UINT32& nBlocks, IN IMS_UINT32 nBlock) const
-    {
-        return m_pAosHandle->IsHandleBlocked(nBlocks, nBlock);
-    }
 
     IMS_BOOL IsHoldingBlockForMobile(IN IMS_UINT32 nBlock)
     {
@@ -607,18 +599,18 @@ TEST_F(AosHandleTest, AddBlock_IsHandleBlocked_Normal)
 {
     IMS_UINT32 nTestBlocks = AosHandle::BLOCK_NONE;
 
-    EXPECT_FALSE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOLTE_CAPABILITY, nTestBlocks);
     EXPECT_EQ(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY);
-    EXPECT_TRUE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VILTE_CAPABILITY, nTestBlocks);
     EXPECT_EQ(nTestBlocks, (AosHandle::BLOCK_VOLTE_CAPABILITY | AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
 }
 
 TEST_F(AosHandleTest, AddBlock_Duplicated)
@@ -637,18 +629,18 @@ TEST_F(AosHandleTest, RemoveBlock_IsHandleBlocked_Normal)
     IMS_UINT32 nTestBlocks =
             (AosHandle::BLOCK_VOLTE_CAPABILITY | AosHandle::BLOCK_VILTE_CAPABILITY);
 
-    EXPECT_TRUE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandle->RemoveBlock(AosHandle::BLOCK_VOLTE_CAPABILITY, nTestBlocks);
     EXPECT_EQ(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY);
-    EXPECT_FALSE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandle->RemoveBlock(AosHandle::BLOCK_VILTE_CAPABILITY, nTestBlocks);
     EXPECT_EQ(nTestBlocks, AosHandle::BLOCK_NONE);
-    EXPECT_FALSE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(nTestBlocks, AosHandle::BLOCK_VILTE_CAPABILITY));
 }
 
 TEST_F(AosHandleTest, RemoveBlock_NotExisted)
@@ -674,32 +666,32 @@ TEST_F(AosHandleTest, IsHandleBlocked_ForEach)
             AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION, m_pAosHandle->m_nBlocks);
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOWIFI_CAPABILITY, m_pAosHandle->m_nBlocks);
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, m_pAosHandle->m_nBlocks);
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     ClearBlocks();
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 }
 
 TEST_F(AosHandleTest, IsHandleBlocked_ForAll)
 {
     ClearBlocks();
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOLTE_CAPABILITY, m_pAosHandle->m_nBlocks);
-    EXPECT_TRUE(IsHandleBlocked());
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked());
 
     ClearBlocks();
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
 }
 
 TEST_F(AosHandleTest, GetAppId_Test)
@@ -1211,15 +1203,15 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test2)
 
     m_pAosHandle->NetTracker_StatusChanged();
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
 
     m_pAosHandle->NetTracker_StatusChanged();
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test3)
@@ -1267,15 +1259,15 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test3)
 
     m_pAosHandle->NetTracker_StatusChanged();
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
 
     m_pAosHandle->NetTracker_StatusChanged();
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test4)
@@ -1289,7 +1281,7 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test4)
             .WillOnce(Return(IMS_FALSE));
 
     m_pAosHandle->NetTracker_StatusChanged();
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test5)
@@ -1306,7 +1298,7 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test5)
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended()).Times(1).WillOnce(Return(IMS_TRUE));
 
     m_pAosHandle->NetTracker_StatusChanged();
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test6)
@@ -1327,7 +1319,7 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test6)
             .WillRepeatedly(Return(NW_REPORT_RADIO_GSM));
 
     m_pAosHandle->NetTracker_StatusChanged();
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test7)
@@ -1349,14 +1341,14 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test7)
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
     m_pAosHandle->NetTracker_StatusChanged();
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_3G, m_pAosHandle->m_nBlocks);
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
     m_pAosHandle->NetTracker_StatusChanged();
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test8)
@@ -1380,9 +1372,9 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test8)
 
     SetDataConnected(IMS_TRUE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
     m_pAosHandle->NetTracker_StatusChanged();
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_3G));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_3G));
 }
 
 TEST_F(AosHandleTest, NetTracker_StatusChanged_Test9)
@@ -1847,10 +1839,10 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test1)
 
     BackupAllBlocks();
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -1886,13 +1878,13 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test2)
 
     BackupAllBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 }
@@ -1925,13 +1917,13 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test3)
 
     BackupAllBlocks();
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 }
@@ -1964,13 +1956,13 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test4)
 
     BackupAllBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 }
@@ -1987,15 +1979,15 @@ TEST_F(AosHandleTest, BackupBlocks_Test)
 
     BackupBlocksForMobile();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
     BackupBlocksForWifi();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 }
@@ -2012,15 +2004,15 @@ TEST_F(AosHandleTest, RestoreBlocks_Test)
 
     RestoreBlocksForMobile();
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
     RestoreBlocksForWifi();
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 }
@@ -2158,18 +2150,18 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test1)
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VILTE_CAPABILITY, m_pAosHandle->m_nBlocks);
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOPS, m_pAosHandle->m_nBlocks);
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
 
     ReevaluateBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
@@ -2189,18 +2181,18 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test2)
 
     SetEpdgEnabled(IMS_TRUE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
 
     ReevaluateBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
@@ -2222,15 +2214,15 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test3)
     AddHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY);
     AddHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     ReevaluateBlocks();
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
@@ -2249,15 +2241,15 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test4)
 
     SetEpdgEnabled(IMS_TRUE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     ReevaluateBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
@@ -2278,15 +2270,15 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test5)
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOWIFI_CAPABILITY, m_pAosHandle->m_nBlocks);
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, m_pAosHandle->m_nBlocks);
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     ReevaluateBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
@@ -2305,15 +2297,15 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test6)
 
     SetEpdgEnabled(IMS_FALSE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     ReevaluateBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
@@ -2335,18 +2327,18 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test7)
     AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
     AddHoldingBlockForMobile(AosHandle::BLOCK_VOPS);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
 
     ReevaluateBlocks();
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
@@ -2366,18 +2358,18 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test8)
 
     SetEpdgEnabled(IMS_FALSE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
 
     ReevaluateBlocks();
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
@@ -2544,7 +2536,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test1)
     AddFeature(ImsAosFeature::VIDEO);
     AddFeature(ImsAosFeature::SMSIP);
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -2553,24 +2545,24 @@ TEST_F(AosHandleTest, ProcessBlock_Test1)
     ProcessBlock(AosHandle::BLOCK_VOWIFI_CAPABILITY, IMS_TRUE, IMS_FALSE);
     ProcessBlock(AosHandle::BLOCK_VOPS, IMS_TRUE, IMS_FALSE);
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
     ProcessBlock(AosHandle::BLOCK_VILTE_CAPABILITY, IMS_TRUE, IMS_FALSE);
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_FALSE);
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(), ImsAosFeature::SMSIP);
 
     ProcessBlock(AosHandle::BLOCK_SMS_CAPABILITY, IMS_TRUE, IMS_FALSE);
     ProcessBlock(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION, IMS_TRUE, IMS_FALSE);
 
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(), ImsAosFeature::NONE);
 
     // Reset
@@ -2578,28 +2570,28 @@ TEST_F(AosHandleTest, ProcessBlock_Test1)
     ProcessBlock(AosHandle::BLOCK_VOWIFI_CAPABILITY, IMS_FALSE, IMS_FALSE);
     ProcessBlock(AosHandle::BLOCK_VOPS, IMS_FALSE, IMS_FALSE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(), ImsAosFeature::MMTEL);
 
     ProcessBlock(AosHandle::BLOCK_VILTE_CAPABILITY, IMS_FALSE, IMS_FALSE);
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_FALSE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO));
 
     ProcessBlock(AosHandle::BLOCK_SMS_CAPABILITY, IMS_FALSE, IMS_FALSE);
     ProcessBlock(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION, IMS_FALSE, IMS_FALSE);
 
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
 
     ClearBlocks();
     ClearFeatureTagList();
@@ -2628,7 +2620,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_INVALID));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -2642,13 +2634,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test2)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -2708,13 +2700,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test3)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -2763,7 +2755,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test4)
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_INVALID));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -2777,13 +2769,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test4)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -2849,13 +2841,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test5)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -2906,7 +2898,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test6)
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -2920,13 +2912,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test6)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_TRUE);
 
     // Checking result
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -2992,13 +2984,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test7)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3038,7 +3030,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test8)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -3052,13 +3044,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test8)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_TRUE);
 
     // Checking result
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3114,13 +3106,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test9)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3162,7 +3154,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test10)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -3176,13 +3168,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test10)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_TRUE);
 
     // Checking result
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3239,13 +3231,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test11)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3287,7 +3279,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test12)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_FALSE(IsHandleBlocked());
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked());
     EXPECT_EQ(m_pAosHandle->GetFeatureTagList().GetFeatures(),
             (ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::SMSIP));
 
@@ -3301,13 +3293,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test12)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_TRUE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3364,13 +3356,13 @@ TEST_F(AosHandleTest, ProcessBlock_Test13)
     ProcessBlock(AosHandle::BLOCK_VIWIFI_CAPABILITY, IMS_FALSE, IMS_TRUE);
 
     // Checking result
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_SMS_OVER_IP_NETWORK_INDICATION));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandle->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
