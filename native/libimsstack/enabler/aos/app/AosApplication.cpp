@@ -895,7 +895,9 @@ PROTECTED VIRTUAL void AosApplication::ClearConnector()
     {
         m_pConnector->SetListener(IMS_NULL);
         m_pConnector->CleanUp();
+
         delete m_pConnector;
+        m_pConnector = IMS_NULL;
     }
 }
 
@@ -2954,7 +2956,9 @@ PROTECTED VIRTUAL void AosApplication::CleanUp()
     {
         m_pCondition->SetListener(IMS_NULL);
         m_pCondition->Stop();
+
         delete m_pCondition;
+        m_pCondition = IMS_NULL;
     }
 
     if (m_piRegistration != IMS_NULL)

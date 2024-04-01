@@ -482,25 +482,25 @@ protected:
         m_piAosService = AosProvider::GetInstance()->GetService();
         m_piAosCallTracker = AosProvider::GetInstance()->GetCallTracker();
         m_piAosLocationStarter = AosProvider::GetInstance()->GetLocationStarter();
-        m_piAosRetryRepository = AosProvider::GetInstance()->GetRetryRepository(SLOT_ID);
+        m_piAosRetryRepository = AosProvider::GetInstance()->GetRetryRepository();
         m_piAosRegStateManager = AosProvider::GetInstance()->GetRegStateManager();
 
-        AosProvider::GetInstance()->SetNConfiguration(&m_objMockIAosNConfiguration, SLOT_ID);
-        AosProvider::GetInstance()->SetService(&m_objMockIAosService, SLOT_ID);
-        AosProvider::GetInstance()->SetCallTracker(&m_objMockIAosCallTracker, SLOT_ID);
-        AosProvider::GetInstance()->SetLocationStarter(&m_objMockIAosLocationStarter, SLOT_ID);
-        AosProvider::GetInstance()->SetRetryRepository(&m_objMockIAosRetryRepository, SLOT_ID);
-        AosProvider::GetInstance()->SetRegStateManager(&m_objMockIAosRegStateManager, SLOT_ID);
+        AosProvider::GetInstance()->SetNConfiguration(&m_objMockIAosNConfiguration);
+        AosProvider::GetInstance()->SetService(&m_objMockIAosService);
+        AosProvider::GetInstance()->SetCallTracker(&m_objMockIAosCallTracker);
+        AosProvider::GetInstance()->SetLocationStarter(&m_objMockIAosLocationStarter);
+        AosProvider::GetInstance()->SetRetryRepository(&m_objMockIAosRetryRepository);
+        AosProvider::GetInstance()->SetRegStateManager(&m_objMockIAosRegStateManager);
     }
 
     void RestoreOriginInstance()
     {
-        AosProvider::GetInstance()->SetRegStateManager(m_piAosRegStateManager, SLOT_ID);
-        AosProvider::GetInstance()->SetRetryRepository(m_piAosRetryRepository, SLOT_ID);
-        AosProvider::GetInstance()->SetLocationStarter(m_piAosLocationStarter, SLOT_ID);
-        AosProvider::GetInstance()->SetCallTracker(m_piAosCallTracker, SLOT_ID);
-        AosProvider::GetInstance()->SetService(m_piAosService, SLOT_ID);
-        AosProvider::GetInstance()->SetNConfiguration(m_piAosNConfiguration, SLOT_ID);
+        AosProvider::GetInstance()->SetRegStateManager(m_piAosRegStateManager);
+        AosProvider::GetInstance()->SetRetryRepository(m_piAosRetryRepository);
+        AosProvider::GetInstance()->SetLocationStarter(m_piAosLocationStarter);
+        AosProvider::GetInstance()->SetCallTracker(m_piAosCallTracker);
+        AosProvider::GetInstance()->SetService(m_piAosService);
+        AosProvider::GetInstance()->SetNConfiguration(m_piAosNConfiguration);
     }
 
     void SetDefaultValues()
@@ -593,7 +593,7 @@ TEST_F(AosApplicationTest, SucceedsCreateLocationStarterWhenInit)
     m_pAosApplication->Init();
 
     // THEN
-    EXPECT_NE(AosProvider::GetInstance()->GetLocationStarter(SLOT_ID), nullptr);
+    EXPECT_NE(AosProvider::GetInstance()->GetLocationStarter(), nullptr);
 }
 
 TEST_F(AosApplicationTest, ShouldNotCreateLocationStarterWhenInitAndIsNotWfcImsAvailable)
@@ -607,7 +607,7 @@ TEST_F(AosApplicationTest, ShouldNotCreateLocationStarterWhenInitAndIsNotWfcImsA
     m_pAosApplication->Init();
 
     // THEN
-    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(SLOT_ID), nullptr);
+    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(), nullptr);
 }
 
 TEST_F(AosApplicationTest, ShouldNotCreateLocationStarterWhenInitAndIsNotSupportPidf)
@@ -622,7 +622,7 @@ TEST_F(AosApplicationTest, ShouldNotCreateLocationStarterWhenInitAndIsNotSupport
     m_pAosApplication->Init();
 
     // THEN
-    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(SLOT_ID), nullptr);
+    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(), nullptr);
 }
 
 TEST_F(AosApplicationTest, SucceedsGetNetTrackerListenerWhenInit)
@@ -653,7 +653,7 @@ TEST_F(AosApplicationTest, ShouldNotSetNetTrackerListenerWhenInitAndRegTypeIsNot
 TEST_F(AosApplicationTest, FailsCreateAndGetInstanceWhenInitWithoutConfiguration)
 {
     // GIVEN
-    AosProvider::GetInstance()->SetNConfiguration(IMS_NULL, SLOT_ID);
+    AosProvider::GetInstance()->SetNConfiguration(IMS_NULL);
 
     m_pAosApplication->SetAosCondition(IMS_NULL);
     m_pAosApplication->SetAosConnector(IMS_NULL);
@@ -671,7 +671,7 @@ TEST_F(AosApplicationTest, FailsCreateAndGetInstanceWhenInitWithoutConfiguration
     EXPECT_EQ(m_pAosApplication->GetCallTracker(), nullptr);
     EXPECT_EQ(m_pAosApplication->GetAosRegistration(), nullptr);
     EXPECT_EQ(m_pAosApplication->GetNetTracker(), nullptr);
-    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(SLOT_ID), nullptr);
+    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(), nullptr);
 }
 
 TEST_F(AosApplicationTest, SucceedsSetListenerToConfigWhenInit)
@@ -755,7 +755,157 @@ TEST_F(AosApplicationTest, SucceedsStopTimersWhenCleanUp)
     EXPECT_FALSE(m_pAosApplication->IsTimerRunning(TIMER_IMS_ESTABLISHMENT));
 }
 
-// TODO : Add more Test functions for CleanUp()
+TEST_F(AosApplicationTest, SucceedsRemoveListenerForNetTrackerWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetNetTrackerListener();
+
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    EXPECT_CALL(m_objMockIAosNetTracker, RemoveListener(_));
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN : GIVEN conditions should be met.
+}
+
+TEST_F(AosApplicationTest, SucceedsRemoveListenerForAosServiceWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    EXPECT_CALL(m_objMockIAosService, RemoveListener(An<IAosServicePhoneListener*>()));
+    EXPECT_CALL(m_objMockIAosService, RemoveListener(An<IAosRegistrationControlListener*>()));
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN : GIVEN conditions should be met.
+}
+
+TEST_F(AosApplicationTest, ShouldNotRemoveListenerForAosServiceWhenEmergencyTypeCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetAppTypeEmergency();
+
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    EXPECT_CALL(m_objMockIAosService, RemoveListener(An<IAosServicePhoneListener*>())).Times(0);
+    EXPECT_CALL(m_objMockIAosService, RemoveListener(An<IAosRegistrationControlListener*>()))
+            .Times(0);
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN : GIVEN conditions should be met.
+}
+
+TEST_F(AosApplicationTest, SucceedsDeleteLocationStarterWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+
+    AosProvider::GetInstance()->SetLocationStarter(m_piAosLocationStarter);
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN
+    EXPECT_EQ(AosProvider::GetInstance()->GetLocationStarter(), nullptr);
+}
+
+TEST_F(AosApplicationTest, SucceedsRemoveListenerForCallTrackerWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetCallTracker(&m_objMockIAosCallTracker);
+
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    EXPECT_CALL(m_objMockIAosCallTracker, RemoveListener(_));
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN : GIVEN conditions should be met.
+}
+
+TEST_F(AosApplicationTest, SucceedsClearConnectorWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->CreateAosConnector();
+
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN
+    EXPECT_EQ(m_pAosApplication->GetAosConnector(), nullptr);
+}
+
+TEST_F(AosApplicationTest, SucceedsClearConditionWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->CreateAosCondition();
+
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN
+    EXPECT_EQ(m_pAosApplication->GetAosCondition(), nullptr);
+}
+
+TEST_F(AosApplicationTest, SucceedsSetListenerWithNullForRegistrationWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    EXPECT_CALL(m_objMockIAosRegistration, SetListener(IMS_NULL));
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN : GIVEN conditions should be met.
+}
+
+TEST_F(AosApplicationTest, SucceedsRemoveListenerForConfigurationWhenCleanUp)
+{
+    // GIVEN
+    m_pAosApplication->SetAosCondition(IMS_NULL);
+    m_pAosApplication->SetAosConnector(IMS_NULL);
+    m_pAosApplication->SetNetTracker(IMS_NULL);
+    AosProvider::GetInstance()->SetLocationStarter(IMS_NULL);
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, RemoveListener(_));
+
+    // WHEN
+    m_pAosApplication->CleanUp();
+
+    // THEN : GIVEN conditions should be met.
+}
 
 TEST_F(AosApplicationTest, GetAndSet)
 {
@@ -2634,10 +2784,9 @@ TEST_F(AosApplicationTest, Callback)
     m_pAosApplication->NetTracker_StatusChanged();
 
     // TEST_F : NConfiguration_NotifyConfigChanged
-    AosProvider::GetInstance()->SetNConfiguration(
-            static_cast<IAosNConfiguration*>(IMS_NULL), SLOT_ID);
+    AosProvider::GetInstance()->SetNConfiguration(IMS_NULL);
     m_pAosApplication->NConfiguration_NotifyConfigChanged();
-    AosProvider::GetInstance()->SetNConfiguration(&m_objMockIAosNConfiguration, SLOT_ID);
+    AosProvider::GetInstance()->SetNConfiguration(&m_objMockIAosNConfiguration);
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable()).WillOnce(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockIAosNConfiguration, IsGeolocationPidfSupported(_))
             .WillOnce(Return(IMS_TRUE));
