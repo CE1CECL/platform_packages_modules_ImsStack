@@ -1249,7 +1249,7 @@ TEST_F(AosSubscriptionTest, ReturnTrueWhen504WithoutXml)
 {
     ImsList<ISipMessageBodyPart*> objBodyParts;
     SipMessageBodyPart objBodyPart;
-    ISipMessageBodyPart* piBodyPart = static_cast<ISipMessageBodyPart*>(&objBodyPart);
+    const ISipMessageBodyPart* piBodyPart = static_cast<ISipMessageBodyPart*>(&objBodyPart);
 
     // nStatusCode == SipStatusCode::SC_504 GetBodyParts empty;
     EXPECT_CALL(m_objMockISipMsg, GetBodyParts()).WillOnce(Return(objBodyParts));

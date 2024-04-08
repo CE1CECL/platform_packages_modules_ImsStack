@@ -290,11 +290,10 @@ void AosSubscription::ReportNotifyEvent(IN IMS_SINT32 nEvent, IN IMS_SINT32 nRet
         return;
     }
 
-    IMS_BOOL bRegRequired = IMS_FALSE;
+    IMS_BOOL bRegRequired = IMS_TRUE;
 
     if (IsRegAfterWaitRequiredByNotify(nFeature))
     {
-        bRegRequired = IMS_TRUE;
         nRetryAfter = GET_N_CONFIG(m_piContext->GetSlotId())->GetNotifyWaitTime();
     }
     else

@@ -41,7 +41,7 @@ class TestAosService : public AosService
 public:
     DECLARE_USING(AosService)
 
-    inline TestAosService(IN IMS_SINT32 nSlotId) :
+    inline explicit TestAosService(IN IMS_SINT32 nSlotId) :
             AosService(nSlotId)
     {
     }
