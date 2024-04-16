@@ -107,7 +107,7 @@ public class SampleCallTest extends CallTestBase {
 
         // TODO: SetUpTiss : INVITE - 100 - 603 - ACK
 
-        ImsCallSessionWrapper callSession = createAndStartVoiceCall();
+        createAndStartVoiceCall();
         mExpectedReason = ImsReasonInfo.CODE_SIP_USER_REJECTED;
         mTerminatedLatch.await(10000);
 
