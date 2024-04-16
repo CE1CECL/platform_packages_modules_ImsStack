@@ -17,7 +17,6 @@
 #ifndef VIDEO_PROFILE_H_
 #define VIDEO_PROFILE_H_
 
-#include "ImsMap.h"
 #include "VideoDef.h"
 #include "MediaBaseProfile.h"
 
@@ -222,35 +221,6 @@ public:
     };
 
 public:
-    class CapaNego
-    {
-    public:
-        ImsMap<IMS_SINT32, AString> mapTransportCapa;
-        ImsMap<IMS_SINT32, AString> mapAttributeCapa;
-        ImsList<AString> lstPotentialConfig;
-        AString strNegotiatedAcfg;
-        IMS_BOOL bIsAttCapaInPcfg;
-
-    public:
-        CapaNego() :
-                strNegotiatedAcfg(""),
-                bIsAttCapaInPcfg(IMS_FALSE){};
-
-        CapaNego& operator=(IN const CapaNego& obj)
-        {
-            if (this != &obj)
-            {
-                mapTransportCapa = obj.mapTransportCapa;
-                mapAttributeCapa = obj.mapAttributeCapa;
-                lstPotentialConfig = obj.lstPotentialConfig;
-                strNegotiatedAcfg = obj.strNegotiatedAcfg;
-                bIsAttCapaInPcfg = obj.bIsAttCapaInPcfg;
-            }
-            return (*this);
-        }
-    };
-
-public:
     /**
      * Payload for video is the actual video data transported by RTP in a packet.
      */
@@ -322,8 +292,6 @@ public:
     IMS_BOOL bSupportAvpf;
     IMS_SINT32 nCvoId;
     IMS_BOOL bSupportCapaNegoForAvpf;
-    CapaNego objCapaNego;
-    IMS_SINT32 nNegotiatedPayloadIndex;
 
 public:
     VideoProfile() :
@@ -333,9 +301,7 @@ public:
             nFrameRate(0),
             bSupportAvpf(IMS_FALSE),
             nCvoId(-1),
-            bSupportCapaNegoForAvpf(IMS_FALSE),
-            objCapaNego(CapaNego()),
-            nNegotiatedPayloadIndex(-1){};
+            bSupportCapaNegoForAvpf(IMS_FALSE){};
 
     virtual ~VideoProfile() { deletePayloads(); };
 
@@ -350,8 +316,6 @@ public:
         bSupportAvpf = profile->bSupportAvpf;
         nCvoId = profile->nCvoId;
         bSupportCapaNegoForAvpf = profile->bSupportCapaNegoForAvpf;
-        objCapaNego = profile->objCapaNego;
-        nNegotiatedPayloadIndex = -1;
 
         deletePayloads();
         addPayloads(profile->lstPayload);
@@ -364,8 +328,6 @@ public:
         bSupportAvpf = obj.bSupportAvpf;
         nCvoId = obj.nCvoId;
         bSupportCapaNegoForAvpf = obj.bSupportCapaNegoForAvpf;
-        objCapaNego = obj.objCapaNego;
-        nNegotiatedPayloadIndex = -1;
 
         deletePayloads();
         addPayloads(obj.lstPayload);
@@ -380,13 +342,11 @@ public:
             bSupportAvpf = obj.bSupportAvpf;
             nCvoId = obj.nCvoId;
             bSupportCapaNegoForAvpf = obj.bSupportCapaNegoForAvpf;
-            objCapaNego = obj.objCapaNego;
 
             deletePayloads();
             addPayloads(obj.lstPayload);
         }
 
-        nNegotiatedPayloadIndex = -1;
         return (*this);
     }
 

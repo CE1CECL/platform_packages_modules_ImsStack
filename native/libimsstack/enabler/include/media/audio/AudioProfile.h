@@ -17,7 +17,6 @@
 #ifndef AUDIO_PROFILE_H_
 #define AUDIO_PROFILE_H_
 
-#include "ImsMap.h"
 #include "MediaBaseProfile.h"
 
 /**
@@ -406,31 +405,6 @@ public:
         virtual ~Payload() {}
     };
 
-    class CapaNego
-    {
-    public:
-        ImsMap<IMS_SINT32, AString> mapTransportCapa;
-        ImsMap<IMS_SINT32, AString> mapAttributeCapa;
-        ImsList<AString> lstPotentialConfig;
-
-        AString strNegotiatedAcfg;
-        IMS_BOOL bIsAttCapaInPcfg;
-
-    public:
-        CapaNego() :
-                strNegotiatedAcfg(""),
-                bIsAttCapaInPcfg(IMS_FALSE){};
-
-        CapaNego(const CapaNego& obj) :
-                mapTransportCapa(obj.mapTransportCapa),
-                mapAttributeCapa(obj.mapAttributeCapa),
-                lstPotentialConfig(obj.lstPotentialConfig),
-                strNegotiatedAcfg(obj.strNegotiatedAcfg),
-                bIsAttCapaInPcfg(obj.bIsAttCapaInPcfg)
-        {
-        }
-    };
-
 public:
     class RTCPXRAttributes
     {
@@ -480,9 +454,6 @@ public:
     IMS_SINT32 nPtime;
     IMS_SINT32 nMaxPtime;
     ImsVector<AString> objCandidateAttr;
-    IMS_SINT32 nNegotiatedPayloadIndex;
-    IMS_BOOL bIsOfferCase;
-    CapaNego objCapaNego;
     IMS_BOOL bSupportRtcpXr;
     RTCPXRAttributes objRtcpXrAttr;
     IMS_BOOL bRtcpDisableBeforeSetup;
@@ -496,9 +467,6 @@ public:
             nPtime(0),
             nMaxPtime(0),
             objCandidateAttr(ImsVector<AString>()),
-            nNegotiatedPayloadIndex(-1),
-            bIsOfferCase(IMS_FALSE),
-            objCapaNego(CapaNego()),
             bSupportRtcpXr(IMS_FALSE),
             objRtcpXrAttr(RTCPXRAttributes()),
             bRtcpDisableBeforeSetup(IMS_FALSE),
@@ -516,9 +484,6 @@ public:
         nPtime = profile->nPtime;
         nMaxPtime = profile->nMaxPtime;
         objCandidateAttr = profile->objCandidateAttr;
-        nNegotiatedPayloadIndex = profile->nNegotiatedPayloadIndex;
-        bIsOfferCase = profile->bIsOfferCase;
-        objCapaNego = profile->objCapaNego;
         bSupportRtcpXr = profile->bSupportRtcpXr;
         objRtcpXrAttr = profile->objRtcpXrAttr;
         bRtcpDisableBeforeSetup = profile->bRtcpDisableBeforeSetup;
@@ -534,9 +499,6 @@ public:
         nPtime = obj.nPtime;
         nMaxPtime = obj.nMaxPtime;
         objCandidateAttr = obj.objCandidateAttr;
-        nNegotiatedPayloadIndex = obj.nNegotiatedPayloadIndex;
-        bIsOfferCase = obj.bIsOfferCase;
-        objCapaNego = obj.objCapaNego;
         bSupportRtcpXr = obj.bSupportRtcpXr;
         objRtcpXrAttr = obj.objRtcpXrAttr;
         bRtcpDisableBeforeSetup = obj.bRtcpDisableBeforeSetup;
@@ -554,9 +516,6 @@ public:
             nPtime = obj.nPtime;
             nMaxPtime = obj.nMaxPtime;
             objCandidateAttr = obj.objCandidateAttr;
-            nNegotiatedPayloadIndex = obj.nNegotiatedPayloadIndex;
-            bIsOfferCase = obj.bIsOfferCase;
-            objCapaNego = obj.objCapaNego;
             bSupportRtcpXr = obj.bSupportRtcpXr;
             objRtcpXrAttr = obj.objRtcpXrAttr;
             bRtcpDisableBeforeSetup = obj.bRtcpDisableBeforeSetup;
