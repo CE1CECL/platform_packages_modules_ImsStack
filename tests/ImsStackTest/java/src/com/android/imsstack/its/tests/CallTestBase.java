@@ -119,10 +119,6 @@ public class CallTestBase extends ImsStackTestBase {
         public @Nullable IImsCallSessionListener onIncomingCall(
                 @NonNull IImsCallSession c, @Nullable String callId, @Nullable Bundle extras) {
             logi("IncomingCallListener.onIncomingCall");
-            // TODO: use extras.
-            ImsCallProfile incomingCallProfile =
-                    mImsServiceConnector.getMmTelFeature().createCallProfile(
-                            ImsCallProfile.SERVICE_TYPE_NORMAL, ImsCallProfile.CALL_TYPE_VOICE);
             mIncomingCallSessionWrapper = new ImsCallSessionWrapper(c, mCallSessionListener);
 
             mIncomingCallLatch.countDownAndInit();
