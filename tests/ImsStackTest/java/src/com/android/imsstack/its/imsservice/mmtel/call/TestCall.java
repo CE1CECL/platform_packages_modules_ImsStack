@@ -93,17 +93,6 @@ public class TestCall {
         mCallSession.terminate(reason);
     }
 
-    /** Waits an event for a while. Just continues when a timeout occurs. */
-    public @NonNull Expectation await() {
-        return await(TIMEOUT_DEFAULT_MS);
-    }
-
-    /** Waits an event for a given time. Just continues when a timeout occurs. */
-    public @NonNull Expectation await(int millis) {
-        resetExpectation();
-        return new TimedExpectation(false, millis);
-    }
-
     /** Shortcut of {@link TestCall#expectWithin} with the default timeout. */
     public @NonNull Expectation expect() {
         return expectWithin(TIMEOUT_DEFAULT_MS);
@@ -112,12 +101,12 @@ public class TestCall {
     /** Continues if an expected event occurs before the given time has elapsed. Otherwise fails. */
     public @NonNull Expectation expectWithin(int millis) {
         resetExpectation();
-        return new TimedExpectation(true, millis);
+        return new TimedExpectation(millis);
     }
 
     /**
      * Checks for an event that have already been triggered.
-     * {@link TestCall#await} and {@link TestCall#expectWithin} reset the history.
+     * {@link TestCall#expectWithin} reset the history.
      */
     public @NonNull Expectation expectToHaveBeen() {
         return new EventTriggerExpectation();
@@ -141,25 +130,21 @@ public class TestCall {
         this.mEventRecords.clear();
     }
 
-    /** Waits for a specified event to occur within a defined time period. */
+    /**
+     * Waits for a specified event to occur within a defined time period.
+     * The test will fail when the event with the given parameters doesn't occur.
+     *
+     * When {@link Expectation#not} is set, the test will fail when the event
+     * with the given parameters occur.
+     */
     private class TimedExpectation extends Expectation {
         private @NonNull final Runnable mWait;
         private final int mWaitingTimeInMillis;
 
-        /**
-         * @param needAssert If true, the test fails when the event doesn't occur.
-         *                   ({@link Expectation#not} can be used to invert the result.)
-         *                   If false, the test continues without fail.
-         */
-        TimedExpectation(boolean needAssert, int waitingTimeInMillis) {
+        TimedExpectation(int waitingTimeInMillis) {
             super();
 
             mWait = () -> {
-                if (!needAssert) {
-                    mLatch.sleep(waitingTimeInMillis);
-                    return;
-                }
-
                 if (isExpectToBeTriggered()) {
                     mLatch.await(waitingTimeInMillis);
                 } else {

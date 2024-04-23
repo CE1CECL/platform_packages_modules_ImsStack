@@ -82,7 +82,7 @@ public class SampleCallTest extends CallTestBase {
 
         mCall.startVoiceCall();
         mCall.expect().initiated();
-        mCall.await(2000).nothing();
+        mCall.expectWithin(2000).nothing();
         mCall.terminate(ImsReasonInfo.CODE_USER_TERMINATED);
         mCall.expect().terminated(
                 reason -> reason.getCode() == ImsReasonInfo.CODE_USER_TERMINATED);
@@ -148,7 +148,7 @@ public class SampleCallTest extends CallTestBase {
         logi("testMtCallSetup - incoming call received");
 
         logi("testMtCallSetup - reject call");
-        mCall.await(2000).nothing();
+        mCall.expectWithin(2000).nothing();
         mCall.reject(ImsReasonInfo.CODE_USER_DECLINE);
         mCall.expect().terminated();
 
