@@ -78,10 +78,8 @@ public class RegistrationHelper {
             testBase.startImsStack(info.getSlotId(), info.getConfig());
         }
 
-        if (info.isEnableCapabilityRequestChanged()) {
-            performMmTelCapabilityChange(info.getEnableCapabilityRequest());
-        } else if (info.isDisableCapabilityRequestChanged()) {
-            performMmTelCapabilityChange(info.getDisableCapabilityRequest());
+        if (info.isCapabilityRequestChanged()) {
+            performMmTelCapabilityChange(info.getCapabilityRequest());
         } else {
             testBase.enableAllMmTelCapabilities();
         }
