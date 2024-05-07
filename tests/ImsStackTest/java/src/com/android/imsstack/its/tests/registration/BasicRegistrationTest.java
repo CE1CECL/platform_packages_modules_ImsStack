@@ -108,7 +108,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
 
         RegistrationInfo info = new RegistrationInfo.Builder()
                 .setConfig(mConfig)
-                .setEnableCapabilityRequest(CAPABILITY_TYPE_VOICE, REGISTRATION_TECH_LTE)
+                .setEnableCapability(CAPABILITY_TYPE_VOICE, REGISTRATION_TECH_LTE)
                 .build();
 
         boolean isRegistered = mRegistrationHelper.performRegistration(this, info);
@@ -139,7 +139,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
 
         RegistrationInfo info = new RegistrationInfo.Builder()
                 .setConfig(mConfig)
-                .setEnableCapabilityRequest(CAPABILITY_TYPE_SMS, REGISTRATION_TECH_LTE)
+                .setEnableCapability(CAPABILITY_TYPE_SMS, REGISTRATION_TECH_LTE)
                 .build();
 
         boolean isRegistered = mRegistrationHelper.performRegistration(this, info);
@@ -205,7 +205,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
 
         RegistrationInfo info = new RegistrationInfo.Builder()
                 .setConfig(mConfig)
-                .setEnableCapabilityRequest(CAPABILITY_TYPE_SMS, REGISTRATION_TECH_LTE)
+                .setEnableCapability(CAPABILITY_TYPE_SMS, REGISTRATION_TECH_LTE)
                 .setServiceState(ss)
                 .build();
 
