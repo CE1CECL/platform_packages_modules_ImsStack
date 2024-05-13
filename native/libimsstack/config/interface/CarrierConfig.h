@@ -711,6 +711,7 @@ public:
         static const IMS_CHAR KEY_VIDEO_CODEC_ATTRIBUTE_FRAME_RATE_INT[];
         static const IMS_CHAR KEY_VIDEO_CODEC_ATTRIBUTE_RESOLUTION_INT_ARRAY[];
         static const IMS_CHAR KEY_H264_VIDEO_CODEC_ATTRIBUTE_PROFILE_LEVEL_ID_STRING[];
+        static const IMS_CHAR KEY_H264_VIDEO_CODEC_ATTRIBUTE_SPROP_STRING[];
         // }
         // Public carrier-config - ends
         static const IMS_CHAR KEY_CONVERT_REMOTE_RESPONSE_TIMER_MILLIS_INT[];

@@ -628,6 +628,8 @@ public class CarrierConfig {
         public static final String KEY_H264_VIDEO_CODEC_ATTRIBUTE_PROFILE_LEVEL_ID_STRING =
                 KEY_PREFIX + "h264_video_codec_attribute_profile_level_id_string";
                 // TODO Media - item in Bundle - added to change the internal xml for test
+        public static final String KEY_H264_VIDEO_CODEC_ATTRIBUTE_SPROP_STRING =
+                KEY_PREFIX + "h264_video_codec_attribute_sprop_string";
 
         private ImsVt() {}
     }

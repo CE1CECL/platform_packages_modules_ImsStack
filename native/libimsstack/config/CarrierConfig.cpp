@@ -595,6 +595,8 @@ const IMS_CHAR CarrierConfig::ImsVt::KEY_VIDEO_CODEC_ATTRIBUTE_RESOLUTION_INT_AR
         KEY_IMS_VT_PREFIX "video_codec_attribute_resolution_int_array";
 const IMS_CHAR CarrierConfig::ImsVt::KEY_H264_VIDEO_CODEC_ATTRIBUTE_PROFILE_LEVEL_ID_STRING[] =
         KEY_IMS_VT_PREFIX "h264_video_codec_attribute_profile_level_id_string";
+const IMS_CHAR CarrierConfig::ImsVt::KEY_H264_VIDEO_CODEC_ATTRIBUTE_SPROP_STRING[] =
+        KEY_IMS_VT_PREFIX "h264_video_codec_attribute_sprop_string";
 // }
 // Public carrier-config - ends
 const IMS_CHAR CarrierConfig::ImsVt::KEY_CONVERT_REMOTE_RESPONSE_TIMER_MILLIS_INT[] =
