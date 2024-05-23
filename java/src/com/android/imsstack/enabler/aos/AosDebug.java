@@ -375,15 +375,15 @@ public class AosDebug implements IAosDebug {
             appendMessage(sb, "EMCBS", mDebugData.get(DebugData.KEY_NETWORK_SUPPORT_EMCBS));
 
             StringBuilder sbSignal = new StringBuilder();
-            String rsri = mDebugData.get(DebugData.KEY_UTRAN_RSRI);
-            String rscp = mDebugData.get(DebugData.KEY_UTRAN_RSCP);
+            String level = mDebugData.get(DebugData.KEY_UTRAN_LEVEL);
+            String dbm = mDebugData.get(DebugData.KEY_UTRAN_DBM);
             String rsrp = mDebugData.get(DebugData.KEY_EUTRAN_RSRP);
             String rsrq = mDebugData.get(DebugData.KEY_EUTRAN_RSRQ);
             String ssrsrp = mDebugData.get(DebugData.KEY_NGRAN_SSRSRP);
             String ssrsrq = mDebugData.get(DebugData.KEY_NGRAN_SSRSRQ);
 
-            if (!rsri.equals(DebugData.STR_EMPTY) || !rscp.equals(DebugData.STR_EMPTY)) {
-                appendMessage(sbSignal, " -UTRAN(RSRI/RSCP)", rsri + " dBm/" + rscp + " dBm");
+            if (!level.equals(DebugData.STR_EMPTY) || !dbm.equals(DebugData.STR_EMPTY)) {
+                appendMessage(sbSignal, " -UTRAN(Level/dbm)", level + " / " + dbm + " dBm");
             }
             if (!rsrp.equals(DebugData.STR_EMPTY) || !rsrq.equals(DebugData.STR_EMPTY)) {
                 appendMessage(sbSignal, " -EUTRN(RSRP/RSRQ)", rsrp + " dBm/" + rsrq + " dB");
@@ -577,10 +577,10 @@ public class AosDebug implements IAosDebug {
 
         switch (network) {
             case AccessNetworkType.UTRAN:
-                mDebugData.put(DebugData.KEY_UTRAN_RSRI, getSignalStrength(
-                        DebugData.KEY_UTRAN_RSRI, cs));
-                mDebugData.put(DebugData.KEY_UTRAN_RSCP, getSignalStrength(
-                        DebugData.KEY_UTRAN_RSCP, cs));
+                mDebugData.put(DebugData.KEY_UTRAN_LEVEL, getSignalStrength(
+                        DebugData.KEY_UTRAN_LEVEL, cs));
+                mDebugData.put(DebugData.KEY_UTRAN_DBM, getSignalStrength(
+                        DebugData.KEY_UTRAN_DBM, cs));
                 break;
             case AccessNetworkType.EUTRAN:
                 mDebugData.put(DebugData.KEY_EUTRAN_RSRP, getSignalStrength(
@@ -604,10 +604,9 @@ public class AosDebug implements IAosDebug {
         int ss = Integer.MAX_VALUE;
 
         if (css instanceof CellSignalStrengthWcdma
-                && (type == DebugData.KEY_UTRAN_RSRI || type == DebugData.KEY_UTRAN_RSCP)) {
-            ss = (type == DebugData.KEY_UTRAN_RSRI)
-                    ? ((CellSignalStrengthWcdma) css).getRssi()
-                    : ((CellSignalStrengthWcdma) css).getRscp();
+                && (type == DebugData.KEY_UTRAN_LEVEL || type == DebugData.KEY_UTRAN_DBM)) {
+            ss = (type == DebugData.KEY_UTRAN_LEVEL)
+                    ? ((CellSignalStrengthWcdma) css).getLevel() : css.getDbm();
         } else if (css instanceof CellSignalStrengthLte
                 && (type == DebugData.KEY_EUTRAN_RSRP || type == DebugData.KEY_EUTRAN_RSRQ)) {
             ss = (type == DebugData.KEY_EUTRAN_RSRP)
@@ -779,7 +778,7 @@ public class AosDebug implements IAosDebug {
     }
 
     @VisibleForTesting
-    void updatePreciseDataConnectionStateDate(PreciseDataConnectionState state) {
+    void updatePreciseDataConnectionState(PreciseDataConnectionState state) {
         mDebugData.put(DebugData.KEY_DATA_CONNECTION_STATE, getDataStateToString(state.getState()));
         mDebugData.put(DebugData.KEY_NETWORK_TYPE, getNetworkTypeToString(state.getNetworkType()));
 
@@ -787,7 +786,7 @@ public class AosDebug implements IAosDebug {
         mDebugData.put(DebugData.KEY_APN_NAME,
                 (as != null) ? as.getApnName() : DebugData.STR_EMPTY);
         mDebugData.put(DebugData.KEY_APN_TYPES,
-                (as != null) ? as.getApnTypes().toString() : DebugData.STR_EMPTY);
+                (as != null) ? getApnTypesToString(as.getApnTypeBitmask()) : DebugData.STR_EMPTY);
         mDebugData.put(DebugData.KEY_APN_ENTRY_NAME,
                 (as != null) ? as.getEntryName() : DebugData.STR_EMPTY);
 
@@ -802,7 +801,25 @@ public class AosDebug implements IAosDebug {
                 (lp != null) ? lp.getPcscfServers().toString() : DebugData.STR_EMPTY);
     }
 
-    @SuppressWarnings("deprecation")
+    private String getApnTypesToString(int apnTypeBitmask) {
+        StringBuilder sb = new StringBuilder("[");
+
+        final String[] apnStrings = {
+                "DEFAULT", "MMS", "SUPL", "IMS", "EMERGENCY", "XCAP", "RCS"};
+        final int[] masks = { ApnSetting.TYPE_DEFAULT, ApnSetting.TYPE_MMS,
+                ApnSetting.TYPE_SUPL, ApnSetting.TYPE_IMS, ApnSetting.TYPE_EMERGENCY,
+                ApnSetting.TYPE_XCAP, ApnSetting.TYPE_RCS };
+
+        for (int i = 0; i < apnStrings.length; i++) {
+            if ((apnTypeBitmask & masks[i]) != 0) {
+                sb.append(" ").append(apnStrings[i]).append(" ");
+            }
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
+
     @VisibleForTesting
     static String getNetworkTypeToString(int type) {
         switch (type) {
@@ -832,8 +849,6 @@ public class AosDebug implements IAosDebug {
                 return "LTE";
             case TelephonyManager.NETWORK_TYPE_EHRPD:
                 return "CDMA - eHRPD";
-            case TelephonyManager.NETWORK_TYPE_IDEN:
-                return "iDEN";
             case TelephonyManager.NETWORK_TYPE_HSPAP:
                 return "HSPA+";
             case TelephonyManager.NETWORK_TYPE_GSM:
@@ -1287,9 +1302,7 @@ public class AosDebug implements IAosDebug {
                     ((SignalStrength) msg.obj).getCellSignalStrengths();
 
             for (CellSignalStrength cs : cellSignalStrengths) {
-                if (cs.isValid()) {
-                    updateSignalStrengthData(cs, getAccessNetworkType(cs));
-                }
+                updateSignalStrengthData(cs, getAccessNetworkType(cs));
             }
         }
 
@@ -1353,7 +1366,7 @@ public class AosDebug implements IAosDebug {
 
         private void handlePreciseDataConnectionChanged(Message msg) {
             PreciseDataConnectionState pdc = (PreciseDataConnectionState) msg.obj;
-            updatePreciseDataConnectionStateDate(pdc);
+            updatePreciseDataConnectionState(pdc);
         }
 
         private void handleNotifyRegistered(Message msg) {
