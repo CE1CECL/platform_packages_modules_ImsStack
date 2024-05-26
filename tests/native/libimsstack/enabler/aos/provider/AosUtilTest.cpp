@@ -342,6 +342,318 @@ TEST_F(AosUtilTest, WaitTimeIsLessAndEqualTheSameValueWhenBaseAndMaxAreTheSame)
     EXPECT_LE(m_pAosUtil->WaitTimeForFlowRecovery(nBaseTime, MAX_TIME, nFailCount), MAX_TIME);
 }
 
+/// IsListEqual()
+TEST_F(AosUtilTest, ArraysAreEqualWhenTwoArraysAreTheSame)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("1234@ims.google.com");
+    objLeft.AddElement("sip:1234@ims.google.com");
+    objLeft.AddElement("tel:+1234@ims.google.com");
+
+    AStringArray objRight;
+    objRight.AddElement("1234@ims.google.com");
+    objRight.AddElement("sip:1234@ims.google.com");
+    objRight.AddElement("tel:+1234@ims.google.com");
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_FALSE));
+}
+
+TEST_F(AosUtilTest, ArraysAreEqualWhenTwoArraysAreInDifferentOrder)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("tel:+1234@ims.google.com");
+    objLeft.AddElement("1234@ims.google.com");
+    objLeft.AddElement("sip:1234@ims.google.com");
+
+    AStringArray objRight;
+    objRight.AddElement("1234@ims.google.com");
+    objRight.AddElement("sip:1234@ims.google.com");
+    objRight.AddElement("tel:+1234@ims.google.com");
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_FALSE));
+}
+
+TEST_F(AosUtilTest, ArraysAreNotEqualWhenTwoArraysAreSlightlyDifferent)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("1234@ims.google.com");
+    objLeft.AddElement("sip:1234@ims.google.com");
+    objLeft.AddElement("tel:+1234@ims.google.com");
+    objLeft.AddElement("+1234@ims.google.com");
+
+    AStringArray objRight;
+    objRight.AddElement("1234@ims.google.com");
+    objRight.AddElement("sip:1234@ims.google.com");
+    objRight.AddElement("tel:+1234@ims.google.com");
+
+    EXPECT_FALSE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_FALSE));
+}
+
+TEST_F(AosUtilTest, ArraysAreNotEqualWhenTwoArraysAreDifferent)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("1234@google.com");
+    objLeft.AddElement("sip:4567@ims.google.com");
+    objLeft.AddElement("tel:+8901@ims.google.com");
+
+    AStringArray objRight;
+    objRight.AddElement("1234@ims.google.com");
+    objRight.AddElement("sip:1234@ims.google.com");
+    objRight.AddElement("tel:+1234@ims.google.com");
+
+    EXPECT_FALSE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_FALSE));
+}
+
+/// IsStrExistInList()
+TEST_F(AosUtilTest, ExpectTrueWhenLeftValueIsExistInRightArray)
+{
+    AString strLeft = "tel:+1234@ims.google.com";
+
+    AStringArray objRight;
+    objRight.AddElement("1234@ims.google.com");
+    objRight.AddElement("sip:1234@ims.google.com");
+    objRight.AddElement("tel:+1234@ims.google.com");
+
+    EXPECT_TRUE(m_pAosUtil->IsStrExistInList(strLeft, objRight, IMS_FALSE));
+}
+
+TEST_F(AosUtilTest, ExpectFalseWhenLeftValueIsNotExistInRightArray)
+{
+    AString strLeft = "sip:4567@ims.google.com";
+
+    AStringArray objRight;
+    objRight.AddElement("1234@ims.google.com");
+    objRight.AddElement("sip:1234@ims.google.com");
+    objRight.AddElement("tel:+1234@ims.google.com");
+
+    EXPECT_FALSE(m_pAosUtil->IsStrExistInList(strLeft, objRight, IMS_FALSE));
+}
+
+/// IsListEqual() for Ip Address
+TEST_F(AosUtilTest, ArraysAreEqualWhenTwoIpv4ArraysAreTheSame)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("10.168.219.102");
+    objLeft.AddElement("10.168.219.104");
+    objLeft.AddElement("10.168.219.106");
+
+    AStringArray objRight;
+    objRight.AddElement("10.168.219.102");
+    objRight.AddElement("10.168.219.104");
+    objRight.AddElement("10.168.219.106");
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ArraysAreEqualWhenTwoIpv4ArraysAreInDifferentOrder)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("10.168.219.104");
+    objLeft.AddElement("10.168.219.106");
+    objLeft.AddElement("10.168.219.102");
+
+    AStringArray objRight;
+    objRight.AddElement("10.168.219.102");
+    objRight.AddElement("10.168.219.104");
+    objRight.AddElement("10.168.219.106");
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ArraysAreNotEqualWhenTwoIpv4ArraysAreDifferent)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("10.168.216.104");
+    objLeft.AddElement("10.168.216.106");
+    objLeft.AddElement("10.168.216.102");
+
+    AStringArray objRight;
+    objRight.AddElement("10.168.219.102");
+    objRight.AddElement("10.168.219.104");
+    objRight.AddElement("10.168.219.106");
+
+    EXPECT_FALSE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_TRUE));
+}
+
+/// IsStrExistInList()
+TEST_F(AosUtilTest, ExpectTrueWhenLeftIpv4ValueIsExistInRightArray)
+{
+    AString strLeft = "10.168.219.106";
+
+    AStringArray objRight;
+    objRight.AddElement("10.168.219.102");
+    objRight.AddElement("10.168.219.104");
+    objRight.AddElement("10.168.219.106");
+
+    EXPECT_TRUE(m_pAosUtil->IsStrExistInList(strLeft, objRight, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ExpectFalseWhenLeftIpv4ValueIsNotExistInRightArray)
+{
+    AString strLeft = "10.168.216.102";
+
+    AStringArray objRight;
+    objRight.AddElement("10.168.219.102");
+    objRight.AddElement("10.168.219.104");
+    objRight.AddElement("10.168.219.106");
+
+    EXPECT_FALSE(m_pAosUtil->IsStrExistInList(strLeft, objRight, IMS_TRUE));
+}
+
+/// IsListEqual() for Ip Address
+TEST_F(AosUtilTest, ArraysAreEqualWhenTwoIpv6ArraysAreTheSame)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+    objLeft.AddElement("240a:3:4400:3420::7");
+    objLeft.AddElement("fc01:abab:cdcd:6fee::1");
+
+    AStringArray objRight;
+    objRight.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+    objRight.AddElement("240a:3:4400:3420:0:0:0:7");
+    objRight.AddElement("fc01:abab:cdcd:6fee::1");
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ArraysAreEqualWhenTwoIpv6ArraysAreInDifferentOrder)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("fc01:abab:cdcd:6fee::1");
+    objLeft.AddElement("240a:3:4400:3420::7");
+    objLeft.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+
+    AStringArray objRight;
+    objRight.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+    objRight.AddElement("240a:3:4400:3420:0:0:0:7");
+    objRight.AddElement("fc01:abab:cdcd:6fee::1");
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ArraysAreNotEqualWhenTwoIpv6ArraysAreDifferent)
+{
+    AStringArray objLeft;
+    objLeft.AddElement("240a:3:4400:3420::6");
+    objLeft.AddElement("fc02:abab:cdcd:6fee::1");
+    objLeft.AddElement("fd29:cc42:7fb9:2:20c:29ff:fe66:b4c7");
+
+    AStringArray objRight;
+    objRight.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+    objRight.AddElement("240a:3:4400:3420:0:0:0:7");
+    objRight.AddElement("fc01:abab:cdcd:6fee::1");
+
+    EXPECT_FALSE(m_pAosUtil->IsListEqual(objLeft, objRight, IMS_TRUE));
+}
+
+/// IsStrExistInList()
+TEST_F(AosUtilTest, ExpectTrueWhenLeftIpv6ValueIsExistInRightArray)
+{
+    AString strLeft = "240a:3:4400:3420::7";
+
+    AStringArray objRight;
+    objRight.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+    objRight.AddElement("240a:3:4400:3420:0:0:0:7");
+    objRight.AddElement("fc01:abab:cdcd:6fee::1");
+
+    EXPECT_TRUE(m_pAosUtil->IsStrExistInList(strLeft, objRight, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ExpectFalseWhenLeftIpv6ValueIsNotExistInRightArray)
+{
+    AString strLeft = "fd29:cc42:7fb9:2:20c:29ff:fe66:b4c7";
+
+    AStringArray objRight;
+    objRight.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
+    objRight.AddElement("240a:3:4400:3420:0:0:0:7");
+    objRight.AddElement("fc01:abab:cdcd:6fee::1");
+
+    EXPECT_FALSE(m_pAosUtil->IsStrExistInList(strLeft, objRight, IMS_TRUE));
+}
+
+// IsListEqual() for ImsList<IMS_UINT32>
+TEST_F(AosUtilTest, ListsAreEqualWhenIntListsAreTheSame)
+{
+    ImsList<IMS_UINT32> objReasons;
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objReasons);
+    // Try adding duplicate list
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objReasons);
+
+    ImsList<IMS_UINT32> objCompareReasons;
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objCompareReasons);
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objCompareReasons);
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objReasons, objCompareReasons, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ListsAreEqualWhenIntListsAreInDifferentOrderAndOrderCheckIsNotRequired)
+{
+    ImsList<IMS_UINT32> objReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objReasons);
+
+    ImsList<IMS_UINT32> objCompareReasons;
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objCompareReasons);
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objCompareReasons);
+
+    EXPECT_TRUE(m_pAosUtil->IsListEqual(objReasons, objCompareReasons, IMS_FALSE));
+}
+
+TEST_F(AosUtilTest, ListsAreNotEqualWhenIntListsAreInDifferentOrderAndOrderCheckIsRequired)
+{
+    ImsList<IMS_UINT32> objReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objReasons);
+
+    ImsList<IMS_UINT32> objCompareReasons;
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objCompareReasons);
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objCompareReasons);
+
+    EXPECT_FALSE(m_pAosUtil->IsListEqual(objReasons, objCompareReasons, IMS_TRUE));
+}
+
+TEST_F(AosUtilTest, ListsAreNotEqualWhenIntListsAreDifferent)
+{
+    ImsList<IMS_UINT32> objReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE, objReasons);
+
+    ImsList<IMS_UINT32> objCompareReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objCompareReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objCompareReasons);
+
+    EXPECT_FALSE(m_pAosUtil->IsListEqual(objReasons, objCompareReasons, IMS_FALSE));
+}
+
+/// IsElementExistInList()
+TEST_F(AosUtilTest, ExpectTrueWhenLeftListIsExistInRightList)
+{
+    ImsList<IMS_UINT32> objReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objReasons);
+
+    ImsList<IMS_UINT32> objCompareReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objCompareReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objCompareReasons);
+
+    EXPECT_TRUE(m_pAosUtil->IsElementExistInList(objCompareReasons, objReasons));
+}
+
+TEST_F(AosUtilTest, ExpectFalseWhenLeftListIsNotExistInRightList)
+{
+    ImsList<IMS_UINT32> objReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE, objReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_VOPS_OFF, objReasons);
+
+    ImsList<IMS_UINT32> objCompareReasons;
+    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, objCompareReasons);
+    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, objCompareReasons);
+
+    EXPECT_FALSE(m_pAosUtil->IsElementExistInList(objCompareReasons, objReasons));
+}
+
 TEST_F(AosUtilTest, ReturnTrueWhenCheckingSupportedNetworkType)
 {
     EXPECT_TRUE(m_pAosUtil->IsSupportedNetworkType(NW_REPORT_RADIO_LTE));
@@ -376,145 +688,4 @@ TEST_F(AosUtilTest, WifiTestIsFalseWhenTurningOffWifiTest)
 {
     m_pAosUtil->SetWifiTest(IMS_FALSE);
     EXPECT_FALSE(m_pAosUtil->IsWifiTest());
-}
-
-TEST_F(AosUtilTest, CompareList)
-{
-    AStringArray leftArray;
-    leftArray.AddElement("1234@ims.google.com");
-    leftArray.AddElement("sip:1234@ims.google.com");
-    leftArray.AddElement("tel:+1234@ims.google.com");
-
-    AStringArray leftArrayOutOfOrder;
-    leftArrayOutOfOrder.AddElement("tel:+1234@ims.google.com");
-    leftArrayOutOfOrder.AddElement("1234@ims.google.com");
-    leftArrayOutOfOrder.AddElement("sip:1234@ims.google.com");
-
-    AStringArray leftArrayAllDiff;
-    leftArrayAllDiff.AddElement("1234@google.com");
-    leftArrayAllDiff.AddElement("sip:4567@ims.google.com");
-    leftArrayAllDiff.AddElement("tel:+8901@ims.google.com");
-
-    AString leftArrayExist = "tel:+1234@ims.google.com";
-    AString leftArrayNotExist = "sip:4567@ims.google.com";
-
-    AStringArray rightArray;
-    rightArray.AddElement("1234@ims.google.com");
-    rightArray.AddElement("sip:1234@ims.google.com");
-    rightArray.AddElement("tel:+1234@ims.google.com");
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(leftArray, rightArray, IMS_FALSE));
-
-    leftArray.AddElement("+1234@ims.google.com");
-    EXPECT_FALSE(m_pAosUtil->IsListEqual(leftArray, rightArray, IMS_FALSE));
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(leftArrayOutOfOrder, rightArray, IMS_FALSE));
-
-    EXPECT_FALSE(m_pAosUtil->IsListEqual(leftArrayAllDiff, rightArray, IMS_FALSE));
-
-    EXPECT_TRUE(m_pAosUtil->IsStrExistInList(leftArrayExist, rightArray, IMS_FALSE));
-    EXPECT_FALSE(m_pAosUtil->IsStrExistInList(leftArrayNotExist, rightArray, IMS_FALSE));
-}
-
-TEST_F(AosUtilTest, CompareListIPv4)
-{
-    AStringArray leftArray;
-    leftArray.AddElement("10.168.219.102");
-    leftArray.AddElement("10.168.219.104");
-    leftArray.AddElement("10.168.219.106");
-
-    AStringArray leftArrayOutOfOrder;
-    leftArrayOutOfOrder.AddElement("10.168.219.104");
-    leftArrayOutOfOrder.AddElement("10.168.219.106");
-    leftArrayOutOfOrder.AddElement("10.168.219.102");
-
-    AStringArray leftArrayAllDiff;
-    leftArrayAllDiff.AddElement("10.168.216.104");
-    leftArrayAllDiff.AddElement("10.168.216.106");
-    leftArrayAllDiff.AddElement("10.168.216.102");
-
-    AString leftArrayExist = "10.168.219.106";
-    AString leftArrayNotExist = "10.168.216.102";
-
-    AStringArray rightArray;
-    rightArray.AddElement("10.168.219.102");
-    rightArray.AddElement("10.168.219.104");
-    rightArray.AddElement("10.168.219.106");
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(leftArray, rightArray, IMS_TRUE));
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(leftArrayOutOfOrder, rightArray, IMS_TRUE));
-
-    EXPECT_FALSE(m_pAosUtil->IsListEqual(leftArrayAllDiff, rightArray, IMS_TRUE));
-
-    EXPECT_TRUE(m_pAosUtil->IsStrExistInList(leftArrayExist, rightArray, IMS_TRUE));
-    EXPECT_FALSE(m_pAosUtil->IsStrExistInList(leftArrayNotExist, rightArray, IMS_TRUE));
-}
-
-TEST_F(AosUtilTest, CompareListIPv6)
-{
-    AStringArray leftArray;
-    leftArray.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
-    leftArray.AddElement("240a:3:4400:3420::7");
-    leftArray.AddElement("fc01:abab:cdcd:6fee::1");
-
-    AStringArray leftArrayOutOfOrder;
-    leftArrayOutOfOrder.AddElement("fc01:abab:cdcd:6fee::1");
-    leftArrayOutOfOrder.AddElement("240a:3:4400:3420::7");
-    leftArrayOutOfOrder.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
-
-    AStringArray leftArrayAllDiff;
-    leftArrayAllDiff.AddElement("240a:3:4400:3420::6");
-    leftArrayAllDiff.AddElement("fc02:abab:cdcd:6fee::1");
-    leftArrayAllDiff.AddElement("fd29:cc42:7fb9:2:20c:29ff:fe66:b4c7");
-
-    AString leftArrayExist = "240a:3:4400:3420::7";
-    AString leftArrayNotExist = "fd29:cc42:7fb9:2:20c:29ff:fe66:b4c7";
-
-    AStringArray rightArray;
-    rightArray.AddElement("fd29:cc43:7fb9:2:20c:29ff:fe66:b4c7");
-    rightArray.AddElement("240a:3:4400:3420:0:0:0:7");
-    rightArray.AddElement("fc01:abab:cdcd:6fee::1");
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(leftArray, rightArray, IMS_TRUE));
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(leftArrayOutOfOrder, rightArray, IMS_TRUE));
-
-    EXPECT_FALSE(m_pAosUtil->IsListEqual(leftArrayAllDiff, rightArray, IMS_TRUE));
-
-    EXPECT_TRUE(m_pAosUtil->IsStrExistInList(leftArrayExist, rightArray, IMS_TRUE));
-    EXPECT_FALSE(m_pAosUtil->IsStrExistInList(leftArrayNotExist, rightArray, IMS_TRUE));
-}
-
-TEST_F(AosUtilTest, ManageIntList)
-{
-    ImsList<IMS_UINT32> reasons;
-    ImsList<IMS_UINT32> compareReasons;
-    reasons.Clear();
-    compareReasons.Clear();
-
-    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, reasons);
-    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, reasons);
-    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, reasons);
-
-    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, compareReasons);
-    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, compareReasons);
-
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(reasons, compareReasons, IMS_TRUE));
-    EXPECT_TRUE(m_pAosUtil->IsElementExistInList(compareReasons, reasons));
-
-    reasons.Clear();
-    m_pAosUtil->AddElementToList(BLOCK_WIFI_AIRPLANE_MODE_ON, reasons);
-    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_AIRPLANE_MODE_ON, reasons);
-    EXPECT_TRUE(m_pAosUtil->IsListEqual(reasons, compareReasons, IMS_FALSE));
-    EXPECT_FALSE(m_pAosUtil->IsListEqual(reasons, compareReasons, IMS_TRUE));
-
-    m_pAosUtil->AddElementToList(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE, reasons);
-    EXPECT_TRUE(m_pAosUtil->IsElementExistInList(compareReasons, reasons));
-    EXPECT_FALSE(m_pAosUtil->IsListEqual(reasons, compareReasons, IMS_FALSE));
-
-    reasons.Clear();
-    m_pAosUtil->AddElementToList(BLOCK_WIFI_COUNTRY_CODE_UNAVAILABLE, reasons);
-    m_pAosUtil->AddElementToList(BLOCK_CELLULAR_VOPS_OFF, reasons);
-    EXPECT_FALSE(m_pAosUtil->IsElementExistInList(compareReasons, reasons));
 }
