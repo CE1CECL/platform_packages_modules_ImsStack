@@ -172,6 +172,39 @@ public:
     inline IMS_UINT32 GetReason() { return m_nReason; }
     inline void SetEpdgEnabled(IN IMS_BOOL bEnabled) { m_bEpdgEnabled = bEnabled; }
 
+    inline void SetRegFeatureTagRequired(IN IMS_BOOL bRequired)
+    {
+        m_bRegFeatureTagRequired = bRequired;
+    }
+
+    inline void SetFeatureTagList(IN const AosFeatureTagList& objFeatureTagList)
+    {
+        m_objFeatureTagList = objFeatureTagList;
+    }
+
+    inline void SetBindedFeatureTagList(IN const AosFeatureTagList& objBindedFeatureTagList)
+    {
+        m_objBindedFeatureTagList = objBindedFeatureTagList;
+    }
+
+    inline ImsList<IMS_UINT32> GetHoldingBlocksPolicyForMobile()
+    {
+        return m_objHoldingBlocksPolicyForMobile;
+    }
+
+    void SetHoldingBlocksPolicyForMobile()
+    {
+        m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_VOLTE_CAPABILITY);
+        m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_VILTE_CAPABILITY);
+        m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_VOPS);
+        m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_NETWORK);
+    }
+
+    inline ImsList<IMS_UINT32> GetHoldingBlocksPolicyForWifi()
+    {
+        return m_objHoldingBlocksPolicyForWifi;
+    }
+
     FRIEND_TEST(AosHandleTest, Constructor);
     FRIEND_TEST(AosHandleTest, NetTracker_StatusChanged_Test9);
     FRIEND_TEST(AosHandleTest, IsEmergencyService_Test);
@@ -286,39 +319,6 @@ protected:
         AosProvider::GetInstance()->SetNConfiguration(m_piAosNConfiguration);
         AosProvider::GetInstance()->SetService(m_piAosService);
         AosProvider::GetInstance()->SetRegStateManager(m_piAosRegStateManager);
-    }
-
-    void SetRegFeatureTagRequired(IN IMS_BOOL bRequired)
-    {
-        m_pAosHandle->m_bRegFeatureTagRequired = bRequired;
-    }
-
-    void SetFeatureTagList(IN const AosFeatureTagList& objFeatureTagList)
-    {
-        m_pAosHandle->m_objFeatureTagList = objFeatureTagList;
-    }
-
-    void SetBindedFeatureTagList(IN const AosFeatureTagList& objBindedFeatureTagList)
-    {
-        m_pAosHandle->m_objBindedFeatureTagList = objBindedFeatureTagList;
-    }
-
-    ImsList<IMS_UINT32> GetHoldingBlocksPolicyForMobile()
-    {
-        return m_pAosHandle->m_objHoldingBlocksPolicyForMobile;
-    }
-
-    void SetHoldingBlocksPolicyForMobile()
-    {
-        m_pAosHandle->m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_VOLTE_CAPABILITY);
-        m_pAosHandle->m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_VILTE_CAPABILITY);
-        m_pAosHandle->m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_VOPS);
-        m_pAosHandle->m_objHoldingBlocksPolicyForMobile.Append(AosHandle::BLOCK_NETWORK);
-    }
-
-    ImsList<IMS_UINT32> GetHoldingBlocksPolicyForWifi()
-    {
-        return m_pAosHandle->m_objHoldingBlocksPolicyForWifi;
     }
 
     void SetHoldingBlocksPolicyForWifi()
@@ -627,13 +627,13 @@ TEST_F(AosHandleTest, IsRegFeatureTagRequired_Test)
 {
     IMS_BOOL bRegFeatureTagRequired = m_pAosHandle->IsRegFeatureTagRequired();
 
-    SetRegFeatureTagRequired(IMS_TRUE);
+    m_pAosHandle->SetRegFeatureTagRequired(IMS_TRUE);
     EXPECT_TRUE(m_pAosHandle->IsRegFeatureTagRequired());
 
-    SetRegFeatureTagRequired(IMS_FALSE);
+    m_pAosHandle->SetRegFeatureTagRequired(IMS_FALSE);
     EXPECT_FALSE(m_pAosHandle->IsRegFeatureTagRequired());
 
-    SetRegFeatureTagRequired(bRegFeatureTagRequired);
+    m_pAosHandle->SetRegFeatureTagRequired(bRegFeatureTagRequired);
 }
 
 TEST_F(AosHandleTest, GetFeatureTagList_Test)
@@ -641,10 +641,10 @@ TEST_F(AosHandleTest, GetFeatureTagList_Test)
     AosFeatureTagList& objFeatureTagList = m_pAosHandle->GetFeatureTagList();
     AosFeatureTagList objTestFeatureTagList;
 
-    SetFeatureTagList(objTestFeatureTagList);
+    m_pAosHandle->SetFeatureTagList(objTestFeatureTagList);
     EXPECT_TRUE(m_pAosHandle->GetFeatureTagList().Equals(objTestFeatureTagList));
 
-    SetFeatureTagList(objFeatureTagList);
+    m_pAosHandle->SetFeatureTagList(objFeatureTagList);
 }
 
 TEST_F(AosHandleTest, GetBindedFeatureTagList_Test)
@@ -652,10 +652,10 @@ TEST_F(AosHandleTest, GetBindedFeatureTagList_Test)
     AosFeatureTagList& objBindedFeatureTagList = m_pAosHandle->GetBindedFeatureTagList();
     AosFeatureTagList objTestBindedFeatureTagList;
 
-    SetBindedFeatureTagList(objTestBindedFeatureTagList);
+    m_pAosHandle->SetBindedFeatureTagList(objTestBindedFeatureTagList);
     EXPECT_TRUE(m_pAosHandle->GetBindedFeatureTagList().Equals(objTestBindedFeatureTagList));
 
-    SetBindedFeatureTagList(objBindedFeatureTagList);
+    m_pAosHandle->SetBindedFeatureTagList(objBindedFeatureTagList);
 }
 
 TEST_F(AosHandleTest, ProcessFeatureTagChange_NoChange)
@@ -1059,7 +1059,7 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test2)
     m_pAosHandle->SetState(AosHandle::STATE_CONNECTED);
     m_pAosHandle->SetNetSrvIn(IMS_TRUE);
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -1115,7 +1115,7 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test3)
     m_pAosHandle->SetNetSrvIn(IMS_TRUE);
     SetDataConnected(IMS_TRUE);
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -1730,7 +1730,7 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test1)
     // Test1: Valid cellular, wfc unavailable
     // Expectation: No backup
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOPS, m_pAosHandle->m_nBlocks);
@@ -1764,7 +1764,7 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test2)
     // Test2: Invalid cellular network, wifi connected
     // Expectation: Backup mobile only
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOPS, m_pAosHandle->m_nBlocks);
@@ -1803,7 +1803,7 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test3)
     // Test3: Valid cellular network, wfc available & wifi disconnected
     // Expectation: Backup wifi only
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOPS, m_pAosHandle->m_nBlocks);
@@ -1842,7 +1842,7 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test4)
     // Test4: Invalid cellular network, wfc available & wifi disconnected
     // Expectation: Backup both mobile and wifi
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOPS, m_pAosHandle->m_nBlocks);
@@ -1878,7 +1878,7 @@ TEST_F(AosHandleTest, BackupAllBlocks_Test4)
 
 TEST_F(AosHandleTest, BackupBlocks_Test)
 {
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOPS, m_pAosHandle->m_nBlocks);
@@ -1903,7 +1903,7 @@ TEST_F(AosHandleTest, BackupBlocks_Test)
 
 TEST_F(AosHandleTest, RestoreBlocks_Test)
 {
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOPS);
@@ -1931,7 +1931,7 @@ TEST_F(AosHandleTest, HoldBlockForInvalidNetwork_Test1)
     // Test1: Block for mobile, valid network(LTE)
     // Expectation: return false, no change in holding block
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
@@ -1953,7 +1953,7 @@ TEST_F(AosHandleTest, HoldBlockForInvalidNetwork_Test2)
     // Test2: Block for mobile, Invalid network
     // Expectation: return false if the block reason has been blocked, otherwise return true
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
@@ -1976,7 +1976,7 @@ TEST_F(AosHandleTest, HoldBlockForInvalidNetwork_Test3)
     // Test3: Block for Wifi, Wfc not available
     // Expectation: return false
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -1993,7 +1993,7 @@ TEST_F(AosHandleTest, HoldBlockForInvalidNetwork_Test4)
     // Test4: Block for Wifi, Wfc available, Wifi connected
     // Expectation: return false
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -2015,7 +2015,7 @@ TEST_F(AosHandleTest, HoldBlockForInvalidNetwork_Test5)
     // Test5: Block for Wifi, Wfc available, Wifi disconnected
     // Expectation: return false if the block reason has been blocked, otherwise return true
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -2060,7 +2060,7 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test1)
     m_pAosHandle->ClearHoldingBlocksForMobile();
 
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     m_pAosHandle->SetEpdgEnabled(IMS_TRUE);
     m_pAosHandle->AddBlock(AosHandle::BLOCK_VOLTE_CAPABILITY, m_pAosHandle->m_nBlocks);
@@ -2094,7 +2094,7 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test2)
     m_pAosHandle->ClearHoldingBlocksForMobile();
 
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     m_pAosHandle->SetEpdgEnabled(IMS_TRUE);
 
@@ -2237,7 +2237,7 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test7)
     m_pAosHandle->ClearHoldingBlocksForMobile();
 
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     m_pAosHandle->SetEpdgEnabled(IMS_FALSE);
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY);
@@ -2271,7 +2271,7 @@ TEST_F(AosHandleTest, ReevaluateBlocks_Test8)
     m_pAosHandle->ClearHoldingBlocksForMobile();
 
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     m_pAosHandle->SetEpdgEnabled(IMS_FALSE);
 
@@ -2317,7 +2317,7 @@ TEST_F(AosHandleTest, PreProcessBlock_Test1)
 
     m_pAosHandle->ClearHoldingBlocksForMobile();
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     m_pAosHandle->SetEpdgEnabled(IMS_TRUE);
 
@@ -2347,7 +2347,7 @@ TEST_F(AosHandleTest, PreProcessBlock_Test2)
 
     m_pAosHandle->ClearHoldingBlocksForMobile();
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     m_pAosHandle->SetEpdgEnabled(IMS_TRUE);
 
@@ -2517,7 +2517,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test2)
     //              Wifi blocks are added to main blocks.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
     SetDataConnected(IMS_FALSE);
 
@@ -2576,7 +2576,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test3)
     // Expectation: All blocks are removed from both main and holding block.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY |
@@ -2639,7 +2639,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test4)
     // Expectation: All blocks are added to holding blocks.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
     SetDataConnected(IMS_FALSE);
 
@@ -2704,7 +2704,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test5)
     // Expectation: All blocks are removed from both main and holding block.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY |
@@ -2773,7 +2773,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test6)
     //              Wifi blocks are added to holding blocks.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
     SetDataConnected(IMS_FALSE);
     m_pAosHandle->SetEpdgEnabled(IMS_FALSE);
@@ -2838,7 +2838,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test7)
     // Expectation: All blocks are removed from both main and holding block.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY |
@@ -2907,7 +2907,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test8)
     // Expectation: All blocks are added to main blocks.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
     SetDataConnected(IMS_TRUE);
 
@@ -2962,7 +2962,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test9)
     // Expectation: All blocks are removed from both main and holding block.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY |
@@ -3022,7 +3022,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test10)
     //              Wifi blocks are added to holding blocks.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
     SetDataConnected(IMS_TRUE);
     m_pAosHandle->SetEpdgEnabled(IMS_FALSE);
@@ -3078,7 +3078,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test11)
     // Expectation: All blocks are removed from both main and holding block.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY |
@@ -3139,7 +3139,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test12)
     //              Wifi blocks are added to main blocks.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
     SetDataConnected(IMS_TRUE);
     m_pAosHandle->SetEpdgEnabled(IMS_TRUE);
@@ -3195,7 +3195,7 @@ TEST_F(AosHandleTest, ProcessBlock_Test13)
     // Expectation: All blocks are removed from both main and holding block.
 
     // Initialization
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
     m_pAosHandle->AddHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY |
@@ -3443,7 +3443,7 @@ TEST_F(AosHandleTest, IsBlockForWifi_Test)
     // Expectation: return false if the block is in mobile block policy, else true
 
     ClearHoldingBlocksPolicyForMobile();
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
 
     EXPECT_FALSE(m_pAosHandle->IsBlockForWifi(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(m_pAosHandle->IsBlockForWifi(AosHandle::BLOCK_VILTE_CAPABILITY));
@@ -3583,8 +3583,8 @@ TEST_F(AosHandleTest, StateConnecting_Test3)
             ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::TEXT);
     objTestBindedFeatureTagList.AddFeature(ImsAosFeature::MMTEL | ImsAosFeature::VIDEO);
 
-    SetFeatureTagList(objTestFeatureTagList);
-    SetBindedFeatureTagList(objTestBindedFeatureTagList);
+    m_pAosHandle->SetFeatureTagList(objTestFeatureTagList);
+    m_pAosHandle->SetBindedFeatureTagList(objTestBindedFeatureTagList);
 
     EXPECT_CALL(m_objMockIAosApplication, Reconfig()).Times(1);
 
@@ -3732,8 +3732,8 @@ TEST_F(AosHandleTest, StateConnected_Test4)
             ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::TEXT);
     objTestBindedFeatureTagList.AddFeature(ImsAosFeature::MMTEL | ImsAosFeature::VIDEO);
 
-    SetFeatureTagList(objTestFeatureTagList);
-    SetBindedFeatureTagList(objTestBindedFeatureTagList);
+    m_pAosHandle->SetFeatureTagList(objTestFeatureTagList);
+    m_pAosHandle->SetBindedFeatureTagList(objTestBindedFeatureTagList);
 
     EXPECT_CALL(m_objMockIAosApplication, Reconfig()).Times(1);
 
@@ -4053,11 +4053,11 @@ TEST_F(AosHandleTest, InitializeHoldingBlocksPolicy_Test1)
     // Test1: IsDeregOn3gNetwork is false
     // Expectation: empty list
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
-    EXPECT_TRUE(GetHoldingBlocksPolicyForMobile().GetSize() > 0);
-    EXPECT_TRUE(GetHoldingBlocksPolicyForWifi().GetSize() > 0);
+    EXPECT_TRUE(m_pAosHandle->GetHoldingBlocksPolicyForMobile().GetSize() > 0);
+    EXPECT_TRUE(m_pAosHandle->GetHoldingBlocksPolicyForWifi().GetSize() > 0);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsDeregOn3gNetwork())
             .Times(1)
@@ -4065,8 +4065,8 @@ TEST_F(AosHandleTest, InitializeHoldingBlocksPolicy_Test1)
 
     m_pAosHandle->InitializeHoldingBlocksPolicy();
 
-    EXPECT_FALSE(GetHoldingBlocksPolicyForMobile().GetSize() > 0);
-    EXPECT_FALSE(GetHoldingBlocksPolicyForWifi().GetSize() > 0);
+    EXPECT_FALSE(m_pAosHandle->GetHoldingBlocksPolicyForMobile().GetSize() > 0);
+    EXPECT_FALSE(m_pAosHandle->GetHoldingBlocksPolicyForWifi().GetSize() > 0);
 }
 
 TEST_F(AosHandleTest, InitializeHoldingBlocksPolicy_Test2)
@@ -4074,11 +4074,11 @@ TEST_F(AosHandleTest, InitializeHoldingBlocksPolicy_Test2)
     // Test2: IsDeregOn3gNetwork is true
     // Expectation: BLOCK_3G is in mobile polity
 
-    SetHoldingBlocksPolicyForMobile();
+    m_pAosHandle->SetHoldingBlocksPolicyForMobile();
     SetHoldingBlocksPolicyForWifi();
 
-    EXPECT_TRUE(GetHoldingBlocksPolicyForMobile().GetSize() > 0);
-    EXPECT_TRUE(GetHoldingBlocksPolicyForWifi().GetSize() > 0);
+    EXPECT_TRUE(m_pAosHandle->GetHoldingBlocksPolicyForMobile().GetSize() > 0);
+    EXPECT_TRUE(m_pAosHandle->GetHoldingBlocksPolicyForWifi().GetSize() > 0);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsDeregOn3gNetwork())
             .Times(1)
@@ -4086,9 +4086,9 @@ TEST_F(AosHandleTest, InitializeHoldingBlocksPolicy_Test2)
 
     m_pAosHandle->InitializeHoldingBlocksPolicy();
 
-    ASSERT_TRUE(GetHoldingBlocksPolicyForMobile().GetSize() == 1);
-    EXPECT_EQ(GetHoldingBlocksPolicyForMobile().GetAt(0), AosHandle::BLOCK_3G);
-    EXPECT_FALSE(GetHoldingBlocksPolicyForWifi().GetSize() > 0);
+    ASSERT_TRUE(m_pAosHandle->GetHoldingBlocksPolicyForMobile().GetSize() == 1);
+    EXPECT_EQ(m_pAosHandle->GetHoldingBlocksPolicyForMobile().GetAt(0), AosHandle::BLOCK_3G);
+    EXPECT_FALSE(m_pAosHandle->GetHoldingBlocksPolicyForWifi().GetSize() > 0);
 }
 
 TEST_F(AosHandleTest, InitializeFeatureTags_Test)
