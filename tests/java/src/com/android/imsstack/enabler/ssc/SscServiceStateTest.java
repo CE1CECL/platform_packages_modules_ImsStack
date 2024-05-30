@@ -44,7 +44,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.TelephonyNetworkSpecifier;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.telephony.AccessNetworkConstants.AccessNetworkType;
@@ -88,9 +87,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidTestingRunner.class)
 @TestableLooper.RunWithLooper
@@ -166,11 +163,7 @@ public class SscServiceStateTest {
         DcFactory.setDcAgent(IDcNetWatcher.class, mMockDcNetWatcher, SLOT0);
         UtFactory.getInstance().setUtInterfaceForSlot(SLOT0, mMockUtInterface);
 
-        HandlerThread handlerThread = new HandlerThread("SscServiceStateTest");
-        handlerThread.start();
-
-        Looper looper = handlerThread.getLooper();
-        mLooper = new TestableLooper(looper);
+        mLooper = new TestableLooper(Looper.getMainLooper());
     }
 
     @After
@@ -780,7 +773,8 @@ public class SscServiceStateTest {
         when(mMockDcNetWatcher.getDataServiceState()).thenReturn(STATE_IN_SERVICE);
 
         mSscServiceState.mNetWatcherListener.onDataServiceStateChanged(STATE_IN_SERVICE);
-        processAllMessages();
+        processAllMessages(); // for EVENT_DATA_SERVICE_STATE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         assertEquals(SscConstant.BLOCK_REASON_NONE, mSscServiceState.mUtBlockReason);
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
@@ -794,7 +788,8 @@ public class SscServiceStateTest {
         when(mMockDcNetWatcher.getDataServiceState()).thenReturn(STATE_OUT_OF_SERVICE);
 
         mSscServiceState.mNetWatcherListener.onDataServiceStateChanged(STATE_OUT_OF_SERVICE);
-        processAllMessages();
+        processAllMessages(); // for EVENT_DATA_SERVICE_STATE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         assertEquals(SscConstant.BLOCK_REASON_NONE, mSscServiceState.mUtBlockReason);
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
@@ -811,7 +806,8 @@ public class SscServiceStateTest {
         when(mMockDcNetWatcher.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_NR);
 
         mSscServiceState.mNetWatcherListener.onDataNetworkTypeChanged();
-        processAllMessages();
+        processAllMessages(); // for EVENT_DATA_NETWORK_TYPE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         assertEquals(SscConstant.BLOCK_REASON_NONE, mSscServiceState.mUtBlockReason);
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
@@ -828,7 +824,8 @@ public class SscServiceStateTest {
         when(mMockDcNetWatcher.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_NR);
 
         mSscServiceState.mNetWatcherListener.onDataNetworkTypeChanged();
-        processAllMessages();
+        processAllMessages(); // for EVENT_DATA_NETWORK_TYPE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         assertEquals(SscConstant.BLOCK_REASON_NONE, mSscServiceState.mUtBlockReason);
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
@@ -845,7 +842,8 @@ public class SscServiceStateTest {
 
         when(mMockDcNetWatcher.isRoaming()).thenReturn(true);
         mSscServiceState.mNetWatcherListener.onRoamingStateChanged(true);
-        processAllMessages();
+        processAllMessages(); // for EVENT_DATA_ROAMING_STATE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
         assertEquals(false, mSscServiceState.isUtAvailable());
@@ -914,6 +912,7 @@ public class SscServiceStateTest {
         mSscServiceState.init();
         processAllMessages();
 
+        verifyNoMoreInteractions(mMockUtInterface);
         assertEquals(false, mSscServiceState.isUtAvailable());
         when(mMockCarrierConfig.getBoolean(
                 CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL)).thenReturn(false);
@@ -950,7 +949,6 @@ public class SscServiceStateTest {
                 .unregisterTelephonyCallback(any(SscMobileDataStateListener.class));
         verify(mMockConnectivityManagerProxy)
                 .unregisterNetworkCallback(any(SscCrossSimDataStateListener.class));
-
         verify(mMockUtInterface).onServiceStateChanged();
         assertEquals(false, mSscServiceState.isUtAvailable());
     }
@@ -1122,7 +1120,8 @@ public class SscServiceStateTest {
 
         Network network = Mockito.mock(Network.class);
         mSscServiceState.mCrossSimDataStateListener.onLost(network);
-        processAllMessages();
+        processAllMessages(); // for EVENT_CROSS_SIM_DATA_STATE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
         assertEquals(false, mSscServiceState.isUtAvailable());
@@ -1232,7 +1231,8 @@ public class SscServiceStateTest {
                 .build();
         mSscServiceState.mCrossSimDataStateListener
                 .onCapabilitiesChanged(network, networkCapabilities);
-        processAllMessages();
+        processAllMessages(); // for EVENT_CROSS_SIM_DATA_STATE_CHANGED
+        processAllMessages(); // for EVENT_UT_CAPABILITY_CHANGED
 
         verify(mMockUtInterface, times(2)).onServiceStateChanged();
         assertEquals(true, mSscServiceState.isUtAvailable());
@@ -1244,24 +1244,10 @@ public class SscServiceStateTest {
                 .handleMessage(Message.obtain(mSscServiceState.mHandler, what));
     }
 
-    private void processDelayedMessage() {
+    private void processAllMessages() {
         mLooper.moveTimeForward(1000);
         while (!mLooper.getLooper().getQueue().isIdle()) {
             mLooper.processAllMessages();
-            android.os.SystemClock.sleep(50);
-        }
-    }
-
-    private void processAllMessages() {
-        final CountDownLatch lock = new CountDownLatch(1);
-        ((Handler) mSscServiceState.mHandler).postDelayed(lock::countDown, 1500L);
-        while (lock.getCount() > 0) {
-            try {
-                processDelayedMessage();
-                lock.await(10L, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                // do nothing
-            }
         }
     }
 

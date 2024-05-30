@@ -137,39 +137,48 @@ public final class SscConfig {
     }
 
     private static String getString(int slotId, String key) {
-        ConfigAgent ca = sConfigAgent.get(slotId);
-        if (ca == null) {
+        CarrierConfig cc = getCarrierConfig(slotId);
+        if (cc == null) {
             return null;
         }
 
-        return ca.getCarrierConfig().getString(key);
+        return cc.getString(key);
     }
 
     private static boolean getBoolean(int slotId, String key) {
-        ConfigAgent ca = sConfigAgent.get(slotId);
-        if (ca == null) {
+        CarrierConfig cc = getCarrierConfig(slotId);
+        if (cc == null) {
             return false;
         }
 
-        return ca.getCarrierConfig().getBoolean(key);
+        return cc.getBoolean(key);
     }
 
     private static int getInt(int slotId, String key) {
-        ConfigAgent ca = sConfigAgent.get(slotId);
-        if (ca == null) {
+        CarrierConfig cc = getCarrierConfig(slotId);
+        if (cc == null) {
             return -1;
         }
 
-        return ca.getCarrierConfig().getInt(key);
+        return cc.getInt(key);
     }
 
     private static int[] getIntArray(int slotId, String key) {
+        CarrierConfig cc = getCarrierConfig(slotId);
+        if (cc == null) {
+            return null;
+        }
+
+        return cc.getIntArray(key);
+    }
+
+    private static CarrierConfig getCarrierConfig(int slotId) {
         ConfigAgent ca = sConfigAgent.get(slotId);
         if (ca == null) {
             return null;
         }
 
-        return ca.getCarrierConfig().getIntArray(key);
+        return ca.getCarrierConfig();
     }
 
     // From CarrierConfigManager
