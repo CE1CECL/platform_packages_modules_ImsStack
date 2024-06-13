@@ -100,20 +100,6 @@ public:
     virtual IMS_BOOL SetPort(IN IMS_UINT32 nPort);
 
     /**
-     * @brief Get the local ip address
-     *
-     * @return const IpAddress& The local ip address
-     */
-    virtual const IpAddress& GetLocalAddress() { return m_objBaseProfile.objIpAddress; };
-
-    /**
-     * @brief Get the local port number
-     *
-     * @return IMS_UINT32 The local port number
-     */
-    virtual IMS_UINT32 GetLocalPort() { return m_objBaseProfile.nDataPort; };
-
-    /**
      * @brief Get the negotiated remote ip address
      *
      * @return const IpAddress& The ip address
@@ -244,7 +230,6 @@ private:
             IN VIDEO_RESOLUTION eResolutionId, OUT IMS_UINT32* pnWidth, OUT IMS_UINT32* pnHeight);
     VIDEO_RESOLUTION GetAvcMaxResolutionFromLevel(IN IMS_UINT32 nLevel);
 
-    VideoProfile m_objBaseProfile;
     IMS_BOOL m_bNegotiatedCvoResult;
 };
 

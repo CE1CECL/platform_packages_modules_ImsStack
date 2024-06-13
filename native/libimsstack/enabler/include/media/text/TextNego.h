@@ -104,20 +104,6 @@ public:
     virtual IMS_BOOL SetPort(IN IMS_UINT32 nPort);
 
     /**
-     * @brief Get the local ip address
-     *
-     * @return const IpAddress& The local ip address
-     */
-    virtual const IpAddress& GetLocalAddress() { return m_objBaseProfile.objIpAddress; };
-
-    /**
-     * @brief Get the local port number
-     *
-     * @return IMS_UINT32 The local port number
-     */
-    virtual IMS_UINT32 GetLocalPort() { return m_objBaseProfile.nDataPort; };
-
-    /**
      * @brief Get the negotiated remote ip address
      *
      * @return const IpAddress& The ip address
@@ -197,8 +183,6 @@ private:
     MEDIA_DIRECTION UpdateDirectionToMine(IN MEDIA_DIRECTION ePeerDirection,
             IN MEDIA_DIRECTION eLocalDirection, IN IMS_BOOL bIsMtCase);
     OaModel* GetNegotiatedOaModel(IMS_BOOL bCheckConfirmed = IMS_FALSE);
-
-    TextProfile m_objBaseProfile;
 };
 
 #endif

@@ -74,12 +74,33 @@ public:
     explicit BaseNego(IN const IMS_SINT32 nSlotId = IMS_SLOT_0);
     virtual ~BaseNego();
 
+    /**
+     * @brief Get the local ip address
+     *
+     * @return const IpAddress& The local ip address
+     */
+    virtual const IpAddress& GetLocalAddress()
+    {
+        return (m_pBaseProfile != IMS_NULL) ? m_pBaseProfile->objIpAddress : IpAddress::NONE;
+    }
+
+    /**
+     * @brief Get the local port number
+     *
+     * @return IMS_UINT32 The local port number
+     */
+    virtual IMS_UINT32 GetLocalPort()
+    {
+        return (m_pBaseProfile != IMS_NULL) ? m_pBaseProfile->nDataPort : 0;
+    };
+
 protected:
     virtual MediaBaseProfile* GetLocalProfile(IN OaModel* pOaModel);
     virtual MediaBaseProfile* GetPeerProfile(IN OaModel* pOaModel);
     virtual MediaBaseProfile* GetNegotiatedProfile(IN OaModel* pOaModel);
 
 protected:
+    MediaBaseProfile* m_pBaseProfile;
     ImsList<OaModel*> m_listOaModel;
     MediaConfiguration* m_pConfig;
     MediaEnvironment* m_pEnvironment;

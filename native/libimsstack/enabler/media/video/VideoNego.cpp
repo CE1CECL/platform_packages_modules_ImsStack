@@ -33,7 +33,6 @@ __IMS_TRACE_TAG_MEDIA__;
 
 PUBLIC VideoNego::VideoNego(IN const IMS_SINT32 nSlotId) :
         BaseNego(nSlotId),
-        m_objBaseProfile(VideoProfile()),
         m_bNegotiatedCvoResult(IMS_FALSE)
 {
     IMS_TRACE_I("+VideoNego() - slot[%d]", nSlotId, 0, 0);
@@ -91,29 +90,29 @@ PUBLIC VIRTUAL void VideoNego::CreateProfiles(
             static_cast<VideoProfile*>(MediaProfileFactory::GetInstance()->CreateProfile(
                     pEnvironment, m_pConfig, GetSlotId(), MEDIA_TYPE_VIDEO));
 
-    if (pProfile != IMS_NULL)
-    {
-        m_objBaseProfile = *pProfile;
-        delete pProfile;
-    }
+    delete m_pBaseProfile;
+    m_pBaseProfile = pProfile;
 }
 
 PUBLIC
 void VideoNego::DestroyProfiles()
 {
-    m_objBaseProfile.DeletePayloads();
-
-    MediaManager* pMediaManager = MediaManager::GetInstance(GetSlotId());
-
-    if (pMediaManager != IMS_NULL)
+    if (m_pBaseProfile != IMS_NULL)
     {
-        MediaResourceManager* pResourceMngr = pMediaManager->GetResourceManager();
+        m_pBaseProfile->DeletePayloads();
 
-        if (pResourceMngr != IMS_NULL)
+        MediaManager* pMediaManager = MediaManager::GetInstance(GetSlotId());
+
+        if (pMediaManager != IMS_NULL)
         {
-            if (m_objBaseProfile.nDataPort != 0)
+            MediaResourceManager* pResourceMngr = pMediaManager->GetResourceManager();
+
+            if (pResourceMngr != IMS_NULL)
             {
-                pResourceMngr->ReleaseRtpPort(m_objBaseProfile.nDataPort);
+                if (m_pBaseProfile->nDataPort != 0)
+                {
+                    pResourceMngr->ReleaseRtpPort(m_pBaseProfile->nDataPort);
+                }
             }
         }
     }
@@ -146,7 +145,7 @@ PUBLIC VIRTUAL IMS_BOOL VideoNego::IsMediaCodecFromSdpSupported(
         IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor)
 {
     // Handling exception case
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
+    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
     {
         return MEDIA_TYPE_INVALID;
     }
@@ -154,7 +153,7 @@ PUBLIC VIRTUAL IMS_BOOL VideoNego::IsMediaCodecFromSdpSupported(
     IMS_TRACE_I("IsMediaCodecFromSdpSupported()", 0, 0, 0);
 
     OaModel objOaModel;
-    objOaModel.pLocalProfile = new VideoProfile(m_objBaseProfile);
+    objOaModel.pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
 
     // Make a destination profile from SDP
     objOaModel.pPeerProfile = new VideoProfile();
@@ -268,7 +267,7 @@ IMS_BOOL VideoNego::SetPort(IN IMS_UINT32 nPort)
 {
     MediaManager* pMediaManager = MediaManager::GetInstance(GetSlotId());
 
-    if (pMediaManager == IMS_NULL)
+    if (m_pBaseProfile == IMS_NULL || pMediaManager == IMS_NULL)
     {
         return IMS_FALSE;
     }
@@ -281,25 +280,25 @@ IMS_BOOL VideoNego::SetPort(IN IMS_UINT32 nPort)
     }
 
     // Release Current Port
-    if (m_objBaseProfile.nDataPort != 0)
+    if (m_pBaseProfile->nDataPort != 0)
     {
-        pResourceMngr->ReleaseRtpPort(m_objBaseProfile.nDataPort);
+        pResourceMngr->ReleaseRtpPort(m_pBaseProfile->nDataPort);
     }
 
     IMS_TRACE_I(
-            "SetPort() - Video Changed Data Port[%d]->[%d]", m_objBaseProfile.nDataPort, nPort, 0);
+            "SetPort() - Video Changed Data Port[%d]->[%d]", m_pBaseProfile->nDataPort, nPort, 0);
 
     if (nPort != 0)
     {
         // Acquire New Port
-        m_objBaseProfile.nDataPort = pResourceMngr->AcquireRtpPort(nPort, nPort);
-        m_objBaseProfile.nControlPort = m_objBaseProfile.nDataPort + 1;
+        m_pBaseProfile->nDataPort = pResourceMngr->AcquireRtpPort(nPort, nPort);
+        m_pBaseProfile->nControlPort = m_pBaseProfile->nDataPort + 1;
     }
     else  // port 0 case
     {
         // Set to Port 0
-        m_objBaseProfile.nDataPort = 0;
-        m_objBaseProfile.nControlPort = 0;
+        m_pBaseProfile->nDataPort = 0;
+        m_pBaseProfile->nControlPort = 0;
 
         IMS_TRACE_I("SetPort() - Video Data Port is 0!!!", 0, 0, 0);
     }
@@ -510,7 +509,7 @@ PROTECTED VideoProfile* VideoNego::GetNegotiatedProfile(IN OaModel* pOaModel)
 PRIVATE
 void VideoNego::Copy(IN const VideoNego* pVideoNego)
 {
-    if (pVideoNego == IMS_NULL)
+    if (m_pBaseProfile == IMS_NULL || pVideoNego == IMS_NULL)
     {
         return;
     }
@@ -529,20 +528,21 @@ void VideoNego::Copy(IN const VideoNego* pVideoNego)
     if (pResourceMngr != IMS_NULL)
     {
         // To release previous used port
-        if (m_objBaseProfile.nDataPort != 0)
+        if (m_pBaseProfile->nDataPort != 0)
         {
-            pResourceMngr->ReleaseRtpPort(m_objBaseProfile.nDataPort);
+            pResourceMngr->ReleaseRtpPort(m_pBaseProfile->nDataPort);
         }
     }
 
-    m_objBaseProfile = pVideoNego->m_objBaseProfile;
+    delete m_pBaseProfile;
+    m_pBaseProfile = new VideoProfile(ProfileCasting(pVideoNego->m_pBaseProfile));
 
     if (pResourceMngr != IMS_NULL)
     {
         // To add port (it would be duplicated)
-        if (m_objBaseProfile.nDataPort != 0)
+        if (m_pBaseProfile->nDataPort != 0)
         {
-            pResourceMngr->AcquireRtpPort(m_objBaseProfile.nDataPort, m_objBaseProfile.nDataPort);
+            pResourceMngr->AcquireRtpPort(m_pBaseProfile->nDataPort, m_pBaseProfile->nDataPort);
         }
     }
 
@@ -567,7 +567,7 @@ PRIVATE IMS_BOOL VideoNego::FormOffer(IN ISessionDescriptor* pSessionDescriptor,
         OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDirection, IN IMS_BOOL bDisable)
 {
     // Handling exception case
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL ||
+    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL ||
             eDirection == MEDIA_DIRECTION_INVALID)
     {
         return IMS_FALSE;
@@ -583,7 +583,12 @@ PRIVATE IMS_BOOL VideoNego::FormOffer(IN ISessionDescriptor* pSessionDescriptor,
         return IMS_FALSE;
     }
 
-    pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);
+    pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
+
+    if (pNewOaModel->pLocalProfile == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
 
     // Modify a direction by Enabler
     if (IS_VALID_MEDIA_DIRECTION(eDirection))
@@ -669,7 +674,7 @@ PRIVATE IMS_BOOL VideoNego::FormReoffer(IN ISessionDescriptor* pSessionDescripto
             bEnforceReofferMode, 0);
 
     // Handling exception case
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
+    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
     {
         return IMS_FALSE;
     }
@@ -696,7 +701,7 @@ PRIVATE IMS_BOOL VideoNego::FormReoffer(IN ISessionDescriptor* pSessionDescripto
 
     if (m_listOaModel.GetSize() == 0)
     {
-        pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);
+        pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
     }
     else
     {
@@ -714,7 +719,7 @@ PRIVATE IMS_BOOL VideoNego::FormReoffer(IN ISessionDescriptor* pSessionDescripto
             if (pMediaSessionConfig->IsSdpReofferFullCapability() == IMS_TRUE)
             {
                 IMS_TRACE_D("VideoNego::FormReOffer() - Try to Full Capability", 0, 0, 0);
-                pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);
+                pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
             }
             else
             {
@@ -724,17 +729,17 @@ PRIVATE IMS_BOOL VideoNego::FormReoffer(IN ISessionDescriptor* pSessionDescripto
         }
         else
         {
-            // pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);  //org
+            // pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));  //org
             if (bEnforceReofferMode == IMS_TRUE)
             {
-                pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);
+                pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
             }
             else
             {
                 if (pMediaSessionConfig->IsSdpReofferFullCapability() == IMS_TRUE)
                 {
                     IMS_TRACE_D("VideoNego::FormReOffer() - Try to Full Capability", 0, 0, 0);
-                    pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);
+                    pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
                 }
                 else
                 {
@@ -765,8 +770,8 @@ PRIVATE IMS_BOOL VideoNego::FormReoffer(IN ISessionDescriptor* pSessionDescripto
     }
     else
     {
-        pNewOaModel->pLocalProfile->nDataPort = m_objBaseProfile.nDataPort;
-        pNewOaModel->pLocalProfile->nControlPort = m_objBaseProfile.nControlPort;
+        pNewOaModel->pLocalProfile->nDataPort = m_pBaseProfile->nDataPort;
+        pNewOaModel->pLocalProfile->nControlPort = m_pBaseProfile->nControlPort;
     }
 
     // Modify a direction by Enabler
@@ -793,7 +798,7 @@ PRIVATE IMS_SINT32 VideoNego::NegotiateOffer(
         IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor)
 {
     // Handling exception case
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
+    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
     {
         return MEDIA_DIRECTION_INVALID;
     }
@@ -802,7 +807,7 @@ PRIVATE IMS_SINT32 VideoNego::NegotiateOffer(
 
     // Make new Offer/Answer model, and copy source profile
     OaModel* pNewOaModel = new OaModel();
-    pNewOaModel->pLocalProfile = new VideoProfile(m_objBaseProfile);
+    pNewOaModel->pLocalProfile = new VideoProfile(ProfileCasting(m_pBaseProfile));
 
     // Make a destination profile from SDP
     pNewOaModel->pPeerProfile = new VideoProfile();

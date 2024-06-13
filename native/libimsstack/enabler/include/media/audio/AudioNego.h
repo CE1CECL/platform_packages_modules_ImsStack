@@ -103,20 +103,6 @@ public:
     virtual IMS_BOOL SetPort(IN IMS_UINT32 nPort);
 
     /**
-     * @brief Get the local ip address
-     *
-     * @return const IpAddress& The local ip address
-     */
-    virtual const IpAddress& GetLocalAddress() { return m_objBaseProfile.objIpAddress; };
-
-    /**
-     * @brief Get the local port number
-     *
-     * @return IMS_UINT32 The local port number
-     */
-    virtual IMS_UINT32 GetLocalPort() { return m_objBaseProfile.nDataPort; };
-
-    /**
      * @brief Get the negotiated remote ip address
      *
      * @return const IpAddress& The ip address
@@ -240,8 +226,6 @@ private:
             OUT ISessionDescriptor* pSessionDescriptor, IN AudioProfile* pProfile);
     void SetSdpMediaDescription(OUT IMediaDescriptor* pDescriptor, IN AudioProfile* pProfile);
     void SetSdpMediaBandwidth(OUT IMediaDescriptor* pDescriptor, IN AudioProfile* pProfile);
-
-    AudioProfile m_objBaseProfile;
 };
 
 #endif

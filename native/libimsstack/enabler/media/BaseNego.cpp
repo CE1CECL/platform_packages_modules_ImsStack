@@ -21,6 +21,7 @@ __IMS_TRACE_TAG_MEDIA__;
 
 PUBLIC BaseNego::BaseNego(IMS_SINT32 nSlotId) :
         ImsSlot(nSlotId),
+        m_pBaseProfile(new MediaBaseProfile()),
         m_listOaModel(ImsList<OaModel*>()),
         m_pConfig(IMS_NULL),
         m_pEnvironment(IMS_NULL)
@@ -31,6 +32,7 @@ PUBLIC BaseNego::BaseNego(IMS_SINT32 nSlotId) :
 PUBLIC VIRTUAL BaseNego::~BaseNego()
 {
     IMS_TRACE_I("~BaseNego()", 0, 0, 0);
+    delete m_pBaseProfile;
 }
 
 PROTECTED VIRTUAL MediaBaseProfile* BaseNego::GetLocalProfile(IN OaModel* pOaModel)
