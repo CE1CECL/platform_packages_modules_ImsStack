@@ -142,6 +142,8 @@ protected:
     IMS_SINT32 GetRegIpcanCategory() const;
     IMS_UINT32 GetRegFeatures();
 
+    void NotifyDeregistered();
+
     /// Set Detail State
     void UpdateDetailState(IN IMS_UINT32 nState);
 
@@ -389,7 +391,6 @@ private:
     void SetPlaniHeader();
     void UpdateUserInfoInContact();
     void UpdateCallingNumberVerification();
-    void NotifyDeregistered();
 
     IMS_BOOL IsErrorCodeExisted(
             IN const ImsVector<IMS_SINT32>& objErrorCode, IN IMS_SINT32 nCode) const;

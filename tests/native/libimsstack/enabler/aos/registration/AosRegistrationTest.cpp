@@ -3262,7 +3262,7 @@ TEST_F(AosRegistrationTest,
             .WillByDefault(Return(AString("NotSupportedCountry")));
 
     EXPECT_CALL(m_objMockIAosService,
-            NotifyDeregistered(_, AosReasonCode::REGISTRATION_ERROR_WFC_NOT_SUPPORTED_COUNTRY));
+            NotifyDeregistered(_, _, AosReasonCode::REGISTRATION_ERROR_WFC_NOT_SUPPORTED_COUNTRY));
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_403();
 }
@@ -3275,7 +3275,7 @@ TEST_F(AosRegistrationTest, NotifyDeregisteredWithReg403WhenWfcErrMessageRequire
             .WillByDefault(Return(m_strLocationProperties));
 
     EXPECT_CALL(m_objMockIAosService,
-            NotifyDeregistered(_, AosReasonCode::REGISTRATION_ERROR_WFC_REG_403));
+            NotifyDeregistered(_, _, AosReasonCode::REGISTRATION_ERROR_WFC_REG_403));
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_403();
 }
@@ -3289,7 +3289,7 @@ TEST_F(AosRegistrationTest, DoNotNotifySameReasonCodeWhenWfcErrMessageRequiredFo
     ON_CALL(m_objUtilService.GetMockPrivateProperty(), GetPersistent(_, _))
             .WillByDefault(Return(AString("NotSupportedCountry")));
 
-    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _)).Times(0);
+    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _, _)).Times(0);
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_403();
 }
@@ -3300,7 +3300,7 @@ TEST_F(AosRegistrationTest, NotifyDeregisteredWithReg500WhenWfcErrMessageRequire
             .WillByDefault(Return(IMS_TRUE));
 
     EXPECT_CALL(m_objMockIAosService,
-            NotifyDeregistered(_, AosReasonCode::REGISTRATION_ERROR_WFC_REG_500));
+            NotifyDeregistered(_, _, AosReasonCode::REGISTRATION_ERROR_WFC_REG_500));
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_500();
 }
@@ -3311,7 +3311,7 @@ TEST_F(AosRegistrationTest, DoNotNotifySameReasonCodeWhenWfcErrMessageRequiredFo
     ON_CALL(m_objMockIAosNConfiguration, IsWfcErrorMessageSupported(_))
             .WillByDefault(Return(IMS_TRUE));
 
-    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _)).Times(0);
+    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _, _)).Times(0);
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_500();
 }
@@ -3322,7 +3322,7 @@ TEST_F(AosRegistrationTest, NotifyDeregisteredWithOtherFailuresWhenWfcErrMessage
             .WillByDefault(Return(IMS_TRUE));
 
     EXPECT_CALL(m_objMockIAosService,
-            NotifyDeregistered(_, AosReasonCode::REGISTRATION_ERROR_WFC_OTHER_FAILURES));
+            NotifyDeregistered(_, _, AosReasonCode::REGISTRATION_ERROR_WFC_OTHER_FAILURES));
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_Others();
 }
@@ -3333,7 +3333,7 @@ TEST_F(AosRegistrationTest, DoNotNotifySameReasonCodeWhenWfcErrMessageRequiredFo
     ON_CALL(m_objMockIAosNConfiguration, IsWfcErrorMessageSupported(_))
             .WillByDefault(Return(IMS_TRUE));
 
-    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _)).Times(0);
+    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _, _)).Times(0);
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_Others();
 }
@@ -3344,7 +3344,7 @@ TEST_F(AosRegistrationTest,
     ON_CALL(m_objMockIAosNConfiguration, IsWfcErrorMessageSupported(_))
             .WillByDefault(Return(IMS_FALSE));
 
-    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _)).Times(0);
+    EXPECT_CALL(m_objMockIAosService, NotifyDeregistered(_, _, _)).Times(0);
 
     m_pAosRegistration->ProcessRequiredWfcErrMessage_Others();
 }
@@ -5910,6 +5910,53 @@ TEST_F(AosRegistrationTest, ShouldNotifyRegisteringForFakeTypeWhenTryRegistratio
 
     // WHEN
     m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERING);
+
+    // THEN: The GIVEN condition should be met.
+}
+
+TEST_F(AosRegistrationTest, ShouldNotifyDeregisteredForEmergencyTypeWhenRegistrationTerminated)
+{
+    // GIVEN
+    m_pAosRegistration->SetRegType(AosRegistrationType::EMERGENCY);
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+
+    EXPECT_CALL(m_objMockIAosService,
+            NotifyDeregistered(IAosRegistration::IMS_REG_TYPE_EMERGENCY, _, _));
+
+    // WHEN
+    m_pAosRegistration->SetState(IAosRegistration::STATE_OFFLINE);
+
+    // THEN: The GIVEN condition should be met.
+}
+
+TEST_F(AosRegistrationTest,
+        ShouldNotifyDeregisteredForEmergencyTypeAsFakeTypeIfFakeRegWhenRegistrationTerminated)
+{
+    // GIVEN
+    m_pAosRegistration->SetRegType(AosRegistrationType::EMERGENCY);
+    m_pAosRegistration->SetFakeReg(IMS_TRUE);
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+
+    EXPECT_CALL(
+            m_objMockIAosService, NotifyDeregistered(IAosRegistration::IMS_REG_TYPE_FAKE, _, _));
+
+    // WHEN
+    m_pAosRegistration->SetState(IAosRegistration::STATE_OFFLINE);
+
+    // THEN: The GIVEN condition should be met.
+}
+
+TEST_F(AosRegistrationTest, ShouldNotifyDeregisteredForFakeTypeWhenRegistrationTerminated)
+{
+    // GIVEN
+    m_pAosRegistration->SetRegType(AosRegistrationType::FAKE);
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+
+    EXPECT_CALL(
+            m_objMockIAosService, NotifyDeregistered(IAosRegistration::IMS_REG_TYPE_FAKE, _, _));
+
+    // WHEN
+    m_pAosRegistration->SetState(IAosRegistration::STATE_OFFLINE);
 
     // THEN: The GIVEN condition should be met.
 }

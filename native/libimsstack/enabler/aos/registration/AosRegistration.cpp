@@ -1007,6 +1007,20 @@ IMS_UINT32 AosRegistration::GetRegFeatures()
 }
 
 PROTECTED
+void AosRegistration::NotifyDeregistered()
+{
+    IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
+    IMS_SINT32 nImsRegType = GetImsRegType();
+    if (piService != IMS_NULL && nImsRegType != IAosRegistration::IMS_REG_TYPE_INVALID)
+    {
+        A_IMS_TRACE_D(REGID, "NotifyDeregistered :: RegType(%d), ImsReasonCode(%d)", nImsRegType,
+                m_eImsReasonCode, 0);
+        piService->NotifyDeregistered(
+                nImsRegType, GetNetworkTypeForImsRegState(), m_eImsReasonCode);
+    }
+}
+
+PROTECTED
 void AosRegistration::UpdateDetailState(IN IMS_UINT32 nState)
 {
     IMS_SINT32 nImsRegState = IMS_REG_STATE_DEREGISTERED;
@@ -1060,7 +1074,7 @@ void AosRegistration::UpdateDetailState(IN IMS_UINT32 nState)
     {
         if (m_nImsRegState == IMS_REG_STATE_DEREGISTERED)
         {
-            piService->NotifyDeregistered(m_eImsRegNetwork, eReason);
+            piService->NotifyDeregistered(nImsRegType, m_eImsRegNetwork, eReason);
             m_eImsReasonCode = AosReasonCode::UNSPECIFIED;
         }
         else if (m_nImsRegState == IMS_REG_STATE_REGISTERING)
@@ -6126,17 +6140,6 @@ void AosRegistration::UpdateCallingNumberVerification()
             IMS_TRACE_I("Calling number verification is not supported", 0, 0, 0);
         }
     */
-}
-
-PROTECTED
-void AosRegistration::NotifyDeregistered()
-{
-    IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
-    if (piService != IMS_NULL)
-    {
-        A_IMS_TRACE_D(REGID, "NotifyDeregistered :: ImsReasonCode(%d)", m_eImsReasonCode, 0, 0);
-        piService->NotifyDeregistered(GetNetworkTypeForImsRegState(), m_eImsReasonCode);
-    }
 }
 
 PROTECTED
