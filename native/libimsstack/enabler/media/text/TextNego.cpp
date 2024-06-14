@@ -55,27 +55,6 @@ PUBLIC VIRTUAL TextNego::~TextNego()
     IMS_TRACE_I("~TextNego()", 0, 0, 0);
 }
 
-PUBLIC VIRTUAL void TextNego::CreateProfiles(
-        IN MediaEnvironment* pEnvironment, IN TextConfiguration* pConfig)
-{
-    if (pConfig == IMS_NULL || pEnvironment == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "CreateProfiles() - invalid configuration", 0, 0, 0);
-        return;
-    }
-
-    m_pEnvironment = pEnvironment;
-    m_pConfig = pConfig;
-
-    IMS_TRACE_I("CreateProfiles()", 0, 0, 0);
-    TextProfile* pProfile =
-            static_cast<TextProfile*>(MediaProfileFactory::GetInstance()->CreateProfile(
-                    pEnvironment, m_pConfig, GetSlotId(), MEDIA_TYPE_TEXT));
-
-    delete m_pBaseProfile;
-    m_pBaseProfile = pProfile;
-}
-
 PUBLIC VIRTUAL IMS_BOOL TextNego::FormSdp(IN NEGO_STATE eNegoState,
         IN ISessionDescriptor* pSessionDescriptor, OUT IMediaDescriptor* pDescriptor,
         IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable, IN IMS_BOOL bEnforceReofferMode)

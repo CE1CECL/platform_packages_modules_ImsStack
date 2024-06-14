@@ -103,6 +103,16 @@ public:
      */
     IMS_BOOL SetPort(IN IMS_UINT32 nPort);
 
+    /**
+     * @brief Create a base local/peer/negotiate profile with given configuration
+     *
+     * @param pEnvironment The MediaEnvironment
+     * @param pType The media type to form, audio/video/text defined in MEDIA_CONTENT_TYPE
+     * @param pConfig The configuration to create media profile
+     */
+    void CreateProfiles(IN MediaEnvironment* pEnvironment, IN MEDIA_CONTENT_TYPE pType,
+            IN MediaConfiguration* pConfig);
+
 protected:
     virtual MediaBaseProfile* GetLocalProfile(IN OaModel* pOaModel);
     virtual MediaBaseProfile* GetPeerProfile(IN OaModel* pOaModel);

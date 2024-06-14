@@ -33,13 +33,6 @@ public:
     VideoNego& operator=(IN const VideoNego& obj);
     virtual ~VideoNego();
 
-    /**
-     * @brief Create a base local/peer/negotiate profile with given configuration
-     *
-     * @param pEnvironment The MediaEnvironment
-     * @param pConfig The configuration to create audio profile
-     */
-    virtual void CreateProfiles(IN MediaEnvironment* pEnvironment, IN VideoConfiguration* pConfig);
     void DestroyProfiles();
     /**
      * @brief Form the SDP with the current profile based on the state

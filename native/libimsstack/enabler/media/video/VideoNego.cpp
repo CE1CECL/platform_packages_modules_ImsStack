@@ -60,28 +60,6 @@ PUBLIC VideoNego::~VideoNego()
     IMS_TRACE_I("~VideoNego()", 0, 0, 0);
 }
 
-PUBLIC VIRTUAL void VideoNego::CreateProfiles(
-        IN MediaEnvironment* pEnvironment, IN VideoConfiguration* pConfig)
-{
-    if (pConfig == IMS_NULL || pEnvironment == IMS_NULL)
-    {
-        IMS_TRACE_E(0, "CreateProfiles() - invalid configuration", 0, 0, 0);
-        return;
-    }
-
-    IMS_TRACE_I("CreateProfiles()", 0, 0, 0);
-
-    m_pEnvironment = pEnvironment;
-    m_pConfig = pConfig;
-
-    VideoProfile* pProfile =
-            static_cast<VideoProfile*>(MediaProfileFactory::GetInstance()->CreateProfile(
-                    pEnvironment, m_pConfig, GetSlotId(), MEDIA_TYPE_VIDEO));
-
-    delete m_pBaseProfile;
-    m_pBaseProfile = pProfile;
-}
-
 PUBLIC VIRTUAL IMS_BOOL VideoNego::FormSdp(IN NEGO_STATE eNegoState,
         IN ISessionDescriptor* pSessionDescriptor, OUT IMediaDescriptor* pDescriptor,
         IN MEDIA_DIRECTION eDirection, IN IMS_BOOL bDisable, IN IMS_BOOL bEnforceReofferMode)

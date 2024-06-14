@@ -38,14 +38,6 @@ public:
     virtual ~TextNego();
 
     /**
-     * @brief Create a base local/peer/negotiate profile with given configuration
-     *
-     * @param pEnvironment The MediaEnvironment
-     * @param pConfig The configuration to create the TextProfile
-     */
-    virtual void CreateProfiles(IN MediaEnvironment* pEnvironment, IN TextConfiguration* pConfig);
-
-    /**
      * @brief Form the SDP with the current profile based on the state
      *
      * @param eNegoState The negotiation state which decide how to use the profile from the OA model

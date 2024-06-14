@@ -38,14 +38,6 @@ public:
     virtual ~AudioNego();
 
     /**
-     * @brief Create a base local/peer/negotiate profile with given configuration
-     *
-     * @param pEnvironment The MediaEnvironment
-     * @param pConfig The configuration to create audio profile
-     */
-    virtual void CreateProfiles(IN MediaEnvironment* pEnvironment, IN AudioConfiguration* pConfig);
-
-    /**
      * @brief Form the SDP with the current profile based on the state
      *
      * @param eNegoState The negotiation state which decide how to use the profile from the OA model

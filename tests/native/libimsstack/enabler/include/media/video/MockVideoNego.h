@@ -27,8 +27,6 @@ class MockVideoNego : public VideoNego
 public:
     explicit MockVideoNego(IMS_SINT32 nSlotId) :
             VideoNego(nSlotId){};
-    MOCK_METHOD(void, CreateProfiles,
-            (IN MediaEnvironment * pEnvironment, IN VideoConfiguration* pConfig), (override));
     MOCK_METHOD(IMS_BOOL, FormSdp,
             (IN NEGO_STATE eNegoState, IN ISessionDescriptor* pSessionDescriptor,
                     OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir,

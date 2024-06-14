@@ -18,6 +18,7 @@
 
 #include "BaseNego.h"
 #include "MediaNegoUtil.h"
+#include "MediaProfileFactory.h"
 
 __IMS_TRACE_TAG_MEDIA__;
 
@@ -45,6 +46,29 @@ PUBLIC VIRTUAL BaseNego::~BaseNego()
     m_pBaseProfile = IMS_NULL;
 
     DestroyListOaModel();
+}
+
+PUBLIC VIRTUAL void BaseNego::CreateProfiles(IN MediaEnvironment* pEnvironment,
+        IN MEDIA_CONTENT_TYPE pType, IN MediaConfiguration* pConfig)
+{
+    if (pConfig == IMS_NULL || pEnvironment == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "CreateProfiles() - invalid configuration", 0, 0, 0);
+        return;
+    }
+
+    if (m_pBaseProfile != IMS_NULL && m_pBaseProfile->nDataPort != 0)
+    {
+        MediaNegoUtil::ReleaseRtpPort(GetSlotId(), m_pBaseProfile->nDataPort);
+    }
+    delete m_pBaseProfile;
+
+    IMS_TRACE_I("CreateProfiles()", 0, 0, 0);
+
+    m_pEnvironment = pEnvironment;
+    m_pConfig = pConfig;
+    m_pBaseProfile = MediaProfileFactory::GetInstance()->CreateProfile(
+            pEnvironment, m_pConfig, GetSlotId(), pType);
 }
 
 PROTECTED VIRTUAL MediaBaseProfile* BaseNego::GetLocalProfile(IN OaModel* pOaModel)
