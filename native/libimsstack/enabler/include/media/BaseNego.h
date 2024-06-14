@@ -18,9 +18,11 @@
 #define BASE_NEGO_H_
 
 #include "ImsSlot.h"
+#include "ISession.h"
+
 #include "MediaBaseProfile.h"
-#include "config/MediaConfiguration.h"
 #include "MediaEnvironment.h"
+#include "config/MediaConfiguration.h"
 
 class BaseNego : public ImsSlot
 {
@@ -112,6 +114,14 @@ public:
      */
     void CreateProfiles(IN MediaEnvironment* pEnvironment, IN MEDIA_CONTENT_TYPE pType,
             IN MediaConfiguration* pConfig);
+
+    /**
+     * @brief Remove incomplete SDP negotiation set to keep the negotiation set to certain size
+     *
+     * @param pSessionDescriptor The SDP descriptor instance to access session level SDP
+     * @param eNegoState The current negotiation state to decide to remove the OA model item
+     */
+    void FinalizeSdp(IN ISessionDescriptor* pSessionDescriptor, NEGO_STATE eNegoState);
 
 protected:
     virtual MediaBaseProfile* GetLocalProfile(IN OaModel* pOaModel);

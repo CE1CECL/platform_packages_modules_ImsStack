@@ -71,6 +71,69 @@ PUBLIC VIRTUAL void BaseNego::CreateProfiles(IN MediaEnvironment* pEnvironment,
             pEnvironment, m_pConfig, GetSlotId(), pType);
 }
 
+PUBLIC VIRTUAL void BaseNego::FinalizeSdp(
+        IN ISessionDescriptor* pSessionDescriptor, IN NEGO_STATE eNegoState)
+{
+    IMS_BOOL bFoundOaModel = IMS_FALSE;
+
+    // reset confirmed Session check variable
+    for (IMS_UINT32 i = 0; i < m_listOaModel.GetSize(); i++)
+    {
+        OaModel* pCheckedOaModel = m_listOaModel.GetAt(i);
+
+        if (pCheckedOaModel != IMS_NULL)
+        {
+            pCheckedOaModel->bConfirmedSession = IMS_FALSE;
+        }
+    }
+
+    // check latest OA model
+    OaModel* pLatestOaModel = IMS_NULL;
+
+    if (m_listOaModel.GetSize() > 0)
+    {
+        pLatestOaModel = m_listOaModel.GetAt(m_listOaModel.GetSize() - 1);
+    }
+
+    if (pLatestOaModel != IMS_NULL)
+    {
+        if ((pLatestOaModel->IsAllProfileExist() &&
+                    (eNegoState == STATE_IDLE || eNegoState == STATE_NEGOTIATED)) == IMS_FALSE)
+        {
+            IMS_TRACE_I("FinalizeSdp() - Incomplete OaModel[%d]. Delete profile",
+                    m_listOaModel.GetSize() - 1, 0, 0);
+            delete pLatestOaModel;
+            m_listOaModel.RemoveAt(m_listOaModel.GetSize() - 1);
+        }
+    }
+
+    for (IMS_UINT32 i = 0; i < m_listOaModel.GetSize(); i++)
+    {
+        // get OaModel
+        OaModel* pTempOaModel = m_listOaModel.GetAt(m_listOaModel.GetSize() - 1 - i);
+
+        // find matched SessionDescriptor key
+        if (pTempOaModel != IMS_NULL)
+        {
+            if (pTempOaModel->nSessionDescriptorKey ==
+                    reinterpret_cast<IMS_SINTP>(pSessionDescriptor))
+            {
+                pTempOaModel->bConfirmedSession = IMS_TRUE;
+                bFoundOaModel = IMS_TRUE;
+                IMS_TRACE_D("FinalizeSdp() - find comfirmed Session OaModel [%d]",
+                        m_listOaModel.GetSize() - i, 0, 0);
+                break;
+            }
+        }
+    }
+
+    // SessionDescriptor key mismatch case handling, not select OaModel
+    if (bFoundOaModel != IMS_TRUE && m_listOaModel.GetSize() > 0)
+    {
+        IMS_TRACE_D("FinalizeSdp() - not found comfirmed Session OaModel", 0, 0, 0);
+    }
+}
+
 PROTECTED VIRTUAL MediaBaseProfile* BaseNego::GetLocalProfile(IN OaModel* pOaModel)
 {
     return (pOaModel != IMS_NULL) ? pOaModel->pLocalProfile : IMS_NULL;

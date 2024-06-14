@@ -78,14 +78,6 @@ public:
             OUT IMS_SINT32& eDir);
 
     /**
-     * @brief Remove incomplete SDP negotiation set to keep the negotiation set to certain size
-     *
-     * @param pSessionDescriptor The SDP descriptor instance to access session level SDP
-     * @param eNegoState The current negotiation state to decide to remove the OA model item
-     */
-    virtual void FinalizeSdp(IN ISessionDescriptor* pSessionDescriptor, NEGO_STATE eNegoState);
-
-    /**
      * @brief Get the negotiated remote ip address
      *
      * @return const IpAddress& The ip address
