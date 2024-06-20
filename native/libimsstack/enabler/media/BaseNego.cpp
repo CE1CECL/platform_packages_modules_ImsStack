@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#include "ISessionDescriptor.h"
 #include "ServiceTrace.h"
 
 #include "BaseNego.h"
 #include "MediaNegoUtil.h"
 #include "MediaProfileFactory.h"
+#include "MediaProfileUtil.h"
 
 __IMS_TRACE_TAG_MEDIA__;
 
@@ -404,4 +406,71 @@ PROTECTED void BaseNego::DestroyListOaModel()
         }
         m_listOaModel.RemoveAt(0);
     }
+}
+
+PROTECTED
+IMS_BOOL BaseNego::FormOffer(IN ISessionDescriptor* pSessionDescriptor,
+        OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable)
+{
+    // Handling exception case
+    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    if (eDir == MEDIA_DIRECTION_INVALID)
+    {
+        IMS_TRACE_E(0, "FormOffer() - direction invalid", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    IMS_TRACE_D("FormOffer() - media type[%d], eDir[%d], bDisable[%d]", m_eType, eDir, bDisable);
+
+    // Make new Offer/Answer model, and copy source profile
+    OaModel* pNewOaModel = new OaModel();
+
+    if (pNewOaModel == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    pNewOaModel->pLocalProfile =
+            MediaProfileFactory::GetInstance()->CreateProfile(m_eType, m_pBaseProfile);
+
+    if (pNewOaModel->pLocalProfile == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
+    // Modify a direction by Enabler
+    if (IS_VALID_MEDIA_DIRECTION(eDir))
+    {
+        IMS_TRACE_I("FormOffer() Enforced Set to direction[%d]", eDir, 0, 0);
+        pNewOaModel->pLocalProfile->eDirection = eDir;
+    }
+
+    if (bDisable == IMS_TRUE)
+    {
+        pNewOaModel->pLocalProfile->nDataPort = 0;
+        pNewOaModel->pLocalProfile->nControlPort = 0;
+    }
+
+    // Modify a RS/RR by conditions (for RTCP enable/disable)
+    if (m_eType == MEDIA_TYPE_AUDIO || m_eType == MEDIA_TYPE_VIDEO)
+    {
+        MediaProfileUtil::SetRtcpRsRr(GetLocalProfile(pNewOaModel), m_pConfig);
+    }
+    m_listOaModel.Append(pNewOaModel);
+
+    // Make the SDP from profile
+    IMS_BOOL bSdpMade =
+            MakeSdpFromProfile(pSessionDescriptor, pDescriptor, GetLocalProfile(pNewOaModel));
+
+    // Delete Session Level Direction Attribute
+    if (m_eType == MEDIA_TYPE_AUDIO)
+    {
+        pSessionDescriptor->SetDirection(MEDIA_DIRECTION_INVALID);
+    }
+
+    return bSdpMade;
 }

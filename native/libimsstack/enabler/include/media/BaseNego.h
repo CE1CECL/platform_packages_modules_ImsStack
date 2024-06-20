@@ -210,9 +210,11 @@ protected:
     virtual MediaBaseProfile* GetNegotiatedProfile(IN OaModel* pOaModel);
     OaModel* GetNegotiatedOaModel(IMS_BOOL bCheckConfirmed = IMS_FALSE);
     void DestroyListOaModel();
+    virtual IMS_BOOL MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
+            OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pProfile) = 0;
 
     virtual IMS_BOOL FormOffer(IN ISessionDescriptor* pSessionDescriptor,
-            OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable) = 0;
+            OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable);
     virtual IMS_BOOL FormAnswer(IN ISessionDescriptor* pSessionDescriptor,
             OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable) = 0;
     virtual IMS_BOOL FormReoffer(IN ISessionDescriptor* pSessionDescriptor,

@@ -307,67 +307,6 @@ PROTECTED AudioProfile* AudioNego::GetNegotiatedProfile(IN OaModel* pOaModel)
 }
 
 PROTECTED
-IMS_BOOL AudioNego::FormOffer(IN ISessionDescriptor* pSessionDescriptor,
-        OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable)
-{
-    // Handling exception case
-    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    if (eDir == MEDIA_DIRECTION_INVALID)
-    {
-        IMS_TRACE_E(0, "FormOffer() - direction invalid", 0, 0, 0);
-        return IMS_FALSE;
-    }
-
-    IMS_TRACE_D("FormOffer() - eDir[%d]", eDir, 0, 0);
-
-    // Make new Offer/Answer model, and copy source profile
-    OaModel* pNewOaModel = new OaModel();
-
-    if (pNewOaModel == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    pNewOaModel->pLocalProfile =
-            MediaProfileFactory::GetInstance()->CreateProfile(MEDIA_TYPE_AUDIO, m_pBaseProfile);
-
-    if (pNewOaModel->pLocalProfile == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    // Modify a direction by Enabler
-    if (eDir > MEDIA_DIRECTION_INVALID)
-    {
-        IMS_TRACE_I("FormOffer() Enforced Set to direction[%d]", eDir, 0, 0);
-        pNewOaModel->pLocalProfile->eDirection = eDir;
-    }
-
-    if (bDisable == IMS_TRUE)
-    {
-        pNewOaModel->pLocalProfile->nDataPort = 0;
-        pNewOaModel->pLocalProfile->nControlPort = 0;
-    }
-
-    // Modify a RS/RR by conditions (for RTCP enable/disable)
-    MediaProfileUtil::SetRtcpRsRr(GetLocalProfile(pNewOaModel), m_pConfig);
-    m_listOaModel.Append(pNewOaModel);
-
-    // Make the SDP from profile
-    IMS_BOOL bSdpMade =
-            MakeSdpFromProfile(pSessionDescriptor, pDescriptor, GetLocalProfile(pNewOaModel));
-
-    // Delete Session Level Direction Attribute
-    pSessionDescriptor->SetDirection(MEDIA_DIRECTION_INVALID);
-
-    return bSdpMade;
-}
-
-PROTECTED
 IMS_BOOL AudioNego::FormAnswer(IN ISessionDescriptor* pSessionDescriptor,
         OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable)
 {
@@ -649,7 +588,7 @@ MEDIA_DIRECTION AudioNego::NegotiateOffer(
     return pNewOaModel->pNegotiatedProfile->eDirection;
 }
 
-PRIVATE
+PROTECTED
 MEDIA_DIRECTION AudioNego::NegotiateAnswer(
         IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor)
 {
@@ -742,14 +681,16 @@ void AudioNego::Copy(IN const AudioNego* pAudioNego)
     IMS_TRACE_I("Copy() - OA model list size[%d]", m_listOaModel.GetSize(), 0, 0);
 }
 
-PRIVATE
+PROTECTED
 IMS_BOOL AudioNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
-        OUT IMediaDescriptor* pDescriptor, IN AudioProfile* pProfile)
+        OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile)
 {
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pProfile == IMS_NULL)
+    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pBaseProfile == IMS_NULL)
     {
         return IMS_FALSE;
     }
+
+    AudioProfile* pProfile = ProfileCasting(pBaseProfile);
 
     IMS_TRACE_I("MakeSdpFromProfile() - PayloadSize[%d], AS[%d], port[%d]",
             pProfile->lstPayload.GetSize(), pProfile->nBandwidthAs, pProfile->nDataPort);

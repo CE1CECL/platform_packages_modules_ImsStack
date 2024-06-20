@@ -70,8 +70,6 @@ protected:
     TextProfile* GetLocalProfile(IN OaModel* pOaModel) override;
     TextProfile* GetPeerProfile(IN OaModel* pOaModel) override;
     TextProfile* GetNegotiatedProfile(IN OaModel* pOaModel) override;
-    IMS_BOOL FormOffer(IN ISessionDescriptor* pSessionDescriptor, OUT IMediaDescriptor* pDescriptor,
-            IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable) override;
     IMS_BOOL FormAnswer(IN ISessionDescriptor* pSessionDescriptor,
             OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir,
             IN IMS_BOOL bDisable) override;
@@ -82,11 +80,11 @@ protected:
             IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor) override;
     MEDIA_DIRECTION NegotiateAnswer(
             IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor) override;
+    IMS_BOOL MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
+            OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile) override;
 
 private:
     void Copy(IN const TextNego* pTextNego);
-    IMS_BOOL MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
-            OUT IMediaDescriptor* pDescriptor, IN TextProfile* pProfile);
     IMS_BOOL MakeProfileFromSDP(IN ISessionDescriptor* pSessionDescriptor,
             IN IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile);
     IMS_BOOL MakeNegotiatedProfile(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,

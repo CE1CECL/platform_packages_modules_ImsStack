@@ -159,55 +159,6 @@ PROTECTED VideoProfile* VideoNego::GetNegotiatedProfile(IN OaModel* pOaModel)
     return ProfileCasting(BaseNego::GetNegotiatedProfile(pOaModel));
 }
 
-PROTECTED IMS_BOOL VideoNego::FormOffer(IN ISessionDescriptor* pSessionDescriptor,
-        OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDirection, IN IMS_BOOL bDisable)
-{
-    // Handling exception case
-    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL ||
-            eDirection == MEDIA_DIRECTION_INVALID)
-    {
-        return IMS_FALSE;
-    }
-
-    IMS_TRACE_D("FormOffer() - eDirection[%d] - bDisable[%d]", eDirection, bDisable, 0);
-
-    // Make new Offer/Answer model, and copy source profile
-    OaModel* pNewOaModel = new OaModel();
-
-    if (pNewOaModel == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    pNewOaModel->pLocalProfile =
-            MediaProfileFactory::GetInstance()->CreateProfile(MEDIA_TYPE_VIDEO, m_pBaseProfile);
-
-    if (pNewOaModel->pLocalProfile == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    // Modify a direction by Enabler
-    if (IS_VALID_MEDIA_DIRECTION(eDirection))
-    {
-        IMS_TRACE_I("FormOffer() Enforced Set to direction[%d]", eDirection, 0, 0);
-        pNewOaModel->pLocalProfile->eDirection = eDirection;
-    }
-
-    if (bDisable == IMS_TRUE)
-    {
-        pNewOaModel->pLocalProfile->nDataPort = 0;
-        pNewOaModel->pLocalProfile->nControlPort = 0;
-    }
-
-    // Modify a RS/RR by conditions (for RTCP enable/disable), audio/video only?
-    MediaProfileUtil::SetRtcpRsRr(GetLocalProfile(pNewOaModel), m_pConfig);
-    m_listOaModel.Append(pNewOaModel);
-
-    // Make the SDP from profile
-    return MakeSdpFromProfile(pSessionDescriptor, pDescriptor, GetLocalProfile(pNewOaModel));
-}
-
 PROTECTED IMS_BOOL VideoNego::FormAnswer(IN ISessionDescriptor* pSessionDescriptor,
         OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDirection, IN IMS_BOOL bDisable)
 {
@@ -537,14 +488,16 @@ void VideoNego::Copy(IN const VideoNego* pVideoNego)
     return;
 }
 
-PRIVATE
-IMS_BOOL VideoNego::MakeSdpFromProfile(IN ISessionDescriptor* pSessionDescriptor,
-        OUT IMediaDescriptor* pDescriptor, IN VideoProfile* pProfile)
+PROTECTED
+IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
+        OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile)
 {
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pProfile == IMS_NULL)
+    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pBaseProfile == IMS_NULL)
     {
         return IMS_FALSE;
     }
+
+    VideoProfile* pProfile = ProfileCasting(pBaseProfile);
 
     IMS_TRACE_I("MakeSdpFromProfile() - PayloadSize[%d], AS[%d]", pProfile->lstPayload.GetSize(),
             pProfile->nBandwidthAs, 0);
