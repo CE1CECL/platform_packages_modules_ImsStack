@@ -150,53 +150,6 @@ PROTECTED TextProfile* TextNego::GetNegotiatedProfile(IN OaModel* pOaModel)
     return ProfileCasting(BaseNego::GetNegotiatedProfile(pOaModel));
 }
 
-PROTECTED IMS_BOOL TextNego::FormOffer(IN ISessionDescriptor* pSessionDescriptor,
-        OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable)
-{
-    // Handling exception case
-    if (m_pBaseProfile == IMS_NULL || pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    if (eDir == MEDIA_DIRECTION_INVALID)
-    {
-        IMS_TRACE_E(0, "FormOffer() - direction invalid", 0, 0, 0);
-        return IMS_FALSE;
-    }
-
-    IMS_TRACE_D("FormOffer() - eDir[%d] - bDisable[%d]", eDir, bDisable, 0);
-
-    // Make new Offer/Answer model, and copy source profile
-    OaModel* pNewOaModel = new OaModel();
-    pNewOaModel->pLocalProfile =
-            MediaProfileFactory::GetInstance()->CreateProfile(MEDIA_TYPE_TEXT, m_pBaseProfile);
-
-    if (pNewOaModel->pLocalProfile == IMS_NULL)
-    {
-        return IMS_FALSE;
-    }
-
-    // Modify a direction by Enabler
-    if (eDir > MEDIA_DIRECTION_INVALID && eDir <= MEDIA_DIRECTION_SEND_RECEIVE)
-    {
-        IMS_TRACE_I("FormOffer() - set direction[%d]", eDir, 0, 0);
-        pNewOaModel->pLocalProfile->eDirection = eDir;
-    }
-
-    if (bDisable == IMS_TRUE)
-    {
-        IMS_TRACE_I("FormOffer() - disable", 0, 0, 0);
-        pNewOaModel->pLocalProfile->nDataPort = 0;
-        pNewOaModel->pLocalProfile->nControlPort = 0;
-    }
-
-    m_listOaModel.Append(pNewOaModel);
-
-    // Make the SDP from profile
-    return MakeSDPFromProfile(pSessionDescriptor, pDescriptor, GetLocalProfile(pNewOaModel));
-}
-
 PROTECTED IMS_BOOL TextNego::FormAnswer(IN ISessionDescriptor* pSessionDescriptor,
         OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable)
 {
@@ -290,7 +243,7 @@ PROTECTED IMS_BOOL TextNego::FormAnswer(IN ISessionDescriptor* pSessionDescripto
     }
 
     // Make the SDP from profile
-    return MakeSDPFromProfile(pSessionDescriptor, pDescriptor, GetNegotiatedProfile(pNewOaModel));
+    return MakeSdpFromProfile(pSessionDescriptor, pDescriptor, GetNegotiatedProfile(pNewOaModel));
 }
 
 PROTECTED
@@ -427,7 +380,7 @@ IMS_BOOL TextNego::FormReoffer(IN ISessionDescriptor* pSessionDescriptor,
     m_listOaModel.Append(pNewOaModel);
 
     // Make the SDP from profile
-    return MakeSDPFromProfile(pSessionDescriptor, pDescriptor, GetLocalProfile(pNewOaModel));
+    return MakeSdpFromProfile(pSessionDescriptor, pDescriptor, GetLocalProfile(pNewOaModel));
 }
 
 PROTECTED MEDIA_DIRECTION TextNego::NegotiateOffer(
@@ -572,14 +525,16 @@ void TextNego::Copy(IN const TextNego* pTextNego)
     IMS_TRACE_I("Copy() - OA model list size[%d]", m_listOaModel.GetSize(), 0, 0);
 }
 
-PRIVATE
-IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
-        OUT IMediaDescriptor* pDescriptor, IN TextProfile* pProfile)
+PROTECTED
+IMS_BOOL TextNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
+        OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile)
 {
-    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pProfile == IMS_NULL)
+    if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pBaseProfile == IMS_NULL)
     {
         return IMS_FALSE;
     }
+
+    TextProfile* pProfile = ProfileCasting(pBaseProfile);
 
     // clean attr & bandwidth line
     pDescriptor->RemoveAttribute(SdpAttribute::ATTRIBUTE_ALL);
@@ -589,7 +544,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
     // Make "c" & "o" line of session level if IP does not matched
     if (!pSessionDescriptor->GetLocalAddress().Equals(pProfile->objIpAddress))
     {
-        IMS_TRACE_D("MakeSDPFromProfile() - Ip is not matched, SessionIP[%s], ProfileIP[%s]",
+        IMS_TRACE_D("MakeSdpFromProfile() - Ip is not matched, SessionIP[%s], ProfileIP[%s]",
                 pSessionDescriptor->GetLocalAddress().ToCharString(),
                 pProfile->objIpAddress.ToCharString(), 0);
 
@@ -616,7 +571,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
                 continue;
             }
 
-            IMS_TRACE_I("MakeSDPFromProfile() - fmtp, nRedundancy [%d], nRedPayload[%d]",
+            IMS_TRACE_I("MakeSdpFromProfile() - fmtp, nRedundancy [%d], nRedPayload[%d]",
                     pRedFmtp->nRedLevel, pRedFmtp->nRedPayload, 0);
 
             IMS_BOOL bRedSubPTExist = IMS_FALSE;
@@ -630,7 +585,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
                     continue;
                 }
 
-                IMS_TRACE_I("MakeSDPFromProfile() - RedSubPT, PT[%d] of PL(%d) / nRedPayload "
+                IMS_TRACE_I("MakeSdpFromProfile() - RedSubPT, PT[%d] of PL(%d) / nRedPayload "
                             "[%d]",
                         pTempPayload->objRtpMap.nPayloadNum, j, pRedFmtp->nRedPayload);
 
@@ -643,7 +598,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
             if (bRedSubPTExist == IMS_FALSE)
             {
                 IMS_TRACE_E(0,
-                        "MakeSDPFromProfile() - SubPayloadtype for Redundancy isn't exist. skip "
+                        "MakeSdpFromProfile() - SubPayloadtype for Redundancy isn't exist. skip "
                         "Payload, Payload[%s], PT[%d]",
                         pPayload->objRtpMap.strPayloadType.GetStr(),
                         pPayload->objRtpMap.nPayloadNum, 0);
@@ -653,7 +608,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
         }
     }
 
-    IMS_TRACE_I("MakeSDPFromProfile() - After Check Validity, PayloadSize[%d]",
+    IMS_TRACE_I("MakeSdpFromProfile() - After Check Validity, PayloadSize[%d]",
             pProfile->lstPayload.GetSize(), 0, 0);
 
     // Make "m" line
@@ -740,7 +695,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
                 strFmtp.Append(TempSubPT);
             }
 
-            IMS_TRACE_I("MakeSDPFromProfile() - Add fmtp, nRedundancy[%d], nRedPayload[%d], "
+            IMS_TRACE_I("MakeSdpFromProfile() - Add fmtp, nRedundancy[%d], nRedPayload[%d], "
                         "Fmtp[%s]",
                     pRedFmtp->nRedLevel, pRedFmtp->nRedPayload, strFmtp.GetStr());
         }
@@ -755,7 +710,7 @@ IMS_BOOL TextNego::MakeSDPFromProfile(OUT ISessionDescriptor* pSessionDescriptor
 
     // Make direction
     pDescriptor->SetDirection(pProfile->eDirection);
-    IMS_TRACE_I("MakeSDPFromProfile() - payloadSize[%d]", pProfile->lstPayload.GetSize(), 0, 0);
+    IMS_TRACE_I("MakeSdpFromProfile() - payloadSize[%d]", pProfile->lstPayload.GetSize(), 0, 0);
 
     return IMS_TRUE;
 }
@@ -837,7 +792,7 @@ PRIVATE IMS_BOOL TextNego::MakeProfileFromSDP(IN ISessionDescriptor* pSessionDes
                 if (pSDPCodec == IMS_NULL)
                     continue;
 
-                IMS_TRACE_I("MakeSDPFromProfile() - Check RedSubPT, PT[%d] of PL(%d) / nRedPayload "
+                IMS_TRACE_I("MakeSdpFromProfile() - Check RedSubPT, PT[%d] of PL(%d) / nRedPayload "
                             "[%d]",
                         pSDPCodec->GetPayloadType(), j, pRedFmtp->nRedPayload);
                 if (pSDPCodec->GetPayloadType() == pRedFmtp->nRedPayload)

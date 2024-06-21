@@ -70,8 +70,6 @@ protected:
     VideoProfile* GetLocalProfile(IN OaModel* pOaModel) override;
     VideoProfile* GetPeerProfile(IN OaModel* pOaModel) override;
     VideoProfile* GetNegotiatedProfile(IN OaModel* pOaModel) override;
-    IMS_BOOL FormOffer(IN ISessionDescriptor* pSessionDescriptor, OUT IMediaDescriptor* pDescriptor,
-            IN MEDIA_DIRECTION eDir, IN IMS_BOOL bDisable) override;
     IMS_BOOL FormAnswer(IN ISessionDescriptor* pSessionDescriptor,
             OUT IMediaDescriptor* pDescriptor, IN MEDIA_DIRECTION eDir,
             IN IMS_BOOL bDisable) override;
@@ -82,11 +80,11 @@ protected:
             IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor) override;
     MEDIA_DIRECTION NegotiateAnswer(
             IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor) override;
+    IMS_BOOL MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescriptor,
+            OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile) override;
 
 private:
     void Copy(IN const VideoNego* pVideoNego);
-    IMS_BOOL MakeSdpFromProfile(IN ISessionDescriptor* pSessionDescriptor,
-            OUT IMediaDescriptor* pDescriptor, IN VideoProfile* pProfile);
     IMS_BOOL MakeProfileFromSdp(IN ISessionDescriptor* pSessionDescriptor,
             IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     IMS_BOOL MakeNegotiatedPayload(IN VideoProfile::Payload* pLocalPayload,
