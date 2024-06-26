@@ -44,55 +44,53 @@ import java.util.Set;
  * This class provides the implementation of USAT functions to interwork with the UICC.
  */
 public class UsatAgent extends Handler implements UsatInterface {
-    /** Common parameters */
-    /** Device identities */
+    // Common parameters
+    // Device identities
     private static final int TAG_DEVICE_IDENTITIES = 0x02;
     private static final int DEVICE_IDENTITY_UICC = 0x81;
     private static final int DEVICE_IDENTITY_TERMINAL = 0x82; // ME
     private static final int DEVICE_IDENTITY_NETWORK = 0x83;
-    /** IMS URI: 0x31 or 0xB1 */
+    // IMS URI: 0x31 or 0xB1
     // private static final int TAG_IMS_URI = 0x31;
-    /** URI truncated: 0x73 or 0xF3 */
+    // URI truncated: 0x73 or 0xF3
     // private static final int TAG_URI_TRUNCATED = 0x73;
 
-    /** Call control by USIM */
+    // Call control by USIM
     private static final int TAG_CALL_CONTROL = 0xD4;
-    /** Address: 0x06 or 0x86 */
+    // Address: 0x06 or 0x86
     private static final int TAG_ADDRESS = 0x06;
     private static final int TAG_ADDRESS_1 = 0x86;
-    /** SS string: 0x09 or 0x89 */
+    // SS string: 0x09 or 0x89
     private static final int TAG_SS_STRING = 0x09;
     private static final int TAG_SS_STRING_1 = 0x89;
-    /** USSD string: 0x0A or 0x8A */
+    // USSD string: 0x0A or 0x8A
     private static final int TAG_USSD_STRING = 0x0A;
     private static final int TAG_USSD_STRING_1 = 0x8A;
-    /** Location information: 0x13 or 0x93 */
+    // Location information: 0x13 or 0x93
     private static final int TAG_LOCATION_INFORMATION = 0x13;
-    /**
-     * Media type: 0x7E or 0xFE
-     * Voice: 0x01, Video: 0x02
-     */
+    // Media type: 0x7E or 0xFE
+    // Voice: 0x01, Video: 0x02
     private static final int TAG_MEDIA_TYPE = 0x7E;
 
-    /** MO SMS control by USIM */
+    // MO SMS control by USIM
     private static final int TAG_MO_SMS_CONTROL = 0xD5;
 
-    /** Data download via SMS-PP */
+    // Data download via SMS-PP
     private static final int TAG_SMS_PP_DOWNLOAD = 0xD1;
-    /** SMS TPDU: 0x0B or 0x8B */
+    // SMS TPDU: 0x0B or 0x8B
     private static final int TAG_SMS_TPDU = 0x0B;
 
-    /** Event download: 0xD6 */
+    // Event download: 0xD6
     private static final int TAG_EVENT_DOWNLOAD = 0xD6;
-    /** Event list: 0x19 or 0x99 */
+    // Event list: 0x19 or 0x99
     private static final int TAG_EVENT_LIST = 0x19;
-    /** Ims registration event: 0x17 */
+    // Ims registration event: 0x17
     private static final int EVENT_IMS_REGISTRATION = 0x17;
-    /** IMPU list: 0x80 or 0x77 */
+    // IMPU list: 0x80 or 0x77
     private static final int TAG_IMPU_LIST = 0x77;
-    /** IMS status code: 0x80 or 0x78 */
+    // IMS status code: 0x80 or 0x78
     private static final int TAG_IMS_STATUS_CODE = 0x78;
-    /** URI TLV: 0x80 */
+    // URI TLV: 0x80
     private static final int TAG_URI_TLV = 0x80;
 
     static final class DataObject {
@@ -143,7 +141,7 @@ public class UsatAgent extends Handler implements UsatInterface {
         }
     }
 
-    /** The maximum internal command identifier. */
+    // The maximum internal command identifier.
     private static final int MAX_CID = Integer.MAX_VALUE;
 
     private static final int EVENT_SEND_COMMAND = 1;
@@ -868,18 +866,14 @@ public class UsatAgent extends Handler implements UsatInterface {
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-        /**
-         * Event download tag (Table 7.17 of TS101.220 : 0xD6)
-         */
+        // Event download tag (Table 7.17 of TS101.220 : 0xD6)
         buffer.write(TAG_EVENT_DOWNLOAD);
 
-        /**
-         * Length (A+B+C) or (A+B+D)
-         *     A: Event list
-         *     B: Device identities
-         *     C: IMPU list
-         *     D: IMS status code
-         */
+        // Length (A+B+C) or (A+B+D)
+        //     A: Event list
+        //     B: Device identities
+        //     C: IMPU list
+        //     D: IMS status code
         buffer.write(0x00); // place holder
 
         writeEventList(buffer, EVENT_IMS_REGISTRATION);
