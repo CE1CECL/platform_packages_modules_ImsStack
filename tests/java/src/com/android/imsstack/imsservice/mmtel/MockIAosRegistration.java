@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 
 import com.android.imsstack.enabler.aos.IAosRegistration;
 import com.android.imsstack.enabler.aos.IAosRegistrationListener;
+import com.android.imsstack.enabler.aos.IAosRegistrationListener.RegistrationState;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -64,7 +65,7 @@ class MockIAosRegistration implements IAosRegistration {
     }
 
     @Override
-    public int getRegistrationState() {
+    public RegistrationState getRegistrationState() {
         return IAosRegistrationListener.RegistrationState.REGISTERED;
     }
 

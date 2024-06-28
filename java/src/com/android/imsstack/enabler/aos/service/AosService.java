@@ -111,7 +111,7 @@ public class AosService implements IAosRegistration, IAosInfo, Sim.Listener, Sim
     @VisibleForTesting
     int mRegisteredNetworkType = NetworkType.NONE;
 
-    private int mRegState = RegistrationState.DEREGISTERED;
+    private RegistrationState mRegState = RegistrationState.DEREGISTERED;
 
     @VisibleForTesting
     int mPreciseCallState = PreciseCallState.PRECISE_CALL_STATE_IDLE;
@@ -332,7 +332,7 @@ public class AosService implements IAosRegistration, IAosInfo, Sim.Listener, Sim
     }
 
     @Override
-    public int getRegistrationState() {
+    public RegistrationState getRegistrationState() {
         return mRegState;
     }
 
