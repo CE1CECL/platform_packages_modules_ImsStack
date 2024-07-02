@@ -121,32 +121,42 @@ public:
     class AvcFmtp : public VideoFmtp
     {
     public:
-        AString strProfileLevelId;
-        IMS_BOOL bShow_ProfileLevelId;
-
-    public:
         explicit AvcFmtp(IN AvcFmtp* pFmtp = IMS_NULL) :
                 VideoFmtp(pFmtp),
-                strProfileLevelId(AString::ConstNull()),
-                bShow_ProfileLevelId(IMS_FALSE)
+                m_strProfileLevelId(AString::ConstNull()),
+                m_bShowProfileLevelId(IMS_FALSE)
         {
             if (pFmtp == IMS_NULL)
             {
                 return;
             }
-            strProfileLevelId = pFmtp->strProfileLevelId;
-            bShow_ProfileLevelId = pFmtp->bShow_ProfileLevelId;
+            m_strProfileLevelId = pFmtp->m_strProfileLevelId;
+            m_bShowProfileLevelId = pFmtp->m_bShowProfileLevelId;
         };
 
-        AvcFmtp(IN const VIDEO_RESOLUTION resol, IN const IMS_UINT32 bitrate,
-                IN const IMS_UINT32 frameRate, IN const IMS_UINT32 as, IN const IMS_UINT32 profile,
-                IN const IMS_UINT32 level, IN const AString profileLevelID,
-                IN const IMS_UINT32 packetization, IN const AString sprop) :
-                VideoFmtp(resol, bitrate, frameRate, as, profile, level, packetization, sprop),
-                strProfileLevelId(profileLevelID),
-                bShow_ProfileLevelId(IMS_FALSE){};
+        AvcFmtp(IN const VIDEO_RESOLUTION eResolution, IN const IMS_UINT32 nBitrate,
+                IN const IMS_UINT32 nFrameRate, IN const IMS_UINT32 nAs,
+                IN const IMS_UINT32 nProfile, IN const IMS_UINT32 nLevel,
+                IN const AString strProfileLevelId, IN const IMS_UINT32 nPacketization,
+                IN const AString strSprop) :
+                VideoFmtp(eResolution, nBitrate, nFrameRate, nAs, nProfile, nLevel, nPacketization,
+                        strSprop),
+                m_strProfileLevelId(strProfileLevelId),
+                m_bShowProfileLevelId(IMS_FALSE){};
 
         virtual ~AvcFmtp(){};
+
+        void SetProfileLevelId(IN const AString strProfileLevelId)
+        {
+            m_strProfileLevelId = strProfileLevelId;
+        }
+        AString& GetProfileLevelId() { return m_strProfileLevelId; }
+        void SetShowProfileLevelId(IN const IMS_BOOL nShow) { m_bShowProfileLevelId = nShow; }
+        IMS_BOOL IsShowProfileLevelIdEnabled() { return m_bShowProfileLevelId; }
+
+    private:
+        AString m_strProfileLevelId;
+        IMS_BOOL m_bShowProfileLevelId;
     };
 
     /**

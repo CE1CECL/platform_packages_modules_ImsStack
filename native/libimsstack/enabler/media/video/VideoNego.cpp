@@ -1262,8 +1262,8 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                     }
 
                     IMS_TRACE_D("MakeNegotiatedProfile() profileLevelID[%s]<->profileLevelID[%s]",
-                            pLocalFmtp->strProfileLevelId.GetStr(),
-                            pPeerFmtp->strProfileLevelId.GetStr(), 0);
+                            pLocalFmtp->GetProfileLevelId().GetStr(),
+                            pPeerFmtp->GetProfileLevelId().GetStr(), 0);
 
                     IMS_TRACE_D("MakeNegotiatedProfile() Level[%d]<->Level[%d]",
                             pLocalFmtp->GetLevel(), pPeerFmtp->GetLevel(), 0);
@@ -1273,14 +1273,14 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                     // same level is adapt first, reject higher level
                     if (pLocalFmtp->GetLevel() < pPeerFmtp->GetLevel())
                     {
-                        IMS_TRACE_D("MakeNegotiatedProfile( NOT MATCHED AVC Level[%d]<->[%d]",
+                        IMS_TRACE_D("MakeNegotiatedProfile() NOT MATCHED AVC Level[%d]<->[%d]",
                                 pLocalFmtp->GetLevel(), pPeerFmtp->GetLevel(), 0);
 
                         if (pTmpPayload == IMS_NULL)
                         {
                             IMS_TRACE_D("MakeNegotiatedProfile() Accept Highest Temp Src \
                                     profileLevelID[%s]",
-                                    pLocalFmtp->strProfileLevelId.GetStr(), 0, 0);
+                                    pLocalFmtp->GetProfileLevelId().GetStr(), 0, 0);
                             pTmpPayload = pLocalPayload;
                             pMatchedPeerPayload = pPeerPayload;
                         }
@@ -1359,7 +1359,7 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                             if (pTmpPayload == IMS_NULL)
                             {
                                 IMS_TRACE_D("MakeNegotiatedProfile() - Keep profileLevelID[%s]",
-                                        pLocalFmtp->strProfileLevelId.GetStr(), 0, 0);
+                                        pLocalFmtp->GetProfileLevelId().GetStr(), 0, 0);
                                 pTmpPayload = pLocalPayload;
                                 pMatchedPeerPayload = pPeerPayload;
                             }
@@ -1372,7 +1372,7 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                             {
                                 IMS_TRACE_D("MakeNegotiatedProfile() - Keep dynamic resolution \
                                         profileLevelID[%s]",
-                                        pLocalFmtp->strProfileLevelId.GetStr(), 0, 0);
+                                        pLocalFmtp->GetProfileLevelId().GetStr(), 0, 0);
                                 pTmpPayload = pLocalPayload;
                                 pMatchedPeerPayload = pPeerPayload;
                             }
@@ -1730,8 +1730,8 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                     pAvcFmtp->SetResolution(nProperResol);
                 }
 
-                IMS_TRACE_D("MakeNegotiatedProfile() set profile[%s] set Resol[%d]",
-                        pAvcFmtp->strProfileLevelId.GetStr(), pAvcFmtp->GetResolution(), 0);
+                IMS_TRACE_D("MakeNegotiatedProfile() set profile[%s] set resolution[%d]",
+                        pAvcFmtp->GetProfileLevelId().GetStr(), pAvcFmtp->GetResolution(), 0);
 
                 if (pNegotiatedProfile->bSupportAvpf == IMS_TRUE)
                 {
@@ -2010,12 +2010,12 @@ IMS_BOOL VideoNego::GetFmtpFromString(IN const AString& strFmtp, OUT VideoProfil
 
         if (objSplitEqual.GetAt(0).Equals("profile-level-id") == IMS_TRUE)
         {
-            pFmtp->strProfileLevelId = objSplitEqual.GetAt(1);
+            pFmtp->SetProfileLevelId(objSplitEqual.GetAt(1));
             pFmtp->SetProfile(
-                    VideoProfileUtil::GetAvcProfileFromProfileLevelId(pFmtp->strProfileLevelId));
+                    VideoProfileUtil::GetAvcProfileFromProfileLevelId(pFmtp->GetProfileLevelId()));
             pFmtp->SetLevel(
-                    VideoProfileUtil::GetAvcLevelFromProfileLevelId(pFmtp->strProfileLevelId));
-            pFmtp->bShow_ProfileLevelId = IMS_TRUE;
+                    VideoProfileUtil::GetAvcLevelFromProfileLevelId(pFmtp->GetProfileLevelId()));
+            pFmtp->SetShowProfileLevelId(IMS_TRUE);
         }
         else if (objSplitEqual.GetAt(0).Equals("packetization-mode") == IMS_TRUE)
         {
@@ -2186,8 +2186,8 @@ VideoProfile::Payload* VideoNego::FindPayloadInProfile(
 
                 // same level is adapt first
                 IMS_TRACE_D("FindPayloadInProfile() - profileLevelID[%s]<->profileLevelID[%s]",
-                        pOriginFmtp->strProfileLevelId.GetStr(),
-                        pReceivedFmtp->strProfileLevelId.GetStr(), 0);
+                        pOriginFmtp->GetProfileLevelId().GetStr(),
+                        pReceivedFmtp->GetProfileLevelId().GetStr(), 0);
 
                 if (pOriginFmtp->GetLevel() < pReceivedFmtp->GetLevel())
                 {
@@ -2197,7 +2197,7 @@ VideoProfile::Payload* VideoNego::FindPayloadInProfile(
                     if (pTempPayload == IMS_NULL)
                     {
                         IMS_TRACE_D("FindPayloadInProfile() - Priority profileLevelID[%d]",
-                                pOriginFmtp->strProfileLevelId.GetStr(), 0, 0);
+                                pOriginFmtp->GetProfileLevelId().GetStr(), 0, 0);
                         pTempPayload = pOriginPayload;
                     }
                     continue;

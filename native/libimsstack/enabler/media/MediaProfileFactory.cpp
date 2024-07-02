@@ -828,8 +828,8 @@ PRIVATE VideoProfile::Payload* MediaProfileFactory::CreateAvcPayload(
 
     if (pAvcConfig->GetProfileLevelId().GetLength() != 0)
     {
-        pAvcFmtp->strProfileLevelId = pAvcConfig->GetProfileLevelId();
-        pAvcFmtp->bShow_ProfileLevelId = IMS_TRUE;
+        pAvcFmtp->SetProfileLevelId(pAvcConfig->GetProfileLevelId());
+        pAvcFmtp->SetShowProfileLevelId(IMS_TRUE);
     }
 
     if (pAvcConfig->GetIncludeSpropParameterSets())

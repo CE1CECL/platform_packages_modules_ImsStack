@@ -54,14 +54,14 @@ PUBLIC void VideoNegoAvc::AddProfileLevelIdToFmtp(
     if (avcFmtp != IMS_NULL)
     {
         IMS_TRACE_I("AddProfileLevelIdToFmtp() profile-level-id=%s, show=%d",
-                avcFmtp->strProfileLevelId.GetStr(), avcFmtp->bShow_ProfileLevelId, 0);
+                avcFmtp->GetProfileLevelId().GetStr(), avcFmtp->IsShowProfileLevelIdEnabled(), 0);
 
-        if (avcFmtp->bShow_ProfileLevelId == IMS_TRUE)
+        if (avcFmtp->IsShowProfileLevelIdEnabled() == IMS_TRUE)
         {
             AppendSeparatorIfNotEmpty(fmtp, SEMICOLON);
 
             AString strTemp;
-            strTemp.Sprintf("profile-level-id=%s", avcFmtp->strProfileLevelId.GetStr());
+            strTemp.Sprintf("profile-level-id=%s", avcFmtp->GetProfileLevelId().GetStr());
             fmtp.Append(strTemp);
         }
     }
