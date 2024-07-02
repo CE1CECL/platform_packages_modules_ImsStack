@@ -865,13 +865,13 @@ PRIVATE VideoProfile::Payload* MediaProfileFactory::CreateHevcPayload(
     if (pHevcConfig->GetHevcProfile() != -1)
     {
         pHevcFmtp->SetProfile(static_cast<VIDEO_PROFILE_HEVC>(pHevcConfig->GetHevcProfile()));
-        pHevcFmtp->bShow_Profile = IMS_TRUE;
+        pHevcFmtp->SetShowProfile(IMS_TRUE);
     }
 
     if (pHevcConfig->GetHevcLevel() != -1)
     {
         pHevcFmtp->SetLevel(pHevcConfig->GetHevcLevel());
-        pHevcFmtp->bShow_Level = IMS_TRUE;
+        pHevcFmtp->SetShowLevel(IMS_TRUE);
     }
 
     if (pHevcConfig->GetSpropParameterSets().GetLength() != 0)

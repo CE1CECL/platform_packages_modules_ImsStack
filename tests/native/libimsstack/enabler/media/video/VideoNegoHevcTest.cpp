@@ -51,8 +51,8 @@ protected:
         m_pHevcFmtpFull->SetPacketizationMode(PACKETIZATION_MODE);
         m_pHevcFmtpFull->SetSpropParam(SPROP_PARAMSET);
 
-        m_pHevcFmtpFull->bShow_Profile = IMS_TRUE;
-        m_pHevcFmtpFull->bShow_Level = IMS_TRUE;
+        m_pHevcFmtpFull->SetShowProfile(IMS_TRUE);
+        m_pHevcFmtpFull->SetShowLevel(IMS_TRUE);
         m_pHevcFmtpFull->SetShowPacketizationMode(IMS_TRUE);
         m_pHevcFmtpFull->SetShowSpropParam(IMS_TRUE);
     }

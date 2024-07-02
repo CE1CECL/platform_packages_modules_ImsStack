@@ -2096,12 +2096,12 @@ IMS_BOOL VideoNego::GetFmtpFromString(IN const AString& strFmtp, OUT VideoProfil
         if (objSplitEqual.GetAt(0).Equals("profile-id") == IMS_TRUE)
         {
             pFmtp->SetProfile((VIDEO_PROFILE_HEVC)objSplitEqual.GetAt(1).ToInt32());
-            pFmtp->bShow_Profile = IMS_TRUE;
+            pFmtp->SetShowProfile(IMS_TRUE);
         }
         else if (objSplitEqual.GetAt(0).Equals("level-id") == IMS_TRUE)
         {
             pFmtp->SetLevel((IMS_UINT32)objSplitEqual.GetAt(1).ToInt32());
-            pFmtp->bShow_Level = IMS_TRUE;
+            pFmtp->SetShowLevel(IMS_TRUE);
         }
         else if (objSplitEqual.GetAt(0).Equals("sprop-vps") == IMS_TRUE)
         {

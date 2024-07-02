@@ -166,33 +166,39 @@ public:
     class HevcFmtp : public VideoFmtp
     {
     public:
-        IMS_BOOL bShow_Profile;
-        IMS_BOOL bShow_Level;
-
-    public:
         explicit HevcFmtp(IN HevcFmtp* pFmtp = IMS_NULL) :
                 VideoFmtp(pFmtp),
-                bShow_Profile(IMS_FALSE),
-                bShow_Level(IMS_FALSE)
+                m_bShowProfile(IMS_FALSE),
+                m_bShowLevel(IMS_FALSE)
         {
             if (pFmtp == IMS_NULL)
             {
                 return;
             }
 
-            bShow_Profile = pFmtp->bShow_Profile;
-            bShow_Level = pFmtp->bShow_Level;
+            m_bShowProfile = pFmtp->m_bShowProfile;
+            m_bShowLevel = pFmtp->m_bShowLevel;
         };
 
-        HevcFmtp(IN const VIDEO_RESOLUTION resol, IN const IMS_UINT32 bitrate,
-                IN const IMS_UINT32 frameRate, IN const IMS_UINT32 as,
-                IN const VIDEO_PROFILE_HEVC profile, IN const IMS_UINT32 level,
-                IN const IMS_UINT32 packetization, IN const AString& sprop) :
-                VideoFmtp(resol, bitrate, frameRate, as, profile, level, packetization, sprop),
-                bShow_Profile(IMS_FALSE),
-                bShow_Level(IMS_FALSE){};
+        HevcFmtp(IN const VIDEO_RESOLUTION eResolution, IN const IMS_UINT32 nBitrate,
+                IN const IMS_UINT32 nFrameRate, IN const IMS_UINT32 nAs,
+                IN const VIDEO_PROFILE_HEVC nProfile, IN const IMS_UINT32 nLevel,
+                IN const IMS_UINT32 nPacketization, IN const AString strSprop) :
+                VideoFmtp(eResolution, nBitrate, nFrameRate, nAs, nProfile, nLevel, nPacketization,
+                        strSprop),
+                m_bShowProfile(IMS_FALSE),
+                m_bShowLevel(IMS_FALSE){};
 
         virtual ~HevcFmtp(){};
+
+        void SetShowProfile(IN const IMS_BOOL nShow) { m_bShowProfile = nShow; }
+        IMS_BOOL IsShowProfileEnabled() { return m_bShowProfile; }
+        void SetShowLevel(IN const IMS_BOOL nShow) { m_bShowLevel = nShow; }
+        IMS_BOOL IsShowLevelEnabled() { return m_bShowLevel; }
+
+    private:
+        IMS_BOOL m_bShowProfile;
+        IMS_BOOL m_bShowLevel;
     };
 
 public:

@@ -54,9 +54,9 @@ PUBLIC void VideoNegoHevc::AddProfileIdToFmtp(
     if (hevcFmtp != IMS_NULL)
     {
         IMS_TRACE_I("AddProfileIdToFmtp() profile-id=%d, show=%d", hevcFmtp->GetProfile(),
-                hevcFmtp->bShow_Profile, 0);
+                hevcFmtp->IsShowProfileEnabled(), 0);
 
-        if (hevcFmtp->bShow_Profile == IMS_TRUE)
+        if (hevcFmtp->IsShowProfileEnabled() == IMS_TRUE)
         {
             AppendSeparatorIfNotEmpty(fmtp, SEMICOLON);
 
@@ -72,9 +72,9 @@ PUBLIC void VideoNegoHevc::AddLevelIdToFmtp(IN VideoProfile::HevcFmtp* hevcFmtp,
     if (hevcFmtp != IMS_NULL)
     {
         IMS_TRACE_I("AddLevelIdToFmtp() level-id=%d, show=%d", hevcFmtp->GetLevel(),
-                hevcFmtp->bShow_Level, 0);
+                hevcFmtp->IsShowLevelEnabled(), 0);
 
-        if (hevcFmtp->bShow_Level == IMS_TRUE)
+        if (hevcFmtp->IsShowLevelEnabled() == IMS_TRUE)
         {
             AppendSeparatorIfNotEmpty(fmtp, SEMICOLON);
 
