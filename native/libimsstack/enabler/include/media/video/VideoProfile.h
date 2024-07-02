@@ -267,25 +267,19 @@ public:
     class Payload : public BasePayload
     {
     public:
-        IMS_BOOL bIncludeImageAttr;
-        IMS_BOOL bIncludeFrameSize;
-        AString strImageAttr;
-        RtcpFbAttributes objRtcpFbAttr;
-
-    public:
         Payload() :
                 BasePayload(),
-                bIncludeImageAttr(IMS_FALSE),
-                bIncludeFrameSize(IMS_FALSE),
-                strImageAttr(AString::ConstNull()),
-                objRtcpFbAttr(){};
+                m_bIncludeImageAttr(IMS_FALSE),
+                m_bIncludeFrameSize(IMS_FALSE),
+                m_strImageAttr(AString::ConstNull()),
+                m_objRtcpFbAttr(){};
 
         Payload(IN const Payload& obj) :
                 BasePayload(obj),
-                bIncludeImageAttr(obj.bIncludeImageAttr),
-                bIncludeFrameSize(obj.bIncludeFrameSize),
-                strImageAttr(obj.strImageAttr),
-                objRtcpFbAttr(obj.objRtcpFbAttr)
+                m_bIncludeImageAttr(obj.m_bIncludeImageAttr),
+                m_bIncludeFrameSize(obj.m_bIncludeFrameSize),
+                m_strImageAttr(obj.m_strImageAttr),
+                m_objRtcpFbAttr(obj.m_objRtcpFbAttr)
         {
             if (objRtpMap.GetPayloadType().EqualsIgnoreCase("H264"))
             {
@@ -316,14 +310,38 @@ public:
                             static_cast<VideoProfile::HevcFmtp*>(obj.pFmtp));
                 }
 
-                bIncludeImageAttr = obj.bIncludeImageAttr;
-                bIncludeFrameSize = obj.bIncludeFrameSize;
-                strImageAttr = obj.strImageAttr;
-                objRtcpFbAttr = obj.objRtcpFbAttr;
+                m_bIncludeImageAttr = obj.m_bIncludeImageAttr;
+                m_bIncludeFrameSize = obj.m_bIncludeFrameSize;
+                m_strImageAttr = obj.m_strImageAttr;
+                m_objRtcpFbAttr = obj.m_objRtcpFbAttr;
             }
 
             return (*this);
         }
+
+        void SetIncludeImageAttr(IN const IMS_BOOL bIncludeImageAttr)
+        {
+            m_bIncludeImageAttr = bIncludeImageAttr;
+        }
+        IMS_BOOL IsImageAttrIncluded() { return m_bIncludeImageAttr; }
+        void SetIncludeFrameSize(IN const IMS_BOOL bIncludeFrameSize)
+        {
+            m_bIncludeFrameSize = bIncludeFrameSize;
+        }
+        IMS_BOOL IsFrameSizeIncluded() { return m_bIncludeFrameSize; }
+        void SetImageAttr(IN const AString strImageAttr) { m_strImageAttr = strImageAttr; }
+        AString& GetImageAttr() { return m_strImageAttr; }
+        void SetRtcpFbAttr(IN const RtcpFbAttributes objRtcpFbAttr)
+        {
+            m_objRtcpFbAttr = objRtcpFbAttr;
+        }
+        RtcpFbAttributes& GetRtcpFbAttr() { return m_objRtcpFbAttr; }
+
+    private:
+        IMS_BOOL m_bIncludeImageAttr;
+        IMS_BOOL m_bIncludeFrameSize;
+        AString m_strImageAttr;
+        RtcpFbAttributes m_objRtcpFbAttr;
     };
 
 public:

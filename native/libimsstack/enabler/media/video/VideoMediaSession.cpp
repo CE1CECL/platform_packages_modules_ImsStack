@@ -252,23 +252,23 @@ PUBLIC IMS_BOOL VideoMediaSession::UpdateRtpConfig(IN VideoProfile* pLocalProfil
 
     IMS_UINT32 nRtcpFbAttr = VideoConfig::RTP_FB_NONE;
 
-    if (pNegoPayload->objRtcpFbAttr.IsNackSupported())
+    if (pNegoPayload->GetRtcpFbAttr().IsNackSupported())
     {
         nRtcpFbAttr |= VideoConfig::RTP_FB_NACK;
     }
 
-    if (pNegoPayload->objRtcpFbAttr.IsTmmbrSupported())
+    if (pNegoPayload->GetRtcpFbAttr().IsTmmbrSupported())
     {
         nRtcpFbAttr |= VideoConfig::RTP_FB_TMMBR;
         nRtcpFbAttr |= VideoConfig::RTP_FB_TMMBN;
     }
 
-    if (pNegoPayload->objRtcpFbAttr.IsPliSupported())
+    if (pNegoPayload->GetRtcpFbAttr().IsPliSupported())
     {
         nRtcpFbAttr |= VideoConfig::PSFB_PLI;
     }
 
-    if (pNegoPayload->objRtcpFbAttr.IsFirSupported())
+    if (pNegoPayload->GetRtcpFbAttr().IsFirSupported())
     {
         nRtcpFbAttr |= VideoConfig::PSFB_FIR;
     }

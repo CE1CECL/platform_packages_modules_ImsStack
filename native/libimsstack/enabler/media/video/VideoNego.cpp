@@ -521,23 +521,23 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
             VideoProfile::Payload* pPayload = pProfile->GetPayloadAt(i);
             if (pPayload != IMS_NULL)
             {
-                if (pPayload->objRtcpFbAttr.IsTrrSupported() == IMS_FALSE)
+                if (pPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_FALSE)
                 {
                     bTrrSupportedAll = IMS_FALSE;
                 }
-                if (pPayload->objRtcpFbAttr.IsNackSupported() == IMS_FALSE)
+                if (pPayload->GetRtcpFbAttr().IsNackSupported() == IMS_FALSE)
                 {
                     bNackSupportedAll = IMS_FALSE;
                 }
-                if (pPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_FALSE)
+                if (pPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_FALSE)
                 {
                     bTmmbrSupportedAll = IMS_FALSE;
                 }
-                if (pPayload->objRtcpFbAttr.IsPliSupported() == IMS_FALSE)
+                if (pPayload->GetRtcpFbAttr().IsPliSupported() == IMS_FALSE)
                 {
                     bPliSupportedAll = IMS_FALSE;
                 }
-                if (pPayload->objRtcpFbAttr.IsFirSupported() == IMS_FALSE)
+                if (pPayload->GetRtcpFbAttr().IsFirSupported() == IMS_FALSE)
                 {
                     bFirSupportedAll = IMS_FALSE;
                 }
@@ -662,7 +662,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
         }
 
         // make "image attribute"
-        if (pPayload->bIncludeImageAttr == IMS_TRUE)
+        if (pPayload->IsImageAttrIncluded() == IMS_TRUE)
         {
             if (MakeImageAttributeLine(
                         pPayload->GetRtpMap().GetPayloadNumber(), eResolution, strResolutionAttr))
@@ -672,7 +672,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
         }
 
         // make "framesize"
-        if (pPayload->bIncludeFrameSize == IMS_TRUE)
+        if (pPayload->IsFrameSizeIncluded() == IMS_TRUE)
         {
             if (MakeFrameSizeLine(
                         pPayload->GetRtpMap().GetPayloadNumber(), eResolution, strResolutionAttr))
@@ -695,7 +695,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
                 nPayloadNumForRtcpFb = SdpMediaFormatParameter::PT_WILDCARD;
             }
             else if (bTrrSupportedAll == IMS_FALSE &&
-                    pPayload->objRtcpFbAttr.IsTrrSupported() == IMS_TRUE)
+                    pPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE)
             {
                 nPayloadNumForRtcpFb = (IMS_SINT32)pPayload->GetRtpMap().GetPayloadNumber();
             }
@@ -707,7 +707,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
 
                 pTrr_IntAttr->SetType("trr-int");
 
-                strTemp.Sprintf("%d", pPayload->objRtcpFbAttr.GetTrrInt());
+                strTemp.Sprintf("%d", pPayload->GetRtcpFbAttr().GetTrrInt());
                 pTrr_IntAttr->SetParameter(strTemp);
 
                 pFormat->AddExtraParameter(pTrr_IntAttr);
@@ -720,7 +720,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
                 nPayloadNumForRtcpFb = SdpMediaFormatParameter::PT_WILDCARD;
             }
             else if (bNackSupportedAll == IMS_FALSE &&
-                    pPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE)
+                    pPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE)
             {
                 nPayloadNumForRtcpFb = (IMS_SINT32)pPayload->GetRtpMap().GetPayloadNumber();
             }
@@ -739,7 +739,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
                 nPayloadNumForRtcpFb = SdpMediaFormatParameter::PT_WILDCARD;
             }
             else if (bPliSupportedAll == IMS_FALSE &&
-                    pPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE)
+                    pPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE)
             {
                 nPayloadNumForRtcpFb = (IMS_SINT32)pPayload->GetRtpMap().GetPayloadNumber();
             }
@@ -759,7 +759,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
                 nPayloadNumForRtcpFb = SdpMediaFormatParameter::PT_WILDCARD;
             }
             else if (bFirSupportedAll == IMS_FALSE &&
-                    pPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE)
+                    pPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE)
             {
                 nPayloadNumForRtcpFb = (IMS_SINT32)pPayload->GetRtpMap().GetPayloadNumber();
             }
@@ -779,7 +779,7 @@ IMS_BOOL VideoNego::MakeSdpFromProfile(OUT ISessionDescriptor* pSessionDescripto
                 nPayloadNumForRtcpFb = SdpMediaFormatParameter::PT_WILDCARD;
             }
             else if (bTmmbrSupportedAll == IMS_FALSE &&
-                    pPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE)
+                    pPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE)
             {
                 nPayloadNumForRtcpFb = (IMS_SINT32)pPayload->GetRtpMap().GetPayloadNumber();
             }
@@ -977,7 +977,7 @@ IMS_BOOL VideoNego::MakeProfileFromSdp(IN ISessionDescriptor* pSessionDescriptor
             if (GetCorrectImageIndex(pSdpCodec->GetPayloadType(), objImageAttributes, &nIndex))
             {
                 strImageAttrFromSdp = objImageAttributes.GetAt(nIndex);
-                pPayload->bIncludeImageAttr = IMS_TRUE;
+                pPayload->SetIncludeImageAttr(IMS_TRUE);
             }
         }
 
@@ -990,7 +990,7 @@ IMS_BOOL VideoNego::MakeProfileFromSdp(IN ISessionDescriptor* pSessionDescriptor
             if (GetCorrectImageIndex(pSdpCodec->GetPayloadType(), objFrameSizes, &nIndex))
             {
                 strFrameSizeFromSdp = objFrameSizes.GetAt(nIndex);
-                pPayload->bIncludeFrameSize = IMS_TRUE;
+                pPayload->SetIncludeFrameSize(IMS_TRUE);
             }
         }
 
@@ -1009,9 +1009,9 @@ IMS_BOOL VideoNego::MakeProfileFromSdp(IN ISessionDescriptor* pSessionDescriptor
             if ((pProfile->bSupportAvpf == IMS_TRUE) || (pProfile->bSupportCapaNegoForAvpf))
             {
                 if (GetAvpfFromAttributes(pSdpCodec, &pProfile->GetCapaNego(),
-                            &pPayload->objRtcpFbAttr) == IMS_FALSE)
+                            &pPayload->GetRtcpFbAttr()) == IMS_FALSE)
                 {
-                    GetAvpfFromAttributes_EX(&pProfile->GetCapaNego(), &pPayload->objRtcpFbAttr);
+                    GetAvpfFromAttributes_EX(&pProfile->GetCapaNego(), &pPayload->GetRtcpFbAttr());
                 }
             }
         }
@@ -1030,9 +1030,9 @@ IMS_BOOL VideoNego::MakeProfileFromSdp(IN ISessionDescriptor* pSessionDescriptor
             if (pProfile->bSupportAvpf == IMS_TRUE)
             {
                 if (GetAvpfFromAttributes(pSdpCodec, &pProfile->GetCapaNego(),
-                            &pPayload->objRtcpFbAttr) == IMS_FALSE)
+                            &pPayload->GetRtcpFbAttr()) == IMS_FALSE)
                 {
-                    GetAvpfFromAttributes_EX(&pProfile->GetCapaNego(), &pPayload->objRtcpFbAttr);
+                    GetAvpfFromAttributes_EX(&pProfile->GetCapaNego(), &pPayload->GetRtcpFbAttr());
                 }
             }
         }
@@ -1111,8 +1111,8 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedPayload(IN VideoProfile::Payload* pLoc
 
     *pNegoPayload = *pLocalPayload;
     pNegoPayload->GetRtpMap().SetPayloadNumber(pPeerPayload->GetRtpMap().GetPayloadNumber());
-    pNegoPayload->bIncludeFrameSize = pLocalPayload->bIncludeFrameSize;
-    pNegoPayload->bIncludeImageAttr = pLocalPayload->bIncludeImageAttr;
+    pNegoPayload->SetIncludeFrameSize(pLocalPayload->IsFrameSizeIncluded());
+    pNegoPayload->SetIncludeImageAttr(pLocalPayload->IsImageAttrIncluded());
 
     return IMS_TRUE;
 }
@@ -1399,48 +1399,48 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                     // Make a RTCP-FB negotiation result
                     if (pNegotiatedProfile->bSupportAvpf == IMS_TRUE)
                     {
-                        if (pLocalPayload->objRtcpFbAttr.IsTrrSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsTrrSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetTrrInt(
-                                    pPeerPayload->objRtcpFbAttr.GetTrrInt());
-                            pNegoPayload->objRtcpFbAttr.SetTrrSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetTrrInt(
+                                    pPeerPayload->GetRtcpFbAttr().GetTrrInt());
+                            pNegoPayload->GetRtcpFbAttr().SetTrrSupported(IMS_TRUE);
                         }
 
-                        if (pLocalPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetNackSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
                         }
 
-                        if (pLocalPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetTmmbrSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
                         }
 
-                        if (pLocalPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetPliSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
                         }
 
-                        if (pLocalPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetFirSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
                         }
 
                         IMS_TRACE_D("MakeNegotiatedProfile() - AVPF supported. \
                                 bNACK[%d], bTMMBR[%d], bPLI[%d]",
-                                pNegoPayload->objRtcpFbAttr.IsNackSupported(),
-                                pNegoPayload->objRtcpFbAttr.IsTmmbrSupported(),
-                                pNegoPayload->objRtcpFbAttr.IsPliSupported());
+                                pNegoPayload->GetRtcpFbAttr().IsNackSupported(),
+                                pNegoPayload->GetRtcpFbAttr().IsTmmbrSupported(),
+                                pNegoPayload->GetRtcpFbAttr().IsPliSupported());
                         IMS_TRACE_D("MakeNegotiatedProfile() - AVPF supported. \
                                 bFIR[%d], bTRR_Int[%d], nTrr-int[%d]",
-                                pNegoPayload->objRtcpFbAttr.IsFirSupported(),
-                                pNegoPayload->objRtcpFbAttr.IsTrrSupported(),
-                                pNegoPayload->objRtcpFbAttr.GetTrrInt());
+                                pNegoPayload->GetRtcpFbAttr().IsFirSupported(),
+                                pNegoPayload->GetRtcpFbAttr().IsTrrSupported(),
+                                pNegoPayload->GetRtcpFbAttr().GetTrrInt());
                     }
 
                     VideoProfile::AvcFmtp* fmtp = (VideoProfile::AvcFmtp*)pNegoPayload->GetFmtp();
@@ -1600,34 +1600,34 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                     // Make a RTCP-FB negotiation result
                     if (pNegotiatedProfile->bSupportAvpf == IMS_TRUE)
                     {
-                        if (pLocalPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetNackSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
                         }
-                        if (pLocalPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetTmmbrSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
                         }
-                        if (pLocalPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetPliSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
                         }
-                        if (pLocalPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE &&
-                                pPeerPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE)
+                        if (pLocalPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE &&
+                                pPeerPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE)
                         {
-                            pNegoPayload->objRtcpFbAttr.SetFirSupported(IMS_TRUE);
+                            pNegoPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
                         }
 
                         IMS_TRACE_D("MakeNegotiatedProfile() - AVPF supported. \
                                 NACK[%d], TMMBR[%d], PLI[%d]",
-                                pNegoPayload->objRtcpFbAttr.IsNackSupported(),
-                                pNegoPayload->objRtcpFbAttr.IsTmmbrSupported(),
-                                pNegoPayload->objRtcpFbAttr.IsPliSupported());
+                                pNegoPayload->GetRtcpFbAttr().IsNackSupported(),
+                                pNegoPayload->GetRtcpFbAttr().IsTmmbrSupported(),
+                                pNegoPayload->GetRtcpFbAttr().IsPliSupported());
                         IMS_TRACE_D("MakeNegotiatedProfile() - AVPF supported. FIR[%d]",
-                                pNegoPayload->objRtcpFbAttr.IsFirSupported(), 0, 0);
+                                pNegoPayload->GetRtcpFbAttr().IsFirSupported(), 0, 0);
                     }
 
                     VideoProfile::HevcFmtp* fmtp = (VideoProfile::HevcFmtp*)pNegoPayload->GetFmtp();
@@ -1735,42 +1735,42 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
 
                 if (pNegotiatedProfile->bSupportAvpf == IMS_TRUE)
                 {
-                    if (pLocalPayload->objRtcpFbAttr.IsTrrSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsTrrSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetTrrInt(
-                                pPeerPayload->objRtcpFbAttr.GetTrrInt());
-                        pNegoPayload->objRtcpFbAttr.SetTrrSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetTrrInt(
+                                pPeerPayload->GetRtcpFbAttr().GetTrrInt());
+                        pNegoPayload->GetRtcpFbAttr().SetTrrSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetNackSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetTmmbrSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetPliSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetFirSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
                     }
 
                     IMS_TRACE_D("MakeNegotiatedProfile() - AVPF NACK[%d], TMMBR[%d], PLI[%d]",
-                            pNegoPayload->objRtcpFbAttr.IsNackSupported(),
-                            pNegoPayload->objRtcpFbAttr.IsTmmbrSupported(),
-                            pNegoPayload->objRtcpFbAttr.IsPliSupported());
+                            pNegoPayload->GetRtcpFbAttr().IsNackSupported(),
+                            pNegoPayload->GetRtcpFbAttr().IsTmmbrSupported(),
+                            pNegoPayload->GetRtcpFbAttr().IsPliSupported());
                     IMS_TRACE_D("MakeNegotiatedProfile() - AVPF FIR[%d], TRR[%d], Trr-int[%d]",
-                            pNegoPayload->objRtcpFbAttr.IsFirSupported(),
-                            pNegoPayload->objRtcpFbAttr.IsTrrSupported(),
-                            pNegoPayload->objRtcpFbAttr.GetTrrInt());
+                            pNegoPayload->GetRtcpFbAttr().IsFirSupported(),
+                            pNegoPayload->GetRtcpFbAttr().IsTrrSupported(),
+                            pNegoPayload->GetRtcpFbAttr().GetTrrInt());
                 }
 
                 if (pPeerProfile->GetNegotiatedPayloadIndex() == -1)
@@ -1810,34 +1810,34 @@ PRIVATE IMS_BOOL VideoNego::MakeNegotiatedProfile(IN VideoProfile* pLocalProfile
                 // Make a RTCP-FB negotiation result
                 if (pNegotiatedProfile->bSupportAvpf == IMS_TRUE)
                 {
-                    if (pLocalPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsNackSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetNackSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsTmmbrSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetTmmbrSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsPliSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetPliSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
                     }
-                    if (pLocalPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE &&
-                            pPeerPayload->objRtcpFbAttr.IsFirSupported() == IMS_TRUE)
+                    if (pLocalPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE &&
+                            pPeerPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE)
                     {
-                        pNegoPayload->objRtcpFbAttr.SetFirSupported(IMS_TRUE);
+                        pNegoPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
                     }
 
                     IMS_TRACE_D("MakeNegotiatedProfile() - AVPF supported. \
                             NACK[%d], TMMBR[%d], PLI[%d]",
-                            pNegoPayload->objRtcpFbAttr.IsNackSupported(),
-                            pNegoPayload->objRtcpFbAttr.IsTmmbrSupported(),
-                            pNegoPayload->objRtcpFbAttr.IsPliSupported());
+                            pNegoPayload->GetRtcpFbAttr().IsNackSupported(),
+                            pNegoPayload->GetRtcpFbAttr().IsTmmbrSupported(),
+                            pNegoPayload->GetRtcpFbAttr().IsPliSupported());
                     IMS_TRACE_D("MakeNegotiatedProfile() - AVPF supported. FIR[%d]",
-                            pNegoPayload->objRtcpFbAttr.IsFirSupported(), 0, 0);
+                            pNegoPayload->GetRtcpFbAttr().IsFirSupported(), 0, 0);
                 }
 
                 VideoProfile::HevcFmtp* fmtp =

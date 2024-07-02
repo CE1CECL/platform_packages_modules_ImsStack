@@ -928,49 +928,50 @@ PRIVATE void MediaProfileFactory::SetVideoCodecPayload(IN CodecVideoConfig* pCod
 
     if (pCodecConfig->GetImageAttr().GetLength() != 0)
     {
-        pPayload->bIncludeImageAttr = IMS_TRUE;
-        pPayload->strImageAttr = pCodecConfig->GetImageAttr();
+        pPayload->SetIncludeImageAttr(IMS_TRUE);
+        pPayload->SetImageAttr(pCodecConfig->GetImageAttr());
     }
     else if (pCodecConfig->GetFrameSize().GetLength() != 0)
     {
-        pPayload->bIncludeFrameSize = IMS_TRUE;
+        pPayload->SetIncludeFrameSize(IMS_TRUE);
     }
 
     if (pVideoConfig->IsVideoAvpfEnabled() == IMS_TRUE)
     {
         if (pVideoConfig->IsVideoAvpfTrrEnabled() == IMS_TRUE)
         {
-            pPayload->objRtcpFbAttr.SetTrrSupported(IMS_TRUE);
-            pPayload->objRtcpFbAttr.SetTrrInt(pVideoConfig->GetRtcpInterval() * 1000);
+            pPayload->GetRtcpFbAttr().SetTrrSupported(IMS_TRUE);
+            pPayload->GetRtcpFbAttr().SetTrrInt(pVideoConfig->GetRtcpInterval() * 1000);
         }
 
         if (pVideoConfig->IsVideoAvpfNackEnabled() == IMS_TRUE)
         {
-            pPayload->objRtcpFbAttr.SetNackSupported(IMS_TRUE);
+            pPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
         }
 
         if (pVideoConfig->IsVideoAvpfTmmbrEnabled() == IMS_TRUE)
         {
-            pPayload->objRtcpFbAttr.SetTmmbrSupported(IMS_TRUE);
-            pPayload->objRtcpFbAttr.SetTmmbrSmaxPr(40);
+            pPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
+            pPayload->GetRtcpFbAttr().SetTmmbrSmaxPr(40);
         }
 
         if (pVideoConfig->IsVideoAvpfPliEnabled() == IMS_TRUE)
         {
-            pPayload->objRtcpFbAttr.SetPliSupported(IMS_TRUE);
+            pPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
         }
 
         if (pVideoConfig->IsVideoAvpfFirEnabled() == IMS_TRUE)
         {
-            pPayload->objRtcpFbAttr.SetFirSupported(IMS_TRUE);
+            pPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
         }
 
         IMS_TRACE_I("SetVideoCodecPayload() AVPF. TRR[%d], NACK[%d], TMMBR[%d]",
-                pPayload->objRtcpFbAttr.IsTrrSupported(), pPayload->objRtcpFbAttr.IsNackSupported(),
-                pPayload->objRtcpFbAttr.IsTmmbrSupported());
+                pPayload->GetRtcpFbAttr().IsTrrSupported(),
+                pPayload->GetRtcpFbAttr().IsNackSupported(),
+                pPayload->GetRtcpFbAttr().IsTmmbrSupported());
         IMS_TRACE_I("SetVideoCodecPayload() AVPF. PLI[%d], FIR[%d]",
-                pPayload->objRtcpFbAttr.IsPliSupported(), pPayload->objRtcpFbAttr.IsFirSupported(),
-                0);
+                pPayload->GetRtcpFbAttr().IsPliSupported(),
+                pPayload->GetRtcpFbAttr().IsFirSupported(), 0);
     }
 }
 
