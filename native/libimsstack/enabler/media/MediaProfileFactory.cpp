@@ -809,19 +809,19 @@ PRIVATE VideoProfile::Payload* MediaProfileFactory::CreateAvcPayload(
 
     SetVideoCodecFmtp(pAvcConfig, pVideoConfig, pAvcFmtp);
 
-    pAvcFmtp->nProfile =
-            VideoProfileUtil::GetAvcProfileFromProfileLevelId(pAvcConfig->GetProfileLevelId());
-    pAvcFmtp->nLevel =
-            VideoProfileUtil::GetAvcLevelFromProfileLevelId(pAvcConfig->GetProfileLevelId());
-    IMS_TRACE_I(
-            "CreateAvcPayload - nProfile[%d], nLevel[%d]", pAvcFmtp->nProfile, pAvcFmtp->nLevel, 0);
+    pAvcFmtp->SetProfile(
+            VideoProfileUtil::GetAvcProfileFromProfileLevelId(pAvcConfig->GetProfileLevelId()));
+    pAvcFmtp->SetLevel(
+            VideoProfileUtil::GetAvcLevelFromProfileLevelId(pAvcConfig->GetProfileLevelId()));
+    IMS_TRACE_I("CreateAvcPayload - Profile[%d], Level[%d]", pAvcFmtp->GetProfile(),
+            pAvcFmtp->GetLevel(), 0);
 
     const IMS_CHAR* pbAvc4SpropParameterSets;
     pbAvc4SpropParameterSets = pAvcConfig->GetSpropParameterSets().GetStr();
 
     /** TODO: later sprop need to find a way to get SpropPramaterSets
     pbAvc4SpropParameterSets = GetAvcSpropParameterSets(
-            pAvcFmtp->eResolution, pAvcFmtp->nProfile, pAvcFmtp->nLevel);
+            pAvcFmtp->GetResolution(), pAvcFmtp->GetProfile(), pAvcFmtp->GetLevel());
     */
 
     IMS_TRACE_I("CreateAvcPayload - pbAvc4SpropParameterSets[%s]", pbAvc4SpropParameterSets, 0, 0);
@@ -834,8 +834,8 @@ PRIVATE VideoProfile::Payload* MediaProfileFactory::CreateAvcPayload(
 
     if (pAvcConfig->GetIncludeSpropParameterSets())
     {
-        pAvcFmtp->strSpropParam = pbAvc4SpropParameterSets;
-        pAvcFmtp->bShow_SpropParam = IMS_TRUE;
+        pAvcFmtp->SetSpropParam(pbAvc4SpropParameterSets);
+        pAvcFmtp->SetShowSpropParam(IMS_TRUE);
     }
 
     VideoProfile::Payload* pAvcPayload = new VideoProfile::Payload();
@@ -864,20 +864,20 @@ PRIVATE VideoProfile::Payload* MediaProfileFactory::CreateHevcPayload(
 
     if (pHevcConfig->GetHevcProfile() != -1)
     {
-        pHevcFmtp->nProfile = static_cast<VIDEO_PROFILE_HEVC>(pHevcConfig->GetHevcProfile());
+        pHevcFmtp->SetProfile(static_cast<VIDEO_PROFILE_HEVC>(pHevcConfig->GetHevcProfile()));
         pHevcFmtp->bShow_Profile = IMS_TRUE;
     }
 
     if (pHevcConfig->GetHevcLevel() != -1)
     {
-        pHevcFmtp->nLevel = pHevcConfig->GetHevcLevel();
+        pHevcFmtp->SetLevel(pHevcConfig->GetHevcLevel());
         pHevcFmtp->bShow_Level = IMS_TRUE;
     }
 
     if (pHevcConfig->GetSpropParameterSets().GetLength() != 0)
     {
-        pHevcFmtp->strSpropParam = pHevcConfig->GetSpropParameterSets();
-        pHevcFmtp->bShow_SpropParam = IMS_TRUE;
+        pHevcFmtp->SetSpropParam(pHevcConfig->GetSpropParameterSets());
+        pHevcFmtp->SetShowSpropParam(IMS_TRUE);
     }
 
     VideoProfile::Payload* pHevcPayload = new VideoProfile::Payload();
@@ -896,22 +896,22 @@ PRIVATE void MediaProfileFactory::SetVideoCodecFmtp(IN CodecVideoConfig* pCodecC
         return;
     }
 
-    pFmtp->nFrameRate = pCodecConfig->GetFramerate();
-    pFmtp->eResolution = VideoProfileUtil::GetResolutionFromWidthHeight(
-            pCodecConfig->GetResolutionWidth(), pCodecConfig->GetResolutionHeight());
-    pFmtp->nBitrate = pCodecConfig->GetBitrate();
-    pFmtp->nAs = pVideoConfig->GetAsBandwidthKbps();
+    pFmtp->SetFramerate(pCodecConfig->GetFramerate());
+    pFmtp->SetResolution(VideoProfileUtil::GetResolutionFromWidthHeight(
+            pCodecConfig->GetResolutionWidth(), pCodecConfig->GetResolutionHeight()));
+    pFmtp->SetBitrate(pCodecConfig->GetBitrate());
+    pFmtp->SetAs(pVideoConfig->GetAsBandwidthKbps());
 
     if (pCodecConfig->GetPacketizationMode() != -1)
     {
-        pFmtp->nPacketizationMode = pCodecConfig->GetPacketizationMode();
-        pFmtp->bShow_PacketizationMode = IMS_TRUE;
+        pFmtp->SetPacketizationMode(pCodecConfig->GetPacketizationMode());
+        pFmtp->SetShowPacketizationMode(IMS_TRUE);
     }
 
-    IMS_TRACE_D("SetVideoCodecFmtp - FrameRate[%d], Resolution[%d], Bitrate[%d]", pFmtp->nFrameRate,
-            pFmtp->eResolution, pFmtp->nBitrate);
-    IMS_TRACE_D("SetVideoCodecFmtp - AS[%d], PacketizationMode[%d]", pFmtp->nAs,
-            pFmtp->nPacketizationMode, 0);
+    IMS_TRACE_D("SetVideoCodecFmtp - FrameRate[%d], Resolution[%d], Bitrate[%d]",
+            pFmtp->GetFramerate(), pFmtp->GetResolution(), pFmtp->GetBitrate());
+    IMS_TRACE_D("SetVideoCodecFmtp - AS[%d], PacketizationMode[%d]", pFmtp->GetAs(),
+            pFmtp->GetPacketizationMode(), 0);
 }
 
 PRIVATE void MediaProfileFactory::SetVideoCodecPayload(IN CodecVideoConfig* pCodecConfig,
@@ -1165,7 +1165,7 @@ PRIVATE void MediaProfileFactory::SetMaxProfileFrameRate(OUT VideoProfile* pVide
         }
 
         IMS_SINT32 nFrameRate =
-                static_cast<VideoProfile::VideoFmtp*>(pPayload->GetFmtp())->nFrameRate;
+                static_cast<VideoProfile::VideoFmtp*>(pPayload->GetFmtp())->GetFramerate();
 
         if (nFrameRate > nMaxFrameRate)
         {

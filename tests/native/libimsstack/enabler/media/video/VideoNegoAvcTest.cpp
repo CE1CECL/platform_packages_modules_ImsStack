@@ -41,12 +41,12 @@ protected:
         m_pAvcFmtpEmpty = new VideoProfile::AvcFmtp();
 
         m_pAvcFmtpFull->strProfileLevelId = PROFILE_LEVEL_ID;
-        m_pAvcFmtpFull->nPacketizationMode = PACKETIZATION_MODE;
-        m_pAvcFmtpFull->strSpropParam = SPROP_PRAMSET;
+        m_pAvcFmtpFull->SetPacketizationMode(PACKETIZATION_MODE);
+        m_pAvcFmtpFull->SetSpropParam(SPROP_PRAMSET);
 
         m_pAvcFmtpFull->bShow_ProfileLevelId = IMS_TRUE;
-        m_pAvcFmtpFull->bShow_PacketizationMode = IMS_TRUE;
-        m_pAvcFmtpFull->bShow_SpropParam = IMS_TRUE;
+        m_pAvcFmtpFull->SetShowPacketizationMode(IMS_TRUE);
+        m_pAvcFmtpFull->SetShowSpropParam(IMS_TRUE);
     }
 
     virtual void TearDown() override

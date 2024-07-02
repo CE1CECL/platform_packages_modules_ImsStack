@@ -34,63 +34,84 @@ public:
     class VideoFmtp : public BaseFmtp
     {
     public:
-        VIDEO_RESOLUTION eResolution;
-        IMS_SINT32 nBitrate;
-        IMS_SINT32 nFrameRate;
-        IMS_SINT32 nAs;
-        IMS_UINT32 nProfile;
-        IMS_UINT32 nLevel;
-        IMS_SINT32 nPacketizationMode;
-        AString strSpropParam;
-        IMS_BOOL bShow_PacketizationMode;
-        IMS_BOOL bShow_SpropParam;
-
-    public:
         explicit VideoFmtp(IN VideoFmtp* pFmtp = IMS_NULL) :
-                eResolution(VIDEO_RESOLUTION_INVALID),
-                nBitrate(0),
-                nFrameRate(0),
-                nAs(0),
-                nProfile(AVC_PROFILE_NONE),
-                nLevel(0),
-                nPacketizationMode(1),
-                strSpropParam(AString::ConstNull()),
-                bShow_PacketizationMode(IMS_FALSE),
-                bShow_SpropParam(IMS_FALSE)
+                m_eResolution(VIDEO_RESOLUTION_INVALID),
+                m_nBitrate(0),
+                m_nFrameRate(0),
+                m_nAs(0),
+                m_nProfile(AVC_PROFILE_NONE),
+                m_nLevel(0),
+                m_nPacketizationMode(1),
+                m_strSpropParam(AString::ConstNull()),
+                m_bShowPacketizationMode(IMS_FALSE),
+                m_bShowSpropParam(IMS_FALSE)
         {
             if (pFmtp == IMS_NULL)
             {
                 return;
             }
 
-            eResolution = pFmtp->eResolution;
-            nBitrate = pFmtp->nBitrate;
-            nFrameRate = pFmtp->nFrameRate;
-            nAs = pFmtp->nAs;
-            nProfile = pFmtp->nProfile;
-            nLevel = pFmtp->nLevel;
-            nPacketizationMode = pFmtp->nPacketizationMode;
-            strSpropParam = pFmtp->strSpropParam;
-            bShow_PacketizationMode = pFmtp->bShow_PacketizationMode;
-            bShow_SpropParam = pFmtp->bShow_SpropParam;
+            m_eResolution = pFmtp->m_eResolution;
+            m_nBitrate = pFmtp->m_nBitrate;
+            m_nFrameRate = pFmtp->m_nFrameRate;
+            m_nAs = pFmtp->m_nAs;
+            m_nProfile = pFmtp->m_nProfile;
+            m_nLevel = pFmtp->m_nLevel;
+            m_nPacketizationMode = pFmtp->m_nPacketizationMode;
+            m_strSpropParam = pFmtp->m_strSpropParam;
+            m_bShowPacketizationMode = pFmtp->m_bShowPacketizationMode;
+            m_bShowSpropParam = pFmtp->m_bShowSpropParam;
         };
 
-        VideoFmtp(IN const VIDEO_RESOLUTION resol, IN const IMS_SINT32 bitrate,
-                IN const IMS_SINT32 frameRate, IN const IMS_SINT32 as, IN const IMS_UINT32 profile,
-                IN const IMS_UINT32 level, IN const IMS_UINT32 packetization,
-                IN const AString sprop) :
-                eResolution(resol),
-                nBitrate(bitrate),
-                nFrameRate(frameRate),
-                nAs(as),
-                nProfile(profile),
-                nLevel(level),
-                nPacketizationMode(packetization),
-                strSpropParam(sprop),
-                bShow_PacketizationMode(IMS_FALSE),
-                bShow_SpropParam(IMS_FALSE){};
+        VideoFmtp(IN const VIDEO_RESOLUTION eResolution, IN const IMS_SINT32 nBitrate,
+                IN const IMS_SINT32 nFrameRate, IN const IMS_SINT32 nAs,
+                IN const IMS_UINT32 nProfile, IN const IMS_UINT32 nLevel,
+                IN const IMS_UINT32 nPacketization, IN const AString strSprop) :
+                m_eResolution(eResolution),
+                m_nBitrate(nBitrate),
+                m_nFrameRate(nFrameRate),
+                m_nAs(nAs),
+                m_nProfile(nProfile),
+                m_nLevel(nLevel),
+                m_nPacketizationMode(nPacketization),
+                m_strSpropParam(strSprop),
+                m_bShowPacketizationMode(IMS_FALSE),
+                m_bShowSpropParam(IMS_FALSE){};
 
         virtual ~VideoFmtp(){};
+
+        void SetResolution(IN const VIDEO_RESOLUTION eResolution) { m_eResolution = eResolution; }
+        VIDEO_RESOLUTION GetResolution() { return m_eResolution; }
+        void SetBitrate(IN const IMS_SINT32 nBitrate) { m_nBitrate = nBitrate; }
+        IMS_SINT32 GetBitrate() { return m_nBitrate; }
+        void SetFramerate(IN const IMS_SINT32 nFrameRate) { m_nFrameRate = nFrameRate; }
+        IMS_SINT32 GetFramerate() { return m_nFrameRate; }
+        void SetAs(IN const IMS_SINT32 nAs) { m_nAs = nAs; }
+        IMS_SINT32 GetAs() { return m_nAs; }
+        void SetProfile(IN const IMS_SINT32 nProfile) { m_nProfile = nProfile; }
+        IMS_SINT32 GetProfile() { return m_nProfile; }
+        void SetLevel(IN const IMS_SINT32 nLevel) { m_nLevel = nLevel; }
+        IMS_SINT32 GetLevel() { return m_nLevel; }
+        void SetPacketizationMode(IN const IMS_SINT32 nMode) { m_nPacketizationMode = nMode; }
+        IMS_SINT32 GetPacketizationMode() { return m_nPacketizationMode; }
+        void SetSpropParam(IN const AString strSprop) { m_strSpropParam = strSprop; }
+        AString& GetSpropParam() { return m_strSpropParam; }
+        void SetShowPacketizationMode(IN const IMS_BOOL nShow) { m_bShowPacketizationMode = nShow; }
+        IMS_BOOL IsShowPacketizationModeEnabled() { return m_bShowPacketizationMode; }
+        void SetShowSpropParam(IN const IMS_BOOL nShow) { m_bShowSpropParam = nShow; }
+        IMS_BOOL IsShowSpropParamEnabled() { return m_bShowSpropParam; }
+
+    private:
+        VIDEO_RESOLUTION m_eResolution;
+        IMS_SINT32 m_nBitrate;
+        IMS_SINT32 m_nFrameRate;
+        IMS_SINT32 m_nAs;
+        IMS_UINT32 m_nProfile;
+        IMS_UINT32 m_nLevel;
+        IMS_SINT32 m_nPacketizationMode;
+        AString m_strSpropParam;
+        IMS_BOOL m_bShowPacketizationMode;
+        IMS_BOOL m_bShowSpropParam;
     };
 
     /**
