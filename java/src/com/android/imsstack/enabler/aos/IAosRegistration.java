@@ -20,6 +20,8 @@ import android.annotation.Nullable;
 
 import androidx.annotation.NonNull;
 
+import com.android.imsstack.enabler.aos.IAosRegistrationListener.RegistrationState;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -105,11 +107,11 @@ public interface IAosRegistration {
     int getRegisteredNetworkType();
 
     /**
-     * This method provides the IMS registration state
+     * Retrieves the current IMS registration state.
      *
-     * @return int returns RegistrationState {@link IAosRegistrationListener.RegistrationState}
+     * @return The registration state as a {@link RegistrationState} enum value.
      */
-    int getRegistrationState();
+    RegistrationState getRegistrationState();
 
     /**
      * Represents the types of requests that can be made.

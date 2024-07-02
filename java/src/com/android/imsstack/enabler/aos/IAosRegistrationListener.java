@@ -18,6 +18,7 @@ package com.android.imsstack.enabler.aos;
 import android.annotation.NonNull;
 import android.net.Uri;
 
+import java.util.Locale;
 import java.util.Set;
 
 public interface IAosRegistrationListener {
@@ -106,12 +107,40 @@ public interface IAosRegistrationListener {
     void notifyRegEventStateChanged(int statusCode, @NonNull Set<Uri> impus);
 
     /**
-     * Registration State
+     * Represents the registration state. This enum defines the possible states of registration,
+     * including deregistered, registering, and registered.
+     * Each state is associated with an integer value for easier identification and comparison.
      */
-    class RegistrationState {
-        public static final int DEREGISTERED = 0;
-        public static final int REGISTERING = 1;
-        public static final int REGISTERED = 2;
+    enum RegistrationState {
+
+        DEREGISTERED(0),
+        REGISTERING(1),
+        REGISTERED(2);
+
+        private final int mValue;
+
+        RegistrationState(int value) {
+            mValue = value;
+        }
+
+        /**
+         * Returns the integer value associated with this registration state.
+         *
+         * @return The integer value representing the state.
+         */
+        public int getValue() {
+            return mValue;
+        }
+
+        /**
+         * Returns the string representation of this registration state in lowercase.
+         *
+         * @return The lowercase string representation of the state.
+         */
+        @Override
+        public String toString() {
+            return name().toLowerCase(Locale.US);
+        }
     }
 
     /**
