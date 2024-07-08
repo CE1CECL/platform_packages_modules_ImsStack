@@ -33,21 +33,17 @@ public:
     class RedFmtp : public BaseFmtp
     {
     public:
-        IMS_SINT32 nRedLevel;
-        IMS_SINT32 nRedPayload;
-
-    public:
         RedFmtp() :
-                nRedLevel(-1),
-                nRedPayload(-1){};
+                m_nRedLevel(-1),
+                m_nRedPayload(-1){};
 
         RedFmtp(IN IMS_SINT32 nRed, IN IMS_SINT32 nRedPT) :
-                nRedLevel(nRed),
-                nRedPayload(nRedPT){};
+                m_nRedLevel(nRed),
+                m_nRedPayload(nRedPT){};
 
         RedFmtp(IN const RedFmtp& obj) :
-                nRedLevel(obj.nRedLevel),
-                nRedPayload(obj.nRedPayload){};
+                m_nRedLevel(obj.m_nRedLevel),
+                m_nRedPayload(obj.m_nRedPayload){};
 
         virtual ~RedFmtp(){};
 
@@ -55,11 +51,20 @@ public:
         {
             if (this != &obj)
             {
-                nRedLevel = obj.nRedLevel;
-                nRedPayload = obj.nRedPayload;
+                m_nRedLevel = obj.m_nRedLevel;
+                m_nRedPayload = obj.m_nRedPayload;
             }
             return (*this);
         }
+
+        void SetRedLevel(IN const IMS_SINT32 nRedLevel) { m_nRedLevel = nRedLevel; }
+        IMS_SINT32 GetRedLevel() { return m_nRedLevel; }
+        void SetRedPayload(IN const IMS_SINT32 nRedPayload) { m_nRedPayload = nRedPayload; }
+        IMS_SINT32 GetRedPayload() { return m_nRedPayload; }
+
+    private:
+        IMS_SINT32 m_nRedLevel;
+        IMS_SINT32 m_nRedPayload;
     };
 
 public:
@@ -100,15 +105,10 @@ public:
     };
 
 public:
-    IMS_BOOL bIsHold;
-    IMS_BOOL bKeepRedLevel;
-
-public:
     TextProfile() :
             MediaBaseProfile(
                     IpAddress::IPv6NONE, 0, 0, "RTP/AVP", 0, 0, 0, 0, MEDIA_DIRECTION_INVALID),
-            bIsHold(IMS_FALSE),
-            bKeepRedLevel(IMS_TRUE){};
+            m_bKeepRedLevel(IMS_TRUE){};
 
     virtual ~TextProfile() {}
 
@@ -120,15 +120,13 @@ public:
             return;
         }
 
-        bIsHold = profile->bIsHold;
-        bKeepRedLevel = profile->bKeepRedLevel;
+        m_bKeepRedLevel = profile->m_bKeepRedLevel;
     }
 
     TextProfile(IN const TextProfile& obj) :
             MediaBaseProfile(obj)
     {
-        bIsHold = obj.bIsHold;
-        bKeepRedLevel = obj.bKeepRedLevel;
+        m_bKeepRedLevel = obj.m_bKeepRedLevel;
     }
 
     TextProfile& operator=(IN const TextProfile& obj)
@@ -136,22 +134,19 @@ public:
         if (this != &obj)
         {
             MediaBaseProfile::operator=(obj);
-            bIsHold = obj.bIsHold;
-            bKeepRedLevel = obj.bKeepRedLevel;
+            m_bKeepRedLevel = obj.m_bKeepRedLevel;
         }
         return (*this);
     }
 
     bool operator==(IN const TextProfile& obj) const
     {
-        return (MediaBaseProfile::operator==(obj) && bIsHold == obj.bIsHold &&
-                bKeepRedLevel == obj.bKeepRedLevel);
+        return (MediaBaseProfile::operator==(obj) && m_bKeepRedLevel == obj.m_bKeepRedLevel);
     }
 
     bool operator!=(IN const TextProfile& obj) const
     {
-        return (MediaBaseProfile::operator!=(obj) || bIsHold != obj.bIsHold ||
-                bKeepRedLevel != obj.bKeepRedLevel);
+        return (MediaBaseProfile::operator!=(obj) || m_bKeepRedLevel != obj.m_bKeepRedLevel);
     }
 
     Payload* GetPayloadAt(IN IMS_UINT32 nIndex) override
@@ -159,6 +154,12 @@ public:
         BasePayload* pPayload = MediaBaseProfile::GetPayloadAt(nIndex);
         return (pPayload != IMS_NULL) ? static_cast<Payload*>(pPayload) : IMS_NULL;
     }
+
+    void SetKeepRedundantLevel(IN const IMS_BOOL bKeepRedLevel) { m_bKeepRedLevel = bKeepRedLevel; }
+    IMS_BOOL GetKeepRedundantLevel() { return m_bKeepRedLevel; }
+
+private:
+    IMS_BOOL m_bKeepRedLevel;
 };
 
 #endif

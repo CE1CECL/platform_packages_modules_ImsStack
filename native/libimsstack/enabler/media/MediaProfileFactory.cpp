@@ -705,10 +705,10 @@ PRIVATE TextProfile* MediaProfileFactory::SetTextProfile(
     TextConfiguration* pTextConfig = static_cast<TextConfiguration*>(pConfig);
 
     pTextProfile->SetTransportType("RTP/AVP");
-    pTextProfile->bKeepRedLevel = pTextConfig->IsTextCodecEmptyRedundantEnabled();
+    pTextProfile->SetKeepRedundantLevel(pTextConfig->IsTextCodecEmptyRedundantEnabled());
 
     IMS_TRACE_I("SetTextProfile() - transport type[%s], keep red level[%d]",
-            pTextProfile->GetTransportType().GetStr(), pTextProfile->bKeepRedLevel, 0);
+            pTextProfile->GetTransportType().GetStr(), pTextProfile->GetKeepRedundantLevel(), 0);
 
     return pTextProfile;
 }
@@ -733,7 +733,7 @@ PRIVATE TextProfile::Payload* MediaProfileFactory::CreateT140Payload(
                 static_cast<TextConfiguration*>(pConfig)->GetT140PayloadType());
 
         IMS_TRACE_I("CreateT140Payload() add fmtp - red level(%d), red payload(%d)",
-                pRedFmtp->nRedLevel, pRedFmtp->nRedPayload, 0);
+                pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), 0);
 
         pTextPayload->SetFmtp(pRedFmtp);
     }
