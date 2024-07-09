@@ -41,7 +41,7 @@ public:
             (override));
     MOCK_METHOD(const IMediaConfig*, GetMediaConfig, (IN IMS_SINT32 nSlotId), (const, override));
     MOCK_METHOD(const ISipConfig*, GetSipConfig, (IN IMS_SINT32 nSlotId), (const, override));
-    MOCK_METHOD(const ISubscriberConfig*, GetSubscriberConfig,
+    MOCK_METHOD(ISubscriberConfig*, GetSubscriberConfig,
             (IN IMS_SINT32 nSlotId, IN const AString& strId /* = AString::ConstNull()*/),
             (const, override));
     MOCK_METHOD(IMS_UINT32, GetTraceModule, (IN IMS_SINT32 nSlotId), (const, override));
