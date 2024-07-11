@@ -78,10 +78,7 @@ PUBLIC VIRTUAL AosSubscriberManager::~AosSubscriberManager()
 PUBLIC
 IMS_BOOL AosSubscriberManager::IsReady(IN IMS_BOOL bIsFake /*= IMS_FALSE*/) const
 {
-    IMS_BOOL bIsProvisioned = IsProvisioned(bIsFake);
-    A_IMS_TRACE_I(AOSTAG, "IsReady : (%s)", _TRACE_B_(bIsProvisioned), 0, 0);
-
-    return bIsProvisioned;
+    return (bIsFake) ? m_bIsProvisionedForFake : m_bIsProvisioned;
 }
 
 PUBLIC
@@ -207,6 +204,8 @@ const ISubscriberConfig* AosSubscriberManager::GetSubscriberConfig(
 PROTECTED
 void AosSubscriberManager::Init()
 {
+    A_IMS_TRACE_I(AOSTAG, "Init", 0, 0, 0);
+
     m_piNConfig = GET_N_CONFIG(m_nSlotId);
     if (m_piNConfig != IMS_NULL)
     {
@@ -242,9 +241,6 @@ void AosSubscriberManager::Init()
         RemoveImpu();
     }
 
-    A_IMS_TRACE_I(AOSTAG, "Init :: ISIM(%s) , USIM(%s)", (IsIsim()) ? "ON" : "OFF",
-            (IsUsim()) ? "ON" : "OFF", 0);
-
     ConfigureAsDefault();
     ConfigureAsFake();
 }
@@ -252,7 +248,7 @@ void AosSubscriberManager::Init()
 PROTECTED
 void AosSubscriberManager::Restart()
 {
-    A_IMS_TRACE_D(AOSTAG, "Restart", 0, 0, 0);
+    A_IMS_TRACE_I(AOSTAG, "Restart", 0, 0, 0);
     ClearAll();
     RequestStop();
     NotifyState(IAosSubscriber::NOT_READY);
@@ -262,7 +258,7 @@ void AosSubscriberManager::Restart()
 PROTECTED
 void AosSubscriberManager::CleanUp()
 {
-    A_IMS_TRACE_D(AOSTAG, "CleanUp", 0, 0, 0);
+    A_IMS_TRACE_I(AOSTAG, "CleanUp", 0, 0, 0);
 
     if (m_piNConfig != IMS_NULL)
     {
@@ -324,12 +320,12 @@ void AosSubscriberManager::ClearAll()
 PROTECTED
 IMS_BOOL AosSubscriberManager::IsProvisioned(IN IMS_BOOL bIsFake /*= IMS_FALSE*/) const
 {
-    if (bIsFake)
-    {
-        return m_bIsProvisionedForFake;
-    }
+    IMS_BOOL bResult = (bIsFake) ? m_bIsProvisionedForFake : m_bIsProvisioned;
 
-    return m_bIsProvisioned;
+    A_IMS_TRACE_I(
+            AOSTAG, "IsProvisioned(%s) :: %s", (bIsFake) ? "Fake" : "", _TRACE_B_(bResult), 0);
+
+    return bResult;
 }
 
 PROTECTED
@@ -370,9 +366,9 @@ PROTECTED
 void AosSubscriberManager::ConfigureAsDefault()
 {
     A_IMS_TRACE_I(AOSTAG, "ConfigureAsDefault", 0, 0, 0);
-
     if (m_piSubscriberConfig == IMS_NULL)
     {
+        A_IMS_TRACE_D(AOSTAG, "ConfigureAsDefault :: SubscriberConfig is null", 0, 0, 0);
         return;
     }
 
@@ -409,7 +405,7 @@ void AosSubscriberManager::ConfigureAsDefault()
 
         if (strImpu.GetLength() == 0)
         {
-            A_IMS_TRACE_I(AOSTAG, "Getting IMPU has failed", 0, 0, 0);
+            A_IMS_TRACE_D(AOSTAG, "ConfigureAsDefault :: Getting IMPU has failed", 0, 0, 0);
             return;
         }
 
@@ -451,12 +447,12 @@ void AosSubscriberManager::ConfigureAsFake()
         return;
     }
 
-    A_IMS_TRACE_D(AOSTAG, "ConfigureAsFake", 0, 0, 0);
+    A_IMS_TRACE_I(AOSTAG, "ConfigureAsFake", 0, 0, 0);
 
     const AString strImpu = objPublicUserIds.GetElementAt(0);
     if (strImpu.GetLength() == 0)
     {
-        A_IMS_TRACE_I(AOSTAG, "ConfigureAsFake :: IMPU is failed", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "ConfigureAsFake :: IMPU is failed", 0, 0, 0);
         return;
     }
 
@@ -470,12 +466,13 @@ void AosSubscriberManager::ConfigureAsFake()
 PROTECTED
 IMS_BOOL AosSubscriberManager::CheckIsimValues()
 {
-    A_IMS_TRACE_D(AOSTAG, "CheckIsimValues", 0, 0, 0);
-
     if (!m_piSubscriberConfig->IsIsimSupported())
     {
+        A_IMS_TRACE_D(AOSTAG, "CheckIsimValues :: ISIM is not supported", 0, 0, 0);
         return IMS_FALSE;
     }
+
+    A_IMS_TRACE_I(AOSTAG, "CheckIsimValues", 0, 0, 0);
 
     const AStringArray& objImpus = m_piSubscriberConfig->GetPublicUserIds();
     const AString& strImpi = m_piSubscriberConfig->GetPrivateUserId();
@@ -483,7 +480,7 @@ IMS_BOOL AosSubscriberManager::CheckIsimValues()
 
     if (objImpus.IsEmpty())
     {
-        A_IMS_TRACE_I(AOSTAG, "IMPU is empty", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "CheckIsimValues :: IMPU is empty", 0, 0, 0);
 
         if (ProcessFallbackToImsiBasedIsim(IConfigurable::CP_I_IMPU_0) == IMS_FALSE)
         {
@@ -515,7 +512,7 @@ IMS_BOOL AosSubscriberManager::CheckIsimValues()
 
         if (!bImpuValid)
         {
-            A_IMS_TRACE_I(AOSTAG, "IMPU is invalid", 0, 0, 0);
+            A_IMS_TRACE_D(AOSTAG, "CheckIsimValues :: IMPU is invalid", 0, 0, 0);
 
             if (ProcessFallbackToImsiBasedIsim(IConfigurable::CP_I_IMPU_0) == IMS_FALSE)
             {
@@ -526,7 +523,7 @@ IMS_BOOL AosSubscriberManager::CheckIsimValues()
 
     if (strImpi.GetLength() == 0)
     {
-        A_IMS_TRACE_I(AOSTAG, "IMPI is invalid", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "CheckIsimValues :: IMPI is invalid", 0, 0, 0);
 
         if (ProcessFallbackToImsiBasedIsim(IConfigurable::CP_I_IMPI) == IMS_FALSE)
         {
@@ -536,7 +533,7 @@ IMS_BOOL AosSubscriberManager::CheckIsimValues()
 
     if (strHomeDomainName.GetLength() == 0)
     {
-        A_IMS_TRACE_I(AOSTAG, "HomeDomainName is invalid", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "CheckIsimValues :: HomeDomainName is invalid", 0, 0, 0);
 
         if (ProcessFallbackToImsiBasedIsim(IConfigurable::CP_I_HOME_DOMAIN_NAME) == IMS_FALSE)
         {
@@ -574,7 +571,7 @@ IMS_BOOL AosSubscriberManager::GetImpuFromIsim(OUT AStringArray& objImpus)
 
     if (objValidImpus.GetCount() == 0)
     {
-        A_IMS_TRACE_I(AOSTAG, "No valid IMPU", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "GetImpuFromIsim :: No valid IMPU", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -635,10 +632,6 @@ IMS_BOOL AosSubscriberManager::GetImpuFromIsim(OUT AStringArray& objImpus)
 PROTECTED
 IMS_BOOL AosSubscriberManager::GetTemporaryImpu(OUT AStringArray& objImpus, IN IMS_BOOL bDbWritable)
 {
-    // according to IR.92, generate temp identities
-    A_IMS_TRACE_I(AOSTAG, "GetTemporaryImpu", 0, 0, 0);
-
-    // create IMPU
     AString strImpu(GetTemporaryPublicUserId());
     if (strImpu.GetLength() == 0)
     {
@@ -646,7 +639,6 @@ IMS_BOOL AosSubscriberManager::GetTemporaryImpu(OUT AStringArray& objImpus, IN I
         return IMS_FALSE;
     }
 
-    // create IMPI
     AString strImpi(GetTemporaryPrivateUserId());
     if (strImpi.GetLength() == 0)
     {
@@ -654,7 +646,6 @@ IMS_BOOL AosSubscriberManager::GetTemporaryImpu(OUT AStringArray& objImpus, IN I
         return IMS_FALSE;
     }
 
-    // create HomeDomain
     AString strHdn(GetTemporaryHomeDomainName());
     if (strHdn.GetLength() == 0)
     {
@@ -662,16 +653,13 @@ IMS_BOOL AosSubscriberManager::GetTemporaryImpu(OUT AStringArray& objImpus, IN I
         return IMS_FALSE;
     }
 
-    // update SubscriberConfig
     IConfigurable* piConfigurable = m_piSubscriberConfig->GetConfigurable();
 
-    // IMPU
     if (!piConfigurable->Update(IConfigurable::CP_I_IMPU_0, strImpu))
     {
         return IMS_FALSE;
     }
 
-    // IMPI
     if (!piConfigurable->Update(IConfigurable::CP_I_IMPI, strImpi))
     {
         return IMS_FALSE;
@@ -730,7 +718,7 @@ void AosSubscriberManager::RemoveImpu() const
     if (piSubsInfo != null)
     {
         piSubsInfo->SetPreference("impu_list", "size", "0");
-        A_IMS_TRACE_I(AOSTAG, "RemoveImpu :: The recorded IMPUs have been removed.", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "RemoveImpu :: The recorded IMPUs have been removed.", 0, 0, 0);
     }
 }
 
@@ -755,7 +743,7 @@ IMS_BOOL AosSubscriberManager::UpdateImsi() const
     if (strImsi.GetLength() == 0 || !strImsi.Equals(strImsiRecorded))
     {
         piSubsInfo->SetPreference("impu_list", "imsi", strImsi);
-        A_IMS_TRACE_I(AOSTAG, "UpdateImsi :: IMSI is initialized.", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "UpdateImsi :: IMSI is initialized.", 0, 0, 0);
         bIsUpdated = IMS_TRUE;
     }
 
@@ -822,11 +810,12 @@ IMS_UINT32 AosSubscriberManager::GetIdentity(IN Index eIndex) const
 PROTECTED
 IMS_BOOL AosSubscriberManager::ProcessFallback(IN IMS_BOOL bToUsim)
 {
-    A_IMS_TRACE_I(AOSTAG, "ProcessFallback :: Dir(%s) , USIM fallback(%s)",
-            (bToUsim) ? "ISIM to USIM" : "USIM to ISIM", _TRACE_B_(m_bUsimFallback), 0);
+    A_IMS_TRACE_I(AOSTAG, "ProcessFallback :: Dir(%s), Current USIM fallback is %s",
+            (bToUsim) ? "USIM" : "ISIM", (m_bUsimFallback) ? "ON" : "OFF", 0);
 
     if (!bToUsim && !m_bUsimFallback)
     {
+        A_IMS_TRACE_D(AOSTAG, "ProcessFallback :: No fallback needed", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -943,7 +932,7 @@ IMS_BOOL AosSubscriberManager::ProcessPhoneNumberAvailable(
         }
         else
         {
-            A_IMS_TRACE_I(AOSTAG, "usim refresh is processed", 0, 0, 0);
+            A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: USIM refresh processed", 0, 0, 0);
             RemoveImpu();
             NotifyState(IAosSubscriber::REFRESH_STARTED);
             Restart();
@@ -973,7 +962,6 @@ PROTECTED
 void AosSubscriberManager::ProcessPhoneRestarted()
 {
     A_IMS_TRACE_I(AOSTAG, "ProcessPhoneRestarted :: phone is restarted", 0, 0, 0);
-
     StartTimer(TIMER_PHONE_RESTART_RECOVERY, PHONE_RESTART_RECOVERY_INTERVAL);
 }
 
@@ -1017,15 +1005,15 @@ IMS_BOOL AosSubscriberManager::UpdateNConfiguration()
     IMS_BOOL bIsUpdated = IMS_FALSE;
 
     A_IMS_TRACE_I(AOSTAG,
-            "UpdateNConfiguration - Current :: ImsIdentityPriority(%s), IsimIndexForImpu(%d), "
+            "UpdateNConfiguration :: Current - ImsIdentityPriority(%s), IsimIndexForImpu(%d), "
             "SupportlimitedAdminSmsMode(%s)",
             IdentityPriorityToString(), m_nIsimIndexForImpu,
             _TRACE_B_(m_bSupportLimitedAdminSmsMode));
 
     if (m_piNConfig == IMS_NULL)
     {
-        A_IMS_TRACE_I(
-                AOSTAG, "UpdateNConfiguration - Not Updated :: NConfiguration is null", 0, 0, 0);
+        A_IMS_TRACE_D(
+                AOSTAG, "UpdateNConfiguration :: Not Updated - NConfiguration is null", 0, 0, 0);
         return bIsUpdated;
     }
 
@@ -1065,15 +1053,15 @@ IMS_BOOL AosSubscriberManager::UpdateNConfiguration()
 
     if (bIsUpdated)
     {
-        A_IMS_TRACE_I(AOSTAG,
-                "UpdateNConfiguration - Updated :: ImsIdentityPriority(%s), IsimIndexForImpu(%d), "
+        A_IMS_TRACE_D(AOSTAG,
+                "UpdateNConfiguration :: Updated - ImsIdentityPriority(%s), IsimIndexForImpu(%d), "
                 "SupportlimitedAdminSmsMode(%s)",
                 IdentityPriorityToString(), m_nIsimIndexForImpu,
                 _TRACE_B_(m_bSupportLimitedAdminSmsMode));
     }
     else
     {
-        A_IMS_TRACE_I(AOSTAG, "UpdateNConfiguration - Not Updated", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "UpdateNConfiguration :: Not Updated", 0, 0, 0);
     }
 
     return bIsUpdated;
@@ -1279,14 +1267,14 @@ void AosSubscriberManager::RequestStop() const
         piService->ControlRegistration(static_cast<IMS_SINT32>(AosRegRequestType::STOP),
                 static_cast<IMS_SINT32>(AosPcscfOrder::CURRENT),
                 static_cast<IMS_SINT32>(AosControlCause::IMS_SUBSCRIBER));
-        A_IMS_TRACE_D(AOSTAG, "RequestStop :: Stop", 0, 0, 0);
+        A_IMS_TRACE_I(AOSTAG, "RequestStop :: Stop", 0, 0, 0);
     }
 }
 
 PROTECTED
 void AosSubscriberManager::NConfiguration_NotifyConfigChanged()
 {
-    A_IMS_TRACE_D(AOSTAG, "NConfiguration_NotifyConfigChanged :: changed", 0, 0, 0);
+    A_IMS_TRACE_I(AOSTAG, "NConfiguration_NotifyConfigChanged", 0, 0, 0);
 
     if (UpdateNConfiguration())
     {
@@ -1298,6 +1286,8 @@ void AosSubscriberManager::NConfiguration_NotifyConfigChanged()
 PROTECTED
 void AosSubscriberManager::SubscriberConfig_InitCompleted()
 {
+    A_IMS_TRACE_I(AOSTAG, "SubscriberConfig_InitCompleted", 0, 0, 0);
+
     if (CheckIsimValues())
     {
         A_IMS_TRACE_I(AOSTAG, "SubscriberConfig_InitCompleted :: ISIM is OK", 0, 0, 0);
