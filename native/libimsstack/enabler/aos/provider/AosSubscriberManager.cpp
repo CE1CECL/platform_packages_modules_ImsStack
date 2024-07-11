@@ -880,27 +880,29 @@ IMS_BOOL AosSubscriberManager::ProcessFallbackToImsiBasedIsim(IN IMS_SINT32 nCpi
 }
 
 PROTECTED
-IMS_BOOL AosSubscriberManager::ProcessPhoneNumberAvailable(
-        IN IMS_BOOL /*bIsRefresh*/, IN PhoneNumberState /*eState*/)
+IMS_BOOL AosSubscriberManager::ProcessPhoneNumberAvailable()
 {
     if (IsTimerRunning(TIMER_PHONE_RESTART_RECOVERY))
     {
-        A_IMS_TRACE_I(AOSTAG, "phone restart timer is running", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG,
+                "ProcessPhoneNumberAvailable :: Phone restart recovery is in progress", 0, 0, 0);
+        return IMS_FALSE;
+    }
+
+    if (!IsUsim())
+    {
+        A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: USIM is disabled", 0, 0, 0);
         return IMS_FALSE;
     }
 
     if (!IsReady())
     {
-        A_IMS_TRACE_I(AOSTAG, "state is not ready, start again", 0, 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable : State is not ready", 0, 0, 0);
         Restart();
         return IMS_FALSE;
     }
 
-    if (IsIsim() || !IsUsim())
-    {
-        A_IMS_TRACE_I(AOSTAG, "updating usim is not processed", 0, 0, 0);
-        return IMS_FALSE;
-    }
+    A_IMS_TRACE_I(AOSTAG, "ProcessPhoneNumberAvailable", 0, 0, 0);
 
     const AStringArray& objImpus = GetConfiguredImpus();
 
@@ -913,9 +915,9 @@ IMS_BOOL AosSubscriberManager::ProcessPhoneNumberAvailable(
             return IMS_FALSE;
         }
 
-        A_IMS_TRACE_D(AOSTAG, "primary IMPU(%s) is provisioned", strImpu.GetStr(), 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: primary IMPU(%s) is provisioned",
+                strImpu.GetStr(), 0, 0);
 
-        // create IMPU
         AString strTemporaryImpu = ImsIdentity::CreateTemporaryPublicUserId(m_nSlotId);
 
         if (strTemporaryImpu.GetLength() == 0)
@@ -923,22 +925,22 @@ IMS_BOOL AosSubscriberManager::ProcessPhoneNumberAvailable(
             return IMS_FALSE;
         }
 
-        A_IMS_TRACE_D(AOSTAG, "temporary IMPU(%s) is provisioned", strTemporaryImpu.GetStr(), 0, 0);
+        A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: temp IMPU(%s) is provisioned",
+                strTemporaryImpu.GetStr(), 0, 0);
 
         if (strImpu.EqualsIgnoreCase(strTemporaryImpu))
         {
-            A_IMS_TRACE_I(AOSTAG, "the temporary impu is same as previous impu", 0, 0, 0);
+            A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: temp IMPU unchanged", 0, 0, 0);
             return IMS_FALSE;
         }
-        else
-        {
-            A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: USIM refresh processed", 0, 0, 0);
-            RemoveImpu();
-            NotifyState(IAosSubscriber::REFRESH_STARTED);
-            Restart();
-            UpdateImsi();
-            return IMS_TRUE;
-        }
+
+        A_IMS_TRACE_D(AOSTAG, "ProcessPhoneNumberAvailable :: USIM refresh processed", 0, 0, 0);
+        RemoveImpu();
+        NotifyState(IAosSubscriber::REFRESH_STARTED);
+        Restart();
+        UpdateImsi();
+
+        return IMS_TRUE;
     }
 
     return IMS_FALSE;
@@ -978,7 +980,7 @@ void AosSubscriberManager::ProcessPhoneRestartRecoveryTimerExpired()
 
     if (!IsIsim() && IsUsim())
     {
-        ProcessPhoneNumberAvailable(IMS_FALSE, PhoneNumberState::SIM_LOADED);
+        ProcessPhoneNumberAvailable();
         return;
     }
 
@@ -1462,11 +1464,10 @@ void AosSubscriberManager::Timer_TimerExpired(IN ITimer* piTimer)
 
 PROTECTED
 void AosSubscriberManager::ServicePhone_PhoneNumberStateChanged(
-        IN IMS_BOOL bIsRefresh, IN PhoneNumberState eState)
+        IN IMS_BOOL /*bIsRefresh*/, IN PhoneNumberState /*eState*/)
 {
-    A_IMS_TRACE_I(AOSTAG, "ServicePhone_PhoneNumberStateChanged :: bIsRefresh(%s), eState(%d)",
-            _TRACE_B_(bIsRefresh), eState, 0);
-    ProcessPhoneNumberAvailable(bIsRefresh, eState);
+    A_IMS_TRACE_I(AOSTAG, "ServicePhone_PhoneNumberStateChanged", 0, 0, 0);
+    ProcessPhoneNumberAvailable();
 }
 
 PROTECTED

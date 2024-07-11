@@ -203,7 +203,6 @@ public:
     // TEST : ProcessPhoneRestarted
     FRIEND_TEST(AosSubscriberManagerTest, StartRestartTimerWhenProcessPhoneRestarted);
     // TEST : ProcessPhoneRestartRecoveryTimerExpired
-    FRIEND_TEST(AosSubscriberManagerTest, InvokesProcessPhoneNumberAvailableWhenSupportUsim);
     FRIEND_TEST(AosSubscriberManagerTest, InvokesProcessFallbackAndRestart);
     FRIEND_TEST(AosSubscriberManagerTest, InvokesProcessFallbackAndClearAll);
     // TEST : NotifyState
@@ -1907,8 +1906,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenTimerIsRun
     m_pSubscriberManager->StartTimer(TIMER_PHONE_RESTART_RECOVERY, 3);
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -1920,8 +1918,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenIsNotReady
     m_pSubscriberManager->SetProvisioned(IMS_FALSE);
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -1935,8 +1932,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenSupportIsi
     m_pSubscriberManager->SetIsim(IMS_TRUE);
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -1950,8 +1946,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenNotSupport
     m_pSubscriberManager->SetUsim(IMS_FALSE);
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -1966,8 +1961,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenInvalidImp
     m_pSubscriberManager->m_objPuids = m_objEmptyPuids;
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -1989,8 +1983,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenInvalidTem
     SetUpDefaultISubscriberInfo();
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -2007,8 +2000,7 @@ TEST_F(AosSubscriberManagerTest, FailedProcessPhoneNumberAvailableWhenEqualsTemp
     m_pSubscriberManager->m_objPuids = m_objValidPuids;
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_FALSE(bResult);
@@ -2024,8 +2016,7 @@ TEST_F(AosSubscriberManagerTest, SucceedsProcessPhoneNumberAvailable)
     m_pSubscriberManager->m_objPuids = m_objValidPuids;
 
     // WHEN
-    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable(
-            IMS_FALSE, PhoneNumberState::SIM_LOADED);
+    IMS_BOOL bResult = m_pSubscriberManager->ProcessPhoneNumberAvailable();
 
     // THEN
     EXPECT_TRUE(bResult);
@@ -2089,22 +2080,6 @@ TEST_F(AosSubscriberManagerTest, StartRestartTimerWhenProcessPhoneRestarted)
 
     // THEN
     EXPECT_NE(m_pSubscriberManager->m_piTimerToPhoneRestartRecovery, nullptr);
-}
-
-TEST_F(AosSubscriberManagerTest, InvokesProcessPhoneNumberAvailableWhenSupportUsim)
-{
-    // GIVEN
-    m_pSubscriberManager->StartTimer(TIMER_PHONE_RESTART_RECOVERY, 3);
-    EXPECT_NE(m_pSubscriberManager->m_piTimerToPhoneRestartRecovery, nullptr);
-
-    m_pSubscriberManager->SetIsim(IMS_FALSE);
-    m_pSubscriberManager->SetUsim(IMS_TRUE);
-
-    // WHEN
-    m_pSubscriberManager->ProcessPhoneRestartRecoveryTimerExpired();
-
-    // THEN
-    EXPECT_EQ(m_pSubscriberManager->m_piTimerToPhoneRestartRecovery, nullptr);
 }
 
 TEST_F(AosSubscriberManagerTest, InvokesProcessFallbackAndRestart)
@@ -2637,6 +2612,7 @@ TEST_F(AosSubscriberManagerTest, RestartsWhenPhoneNumberStateChangedWithNotReady
 {
     // GIVEN
     m_pSubscriberManager->m_objPuids = m_objValidPuids;
+    m_pSubscriberManager->SetUsim(IMS_TRUE);
     m_pSubscriberManager->SetProvisioned(IMS_FALSE);
     m_pSubscriberManager->SetSubscriberConfig(IMS_NULL);
 

@@ -107,7 +107,7 @@ protected:
 
     IMS_BOOL ProcessFallback(IN IMS_BOOL bToUsim);
     IMS_BOOL ProcessFallbackToImsiBasedIsim(IN IMS_SINT32 nCpi);
-    IMS_BOOL ProcessPhoneNumberAvailable(IN IMS_BOOL bIsRefresh, IN PhoneNumberState eState);
+    IMS_BOOL ProcessPhoneNumberAvailable();
     IMS_BOOL ProcessIsimStateChange(IN IsimState eState);
 
     void ProcessPhoneRestarted();
