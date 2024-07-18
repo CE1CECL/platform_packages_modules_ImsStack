@@ -536,21 +536,6 @@ public:
 
     virtual ~AudioProfile(){};
 
-    AudioProfile(IN AudioProfile* profile) :
-            MediaBaseProfile(profile)
-    {
-        if (profile == nullptr)
-        {
-            return;
-        }
-        m_nPtime = profile->m_nPtime;
-        m_nMaxPtime = profile->m_nMaxPtime;
-        m_objCandidateAttr = profile->m_objCandidateAttr;
-        m_bSupportRtcpXr = profile->m_bSupportRtcpXr;
-        m_objRtcpXrAttr = profile->m_objRtcpXrAttr;
-        m_bAnbr = profile->m_bAnbr;
-    }
-
     AudioProfile(IN const AudioProfile& obj) :
             MediaBaseProfile(obj)
     {

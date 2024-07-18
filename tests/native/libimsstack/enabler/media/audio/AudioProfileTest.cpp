@@ -64,6 +64,12 @@ const IMS_BOOL RTCP_XR_ATTR_SUPPORT_STATISTIC_METRICS = IMS_TRUE;
 const IMS_BOOL RTCP_XR_ATTR_SUPPORT_VOIP_METRICS = IMS_TRUE;
 const IMS_BOOL RTCP_XR_ATTR_SUPPORT_PACKET_LOSS_RLE = IMS_TRUE;
 const IMS_BOOL RTCP_XR_ATTR_SUPPORT_PACKET_DUP_RLE = IMS_TRUE;
+const IMS_SINT32 AUDIO_PROFILE_PTIME = 20;
+const IMS_SINT32 AUDIO_PROFILE_MAX_PTIME = 240;
+const AString AUDIO_PROFILE_CANDIDATE_ATTR1 = "1, UDP, 1119400811, 10.3.210.77, 7010, typ, host";
+const AString AUDIO_PROFILE_CANDIDATE_ATTR2 = "2, TCP";
+const IMS_BOOL AUDIO_PROFILE_SUPPORT_RTXP_XR = IMS_TRUE;
+const IMS_BOOL AUDIO_PROFILE_ANBR = IMS_TRUE;
 
 class AudioProfileTest : public ::testing::Test
 {
@@ -1026,4 +1032,205 @@ TEST_F(AudioProfileTest, testRtcpXrAttributesEqualNotEqual)
 
     delete pRtcpXrAttr1;
     delete pRtcpXrAttr2;
+}
+
+TEST_F(AudioProfileTest, testAudioProfilePtime)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->GetPtime(), 0);
+
+    pProfile->SetPtime(AUDIO_PROFILE_PTIME);
+    EXPECT_EQ(pProfile->GetPtime(), AUDIO_PROFILE_PTIME);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileMaxPtime)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->GetMaxPtime(), 0);
+
+    pProfile->SetMaxPtime(AUDIO_PROFILE_MAX_PTIME);
+    EXPECT_EQ(pProfile->GetMaxPtime(), AUDIO_PROFILE_MAX_PTIME);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileCandidateAttr)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->GetCandidateAttr(), ImsVector<AString>());
+
+    ImsVector<AString> objCandidateAttr;
+    objCandidateAttr.Add(AUDIO_PROFILE_CANDIDATE_ATTR1);
+    objCandidateAttr.Add(AUDIO_PROFILE_CANDIDATE_ATTR2);
+
+    pProfile->SetCandidateAttr(objCandidateAttr);
+    EXPECT_EQ(pProfile->GetCandidateAttr().GetAt(0), AUDIO_PROFILE_CANDIDATE_ATTR1);
+    EXPECT_EQ(pProfile->GetCandidateAttr().GetAt(1), AUDIO_PROFILE_CANDIDATE_ATTR2);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileSupportRtcpXr)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->IsRtcpXrSupported(), IMS_FALSE);
+
+    pProfile->SetSupportRtcpXr(AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    EXPECT_EQ(pProfile->IsRtcpXrSupported(), AUDIO_PROFILE_SUPPORT_RTXP_XR);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileRtcpXrAttr)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->GetRtcpXrAttr(), AudioProfile::RtcpXrAttributes());
+
+    AudioProfile::RtcpXrAttributes objRtcpXrAttr;
+    objRtcpXrAttr.SetSupportStatisticMetrics(RTCP_XR_ATTR_SUPPORT_STATISTIC_METRICS);
+    objRtcpXrAttr.SetSupportVoipMetrics(RTCP_XR_ATTR_SUPPORT_VOIP_METRICS);
+    objRtcpXrAttr.SetSupportPacketLossRle(RTCP_XR_ATTR_SUPPORT_PACKET_LOSS_RLE);
+    objRtcpXrAttr.SetSupportPacketDuplicatedRle(RTCP_XR_ATTR_SUPPORT_PACKET_DUP_RLE);
+
+    pProfile->SetRtcpXrAttr(objRtcpXrAttr);
+    EXPECT_EQ(pProfile->GetRtcpXrAttr(), objRtcpXrAttr);
+    EXPECT_EQ(pProfile->GetRtcpXrAttr().IsStatisticMetricsSupported(),
+            RTCP_XR_ATTR_SUPPORT_STATISTIC_METRICS);
+    EXPECT_EQ(
+            pProfile->GetRtcpXrAttr().IsVoipMetricsSupported(), RTCP_XR_ATTR_SUPPORT_VOIP_METRICS);
+    EXPECT_EQ(pProfile->GetRtcpXrAttr().IsPacketLossRleSupported(),
+            RTCP_XR_ATTR_SUPPORT_PACKET_LOSS_RLE);
+    EXPECT_EQ(pProfile->GetRtcpXrAttr().IsPacketDuplicatedRleSupported(),
+            RTCP_XR_ATTR_SUPPORT_PACKET_DUP_RLE);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileAnbr)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->IsAnbrSupported(), IMS_FALSE);
+
+    pProfile->SetAnbr(AUDIO_PROFILE_ANBR);
+    EXPECT_EQ(pProfile->IsAnbrSupported(), AUDIO_PROFILE_ANBR);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileCreationDefault)
+{
+    AudioProfile* pProfile = new AudioProfile();
+
+    EXPECT_EQ(pProfile->GetPtime(), 0);
+    EXPECT_EQ(pProfile->GetMaxPtime(), 0);
+    EXPECT_EQ(pProfile->GetCandidateAttr(), ImsVector<AString>());
+    EXPECT_EQ(pProfile->IsRtcpXrSupported(), IMS_FALSE);
+    EXPECT_EQ(pProfile->GetRtcpXrAttr(), AudioProfile::RtcpXrAttributes());
+    EXPECT_EQ(pProfile->IsAnbrSupported(), IMS_FALSE);
+
+    delete pProfile;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileCreation)
+{
+    AudioProfile::RtcpXrAttributes objRtcpXrAttr;
+    objRtcpXrAttr.SetSupportStatisticMetrics(RTCP_XR_ATTR_SUPPORT_STATISTIC_METRICS);
+    objRtcpXrAttr.SetSupportVoipMetrics(RTCP_XR_ATTR_SUPPORT_VOIP_METRICS);
+
+    ImsVector<AString> objCandidateAttr;
+    objCandidateAttr.Add(AUDIO_PROFILE_CANDIDATE_ATTR1);
+
+    AudioProfile* pProfile1 = new AudioProfile();
+
+    pProfile1->SetPtime(AUDIO_PROFILE_PTIME);
+    pProfile1->SetMaxPtime(AUDIO_PROFILE_MAX_PTIME);
+    pProfile1->SetCandidateAttr(objCandidateAttr);
+    pProfile1->SetSupportRtcpXr(AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    pProfile1->SetRtcpXrAttr(objRtcpXrAttr);
+    pProfile1->SetAnbr(AUDIO_PROFILE_ANBR);
+
+    AudioProfile* pProfile2 = new AudioProfile(*pProfile1);
+
+    EXPECT_EQ(pProfile2->GetPtime(), AUDIO_PROFILE_PTIME);
+    EXPECT_EQ(pProfile2->GetMaxPtime(), AUDIO_PROFILE_MAX_PTIME);
+    EXPECT_EQ(pProfile2->GetCandidateAttr(), objCandidateAttr);
+    EXPECT_EQ(pProfile2->IsRtcpXrSupported(), AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    EXPECT_EQ(pProfile2->GetRtcpXrAttr(), objRtcpXrAttr);
+    EXPECT_EQ(pProfile2->IsAnbrSupported(), AUDIO_PROFILE_ANBR);
+
+    delete pProfile1;
+    delete pProfile2;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileAssign)
+{
+    AudioProfile::RtcpXrAttributes objRtcpXrAttr;
+    objRtcpXrAttr.SetSupportPacketLossRle(RTCP_XR_ATTR_SUPPORT_PACKET_LOSS_RLE);
+    objRtcpXrAttr.SetSupportPacketDuplicatedRle(RTCP_XR_ATTR_SUPPORT_PACKET_DUP_RLE);
+
+    ImsVector<AString> objCandidateAttr;
+    objCandidateAttr.Add(AUDIO_PROFILE_CANDIDATE_ATTR2);
+
+    AudioProfile* pProfile1 = new AudioProfile();
+    AudioProfile* pProfile2 = new AudioProfile();
+
+    pProfile1->SetPtime(AUDIO_PROFILE_PTIME);
+    pProfile1->SetMaxPtime(AUDIO_PROFILE_MAX_PTIME);
+    pProfile1->SetCandidateAttr(objCandidateAttr);
+    pProfile1->SetSupportRtcpXr(AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    pProfile1->SetRtcpXrAttr(objRtcpXrAttr);
+    pProfile1->SetAnbr(AUDIO_PROFILE_ANBR);
+
+    *pProfile2 = *pProfile1;
+
+    EXPECT_EQ(pProfile2->GetPtime(), AUDIO_PROFILE_PTIME);
+    EXPECT_EQ(pProfile2->GetMaxPtime(), AUDIO_PROFILE_MAX_PTIME);
+    EXPECT_EQ(pProfile2->GetCandidateAttr(), objCandidateAttr);
+    EXPECT_EQ(pProfile2->IsRtcpXrSupported(), AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    EXPECT_EQ(pProfile2->GetRtcpXrAttr(), objRtcpXrAttr);
+    EXPECT_EQ(pProfile2->IsAnbrSupported(), AUDIO_PROFILE_ANBR);
+
+    delete pProfile1;
+    delete pProfile2;
+}
+
+TEST_F(AudioProfileTest, testAudioProfileEqualNotEqual)
+{
+    AudioProfile::RtcpXrAttributes objRtcpXrAttr;
+    objRtcpXrAttr.SetSupportPacketLossRle(RTCP_XR_ATTR_SUPPORT_PACKET_LOSS_RLE);
+    objRtcpXrAttr.SetSupportPacketDuplicatedRle(RTCP_XR_ATTR_SUPPORT_PACKET_DUP_RLE);
+
+    AudioProfile* pProfile1 = new AudioProfile();
+    AudioProfile* pProfile2 = new AudioProfile();
+
+    EXPECT_EQ(*pProfile1, *pProfile2);
+
+    pProfile1->SetSupportRtcpXr(AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    EXPECT_NE(*pProfile1, *pProfile2);
+
+    pProfile2->SetSupportRtcpXr(AUDIO_PROFILE_SUPPORT_RTXP_XR);
+    EXPECT_EQ(*pProfile1, *pProfile2);
+
+    pProfile1->SetRtcpXrAttr(objRtcpXrAttr);
+    EXPECT_NE(*pProfile1, *pProfile2);
+
+    pProfile2->SetRtcpXrAttr(objRtcpXrAttr);
+    EXPECT_EQ(*pProfile1, *pProfile2);
+
+    pProfile1->SetAnbr(AUDIO_PROFILE_ANBR);
+    EXPECT_NE(*pProfile1, *pProfile2);
+
+    pProfile2->SetAnbr(AUDIO_PROFILE_ANBR);
+    EXPECT_EQ(*pProfile1, *pProfile2);
+
+    delete pProfile1;
+    delete pProfile2;
 }
