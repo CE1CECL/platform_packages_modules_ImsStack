@@ -44,14 +44,17 @@ import android.util.SparseArray;
 
 import com.android.imsstack.ImsStackTest;
 import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.ConfigInterface;
 import com.android.imsstack.core.agents.LocationInterface;
 import com.android.imsstack.core.agents.NativeStateInterface;
 import com.android.imsstack.core.agents.Sim;
 import com.android.imsstack.core.agents.SimInterface;
 import com.android.imsstack.core.agents.TelephonyInterface;
 import com.android.imsstack.core.agents.dcm.DcFactory;
+import com.android.imsstack.core.agents.dcmif.EApnType;
 import com.android.imsstack.core.agents.dcmif.IApn;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
+import com.android.imsstack.core.config.CarrierConfig;
 import com.android.imsstack.enabler.aos.IAosInfo.LocationInfo;
 import com.android.imsstack.enabler.aos.IAosInfo.PhoneNumberState;
 import com.android.imsstack.enabler.aos.IAosInfo.RoamingPreferredVoiceNetwork;
@@ -102,6 +105,8 @@ public class AosServiceTest extends ImsStackTest {
     @Mock TelephonyInterface mMockTelephonyInterface;
     @Mock IAosRegistrationListener mMockAosRegistrationListener;
     @Mock IAosInfoListener mMockAosInfoListener;
+    @Mock CarrierConfig mMockCarrierConfig;
+    @Mock ConfigInterface mMockConfigInterface;
     @Mock LocationInterface mMockLocationInterface;
     @Mock NativeStateInterface mMockNativeStateInterface;
     @Mock IDcNetWatcher mMockDcNetWatcher;
@@ -122,6 +127,9 @@ public class AosServiceTest extends ImsStackTest {
         replaceInstance(ImsServiceRegistry.class, "sImsServiceRegistrys", null,
                 mMockImsServiceRegistrys);
 
+        when(mMockConfigInterface.getCarrierConfig()).thenReturn(mMockCarrierConfig);
+
+        AgentFactory.getInstance().setAgent(ConfigInterface.class, mMockConfigInterface, SLOT_0);
         AgentFactory.getInstance().setAgent(SimInterface.class, mMockSimInterface, SLOT_0);
         AgentFactory.getInstance().setAgent(
                 NativeStateInterface.class, mMockNativeStateInterface, SLOT_0);
@@ -145,6 +153,7 @@ public class AosServiceTest extends ImsStackTest {
         AgentFactory.getInstance().setAgent(LocationInterface.class, null, SLOT_0);
         AgentFactory.getInstance().setAgent(SimInterface.class, null, SLOT_0);
         AgentFactory.getInstance().setAgent(NativeStateInterface.class, null, SLOT_0);
+        AgentFactory.getInstance().setAgent(ConfigInterface.class, null, SLOT_0);
 
         super.tearDown();
     }
@@ -792,6 +801,50 @@ public class AosServiceTest extends ImsStackTest {
         assertEquals(NetworkType.CROSS_SIM, mAosService.mRegisteredNetworkType);
         verify(mMockAosRegistrationListener).notifyRegistered(RegistrationType.NORMAL,
                 NetworkType.CROSS_SIM, mAosService.mFeatureTagBits, mAosService.mFeatureTags);
+    }
+
+    @Test
+    public void onPreciseDataConnectionStateChanged_shouldNotHandleNonImsTypeApn() {
+        byte[] startEstTimerData = createBytes(IIAosService.J2N_REQUEST_CONTROL_REGISTRATION,
+                IAosRegistration.RequestType.START_IMS_EST_TIMER.getValue(),
+                IAosRegistration.Pcscf.CURRENT.getValue(),
+                IAosRegistration.Cause.DATA_CONNECTING.getValue());
+        when(mMockCarrierConfig.getBoolean(
+                CarrierConfig.Assets.KEY_REQUIRED_CDMALESS_FEATURE_TAG_BOOL)).thenReturn(true);
+
+        mAosService.onPreciseDataConnectionStateChanged(
+                EApnType.EMERGENCY.getType(), TelephonyManager.DATA_CONNECTING);
+
+        verify(mMockJniIms, never()).sendData(mNativeObject, startEstTimerData);
+    }
+
+    @Test
+    public void onPreciseDataConnectionStateChanged_controlRegistrationUponConnecting() {
+        byte[] startEstTimerData = createBytes(IIAosService.J2N_REQUEST_CONTROL_REGISTRATION,
+                IAosRegistration.RequestType.START_IMS_EST_TIMER.getValue(),
+                IAosRegistration.Pcscf.CURRENT.getValue(),
+                IAosRegistration.Cause.DATA_CONNECTING.getValue());
+        when(mMockCarrierConfig.getBoolean(
+                CarrierConfig.Assets.KEY_REQUIRED_CDMALESS_FEATURE_TAG_BOOL)).thenReturn(true);
+
+        mAosService.onPreciseDataConnectionStateChanged(
+                EApnType.IMS.getType(), TelephonyManager.DATA_CONNECTING);
+
+        verify(mMockJniIms).sendData(mNativeObject, startEstTimerData);
+    }
+
+    @Test
+    public void onPreciseDataConnectionStateChanged_controlRegistrationUponDisConnecting() {
+        byte[] stopData = createBytes(IIAosService.J2N_REQUEST_CONTROL_REGISTRATION,
+                IAosRegistration.RequestType.STOP.getValue(),
+                IAosRegistration.Pcscf.CURRENT.getValue(),
+                IAosRegistration.Cause.DATA.getValue());
+        mAosService.mRegisteredNetworkType = NetworkType.LTE;
+
+        mAosService.onPreciseDataConnectionStateChanged(
+                EApnType.IMS.getType(), TelephonyManager.DATA_DISCONNECTING);
+
+        verify(mMockJniIms).sendData(mNativeObject, stopData);
     }
 
     @Test

@@ -52,9 +52,6 @@ import com.android.imsstack.core.agents.dcmif.IDcApn;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.core.agents.dcmif.IDcSettings;
 import com.android.imsstack.core.config.CarrierConfig;
-import com.android.imsstack.enabler.aos.AosFactory;
-import com.android.imsstack.enabler.aos.IAosRegistration;
-import com.android.imsstack.enabler.aos.IAosRegistrationListener;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.SystemInterface;
 import com.android.imsstack.util.ImsLog;
@@ -142,7 +139,6 @@ public abstract class Apn extends Handler implements IApn {
     protected IDcSettings mDcSettings;
     protected IDcNetWatcher mDcNetWatcher;
     protected ISystem mSystem;
-    protected IAosRegistration mAosReg;
     protected final int mSlotId;
     protected EApnType mType;
     protected EApnReqState mAPNState = EApnReqState.APN_REQUEST_IDLE;
@@ -171,7 +167,6 @@ public abstract class Apn extends Handler implements IApn {
         mDcSettings = DcFactory.getDcAgent(IDcSettings.class, mSlotId);
         mDcNetWatcher = DcFactory.getDcAgent(IDcNetWatcher.class, mSlotId);
         mSystem = SystemInterface.getInstance().getSystem(mSlotId);
-        mAosReg = AosFactory.getInstance().getAosRegistration(mSlotId);
 
         registerHandler(EVENT_NOTIFY_DATA_STATE_CHANGED, new HandleDataStateChanged());
         registerHandler(EVENT_PRECISE_DATA_CONNECTION_STATE_CHANGED,
@@ -646,6 +641,15 @@ public abstract class Apn extends Handler implements IApn {
         ImsLog.i(mSlotId, "notifyHandoverStateChanged");
         for (Listener l : mListeners) {
             l.onHandoverStateChanged(handoverState, networkType, failCause);
+        }
+    }
+
+    /**
+     * Notifies that data connection state is changed.
+     */
+    protected void notifyConnectionStateChanged(int state) {
+        for (Listener l : mListeners) {
+            l.onPreciseDataConnectionStateChanged(mType.getType(), state);
         }
     }
 
@@ -1224,34 +1228,8 @@ public abstract class Apn extends Handler implements IApn {
                         mNetworkType = networkType;
                     }
                     break;
-                case TelephonyManager.DATA_CONNECTING:
-                    if (mType.getType() == DcConstants.TYPE_IMS
-                            && mPreciseDcState != TelephonyManager.DATA_CONNECTING) {
-                        if (mDcSettings != null && mDcSettings.isCdmalessFeatureTagRequired()) {
-                            if (mAosReg != null) {
-                                mAosReg.controlRegistration(
-                                        IAosRegistration.RequestType.START_IMS_EST_TIMER,
-                                        IAosRegistration.Pcscf.CURRENT,
-                                        IAosRegistration.Cause.DATA_CONNECTING);
-                            }
-                        }
-                    }
-                    break;
                 case TelephonyManager.DATA_HANDOVER_IN_PROGRESS:
                     handleHandoverStart(networkType);
-                    break;
-                case TelephonyManager.DATA_DISCONNECTING:
-                    if (mType.getType() == DcConstants.TYPE_IMS) {
-                        if (mAosReg != null) {
-                            if (mAosReg.getRegisteredNetworkType()
-                                    != IAosRegistrationListener.NetworkType.NONE) {
-                                mAosReg.controlRegistration(
-                                        IAosRegistration.RequestType.STOP,
-                                        IAosRegistration.Pcscf.CURRENT,
-                                        IAosRegistration.Cause.DATA);
-                            }
-                        }
-                    }
                     break;
                 case TelephonyManager.DATA_DISCONNECTED:
                     if (mPreciseDcState == TelephonyManager.DATA_CONNECTING
@@ -1268,7 +1246,12 @@ public abstract class Apn extends Handler implements IApn {
             }
 
             // update PreciseDataConnectionState
-            mPreciseDcState = dataState;
+            if (mPreciseDcState != dataState) {
+                mPreciseDcState = dataState;
+                ImsLog.i(mSlotId, "notifyConnectionStateChanged : apnType=" + mType.getString()
+                        + ", dataState=" + dataState);
+                notifyConnectionStateChanged(dataState);
+            }
         }
 
         private void handleHandoverStart(int networkType) {
