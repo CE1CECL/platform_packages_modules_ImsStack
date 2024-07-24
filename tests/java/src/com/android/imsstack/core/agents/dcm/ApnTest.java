@@ -63,8 +63,6 @@ import com.android.imsstack.core.agents.dcmif.IDcApn;
 import com.android.imsstack.core.agents.dcmif.IDcNetWatcher;
 import com.android.imsstack.core.agents.dcmif.IDcSettings;
 import com.android.imsstack.core.config.CarrierConfig;
-import com.android.imsstack.enabler.aos.IAosRegistration;
-import com.android.imsstack.enabler.aos.IAosRegistrationListener;
 import com.android.imsstack.system.ISystem;
 
 import org.junit.After;
@@ -91,7 +89,6 @@ public class ApnTest {
     @Mock private IDcNetWatcher mMockIDcNetWatcher;
     @Mock private ISystem mMockISystem;
     @Mock private ConfigInterface mMockConfigInterface;
-    @Mock private IAosRegistration mMockIAosReg;
     @Mock private Network mMockNetwork;
     @Mock private MsgProcInterface mMockMsgProc;
 
@@ -796,10 +793,8 @@ public class ApnTest {
     }
 
     @Test
-    public void testHandlePreciseDataConnectionStateChanged_connecting() throws Exception {
-        replaceInstance(Apn.class, "mAosReg", mApn, mMockIAosReg);
-        replaceInstance(Apn.class, "mDcSettings", mApn, mMockIDcSettings);
-        when(mMockIDcSettings.isCdmalessFeatureTagRequired()).thenReturn(true);
+    public void testHandlePreciseDataConnectionStateChanged_notifyConnectionStateChange() {
+        mApn.addListener(mMockApnListener);
 
         Message msg = Message.obtain();
         msg.what = Apn.EVENT_PRECISE_DATA_CONNECTION_STATE_CHANGED;
@@ -808,29 +803,24 @@ public class ApnTest {
         mApn.sendMessage(msg);
         mTestableLooper.processAllMessages();
 
-        verify(mMockIAosReg).controlRegistration(
-                IAosRegistration.RequestType.START_IMS_EST_TIMER,
-                IAosRegistration.Pcscf.CURRENT,
-                IAosRegistration.Cause.DATA_CONNECTING);
-        assertEquals(TelephonyManager.DATA_CONNECTING, mApn.mPreciseDcState);
+        verify(mMockApnListener).onPreciseDataConnectionStateChanged(
+                EApnType.IMS.getType(), TelephonyManager.DATA_CONNECTING);
     }
 
     @Test
-    public void testHandlePreciseDataConnectionStateChanged_disconnecting() throws Exception {
-        replaceInstance(Apn.class, "mAosReg", mApn, mMockIAosReg);
-        when(mMockIAosReg.getRegisteredNetworkType())
-                .thenReturn(IAosRegistrationListener.NetworkType.LTE);
+    public void testHandlePreciseDataConnectionStateChanged_doNotNotifySameConnectionState() {
+        mApn.addListener(mMockApnListener);
+        mApn.mPreciseDcState = TelephonyManager.DATA_CONNECTING;
 
         Message msg = Message.obtain();
         msg.what = Apn.EVENT_PRECISE_DATA_CONNECTION_STATE_CHANGED;
-        msg.obj = getPreciseDataConnectionState(TelephonyManager.DATA_DISCONNECTING,
+        msg.obj = getPreciseDataConnectionState(TelephonyManager.DATA_CONNECTING,
                 TelephonyManager.NETWORK_TYPE_LTE, DataFailCause.NONE);
         mApn.sendMessage(msg);
         mTestableLooper.processAllMessages();
 
-        verify(mMockIAosReg).controlRegistration(IAosRegistration.RequestType.STOP,
-                IAosRegistration.Pcscf.CURRENT, IAosRegistration.Cause.DATA);
-        assertEquals(TelephonyManager.DATA_DISCONNECTING, mApn.mPreciseDcState);
+        verify(mMockApnListener, never()).onPreciseDataConnectionStateChanged(
+                EApnType.IMS.getType(), TelephonyManager.DATA_CONNECTING);
     }
 
     @Test
