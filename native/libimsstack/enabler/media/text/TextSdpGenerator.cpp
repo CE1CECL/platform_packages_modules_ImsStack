@@ -33,7 +33,21 @@ IMS_BOOL TextSdpGenerator::Generate(OUT ISessionDescriptor* pSessionDescriptor,
 
     TextProfile* pProfile = static_cast<TextProfile*>(pBaseProfile);
 
-    // Check and delete "red" type which contains invalid sub payload type
+    CheckRedPayloadSubTypeValidity(pProfile);
+    GeneratePayload(pDescriptor, pProfile);
+    GenerateDirection(pDescriptor, pProfile);
+
+    return IMS_TRUE;
+}
+
+PRIVATE
+void TextSdpGenerator::CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile)
+{
+    if (pProfile == IMS_NULL)
+    {
+        return;
+    }
+
     for (IMS_UINT32 i = 0; i < pProfile->GetPayloadList().GetSize(); i++)
     {
         TextProfile::Payload* pPayload = pProfile->GetPayloadAt(i);
@@ -53,7 +67,8 @@ IMS_BOOL TextSdpGenerator::Generate(OUT ISessionDescriptor* pSessionDescriptor,
                 continue;
             }
 
-            IMS_TRACE_I("Generate() - fmtp, Redundancy Level [%d], Red Payload[%d]",
+            IMS_TRACE_I("CheckRedPayloadSubTypeValidity() - fmtp, Redundancy Level [%d], Red "
+                        "Payload[%d]",
                     pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), 0);
 
             IMS_BOOL bRedSubPTExist = IMS_FALSE;
@@ -67,22 +82,23 @@ IMS_BOOL TextSdpGenerator::Generate(OUT ISessionDescriptor* pSessionDescriptor,
                     continue;
                 }
 
-                IMS_TRACE_I("Generate() - RedSubPT, PT[%d] of PL(%d) / Red Payload "
-                            "[%d]",
+                IMS_TRACE_I("CheckRedPayloadSubTypeValidity() - RedSubPT, PT[%d] of PL(%d) / Red "
+                            "Payload [%d]",
                         pTempPayload->GetRtpMap().GetPayloadNumber(), j, pRedFmtp->GetRedPayload());
 
                 if (pTempPayload->GetRtpMap().GetPayloadNumber() ==
                         (IMS_UINT32)pRedFmtp->GetRedPayload())
                 {
                     bRedSubPTExist = IMS_TRUE;
+                    continue;
                 }
             }
 
             if (bRedSubPTExist == IMS_FALSE)
             {
                 IMS_TRACE_E(0,
-                        "Generate() - SubPayloadtype for Redundancy isn't exist. skip "
-                        "Payload, Payload[%s], PT[%d]",
+                        "CheckRedPayloadSubTypeValidity() - SubPayloadtype for Redundancy isn't "
+                        "exist. skip Payload, Payload[%s], PT[%d]",
                         pPayload->GetRtpMap().GetPayloadType().GetStr(),
                         pPayload->GetRtpMap().GetPayloadNumber(), 0);
                 pProfile->GetPayloadList().RemoveAt(i);
@@ -91,69 +107,104 @@ IMS_BOOL TextSdpGenerator::Generate(OUT ISessionDescriptor* pSessionDescriptor,
         }
     }
 
-    IMS_TRACE_I("Generate() - After Check Validity, PayloadSize[%d]",
+    IMS_TRACE_I("CheckRedPayloadSubTypeValidity() - After Checking Validity, PayloadSize[%d]",
             pProfile->GetPayloadList().GetSize(), 0, 0);
+}
 
-    // Make each payload
-    // ------ "a=rtpmap:98 t140/1000"
-    // ------ "a=rtpmap:112 red/1000
-    // ------ "a=fmtp:112 111/111/111"
-    // ------ "a=rtpmap:111 t140/1000
+PRIVATE
+void TextSdpGenerator::GeneratePayload(OUT IMediaDescriptor* pDescriptor, IN TextProfile* pProfile)
+{
+    if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
+    {
+        return;
+    }
+
     for (IMS_UINT32 i = 0; i < pProfile->GetPayloadList().GetSize(); i++)
     {
-        AString strRtpmap, strFmtp, strPayloadNum;
-        TextProfile::Payload* pPayload = pProfile->GetPayloadAt(i);
+        AString strRtpMap = AString::ConstNull();
+        AString strPayloadNum = AString::ConstNull();
+        AString strFmtp = AString::ConstNull();
 
+        TextProfile::Payload* pPayload = pProfile->GetPayloadAt(i);
         if (pPayload == IMS_NULL)
         {
             continue;
         }
 
-        // make "rtpmap"
-        strPayloadNum.Sprintf("%d", pPayload->GetRtpMap().GetPayloadNumber());
-        strRtpmap.Sprintf("%s/%d", pPayload->GetRtpMap().GetPayloadType().GetStr(),
-                pPayload->GetRtpMap().GetSamplingRate());
+        GenerateRtpMap(strRtpMap, strPayloadNum, pPayload->GetRtpMap());
 
-        // make "fmtp"
-        if (pPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("red"))
+        if (GenerateFmtp(strFmtp, pPayload))
         {
-            TextProfile::RedFmtp* pRedFmtp = (TextProfile::RedFmtp*)pPayload->GetFmtp();
-
-            if (pRedFmtp == IMS_NULL)
-            {
-                continue;
-            }
-
-            IMS_UINT32 nCount = pRedFmtp->GetRedLevel();
-            AString TempSubPT;
-            TempSubPT.Sprintf("%d", pRedFmtp->GetRedPayload());
-
-            while (nCount-- > 0)
-            {
-                if (strFmtp.GetLength() > 0)
-                {
-                    strFmtp.Append("/");
-                }
-
-                strFmtp.Append(TempSubPT);
-            }
-
-            IMS_TRACE_I("Generate() - Add fmtp, nRedundancy[%d], Red Payload[%d], "
-                        "Fmtp[%s]",
-                    pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), strFmtp.GetStr());
+            pDescriptor->SetMediaFormat(
+                    SdpMediaFormat::TYPE_RTP, strPayloadNum, strRtpMap, strFmtp);
         }
+    }
+}
 
-        if (strFmtp.GetLength() == 0)
-        {
-            strFmtp = AString::ConstNull();
-        }
+PRIVATE
+void TextSdpGenerator::GenerateRtpMap(
+        OUT AString& strRtpMap, OUT AString& strPayloadNum, IN MediaBaseProfile::RtpMap& objRtpMap)
+{
+    IMS_UINT32 nPayloadNumber = objRtpMap.GetPayloadNumber();
+    AString strPayloadType = objRtpMap.GetPayloadType();
+    IMS_UINT32 nSamplingRate = objRtpMap.GetSamplingRate();
 
-        pDescriptor->SetMediaFormat(SdpMediaFormat::TYPE_RTP, strPayloadNum, strRtpmap, strFmtp);
+    strPayloadNum.Sprintf("%d", nPayloadNumber);
+
+    strRtpMap.Sprintf("%s/%d", strPayloadType.GetStr(), nSamplingRate);
+
+    IMS_TRACE_D("GenerateRtpMap() - RtpMap [%d %s], ", nPayloadNumber, strRtpMap.GetStr(), 0);
+}
+
+PRIVATE
+IMS_BOOL TextSdpGenerator::GenerateFmtp(OUT AString& strFmtp, IN TextProfile::Payload* pPayload)
+{
+    if (pPayload == IMS_NULL)
+    {
+        return IMS_FALSE;
     }
 
-    // Make direction
-    pDescriptor->SetDirection(pProfile->GetDirection());
-    IMS_TRACE_I("Generate() - payloadSize[%d]", pProfile->GetPayloadList().GetSize(), 0, 0);
+    if (pPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("red"))
+    {
+        TextProfile::RedFmtp* pRedFmtp = (TextProfile::RedFmtp*)pPayload->GetFmtp();
+
+        if (pRedFmtp == IMS_NULL)
+        {
+            return IMS_FALSE;
+        }
+
+        IMS_UINT32 nCount = pRedFmtp->GetRedLevel();
+        AString TempSubPT;
+        TempSubPT.Sprintf("%d", pRedFmtp->GetRedPayload());
+
+        while (nCount-- > 0)
+        {
+            if (strFmtp.GetLength() > 0)
+            {
+                strFmtp.Append("/");
+            }
+
+            strFmtp.Append(TempSubPT);
+        }
+
+        IMS_TRACE_I("GenerateFmtp() - Add fmtp, nRedundancy[%d], Red Payload[%d], Fmtp[%s]",
+                pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), strFmtp.GetStr());
+    }
 
     return IMS_TRUE;
+}
+
+PRIVATE
+void TextSdpGenerator::GenerateDirection(
+        OUT IMediaDescriptor* pDescriptor, IN TextProfile* pProfile)
+{
+    if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
+    {
+        return;
+    }
+
+    IMS_SINT32 nDirection = (IMS_SINT32)pProfile->GetDirection();
+
+    pDescriptor->SetDirection(nDirection);
+    IMS_TRACE_D("GenerateDirection() - direction[%d]", nDirection, 0, 0);
 }
