@@ -90,6 +90,12 @@ CallReasonInfo StartErrorHandler::Handle(IN const IMessage* piMessage) const
                 CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL);
     }
 
+    if (m_objContext.GetCallInfo().bEmergency)
+    {
+        return CallReasonInfo(
+                CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_EMERGENCY);
+    }
+
     return HandleResponse(*piMessage);
 }
 
@@ -215,11 +221,6 @@ CallReasonInfo StartErrorHandler::HandleRedirection(IN const IMessage& objMessag
 PRIVATE
 CallReasonInfo StartErrorHandler::Handle380Response(IN const IMessage& objMessage) const
 {
-    if (m_objContext.GetCallInfo().bEmergency)
-    {
-        return CallReasonInfo(CODE_SIP_REDIRECTED, GetDefaultExtraCode(objMessage));
-    }
-
     IMS_SINT32 eSosType = m_objContext.GetMessageUtils().GetSosTypeFromServiceUrn(
             &objMessage, ISipHeader::CONTACT_NORMAL);
     if (eSosType != EXTRA_CODE_EMERGENCYSERVICE_INVALID &&
@@ -316,11 +317,6 @@ CallReasonInfo StartErrorHandler::Handle4xxResponse(IN const IMessage& objMessag
 PRIVATE
 CallReasonInfo StartErrorHandler::Handle403Response(IN const IMessage& objMessage) const
 {
-    if (m_objContext.GetCallInfo().bEmergency)
-    {
-        return CallReasonInfo(CODE_SIP_FORBIDDEN, SipStatusCode::SC_403);
-    }
-
     if (IsByMaxCallLimit(objMessage))
     {
         return CallReasonInfo(CODE_MAXIMUM_NUMBER_OF_CALLS_REACHED);
@@ -450,11 +446,6 @@ CallReasonInfo StartErrorHandler::Handle500Response(IN const IMessage& objMessag
 PRIVATE
 CallReasonInfo StartErrorHandler::Handle503Response(IN const IMessage& objMessage) const
 {
-    if (m_objContext.GetCallInfo().bEmergency)
-    {
-        return CallReasonInfo(CODE_SIP_SERVICE_UNAVAILABLE, SipStatusCode::SC_503);
-    }
-
     IMS_SINT32 nRetryAfter = m_objContext.GetMessageUtils().GetHeaderValueInt(
             &objMessage, ISipHeader::RETRY_AFTER_ANY);
     IMS_SINT32 nRetryAfterInMillis = nRetryAfter * 1000;
@@ -495,11 +486,6 @@ CallReasonInfo StartErrorHandler::Handle503Response(IN const IMessage& objMessag
 PRIVATE
 CallReasonInfo StartErrorHandler::Handle504Response(IN const IMessage& objMessage) const
 {
-    if (m_objContext.GetCallInfo().bEmergency)
-    {
-        return CallReasonInfo(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504);
-    }
-
     if (m_objContext.GetMessageUtils().ContainsAddressInPaid(&objMessage, GetPathHeader()) ||
             m_objContext.GetMessageUtils().ContainsAddressInPaid(
                     &objMessage, GetServiceRouteHeader()))
