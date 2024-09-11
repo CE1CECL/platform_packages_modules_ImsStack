@@ -76,9 +76,9 @@ SIP_BOOL SipCSeqHeader::EncodeHdr(SIP_CHAR** ppCurrPos, SIP_BOOL /*bParams = SIP
     return SIP_TRUE;
 }
 
-SIP_BOOL SipCSeqHeader::SetMethod(const SIP_CHAR* pszMethod)
+SIP_VOID SipCSeqHeader::SetMethod(const SIP_CHAR* pszMethod)
 {
-    return SetCharVar(pszMethod, m_pszMethod);
+    SetCharVar(pszMethod, m_pszMethod);
 }
 
 SIP_BOOL SipCSeqHeader::DecodeHdr(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLen)

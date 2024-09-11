@@ -285,7 +285,7 @@ public:
         m_nCurrentDuration = nCurDuration;
     }
     inline SIP_VOID SetTimerId(SIP_VOID* pvTimerId) { m_pvTimerId = pvTimerId; }
-    SIP_BOOL SetUserData(ISipUserData* pUserData);
+    SIP_VOID SetUserData(ISipUserData* pUserData);
     /* Increment Txn Count by one*/
     inline SIP_VOID IncrTxnCount() { m_nReTxCount = m_nReTxCount + SIP_ONE; }
 

@@ -312,7 +312,7 @@ TEST_F(SipTxnHandlerTest, OnSendTxn_NonInvite)
     // Send Request Msg
     SipRequestLine* pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("ACK"));
+    pReqLine->SetMethod("ACK");
     pReqLine->SipDelete();
 
     EXPECT_EQ(SIP_TRUE,
@@ -322,7 +322,7 @@ TEST_F(SipTxnHandlerTest, OnSendTxn_NonInvite)
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("PRACK"));
+    pReqLine->SetMethod("PRACK");
     pReqLine->SipDelete();
 
     EXPECT_EQ(SIP_TRUE,
@@ -332,7 +332,7 @@ TEST_F(SipTxnHandlerTest, OnSendTxn_NonInvite)
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("CANCEL"));
+    pReqLine->SetMethod("CANCEL");
     pReqLine->SipDelete();
 
     EXPECT_EQ(SIP_FALSE,
@@ -341,7 +341,7 @@ TEST_F(SipTxnHandlerTest, OnSendTxn_NonInvite)
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("BYE"));
+    pReqLine->SetMethod("BYE");
     pReqLine->SipDelete();
 
     EXPECT_EQ(SIP_FALSE,
@@ -350,7 +350,7 @@ TEST_F(SipTxnHandlerTest, OnSendTxn_NonInvite)
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("UPDATE"));
+    pReqLine->SetMethod("UPDATE");
     pReqLine->SipDelete();
 
     EXPECT_EQ(SIP_FALSE,
@@ -630,7 +630,7 @@ CSeq: 1 INVITE\r\n\
 
     SipRequestLine* pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("ACK"));
+    pReqLine->SetMethod("ACK");
     pReqLine->SipDelete();
 
     EXPECT_EQ(SIP_FALSE, pTxnHandler->OnRecvTxn(pSipMsg, pTxnKey, pSipUserData, pTxnInfo, &nError));
@@ -638,7 +638,7 @@ CSeq: 1 INVITE\r\n\
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("PRACK"));
+    pReqLine->SetMethod("PRACK");
     pReqLine->SipDelete();
 
     pTxnKey = new SipTxnKey(pSipMsg, &nError);
@@ -647,7 +647,7 @@ CSeq: 1 INVITE\r\n\
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("CANCEL"));
+    pReqLine->SetMethod("CANCEL");
     pReqLine->SipDelete();
 
     pTxnKey = new SipTxnKey(pSipMsg, &nError);
@@ -656,7 +656,7 @@ CSeq: 1 INVITE\r\n\
 
     pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("BYE"));
+    pReqLine->SetMethod("BYE");
     pReqLine->SipDelete();
 
     pTxnKey = new SipTxnKey(pSipMsg, &nError);
@@ -846,7 +846,7 @@ TEST_F(SipTxnHandlerTest, OnSendTranspError)
     ASSERT_TRUE(pAddrSpec->DecodeAddrSpec(pReqUri, SipPf_Strlen(pReqUri)));
     SipRequestLine* pobjReqLine = new SipRequestLine("INVITE", pAddrSpec, "SIP/2.0");
     ASSERT_TRUE(pobjReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pTempSipMsg->SetRequestline(pobjReqLine));
+    pTempSipMsg->SetRequestline(pobjReqLine);
 
     SipHeaderBase* pViaHdr = SipHeaders::CreateCoreHdrObj(SipHeaderBase::VIA);
     SipHeaderBase* pToHdr = SipHeaders::CreateCoreHdrObj(SipHeaderBase::TO);
@@ -891,7 +891,7 @@ TEST_F(SipTxnHandlerTest, TerminateTxn)
     ASSERT_TRUE(pAddrSpec->DecodeAddrSpec(pReqUri, SipPf_Strlen(pReqUri)));
     SipRequestLine* pobjReqLine = new SipRequestLine("INVITE", pAddrSpec, "SIP/2.0");
     ASSERT_TRUE(pobjReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pTempSipMsg->SetRequestline(pobjReqLine));
+    pTempSipMsg->SetRequestline(pobjReqLine);
 
     SipHeaderBase* pViaHdr = SipHeaders::CreateCoreHdrObj(SipHeaderBase::VIA);
     ASSERT_TRUE(pViaHdr != nullptr);

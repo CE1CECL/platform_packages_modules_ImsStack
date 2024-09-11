@@ -164,8 +164,8 @@ TEST_F(SipMsgBodyTest, EncodeMIMEMsgBody)
     SipUnknownHeader* pUnknownHeader = reinterpret_cast<SipUnknownHeader*>(
             SipUnknownHeader::GetNewObj(SipHeaderBase::UNKNOWN, nullptr));
     ASSERT_TRUE(pUnknownHeader != nullptr);
-    EXPECT_EQ(SIP_TRUE, pUnknownHeader->SetHeaderName("UnknownHeaderName1"));
-    EXPECT_EQ(SIP_TRUE, pUnknownHeader->SetHeaderValue("UnknownHeaderValue1"));
+    pUnknownHeader->SetHeaderName("UnknownHeaderName1");
+    pUnknownHeader->SetHeaderValue("UnknownHeaderValue1");
     EXPECT_EQ(SIP_TRUE, pMessageLevel1->SetMimeHdr(pUnknownHeader));
     pUnknownHeader->SipDelete();
 

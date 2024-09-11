@@ -37,7 +37,7 @@ TEST_F(SipCSeqHeaderTest, IsValidHeader)
 
     EXPECT_EQ(SIP_FALSE, pHeader->IsValidHeader());
 
-    EXPECT_EQ(SIP_TRUE, pHeader->SetMethod("REGISTER"));
+    pHeader->SetMethod("REGISTER");
 
     EXPECT_EQ(SIP_TRUE, pHeader->IsValidHeader());
 

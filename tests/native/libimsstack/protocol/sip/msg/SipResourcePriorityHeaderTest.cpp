@@ -60,12 +60,12 @@ TEST_F(SipResourcePriorityHeaderTest, EncodeAndEncodeHdr)
     EXPECT_EQ(SIP_FALSE, pHeader->Encode(objValue, SIP_FALSE));
     EXPECT_EQ(SIP_FALSE, pHeader->EncodeHdr(&pBuff));
 
-    EXPECT_EQ(SIP_TRUE, pHeader->SetNameSpace("Namespace"));
+    pHeader->SetNameSpace("Namespace");
 
     EXPECT_EQ(SIP_FALSE, pHeader->Encode(objValue, SIP_FALSE));
     EXPECT_EQ(SIP_FALSE, pHeader->EncodeHdr(&pBuff));
 
-    EXPECT_EQ(SIP_TRUE, pHeader->SetRPriority("ResourcePriority"));
+    pHeader->SetRPriority("ResourcePriority");
 
     EXPECT_EQ(SIP_TRUE, pHeader->Encode(objValue, SIP_TRUE));
     EXPECT_EQ(SIP_TRUE, pHeader->EncodeHdr(&pBuff));

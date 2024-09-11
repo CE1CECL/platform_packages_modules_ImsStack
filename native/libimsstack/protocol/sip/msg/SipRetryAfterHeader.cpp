@@ -75,9 +75,9 @@ SIP_BOOL SipRetryAfterHeader::EncodeHdr(
     return EncodeHeaderParameters(ppCurrPos, bParams);
 }
 
-SIP_BOOL SipRetryAfterHeader::SetComment(const SIP_CHAR* pszComment)
+SIP_VOID SipRetryAfterHeader::SetComment(const SIP_CHAR* pszComment)
 {
-    return SetCharVar(pszComment, m_pszComment);
+    SetCharVar(pszComment, m_pszComment);
 }
 
 SIP_BOOL SipRetryAfterHeader::DecodeHdr(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLen)

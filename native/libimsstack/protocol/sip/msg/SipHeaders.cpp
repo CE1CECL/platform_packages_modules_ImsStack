@@ -564,13 +564,7 @@ SIP_BOOL SipHeaders::DecodeHdrs(
             return SIP_FALSE;
         }
 
-        if (pUnknown->SetHeaderName(*ppHdrName) == SIP_FALSE)
-        {
-            pUnknown->SipDelete();
-            SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "Set header name fail", SIP_ZERO, SIP_ZERO);
-            return SIP_FALSE;
-        }
-
+        pUnknown->SetHeaderName(*ppHdrName);
         *ppHdrBody = SipCreateString(pTempNext, pEndPt);
         if (*ppHdrBody == SIP_NULL)
         {
@@ -585,13 +579,7 @@ SIP_BOOL SipHeaders::DecodeHdrs(
             return SIP_FALSE;
         }
 
-        if (pUnknown->SetHeaderValue(*ppHdrBody) == SIP_FALSE)
-        {
-            pUnknown->SipDelete();
-            SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "Set header value fail", SIP_ZERO, SIP_ZERO);
-            return SIP_FALSE;
-        }
-
+        pUnknown->SetHeaderValue(*ppHdrBody);
         /*Add the header into the unknown list*/
         if ((static_cast<SipHeaderList*>(pHeader))->AddHeader(pUnknown) == SIP_FALSE)
         {

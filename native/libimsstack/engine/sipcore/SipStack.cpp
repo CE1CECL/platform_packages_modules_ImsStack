@@ -576,17 +576,8 @@ GLOBAL SipHeaderBase* CreateViaHeader(
         return IMS_NULL;
     }
 
-    if (pVia->SetProtocolName("SIP") == SIP_FALSE)
-    {
-        pVia->SipDelete();
-        return IMS_NULL;
-    }
-
-    if (pVia->SetProtocolVer(Sip::STR_SIP_VERSION_ONLY) == SIP_FALSE)
-    {
-        pVia->SipDelete();
-        return IMS_NULL;
-    }
+    pVia->SetProtocolName("SIP");
+    pVia->SetProtocolVer(Sip::STR_SIP_VERSION_ONLY);
 
     const IMS_CHAR* pszTransport = strSentProtocol.GetStr();
 
@@ -595,11 +586,7 @@ GLOBAL SipHeaderBase* CreateViaHeader(
         pszTransport += 8;
     }
 
-    if (pVia->SetTransport(pszTransport) == SIP_FALSE)
-    {
-        pVia->SipDelete();
-        return IMS_NULL;
-    }
+    pVia->SetTransport(pszTransport);
 
     const IMS_CHAR* pszHost = strSentBy.GetStr();
     IMS_CHAR* pszTmp;
@@ -617,11 +604,7 @@ GLOBAL SipHeaderBase* CreateViaHeader(
                 pVia->SetHost(pszHost);
                 pszTmp++;
                 IMS_SINT32 nPort = IMS_Atoi(pszTmp);
-                if (pVia->SetPortNum(static_cast<SIP_UINT16>(nPort)) == SIP_FALSE)
-                {
-                    pVia->SipDelete();
-                    return IMS_NULL;
-                }
+                pVia->SetPortNum(static_cast<SIP_UINT16>(nPort));
             }
             else
             {
@@ -643,20 +626,12 @@ GLOBAL SipHeaderBase* CreateViaHeader(
         pszTmp++;
 
         IMS_SINT32 nPort = IMS_Atoi(pszTmp);
-        if (pVia->SetPortNum(static_cast<SIP_UINT16>(nPort)) == SIP_FALSE)
-        {
-            pVia->SipDelete();
-            return IMS_NULL;
-        }
+        pVia->SetPortNum(static_cast<SIP_UINT16>(nPort));
     }
     else
     {
         // only host present
-        if (pVia->SetHost(pszHost) == SIP_FALSE)
-        {
-            pVia->SipDelete();
-            return IMS_NULL;
-        }
+        pVia->SetHost(pszHost);
     }
 
     if (pVia->SetBranchParam(strBranch.GetStr()) == SIP_FALSE)
@@ -3863,14 +3838,8 @@ GLOBAL IMS_BOOL UpdateSentProtocol(IN ::SipMessage* pMessage, IN const AString& 
         nStartIndex = 8;
     }
 
-    if (pViaHeader->SetTransport(pszProtocol + nStartIndex) == SIP_FALSE)
-    {
-        FreeHeader(pViaHeader);
-        return IMS_FALSE;
-    }
-
+    pViaHeader->SetTransport(pszProtocol + nStartIndex);
     FreeHeader(pViaHeader);
-
     return IMS_TRUE;
 }
 

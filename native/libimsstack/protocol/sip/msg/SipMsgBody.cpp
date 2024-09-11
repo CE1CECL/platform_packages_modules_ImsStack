@@ -302,13 +302,7 @@ SIP_BOOL SipMIMEHdrs::DecodeMIMEHdrs(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLe
             return SIP_FALSE;
         }
 
-        if (pUnknown->SetHeaderName(pszHdrName) == SIP_FALSE)
-        {
-            SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "SetHeaderName fail", SIP_ZERO, SIP_ZERO);
-            pUnknown->SipDelete();
-            delete[] pszHdrName;
-            return SIP_FALSE;
-        }
+        pUnknown->SetHeaderName(pszHdrName);
         delete[] pszHdrName;
 
         SIP_CHAR* pszHdrValue = SipCreateString(pTempNext, pEndPt);
@@ -318,13 +312,8 @@ SIP_BOOL SipMIMEHdrs::DecodeMIMEHdrs(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLe
             pUnknown->SipDelete();
             return SIP_FALSE;
         }
-        if (pUnknown->SetHeaderValue(pszHdrValue) == SIP_FALSE)
-        {
-            SIP_DEBUG_WARNING(ESIPTRACE_MODDECODER, "SetHeaderValue Fail", SIP_ZERO, SIP_ZERO);
-            pUnknown->SipDelete();
-            delete[] pszHdrValue;
-            return SIP_FALSE;
-        }
+
+        pUnknown->SetHeaderValue(pszHdrValue);
         delete[] pszHdrValue;
 
         if (m_pUnKnownHdrList == SIP_NULL)

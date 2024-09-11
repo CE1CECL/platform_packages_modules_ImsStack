@@ -67,7 +67,7 @@ public:
         this->m_nTranspProtocol = nTranspProtocol;
     }
 
-    SIP_BOOL SetHostAddress(const SIP_CHAR* pHostAddress);
+    SIP_VOID SetHostAddress(const SIP_CHAR* pHostAddress);
 
     SIP_VOID SetPort(SIP_UINT16 nPort) { this->m_nPort = nPort; }
 };

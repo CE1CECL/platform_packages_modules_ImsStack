@@ -123,7 +123,7 @@ TEST_F(SipTxnInvSerFsmTest, InvSer_IdleState)
 
     SipRequestLine* pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("BYE"));
+    pReqLine->SetMethod("BYE");
     pReqLine->SipDelete();
 
     pTxnKey = new SipTxnKey(pSipMsg, &nError);

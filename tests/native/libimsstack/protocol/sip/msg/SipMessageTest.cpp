@@ -62,7 +62,7 @@ protected:
         SipStatusLine* pStatusLine = new SipStatusLine(SIP_SIPVER, "180", "Ringing");
         ASSERT_TRUE(pStatusLine != nullptr);
 
-        EXPECT_EQ(SIP_TRUE, pMessage->SetStatusLine(pStatusLine));
+        pMessage->SetStatusLine(pStatusLine);
     }
 
     void FillMandatoryHeaders()
@@ -205,12 +205,12 @@ TEST_F(SipMessageTest, SetStatusLine)
     SipStatusLine* pStatusLine = new SipStatusLine(SIP_SIPVER, "180", "Ringing");
     ASSERT_TRUE(pStatusLine != nullptr);
 
-    EXPECT_EQ(SIP_TRUE, pMessage->SetStatusLine(pStatusLine));
+    pMessage->SetStatusLine(pStatusLine);
 
     pStatusLine = new SipStatusLine(SIP_SIPVER, "100", "Trying");
     ASSERT_TRUE(pStatusLine != nullptr);
 
-    EXPECT_EQ(SIP_TRUE, pMessage->SetStatusLine(pStatusLine));
+    pMessage->SetStatusLine(pStatusLine);
 
     pStatusLine = pMessage->GetStatusLine();
     ASSERT_TRUE(pStatusLine != nullptr);

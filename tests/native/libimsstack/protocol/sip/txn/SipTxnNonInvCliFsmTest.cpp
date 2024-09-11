@@ -127,7 +127,7 @@ TEST_F(SipTxnNonInvCliFsmTest, NonInvCli_IdleState)
 
     SipRequestLine* pReqLine = pSipMsg->GetReqLine();
     ASSERT_TRUE(pReqLine != nullptr);
-    EXPECT_EQ(SIP_TRUE, pReqLine->SetMethod("CANCEL"));
+    pReqLine->SetMethod("CANCEL");
     pReqLine->SipDelete();
 
     pTxnFsmData = new SipTxnFsmData(pSipMsg, pSipTranspParam, pSipUserData);

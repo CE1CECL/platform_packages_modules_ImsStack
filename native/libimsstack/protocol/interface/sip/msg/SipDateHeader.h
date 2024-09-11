@@ -88,19 +88,19 @@ public:
     SIP_BOOL DecodeHdr(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLen) override;
 
     /*set methods*/
-    SIP_BOOL SetDate(const SIP_UINT16 nDate);
+    SIP_VOID SetDate(const SIP_UINT16 nDate);
 
-    SIP_BOOL SetMonth(SIP_INT32 eMonth);
+    SIP_VOID SetMonth(SIP_INT32 eMonth);
 
-    SIP_BOOL SetYear(const SIP_UINT16 nYear);
+    SIP_VOID SetYear(const SIP_UINT16 nYear);
 
-    SIP_BOOL SetHour(const SIP_UINT16 nHour);
+    SIP_VOID SetHour(const SIP_UINT16 nHour);
 
-    SIP_BOOL SetMinute(const SIP_UINT16 nMin);
+    SIP_VOID SetMinute(const SIP_UINT16 nMin);
 
-    SIP_BOOL SetSecond(const SIP_UINT16 nSec);
+    SIP_VOID SetSecond(const SIP_UINT16 nSec);
 
-    SIP_BOOL SetWkDay(SIP_INT32 eWkDay);
+    SIP_VOID SetWkDay(SIP_INT32 eWkDay);
 
     /*Get methods*/
     inline SIP_UINT16 GetDate() const { return m_nDate; }

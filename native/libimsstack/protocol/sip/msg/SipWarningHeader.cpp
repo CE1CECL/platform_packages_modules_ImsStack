@@ -117,14 +117,14 @@ SIP_BOOL SipWarningHeader::EncodeHdr(SIP_CHAR** ppCurrPos, SIP_BOOL /*bParams = 
     return SIP_TRUE;
 }
 
-SIP_BOOL SipWarningHeader::SetWarnAgent(const SIP_CHAR* pszWarnAgent)
+SIP_VOID SipWarningHeader::SetWarnAgent(const SIP_CHAR* pszWarnAgent)
 {
-    return SetCharVar(pszWarnAgent, m_pszWarnAgent);
+    SetCharVar(pszWarnAgent, m_pszWarnAgent);
 }
 
-SIP_BOOL SipWarningHeader::SetWarnText(const SIP_CHAR* pszWarnText)
+SIP_VOID SipWarningHeader::SetWarnText(const SIP_CHAR* pszWarnText)
 {
-    return SetCharVar(pszWarnText, m_pszWarnText);
+    SetCharVar(pszWarnText, m_pszWarnText);
 }
 
 SIP_BOOL SipWarningHeader::DecodeHdr(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLen)

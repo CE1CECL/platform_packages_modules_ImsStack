@@ -166,8 +166,8 @@ TEST_F(SipMIMEHdrsTest, EncodeMIMEHdrs)
             SipContentTypeHeader::GetNewObj(SipHeaderBase::CONTENT_TYPE, nullptr));
     ASSERT_TRUE(pContentTypeHeader != nullptr);
 
-    EXPECT_EQ(SIP_TRUE, pContentTypeHeader->SetMediaType("mediaType"));
-    EXPECT_EQ(SIP_TRUE, pContentTypeHeader->SetSubMediaType("mediaSubType"));
+    pContentTypeHeader->SetMediaType("mediaType");
+    pContentTypeHeader->SetSubMediaType("mediaSubType");
 
     EXPECT_EQ(SIP_TRUE, pMimeHeaders->SetMimeHdrs(pContentTypeHeader));
 
@@ -177,8 +177,8 @@ TEST_F(SipMIMEHdrsTest, EncodeMIMEHdrs)
             SipUnknownHeader::GetNewObj(SipHeaderBase::UNKNOWN, nullptr));
     ASSERT_TRUE(pUnknownHeader != nullptr);
 
-    EXPECT_EQ(SIP_TRUE, pUnknownHeader->SetHeaderName("UnknownHeaderName1"));
-    EXPECT_EQ(SIP_TRUE, pUnknownHeader->SetHeaderValue("UnknownHeaderValue1"));
+    pUnknownHeader->SetHeaderName("UnknownHeaderName1");
+    pUnknownHeader->SetHeaderValue("UnknownHeaderValue1");
 
     EXPECT_EQ(SIP_TRUE, pMimeHeaders->SetMimeHdrs(pUnknownHeader));
 
@@ -188,8 +188,8 @@ TEST_F(SipMIMEHdrsTest, EncodeMIMEHdrs)
             SipUnknownHeader::GetNewObj(SipHeaderBase::UNKNOWN, nullptr));
     ASSERT_TRUE(pUnknownHeader != nullptr);
 
-    EXPECT_EQ(SIP_TRUE, pUnknownHeader->SetHeaderName("UnknownHeaderName2"));
-    EXPECT_EQ(SIP_TRUE, pUnknownHeader->SetHeaderValue("UnknownHeaderValue2"));
+    pUnknownHeader->SetHeaderName("UnknownHeaderName2");
+    pUnknownHeader->SetHeaderValue("UnknownHeaderValue2");
 
     EXPECT_EQ(SIP_TRUE, pMimeHeaders->SetMimeHdrs(pUnknownHeader));
 

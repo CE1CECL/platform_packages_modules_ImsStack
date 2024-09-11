@@ -547,21 +547,14 @@ SIP_INT32 SipTxn::GetMsgSentProto()
     return eTranspMsgSentProtocol;
 }
 
-SIP_BOOL SipTxn::SetUserData(ISipUserData* pUserData)
+SIP_VOID SipTxn::SetUserData(ISipUserData* pUserData)
 {
-    if (pUserData == SIP_NULL)
-    {
-        return SIP_FALSE;
-    }
-
     if (m_pUserData != SIP_NULL)
     {
         delete m_pUserData;
     }
 
     m_pUserData = pUserData;
-
-    return SIP_TRUE;
 }
 
 SIP_BOOL SipTxn::IsTxnTerminated()

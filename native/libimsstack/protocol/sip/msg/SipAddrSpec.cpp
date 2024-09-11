@@ -99,14 +99,14 @@ SIP_BOOL SipUri::IsValidComponent(const SIP_CHAR* pszComponent) const
     return SIP_FALSE;
 }
 
-SIP_BOOL SipUri::SetUser(const SIP_CHAR* pszUser)
+SIP_VOID SipUri::SetUser(const SIP_CHAR* pszUser)
 {
-    return SetCharVar(pszUser, m_pszUser);
+    SetCharVar(pszUser, m_pszUser);
 }
 
-SIP_BOOL SipUri::SetPassword(const SIP_CHAR* pszPass)
+SIP_VOID SipUri::SetPassword(const SIP_CHAR* pszPass)
 {
-    return SetCharVar(pszPass, m_pszPassword);
+    SetCharVar(pszPass, m_pszPassword);
 }
 
 SIP_BOOL SipUri::Encode(AStringBuffer& objBuffer, SIP_BOOL bParams) const
@@ -565,9 +565,9 @@ SipAddrSpec::~SipAddrSpec()
     }
 }
 
-SIP_BOOL SipAddrSpec::SetAbsUri(const SIP_CHAR* pszSipUri)
+SIP_VOID SipAddrSpec::SetAbsUri(const SIP_CHAR* pszSipUri)
 {
-    return SetCharVar(pszSipUri, m_pszAbsUri);
+    SetCharVar(pszSipUri, m_pszAbsUri);
 }
 
 SipUri* SipAddrSpec::GetSipUri()
@@ -754,9 +754,9 @@ SIP_BOOL SipNameAddr::SetAddrSpec(SipAddrSpec* pSipAddrSpec)
     return SIP_TRUE;
 }
 
-SIP_BOOL SipNameAddr::SetDisplayName(const SIP_CHAR* pszDisplayName)
+SIP_VOID SipNameAddr::SetDisplayName(const SIP_CHAR* pszDisplayName)
 {
-    return SetCharVar(pszDisplayName, m_pszDispName);
+    SetCharVar(pszDisplayName, m_pszDispName);
 }
 
 SIP_BOOL SipNameAddr::Encode(AStringBuffer& objBuffer, SIP_BOOL bParams) const

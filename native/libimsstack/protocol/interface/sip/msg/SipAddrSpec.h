@@ -63,10 +63,9 @@ public:
 
     SIP_BOOL DecodeSipUri(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLen);
 
-    /*Set Methods*/
-    SIP_BOOL SetUser(const SIP_CHAR* pszUser);
+    SIP_VOID SetUser(const SIP_CHAR* pszUser);
 
-    SIP_BOOL SetPassword(const SIP_CHAR* pszPass);
+    SIP_VOID SetPassword(const SIP_CHAR* pszPass);
 
     /*Get methods*/
     inline const SIP_CHAR* GetUser() const { return m_pszUser; }
@@ -152,7 +151,7 @@ public:
 
     SipUri* GetSipUri();
 
-    SIP_BOOL SetAbsUri(const SIP_CHAR* pszSipUri);
+    SIP_VOID SetAbsUri(const SIP_CHAR* pszSipUri);
 
     inline const SIP_CHAR* GetAbsUri() const { return m_pszAbsUri; }
 
@@ -185,7 +184,7 @@ public:
 
     SipAddrSpec* GetAddrSpec();
 
-    SIP_BOOL SetDisplayName(const SIP_CHAR* pszDisplayName);
+    SIP_VOID SetDisplayName(const SIP_CHAR* pszDisplayName);
 
     inline const SIP_CHAR* GetDisplayName() const { return m_pszDispName; }
 

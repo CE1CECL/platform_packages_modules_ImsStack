@@ -332,76 +332,62 @@ SIP_BOOL SipDateHeader::DecodeHdr(const SIP_CHAR* pStartPt, SIP_UINT32 nDecLen)
     return SIP_TRUE;
 }
 
-SIP_BOOL SipDateHeader::SetDate(const SIP_UINT16 nDate)
+SIP_VOID SipDateHeader::SetDate(const SIP_UINT16 nDate)
 {
     if ((nDate <= MAX_DATE) && (nDate > SIP_ZERO))
     {
         m_nDate = nDate;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
-SIP_BOOL SipDateHeader::SetMonth(SIP_INT32 eMonth)
+SIP_VOID SipDateHeader::SetMonth(SIP_INT32 eMonth)
 {
     if ((eMonth >= SipDateHeader::JANUARY) && (eMonth < SipDateHeader::UNKNOWN_MONTH))
     {
         m_eMonth = eMonth;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
-SIP_BOOL SipDateHeader::SetYear(const SIP_UINT16 nYear)
+SIP_VOID SipDateHeader::SetYear(const SIP_UINT16 nYear)
 {
     const SIP_UINT16 YEAR_VAL = 1000;
 
     if (nYear >= YEAR_VAL)
     {
         m_nYear = nYear;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
-SIP_BOOL SipDateHeader::SetHour(const SIP_UINT16 nHour)
+SIP_VOID SipDateHeader::SetHour(const SIP_UINT16 nHour)
 {
     if (nHour < MAX_HOUR)
     {
         m_nHour = nHour;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
-SIP_BOOL SipDateHeader::SetMinute(const SIP_UINT16 nMin)
+SIP_VOID SipDateHeader::SetMinute(const SIP_UINT16 nMin)
 {
     if (nMin < MAX_MIN_SEC)
     {
         m_nMin = nMin;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
-SIP_BOOL SipDateHeader::SetSecond(const SIP_UINT16 nSec)
+SIP_VOID SipDateHeader::SetSecond(const SIP_UINT16 nSec)
 {
     if (nSec < MAX_MIN_SEC)
     {
         m_nSec = nSec;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
-SIP_BOOL SipDateHeader::SetWkDay(SIP_INT32 eWkDay)
+SIP_VOID SipDateHeader::SetWkDay(SIP_INT32 eWkDay)
 {
     if ((eWkDay >= SipDateHeader::MONDAY) && (eWkDay < SipDateHeader::UNKNOWN_DAY))
     {
         m_eWkDay = eWkDay;
-        return SIP_TRUE;
     }
-    return SIP_FALSE;
 }
 
 SipHeaderBase* SipDateHeader::GetNewObj(SIP_INT32 /*eHdr*/, SipHeaderBase* pHeader)
