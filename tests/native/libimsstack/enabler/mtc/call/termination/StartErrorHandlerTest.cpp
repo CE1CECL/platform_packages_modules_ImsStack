@@ -400,17 +400,6 @@ TEST_F(StartErrorHandlerTest, Handle380Response)
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 }
 
-TEST_F(StartErrorHandlerTest, Handle380ResponseForEmergencyCall)
-{
-    SetMessageCode(SipStatusCode::SC_380);
-    objCallInfo.bEmergency = IMS_TRUE;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyCallOverEmergencyPdnWithNextPcscf())
-            .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(objMtcService, IsEmergency()).WillByDefault(Return(IMS_TRUE));
-
-    EXPECT_TRUE(CheckHandleResult(CODE_SIP_REDIRECTED, SipStatusCode::SC_380));
-}
-
 TEST_F(StartErrorHandlerTest, Handle380ResponseWithUeUnDetectableEmergencyCall)
 {
     SetMessageCode(SipStatusCode::SC_380);
@@ -575,19 +564,6 @@ TEST_F(StartErrorHandlerTest, Handle403Response)
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE_BY_CSFB)).Times(1);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
-}
-
-TEST_F(StartErrorHandlerTest, Handle403ResponseForEmergencyCall)
-{
-    SetMessageCode(SipStatusCode::SC_403);
-    objCallInfo.bEmergency = IMS_TRUE;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyCallOverEmergencyPdnWithNextPcscf())
-            .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(objMtcService, IsEmergency()).WillByDefault(Return(IMS_TRUE));
-    ON_CALL(objMessageUtils, GetNumberOfPreviousResponses(&objSession, IMessage::SESSION_START))
-            .WillByDefault(Return(2));
-
-    EXPECT_TRUE(CheckHandleResult(CODE_SIP_FORBIDDEN, SipStatusCode::SC_403));
 }
 
 TEST_F(StartErrorHandlerTest, Handle403ResponseForMaxCallLimitInReasonHeader)
@@ -867,13 +843,6 @@ TEST_F(StartErrorHandlerTest,
     EXPECT_TRUE(CheckHandleResult(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_RETRY_AFTER, "10000"));
 }
 
-TEST_F(StartErrorHandlerTest, Handle503ResponseForEmergencyCall)
-{
-    SetMessageCode(SipStatusCode::SC_503);
-    objCallInfo.bEmergency = IMS_TRUE;
-    EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVICE_UNAVAILABLE, SipStatusCode::SC_503));
-}
-
 TEST_F(StartErrorHandlerTest, Handle504ResponseDoesNotRestoreRegistration)
 {
     SetMessageCode(SipStatusCode::SC_504);
@@ -961,13 +930,6 @@ TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRecoverWithoutPdnReconn
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504));
 }
 
-TEST_F(StartErrorHandlerTest, Handle504ResponseForEmergencyCall)
-{
-    SetMessageCode(SipStatusCode::SC_504);
-    objCallInfo.bEmergency = IMS_TRUE;
-    EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504));
-}
-
 TEST_F(StartErrorHandlerTest, Handle6xxResponses)
 {
     SetMessageCode(SipStatusCode::SC_600);
@@ -994,6 +956,14 @@ TEST_F(StartErrorHandlerTest, ExtraCodeIsSetByReasonHeader)
 
     SetMessageCode(SipStatusCode::SC_603);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_USER_REJECTED, nAnyCause));
+}
+
+TEST_F(StartErrorHandlerTest, HandleResponseForEmergencyCall)
+{
+    SetMessageCode(SipStatusCode::SC_400);
+    objCallInfo.bEmergency = IMS_TRUE;
+    EXPECT_TRUE(CheckHandleResult(CODE_LOCAL_CALL_CS_RETRY_REQUIRED,
+            EXTRA_CODE_CALL_RETRY_EMERGENCY));
 }
 
 }  // namespace android
