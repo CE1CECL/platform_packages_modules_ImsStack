@@ -37,8 +37,9 @@ public:
     MOCK_METHOD(IMS_BOOL, IsWfcImsAvailable, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsImsSingleRegistrationRequired, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsRttSupported, (), (const, override));
+    MOCK_METHOD(IMS_BOOL, IsRttSupportedWhileRoaming, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsSupportLimitedAdminSmsMode, (), (const, override));
-    MOCK_METHOD(IMS_BOOL, IsTtySupported, (), (const, override));
+    MOCK_METHOD(IMS_BOOL, IsVolteTtySupported, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsVopsIgnoredForVolteEnabled, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsSmsOverImsAvailableWithoutVoiceCapability, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsRequiredVolteBlockBySsac, (), (const, override));

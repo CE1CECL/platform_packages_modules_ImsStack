@@ -52,8 +52,9 @@ public:
     IMS_BOOL IsWfcImsAvailable() const override;
     IMS_BOOL IsImsSingleRegistrationRequired() const override;
     IMS_BOOL IsRttSupported() const override;
+    IMS_BOOL IsRttSupportedWhileRoaming() const override;
     IMS_BOOL IsSupportLimitedAdminSmsMode() const override;
-    IMS_BOOL IsTtySupported() const override;
+    IMS_BOOL IsVolteTtySupported() const override;
     IMS_BOOL IsVopsIgnoredForVolteEnabled() const override;
     IMS_BOOL IsSmsOverImsAvailableWithoutVoiceCapability() const override;
     IMS_BOOL IsRequiredVolteBlockBySsac() const override;
