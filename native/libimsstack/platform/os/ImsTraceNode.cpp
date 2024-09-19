@@ -18,7 +18,7 @@
 #include "ServiceTrace.h"
 
 PUBLIC
-ImsTraceNode::ImsTraceNode(IN IMS_SINT32 nCategory, IN const IMS_CHAR* pszTag) :
+ImsTraceNode::ImsTraceNode(IN const IMS_CHAR* pszTag) :
         m_bAlloc(IMS_FALSE),
         m_nHeaderLength(0),
         m_nLength(0),
@@ -26,13 +26,8 @@ ImsTraceNode::ImsTraceNode(IN IMS_SINT32 nCategory, IN const IMS_CHAR* pszTag) :
 {
     IMS_MEM_Memset(m_acBuffer, 0, MAX_BUFF_SIZE + 1);
 
-    // IMS prefix
-    m_pBuffer[0] = 'I';
-    m_pBuffer[1] = 'M';
-    m_pBuffer[2] = 'S';
-    m_pBuffer[3] = '.';
-
-    m_nHeaderLength = 4;
+    m_pBuffer[0] = '[';
+    m_nHeaderLength = 1;
 
     // Tag
     if (pszTag != IMS_NULL)
@@ -44,15 +39,8 @@ ImsTraceNode::ImsTraceNode(IN IMS_SINT32 nCategory, IN const IMS_CHAR* pszTag) :
         }
     }
 
-    // Postfix ('.' + I / D / E)
-    m_pBuffer[m_nHeaderLength++] = '.';
-    m_pBuffer[m_nHeaderLength++] = (nCategory & 0xFF);
-
-    // Add misc ('>> ')
-    m_pBuffer[m_nHeaderLength++] = '>';
-    m_pBuffer[m_nHeaderLength++] = '>';
+    m_pBuffer[m_nHeaderLength++] = ']';
     m_pBuffer[m_nHeaderLength++] = ' ';
-
     m_pBuffer[m_nHeaderLength] = '\0';
 }
 
@@ -66,10 +54,13 @@ PUBLIC VIRTUAL ImsTraceNode::~ImsTraceNode()
 }
 
 PUBLIC
-void ImsTraceNode::Format(IN const IMS_CHAR* pszFormat, IN va_list args)
+void ImsTraceNode::Format(IN const IMS_CHAR* pszFormat, IN va_list args,
+        IN const AString& strSuffix /*= AString::ConstNull()*/)
 {
     static const IMS_CHAR OVERFLOW[] = "___ TRACE OVERFLOW ___";
-    IMS_SINT32 nBufferCount = MAX_BUFF_SIZE - (m_nHeaderLength + CRLF_SIZE);
+    // +1: one line-feed (LF)
+    IMS_SINT32 nExtraLogSize = m_nHeaderLength + strSuffix.GetLength() + 1;
+    IMS_SINT32 nBufferCount = MAX_BUFF_SIZE - nExtraLogSize;
     // It's possible for methods that use a va_list to invalidate the data in it upon use.
     // So, this copy will be used to call the next vsnprintf.
     va_list backup_args;
@@ -90,7 +81,7 @@ void ImsTraceNode::Format(IN const IMS_CHAR* pszFormat, IN va_list args)
             m_pBuffer = IMS_NULL;
         }
 
-        IMS_SINT32 nNewBufferSize = m_nLength + m_nHeaderLength + CRLF_SIZE + 1;
+        IMS_SINT32 nNewBufferSize = m_nLength + nExtraLogSize + 1;
         m_bAlloc = IMS_TRUE;
         m_pBuffer = new IMS_CHAR[nNewBufferSize];
 
@@ -109,12 +100,40 @@ void ImsTraceNode::Format(IN const IMS_CHAR* pszFormat, IN va_list args)
     // Calculate a total log length
     m_nLength += m_nHeaderLength;
 
-    // Add CRLF
-    m_pBuffer[m_nLength] = 0x20;
-    m_pBuffer[m_nLength + 1] = 0x0a;
+    // Add suffix
+    if (strSuffix.GetLength() > 0)
+    {
+        IMS_MEM_Memcpy(&m_pBuffer[m_nLength], strSuffix.GetStr(), strSuffix.GetLength());
+        m_nLength += strSuffix.GetLength();
+    }
 
-    // Add prefix size
-    m_nLength += CRLF_SIZE;
+    // Add line-feed (LF)
+    m_pBuffer[m_nLength] = 0x0a;
+    m_nLength += 1;
 
     m_pBuffer[m_nLength] = '\0';
+}
+
+PUBLIC GLOBAL AString ImsTraceNode::GetComponentName(IN const IMS_CHAR* pszComponent)
+{
+    AString strName(pszComponent);
+
+    if (strName.GetLength() > 0)
+    {
+        IMS_SINT32 nIndex = strName.GetLastIndexOf('/');
+
+        if (nIndex != AString::NPOS)
+        {
+            strName = strName.GetSubStr(nIndex + 1);
+        }
+
+        nIndex = strName.GetLastIndexOf('.');
+
+        if (nIndex != AString::NPOS)
+        {
+            strName = strName.GetSubStr(0, nIndex);
+        }
+    }
+
+    return strName;
 }
