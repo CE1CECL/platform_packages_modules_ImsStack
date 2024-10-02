@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.android.ims.internal.IImsCallSession;
 import com.android.imsstack.its.imsservice.mmtel.ImsMmTelFeatureWrapper;
 import com.android.imsstack.its.imsservice.mmtel.call.ImsCallSessionWrapper;
+import com.android.imsstack.its.servercontrol.ServerFailureHandler;
 import com.android.imsstack.its.util.SingleLatch;
 import com.android.imsstack.util.Log;
 
@@ -40,7 +41,7 @@ import java.util.function.Predicate;
 /**
  * Provides utilities and assertions for call tests that use {@link ImsCallSessionWrapper}.
  */
-public class TestCall {
+public class TestCall extends ServerFailureHandler {
     private static final int TIMEOUT_DEFAULT_MS = 10000;
 
     private final @NonNull ImsMmTelFeatureWrapper mMmTelFeature;
@@ -126,6 +127,11 @@ public class TestCall {
         return this.mCallSession.getState();
     }
 
+    @Override
+    protected void handleServerFailure() {
+        mLatch.countDownAndInit();
+    }
+
     private void resetExpectation() {
         this.mExpectedEvent = new CallEvent(CallEvent.Type.NONE);
         this.mEventRecords.clear();
@@ -150,6 +156,10 @@ public class TestCall {
                     mLatch.await(waitingTimeInMillis);
                 } else {
                     mLatch.awaitTimeout(waitingTimeInMillis);
+                }
+
+                if (mFailureDetail != null) {
+                    fail(mFailureDetail);
                 }
             };
             mWaitingTimeInMillis = waitingTimeInMillis;
