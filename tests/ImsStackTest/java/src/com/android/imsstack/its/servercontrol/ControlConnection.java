@@ -18,6 +18,8 @@ package com.android.imsstack.its.servercontrol;
 import com.android.imsstack.its.core.agents.WifiAgent;
 import com.android.imsstack.util.Log;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -38,6 +40,7 @@ public final class ControlConnection {
     // supported.
     private static final int SERVER_PORT = 12345;
 
+    private final ServerFailureHandler mFailureHandler;
     private Socket mSocket;
     private CompletableFuture<Void> mConnectionFuture;
 
@@ -45,10 +48,15 @@ public final class ControlConnection {
      * Constructs a {@code ControlConnection} and initiates the connection to the server using
      * Wi-Fi.
      *
+     * @param failureHandler The handler responsible for processing failure messages received from
+     *                       the server. This must be an instance of a class that extends
+     *                       {@link ServerFailureHandler} and implements logic to handle server-side
+     *                       failures.
      * @param serverIp The IP address of the server to connect to.
      * @throws RuntimeException If Wi-Fi is not enabled or any other error occurs during connection.
      */
-    public ControlConnection(InetAddress serverIp) {
+    public ControlConnection(ServerFailureHandler failureHandler, InetAddress serverIp) {
+        mFailureHandler = failureHandler;
         mConnectionFuture = connectToServer(serverIp);
     }
 
@@ -62,14 +70,20 @@ public final class ControlConnection {
     public CompletableFuture<Void> sendControlCommand(String command) {
         return mConnectionFuture.thenAcceptAsync(v -> {
             if (mSocket == null || !mSocket.isConnected()) {
-                throw new RuntimeException("Socket is not connected. Cannot send command.");
+                throw new RuntimeException("Socket is not connected.");
             }
 
-            try (PrintWriter out = new PrintWriter(mSocket.getOutputStream(), true)) {
+            try (PrintWriter out = new PrintWriter(mSocket.getOutputStream(), true);
+                    BufferedReader in =
+                            new BufferedReader(new InputStreamReader(mSocket.getInputStream()))) {
                 out.println(command);
-                // TODO: Read the result and interrupts the test.
+                out.flush();
+                String failureReport = in.readLine();
+                if (failureReport != null && mFailureHandler != null) {
+                    mFailureHandler.handleFailure(failureReport);
+                }
             } catch (Exception e) {
-                throw new RuntimeException("Error during communication");
+                throw new RuntimeException("Error during communication : " + e.getMessage());
             }
         }, EXECUTOR_SERVICE);
     }
@@ -101,8 +115,7 @@ public final class ControlConnection {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         if (!WifiAgent.getInstance().isWifiConnected()) {
-            future.completeExceptionally(
-                new RuntimeException("Wi-Fi is not connected."));
+            future.completeExceptionally(new RuntimeException("Wi-Fi is not connected."));
             return future;
         }
 

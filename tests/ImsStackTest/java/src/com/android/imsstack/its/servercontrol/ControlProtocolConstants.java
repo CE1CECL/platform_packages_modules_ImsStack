@@ -46,4 +46,15 @@ public class ControlProtocolConstants {
     public static final String MESSAGE_CONFIG = "message-config=";
     public static final String CONFIG_DELAY = "Delay";
     public static final String CONFIG_FORKED_RESPONSE = "ForkedResponse";
+
+    // rule sets
+    public static final String MESSAGE_RULESET = "message-ruleset=";
+    public static final String RULE_NAME = "name:";
+    public static final String RULE_CONTAIN = "contain-";
+    public static final String RULE_NOTCONTAIN = "notcontain-";
+    public static final String RULE_CATEGORY_BODY = "body";
+    public static final String RULE_CATEGORY_FIRST_LINE = "fl";
+
+    // disallowed message
+    public static final String MESSAGE_DISALLOWED = "message-disallowed=";
 }

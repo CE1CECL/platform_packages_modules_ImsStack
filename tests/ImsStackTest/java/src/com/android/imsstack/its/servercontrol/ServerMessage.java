@@ -110,7 +110,13 @@ public class ServerMessage extends SipMessage {
         /**
          * Sets the message body file as SDP content.
          *
-         * @param sdpFile The SDP file name.
+         * <p>The {@code sdpFile} specifies the name of the body file to be used as the SDP content.
+         * This file is expected to be found in the "preferencefiles/sdp" directory of the
+         * External Control Server. The predefined keyword "copy" can be used to indicate that the
+         * SDP content should be copied from the SDP that the client previously sent.</p>
+         *
+         * @param sdpFile The name of the SDP file or the keyword
+         *                {@link ControlProtocolConstants#SDP_COPY}.
          * @return Builder instance for method chaining.
          */
         public Builder setSdp(String sdpFile) {
@@ -121,7 +127,11 @@ public class ServerMessage extends SipMessage {
         /**
          * Sets the message body file as XML content.
          *
-         * @param xmlFile The XML file name.
+         * <p>The {@code xmlFile} specifies the name of the body file to be used as the XML content.
+         * This file is expected to be found in the "preferencefiles/xml" directory of the
+         * External Control Server.</p>
+         *
+         * @param xmlFile The name of the XML file.
          * @return Builder instance for method chaining.
          */
         public Builder setXml(String xmlFile) {
