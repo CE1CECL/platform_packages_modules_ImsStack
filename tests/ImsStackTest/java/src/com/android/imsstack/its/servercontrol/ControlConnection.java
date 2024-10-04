@@ -97,10 +97,10 @@ public final class ControlConnection {
         try {
             if (mSocket != null) {
                 mSocket.close();
-                Log.i(Log.TAG, "Socket closed.");
+                Log.i(this, "Socket closed.");
             }
         } catch (Exception e) {
-            Log.e(Log.TAG, "Error during disconnect");
+            Log.e(this, "Error during disconnect");
         }
     }
 

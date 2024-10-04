@@ -285,7 +285,7 @@ public class TestCall extends ServerFailureHandler {
         @Override
         public @Nullable IImsCallSessionListener onIncomingCall(
                 @NonNull IImsCallSession c, @Nullable String callId, @Nullable Bundle extras) {
-            Log.d(Log.TAG, "onIncomingCall");
+            Log.d(this, "onIncomingCall");
 
             mEventRecords.put(CallEvent.Type.MMTEL_INCOMING_CALL, new CallEvent.EventRecord());
 
@@ -302,7 +302,7 @@ public class TestCall extends ServerFailureHandler {
     private class CallSessionListener extends ImsCallSessionWrapper.ImsCallSessionListener {
         @Override
         public void callSessionInitiated(ImsCallProfile profile) {
-            Log.d(Log.TAG, "callSessionInitiated - profile: " + profile);
+            Log.d(this, "callSessionInitiated - profile: " + profile);
 
             mEventRecords.put(CallEvent.Type.SESSION_INITIATED, new CallEvent.EventRecord(profile));
 
@@ -315,7 +315,7 @@ public class TestCall extends ServerFailureHandler {
 
         @Override
         public void callSessionTerminated(ImsReasonInfo reason) {
-            Log.d(Log.TAG, "callSessionTerminated - reason: " + reason);
+            Log.d(this, "callSessionTerminated - reason: " + reason);
 
             mEventRecords.put(CallEvent.Type.SESSION_TERMINATED, new CallEvent.EventRecord(reason));
 
@@ -328,7 +328,7 @@ public class TestCall extends ServerFailureHandler {
 
         @Override
         public void callSessionUssdMessageReceived(int mode, String ussdMessage) {
-            Log.d(Log.TAG, "callSessionUssdMessageReceived - "
+            Log.d(this, "callSessionUssdMessageReceived - "
                     + "mode: " + mode + " ussdMessage: " + ussdMessage);
 
             mEventRecords.put(CallEvent.Type.SESSION_USSD_MESSAGE_RECEIVED,

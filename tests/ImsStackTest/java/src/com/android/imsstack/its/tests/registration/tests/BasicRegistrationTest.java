@@ -66,7 +66,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerRegistrationWithDefaultConfig() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG)
@@ -93,7 +93,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerRegistrationWithCapabilityVoiceOnly() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG)
@@ -124,7 +124,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerRegistrationWithCapabilitySmsOnly() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG)
@@ -155,7 +155,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerRegistrationRejectedBy423() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 423(REG) - REGISTER - 200(REG)");
+        logi(this, "RegistrationTest: REGISTER - 423(REG) - REGISTER - 200(REG)");
 
         /*
           TODO: SetUpTiss : REGISTER - 423(REG) - REGISTER - 200(REG)
@@ -179,7 +179,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
         mRegistrationHelper.triggerRegistration(this, mInfoBuilder.build());
         mRegistration.expect().registering();
 
-        logi("RegistrationTest: Receives 423(REG)");
+        logi(this, "RegistrationTest: Receives 423(REG)");
 
         mRegistration.expect().registered();
 
@@ -192,7 +192,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerSubscribeWithDefaultConfig() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG) - SUBSCRIBE - 200(SUB)
@@ -219,7 +219,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerSubscribeWithNetworkNr() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG) - SUBSCRIBE - 200(SUB)
@@ -254,7 +254,8 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerDeregistrationByNotifyUnregistered() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - NOTIFY(Unregistered)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - "
+                + "NOTIFY(Unregistered)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - NOTIFY(Unregistered)
@@ -273,7 +274,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
 
         assertTrue(isRegistered);
 
-        logi("RegistrationTest: Receives NOTIFY(Unregistered)");
+        logi(this, "RegistrationTest: Receives NOTIFY(Unregistered)");
         mRegistration.expect(1000).nothing();
 
         /*
@@ -292,7 +293,8 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerDeregistrationByNotifyRejected() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - NOTIFY(Rejected)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - "
+                + "NOTIFY(Rejected)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - NOTIFY(Rejected)
@@ -311,7 +313,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
 
         assertTrue(isRegistered);
 
-        logi("RegistrationTest: Receives NOTIFY(Rejected)");
+        logi(this, "RegistrationTest: Receives NOTIFY(Rejected)");
         mRegistration.expect(1000).nothing();
 
         /*
@@ -330,7 +332,8 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     @Test
     public void testTriggerDeregistrationByNotifyDeactivated() throws Exception {
 
-        logi("RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - NOTIFY(Deactivated)");
+        logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - "
+                + "NOTIFY(Deactivated)");
 
         /*
           TODO: SetUpTiss : REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - NOTIFY(Deactivated)
@@ -349,7 +352,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
 
         assertTrue(isRegistered);
 
-        logi("RegistrationTest: Receives NOTIFY(Deactivated)");
+        logi(this, "RegistrationTest: Receives NOTIFY(Deactivated)");
         mRegistration.expect(1000).nothing();
 
         /*
