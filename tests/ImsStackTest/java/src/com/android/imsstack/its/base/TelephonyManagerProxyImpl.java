@@ -903,7 +903,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchBarringInfoChanged(@NonNull BarringInfo barringInfo) {
             final BarringInfoListener listener = getListener(BarringInfoListener.class);
             if (listener != null) {
-                logi("dispatchBarringInfoChanged: " + barringInfo);
+                logi(this, "dispatchBarringInfoChanged: " + barringInfo);
                 mScheduler.execute(() -> listener.onBarringInfoChanged(barringInfo));
             }
         }
@@ -911,7 +911,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchCallStateChanged(@CallState int state) {
             final CallStateListener listener = getListener(CallStateListener.class);
             if (listener != null) {
-                logi("dispatchCallStateChanged: " + state);
+                logi(this, "dispatchCallStateChanged: " + state);
                 mScheduler.execute(() -> listener.onCallStateChanged(state));
             }
         }
@@ -919,7 +919,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchCellInfoChanged(@NonNull List<CellInfo> cellInfo) {
             final CellInfoListener listener = getListener(CellInfoListener.class);
             if (listener != null) {
-                logi("dispatchCellInfoChanged: " + cellInfo);
+                logi(this, "dispatchCellInfoChanged: " + cellInfo);
                 mScheduler.execute(() -> listener.onCellInfoChanged(cellInfo));
             }
         }
@@ -927,7 +927,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchPreciseCallStateChanged(@NonNull PreciseCallState callState) {
             final PreciseCallStateListener listener = getListener(PreciseCallStateListener.class);
             if (listener != null) {
-                logi("dispatchPreciseCallStateChanged: " + callState);
+                logi(this, "dispatchPreciseCallStateChanged: " + callState);
                 mScheduler.execute(() -> listener.onPreciseCallStateChanged(callState));
             }
         }
@@ -937,7 +937,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
             final PreciseDataConnectionStateListener listener =
                     getListener(PreciseDataConnectionStateListener.class);
             if (listener != null) {
-                logi("dispatchPreciseDataConnectionStateChanged: " + dataConnectionState);
+                logi(this, "dispatchPreciseDataConnectionStateChanged: " + dataConnectionState);
                 mScheduler.execute(() ->
                         listener.onPreciseDataConnectionStateChanged(dataConnectionState));
             }
@@ -946,7 +946,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchServiceStateChanged(@NonNull ServiceState serviceState) {
             final ServiceStateListener listener = getListener(ServiceStateListener.class);
             if (listener != null) {
-                logi("dispatchServiceStateChanged: " + serviceState);
+                logi(this, "dispatchServiceStateChanged: " + serviceState);
                 mScheduler.execute(() -> listener.onServiceStateChanged(serviceState));
             }
         }
@@ -954,7 +954,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchSignalStrengthsChanged(@NonNull SignalStrength signalStrength) {
             final SignalStrengthsListener listener = getListener(SignalStrengthsListener.class);
             if (listener != null) {
-                logi("dispatchSignalStrengthsChanged: " + signalStrength);
+                logi(this, "dispatchSignalStrengthsChanged: " + signalStrength);
                 mScheduler.execute(() -> listener.onSignalStrengthsChanged(signalStrength));
             }
         }
@@ -962,7 +962,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         void dispatchSrvccStateChanged(@SrvccState int srvccState) {
             final SrvccStateListener listener = getListener(SrvccStateListener.class);
             if (listener != null) {
-                logi("dispatchSrvccStateChanged: " + srvccState);
+                logi(this, "dispatchSrvccStateChanged: " + srvccState);
                 mScheduler.execute(() -> listener.onSrvccStateChanged(srvccState));
             }
         }
@@ -971,7 +971,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
             final UserMobileDataStateListener listener =
                     getListener(UserMobileDataStateListener.class);
             if (listener != null) {
-                logi("dispatchUserMobileDataStateChanged: " + enabled);
+                logi(this, "dispatchUserMobileDataStateChanged: " + enabled);
                 mScheduler.execute(() -> listener.onUserMobileDataStateChanged(enabled));
             }
         }
@@ -985,8 +985,8 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
         }
     }
 
-    private static void logi(String s) {
-        Log.i(Log.TAG, "TelephonyManagerProxy: " + s);
+    private static void logi(Object o, String s) {
+        Log.i(o, s);
     }
 
     private static final class DeviceInfoRecord {

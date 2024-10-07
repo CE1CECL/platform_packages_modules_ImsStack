@@ -77,19 +77,19 @@ public class RcsFeatureImplTest {
         @Override
         public void onQueryCapabilityConfiguration(int capability, int radioTech, boolean enabled)
                 throws RemoteException {
-            Log.i("RcsFeature", "onQueryCapabilityConfiguration ..for verifying ");
+            Log.i(this, "onQueryCapabilityConfiguration for verifying");
         }
 
         @Override
         public void onChangeCapabilityConfigurationError(int capability, int radioTech, int reason)
                 throws RemoteException {
-            Log.i("RcsFeature", "onChangeCapabilityConfigurationError ..for verifying ");
+            Log.i(this, "onChangeCapabilityConfigurationError for verifying");
             mIsOnChangeCapabilityConfigurationError = true;
         }
 
         @Override
         public void onCapabilitiesStatusChanged(int config) throws RemoteException {
-            Log.i("RcsFeature", "onCapabilitiesStatusChanged ..for verifying ");
+            Log.i(this, "onCapabilitiesStatusChanged for verifying");
             mIsOnCapabilitiesStatusChanged = true;
         }
     }

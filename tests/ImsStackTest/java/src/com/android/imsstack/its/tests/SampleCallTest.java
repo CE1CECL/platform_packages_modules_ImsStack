@@ -72,7 +72,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMoCallSetup() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMoCallSetup");
+        logi(this, "testMoCallSetup");
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessages(BasicScenarioTemplates.NORMAL_REGISTRATION_W_SUBSCRIPTION);
@@ -90,7 +90,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMoCallNormalClearingByUser() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMoCallNormalClearingByUser");
+        logi(this, "testMoCallNormalClearingByUser");
 
         Scenario scenario = new Scenario.Builder()
                 .addClientMessage("REGISTER")
@@ -124,7 +124,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMoCallNormalClearingByRemote() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMoCallNormalClearingByRemote");
+        logi(this, "testMoCallNormalClearingByRemote");
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessages(BasicScenarioTemplates.NORMAL_REGISTRATION_W_SUBSCRIPTION);
@@ -146,7 +146,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMoCallRejectedBy603() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMoCallRejectedBy603");
+        logi(this, "testMoCallRejectedBy603");
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessages(BasicScenarioTemplates.getNormalRegistrationSequence(true));
@@ -162,7 +162,7 @@ public class SampleCallTest extends CallTestBase {
 
     @Test
     public void testMtCallSetup() throws Exception {
-        logi("testMtCallSetup");
+        logi(this, "testMtCallSetup");
         turnOffQosAndPrecondition();
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
@@ -184,7 +184,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMtCallReject() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMtCallReject");
+        logi(this, "testMtCallReject");
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessages(BasicScenarioTemplates.getNormalRegistrationSequence(true));
@@ -203,7 +203,7 @@ public class SampleCallTest extends CallTestBase {
 
         mCall.expectWithin(10000).incomingCall();
 
-        logi("testMtCallReject - reject call");
+        logi(this, "testMtCallReject - reject call");
         mCall.expectWithin(2000).nothing();
         mCall.reject(ImsReasonInfo.CODE_USER_DECLINE);
         mCall.expect().terminated();
@@ -214,7 +214,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMoCallForking() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMoCallForking");
+        logi(this, "testMoCallForking");
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessages(BasicScenarioTemplates.NORMAL_REGISTRATION_W_SUBSCRIPTION);
@@ -247,7 +247,7 @@ public class SampleCallTest extends CallTestBase {
     @Test
     public void testMoCallAudioOnlyWithoutPrecondition() throws Exception {
         turnOffQosAndPrecondition();
-        logi("testMoCallAudioOnlyWithoutPrecondition");
+        logi(this, "testMoCallAudioOnlyWithoutPrecondition");
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessages(BasicScenarioTemplates.getNormalRegistrationSequence(true));
@@ -299,7 +299,7 @@ public class SampleCallTest extends CallTestBase {
 
         mCall.startVoiceCall();
         mCall.expect().initiated();
-        logi("testCallRuleCheck expecting initiated");
+        logi(this, "testCallRuleCheck expecting initiated");
         mCall.expectWithin(2000).nothing();
         mCall.terminate(ImsReasonInfo.CODE_USER_TERMINATED);
         mCall.expect().terminated(
