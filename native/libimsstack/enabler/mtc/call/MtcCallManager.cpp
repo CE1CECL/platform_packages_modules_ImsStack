@@ -49,7 +49,8 @@ void MtcCallManager::DeInit()
 {
     m_objContext.GetCallStateProxy().RemoveListener(this);
 
-    for (IMS_SINT32 nIndex = m_lstCalls.GetSize() - 1; nIndex >= 0; nIndex--)
+    for (IMS_SINT32 nIndex = static_cast<IMS_SINT32>(m_lstCalls.GetSize()) - 1; nIndex >= 0;
+            nIndex--)
     {
         MtcCall* pCall = m_lstCalls.GetAt(nIndex);
         pCall->Terminate(CallReasonInfo(CODE_LOCAL_SERVICE_UNAVAILABLE));
