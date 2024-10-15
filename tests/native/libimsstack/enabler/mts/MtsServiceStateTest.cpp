@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "../../interface/aos/MockIImsAos.h"
-#include "../../interface/aos/MockIImsAosInfo.h"
 #include "CarrierConfig.h"
 #include "IConfiguration.h"
 #include "IImsAosInfo.h"
 #include "ImsAosReason.h"
 #include "MockICarrierConfig.h"
+#include "MockIImsAos.h"
+#include "MockIImsAosInfo.h"
 #include "MtsDef.h"
 #include "MtsServiceState.h"
 #include "PlatformContext.h"

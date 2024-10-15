@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "../../include/media/MockIMediaManager.h"
-#include "../../include/media/MockIMediaSession.h"
 #include "IMediaManager.h"
 #include "ISipHeader.h"
 #include "MediaDef.h"
 #include "MockICoreService.h"
+#include "MockIMediaManager.h"
+#include "MockIMediaSession.h"
 #include "MockIMessage.h"
 #include "MockIMtcService.h"
 #include "MockISession.h"

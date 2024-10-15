@@ -20,6 +20,7 @@
 #include "DomDocumentBuilderFactory.h"
 #include "GeolocationHelper.h"
 #include "GeolocationPidfCreator.h"
+#include "GeolocationPidfWriter.h"
 #include "IDocument.h"
 #include "IMessage.h"
 #include "IMessageBodyPart.h"
@@ -37,7 +38,6 @@
 #include "helper/MtcLocationObject.h"
 #include "helper/MtcSupplementaryService.h"
 #include "helper/XmlElementWrapper.h"
-#include "internal/GeolocationPidfWriter.h"
 #include "utility/IMessageUtils.h"
 
 using namespace enabler;

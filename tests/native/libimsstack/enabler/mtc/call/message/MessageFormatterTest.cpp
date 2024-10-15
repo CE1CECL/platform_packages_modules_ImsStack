@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "../../../../config/interface/common/MockISubscriberConfig.h"
 #include "CallReasonInfo.h"
 #include "CarrierConfig.h"
 #include "FeatureCaps.h"
@@ -24,6 +23,9 @@
 #include "MockIMtcService.h"
 #include "MockIPhoneInfoLocation.h"
 #include "MockISession.h"
+#include "MockISipMessage.h"
+#include "MockISubscriberConfig.h"
+#include "SipHeaderName.h"
 #include "SipStatusCode.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/message/MessageFormatter.h"
@@ -32,8 +34,6 @@
 #include "dialogevent/MockIMultiEndpointManager.h"
 #include "helper/MtcSupplementaryService.h"
 #include "service/MockIFeatureCaps.h"
-#include "MockISipMessage.h"
-#include "SipHeaderName.h"
 #include "utility/MessageUtil.h"
 #include "utility/MockIMessageUtils.h"
 #include <gtest/gtest.h>

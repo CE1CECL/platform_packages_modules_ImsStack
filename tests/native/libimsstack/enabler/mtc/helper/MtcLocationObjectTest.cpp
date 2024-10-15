@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "../../../config/interface/common/MockISubscriberConfig.h"
 #include "CarrierConfig.h"
 #include "GeolocationHelper.h"
 #include "INetworkWatcher.h"
@@ -23,6 +22,7 @@
 #include "MockIMtcService.h"
 #include "MockIPhoneInfoLocation.h"
 #include "MockIPhoneInfoSubscriber.h"
+#include "MockISubscriberConfig.h"
 #include "PlatformContext.h"
 #include "SipHeaderName.h"
 #include "TestPhoneInfoService.h"

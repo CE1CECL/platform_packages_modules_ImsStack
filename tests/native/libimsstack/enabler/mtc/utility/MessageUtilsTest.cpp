@@ -25,6 +25,7 @@
 #include "MockISession.h"
 #include "MockISipMessage.h"
 #include "MockISipMessageBodyPart.h"
+#include "SdpMedia.h"
 #include "SipHeaderName.h"
 #include "call/IMtcCall.h"
 #include "call/MockCallConnectionIdManager.h"
@@ -37,7 +38,6 @@
 #include "media/IMedia.h"
 #include "media/MockIMedia.h"
 #include "media/MockIMediaDescriptor.h"
-#include "sdp/SdpMedia.h"
 #include "utility/MessageUtil.h"
 #include "utility/MessageUtils.h"
 #include <gtest/gtest.h>

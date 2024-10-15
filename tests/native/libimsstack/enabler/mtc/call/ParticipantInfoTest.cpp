@@ -15,12 +15,12 @@
  */
 
 #include "AString.h"
+#include "IImsAosInfo.h"
 #include "ImsTypeDef.h"
 #include "MockICoreService.h"
 #include "MockIMessage.h"
 #include "MockIMtcService.h"
 #include "SipAddress.h"
-#include "aos/IImsAosInfo.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/ParticipantInfo.h"
 #include "configuration/MockIMtcConfigurationManager.h"
