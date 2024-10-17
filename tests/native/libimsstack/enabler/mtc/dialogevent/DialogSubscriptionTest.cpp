@@ -15,6 +15,7 @@
  */
 
 #include "AString.h"
+#include "ByteArray.h"
 #include "IMessage.h"
 #include "IMessageBodyPart.h"
 #include "ISipHeader.h"
@@ -34,7 +35,6 @@
 #include "helper/sipinterfaceholder/MockIInterfaceHolderListener.h"
 #include "helper/sipinterfaceholder/MockIMtcSipInterfaceFactory.h"
 #include "helper/sipinterfaceholder/MockSubscriptionInterfaceHolder.h"
-#include "util/ByteArray.h"
 #include "utility/MockIMessageUtils.h"
 #include <gtest/gtest.h>
 

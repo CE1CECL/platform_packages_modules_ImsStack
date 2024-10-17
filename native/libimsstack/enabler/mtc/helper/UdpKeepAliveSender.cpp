@@ -17,6 +17,7 @@
 #include "IMtcService.h"
 #include "ISipKeepAliveHelper.h"
 #include "ImsTypeDef.h"
+#include "IpAddress.h"
 #include "ServiceTimer.h"
 #include "ServiceTrace.h"
 #include "call/IMtcCallContext.h"
@@ -24,7 +25,6 @@
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/IMtcAosConnector.h"
 #include "helper/UdpKeepAliveSender.h"
-#include "util/IpAddress.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 

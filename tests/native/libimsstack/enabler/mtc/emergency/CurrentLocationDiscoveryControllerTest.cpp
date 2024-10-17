@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "ByteArray.h"
 #include "ImsList.h"
 #include "MockIMtcContext.h"
 #include "MockIPublication.h"
@@ -29,7 +30,6 @@
 #include "configuration/MockIMtcConfigurationManager.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "emergency/CurrentLocationDiscoveryController.h"
-#include "util/ByteArray.h"
 #include "utility/MessageUtil.h"
 #include <gtest/gtest.h>
 

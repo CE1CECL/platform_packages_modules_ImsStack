@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "ByteArray.h"
 #include "CallReasonInfo.h"
 #include "CarrierConfig.h"
 #include "Engine.h"
@@ -42,7 +43,6 @@
 #include "helper/MockIPassiveTimerHolder.h"
 #include "internal/Ims3gpp.h"
 #include "media/MockIMtcMediaManager.h"
-#include "util/ByteArray.h"
 #include "utility/MockIMessageUtils.h"
 #include <gtest/gtest.h>
 

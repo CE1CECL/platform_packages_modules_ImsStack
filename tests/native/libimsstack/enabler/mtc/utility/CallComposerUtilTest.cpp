@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "../../../config/interface/common/MockISubscriberConfig.h"
 #include "ByteArray.h"
 #include "ImsList.h"
 #include "MockIMessage.h"
 #include "MockIMessageBodyPart.h"
+#include "MockISubscriberConfig.h"
 #include "MtcDef.h"
 #include "SipHeaderName.h"
 #include "call/MockIMtcCallContext.h"

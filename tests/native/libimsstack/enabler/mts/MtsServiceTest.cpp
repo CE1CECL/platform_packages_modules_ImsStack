@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "../../interface/aos/MockIImsAos.h"
-#include "../../interface/aos/MockIImsAosInfo.h"
 #include "CarrierConfig.h"
 #include "IConfiguration.h"
 #include "IImsRadio.h"
@@ -27,6 +25,8 @@
 #include "ImsServiceConfigTypeDef.h"
 #include "IuMtsService.h"
 #include "MockICarrierConfig.h"
+#include "MockIImsAos.h"
+#include "MockIImsAosInfo.h"
 #include "MockIMtsServiceListener.h"
 #include "MockIReference.h"
 #include "MtsDef.h"

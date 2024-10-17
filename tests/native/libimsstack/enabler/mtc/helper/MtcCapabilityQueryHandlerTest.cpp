@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#include "../../../config/interface/common/MockICoreServiceConfig.h"
-#include "../../../config/interface/common/MockIMediaConfig.h"
 #include "AStringArray.h"
 #include "ICapabilities.h"
 #include "ISipHeader.h"
 #include "ImsAosParameter.h"
+#include "IpAddress.h"
 #include "MockICapabilities.h"
 #include "MockICoreService.h"
+#include "MockICoreServiceConfig.h"
+#include "MockIMediaConfig.h"
 #include "MockIMessage.h"
 #include "MockIMessageBodyPart.h"
 #include "MockIMtcContext.h"
@@ -30,7 +31,6 @@
 #include "configuration/MockIMtcConfigurationManager.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcCapabilityQueryHandler.h"
-#include "util/IpAddress.h"
 #include <gtest/gtest.h>
 
 using ::testing::_;
