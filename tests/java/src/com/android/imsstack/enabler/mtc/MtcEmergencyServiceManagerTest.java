@@ -195,6 +195,6 @@ public class MtcEmergencyServiceManagerTest extends ImsStackTest {
                 IUMtcService.ES_OPENED, 0, 0);
 
         verify(mMockMtcCall, times(1)).createNativeCallObject();
-        verify(mMockMtcCall, times(1)).open(anyInt(), anyBoolean(), anyBoolean(), anyBoolean());
+        verify(mMockMtcCall, times(1)).open(anyInt(), anyInt(), anyBoolean(), anyBoolean());
     }
 }
