@@ -18,6 +18,9 @@
 #include "MockIJniMtcServiceThread.h"
 #include "MockIMtcContext.h"
 #include "MockIMtcService.h"
+#include "call/MockIMtcCall.h"
+#include "call/MockIMtcCallContext.h"
+#include "call/MockIMtcCallManager.h"
 #include "emergency/MockIMtcEmergencyServiceManager.h"
 #include "emergency/NormalServiceController.h"
 #include "helper/MockICallStateProxy.h"
@@ -28,10 +31,15 @@ using ::testing::_;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
+LOCAL CallKey CALL_KEY = 0;
+
 class NormalServiceControllerTest : public ::testing::Test
 {
 protected:
     MockIMtcContext objContext;
+    MockIMtcCallManager objCallManager;
+    MockIMtcCall objCall;
+    MockIMtcCallContext objCallContext;
     MockIMtcService objNormalService;
     MockICallStateProxy objCallStateProxy;
     MockIMtcAosConnector objAosConnector;
@@ -42,6 +50,9 @@ protected:
 
     virtual void SetUp() override
     {
+        ON_CALL(objContext, GetCallManager).WillByDefault(ReturnRef(objCallManager));
+        ON_CALL(objCallManager, GetCallByCallKey(CALL_KEY)).WillByDefault(Return(&objCall));
+        ON_CALL(objCall, GetCallContext).WillByDefault(ReturnRef(objCallContext));
         ON_CALL(objContext, GetServiceByType(ServiceType::NORMAL))
                 .WillByDefault(Return(&objNormalService));
         ON_CALL(objContext, GetCallStateProxy).WillByDefault(ReturnRef(objCallStateProxy));
@@ -112,20 +123,26 @@ TEST_F(NormalServiceControllerTest, StartNotifiesUnavailableIfNormalServiceNotAc
 
 TEST_F(NormalServiceControllerTest, CallTerminatesDoesNothing)
 {
+    CallInfo objCallInfo;
+    objCallInfo.eEmergencyType = EmergencyType::NORMAL_ROUTING;
+    ON_CALL(objCallContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));
     EXPECT_CALL(objJniMtcServiceThread,
             OnEmergencyServiceChanged(EmergencyServiceState::IDLE, _, ServiceType::NORMAL))
             .Times(1);
 
-    pController->OnCallStateChanged(
-            0, IMtcCall::State::TERMINATING, IMtcCallStateListener::Type::VOIP, IMS_TRUE, 0);
+    pController->OnCallStateChanged(CALL_KEY, IMtcCall::State::TERMINATING,
+            IMtcCallStateListener::Type::VOIP, IMS_FALSE, 0);
 }
 
 TEST_F(NormalServiceControllerTest, NormalCallTerminatesDoesNothing)
 {
+    CallInfo objCallInfo;
+    objCallInfo.eEmergencyType = EmergencyType::NONE;
+    ON_CALL(objCallContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));
     EXPECT_CALL(objJniMtcServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
 
-    pController->OnCallStateChanged(
-            0, IMtcCall::State::TERMINATING, IMtcCallStateListener::Type::VOIP, IMS_FALSE, 0);
+    pController->OnCallStateChanged(CALL_KEY, IMtcCall::State::TERMINATING,
+            IMtcCallStateListener::Type::VOIP, IMS_FALSE, 0);
 }
 
 TEST_F(NormalServiceControllerTest, GetServiceTypeReturnsNormal)

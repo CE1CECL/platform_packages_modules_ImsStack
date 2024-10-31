@@ -17,6 +17,8 @@
 #include "IJniMtcServiceThread.h"
 #include "IMtcContext.h"
 #include "ServiceTrace.h"
+#include "call/IMtcCallContext.h"
+#include "call/IMtcCallManager.h"
 #include "emergency/NormalServiceController.h"
 #include "helper/ICallStateProxy.h"
 #include <memory>
@@ -53,11 +55,12 @@ PUBLIC VIRTUAL void NormalServiceController::Start()
     }
 }
 
-PUBLIC VIRTUAL void NormalServiceController::OnCallStateChanged(IN CallKey /* nCallKey */,
-        IN IMtcCall::State eState, IN Type /* eType */, IN IMS_BOOL bEmergency,
+PUBLIC VIRTUAL void NormalServiceController::OnCallStateChanged(IN CallKey nCallKey,
+        IN IMtcCall::State eState, IN Type /* eType */, IN IMS_BOOL /* bEmergency */,
         IN IMS_SINT32 /* nReason */)
 {
-    if (!bEmergency)
+    IMtcCall* piCall = m_objContext.GetCallManager().GetCallByCallKey(nCallKey);
+    if (piCall->GetCallContext().GetCallInfo().eEmergencyType == EmergencyType::NONE)
     {
         return;
     }
