@@ -826,6 +826,8 @@ public class CarrierConfig {
                 "cellular_network_info_utc_offset_enabled_bool";
 
         // Aos
+        public static final String KEY_BLOCK_PCSCF_ON_REG_FAILURE_BOOL =
+                "block_pcscf_on_reg_failure_bool";
         public static final String KEY_CALL_END_AND_PDN_REACTIVATION_BY_REG_TERMINATED_BOOL =
                 "call_end_and_pdn_reactivation_by_reg_terminated_bool";
         public static final String KEY_DESTROY_UNSECURE_TCP_SOCKET_ON_ACCOMPLISHING_REG_BOOL =

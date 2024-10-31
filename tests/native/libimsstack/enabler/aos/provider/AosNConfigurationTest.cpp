@@ -520,6 +520,9 @@ TEST_F(AosNConfigurationTest, InitAssetConfig)
     MockICarrierConfig objCarrierConfig;
 
     EXPECT_CALL(objCarrierConfig,
+            GetBoolean(CarrierConfig::Assets::KEY_BLOCK_PCSCF_ON_REG_FAILURE_BOOL, IMS_FALSE))
+            .WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(objCarrierConfig,
             GetBoolean(
                     CarrierConfig::Assets::KEY_CALL_END_AND_PDN_REACTIVATION_BY_REG_TERMINATED_BOOL,
                     IMS_FALSE))
@@ -799,6 +802,7 @@ TEST_F(AosNConfigurationTest, InitAssetConfig)
     m_pAosNConfiguration->InitAssetsConfig(static_cast<ICarrierConfig*>(&objCarrierConfig));
 
     EXPECT_FALSE(m_pAosNConfiguration->IsCdmalessFeatureTagRequired());
+    EXPECT_TRUE(m_pAosNConfiguration->IsBlockPcscfOnRegFailure());
     EXPECT_FALSE(m_pAosNConfiguration->IsCallEndAndPdnReactivationByRegTerminated());
     EXPECT_FALSE(m_pAosNConfiguration->IsUnsecureTcpSocketOnAccomplishingRegDestroyed());
     EXPECT_FALSE(m_pAosNConfiguration->IsEmergencyCallBasedOnPauOfNormalRegistrationSupported());

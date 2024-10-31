@@ -235,6 +235,13 @@ public:
     virtual IMS_BOOL IsOldSaOnEstablishingSaRemoved() const = 0;
 
     /**
+     * @brief Returns flag indicating whether PCSCFs that UE fails to register will be blocked.
+     *
+     * @return IMS_BOOL Return whether to be blocked or not
+     */
+    virtual IMS_BOOL IsBlockPcscfOnRegFailure() const = 0;
+
+    /**
      * @brief Returns whether a call should be terminated due to expiration of registration.
      *
      * @return IMS_BOOL Return wherther to be applied or not

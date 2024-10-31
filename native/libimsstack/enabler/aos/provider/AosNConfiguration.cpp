@@ -242,6 +242,11 @@ PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsOldSaOnEstablishingSaRemoved() cons
     return m_objAsset.bRemoveOldSaOnEstablishingSa;
 }
 
+PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsBlockPcscfOnRegFailure() const
+{
+    return m_objAsset.bBlockPcscfOnRegFailure;
+}
+
 PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsCallEndAndPdnReactivationByRegTerminated() const
 {
     return m_objAsset.bCallEndAndPdnReactivationByRegTerminated;
@@ -1299,6 +1304,8 @@ void AosNConfiguration::InitConfig(IN const ICarrierConfig* piCc)
 PROTECTED
 void AosNConfiguration::InitAssetsConfig(IN const ICarrierConfig* piCc)
 {
+    m_objAsset.bBlockPcscfOnRegFailure =
+            piCc->GetBoolean(CarrierConfig::Assets::KEY_BLOCK_PCSCF_ON_REG_FAILURE_BOOL);
     m_objAsset.bCallEndAndPdnReactivationByRegTerminated = piCc->GetBoolean(
             CarrierConfig::Assets::KEY_CALL_END_AND_PDN_REACTIVATION_BY_REG_TERMINATED_BOOL);
     m_objAsset.bDestroyUnsecureTcpSocketOnAccomplishingReg = piCc->GetBoolean(

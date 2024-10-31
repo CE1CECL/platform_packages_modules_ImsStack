@@ -25,6 +25,7 @@ struct AosAsset
 {
 public:
     AosAsset() :
+            bBlockPcscfOnRegFailure(IMS_TRUE),
             bCallEndAndPdnReactivationByRegTerminated(IMS_FALSE),
             bDestroyUnsecureTcpSocketOnAccomplishingReg(IMS_FALSE),
             bEmcCallBasedOnPAssociatedUriOfNormalReg(IMS_FALSE),
@@ -104,6 +105,7 @@ public:
     AosAsset& operator=(IN const AosAsset&) = delete;
 
 public:
+    IMS_BOOL bBlockPcscfOnRegFailure;
     IMS_BOOL bCallEndAndPdnReactivationByRegTerminated;
     IMS_BOOL bDestroyUnsecureTcpSocketOnAccomplishingReg;
     IMS_BOOL bEmcCallBasedOnPAssociatedUriOfNormalReg;

@@ -679,6 +679,8 @@ const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_COUNTRY_PARAM_IN_PANI_HEADER_B
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_LOCAL_SESSION_TIMER_BOOL[] =
         "support_local_session_timer_bool";
 // Aos
+const IMS_CHAR CarrierConfig::Assets::KEY_BLOCK_PCSCF_ON_REG_FAILURE_BOOL[] =
+        "block_pcscf_on_reg_failure_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_CALL_END_AND_PDN_REACTIVATION_BY_REG_TERMINATED_BOOL[] =
         "call_end_and_pdn_reactivation_by_reg_terminated_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_DESTROY_UNSECURE_TCP_SOCKET_ON_ACCOMPLISHING_REG_BOOL[] =
