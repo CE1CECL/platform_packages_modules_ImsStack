@@ -956,7 +956,7 @@ static SIP_INT32 GetNonInvCliFsmEvt(SIP_UINT16 nStatusCode)
     }
     else if (SipMsgUtil::IsNonProvisionalResponse(nStatusCode))
     {
-        return SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT;
+        return SipTxn::NON_INV_CLI_RECV_FINAL_RESP_EVT;
     }
     else
     {
@@ -972,7 +972,7 @@ static SIP_INT32 GetNonInvSerFsmEvt(SIP_UINT16 nStatusCode)
     }
     else if (SipMsgUtil::IsNonProvisionalResponse(nStatusCode))
     {
-        return SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT;
+        return SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT;
     }
     else
     {
@@ -992,7 +992,7 @@ static SIP_INT32 GetInvCliFsmEvt(SIP_UINT16 nStatusCode)
     }
     else if (SipMsgUtil::IsFailureResponse(nStatusCode))
     {
-        return SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT;
+        return SipTxn::INV_CLI_RECV_FAILURE_RESP_EVT;
     }
     else
     {
@@ -1008,11 +1008,11 @@ static SIP_INT32 GetInvSerFsmEvt(SIP_UINT16 nStatusCode)
     }
     else if (SipMsgUtil::IsSuccessfulResponse(nStatusCode))
     {
-        return SipTxn::INV_SER_SEND_2XX_SUCCESS_RESP_EVT;
+        return SipTxn::INV_SER_SEND_2XX_RESP_EVT;
     }
     else if (SipMsgUtil::IsFailureResponse(nStatusCode))
     {
-        return SipTxn::INV_SER_SEND_3XX_6XX_FAILURE_RESP_EVT;
+        return SipTxn::INV_SER_SEND_FAILURE_RESP_EVT;
     }
     else
     {

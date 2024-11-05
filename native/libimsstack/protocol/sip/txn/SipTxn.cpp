@@ -714,11 +714,11 @@ SIP_VOID CbkTxnTimeout(SIP_VOID* pvobjTimeoutData, const SIP_VOID* pvTimerId)
         {
             if ((eTimerType == SipTxn::TIMER_A) || (eTimerType == SipTxn::TIMER_B))
             {
-                nEvent = SipTxn::INV_CLI_TIMERA_B_TIME_OUT_EVT;
+                nEvent = SipTxn::INV_CLI_TIMER_A_B_TIME_OUT_EVT;
             }
             else if (eTimerType == SipTxn::TIMER_D)
             {
-                nEvent = SipTxn::INV_CLI_TIMERD_TIME_OUT_EVT;
+                nEvent = SipTxn::INV_CLI_TIMER_D_TIME_OUT_EVT;
             }
             else
             {

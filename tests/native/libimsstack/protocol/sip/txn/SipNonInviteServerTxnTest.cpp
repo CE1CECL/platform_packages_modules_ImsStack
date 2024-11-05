@@ -33,7 +33,7 @@ extern SIP_VOID MockFsm_ResetTimerCount();
 namespace android
 {
 
-class SipTxnNonInvSerFsmTest : public ::testing::Test
+class SipNonInviteServerTxnTest : public ::testing::Test
 {
 public:
     SipMessage* pSipMsg = SIP_NULL;
@@ -81,7 +81,7 @@ CSeq: 1 REGISTER\r\n\
     }
 };
 
-TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_IdleState)
+TEST_F(SipNonInviteServerTxnTest, NonInvSer_IdleState)
 {
     EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_IDLE_ST][SipTxn::NON_INV_SER_INVALID_EVT](
@@ -237,7 +237,7 @@ RAck: 2 1 INVITE\r\n\
     pTempSipMsg->SipDelete();
 }
 
-TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_TryingState)
+TEST_F(SipNonInviteServerTxnTest, NonInvSer_TryingState)
 {
     SIP_UINT16 nError = 0;
     ISipUserData* pSipUserData = new ISipUserData(SIP_NULL);
@@ -266,13 +266,13 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_TryingState)
     /* Calling once to make startTimer for timer J return failure */
     EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_TRYING_ST]
-                                 [SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT](
+                                 [SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
     /* Calling again to make startTimer for timer J return success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_TRYING_ST]
-                                 [SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT](
+                                 [SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
     pTxnKey->SipDelete();
@@ -288,7 +288,7 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_TryingState)
 
     EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_TRYING_ST]
-                                 [SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT](
+                                 [SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
     EXPECT_EQ(SIP_TRUE,
@@ -303,7 +303,7 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_TryingState)
     pTxn->SipDelete();
 }
 
-TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_ProceedingState)
+TEST_F(SipNonInviteServerTxnTest, NonInvSer_ProceedingState)
 {
     SIP_UINT16 nError = 0;
     ISipUserData* pSipUserData = new ISipUserData(SIP_NULL);
@@ -331,12 +331,12 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_ProceedingState)
     /* Calling once to make startTimer for timer J return failure */
     EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_PROCEEDING_ST]
-                                 [SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT](
+                                 [SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
     /* Calling again to make startTimer for timer J return success */
     EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_PROCEEDING_ST]
-                                 [SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT](
+                                 [SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
     pTxnKey->SipDelete();
@@ -352,7 +352,7 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_ProceedingState)
     /* Calling to with TCP transport info */
     EXPECT_EQ(SIP_TRUE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_PROCEEDING_ST]
-                                 [SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT](
+                                 [SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT](
                                          pTxn, pTxnFsmData, &nError));
 
     EXPECT_EQ(SIP_TRUE,
@@ -367,7 +367,7 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_ProceedingState)
     delete pSipTranspParam;
 }
 
-TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_CompletedState)
+TEST_F(SipNonInviteServerTxnTest, NonInvSer_CompletedState)
 {
     SIP_UINT16 nError = 0;
 
@@ -396,7 +396,7 @@ TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_CompletedState)
     delete pTxnFsmData;
 }
 
-TEST_F(SipTxnNonInvSerFsmTest, NonInvSer_InvalidState)
+TEST_F(SipNonInviteServerTxnTest, NonInvSer_InvalidState)
 {
     EXPECT_EQ(SIP_FALSE,
             gpfSipNonInvSerTxnFsm[SipTxn::NON_INV_SER_INVALID_ST][SipTxn::NON_INV_SER_INVALID_EVT](

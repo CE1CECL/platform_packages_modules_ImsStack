@@ -201,7 +201,7 @@ TEST_F(SipTxnTest, InvokeFsm_NonInvCliTxn)
     /* Calling NonInvCli Fsm in trying state with 2xx_6xx recv event
        timer K will be started and txn will move to completed state */
     EXPECT_EQ(SIP_TRUE,
-            pTxn->InvokeFsm(SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT, pTxnFsmData, &nError));
+            pTxn->InvokeFsm(SipTxn::NON_INV_CLI_RECV_FINAL_RESP_EVT, pTxnFsmData, &nError));
     EXPECT_EQ(SipTxn::NON_INV_CLI_COMPLETED_ST, pTxn->GetTxnState());
 
     /* Invoking timeout callback for Timer K */
@@ -283,7 +283,7 @@ TEST_F(SipTxnTest, InvokeFsm_InvCliTxn)
 
     /* Calling Inv cli fsm with 3xx_6xx event timer D will start */
     EXPECT_EQ(
-            SIP_TRUE, pTxn->InvokeFsm(SipTxn::INV_CLI_RECV_3XX_6XX_RESP_EVT, pTxnFsmData, &nError));
+            SIP_TRUE, pTxn->InvokeFsm(SipTxn::INV_CLI_RECV_FAILURE_RESP_EVT, pTxnFsmData, &nError));
     EXPECT_EQ(SipTxn::INV_CLI_COMPLETED_ST, pTxn->GetTxnState());
 
     /* Invoking timeout callback for Timer D */
@@ -360,8 +360,7 @@ TEST_F(SipTxnTest, InvokeFsm_InvSerTxn)
 
     /* Calling Inv ser fsm send 2xx resp event and timer H will be started
         state will be moved to completed state */
-    EXPECT_EQ(SIP_TRUE,
-            pTxn->InvokeFsm(SipTxn::INV_SER_SEND_2XX_SUCCESS_RESP_EVT, pTxnFsmData, &nError));
+    EXPECT_EQ(SIP_TRUE, pTxn->InvokeFsm(SipTxn::INV_SER_SEND_2XX_RESP_EVT, pTxnFsmData, &nError));
     EXPECT_EQ(SipTxn::INV_SER_COMPLETED_ST, pTxn->GetTxnState());
     pTxn->SetMaxDuration(140000);
 
@@ -434,7 +433,7 @@ TEST_F(SipTxnTest, InvokeFsm_NonInvSerTxn)
     /* Calling Non Inv ser fsm with recv 2xx resp event in trying state
        in UDP timer J will start */
     EXPECT_EQ(SIP_TRUE,
-            pTxn->InvokeFsm(SipTxn::NON_INV_SER_SEND_2XX_6XX_RESP_EVT, pTxnFsmData, &nError));
+            pTxn->InvokeFsm(SipTxn::NON_INV_SER_SEND_FINAL_RESP_EVT, pTxnFsmData, &nError));
     EXPECT_EQ(SipTxn::NON_INV_SER_COMPLETED_ST, pTxn->GetTxnState());
 
     /* Invoking timeout callback for Timer J */
@@ -618,7 +617,7 @@ TEST_F(SipTxnTest, AbortTxn)
 
     /* Aborting txn without SipUtil */
     EXPECT_EQ(SIP_TRUE,
-            pTxn->InvokeFsm(SipTxn::NON_INV_CLI_RECV_2XX_6XX_RESP_EVT, pTxnFsmData, &nError));
+            pTxn->InvokeFsm(SipTxn::NON_INV_CLI_RECV_FINAL_RESP_EVT, pTxnFsmData, &nError));
     SipUtil_Destruct();
     EXPECT_EQ(SIP_FALSE, pTxn->StartTxnTimer(SipTxn::TIMER_TYPE_INVALID, 1000, &nError));
     EXPECT_EQ(SIP_FALSE, pTxn->StopTxnTimer());
