@@ -40,6 +40,7 @@ public:
 
     void AddTimer(IN IPassiveTimerHolder::Type eType, IN IMS_UINT32 nTimeInMillis,
             IN IMS_BOOL bAllowReset = IMS_FALSE) override;
+    void RemoveTimer(IN IPassiveTimerHolder::Type eType) override;
     IMS_BOOL IsActive(IN IPassiveTimerHolder::Type eType) const override;
     void AddListener(IN IPassiveTimerHolder::Type eType,
             IN IPassiveTimerListener* pPassiveTimerListener) override;

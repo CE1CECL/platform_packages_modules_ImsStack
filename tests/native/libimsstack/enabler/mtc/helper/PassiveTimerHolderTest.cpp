@@ -89,6 +89,19 @@ TEST_F(PassiveTimerHolderTest, AddTimerWithSameTimeResetsTimerIfAllowsReset)
     EXPECT_TRUE(pPassiveTimerHolder->IsActive(ANY_TIMER_TYPE));
 }
 
+TEST_F(PassiveTimerHolderTest, RemoveTimerReleasesTimer)
+{
+    pPassiveTimerHolder->AddTimer(ANY_TIMER_TYPE, ANY_TIMER_DURATION, IMS_FALSE);
+    pPassiveTimerHolder->RemoveTimer(ANY_TIMER_TYPE);
+    EXPECT_FALSE(pPassiveTimerHolder->IsActive(ANY_TIMER_TYPE));
+}
+
+TEST_F(PassiveTimerHolderTest, RemoveTimerDoesNothingIfNoMatchingTimer)
+{
+    pPassiveTimerHolder->RemoveTimer(ANY_TIMER_TYPE);
+    EXPECT_FALSE(pPassiveTimerHolder->IsActive(ANY_TIMER_TYPE));
+}
+
 TEST_F(PassiveTimerHolderTest, IsActiveReturnsFalseAfterAosDisconnected)
 {
     pPassiveTimerHolder->AddTimer(ANY_TIMER_TYPE, ANY_TIMER_DURATION, IMS_FALSE);
