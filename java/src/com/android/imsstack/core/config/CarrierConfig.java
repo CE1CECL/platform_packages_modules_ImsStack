@@ -779,6 +779,7 @@ public class CarrierConfig {
     public static class Assets {
         public static final String KEY_IMS_SMS_PREFIX = "imssms.";
         public static final String KEY_IMS_VOICE_PREFIX = "imsvoice.";
+        public static final String KEY_IMS_WFC_PREFIX = "imswfc.";
 
         // Ims General
         public static final String KEY_SDP_NEGOTIATION_REQUIRED_FOR_NON_RPR_BOOL =
@@ -868,9 +869,9 @@ public class CarrierConfig {
         public static final String KEY_REQUIRED_VOLTE_BLOCK_BY_SSAC_BOOL =
                 KEY_IMS_VOICE_PREFIX + "required_volte_block_by_ssac_bool";
         public static final String KEY_REQUIRED_WFC_BLOCK_BY_AIRPLANE_MODE_BOOL =
-                "required_wfc_block_by_airplane_mode_bool";
+                KEY_IMS_WFC_PREFIX + "required_wfc_block_by_airplane_mode_bool";
         public static final String KEY_REREG_WITH_CHANGED_COUNTRY_ON_WIFI_BOOL =
-                "rereg_with_changed_country_on_wifi_bool";
+                KEY_IMS_WFC_PREFIX + "rereg_with_changed_country_on_wifi_bool";
         public static final String KEY_SIP_OVER_IPSEC_ENABLED_IN_ROAMING_BOOL =
                 "sip_over_ipsec_enabled_in_roaming_bool";
         public static final String KEY_SMS_OVER_IMS_AVAILABLE_WITHOUT_VOICE_CAPA_BOOL =
@@ -896,9 +897,9 @@ public class CarrierConfig {
         public static final String KEY_USE_SECURITY_SERVER_PORT_IN_REG_CONTACT_OF_INIT_REG_BOOL =
                 "use_security_server_port_in_reg_contact_of_init_reg_bool";
         public static final String KEY_USE_WFC_COUNTRY_CODE_AVAILABILITY_CHECK_BOOL =
-                "use_wfc_country_code_availability_check_bool";
+                KEY_IMS_WFC_PREFIX + "use_wfc_country_code_availability_check_bool";
         public static final String KEY_VIDEO_OVER_WIFI_SUPPORTED_WITHOUT_VOICE_BOOL =
-                "video_over_wifi_supported_without_voice_bool";
+                KEY_IMS_WFC_PREFIX + "video_over_wifi_supported_without_voice_bool";
 
         public static final String KEY_CONTACT_USER_INFO_POLICY_FOR_NON_REG_MESSAGE_INT =
                 "contact_user_info_policy_for_non_reg_message_int";
@@ -970,7 +971,7 @@ public class CarrierConfig {
         public static final String KEY_SUPPORTED_ROAMING_RATS_INT_ARRAY =
                 "supported_roaming_rats_int_array";
         public static final String KEY_VOWIFI_SUB_ERR_CODE_FOR_INIT_REG_INT_ARRAY =
-                "vowifi_sub_err_code_for_init_reg_int_array";
+                KEY_IMS_WFC_PREFIX + "vowifi_sub_err_code_for_init_reg_int_array";
         // Bundle {
         public static final String KEY_EXTRA_REG_ERR_BUNDLE =
                 "extra_reg_err_bundle";
@@ -1058,19 +1059,19 @@ public class CarrierConfig {
         // }
         // Bundle {
         public static final String KEY_WFC_ERR_MESSAGE_BUNDLE =
-                "wfc_err_message_bundle";
+                KEY_IMS_WFC_PREFIX + "wfc_err_message_bundle";
         public static final String KEY_WFC_ERR_REG_403_STRING =
-                "wfc_err_reg_403_string";
+                KEY_IMS_WFC_PREFIX + "wfc_err_reg_403_string";
         public static final String KEY_WFC_ERR_REG_500_STRING =
-                "wfc_err_reg_500_string";
+                KEY_IMS_WFC_PREFIX + "wfc_err_reg_500_string";
         public static final String KEY_WFC_ERR_NOT_SUPPORTED_COUNTRY_STRING =
-                "wfc_err_not_supported_country_string";
+                KEY_IMS_WFC_PREFIX + "wfc_err_not_supported_country_string";
         public static final String KEY_WFC_ERR_SUB_403_STRING =
-                "wfc_err_sub_403_string";
+                KEY_IMS_WFC_PREFIX + "wfc_err_sub_403_string";
         public static final String KEY_WFC_ERR_NOTIFY_TERMINATED_STRING =
-                "wfc_err_notify_terminated_string";
+                KEY_IMS_WFC_PREFIX + "wfc_err_notify_terminated_string";
         public static final String KEY_WFC_ERR_OTHER_FAILURES_STRING =
-                "wfc_err_other_failures_string";
+                KEY_IMS_WFC_PREFIX + "wfc_err_other_failures_string";
         // }
 
         // Media
