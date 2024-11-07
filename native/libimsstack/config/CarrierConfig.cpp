@@ -825,28 +825,31 @@ const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORTED_ROAMING_RATS_INT_ARRAY[] =
 const IMS_CHAR CarrierConfig::Assets::KEY_VOWIFI_SUB_ERR_CODE_FOR_INIT_REG_INT_ARRAY[] =
         KEY_IMS_WFC_PREFIX "vowifi_sub_err_code_for_init_reg_int_array";
 // Bundle {
-const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_BUNDLE[] = "extra_reg_err_bundle";
+const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_BUNDLE[] =
+        KEY_IMS_PREFIX "extra_reg_err_bundle";
 const IMS_CHAR
         CarrierConfig::Assets::KEY_EXTRA_REG_ERR_CODE_AS_FAILURE_IN_ROAMING_FOR_UPDATE_BOOL[] =
-                "extra_reg_err_code_as_failure_in_roaming_for_update_bool";
+                KEY_IMS_PREFIX "extra_reg_err_code_as_failure_in_roaming_for_update_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_RETRY_CNT_SHARED_FOR_REG_AND_SUB_BOOL[] =
-        "extra_reg_err_retry_cnt_shared_for_reg_and_sub_bool";
+        KEY_IMS_PREFIX "extra_reg_err_retry_cnt_shared_for_reg_and_sub_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_FINAL_TYPE_INT[] =
-        "extra_reg_err_final_type_int";
-const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_MAX_CNT_INT[] = "extra_reg_err_max_cnt_int";
+        KEY_IMS_PREFIX "extra_reg_err_final_type_int";
+const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_MAX_CNT_INT[] =
+        KEY_IMS_PREFIX "extra_reg_err_max_cnt_int";
 const IMS_CHAR CarrierConfig::Assets::
         KEY_EXTRA_REG_ERR_PCSCFS_REPEATED_CNT_FOR_EPS_5GS_ONLY_ATTACHED_INT[] =
-                "extra_reg_err_pcscfs_repeated_cnt_for_eps_5gs_only_attached_int";
+                KEY_IMS_PREFIX "extra_reg_err_pcscfs_repeated_cnt_for_eps_5gs_only_attached_int";
 const IMS_CHAR CarrierConfig::Assets::
         KEY_EXTRA_REG_ERR_PCSCFS_REPEATED_CNT_FOR_LTE_COMBINDED_ATTACHED_INT[] =
-                "extra_reg_err_pcscfs_repeated_cnt_for_lte_combined_attached_int";
-const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_POLICY_INT[] = "extra_reg_err_policy_int";
+                KEY_IMS_PREFIX "extra_reg_err_pcscfs_repeated_cnt_for_lte_combined_attached_int";
+const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_POLICY_INT[] =
+        KEY_IMS_PREFIX "extra_reg_err_policy_int";
 const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_CODE_INT_ARRAY[] =
-        "extra_reg_err_code_int_array";
+        KEY_IMS_PREFIX "extra_reg_err_code_int_array";
 const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_CODE_FOR_UPDATE_INT_ARRAY[] =
-        "extra_reg_err_code_for_update_int_array";
+        KEY_IMS_PREFIX "extra_reg_err_code_for_update_int_array";
 const IMS_CHAR CarrierConfig::Assets::KEY_EXTRA_REG_ERR_WAIT_TIME_SEC_INT_ARRAY[] =
-        "extra_reg_err_wait_time_sec_int_array";
+        KEY_IMS_PREFIX "extra_reg_err_wait_time_sec_int_array";
 // }
 // Bundle {
 const IMS_CHAR CarrierConfig::Assets::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_BUNDLE[] =
