@@ -682,11 +682,11 @@ const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_LOCAL_SESSION_TIMER_BOOL[] =
         "support_local_session_timer_bool";
 // Aos
 const IMS_CHAR CarrierConfig::Assets::KEY_BLOCK_PCSCF_ON_REG_FAILURE_BOOL[] =
-        "block_pcscf_on_reg_failure_bool";
+        KEY_IMS_PREFIX "block_pcscf_on_reg_failure_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_CALL_END_AND_PDN_REACTIVATION_BY_REG_TERMINATED_BOOL[] =
-        "call_end_and_pdn_reactivation_by_reg_terminated_bool";
+        KEY_IMS_PREFIX "call_end_and_pdn_reactivation_by_reg_terminated_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_DESTROY_UNSECURE_TCP_SOCKET_ON_ACCOMPLISHING_REG_BOOL[] =
-        "destroy_unsecure_tcp_socket_on_accomplishing_reg_bool";
+        KEY_IMS_PREFIX "destroy_unsecure_tcp_socket_on_accomplishing_reg_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_ECALL_BASED_ON_P_ASSOCIATED_URI_OF_NORMAL_REG_BOOL[] =
         KEY_IMS_EMERGENCY_PREFIX "ecall_based_on_p_associated_uri_of_normal_reg_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_EREG_ON_RANDOM_PCSCF_BOOL[] =
@@ -694,29 +694,29 @@ const IMS_CHAR CarrierConfig::Assets::KEY_EREG_ON_RANDOM_PCSCF_BOOL[] =
 const IMS_CHAR CarrierConfig::Assets::KEY_EREG_SET_TCP_ONLY_IN_ROAMING_BOOL[] =
         KEY_IMS_EMERGENCY_PREFIX "ereg_set_tcp_only_in_roaming_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_HOLD_REG_WITH_IPCAN_CHANGED_DURING_IMS_CALL_BOOL[] =
-        "hold_reg_with_ipcan_changed_during_ims_call_bool";
+        KEY_IMS_PREFIX "hold_reg_with_ipcan_changed_during_ims_call_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_IGNORE_VOPS_FOR_VOLTE_ENABLE_BOOL[] =
         KEY_IMS_VOICE_PREFIX "ignore_vops_for_volte_enable_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_IMS_DEREG_ON_3G_NETWORK_BOOL[] =
-        "ims_dereg_on_3g_network_bool";
+        KEY_IMS_PREFIX "ims_dereg_on_3g_network_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_INIT_IPSEC_SETTING_WITH_NEW_PCSCF_BOOL[] =
-        "init_ipsec_setting_with_new_pcscf_bool";
+        KEY_IMS_PREFIX "init_ipsec_setting_with_new_pcscf_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_KEEP_EREG_RETRY_ON_WLAN_BOOL[] =
         KEY_IMS_EMERGENCY_PREFIX "keep_ereg_retry_on_wlan_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_NO_INIT_REG_ON_PCSCF_CHANGE_BOOL[] =
-        "no_init_reg_on_pcscf_change_bool";
+        KEY_IMS_PREFIX "no_init_reg_on_pcscf_change_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_PLMN_BLOCK_WITH_TIMEOUT_ON_VOICE_CALL_UNAVAILABLE_BOOL[] =
         KEY_IMS_VOICE_PREFIX "plmn_block_with_timeout_on_voice_call_unavailable_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REG_CONTACT_VALIDATION_BOOL[] =
-        "reg_contact_validation_bool";
+        KEY_IMS_PREFIX "reg_contact_validation_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REG_RETRY_WITH_IP_VER_FALLBACK_BOOL[] =
-        "reg_retry_with_ip_ver_fallback_bool";
+        KEY_IMS_PREFIX "reg_retry_with_ip_ver_fallback_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REMOVE_OLD_SA_ON_ESTABLISHING_SA_BOOL[] =
-        "remove_old_sa_on_establishing_sa_bool";
+        KEY_IMS_PREFIX "remove_old_sa_on_establishing_sa_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REQUIRED_CDMALESS_FEATURE_TAG_BOOL[] =
-        "required_cdmaless_feature_tag_bool";
+        KEY_IMS_PREFIX "required_cdmaless_feature_tag_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REQUIRED_INIT_REG_AFTER_IMS_CALL_END_ON_REG_HELD_BOOL[] =
-        "required_init_reg_after_ims_call_end_on_reg_held_bool";
+        KEY_IMS_PREFIX "required_init_reg_after_ims_call_end_on_reg_held_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REQUIRED_VOLTE_BLOCK_BY_SSAC_BOOL[] =
         KEY_IMS_VOICE_PREFIX "required_volte_block_by_ssac_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_REQUIRED_WFC_BLOCK_BY_AIRPLANE_MODE_BOOL[] =
@@ -724,27 +724,27 @@ const IMS_CHAR CarrierConfig::Assets::KEY_REQUIRED_WFC_BLOCK_BY_AIRPLANE_MODE_BO
 const IMS_CHAR CarrierConfig::Assets::KEY_REREG_WITH_CHANGED_COUNTRY_ON_WIFI_BOOL[] =
         KEY_IMS_WFC_PREFIX "rereg_with_changed_country_on_wifi_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SIP_OVER_IPSEC_ENABLED_IN_ROAMING_BOOL[] =
-        "sip_over_ipsec_enabled_in_roaming_bool";
+        KEY_IMS_PREFIX "sip_over_ipsec_enabled_in_roaming_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SMS_OVER_IMS_AVAILABLE_WITHOUT_VOICE_CAPA_BOOL[] =
         KEY_IMS_SMS_PREFIX "sms_over_ims_available_without_voice_capa_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_CONTACT_USER_INFO_BOOL[] =
-        "support_contact_user_info_bool";
+        KEY_IMS_PREFIX "support_contact_user_info_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_EREREG_ON_IPCAN_CHANGE_BOOL[] =
         KEY_IMS_EMERGENCY_PREFIX "support_erereg_on_ipcan_change_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_REG_WITH_FEATURE_TAG_UNAVAILABLE_BOOL[] =
-        "support_reg_with_feature_tag_unavailable_bool";
+        KEY_IMS_PREFIX "support_reg_with_feature_tag_unavailable_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_VERSTAT_FOR_REG_BOOL[] =
-        "support_verstat_for_reg_bool";
+        KEY_IMS_PREFIX "support_verstat_for_reg_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_SUPPORT_VIDEO_FOR_EREG_BOOL[] =
         KEY_IMS_EMERGENCY_PREFIX "support_video_for_ereg_bool";
 const IMS_CHAR CarrierConfig::Assets::
         KEY_USE_RCS_TELEPHONY_FEATURE_TAG_AS_AVAILABLE_VOICE_CALL_TYPE_BOOL[] =
-                "use_rcs_telephony_feature_tag_as_available_voice_call_type_bool";
+                KEY_IMS_PREFIX "use_rcs_telephony_feature_tag_as_available_voice_call_type_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_USE_SECURITY_SERVER_PORT_IN_INIT_REG_BOOL[] =
-        "use_security_server_port_in_init_reg_bool";
+        KEY_IMS_PREFIX "use_security_server_port_in_init_reg_bool";
 const IMS_CHAR
         CarrierConfig::Assets::KEY_USE_SECURITY_SERVER_PORT_IN_REG_CONTACT_OF_INIT_REG_BOOL[] =
-                "use_security_server_port_in_reg_contact_of_init_reg_bool";
+                KEY_IMS_PREFIX "use_security_server_port_in_reg_contact_of_init_reg_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_USE_WFC_COUNTRY_CODE_AVAILABILITY_CHECK_BOOL[] =
         KEY_IMS_WFC_PREFIX "use_wfc_country_code_availability_check_bool";
 const IMS_CHAR CarrierConfig::Assets::KEY_VIDEO_OVER_WIFI_SUPPORTED_WITHOUT_VOICE_BOOL[] =
