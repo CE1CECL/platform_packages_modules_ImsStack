@@ -15,6 +15,7 @@
  */
 
 #include "CallReasonInfo.h"
+#include "CarrierConfig.h"
 #include "IMessage.h"
 #include "ISession.h"
 #include "ISipHeader.h"
@@ -385,7 +386,8 @@ ImsList<IMtcExtension*> MtcSession::GetSupportedExtensions() const
 
     // TODO: check CallType.
     if (!m_objContext.GetCallInfo().bUssi &&
-            m_objContext.GetConfigurationProxy().Is(Feature::VOICE_QOS_PRECONDITION_SUPPORTED))
+            m_objContext.GetConfigurationProxy().GetBoolean(
+                    ConfigVoice::KEY_VOICE_QOS_PRECONDITION_SUPPORTED_BOOL))
     {
         lstExtensions.Append(new PreconditionExtension(m_objContext));
     }
@@ -396,8 +398,8 @@ ImsList<IMtcExtension*> MtcSession::GetSupportedExtensions() const
 PRIVATE
 void MtcSession::UpdateSessionProperty()
 {
-    IMS_SINT32 nInterval =
-            m_objContext.GetConfigurationProxy().GetInt(Feature::SESSION_REFRESH_TRIGGER_INTERVAL);
+    IMS_SINT32 nInterval = m_objContext.GetConfigurationProxy().GetInt(
+            ConfigVoice::KEY_SESSION_REFRESH_TRIGGER_INTERVAL_SEC_INT);
     if (nInterval > 0)
     {
         m_objSession.SetRefreshPolicy(ISession::REFRESH_POLICY_REMAIN_TIME, 0, 0, nInterval);
@@ -433,13 +435,14 @@ IMS_RESULT MtcSession::UpdateCallTypeFromMessage(
 PRIVATE
 void MtcSession::UpdateCapabilityFromMessage(IN const IMessage& objMessage)
 {
-    if (m_objContext.GetConfigurationProxy().Is(
-                Feature::SUPPORT_VIDEO_CALL_UPGRADE_REGARDLESS_OF_FEATURE_TAGS))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVt::KEY_SUPPORT_VIDEO_CALL_UPGRADE_REGARDLESS_OF_FEATURE_TAGS_BOOL))
     {
         m_bVideoCapable = IMS_TRUE;
     }
-    else if (m_objContext.GetConfigurationProxy().Is(
-                     Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_P_TTA_VOLTE_INFO))
+    else if (m_objContext.GetConfigurationProxy().Contains(
+                     ConfigVoice::KEY_CARRIER_SPECIFIC_SIP_HEADERS_STRING_ARRAY,
+                     MessageUtil::STR_P_TTA_VOLTE_INFO))
     {
         AString strAvchange = m_objContext.GetMessageUtils().GetHeader(
                 &objMessage, ISipHeader::UNKNOWN, MessageUtil::STR_P_TTA_VOLTE_INFO);
@@ -486,13 +489,13 @@ CallType MtcSession::RestrictCallTypeByRegisteredFeature(IN CallType& eCallType)
 PRIVATE
 CallType MtcSession::GetCallTypeForOfferlessInvite()
 {
-    IMS_SINT32 eMediaType =
-            m_objContext.GetConfigurationProxy().GetInt(Feature::MEDIA_TYPE_FOR_OFFERLESS_INVITE);
-    if (eMediaType == CarrierConfig::ImsVoice::OFFERLESS_INVITE_MEDIA_TYPE_FULL_CAPABILITY)
+    IMS_SINT32 eMediaType = m_objContext.GetConfigurationProxy().GetInt(
+            ConfigVoice::KEY_MEDIA_TYPE_FOR_OFFERLESS_INVITE_INT);
+    if (eMediaType == ConfigVoice::OFFERLESS_INVITE_MEDIA_TYPE_FULL_CAPABILITY)
     {
         return GetCallTypeByRegisteredFeature();
     }
-    else  // CarrierConfig::ImsVoice::OFFERLESS_INVITE_MEDIA_TYPE_AUDIO
+    else  // ConfigVoice::OFFERLESS_INVITE_MEDIA_TYPE_AUDIO
     {
         return CallType::VOIP;
     }
@@ -515,10 +518,10 @@ CallType MtcSession::GetCallTypeByRegisteredFeature()
     else if (bVideoFeature && bTextFeature)
     {
         // Video && RTT
-        IMS_SINT32 nPolicyForTextAndVideo =
-                m_objContext.GetConfigurationProxy().GetInt(Feature::POLICY_FOR_TEXT_WITH_VIDEO);
-        if (nPolicyForTextAndVideo == CarrierConfig::ImsVt::TEXT_VIDEO_NOT_ALLOWED ||
-                nPolicyForTextAndVideo == CarrierConfig::ImsVt::TEXT_VIDEO_NOT_ALLOWED_IF_ACTIVE)
+        IMS_SINT32 nPolicyForTextAndVideo = m_objContext.GetConfigurationProxy().GetInt(
+                ConfigVt::KEY_POLICY_FOR_TEXT_WITH_VIDEO_INT);
+        if (nPolicyForTextAndVideo == ConfigVt::TEXT_VIDEO_NOT_ALLOWED ||
+                nPolicyForTextAndVideo == ConfigVt::TEXT_VIDEO_NOT_ALLOWED_IF_ACTIVE)
         {
             return CallType::VT;
         }

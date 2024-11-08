@@ -42,7 +42,7 @@
 #include "call/state/MockMtcCallStateMachine.h"
 #include "conferencecall/ConferenceDef.h"
 #include "conferencecall/MockIConferenceManager.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "dialingplan/MockIMtcDialingPlan.h"
 #include "ect/MockIEctManager.h"
@@ -85,8 +85,7 @@ public:
     CallInfo objCallInfo;
     MockICallStateProxy objCallStateProxy;
     MockIMtcSipInterfaceFactory objSipInterfaceFactory;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MockSessionInterfaceHolder* pSessionInterfaceHolder;
     MessageUtils objMessageUtils;
 
@@ -96,8 +95,7 @@ protected:
         ON_CALL(objContext, GetCallStateProxy).WillByDefault(ReturnRef(objCallStateProxy));
         ON_CALL(objContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
 
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
 
         ON_CALL(objCallStateProxy, UpdateCallState(_, _, _, _, _)).WillByDefault(Return());
@@ -829,8 +827,8 @@ TEST_F(MtcCallTest, CreateJniCallInfoReturnsMatchingWithCallInfo)
 
 TEST_F(MtcCallTest, CreateJniCallInfoReturnsConferenceSubscribeFalse)
 {
-    ON_CALL(*pConfigurationManager, GetConferenceSubscribeType)
-            .WillByDefault(Return(-1));  // Subscription is not required
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_CONFERENCE_SUBSCRIBE_TYPE_INT))
+            .WillByDefault(Return(ConfigVoice::CONFERENCE_SUBSCRIBE_NOT_SUPPORT));
 
     MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory());
     JniCallInfo objJniCallInfo = objCall.CreateJniCallInfo();
@@ -840,8 +838,8 @@ TEST_F(MtcCallTest, CreateJniCallInfoReturnsConferenceSubscribeFalse)
 
 TEST_F(MtcCallTest, CreateJniCallInfoReturnsConferenceSubscribeTrueIfInDialog)
 {
-    ON_CALL(*pConfigurationManager, GetConferenceSubscribeType)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::CONFERENCE_SUBSCRIBE_TYPE_IN_DIALOG));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_CONFERENCE_SUBSCRIBE_TYPE_INT))
+            .WillByDefault(Return(ConfigVoice::CONFERENCE_SUBSCRIBE_TYPE_IN_DIALOG));
 
     MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory());
     JniCallInfo objJniCallInfo = objCall.CreateJniCallInfo();
@@ -851,9 +849,8 @@ TEST_F(MtcCallTest, CreateJniCallInfoReturnsConferenceSubscribeTrueIfInDialog)
 
 TEST_F(MtcCallTest, CreateJniCallInfoReturnsConferenceSubscribeTrueIfOutDialog)
 {
-    ON_CALL(*pConfigurationManager, GetConferenceSubscribeType)
-            .WillByDefault(
-                    Return(CarrierConfig::ImsVoice::CONFERENCE_SUBSCRIBE_TYPE_OUT_OF_DIALOG));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_CONFERENCE_SUBSCRIBE_TYPE_INT))
+            .WillByDefault(Return(ConfigVoice::CONFERENCE_SUBSCRIBE_TYPE_OUT_OF_DIALOG));
 
     MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory());
     JniCallInfo objJniCallInfo = objCall.CreateJniCallInfo();

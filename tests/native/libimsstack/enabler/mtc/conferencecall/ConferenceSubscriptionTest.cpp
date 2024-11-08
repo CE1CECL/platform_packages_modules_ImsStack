@@ -41,7 +41,7 @@
 #include "conferencecall/MockConferenceInfoUpdater.h"
 #include "conferencecall/MockConferenceParticipantList.h"
 #include "conferencecall/MockIConferenceSubscriptionListener.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/sipinterfaceholder/MockIInterfaceHolderListener.h"
 #include "helper/sipinterfaceholder/MockIMtcSipInterfaceFactory.h"
@@ -77,8 +77,7 @@ public:
             objMtcSession(),
             objMessageUtils(),
             objListener(),
-            pConfigurationManager(new MockIMtcConfigurationManager()),
-            objConfigurationProxy(pConfigurationManager),
+            objConfigurationProxy(),
             objInterfaceFactory(),
             objHolderListener(),
             objSubsHolder(objHolderListener),
@@ -102,8 +101,7 @@ protected:
     MockIMtcSession objMtcSession;
     MockIMessageUtils objMessageUtils;
     MockIConferenceSubscriptionListener objListener;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy objConfigurationProxy;
+    MockMtcConfigurationProxy objConfigurationProxy;
 
     MockIMtcSipInterfaceFactory objInterfaceFactory;
     MockIInterfaceHolderListener objHolderListener;
@@ -144,10 +142,10 @@ protected:
 
     void SetConferenceSubscription(IN IMS_BOOL bInDialog)
     {
-        IMS_UINT32 nType = bInDialog
-                ? CarrierConfig::ImsVoice::CONFERENCE_SUBSCRIBE_TYPE_IN_DIALOG
-                : CarrierConfig::ImsVoice::CONFERENCE_SUBSCRIBE_TYPE_OUT_OF_DIALOG;
-        ON_CALL(*pConfigurationManager, GetConferenceSubscribeType).WillByDefault(Return(nType));
+        IMS_UINT32 nType = bInDialog ? ConfigVoice::CONFERENCE_SUBSCRIBE_TYPE_IN_DIALOG
+                                     : ConfigVoice::CONFERENCE_SUBSCRIBE_TYPE_OUT_OF_DIALOG;
+        ON_CALL(objConfigurationProxy, GetInt(ConfigVoice::KEY_CONFERENCE_SUBSCRIBE_TYPE_INT))
+                .WillByDefault(Return(nType));
         pConferenceSubscription = std::make_unique<ConferenceSubscription>(
                 objContext, CONFERENCE_CALL_KEY, objParticipantList, objListener, objFactory);
     }

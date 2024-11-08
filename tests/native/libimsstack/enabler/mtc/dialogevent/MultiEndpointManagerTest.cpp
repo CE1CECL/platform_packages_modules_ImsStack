@@ -28,7 +28,7 @@
 #include "SipAddress.h"
 #include "TestConfigService.h"
 #include "TestPhoneInfoService.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "dialogevent/DialogInfo.h"
 #include "dialogevent/IDialogInfoManager.h"
@@ -68,8 +68,7 @@ public:
             objAosConnector(),
             objConfigService(),
             objPhoneInfoService(),
-            pConfigurationManager(new MockIMtcConfigurationManager()),
-            objConfigurationProxy(pConfigurationManager),
+            objConfigurationProxy(),
             objCoreService(),
             objJniMtcServiceThread(),
             piDialogInfoManager(std::make_unique<MockIDialogInfoManager>()),
@@ -85,8 +84,7 @@ protected:
     MockIMtcAosConnector objAosConnector;
     TestConfigService objConfigService;
     TestPhoneInfoService objPhoneInfoService;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy objConfigurationProxy;
+    MockMtcConfigurationProxy objConfigurationProxy;
     MockICoreService objCoreService;
     MockIJniMtcServiceThread objJniMtcServiceThread;
 
@@ -126,7 +124,8 @@ protected:
     // piDialogSubscription.
     void CreateManager(IN IMS_BOOL bConfigOn = IMS_TRUE)
     {
-        ON_CALL(*pConfigurationManager, IsMultiendpointSupported).WillByDefault(Return(bConfigOn));
+        ON_CALL(objConfigurationProxy, GetBoolean(ConfigVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL))
+                .WillByDefault(Return(bConfigOn));
 
         ON_CALL(*pMultiEndpointFactory, CreateDialogInfoManager)
                 .WillByDefault(Invoke(
@@ -220,10 +219,12 @@ TEST_F(MultiEndpointManagerTest, OnAosStateChangedStopsIfDisconnected)
 
 TEST_F(MultiEndpointManagerTest, IsRequiredReturnsConfigurationValue)
 {
-    ON_CALL(*pConfigurationManager, IsMultiendpointSupported).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(objConfigurationProxy, GetBoolean(ConfigVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     EXPECT_TRUE(MultiEndpointManager::IsRequired(objConfigurationProxy));
 
-    ON_CALL(*pConfigurationManager, IsMultiendpointSupported).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(objConfigurationProxy, GetBoolean(ConfigVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     EXPECT_FALSE(MultiEndpointManager::IsRequired(objConfigurationProxy));
 }
 

@@ -37,6 +37,7 @@
 #include "call/message/MessageFormatter.h"
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
+#include "configuration/MtcConfigurationResolver.h"
 #include "dialogevent/IMultiEndpointManager.h"
 #include "helper/MtcLocationObject.h"
 #include "helper/MtcSupplementaryService.h"
@@ -81,8 +82,8 @@ PUBLIC VIRTUAL void MessageFormatter::ReasonHeaderSetter_SetHeader(
     }
 
     MtcConfigurationProxy& objConfig = m_objContext.GetConfigurationProxy();
-    if (objConfig.Is(
-                Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_REASON_USER_SESSIONEXPIRED))
+    if (objConfig.Contains(ConfigVoice::KEY_CARRIER_SPECIFIC_SIP_HEADERS_STRING_ARRAY,
+                MessageUtil::STR_REASON_USER_SESSIONEXPIRED))
     {
         IMS_TRACE_D("ReasonHeaderSetter_SetHeader [%d]", nTerminationReason, 0, 0);
         if ((nTerminationReason == ISession::TERMINATION_REASON_REFRESH_TIMEOUT) ||
@@ -92,7 +93,8 @@ PUBLIC VIRTUAL void MessageFormatter::ReasonHeaderSetter_SetHeader(
         }
     }
 
-    if (objConfig.Is(Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_P_SKT_BYE_CAUSE))
+    if (objConfig.Contains(ConfigVoice::KEY_CARRIER_SPECIFIC_SIP_HEADERS_STRING_ARRAY,
+                MessageUtil::STR_P_SKT_BYE_CAUSE))
     {
         IMS_TRACE_D("ReasonHeaderSetter_SetHeader [%d]", nTerminationReason, 0, 0);
         if ((nTerminationReason == ISession::TERMINATION_REASON_REFRESH_TIMEOUT) ||
@@ -126,7 +128,8 @@ PUBLIC VIRTUAL void MessageFormatter::ReasonHeaderSetter_SetPrivateHeader(
         IN ISipMessage* piOldSipMsg, IN ISipMessage* piNewSipMsg)
 {
     MtcConfigurationProxy& objConfig = m_objContext.GetConfigurationProxy();
-    if (objConfig.Is(Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_P_SKT_BYE_CAUSE))
+    if (objConfig.Contains(ConfigVoice::KEY_CARRIER_SPECIFIC_SIP_HEADERS_STRING_ARRAY,
+                MessageUtil::STR_P_SKT_BYE_CAUSE))
     {
         const AString strPSktByeCause(MessageUtil::STR_P_SKT_BYE_CAUSE);
         AString strByeCause = piOldSipMsg->GetHeader(ISipHeader::UNKNOWN, 0, strPSktByeCause);
@@ -159,7 +162,8 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormStartMessage(IN CallType eCallTy
     SetCarrierSpecificHeaders();
     SetCallComposerElements();
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF,
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF_INT_ARRAY,
                 static_cast<IMS_SINT32>(MessageTypeForGeolocationPidf::INVITE)))
     {
         SetLocation();
@@ -182,7 +186,8 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormProvisionalResponseMessage(
     AddSrvccFeature();
     // SetTipHeader();
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF,
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF_INT_ARRAY,
                 static_cast<IMS_SINT32>(MessageTypeForGeolocationPidf::PROVISIONAL_RESPONSE)))
     {
         SetLocation();
@@ -256,7 +261,8 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormAcceptMessage()
     // SetTipHeader();
     SetCarrierSpecificHeaders();
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF,
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF_INT_ARRAY,
                 static_cast<IMS_SINT32>(MessageTypeForGeolocationPidf::FINAL_SUCCESS_RESPONSE)))
     {
         SetLocation();
@@ -279,7 +285,8 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormRejectMessage(
     GetRejectPhrase(objReason, strPhrase);
 
     // If PIDF-LO shouldn't be added to reject messages for re-INVITE, need a fix
-    if (m_objContext.GetConfigurationProxy().Is(Feature::MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF,
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF_INT_ARRAY,
                 static_cast<IMS_SINT32>(MessageTypeForGeolocationPidf::FINAL_FAILURE_RESPONSE)))
     {
         SetLocation();
@@ -549,8 +556,8 @@ void MessageFormatter::SetCallerIdHeader()
     if (pSuppService->nValue == CALLERID_RESTRICTED)
     {
         const MtcConfigurationProxy& objConfig = m_objContext.GetConfigurationProxy();
-        if (objConfig.GetInt(Feature::SESSION_PRIVACY_TYPE) ==
-                CarrierConfig::ImsVoice::SESSION_PRIVACY_TYPE_HEADER)
+        if (objConfig.GetInt(ConfigVoice::KEY_SESSION_PRIVACY_TYPE_INT) ==
+                ConfigVoice::SESSION_PRIVACY_TYPE_HEADER)
         {
             m_objContext.GetMessageUtils().SetHeader(
                     m_piNextMessage, MessageUtil::STR_HEADER, ISipHeader::PRIVACY);
@@ -656,7 +663,8 @@ PRIVATE
 void MessageFormatter::SetCarrierSpecificHeaders()
 {
     MtcConfigurationProxy& objConfig = m_objContext.GetConfigurationProxy();
-    if (objConfig.Is(Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_P_TTA_VOLTE_INFO))
+    if (objConfig.Contains(ConfigVoice::KEY_CARRIER_SPECIFIC_SIP_HEADERS_STRING_ARRAY,
+                MessageUtil::STR_P_TTA_VOLTE_INFO))
     {
         if (m_eFormType == FormType::START || m_eFormType == FormType::ACCEPT ||
                 m_eFormType == FormType::UPDATE || m_eFormType == FormType::ACCEPT_UPDATE)
@@ -668,7 +676,8 @@ void MessageFormatter::SetCarrierSpecificHeaders()
         }
     }
 
-    if (objConfig.Is(Feature::CARRIER_SPECIFIC_SIP_HEADER, MessageUtil::STR_P_SKT_BYE_CAUSE))
+    if (objConfig.Contains(ConfigVoice::KEY_CARRIER_SPECIFIC_SIP_HEADERS_STRING_ARRAY,
+                MessageUtil::STR_P_SKT_BYE_CAUSE))
     {
         if (m_eFormType == FormType::TERMINATE)
         {
@@ -761,7 +770,7 @@ IMS_SINT32 MessageFormatter::GetRejectStatusCode(IN const CallReasonInfo& objRea
     {
         case CODE_USER_DECLINE:
             eStatusCode = m_objContext.GetConfigurationProxy().GetInt(
-                    Feature::INCOMING_CALL_REJECT_CODE_FOR_USER_DECLINE);
+                    ConfigVoice::KEY_INCOMING_CALL_REJECT_CODE_FOR_USER_DECLINE_INT);
             break;
         case CODE_USER_NOANSWER:
         case CODE_LOW_BATTERY:
@@ -802,7 +811,7 @@ IMS_SINT32 MessageFormatter::GetRejectStatusCode(IN const CallReasonInfo& objRea
             else if (objReason.nExtraCode == EXTRA_CODE_NOT_ACCEPTABLE_BY_CALL_TYPE)
             {
                 eStatusCode = m_objContext.GetConfigurationProxy().GetInt(
-                        Feature::CALL_REJECT_CODE_FOR_NOT_ACCEPTABLE_CALL_TYPE);
+                        ConfigVoice::KEY_CALL_REJECT_CODE_FOR_NOT_ACCEPTABLE_CALL_TYPE_INT);
             }
             else
             {
@@ -827,7 +836,7 @@ IMS_SINT32 MessageFormatter::GetRejectStatusCode(IN const CallReasonInfo& objRea
             break;
         case CODE_TIMEOUT_NO_ANSWER:
             eStatusCode = m_objContext.GetConfigurationProxy().GetInt(
-                    Feature::INCOMING_CALL_REJECT_CODE_FOR_NO_ANSWER);
+                    ConfigVoice::KEY_INCOMING_CALL_REJECT_CODE_FOR_NO_ANSWER_INT);
             break;
         case CODE_TIMEOUT_NO_ANSWER_CALL_UPDATE:
             eStatusCode = SipStatusCode::SC_603;
@@ -971,8 +980,8 @@ void MessageFormatter::GetTerminateReason(
 PRIVATE
 AString MessageFormatter::GetTerminateReason(IN TerminateType eType)
 {
-    return m_objContext.GetConfigurationProxy().GetStr(
-            Feature::CALL_TERMINATE_REASON_HEADER, static_cast<IMS_SINT32>(eType));
+    return MtcConfigurationResolver::GetTerminateReasonHeader(
+            m_objContext.GetConfigurationProxy(), eType);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -980,8 +989,8 @@ AString MessageFormatter::GetTerminateReason(IN TerminateType eType)
 PRIVATE
 AString MessageFormatter::GetRejectPhrase(IN RejectType eType)
 {
-    return m_objContext.GetConfigurationProxy().GetStr(
-            Feature::CALL_REJECT_REASON_PHRASE, static_cast<IMS_SINT32>(eType));
+    return MtcConfigurationResolver::GetRejectReasonPhrase(
+            m_objContext.GetConfigurationProxy(), eType);
 }
 
 /* -------------------------------------------------------------------------------------------------

@@ -16,7 +16,6 @@
 
 #include "AString.h"
 #include "CarrierConfig.h"
-#include "ICarrierConfig.h"
 #include "IConfigurable.h"
 #include "ISipConfig.h"
 #include "ISipConfigV.h"
@@ -54,9 +53,9 @@ PUBLIC VIRTUAL void TransactionTimerUpdateHelper::SetInviteTransactionTimer()
         return;
     }
 
-    Feature eFeature =
-            m_bEmergency ? Feature::EMERGENCY_T_CALL_TIMER : Feature::MO_CALL_REQUEST_TIMEOUT;
-    UpdateTimer(IMS_TRUE, m_objConfiguration.GetInt(eFeature));
+    const IMS_CHAR* pszKey = m_bEmergency ? ConfigEmergency::KEY_EMERGENCY_TCALL_TIMER_MILLIS_INT
+                                          : ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT;
+    UpdateTimer(IMS_TRUE, m_objConfiguration.GetInt(pszKey));
 }
 
 PUBLIC VIRTUAL void TransactionTimerUpdateHelper::ResetInviteTransactionTimer()
@@ -66,19 +65,19 @@ PUBLIC VIRTUAL void TransactionTimerUpdateHelper::ResetInviteTransactionTimer()
         return;
     }
 
-    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(m_nSlotId);
-    UpdateTimer(IMS_TRUE, piCc->GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_B_MILLIS_INT));
+    UpdateTimer(IMS_TRUE, m_objConfiguration.GetInt(ConfigIms::KEY_SIP_TIMER_B_MILLIS_INT));
 }
 
 PUBLIC VIRTUAL void TransactionTimerUpdateHelper::SetNonInviteTransactionTimer()
 {
-    UpdateTimer(IMS_FALSE, m_objConfiguration.GetInt(Feature::PRACK_UPDATE_RESPONSE_WAIT_TIMER));
+    UpdateTimer(IMS_FALSE,
+            m_objConfiguration.GetInt(
+                    ConfigVoice::KEY_PRACK_UPDATE_RESPONSE_WAIT_TIMER_MILLIS_INT));
 }
 
 PUBLIC VIRTUAL void TransactionTimerUpdateHelper::ResetNonInviteTransactionTimer()
 {
-    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(m_nSlotId);
-    UpdateTimer(IMS_FALSE, piCc->GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_F_MILLIS_INT));
+    UpdateTimer(IMS_FALSE, m_objConfiguration.GetInt(ConfigIms::KEY_SIP_TIMER_F_MILLIS_INT));
 }
 
 PRIVATE
@@ -120,10 +119,10 @@ void TransactionTimerUpdateHelper::UpdateTimer(IN IMS_BOOL bInviteTransaction, I
 PRIVATE
 IMS_BOOL TransactionTimerUpdateHelper::IsNeedToUpdate() const
 {
-    Feature eFeature = m_bEmergency
-            ? Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_EMERGENCY_CALL
-            : (m_bWifi ? Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL
-                       : Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL);
-    return m_objConfiguration.GetInt(eFeature) !=
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE;
+    const IMS_CHAR* pszKey = m_bEmergency
+            ? ConfigEmergency::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_EMERGENCY_CALL_INT
+            : (m_bWifi ? ConfigWfc::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL_INT
+                       : ConfigVoice::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL_INT);
+    return m_objConfiguration.GetInt(pszKey) !=
+            ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE;
 }

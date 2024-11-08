@@ -382,7 +382,8 @@ PUBLIC VIRTUAL void MtcMediaManager::UpdatePemType(IN ISession* piSession, IN IM
     // When UE receives P-Early-Media header with "gated", PemType will be keep the value.
 
     if (ePemType != PemType::NONE ||
-            m_objContext.GetConfigurationProxy().Is(Feature::INITIALIZE_PEM_WHEN_NO_HEADER))
+            m_objContext.GetConfigurationProxy().GetBoolean(
+                    ConfigVoice::KEY_INITIALIZE_P_EARLY_MEDIA_WHEN_NO_HEADER_BOOL))
     {
         m_pProfileManager->SetPemType(piSession, ePemType);
     }
@@ -645,7 +646,7 @@ void MtcMediaManager::UpdateLocalTone(IN ISession* piSession, IN IMessage* piMes
     else
     {
         IMS_SINT32 nLocalRbtPolicy = m_objContext.GetConfigurationProxy().GetInt(
-                Feature::POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE);
+                ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT);
 
         IMS_TRACE_D("UpdateLocalTone : local RBT policy[%d]", nLocalRbtPolicy, 0, 0);
 
@@ -865,7 +866,7 @@ IMS_BOOL MtcMediaManager::IsDynamicRbtRequired(IN ISession* piSession)
     }
 
     IMS_SINT32 nLocalRbtPolicy = m_objContext.GetConfigurationProxy().GetInt(
-            Feature::POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE);
+            ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT);
     if (nLocalRbtPolicy != USE_DYNAMIC_NW_TONE_TIMER)
     {
         return IMS_FALSE;

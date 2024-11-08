@@ -31,7 +31,7 @@
 #include "call/MtcCallController.h"
 #include "call/MtcCallManager.h"
 #include "conferencecall/ConferenceManager.h"
-#include "configuration/MtcConfigurationManager.h"
+#include "configuration/MtcConfigurationProxy.h"
 #include "dialingplan/MtcDialingPlan.h"
 #include "dialogevent/MultiEndpointFactory.h"
 #include "dialogevent/MultiEndpointManager.h"
@@ -54,7 +54,7 @@ PUBLIC
 MtcApp::MtcApp(IN IMS_SINT32 nSlotId) :
         ImsApp(MTC_APP_NAME),
         m_nSlotId(nSlotId),
-        m_objConfigurationProxy(MtcConfigurationProxy(new MtcConfigurationManager())),
+        m_objConfigurationProxy(MtcConfigurationProxy()),
         m_lstServices(ImsList<IMtcService*>()),
         m_objDialingPlan(MtcDialingPlan(
                 *this, *PhoneInfoService::GetPhoneInfoService()->GetSubscriberInfo(nSlotId))),
@@ -92,7 +92,6 @@ PUBLIC VIRTUAL void MtcApp::Start()
 {
     IMS_TRACE_I("Start", 0, 0, 0);
 
-    InitConfiguration();
     CreateServices();
     InitCallManager();
     m_objMtcRadioChecker.Init();
@@ -190,11 +189,6 @@ PUBLIC VIRTUAL ILastComeFirstServedHelper& MtcApp::GetLastComeFirstServedHelper(
     }
 
     return *m_pLastComeFirstServedHelper.get();
-}
-
-PROTECTED VIRTUAL void MtcApp::InitConfiguration()
-{
-    m_objConfigurationProxy.Init();
 }
 
 PROTECTED VIRTUAL void MtcApp::CreateServices()

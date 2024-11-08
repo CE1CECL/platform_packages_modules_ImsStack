@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "ICoreService.h"
 #include "IMessage.h"
 #include "IPublication.h"
@@ -80,8 +81,8 @@ PUBLIC
 void CurrentLocationDiscoveryController::OnCurrentLocationDiscoveryInfoReceived(
         IN ISipServerConnection& objSipServerConnection)
 {
-    if (!m_objContext.GetConfigurationProxy().Is(
-                Feature::EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED) ||
+    if (!m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigEmergency::KEY_EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED_BOOL) ||
             !m_objContext.GetCallInfo().IsEmergency())
     {
         SendResponseForInfo(objSipServerConnection, SipStatusCode::SC_469);

@@ -24,7 +24,6 @@
 #include "call/IMtcCall.h"
 #include "call/MockIMtcCallContext.h"
 #include "configuration/ConfigDef.h"
-#include "configuration/MockIMtcConfigurationManager.h"
 #include "configuration/MockMtcConfigurationProxy.h"
 #include "helper/TransactionTimerUpdateHelper.h"
 #include <gtest/gtest.h>
@@ -44,8 +43,7 @@ class TransactionTimerUpdateHelperTest : public ::testing::Test
 public:
     inline TransactionTimerUpdateHelperTest() :
             objContext(),
-            pConfigurationManager(new MockIMtcConfigurationManager()),
-            objConfigurationProxy(pConfigurationManager),
+            objConfigurationProxy(),
             objService()
     {
     }
@@ -54,7 +52,6 @@ public:
 
 protected:
     MockIMtcCallContext objContext;
-    MockIMtcConfigurationManager* pConfigurationManager;
     MockMtcConfigurationProxy objConfigurationProxy;
     MockISipConfig objSipConfig;
     MockISipConfigV objSipConfigV;
@@ -82,9 +79,9 @@ TEST_F(TransactionTimerUpdateHelperTest,
         SetInviteTransactionTimerWithEcallDoesNothingIfEcallTimeoutPolicyIsWait)
 {
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
-    ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVolteEmergencyCall)
-            .WillByDefault(Return(
-                    CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE));
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigEmergency::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_EMERGENCY_CALL_INT))
+            .WillByDefault(Return(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
             TransactionTimerUpdateHelper(objContext, &objSipConfig);
@@ -98,9 +95,11 @@ TEST_F(TransactionTimerUpdateHelperTest,
         SetInviteTransactionTimerWithEcallUpdatesTimerIfEcallTimeoutPolicyIsNotWait)
 {
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
-    ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVolteEmergencyCall)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB));
-    ON_CALL(*pConfigurationManager, GetEmergencyTCallTimer).WillByDefault(Return(TIMER_VALUE));
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigEmergency::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_EMERGENCY_CALL_INT))
+            .WillByDefault(Return(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB));
+    ON_CALL(objConfigurationProxy, GetInt(ConfigEmergency::KEY_EMERGENCY_TCALL_TIMER_MILLIS_INT))
+            .WillByDefault(Return(TIMER_VALUE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
             TransactionTimerUpdateHelper(objContext, &objSipConfig);
@@ -115,9 +114,9 @@ TEST_F(TransactionTimerUpdateHelperTest,
 TEST_F(TransactionTimerUpdateHelperTest,
         SetInviteTransactionTimerWithNormalCallDoesNothingIfTimeoutPolicyIsWait)
 {
-    ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVolteCall)
-            .WillByDefault(Return(
-                    CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE));
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL_INT))
+            .WillByDefault(Return(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
             TransactionTimerUpdateHelper(objContext, &objSipConfig);
@@ -130,9 +129,11 @@ TEST_F(TransactionTimerUpdateHelperTest,
 TEST_F(TransactionTimerUpdateHelperTest,
         SetInviteTransactionTimerWithNormalCallUpdatesTimerIfTimeoutPolicyIsNotWait)
 {
-    ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVolteCall)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB));
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(TIMER_VALUE));
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL_INT))
+            .WillByDefault(Return(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB));
+    ON_CALL(objConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(TIMER_VALUE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
             TransactionTimerUpdateHelper(objContext, &objSipConfig);
@@ -148,9 +149,9 @@ TEST_F(TransactionTimerUpdateHelperTest,
         SetInviteTransactionTimerWithNormalWifiCallDoesNothingIfTimeoutPolicyIsWait)
 {
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVowifiCall)
-            .WillByDefault(Return(
-                    CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE));
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigWfc::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL_INT))
+            .WillByDefault(Return(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
             TransactionTimerUpdateHelper(objContext, &objSipConfig);
@@ -164,9 +165,11 @@ TEST_F(TransactionTimerUpdateHelperTest,
         SetInviteTransactionTimerWithNormalWifiCallUpdatesTimerIfTimeoutPolicyIsNotWait)
 {
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVowifiCall)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB));
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(TIMER_VALUE));
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigWfc::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL_INT))
+            .WillByDefault(Return(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB));
+    ON_CALL(objConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(TIMER_VALUE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
             TransactionTimerUpdateHelper(objContext, &objSipConfig);
@@ -180,7 +183,8 @@ TEST_F(TransactionTimerUpdateHelperTest,
 
 TEST_F(TransactionTimerUpdateHelperTest, SetNonInviteTransactionTimerUpdatesTimer)
 {
-    ON_CALL(*pConfigurationManager, GetPrackUpdateResponseWaitTimer)
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigVoice::KEY_PRACK_UPDATE_RESPONSE_WAIT_TIMER_MILLIS_INT))
             .WillByDefault(Return(TIMER_VALUE));
 
     TransactionTimerUpdateHelper objUpdateHelper =
@@ -195,7 +199,8 @@ TEST_F(TransactionTimerUpdateHelperTest, SetNonInviteTransactionTimerUpdatesTime
 
 TEST_F(TransactionTimerUpdateHelperTest, UpdateTimerDoesNothingIfConfigIsNull)
 {
-    ON_CALL(*pConfigurationManager, GetPrackUpdateResponseWaitTimer)
+    ON_CALL(objConfigurationProxy,
+            GetInt(ConfigVoice::KEY_PRACK_UPDATE_RESPONSE_WAIT_TIMER_MILLIS_INT))
             .WillByDefault(Return(TIMER_VALUE));
 
     TransactionTimerUpdateHelper objUpdateHelper =

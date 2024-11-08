@@ -107,35 +107,35 @@ CallReasonInfo StartErrorHandler::HandleTransactionTimeout() const
         return CallReasonInfo(CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_EMERGENCY);
     }
 
-    Feature eFeature = m_objContext.GetService().IsWlanIpCanType()
-            ? Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL
-            : Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL;
+    const IMS_CHAR* pszKey = m_objContext.GetService().IsWlanIpCanType()
+            ? ConfigWfc::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL_INT
+            : ConfigVoice::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL_INT;
 
-    const IMS_SINT32 nPolicy = m_objContext.GetConfigurationProxy().GetInt(eFeature);
+    const IMS_SINT32 nPolicy = m_objContext.GetConfigurationProxy().GetInt(pszKey);
     IMS_SINT32 nReason = CODE_NETWORK_RESP_TIMEOUT;
     IMS_SINT32 nExtraCode = EXTRA_CODE_METHOD_INVITE;
     switch (nPolicy)
     {
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CALL_END:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CALL_END:
             break;
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE:
             ControlAos(ImsAosControl::PCSCF_NEXT);
             break;
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB:
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB_IF_AVAILABLE:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB_IF_AVAILABLE:
             if (m_objContext.GetService().IsEpsCombinedAttach())
             {
                 nReason = CODE_LOCAL_CALL_CS_RETRY_REQUIRED;
                 nExtraCode = EXTRA_CODE_CALL_RETRY_SILENT_REDIAL;
             }
             break;
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_CURRENT_PCSCF:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_CURRENT_PCSCF:
             ControlAos(ImsAosControl::REGISTER_REINITIATE);
             break;
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_NEXT_PCSCF:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_NEXT_PCSCF:
             ControlAos(ImsAosControl::PCSCF_NEXT);
             break;
-        case CarrierConfig::ImsVoice::
+        case ConfigVoice::
                 MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_WITH_PDN_RECONNECT_AFTER_CSFB:
             if (m_objContext.GetService().IsEpsCombinedAttach())
             {
@@ -144,11 +144,11 @@ CallReasonInfo StartErrorHandler::HandleTransactionTimeout() const
                 ControlAos(ImsAosControl::REGISTER_REINITIATE_BY_CSFB);  // TODO: check timing
             }
             break;
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_SILENT_REDIAL:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_SILENT_REDIAL:
             nReason = CODE_INTERNAL_REDIAL;
             nExtraCode = EXTRA_CODE_REDIAL_BY_REQUEST_TIMEOUT;
             break;
-        case CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_REDIAL_BY_NETWORK_CONTEXT:
+        case ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_REDIAL_BY_NETWORK_CONTEXT:
             return HandleRedialByNetworkContext();
     }
 
@@ -323,21 +323,21 @@ CallReasonInfo StartErrorHandler::Handle403Response(IN const IMessage& objMessag
     }
 
     const IMS_SINT32 nPolicy = m_objContext.GetConfigurationProxy().GetInt(
-            Feature::POLICY_FOR_403_RESPONSE_FOR_INVITE);
+            ConfigVoice::KEY_POLICY_FOR_403_RESPONSE_FOR_INVITE_INT);
     switch (nPolicy)
     {
-        case CarrierConfig::ImsVoice::SIP_403_POLICY_TERMINATE_CALL:
+        case ConfigVoice::SIP_403_POLICY_TERMINATE_CALL:
             break;
 
-        case CarrierConfig::ImsVoice::SIP_403_POLICY_TERMINATE_CALL_AND_RECOVER_REGISTRATION:
+        case ConfigVoice::SIP_403_POLICY_TERMINATE_CALL_AND_RECOVER_REGISTRATION:
             ControlAos(ImsAosControl::REGISTER_REINITIATE);
             break;
 
-        case CarrierConfig::ImsVoice::SIP_403_POLICY_TERMINATE_CALL_AND_REFRESH_REGISTRATION:
+        case ConfigVoice::SIP_403_POLICY_TERMINATE_CALL_AND_REFRESH_REGISTRATION:
             ControlAos(ImsAosControl::REGISTER_REFRESH);
             break;
 
-        case CarrierConfig::ImsVoice::SIP_403_POLICY_CSFB:
+        case ConfigVoice::SIP_403_POLICY_CSFB:
             if (m_objContext.GetService().IsEpsCombinedAttach())
             {
                 return CallReasonInfo(
@@ -345,7 +345,7 @@ CallReasonInfo StartErrorHandler::Handle403Response(IN const IMessage& objMessag
             }
             break;
 
-        case CarrierConfig::ImsVoice::SIP_403_POLICY_CSFB_AND_RECOVER_REGISTRATION:
+        case ConfigVoice::SIP_403_POLICY_CSFB_AND_RECOVER_REGISTRATION:
             if (m_objContext.GetService().IsEpsCombinedAttach())
             {
                 ControlAos(ImsAosControl::REGISTER_REINITIATE_BY_CSFB);
@@ -493,25 +493,24 @@ CallReasonInfo StartErrorHandler::Handle504Response(IN const IMessage& objMessag
         if (IsInitialRegistrationRequired(objMessage))
         {
             const IMS_SINT32 nPolicy = m_objContext.GetConfigurationProxy().GetInt(
-                    Feature::REGISTRATION_RESTORATION_MODE_ON_504_FOR_INVITE);
+                    ConfigVoice::KEY_REGISTRATION_RESTORATION_MODE_ON_504_FOR_INVITE_INT);
             switch (nPolicy)
             {
-                case CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_NOT_AVAILABLE:
+                case ConfigVoice::REGISTRATION_RESTORATION_NOT_AVAILABLE:
                     break;
-                case CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_RECOVER_BY_NETWORK_CONTEXT:
+                case ConfigVoice::REGISTRATION_RESTORATION_RECOVER_BY_NETWORK_CONTEXT:
                     if (m_objContext.GetService().IsEpsCombinedAttach())
                     {
                         break;
                     }
                     __IMS_FALLTHROUGH__
-                case CarrierConfig::ImsVoice::
-                        REGISTRATION_RESTORATION_INITIAL_REGISTER_WITH_NEXT_PCSCF:
+                case ConfigVoice::REGISTRATION_RESTORATION_INITIAL_REGISTER_WITH_NEXT_PCSCF:
                     ControlAos(ImsAosControl::PCSCF_NEXT);
                     break;
 
-                case CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION:
+                case ConfigVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION:
                     // If there is an operator that requires PDN reconnect, AoS I/F should be added.
-                case CarrierConfig::ImsVoice::
+                case ConfigVoice::
                         REGISTRATION_RESTORATION_RECOVER_REGISTRATION_WITHOUT_PDN_RECONNECT:
                     ControlAos(ImsAosControl::REGISTER_REINITIATE);
                     break;
@@ -557,7 +556,8 @@ CallReasonInfo StartErrorHandler::HandleRedialByNetworkContext() const
         return CallReasonInfo(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_AFTER_EPS_FALLBACK);
     }
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::REQUIRED_CDMALESS_FEATURE_TAG) &&
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigAssets::KEY_REQUIRED_CDMALESS_FEATURE_TAG_BOOL) &&
             !IsRoaming())
     {
         ControlAos(ImsAosControl::REGISTER_REINITIATE);
@@ -622,8 +622,8 @@ IMS_BOOL StartErrorHandler::IsRetry1xRequiredForNormalCall(IN const IMessage& ob
         return IMS_FALSE;
     }
 
-    return m_objContext.GetConfigurationProxy().Is(
-            Feature::REJECT_CODE_FOR_CSFB, objMessage.GetStatusCode());
+    return m_objContext.GetConfigurationProxy().Contains(
+            ConfigVoice::KEY_REJECT_CODE_FOR_CSFB_INT_ARRAY, objMessage.GetStatusCode());
 }
 
 PRIVATE
@@ -651,8 +651,8 @@ PRIVATE
 IMS_BOOL StartErrorHandler::IsNonUeDetectableEmergencyCall(IN const IMessage& objMessage) const
 {
     // clang-format off
-    if (m_objContext.GetConfigurationProxy().Is(Feature::
-            EMERGENCY_RETRY_WITHOUT_CHECKING380_CONTENT_FOR_NON_UE_DETECTABLE_EMERGENCY_CALL))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(ConfigEmergency::
+            KEY_EMERGENCY_RETRY_WITHOUT_CHECKING_380_CONTENT_FOR_NON_UE_DETECTABLE_EMERGENCY_CALL_BOOL))
     {
         return IMS_TRUE;
     }
@@ -729,8 +729,8 @@ PRIVATE
 IMS_BOOL StartErrorHandler::IsRedialEmergencyWithNextPcscfRequired(
         IN const IMessage* piMessage) const
 {
-    if (!m_objContext.GetConfigurationProxy().Is(
-                Feature::RETRY_EMERGENCY_CALL_OVER_EMERGENCY_PDN_WITH_NEXT_PCSCF))
+    if (!m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigEmergency::KEY_RETRY_EMERGENCY_CALL_OVER_EMERGENCY_PDN_WITH_NEXT_PCSCF_BOOL))
     {
         return IMS_FALSE;
     }

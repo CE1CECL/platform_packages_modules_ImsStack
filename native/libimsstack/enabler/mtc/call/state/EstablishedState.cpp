@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "IMessage.h"
 #include "ISipClientConnection.h"
 #include "ISipServerConnection.h"
@@ -446,7 +447,8 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnIpcanChanged(IN IMS_UINT32 eIpc
 {
     IMS_TRACE_I("OnIpcanChanged", 0, 0, 0);
 
-    if (!m_objContext.GetConfigurationProxy().Is(Feature::ENABLE_SEND_REINVITE_ON_RAT_CHANGE))
+    if (!m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_ENABLE_SEND_REINVITE_ON_RAT_CHANGE_BOOL))
     {
         return GetStateName();
     }
@@ -528,7 +530,7 @@ IMS_RESULT EstablishedState::HandleUpdate(
     {
         m_objContext.GetTimer().Start(TIMER_CONVERT_REMOTE_RESPONSE,
                 m_objContext.GetConfigurationProxy().GetInt(
-                        Feature::CONVERT_REMOTE_RESPONSE_TIMER));
+                        ConfigVt::KEY_CONVERT_REMOTE_RESPONSE_TIMER_MILLIS_INT));
     }
 
     return IMS_SUCCESS;
@@ -567,7 +569,7 @@ IMS_RESULT EstablishedState::HandleReceivedUpdate(OUT CallStateName& eStateName)
             // Once the incoming upgrade is notified to the user, this timer will re-start.
             m_objContext.GetTimer().Start(TIMER_CONVERT_USER_RESPONSE,
                     m_objContext.GetConfigurationProxy().GetInt(
-                            Feature::CONVERT_USER_RESPONSE_TIMER));
+                            ConfigVt::KEY_CONVERT_USER_RESPONSE_TIMER_MILLIS_INT));
         }
         else
         {
@@ -579,12 +581,13 @@ IMS_RESULT EstablishedState::HandleReceivedUpdate(OUT CallStateName& eStateName)
     }
 
     if (m_objContext.GetUpdatingInfo().IsResumedBy() &&
-            m_objContext.GetConfigurationProxy().Is(
-                    Feature::CHECK_UI_CONDITION_FOR_INCOMING_RESUME))
+            m_objContext.GetConfigurationProxy().GetBoolean(
+                    ConfigVoice::KEY_CHECK_UI_CONDITION_FOR_INCOMING_RESUME_BOOL))
     {
         m_objContext.GetUiNotifier().SendIncomingResume();
         m_objContext.GetTimer().Start(TIMER_CONVERT_USER_RESPONSE,
-                m_objContext.GetConfigurationProxy().GetInt(Feature::CONVERT_USER_RESPONSE_TIMER));
+                m_objContext.GetConfigurationProxy().GetInt(
+                        ConfigVt::KEY_CONVERT_USER_RESPONSE_TIMER_MILLIS_INT));
 
         return IMS_SUCCESS;
     }

@@ -45,7 +45,7 @@
 #include "call/state/MtcCallState.h"
 #include "conferencecall/MockIConferenceController.h"
 #include "conferencecall/MockIConferenceManager.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/ISrvccStateListener.h"
 #include "helper/MockMtcTimerWrapper.h"
@@ -90,13 +90,12 @@ public:
     MockIMtcSession objMockMtcSession;
     MockIMtcUiNotifier objUiNotifier;
     MockISession objMockISession;
-    MockIMtcConfigurationManager* pMockConfigurationManager;
     MockIMtcPreconditionManager objMockPreconditionManager;
     MockMtcTimerWrapper objTimerWrapper;
     MockIMessage objMessage;
     MockIMessageUtils objMessageUtils;
     MockIMtcBlockChecker* pBlockChecker;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     UpdatingInfo* pUpdatingInfo;
     MediaInfo objMediaInfo;
     CallInfo objCallInfo;
@@ -118,8 +117,7 @@ protected:
 
         ON_CALL(objMockCallContext, GetUiNotifier).WillByDefault(ReturnRef(objUiNotifier));
 
-        pMockConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objMockCallContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
 
@@ -349,7 +347,8 @@ TEST_F(EstablishedStateTest, QosReserveFailedDowngradesVtCallToVoipCall)
 
 TEST_F(EstablishedStateTest, OnIpcanChangedNotHandledIfConfigurationIsOff)
 {
-    ON_CALL(*pMockConfigurationManager, IsEnableSendReinviteOnRatChange)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_ENABLE_SEND_REINVITE_ON_RAT_CHANGE_BOOL))
             .WillByDefault(Return(IMS_FALSE));
 
     TestMtcPendingOperationHolder objPendingOperationHolder;
@@ -365,7 +364,8 @@ TEST_F(EstablishedStateTest, OnIpcanChangedNotHandledIfConfigurationIsOff)
 TEST_F(EstablishedStateTest,
         OnIpcanChangedDoesNotPushPendingOperationIfNoSessionRefreshingAndTimerForDelayingUpdateIsNotActive)
 {
-    ON_CALL(*pMockConfigurationManager, IsEnableSendReinviteOnRatChange)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_ENABLE_SEND_REINVITE_ON_RAT_CHANGE_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMockISession, IsSessionRefreshInProgress).WillByDefault(Return(IMS_FALSE));
     EXPECT_CALL(objTimerWrapper, IsActive(MtcCallState::TIMER_DELAY_UPDATE_AFTER_CONNECTED))
@@ -387,7 +387,8 @@ TEST_F(EstablishedStateTest,
 
 TEST_F(EstablishedStateTest, OnIpcanChangedPushesPendingOperation)
 {
-    ON_CALL(*pMockConfigurationManager, IsEnableSendReinviteOnRatChange)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_ENABLE_SEND_REINVITE_ON_RAT_CHANGE_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objMockISession, IsSessionRefreshInProgress)
             .Times(2)
@@ -451,9 +452,9 @@ TEST_F(EstablishedStateTest, SendOfferWithFullCapaOnResponseToReInvite)
 
 TEST_F(EstablishedStateTest, SendIncomingUpdateIsInvokedIfUpdateNeedsToAlert)
 {
-    ON_CALL(*pMockConfigurationManager, GetPolicyForCheckingQosWhileCallUpgrading)
-            .WillByDefault(Return(
-                    CarrierConfig::ImsVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_AFTER_UPGRADE));
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_CHECKING_QOS_WHILE_CALL_UPGRADING_INT))
+            .WillByDefault(Return(ConfigVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_AFTER_UPGRADE));
 
     ON_CALL(objMessageUtils, GetCallType(_, _, _)).WillByDefault(Return(CallType::UNKNOWN));
     ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
@@ -472,9 +473,10 @@ TEST_F(EstablishedStateTest, SendIncomingUpdateIsInvokedIfUpdateNeedsToAlert)
 
 TEST_F(EstablishedStateTest, SendProvisionalResponseIsInvokedIfPreconditionIsSupported)
 {
-    ON_CALL(*pMockConfigurationManager, GetPolicyForCheckingQosWhileCallUpgrading)
-            .WillByDefault(Return(
-                    CarrierConfig::ImsVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_DURING_UPGRADING));
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_CHECKING_QOS_WHILE_CALL_UPGRADING_INT))
+            .WillByDefault(
+                    Return(ConfigVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_DURING_UPGRADING));
 
     ON_CALL(objMessageUtils, GetCallType(_, _, _)).WillByDefault(Return(CallType::UNKNOWN));
     ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
@@ -525,7 +527,8 @@ TEST_F(EstablishedStateTest, SessionUpdateReceivedInvokesSendIncomingResume)
     ON_CALL(objMockMtcSession, GetPreviousCallType).WillByDefault(Return(CallType::VOIP));
     objMediaInfo.eAudioDirection = DIRECTION_RECEIVE;
     pUpdatingInfo->GetModifiedInfo().eAudioDirection = DIRECTION_SEND_RECEIVE;
-    ON_CALL(*pMockConfigurationManager, IsCheckUiConditionForIncomingResume)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_CHECK_UI_CONDITION_FOR_INCOMING_RESUME_BOOL))
             .WillByDefault(Return(IMS_TRUE));
 
     EXPECT_CALL(objUiNotifier, SendIncomingResume).Times(1);
@@ -544,7 +547,8 @@ TEST_F(EstablishedStateTest,
                     Return(IMtcBlockChecker::Result(IMtcBlockChecker::Result::Status::UNBLOCKED)));
     ON_CALL(objMockMediaManager, GetNegotiatedCallType(_)).WillByDefault(Return(CallType::VOIP));
     ON_CALL(objMockMtcSession, GetPreviousCallType).WillByDefault(Return(CallType::VOIP));
-    ON_CALL(*pMockConfigurationManager, IsCheckUiConditionForIncomingResume)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_CHECK_UI_CONDITION_FOR_INCOMING_RESUME_BOOL))
             .WillByDefault(Return(IMS_FALSE));
     SipMethod objSipMethod(SipMethod::UPDATE);
     ON_CALL(objMessage, GetMethod()).WillByDefault(ReturnRef(objSipMethod));
@@ -803,7 +807,9 @@ TEST_F(EstablishedStateTest,
     ON_CALL(objMockCallContext, GetEpsFallbackTrigger).WillByDefault(ReturnRef(*pEpsFbTrigger));
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallbackForNoResponse).WillByDefault(Return(IMS_FALSE));
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallbackForNoTrigger).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pMockConfigurationManager, IsRegistrationDisconnectReasonToIgnore(nAosReason))
+    ON_CALL(*pConfigurationProxy,
+            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
+                    nAosReason))
             .WillByDefault(Return(IMS_FALSE));
 
     const CallReasonInfo objReasonInfo(CODE_LOCAL_SERVICE_UNAVAILABLE);

@@ -113,7 +113,6 @@ public:
     inline IMS_BOOL IsWifiTestMode() override { return m_bWifiTestMode; }
 
 protected:
-    virtual void InitConfiguration();
     virtual void CreateServices();
     virtual void InitCallManager();
     virtual void DestroyServices();

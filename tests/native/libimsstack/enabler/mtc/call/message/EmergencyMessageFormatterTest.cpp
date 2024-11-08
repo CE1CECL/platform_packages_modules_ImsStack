@@ -30,7 +30,7 @@
 #include "TestPhoneInfoService.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/message/EmergencyMessageFormatter.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockIMtcAosConnector.h"
 #include "helper/MtcSupplementaryService.h"
@@ -61,9 +61,8 @@ public:
     MockIMtcService objService;
     MockISession objSession;
     MockICoreService objCoreService;
-    MockIMtcConfigurationManager* pConfigurationManager;
     MockIMtcAosConnector objAosConnector;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pSupplementaryService;
     MockIMessageUtils objMessageUtils;
     TestNetworkService objNetworkService;
@@ -73,8 +72,7 @@ public:
 protected:
     virtual void SetUp() override
     {
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         pSupplementaryService = new MtcSupplementaryService(objContext, *pConfigurationProxy);
         pFeatureCaps = new FeatureCaps();
 
@@ -145,7 +143,8 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageNotAddsPeiHeaderIfEmpty)
 {
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
-    ON_CALL(*pConfigurationManager, GetPEmergencyInfoHeaderInInvite)
+    ON_CALL(*pConfigurationProxy,
+            GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
             .WillByDefault(Return(AString::ConstEmpty()));
 
     EXPECT_CALL(objMessageUtils, AddValueIfNotExists(_, _, _, _)).Times(AnyNumber());
@@ -160,7 +159,9 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageAddsPeiHeaderWithPlainText
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
     AString strPei = "PEI field value";
-    ON_CALL(*pConfigurationManager, GetPEmergencyInfoHeaderInInvite).WillByDefault(Return(strPei));
+    ON_CALL(*pConfigurationProxy,
+            GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
+            .WillByDefault(Return(strPei));
 
     EXPECT_CALL(objMessageUtils, AddValueIfNotExists(_, _, _, _)).Times(AnyNumber());
     EXPECT_CALL(objMessageUtils,
@@ -173,7 +174,9 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageAddsPeiHeaderWithAid)
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
     AString strPei = "IEEE-802.11b; I-wlan-node-id=#AID#";
-    ON_CALL(*pConfigurationManager, GetPEmergencyInfoHeaderInInvite).WillByDefault(Return(strPei));
+    ON_CALL(*pConfigurationProxy,
+            GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
+            .WillByDefault(Return(strPei));
 
     ON_CALL(objPhoneInfoService.GetMockCallInfo(), GetWifiCallingAddressId)
             .WillByDefault(Return(AString("aid-123-456")));
@@ -190,7 +193,9 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageAddsPeiHeaderWithImei)
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
     AString strPei = "WSS-Wi-Fi-KEY;generic-key=#IMEI#";
-    ON_CALL(*pConfigurationManager, GetPEmergencyInfoHeaderInInvite).WillByDefault(Return(strPei));
+    ON_CALL(*pConfigurationProxy,
+            GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
+            .WillByDefault(Return(strPei));
 
     ON_CALL(objPhoneInfoService.GetMockDeviceInfo(), GetDeviceId(_, _))
             .WillByDefault(Invoke(
@@ -212,7 +217,9 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageAddsPeiHeaderWithMacAddres
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
     AString strPei = "WSS-Wi-Fi-KEY;generic-key=#MAC#";
-    ON_CALL(*pConfigurationManager, GetPEmergencyInfoHeaderInInvite).WillByDefault(Return(strPei));
+    ON_CALL(*pConfigurationProxy,
+            GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
+            .WillByDefault(Return(strPei));
 
     ON_CALL(objNetworkService.GetMockConnection(), GetExtraInfo(AString("mac_address"), _))
             .WillByDefault(Invoke(
@@ -390,13 +397,17 @@ TEST_F(EmergencyMessageFormatterTest, SetSipInstanceFeature)
 
 TEST_F(EmergencyMessageFormatterTest, SetCurrentLocationDiscovery)
 {
-    ON_CALL(*pConfigurationManager, IsEmergencyCallCurrentLocationDiscoverySupported)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(
+                    ConfigEmergency::KEY_EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED_BOOL))
             .WillByDefault(Return(IMS_TRUE));
 
     IMS_RESULT nResult = pFormatter->FormStartMessage(CallType::VOIP);
     EXPECT_EQ(nResult, IMS_SUCCESS);
 
-    ON_CALL(*pConfigurationManager, IsEmergencyCallCurrentLocationDiscoverySupported)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(
+                    ConfigEmergency::KEY_EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED_BOOL))
             .WillByDefault(Return(IMS_FALSE));
 
     nResult = pFormatter->FormStartMessage(CallType::VOIP);

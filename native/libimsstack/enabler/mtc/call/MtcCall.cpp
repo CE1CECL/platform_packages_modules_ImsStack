@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "IMediaManager.h"
 #include "IMessage.h"
 #include "IReference.h"
@@ -477,7 +478,9 @@ PUBLIC VIRTUAL JniCallInfo MtcCall::CreateJniCallInfo()
     objJniCallInfo.bConferenceEnabled = IMS_FALSE;
     // TODO: check host or participant
     objJniCallInfo.bConferenceSubscriptionRequired =
-            m_objContext.GetConfigurationProxy().GetInt(Feature::CONFERENCE_SUBSCRIBE_TYPE) > -1;
+            m_objContext.GetConfigurationProxy().GetInt(
+                    ConfigVoice::KEY_CONFERENCE_SUBSCRIBE_TYPE_INT) !=
+            ConfigVoice::CONFERENCE_SUBSCRIBE_NOT_SUPPORT;
     objJniCallInfo.bRttCapable = GetSession() ? GetSession()->IsRttCapable() : IMS_FALSE;
     objJniCallInfo.bVideoCapable = GetSession() ? GetSession()->IsVideoCapable() : IMS_FALSE;
 

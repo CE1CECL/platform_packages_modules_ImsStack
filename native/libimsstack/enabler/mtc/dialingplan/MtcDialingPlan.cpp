@@ -15,6 +15,7 @@
  */
 
 #include "AString.h"
+#include "CarrierConfig.h"
 #include "IMtcContext.h"
 #include "IPhoneInfoSubscriber.h"
 #include "ImsAccessNetworkInfoType.h"
@@ -123,8 +124,8 @@ IMS_BOOL MtcDialingPlan::IsUriForm(IN const AString& strNumber)
 PRIVATE
 AString MtcDialingPlan::GetConferenceFactoryUri() const
 {
-    AString strUri =
-            m_objContext.GetConfigurationProxy().GetStr(Feature::CONFERENCE_FACTORY_URI, 0);
+    AString strUri = m_objContext.GetConfigurationProxy().GetString(
+            ConfigVoice::KEY_CONFERENCE_FACTORY_URI_STRING);
 
     IMS_TRACE_D("GetConferenceFactoryUri uri from config[%s]", strUri.GetStr(), 0, 0);
 

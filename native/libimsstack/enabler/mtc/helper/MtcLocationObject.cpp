@@ -34,6 +34,7 @@
 #include "call/IMtcCallContext.h"
 #include "call/ParticipantInfo.h"
 #include "configuration/MtcConfigurationProxy.h"
+#include "configuration/MtcConfigurationResolver.h"
 #include "helper/MtcAosConnector.h"
 #include "helper/MtcLocationObject.h"
 #include "helper/MtcSupplementaryService.h"
@@ -56,22 +57,22 @@ LOCAL IMS_SINT32 GetGeolocationPidfAllowedType(IN IMS_BOOL bEmergency, IN IMS_BO
     {
         if (bEmergency)
         {
-            return CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_WIFI;
+            return ConfigIms::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_WIFI;
         }
         else
         {
-            return CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI;
+            return ConfigIms::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI;
         }
     }
     else
     {
         if (bEmergency)
         {
-            return CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_CELLULAR;
+            return ConfigIms::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_CELLULAR;
         }
         else
         {
-            return CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_CELLULAR;
+            return ConfigIms::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_CELLULAR;
         }
     }
 }
@@ -92,8 +93,8 @@ PUBLIC GLOBAL IMS_BOOL MtcLocationObject::IsGeolocationInfoRequired(IN IMtcCallC
     const SuppService* pSuppService =
             objContext.GetSupplementaryService().Get(SuppType::GEOLOCATION);
 
-    return objContext.GetConfigurationProxy().Is(
-                   Feature::SUPPORT_GEOLOCATION_PIDF_IN_SIP_INVITE, nType) &&
+    return objContext.GetConfigurationProxy().Contains(
+                   ConfigIms::KEY_GEOLOCATION_PIDF_IN_SIP_INVITE_SUPPORT_INT_ARRAY, nType) &&
             (pSuppService == IMS_NULL || pSuppService->bValue);
 }
 
@@ -186,16 +187,15 @@ ByteArray MtcLocationObject::CreateLocationBody() const
     }
 
     IMS_SINT32 nInformationLevel = GetInformationLevel();
-    if (nInformationLevel == CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG)
+    if (nInformationLevel == ConfigVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG)
     {
         pPidfCreator->CreateWithoutCivic(AString::ConstNull(), objContent);
     }
-    else if (nInformationLevel ==
-            CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG_AND_CIVIC)
+    else if (nInformationLevel == ConfigVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG_AND_CIVIC)
     {
         pPidfCreator->CreateWithPosition(AString::ConstNull(), objContent);
     }
-    else if (nInformationLevel == CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_COUNTRY_CODE_ONLY)
+    else if (nInformationLevel == ConfigVoice::GEOLOCATION_PIDF_INFO_COUNTRY_CODE_ONLY)
     {
         pPidfCreator->CreateWithoutPosition(AString::ConstNull(), IMS_FALSE, IMS_FALSE, objContent);
     }
@@ -259,11 +259,9 @@ AString MtcLocationObject::CreatePersonId() const
 PRIVATE
 IMS_SINT32 MtcLocationObject::GetInformationLevel() const
 {
-    return m_objContext.GetConfigurationProxy().GetInt(
-            Feature::INFORMATION_LEVEL_OF_GEOLOCATION_PIDF,
+    return MtcConfigurationResolver::GetGeolocationLevel(m_objContext.GetConfigurationProxy(),
             m_objContext.GetCallInfo().IsEmergency(), m_objContext.GetService().IsWlanIpCanType(),
-            m_objContext.GetConfigurationProxy().Is(
-                    Feature::PIDF_SHORT_CODE, m_objContext.GetParticipantInfo().GetRemoteNumber()));
+            m_objContext.GetParticipantInfo().GetRemoteNumber());
 }
 
 PRIVATE

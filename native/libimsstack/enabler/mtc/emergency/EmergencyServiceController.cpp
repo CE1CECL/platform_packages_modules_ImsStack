@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "IJniMtcServiceThread.h"
 #include "IMtcCallController.h"
 #include "IMtcContext.h"
@@ -24,6 +25,7 @@
 #include "ServiceTrace.h"
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
+#include "configuration/MtcConfigurationResolver.h"
 #include "emergency/EmergencyServiceController.h"
 #include "helper/ICallStateProxy.h"
 #include "helper/IMtcAosConnector.h"
@@ -130,8 +132,8 @@ PUBLIC VIRTUAL void EmergencyServiceController::OnCallStateChanged(IN CallKey nC
             Stop18xWaitingTimer();
 
             if (IsTerminatingCallSetupUnsuccessful(m_eEmergencyCallState) &&
-                    m_objContext.GetConfigurationProxy().Is(
-                            Feature::RELEASE_EMERGENCY_PDN_WITH_EMERGENCY_CALL_FAIL))
+                    m_objContext.GetConfigurationProxy().GetBoolean(ConfigEmergency::
+                                    KEY_RELEASE_EMERGENCY_PDN_WITH_EMERGENCY_CALL_FAIL_BOOL))
             {
                 Close();
             }
@@ -279,7 +281,8 @@ PRIVATE IMS_BOOL EmergencyServiceController::IsCurrentEmergencyCall(IN CallKey n
 PRIVATE
 IMS_BOOL EmergencyServiceController::IsRetryOverImsPdnRequired(IN IMS_SINT32 eAosReason) const
 {
-    if (!m_objContext.GetConfigurationProxy().Is(Feature::RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
+    if (!m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigEmergency::KEY_RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
     {
         return IMS_FALSE;
     }
@@ -303,9 +306,8 @@ void EmergencyServiceController::Start18xWaitingTimer()
         IMS_TRACE_E(0, "IMtcService is null", 0, 0, 0);
         return;
     }
-
-    IMS_SINT32 nTime = m_objContext.GetConfigurationProxy().GetInt(
-            Feature::EMERGENCY_REGISTRATION_TO_18X_TIMER_MILLIS_INT, pService->IsWlanIpCanType());
+    IMS_SINT32 nTime = MtcConfigurationResolver::GetRegistrationTo18xTimer(
+            m_objContext.GetConfigurationProxy(), pService->IsWlanIpCanType());
 
     m_objContext.GetPassiveTimerHolder().AddTimer(
             IPassiveTimerHolder::Type::REGISTRATION_TO_18X, nTime, IMS_FALSE);
