@@ -422,7 +422,7 @@ IMS_BOOL AudioController::UpdateAccessNetwork(IN IMS_UINT32 accessNetwork)
             IMS_BOOL bResult = pAudioSession->Modify();
             if (bResult)
             {
-                pAudioSession->SetMediaQuality();
+                pAudioSession->SetMediaQuality(m_eUpdateCondition);
             }
 
             return bResult;
