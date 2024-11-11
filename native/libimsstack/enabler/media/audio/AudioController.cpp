@@ -186,7 +186,7 @@ IMS_BOOL AudioController::AddSession(
         if (UpdateRtpConfig(nNegoId, nAccessNetwork, pNego) == IMS_TRUE)
         {
             UpdateQualityThreshold(nNegoId, pNego);
-            pAudioSession->SetMediaQuality();
+            pAudioSession->SetMediaQuality(m_eUpdateCondition);
             bResult = pAudioSession->Add();
         }
     }
@@ -228,8 +228,6 @@ IMS_BOOL AudioController::ConfirmSession(IN IMS_UINTP nNegoId)
         return IMS_FALSE;
     }
 
-    pAudioSession->SetMediaQuality();
-
     if (pAudioSession->Confirm() == IMS_TRUE)
     {
         IMS_SINT32 nIndex = 0;
@@ -255,6 +253,8 @@ IMS_BOOL AudioController::ConfirmSession(IN IMS_UINTP nNegoId)
         }
 
         m_eUpdateCondition = CONFIRMED_SESSION;
+        pAudioSession->SetMediaQuality(m_eUpdateCondition);
+
         return IMS_TRUE;
     }
 
@@ -286,7 +286,7 @@ IMS_BOOL AudioController::SetMediaQuality(IN IMS_UINTP nNegoId)
 
     if (pAudioSession != NULL)
     {
-        return pAudioSession->SetMediaQuality();
+        return pAudioSession->SetMediaQuality(m_eUpdateCondition);
     }
 
     return IMS_FALSE;
