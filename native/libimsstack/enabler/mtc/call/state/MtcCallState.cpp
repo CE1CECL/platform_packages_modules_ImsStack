@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "IMessage.h"
 #include "ISipClientConnection.h"
 #include "ISipConnection.h"
@@ -522,8 +523,9 @@ CallStateName MtcCallState::HandleAosDisconnected(IN IMS_UINT32 eAosReason)
         return GetStateName();
     }
 
-    if (m_objContext.GetConfigurationProxy().Is(
-                Feature::REGISTRATION_DISCONNECT_REASON_TO_IGNORE, eAosReason))
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
+                static_cast<IMS_SINT32>(eAosReason)))
     {
         return GetStateName();
     }
@@ -680,7 +682,8 @@ void MtcCallState::SendIncomingUpdateToUi(IN CallType eCallType)
     m_objContext.GetUpdatingInfo().SetAlerted();
     m_objContext.GetUiNotifier().SendIncomingUpdate(eCallType);
     m_objContext.GetTimer().Start(TIMER_CONVERT_USER_RESPONSE,
-            m_objContext.GetConfigurationProxy().GetInt(Feature::CONVERT_USER_RESPONSE_TIMER));
+            m_objContext.GetConfigurationProxy().GetInt(
+                    ConfigVt::KEY_CONVERT_USER_RESPONSE_TIMER_MILLIS_INT));
 }
 
 PROTECTED
@@ -845,41 +848,43 @@ PROTECTED
 IMS_SINT32 MtcCallState::GetTimeInMilliseconds(IN IMS_UINT32 nType) const
 {
     IMS_BOOL bNormal = !m_objContext.GetCallInfo().IsEmergency();
-    Feature eFeature = Feature::UNKNOWN;
+    const IMS_CHAR* pszKey;
     switch (nType)
     {
         case TIMER_MO_100_WAIT:
-            eFeature = bNormal ? Feature::MO_CALL_REQUEST_TIMEOUT : Feature::EMERGENCY_T_CALL_TIMER;
+            pszKey = bNormal ? ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT
+                             : ConfigEmergency::KEY_EMERGENCY_TCALL_TIMER_MILLIS_INT;
             break;
         case TIMER_MO_18X_WAIT:
             if (bNormal)
             {
-                eFeature = Feature::TIMER_18X;
+                pszKey = ConfigVoice::KEY_18X_TIMER_MILLIS_INT;
             }
             else
             {
-                eFeature = m_objContext.GetService().IsWlanIpCanType()
-                        ? Feature::WIFI_EMERGENCY_18X_TIMER
-                        : Feature::EMERGENCY_18X_TIMER;
+                pszKey = m_objContext.GetService().IsWlanIpCanType()
+                        ? ConfigEmergency::KEY_WIFI_EMERGENCY_18X_TIMER_MILLIS_INT
+                        : ConfigEmergency::KEY_EMERGENCY_18X_TIMER_MILLIS_INT;
             }
             break;
         case TIMER_MO_NOANSWER:
-            eFeature = bNormal ? Feature::RINGBACK_TIMER : Feature::EMERGENCY_RINGBACK_TIMER;
+            pszKey = bNormal ? ConfigVoice::KEY_RINGBACK_TIMER_MILLIS_INT
+                             : ConfigEmergency::KEY_EMERGENCY_RINGBACK_TIMER_MILLIS_INT;
             break;
         case TIMER_MT_ALERTING:
-            eFeature = Feature::RINGING_TIMER;
+            pszKey = ConfigVoice::KEY_RINGING_TIMER_MILLIS_INT;
             break;
         case TIMER_CONVERT_USER_RESPONSE:
-            eFeature = Feature::CONVERT_USER_RESPONSE_TIMER;
+            pszKey = ConfigVt::KEY_CONVERT_USER_RESPONSE_TIMER_MILLIS_INT;
             break;
         case TIMER_CONVERT_REMOTE_RESPONSE:
-            eFeature = Feature::CONVERT_REMOTE_RESPONSE_TIMER;
+            pszKey = ConfigVt::KEY_CONVERT_REMOTE_RESPONSE_TIMER_MILLIS_INT;
             break;
         default:
             return -1;
     }
 
-    return m_objContext.GetConfigurationProxy().GetInt(eFeature);
+    return m_objContext.GetConfigurationProxy().GetInt(pszKey);
 }
 
 PROTECTED
@@ -1037,7 +1042,8 @@ IMS_BOOL MtcCallState::IsRprRequired() const
         return IMS_TRUE;
     }
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::PRACK_SUPPORTED_FOR_18X))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_PRACK_SUPPORTED_FOR_18X_BOOL))
     {
         return IMS_TRUE;
     }

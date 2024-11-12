@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "ICoreService.h"
 #include "IFeatureCaps.h"
 #include "IImsAosInfo.h"
@@ -88,8 +89,8 @@ void EmergencyMessageFormatter::SetAcceptHeader()
 {
     MessageFormatter::SetAcceptHeader();
 
-    if (!m_objContext.GetConfigurationProxy().Is(
-            Feature::EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED))
+    if (!m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigEmergency::KEY_EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED_BOOL))
     {
         return;
     }
@@ -239,8 +240,8 @@ void EmergencyMessageFormatter::SetSipInstanceFeature()
 PRIVATE
 void EmergencyMessageFormatter::SetRecvInfoHeader()
 {
-    if (!m_objContext.GetConfigurationProxy().Is(
-            Feature::EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED))
+    if (!m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigEmergency::KEY_EMERGENCY_CALL_CURRENT_LOCATION_DISCOVERY_SUPPORTED_BOOL))
     {
         return;
     }
@@ -259,8 +260,8 @@ void EmergencyMessageFormatter::SetPEmergencyInfoHeader()
         return;
     }
 
-    AString strPei = m_objContext.GetConfigurationProxy().GetStr(
-            Feature::P_EMERGENCY_INFO_HEADER_IN_INVITE, 0);
+    AString strPei = m_objContext.GetConfigurationProxy().GetString(
+            ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING);
     if (strPei.GetLength() <= 0)
     {
         return;

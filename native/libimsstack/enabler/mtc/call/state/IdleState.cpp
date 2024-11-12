@@ -15,6 +15,7 @@
  */
 
 #include "AString.h"
+#include "CarrierConfig.h"
 #include "ICoreService.h"
 #include "IImsAosInfo.h"
 #include "IMessage.h"
@@ -195,7 +196,8 @@ PUBLIC VIRTUAL CallStateName IdleState::HandleIncoming(IN ISession* piSession)
                 CallReasonInfo(CODE_REJECT_UNSUPPORTED_SIP_HEADERS, -1, strNotSupportedExtension));
     }
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::REJECT_OFFERLESS_INVITE) &&
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL) &&
             !m_objContext.GetMessageUtils().HasSdp(piMessage))
     {
         return RejectIncomingAndToTerminating(CallReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE));
@@ -323,7 +325,8 @@ PUBLIC VIRTUAL CallStateName IdleState::HandleIncomingUssi(IN ISession* piSessio
 
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_START);
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::REJECT_OFFERLESS_INVITE) &&
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL) &&
             !m_objContext.GetMessageUtils().HasSdp(piMessage))
     {
         return RejectIncomingAndToTerminating(CallReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE));
@@ -499,8 +502,8 @@ IMS_BOOL IdleState::IsEpsFallbackRequired(IN const CallReasonInfo& objReason) co
     }
 
     const IMS_UINT32 nWaitTimeMillis = objReason.nExtraCode;
-    const IMS_UINT32 nTimerVzw =
-            m_objContext.GetConfigurationProxy().GetInt(Feature::MO_CALL_REQUEST_TIMEOUT);
+    const IMS_UINT32 nTimerVzw = m_objContext.GetConfigurationProxy().GetInt(
+            ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT);
     if (objReason.nCode == CODE_INTERNAL_RRC_REJECT && nWaitTimeMillis >= nTimerVzw)
     {
         return IMS_TRUE;

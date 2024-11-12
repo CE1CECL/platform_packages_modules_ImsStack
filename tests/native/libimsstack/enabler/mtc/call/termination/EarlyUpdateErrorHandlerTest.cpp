@@ -29,6 +29,7 @@
 #include "call/MockIMtcCallContext.h"
 #include "call/MockIMtcCallManager.h"
 #include "call/termination/EarlyUpdateErrorHandler.h"
+#include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockIMtcAosConnector.h"
 #include "helper/MockIPassiveTimerHolder.h"
 #include "utility/MockIMessageUtils.h"
@@ -135,7 +136,7 @@ TEST_F(EarlyUpdateErrorHandlerTest, Handle503MessageReturnsInternalRedial)
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_F_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_F_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter - 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objContext.GetSlotId());
 
@@ -151,7 +152,7 @@ TEST_F(EarlyUpdateErrorHandlerTest, Handle503MessageWithNoAosConnectorReturnsInt
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_F_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_F_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter - 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objContext.GetSlotId());
     ON_CALL(objMtcService, GetAosConnector).WillByDefault(Return(nullptr));
@@ -168,7 +169,7 @@ TEST_F(EarlyUpdateErrorHandlerTest, Handle503MessageWithCombinedAttachReturnsCsR
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_F_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_F_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter + 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objContext.GetSlotId());
     ON_CALL(objMtcService, IsEpsCombinedAttach).WillByDefault(Return(IMS_TRUE));
@@ -189,7 +190,7 @@ TEST_F(EarlyUpdateErrorHandlerTest, Handle503MessageWithNotCombinedAttachReturns
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_F_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_F_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter + 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objContext.GetSlotId());
     ON_CALL(objMtcService, IsEpsCombinedAttach).WillByDefault(Return(IMS_FALSE));

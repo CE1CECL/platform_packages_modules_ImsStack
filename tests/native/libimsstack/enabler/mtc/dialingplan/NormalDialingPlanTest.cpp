@@ -21,7 +21,7 @@
 #include "PlatformContext.h"
 #include "ServiceNetworkPolicy.h"
 #include "TestNetworkService.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "dialingplan/MockImsIdentityProxy.h"
 #include "dialingplan/NormalDialingPlan.h"
@@ -47,8 +47,7 @@ class NormalDialingPlanTest : public ::testing::Test
 public:
     NormalDialingPlanTest() :
             objContext(),
-            pConfigurationManager(new MockIMtcConfigurationManager()),
-            pConfigurationProxy(new MtcConfigurationProxy(pConfigurationManager)),
+            pConfigurationProxy(new MockMtcConfigurationProxy()),
             objIdentityProxy(),
             strNumber(AString::ConstNull()),
             eScheme(Scheme::UNKNOWN)
@@ -59,8 +58,7 @@ public:
 
 protected:
     MockIMtcContext objContext;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MockIMtcService objService;
     MockImsIdentityProxy objIdentityProxy;
     MockIMtcAosConnector objAosConnector;
@@ -83,8 +81,9 @@ protected:
                 PlatformContext::SERVICE_NETWORK, &objNetworkService);
         objNetworkService.SetConnection(&objNetworkConnection);
 
-        ON_CALL(*pConfigurationManager, GetCountryCode).WillByDefault(Return(ANY_COUNTRY_CODE));
-        ON_CALL(*pConfigurationManager, GetPolicyOfLocalNumbers)
+        ON_CALL(*pConfigurationProxy, GetInt(ConfigWfc::KEY_COUNTRY_CODE_INT))
+                .WillByDefault(Return(ANY_COUNTRY_CODE));
+        ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_OF_LOCAL_NUMBERS_INT))
                 .WillByDefault(Return(0));  // LocalNumberPolicy::HOME
     }
 
@@ -142,8 +141,8 @@ TEST_F(NormalDialingPlanTest, GetTranslatedUriReturnsTelUriIfSchemeIsUnknownAndT
     ON_CALL(objIdentityProxy,
             GetPhoneContext(ImsIdentity::DIALING_POLICY_HOME_LOCAL, SLOT_ID, _, _))
             .WillByDefault(Return(strAnyPhoneContext));
-    ON_CALL(*pConfigurationManager, GetRequestUriType)
-            .WillByDefault(Return(CarrierConfig::Ims::REQUEST_URI_FORMAT_TEL));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigIms::KEY_REQUEST_URI_TYPE_INT))
+            .WillByDefault(Return(ConfigIms::REQUEST_URI_FORMAT_TEL));
 
     EXPECT_STREQ(GetTranslatedUri(), strExpectedUri.GetStr());
 }
@@ -171,7 +170,7 @@ TEST_F(NormalDialingPlanTest, GetTranslatedUriReturnsTelUriAsGeoLocalNumber)
 
     ON_CALL(objIdentityProxy, GetPhoneContext(ImsIdentity::DIALING_POLICY_GEO_LOCAL, SLOT_ID, _, _))
             .WillByDefault(Return(strAnyPhoneContext));
-    ON_CALL(*pConfigurationManager, GetPolicyOfLocalNumbers)
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_OF_LOCAL_NUMBERS_INT))
             .WillByDefault(Return(1));  // LocalNumberPolicy::GEO
 
     EXPECT_STREQ(GetTranslatedUri(), strExpectedUri.GetStr());
@@ -201,8 +200,8 @@ TEST_F(NormalDialingPlanTest, GetTranslatedUriReturnsSipUriIfSchemeIsUnknownAndS
     ON_CALL(objIdentityProxy,
             GetPhoneContext(ImsIdentity::DIALING_POLICY_HOME_LOCAL, SLOT_ID, _, _))
             .WillByDefault(Return(strAnyPhoneContext));
-    ON_CALL(*pConfigurationManager, GetRequestUriType)
-            .WillByDefault(Return(CarrierConfig::Ims::REQUEST_URI_FORMAT_SIP));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigIms::KEY_REQUEST_URI_TYPE_INT))
+            .WillByDefault(Return(ConfigIms::REQUEST_URI_FORMAT_SIP));
     ON_CALL(objIdentityProxy, CreateSipUserIdWithPhone(strNumber, SLOT_ID, strAnyPhoneContext))
             .WillByDefault(Return(strExpectedUri));
 
@@ -236,7 +235,7 @@ TEST_F(NormalDialingPlanTest, GetTranslatedUriReturnsSipUriAsGeoLocalNumber)
             .WillByDefault(Return(strAnyPhoneContext));
     ON_CALL(objIdentityProxy, CreateSipUserIdWithPhone(strNumber, SLOT_ID, strAnyPhoneContext))
             .WillByDefault(Return(strExpectedUri));
-    ON_CALL(*pConfigurationManager, GetPolicyOfLocalNumbers)
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_OF_LOCAL_NUMBERS_INT))
             .WillByDefault(Return(1));  // LocalNumberPolicy::GEO
 
     EXPECT_STREQ(GetTranslatedUri(), strExpectedUri.GetStr());

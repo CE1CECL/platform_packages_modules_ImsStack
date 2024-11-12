@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "IMessage.h"
 #include "ISession.h"
 #include "ISipHeader.h"
@@ -203,7 +204,7 @@ PUBLIC VIRTUAL CallStateName AlertingState::SessionStarted(IN ISession* piSessio
     m_objContext.GetPreconditionManager().OnCallEstablished(piSession);
 
     IMS_SINT32 nDelayTime = m_objContext.GetConfigurationProxy().GetInt(
-            Feature::DELAY_UPDATE_AFTER_CONNECTED_TIMER);
+            ConfigVoice::KEY_DELAY_UPDATE_AFTER_CONNECTED_TIMER_MILLIS_INT);
     if (nDelayTime > 0)
     {
         m_objContext.GetTimer().Start(TIMER_DELAY_UPDATE_AFTER_CONNECTED, nDelayTime);

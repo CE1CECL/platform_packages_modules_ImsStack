@@ -37,7 +37,7 @@
 #include "call/MockIMtcCallManager.h"
 #include "call/MockIMtcSession.h"
 #include "call/termination/StartErrorHandler.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockIMtcAosConnector.h"
 #include "helper/MockIPassiveTimerHolder.h"
@@ -60,8 +60,7 @@ public:
     MockIMtcService objMtcService;
     MockIMtcAosConnector objAosConnector;
     MockIMessage objMessage;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     CallInfo objCallInfo;
     MockIMessageUtils objMessageUtils;
     MockIMtcSession objMtcSession;
@@ -86,8 +85,7 @@ protected:
         ON_CALL(objCallContext, GetService).WillByDefault(ReturnRef(objMtcService));
         ON_CALL(objMtcService, GetAosConnector).WillByDefault(Return(&objAosConnector));
 
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objCallContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
 
@@ -122,15 +120,18 @@ protected:
 
     void SetCsfbConfig(IN IMS_SINT32 nStatusCode)
     {
-        ON_CALL(*pConfigurationManager, IsRejectCodeForCsfb(nStatusCode))
+        ON_CALL(*pConfigurationProxy,
+                Contains(ConfigVoice::KEY_REJECT_CODE_FOR_CSFB_INT_ARRAY, nStatusCode))
                 .WillByDefault(Return(IMS_TRUE));
     }
 
     void SetTcallTimerConfig(IN IMS_SINT32 nPolicy)
     {
-        ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVolteCall)
+        ON_CALL(*pConfigurationProxy,
+                GetInt(ConfigVoice::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL_INT))
                 .WillByDefault(Return(nPolicy));
-        ON_CALL(*pConfigurationManager, GetPolicyForTcallTimerExpiryOfVowifiCall)
+        ON_CALL(*pConfigurationProxy,
+                GetInt(ConfigWfc::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL_INT))
                 .WillByDefault(Return(nPolicy));
     }
 
@@ -155,7 +156,8 @@ protected:
                 Ims3gpp::AlternativeService::ACTION_INITIAL_REGISTRATION;
         ON_CALL(objMessageUtils, GetIms3gppData(&objMessage)).WillByDefault(Return(objIms3gppData));
 
-        ON_CALL(*pConfigurationManager, GetRegistrationRestorationModeOn504ForInvite)
+        ON_CALL(*pConfigurationProxy,
+                GetInt(ConfigVoice::KEY_REGISTRATION_RESTORATION_MODE_ON_504_FOR_INVITE_INT))
                 .WillByDefault(Return(nPolicy));
     }
 
@@ -184,7 +186,9 @@ TEST_F(StartErrorHandlerTest, HandleReturnsNetworkNoResponseByTransactionTimeout
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
     SetMessageCode(SipStatusCode::SC_INVALID);
 
-    EXPECT_CALL(*pConfigurationManager, IsRetryEmergencyCallOverEmergencyPdnWithNextPcscf())
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::
+                            KEY_RETRY_EMERGENCY_CALL_OVER_EMERGENCY_PDN_WITH_NEXT_PCSCF_BOOL))
             .Times(2)
             .WillOnce(Return(IMS_FALSE))
             .WillOnce(Return(IMS_TRUE));
@@ -199,7 +203,9 @@ TEST_F(StartErrorHandlerTest, HandleReturnsNetworkNoResponseByTransactionTimeout
 TEST_F(StartErrorHandlerTest, HandleReturnsNetworkNoResponseByNullIMessageOfEcc)
 {
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyCallOverEmergencyPdnWithNextPcscf())
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::
+                            KEY_RETRY_EMERGENCY_CALL_OVER_EMERGENCY_PDN_WITH_NEXT_PCSCF_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMtcService, IsEmergency()).WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMessageUtils, GetNumberOfPreviousResponses(&objSession, IMessage::SESSION_START))
@@ -215,35 +221,33 @@ TEST_F(StartErrorHandlerTest, HandleTransactionTimeoutInVoLte)
     SetMessageCode(SipStatusCode::SC_INVALID);
     ON_CALL(objMtcService, IsWlanIpCanType).WillByDefault(Return(IMS_FALSE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CALL_END);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CALL_END);
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::PCSCF_NEXT)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB);
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB_IF_AVAILABLE);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB_IF_AVAILABLE);
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    SetTcallTimerConfig(
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_CURRENT_PCSCF);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_CURRENT_PCSCF);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_NEXT_PCSCF);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_NEXT_PCSCF);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::PCSCF_NEXT)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::
+    SetTcallTimerConfig(ConfigVoice::
                     MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_WITH_PDN_RECONNECT_AFTER_CSFB);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE_BY_CSFB)).Times(1);
     EXPECT_TRUE(CheckHandleResult(
@@ -255,43 +259,41 @@ TEST_F(StartErrorHandlerTest, HandleTransactionTimeoutInVoWiFi)
     SetMessageCode(SipStatusCode::SC_INVALID);
     ON_CALL(objMtcService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CALL_END);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CALL_END);
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::PCSCF_NEXT)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB);
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB_IF_AVAILABLE);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_CSFB_IF_AVAILABLE);
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    SetTcallTimerConfig(
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_CURRENT_PCSCF);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_CURRENT_PCSCF);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_NEXT_PCSCF);
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_NEXT_PCSCF);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::PCSCF_NEXT)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
-    SetTcallTimerConfig(CarrierConfig::ImsVoice::
+    SetTcallTimerConfig(ConfigVoice::
                     MO_CALL_REQUEST_TIMEOUT_POLICY_INITIAL_REGISTER_WITH_PDN_RECONNECT_AFTER_CSFB);
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE_BY_CSFB)).Times(1);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    SetTcallTimerConfig(
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_REDIAL_BY_NETWORK_CONTEXT);
-    ON_CALL(*pConfigurationManager, IsRequiredCdmalessFeatureTag).WillByDefault(Return(IMS_TRUE));
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_REDIAL_BY_NETWORK_CONTEXT);
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigAssets::KEY_REQUIRED_CDMALESS_FEATURE_TAG_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMtcService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
@@ -302,20 +304,22 @@ TEST_F(StartErrorHandlerTest, HandleTransactionTimeoutForEpsfb)
     SetMessageCode(SipStatusCode::SC_INVALID);
     ON_CALL(objMtcService, IsWlanIpCanType).WillByDefault(Return(IMS_FALSE));
 
-    SetTcallTimerConfig(
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_REDIAL_BY_NETWORK_CONTEXT);
-    ON_CALL(*pConfigurationManager, GetEpsFallbackWatchdogTime).WillByDefault(Return(-1));
+    SetTcallTimerConfig(ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_REDIAL_BY_NETWORK_CONTEXT);
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
+            .WillByDefault(Return(-1));
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    ON_CALL(*pConfigurationManager, GetEpsFallbackWatchdogTime).WillByDefault(Return(6000));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
+            .WillByDefault(Return(6000));
     MockEpsFallbackTrigger objEpsFbTrigger(objCallContext);
     ON_CALL(objCallContext, GetEpsFallbackTrigger).WillByDefault(ReturnRef(objEpsFbTrigger));
     ON_CALL(objMtcService, IsNr).WillByDefault(Return(IMS_FALSE));
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
-    ON_CALL(*pConfigurationManager, IsRequiredCdmalessFeatureTag).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigAssets::KEY_REQUIRED_CDMALESS_FEATURE_TAG_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE));
 
@@ -349,7 +353,9 @@ TEST_F(StartErrorHandlerTest, HandleReturnsRedialEmergencyWithNextPcscf)
 {
     SetMessageCode(SipStatusCode::SC_600);
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyCallOverEmergencyPdnWithNextPcscf())
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::
+                            KEY_RETRY_EMERGENCY_CALL_OVER_EMERGENCY_PDN_WITH_NEXT_PCSCF_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMtcService, IsEmergency()).WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMessageUtils, GetNumberOfPreviousResponses(&objSession, IMessage::SESSION_START))
@@ -411,15 +417,17 @@ TEST_F(StartErrorHandlerTest, Handle380ResponseWithUeUnDetectableEmergencyCall)
     // by configuration
     ON_CALL(objMessageUtils, GetSosTypeFromServiceUrn(&objMessage, ISipHeader::CONTACT_NORMAL, _))
             .WillByDefault(Return(nCategoryInContact));
-    ON_CALL(*pConfigurationManager,
-            IsEmergencyRetryWithoutChecking380ContentForNonUeDetectableEmergencyCall)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::
+                            KEY_EMERGENCY_RETRY_WITHOUT_CHECKING_380_CONTENT_FOR_NON_UE_DETECTABLE_EMERGENCY_CALL_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     EXPECT_TRUE(CheckHandleResult(
             CODE_SIP_ALTERNATE_EMERGENCY_CALL, EXTRA_CODE_EMERGENCYSERVICE_POLICE));
 
     // no Non UE Detectable ECC but contains AlternativeService TYPE_EMERGENCY
-    ON_CALL(*pConfigurationManager,
-            IsEmergencyRetryWithoutChecking380ContentForNonUeDetectableEmergencyCall)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::
+                            KEY_EMERGENCY_RETRY_WITHOUT_CHECKING_380_CONTENT_FOR_NON_UE_DETECTABLE_EMERGENCY_CALL_BOOL))
             .WillByDefault(Return(IMS_FALSE));
 
     Ims3gppData objIms3gppData;
@@ -534,36 +542,35 @@ TEST_F(StartErrorHandlerTest, Handle403Response)
     SetMessageCode(SipStatusCode::SC_403);
 
     // SIP_403_POLICY_TERMINATE_CALL case
-    ON_CALL(*pConfigurationManager, GetPolicyFor403ResponseForInvite)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::SIP_403_POLICY_TERMINATE_CALL));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_FOR_403_RESPONSE_FOR_INVITE_INT))
+            .WillByDefault(Return(ConfigVoice::SIP_403_POLICY_TERMINATE_CALL));
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_FORBIDDEN, SipStatusCode::SC_403));
 
     // SIP_403_POLICY_TERMINATE_CALL_AND_RECOVER_REGISTRATION case
-    ON_CALL(*pConfigurationManager, GetPolicyFor403ResponseForInvite)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::
-                            SIP_403_POLICY_TERMINATE_CALL_AND_RECOVER_REGISTRATION));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_FOR_403_RESPONSE_FOR_INVITE_INT))
+            .WillByDefault(
+                    Return(ConfigVoice::SIP_403_POLICY_TERMINATE_CALL_AND_RECOVER_REGISTRATION));
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_FORBIDDEN, SipStatusCode::SC_403));
 
     // SIP_403_POLICY_TERMINATE_CALL_AND_REFRESH_REGISTRATION case
-    ON_CALL(*pConfigurationManager, GetPolicyFor403ResponseForInvite)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::
-                            SIP_403_POLICY_TERMINATE_CALL_AND_REFRESH_REGISTRATION));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_FOR_403_RESPONSE_FOR_INVITE_INT))
+            .WillByDefault(
+                    Return(ConfigVoice::SIP_403_POLICY_TERMINATE_CALL_AND_REFRESH_REGISTRATION));
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REFRESH)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_FORBIDDEN, SipStatusCode::SC_403));
 
     // SIP_403_POLICY_CSFB case
-    ON_CALL(*pConfigurationManager, GetPolicyFor403ResponseForInvite)
-            .WillByDefault(Return(CarrierConfig::ImsVoice::SIP_403_POLICY_CSFB));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_FOR_403_RESPONSE_FOR_INVITE_INT))
+            .WillByDefault(Return(ConfigVoice::SIP_403_POLICY_CSFB));
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
 
     // SIP_403_POLICY_CSFB_AND_RECOVER_REGISTRATION case
-    ON_CALL(*pConfigurationManager, GetPolicyFor403ResponseForInvite)
-            .WillByDefault(
-                    Return(CarrierConfig::ImsVoice::SIP_403_POLICY_CSFB_AND_RECOVER_REGISTRATION));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_POLICY_FOR_403_RESPONSE_FOR_INVITE_INT))
+            .WillByDefault(Return(ConfigVoice::SIP_403_POLICY_CSFB_AND_RECOVER_REGISTRATION));
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE_BY_CSFB)).Times(1);
     EXPECT_TRUE(CheckHandleResult(
             CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL));
@@ -758,7 +765,7 @@ TEST_F(StartErrorHandlerTest,
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(m_pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_B_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_B_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter - 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objCallContext.GetSlotId());
 
@@ -782,7 +789,7 @@ TEST_F(StartErrorHandlerTest,
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(m_pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_B_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_B_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter - 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objCallContext.GetSlotId());
 
@@ -805,7 +812,7 @@ TEST_F(StartErrorHandlerTest,
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(m_pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_B_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_B_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter + 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objCallContext.GetSlotId());
 
@@ -829,7 +836,7 @@ TEST_F(StartErrorHandlerTest,
     ON_CALL(objMessageUtils, GetHeaderValueInt(&objMessage, ISipHeader::RETRY_AFTER_ANY, _))
             .WillByDefault(Return(nAnyRetryAfter));
     ON_CALL(m_pConfigService->GetMockCarrierConfig(),
-            GetInt(CarrierConfig::Ims::KEY_SIP_TIMER_B_MILLIS_INT, _))
+            GetInt(ConfigIms::KEY_SIP_TIMER_B_MILLIS_INT, _))
             .WillByDefault(Return((nAnyRetryAfter + 1) * 1000));
     Engine::GetConfiguration()->RefreshConfigs(objCallContext.GetSlotId());
 
@@ -885,14 +892,13 @@ TEST_F(StartErrorHandlerTest, Handle504ResponseDoesNotRestoreRegistration)
 
 TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigNotAvailable)
 {
-    SetUp504RegRestoration(CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_NOT_AVAILABLE);
+    SetUp504RegRestoration(ConfigVoice::REGISTRATION_RESTORATION_NOT_AVAILABLE);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504));
 }
 
 TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRegisterNextPcscf)
 {
-    SetUp504RegRestoration(
-            CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_INITIAL_REGISTER_WITH_NEXT_PCSCF);
+    SetUp504RegRestoration(ConfigVoice::REGISTRATION_RESTORATION_INITIAL_REGISTER_WITH_NEXT_PCSCF);
 
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::PCSCF_NEXT)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504));
@@ -900,7 +906,7 @@ TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRegisterNextPcscf)
 
 TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRecoverRegistration)
 {
-    SetUp504RegRestoration(CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION);
+    SetUp504RegRestoration(ConfigVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION);
 
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504));
@@ -908,8 +914,7 @@ TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRecoverRegistration)
 
 TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRecoverByNetworkContext)
 {
-    SetUp504RegRestoration(
-            CarrierConfig::ImsVoice::REGISTRATION_RESTORATION_RECOVER_BY_NETWORK_CONTEXT);
+    SetUp504RegRestoration(ConfigVoice::REGISTRATION_RESTORATION_RECOVER_BY_NETWORK_CONTEXT);
     SetCsfbConfig(SipStatusCode::SC_504);
 
     // combined attached case
@@ -926,8 +931,8 @@ TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRecoverByNetworkContext
 
 TEST_F(StartErrorHandlerTest, Handle504ResponseWithConfigRecoverWithoutPdnReconnection)
 {
-    SetUp504RegRestoration(CarrierConfig::ImsVoice::
-                    REGISTRATION_RESTORATION_RECOVER_REGISTRATION_WITHOUT_PDN_RECONNECT);
+    SetUp504RegRestoration(
+            ConfigVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION_WITHOUT_PDN_RECONNECT);
 
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_REINITIATE)).Times(1);
     EXPECT_TRUE(CheckHandleResult(CODE_SIP_SERVER_TIMEOUT, SipStatusCode::SC_504));

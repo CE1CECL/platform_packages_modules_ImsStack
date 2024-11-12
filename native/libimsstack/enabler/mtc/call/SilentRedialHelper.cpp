@@ -15,6 +15,7 @@
  */
 
 #include "CallReasonInfo.h"
+#include "CarrierConfig.h"
 #include "IMtcCallController.h"
 #include "ImsTypeDef.h"
 #include "ServiceTimer.h"
@@ -168,8 +169,8 @@ void SilentRedialHelper::SetRedialDetail()
         {
             const MtcConfigurationProxy& objConfig = m_objContext.GetConfigurationProxy();
 
-            m_nInterval = objConfig.GetInt(Feature::SILENT_REDIAL_INTERVAL);
-            m_nMaxCount = objConfig.GetInt(Feature::SILENT_REDIAL_MAX_RETRY_COUNT);
+            m_nInterval = objConfig.GetInt(ConfigVoice::KEY_SILENT_REDIAL_INTERVAL_MILLIS_INT);
+            m_nMaxCount = objConfig.GetInt(ConfigVoice::KEY_SILENT_REDIAL_MAX_RETRY_COUNT_INT);
         }
             return;
         case EXTRA_CODE_REDIAL_FOR_REDIRECTION:

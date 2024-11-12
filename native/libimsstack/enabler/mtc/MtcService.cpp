@@ -336,8 +336,8 @@ void MtcService::Init()
     AttachCoreServiceInterface();
     AttachAosInterface();
 
-    if (m_objContext.GetConfigurationProxy().Is(Feature::
-                        USE_CARRIER_SPECIFIC_REJECT_PHRASE_FOR_INCOMING_CALL_DURING_NO_REGISTRATION))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(ConfigVoice::
+                        KEY_USE_CARRIER_SPECIFIC_REJECT_PHRASE_FOR_INCOMING_CALL_DURING_NO_REGISTRATION_BOOL))
     {
         m_pRoutingRejectHandler = new MtcRoutingRejectHandler(m_objContext,
                 *PhoneInfoService::GetPhoneInfoService()->GetNetworkWatcher(

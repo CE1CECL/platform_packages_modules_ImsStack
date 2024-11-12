@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "IMessage.h"
 #include "ISipHeader.h"
 #include "IuMtcService.h"
@@ -150,9 +151,10 @@ IMS_BOOL MtcSupplementaryService::UpdateCallerId(IN IMessage* piMessage)
         return IMS_TRUE;
     }
 
-    IMS_BOOL bPolicyFallBack =
-            m_objConfigurationProxy.Is(Feature::ENABLE_OIP_HEADER_POLICY_FALLBACK);
-    IMS_BOOL bOipSourceFromHeader = m_objConfigurationProxy.Is(Feature::OIP_SOURCE_FROM_HEADER);
+    IMS_BOOL bPolicyFallBack = m_objConfigurationProxy.GetBoolean(
+            ConfigVoice::KEY_ENABLE_OIP_HEADER_POLICY_FALLBACK_BOOL);
+    IMS_BOOL bOipSourceFromHeader =
+            m_objConfigurationProxy.GetBoolean(ConfigVoice::KEY_OIP_SOURCE_FROM_HEADER_BOOL);
     OipType eOipType = GetOipTypeByHeader(piMessage, bOipSourceFromHeader, bPolicyFallBack);
     if (eOipType == OipType::INVALID)
     {
@@ -169,9 +171,10 @@ PUBLIC
 IMS_BOOL MtcSupplementaryService::UpdateCnap(IN IMessage* piMessage)
 {
     AString strCnap;
-    IMS_BOOL bPolicyFallBack =
-            m_objConfigurationProxy.Is(Feature::ENABLE_OIP_HEADER_POLICY_FALLBACK);
-    IMS_BOOL bOipSourceFromHeader = m_objConfigurationProxy.Is(Feature::OIP_SOURCE_FROM_HEADER);
+    IMS_BOOL bPolicyFallBack = m_objConfigurationProxy.GetBoolean(
+            ConfigVoice::KEY_ENABLE_OIP_HEADER_POLICY_FALLBACK_BOOL);
+    IMS_BOOL bOipSourceFromHeader =
+            m_objConfigurationProxy.GetBoolean(ConfigVoice::KEY_OIP_SOURCE_FROM_HEADER_BOOL);
 
     GetCnapByHeader(piMessage, bOipSourceFromHeader, strCnap, bPolicyFallBack);
 
@@ -194,7 +197,8 @@ IMS_BOOL MtcSupplementaryService::UpdateCnapEx(IN IMessage* /*piMessage*/)
 PUBLIC
 IMS_BOOL MtcSupplementaryService::UpdateMmc(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUseMMC = m_objConfigurationProxy.Is(Feature::USE_MMC_SUPPLEMENTARY_SERVICE);
+    IMS_BOOL bUseMMC =
+            m_objConfigurationProxy.GetBoolean(ConfigVoice::KEY_USE_MMC_SUPPLEMENTARY_SERVICE_BOOL);
 
     if (bUseMMC)
     {
@@ -282,7 +286,8 @@ IMS_BOOL MtcSupplementaryService::UpdateAnswerHold(IN IMessage* /*piMessage*/)
 PUBLIC
 IMS_BOOL MtcSupplementaryService::UpdateMcid(IN IMessage* /*piMessage*/)
 {
-    IMS_BOOL bUseMCID = m_objConfigurationProxy.Is(Feature::USE_MCID_SUPPLEMENTARY_SERVICE);
+    IMS_BOOL bUseMCID = m_objConfigurationProxy.GetBoolean(
+            ConfigVoice::KEY_USE_MCID_SUPPLEMENTARY_SERVICE_BOOL);
 
     if (bUseMCID)
     {
@@ -634,7 +639,7 @@ OipType MtcSupplementaryService::GetOipTypeByHeader(
                 objAddr.GetUser().EqualsIgnoreCase(MessageUtil::STR_UNAVAILABLE))
         {
             // TODO: CarrierConfig.h : 0 - NONE, 1 - RESTRICTED
-            if (m_objConfigurationProxy.GetInt(Feature::OIP_TYPE_FOR_UNAVAILABLE) == 0)
+            if (m_objConfigurationProxy.GetInt(ConfigVoice::KEY_OIP_TYPE_FOR_UNAVAILABLE_INT) == 0)
             {
                 eOipType = OipType::NONE;
             }

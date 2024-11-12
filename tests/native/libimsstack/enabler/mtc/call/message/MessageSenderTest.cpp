@@ -23,7 +23,7 @@
 #include "SipStatusCode.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/message/MessageSender.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcSupplementaryService.h"
 #include "utility/MessageUtils.h"
@@ -49,14 +49,14 @@ public:
     MockIMtcService objService;
     MockICoreService objCoreService;
     MockISession objSession;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pSupplementaryService;
     MessageUtils objMessageUtils;
 
 protected:
     virtual void SetUp() override
     {
-        pConfigurationProxy = new MtcConfigurationProxy(new MockIMtcConfigurationManager());
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         pSupplementaryService = new MtcSupplementaryService(objContext, *pConfigurationProxy);
 
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));

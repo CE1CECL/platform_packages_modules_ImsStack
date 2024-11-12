@@ -27,7 +27,7 @@
 #include "call/MockIMtcSession.h"
 #include "call/ParticipantInfo.h"
 #include "call/SilentRedialHelper.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockICallStateProxy.h"
 #include "helper/MockMtcTimerWrapper.h"
@@ -49,7 +49,6 @@ public:
             pRedialHelper(IMS_NULL),
             pTimerService(new TestTimerService()),
             objTimer(pTimerService->GetMockTimer()),
-            pMockConfigurationManager(IMS_NULL),
             pConfigurationProxy(IMS_NULL),
             pSupplementaryService(IMS_NULL)
     {
@@ -73,8 +72,7 @@ public:
     MockISession objSession;
     TestTimerService* pTimerService;
     MockITimer& objTimer;
-    MockIMtcConfigurationManager* pMockConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pSupplementaryService;
     MediaInfo objMediaInfo;
     MockMtcTimerWrapper objTimerWrapper;
@@ -93,8 +91,7 @@ protected:
         ON_CALL(objMtcCallManager, GetCallByCallKey(ANY_CALL_KEY))
                 .WillByDefault(Return(&objMtcCall));
 
-        pMockConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
         pSupplementaryService = new MtcSupplementaryService(objContext, *pConfigurationProxy);
         ON_CALL(objContext, GetSupplementaryService)
@@ -118,8 +115,10 @@ TEST_F(SilentRedialHelperTest, CreateHelperWithRetryAfterType)
 
 TEST_F(SilentRedialHelperTest, CreateHelperWithRequestTimeoutType)
 {
-    ON_CALL(*pMockConfigurationManager, GetSilentRedialInterval).WillByDefault(Return(2000));
-    ON_CALL(*pMockConfigurationManager, GetSilentRedialMaxRetryCount).WillByDefault(Return(3));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_SILENT_REDIAL_INTERVAL_MILLIS_INT))
+            .WillByDefault(Return(2000));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_SILENT_REDIAL_MAX_RETRY_COUNT_INT))
+            .WillByDefault(Return(3));
 
     const CallReasonInfo objReason(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_REQUEST_TIMEOUT);
     pRedialHelper = new SilentRedialHelper(objContext, objReason);
@@ -281,8 +280,9 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRequestTimeoutType)
 {
     IMS_SINT32 nInterval = 2000;
     IMS_UINT32 nMaxCount = 2;
-    ON_CALL(*pMockConfigurationManager, GetSilentRedialInterval).WillByDefault(Return(nInterval));
-    ON_CALL(*pMockConfigurationManager, GetSilentRedialMaxRetryCount)
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_SILENT_REDIAL_INTERVAL_MILLIS_INT))
+            .WillByDefault(Return(nInterval));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_SILENT_REDIAL_MAX_RETRY_COUNT_INT))
             .WillByDefault(Return(nMaxCount));
 
     const CallReasonInfo objAnyReason(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_REQUEST_TIMEOUT);

@@ -25,7 +25,7 @@
 #include "MtcDef.h"
 #include "SipHeaderName.h"
 #include "call/MockIMtcCallContext.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcSupplementaryService.h"
 #include "utility/MessageUtils.h"
@@ -54,8 +54,7 @@ namespace android
 class MtcSupplementaryServiceTest : public ::testing::Test
 {
 public:
-    MockIMtcConfigurationManager* pMockIMtcConfigurationManager;
-    MtcConfigurationProxy* pMtcConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pMtcSupplementaryService;
     MockISipMessage objMockISipMessage;
     MockIMessage objMockIMessage;
@@ -67,10 +66,8 @@ protected:
     {
         ON_CALL(objContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
 
-        pMockIMtcConfigurationManager = new MockIMtcConfigurationManager();
-        pMtcConfigurationProxy = new MtcConfigurationProxy(
-                static_cast<IMtcConfigurationManager*>(pMockIMtcConfigurationManager));
-        pMtcSupplementaryService = new MtcSupplementaryService(objContext, *pMtcConfigurationProxy);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
+        pMtcSupplementaryService = new MtcSupplementaryService(objContext, *pConfigurationProxy);
 
         EXPECT_CALL(objMockIMessage, GetMessage())
                 .Times(AnyNumber())
@@ -79,10 +76,9 @@ protected:
 
     virtual void TearDown() override
     {
-        if (pMtcConfigurationProxy)
+        if (pConfigurationProxy)
         {
-            // pMockIMtcConfigurationManager will be deleted by below.
-            delete pMtcConfigurationProxy;
+            delete pConfigurationProxy;
         }
 
         if (pMtcSupplementaryService)
@@ -186,15 +182,16 @@ TEST_F(MtcSupplementaryServiceTest, UpdateCallerId)
     // config-From, config-no fallback, anonymouns -> RESTRICTED
     // config-From, config-no fallback, unavailable, unavailable_none -> NONE
     // config-From, config-no fallback, unavailable, unavailable_restriected -> RESTRICTED
-    EXPECT_CALL(*pMockIMtcConfigurationManager, IsEnableOipHeaderPolicyFallBack())
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_ENABLE_OIP_HEADER_POLICY_FALLBACK_BOOL))
             .Times(5)
             .WillRepeatedly(Return(IMS_FALSE));
 
-    EXPECT_CALL(*pMockIMtcConfigurationManager, IsOipSourceFromHeader())
+    EXPECT_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_OIP_SOURCE_FROM_HEADER_BOOL))
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_CALL(*pMockIMtcConfigurationManager, GetOipTypeForUnavailable())
+    EXPECT_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_OIP_TYPE_FOR_UNAVAILABLE_INT))
             .Times(2)
             .WillOnce(Return(0))
             .WillOnce(Return(1));
@@ -241,11 +238,12 @@ TEST_F(MtcSupplementaryServiceTest, UpdateCallerId)
     // config-From, config-fallback, no From header, unavailable, unavailable_none -> NONE
     // config-From, config-fallback, no From header, unavailable, unavailable_restriected
     // -> RESTRICTED
-    EXPECT_CALL(*pMockIMtcConfigurationManager, IsEnableOipHeaderPolicyFallBack())
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_ENABLE_OIP_HEADER_POLICY_FALLBACK_BOOL))
             .Times(5)
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_CALL(*pMockIMtcConfigurationManager, GetOipTypeForUnavailable())
+    EXPECT_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_OIP_TYPE_FOR_UNAVAILABLE_INT))
             .Times(2)
             .WillOnce(Return(0))
             .WillOnce(Return(1));
@@ -291,14 +289,15 @@ TEST_F(MtcSupplementaryServiceTest, UpdateCnap)
     // config-From, config-fallback, no From
     // config-Paid, config-fallback, no Paid
 
-    EXPECT_CALL(*pMockIMtcConfigurationManager, IsEnableOipHeaderPolicyFallBack())
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_ENABLE_OIP_HEADER_POLICY_FALLBACK_BOOL))
             .Times(4)
             .WillOnce(Return(IMS_FALSE))
             .WillOnce(Return(IMS_FALSE))
             .WillOnce(Return(IMS_TRUE))
             .WillOnce(Return(IMS_TRUE));
 
-    EXPECT_CALL(*pMockIMtcConfigurationManager, IsOipSourceFromHeader())
+    EXPECT_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_OIP_SOURCE_FROM_HEADER_BOOL))
             .Times(4)
             .WillOnce(Return(IMS_TRUE))
             .WillOnce(Return(IMS_FALSE))

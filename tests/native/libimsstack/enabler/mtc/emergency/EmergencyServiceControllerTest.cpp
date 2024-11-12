@@ -24,7 +24,7 @@
 #include "PlatformContext.h"
 #include "TestPhoneInfoService.h"
 #include "call/IMtcCall.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "emergency/EmergencyServiceController.h"
 #include "emergency/MockIMtcEmergencyServiceManager.h"
@@ -51,14 +51,12 @@ protected:
     MockIMtcEmergencyServiceManager objEsm;
     TestPhoneInfoService objPhoneInfoService;
 
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     EmergencyServiceController* pController;
 
     virtual void SetUp() override
     {
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
 
         ON_CALL(objContext, GetServiceByType(ServiceType::NORMAL))
                 .WillByDefault(Return(&objNormalService));
@@ -177,7 +175,8 @@ TEST_F(EmergencyServiceControllerTest, StartAndAosDisconnectedNotifiesUnavailabl
     pController->Start();
 
     const IMS_UINT32 nAosReason = ImsAosReason::DATA_DISCONNECTED;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyOnImsPdnBool).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigEmergency::KEY_RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     EXPECT_CALL(objJniMtcServiceThread,
             OnEmergencyServiceChanged(
                     EmergencyServiceState::UNAVAILABLE, nAosReason, ServiceType::EMERGENCY))
@@ -193,7 +192,8 @@ TEST_F(EmergencyServiceControllerTest,
     pController->Start();
 
     const IMS_UINT32 nAosReason = ImsAosReason::POWER_OFF;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyOnImsPdnBool).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigEmergency::KEY_RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objJniMtcServiceThread,
             OnEmergencyServiceChanged(
                     EmergencyServiceState::UNAVAILABLE, nAosReason, ServiceType::EMERGENCY))
@@ -208,7 +208,8 @@ TEST_F(EmergencyServiceControllerTest, StartAndAosDisconnectedInRoamingNotifiesU
     pController->Start();
 
     const IMS_UINT32 nAosReason = ImsAosReason::DATA_DISCONNECTED;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyOnImsPdnBool).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigEmergency::KEY_RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objPhoneInfoService.GetMockNetworkWatcher(), GetRoamingState())
             .WillByDefault(Return(1));
     EXPECT_CALL(objJniMtcServiceThread,
@@ -225,7 +226,8 @@ TEST_F(EmergencyServiceControllerTest, StartAndAosDisconnectedRetriesOverImsPdnW
     pController->Start();
 
     const IMS_UINT32 nAosReason = ImsAosReason::DATA_DISCONNECTED;
-    ON_CALL(*pConfigurationManager, IsRetryEmergencyOnImsPdnBool).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigEmergency::KEY_RETRY_EMERGENCY_ON_IMS_PDN_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objJniMtcServiceThread, OnEmergencyServiceChanged(_, _, _)).Times(0);
     // EXPECT_CALL(objEsm, StartOpen(ServiceType::NORMAL)).Times(1); - By AsyncRunner
 
@@ -316,7 +318,8 @@ TEST_F(EmergencyServiceControllerTest, OpenedAndCallSetupFailStopsRegistrationWh
     pController->Start();
     pController->OnAosStateChanged(objEmergencyService, MtcAosState::CONNECTED, ImsAosReason::NONE);
 
-    ON_CALL(*pConfigurationManager, IsReleaseEmergencyPdnWithEmergencyCallFail)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::KEY_RELEASE_EMERGENCY_PDN_WITH_EMERGENCY_CALL_FAIL_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objAosConnector, Control(ImsAosControl::REGISTER_STOP)).Times(1);
 
@@ -333,7 +336,8 @@ TEST_F(EmergencyServiceControllerTest, OpenedAndNormalCallSetupFailDoesNothingWh
     pController->Start();
     pController->OnAosStateChanged(objEmergencyService, MtcAosState::CONNECTED, ImsAosReason::NONE);
 
-    ON_CALL(*pConfigurationManager, IsReleaseEmergencyPdnWithEmergencyCallFail)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::KEY_RELEASE_EMERGENCY_PDN_WITH_EMERGENCY_CALL_FAIL_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objAosConnector, Control(_)).Times(0);
 
@@ -350,7 +354,8 @@ TEST_F(EmergencyServiceControllerTest, OpenedAndOtherEmergencyCallBlockDoesNothi
     pController->Start();
     pController->OnAosStateChanged(objEmergencyService, MtcAosState::CONNECTED, ImsAosReason::NONE);
 
-    ON_CALL(*pConfigurationManager, IsReleaseEmergencyPdnWithEmergencyCallFail)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigEmergency::KEY_RELEASE_EMERGENCY_PDN_WITH_EMERGENCY_CALL_FAIL_BOOL))
             .WillByDefault(Return(IMS_TRUE));
 
     const CallKey nFirstCall = 1;
@@ -376,7 +381,8 @@ TEST_F(EmergencyServiceControllerTest, StartStartsRegTo18xTimer)
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     EXPECT_CALL(objPassiveTimer,
@@ -391,7 +397,8 @@ TEST_F(EmergencyServiceControllerTest, StartStartsRegTo18xTimerForWifi)
     const IMS_BOOL bWifi = IMS_TRUE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 1))
             .WillByDefault(Return(nTimer));
 
     EXPECT_CALL(objPassiveTimer,
@@ -406,7 +413,8 @@ TEST_F(EmergencyServiceControllerTest, CallStateChangedToTerminatingStopsRegTo18
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     pController->Start();
@@ -425,7 +433,8 @@ TEST_F(EmergencyServiceControllerTest, CloseStopsRegTo18xTimer)
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     pController->Start();
@@ -440,7 +449,8 @@ TEST_F(EmergencyServiceControllerTest, AosDisconnectedStopsRegTo18xTimer)
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     pController->Start();
@@ -456,7 +466,8 @@ TEST_F(EmergencyServiceControllerTest, RegTo18xTimerExpiresBeforeCallSetupStopsA
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     pController->Start();
@@ -471,7 +482,8 @@ TEST_F(EmergencyServiceControllerTest, RegTo18xTimerExpiresAfterCallSetupTermina
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     pController->Start();
@@ -495,7 +507,8 @@ TEST_F(EmergencyServiceControllerTest,
     const IMS_BOOL bWifi = IMS_FALSE;
     const IMS_SINT32 nTimer = 10;
     ON_CALL(objEmergencyService, IsWlanIpCanType).WillByDefault(Return(bWifi));
-    ON_CALL(*pConfigurationManager, GetEmergencyRegistrationTo18xTimer(bWifi))
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT_ARRAY, 0))
             .WillByDefault(Return(nTimer));
 
     pController->Start();

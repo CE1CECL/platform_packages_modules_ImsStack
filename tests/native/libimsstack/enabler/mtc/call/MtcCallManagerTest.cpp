@@ -21,7 +21,7 @@
 #include "call/IMtcCall.h"
 #include "call/MtcCall.h"
 #include "call/MtcCallManager.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockICallStateProxy.h"
 #include "helper/MockMtcTimerWrapper.h"
@@ -38,7 +38,7 @@ class MtcCallManagerTest : public ::testing::Test
 public:
     MockIMtcContext objContext;
     MockICallStateProxy objCallStateProxy;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MtcCallManager* pCallManager;
     MockIMtcService objService;
 
@@ -49,7 +49,7 @@ protected:
         ON_CALL(objContext, GetServiceByType(_)).WillByDefault(Return(&objService));
         ON_CALL(objService, GetStatus).WillByDefault(Return(ServiceStatus::SERVICE_ACTIVE));
 
-        pConfigurationProxy = new MtcConfigurationProxy(new MockIMtcConfigurationManager());
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
 
         ON_CALL(objContext, CreateTimer)

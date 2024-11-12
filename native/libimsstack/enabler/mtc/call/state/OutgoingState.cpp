@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "CarrierConfig.h"
 #include "ICoreService.h"
 #include "IMessage.h"
 #include "IMtcCallController.h"
@@ -409,7 +410,8 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionPrackDelivered(IN ISession* p
 
 PUBLIC VIRTUAL CallStateName OutgoingState::SessionPrackDeliveryFailed(IN ISession* piSession)
 {
-    if (m_objContext.GetConfigurationProxy().Is(Feature::IGNORE_PRACK_DELIVERY_FAILURE))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_IGNORE_PRACK_DELIVERY_FAILURE_BOOL))
     {
         IMS_TRACE_D("SessionPrackDeliveryFailed : Ignore", 0, 0, 0);
         return GetStateName();
@@ -515,8 +517,8 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionRprReceived(
 
     pSession->HandleResponse(ResponseType::PROVISIONAL_RESPONSE, *piMessage);
 
-    if (m_objContext.GetConfigurationProxy().Is(
-                Feature::STOP_RINGBACK_TIMER_BY_183_WITH_SDP_BODY) &&
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_STOP_RINGBACK_TIMER_BY_183_WITH_SDP_BODY_BOOL) &&
             piMessage->GetStatusCode() == SipStatusCode::SC_183 &&
             m_objContext.GetMessageUtils().HasSdp(piMessage))
     {
@@ -756,11 +758,11 @@ IMS_BOOL OutgoingState::HandleB1TimerAfterTerminate(
         return IMS_FALSE;
     }
 
-    Feature eFeature = m_objContext.GetService().IsWlanIpCanType()
-            ? Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL
-            : Feature::POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL;
-    if (m_objContext.GetConfigurationProxy().GetInt(eFeature) !=
-            CarrierConfig::ImsVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE)
+    const IMS_CHAR* pszKey = m_objContext.GetService().IsWlanIpCanType()
+            ? ConfigWfc::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOWIFI_CALL_INT
+            : ConfigVoice::KEY_POLICY_FOR_TCALL_TIMER_EXPIRY_OF_VOLTE_CALL_INT;
+    if (m_objContext.GetConfigurationProxy().GetInt(pszKey) !=
+            ConfigVoice::MO_CALL_REQUEST_TIMEOUT_POLICY_WAIT_FOR_RESPONSE)
     {
         return IMS_FALSE;
     }
@@ -870,8 +872,8 @@ void OutgoingState::OnStartFailed(IN ISession* piSession, IN const CallReasonInf
 PRIVATE
 void OutgoingState::OnSessionForked(IN ISession* piOriginSession)
 {
-    if (m_objContext.GetConfigurationProxy().Is(
-                Feature::MAINTAIN_MULTIPLE_EARLY_SESSIONS_BY_FORKING))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_MAINTAIN_MULTIPLE_EARLY_SESSIONS_BY_FORKING_BOOL))
     {
         return;
     }

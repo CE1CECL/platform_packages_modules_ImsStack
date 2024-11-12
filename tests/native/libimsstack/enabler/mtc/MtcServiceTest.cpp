@@ -43,7 +43,7 @@
 #include "call/MockIMtcCallManager.h"
 #include "call/MtcCallController.h"
 #include "call/radio/MockIMtcRadioChecker.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "emergency/MockIMtcEmergencyServiceManager.h"
 #include "helper/ISrvccStateListener.h"
@@ -103,8 +103,7 @@ class MtcServiceTest : public ::testing::Test
 {
 public:
     MockIMtcContext objMockContext;
-    MockIMtcConfigurationManager* pMockConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MockIMtcEmergencyServiceManager* pMockEmergencyManager;
     MockIMtcCallManager objMockCallManager;
     MockIMtcCallController objMockCallController;
@@ -128,8 +127,7 @@ public:
 protected:
     virtual void SetUp() override
     {
-        pMockConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objMockContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
 
@@ -148,8 +146,9 @@ protected:
         pConnector->SetJniEnabler(SLOT_ID, EnablerType::MTC_SERVICE, &objMockJniEnabler);
         ON_CALL(objMockJniEnabler, GetJniThread).WillByDefault(Return(&objMockServiceThread));
 
-        ON_CALL(*pMockConfigurationManager,
-                IsUseCarrierSpecificRejectPhraseForIncomingCallDuringNoRegistration)
+        ON_CALL(*pConfigurationProxy,
+                GetBoolean(ConfigVoice::
+                                KEY_USE_CARRIER_SPECIFIC_REJECT_PHRASE_FOR_INCOMING_CALL_DURING_NO_REGISTRATION_BOOL))
                 .WillByDefault(Return(IMS_TRUE));
         ON_CALL(objMockContext, GetImsEventReceiver).WillByDefault(ReturnRef(objEventReceiver));
 

@@ -38,7 +38,7 @@
 #include "call/state/IdleState.h"
 #include "call/state/MtcCallState.h"
 #include "conferencecall/ConferenceDef.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "dialingplan/MockIMtcDialingPlan.h"
 #include "dialogevent/MockIMultiEndpointManager.h"
@@ -73,8 +73,7 @@ class IdleStateTest : public ::testing::Test
 {
 public:
     IdleState* pIdleState;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MtcSupplementaryService* pSupplementaryService;
     ParticipantInfo* pParticipantInfo;
     MockIMtcCallContext objCallContext;
@@ -105,8 +104,7 @@ public:
 protected:
     virtual void SetUp() override
     {
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objCallContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
 
@@ -175,7 +173,8 @@ protected:
 
     void SetEpsFallbackRequiredByConfig(IN IMS_BOOL bRequired)
     {
-        ON_CALL(*pConfigurationManager, GetEpsFallbackWatchdogTime)
+        ON_CALL(*pConfigurationProxy,
+                GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
                 .WillByDefault(Return(bRequired ? 1 : 0));
     }
 };
@@ -312,8 +311,10 @@ TEST_F(IdleStateTest, StartSetsMoTimersAndTransitsToOutgoingState)
     ON_CALL(objMtcSession, Start).WillByDefault(Return(IMS_SUCCESS));
     IMS_SINT32 n100WaitTimer = 10000;
     IMS_SINT32 n18xWaitTimer = 20000;
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(n100WaitTimer));
-    ON_CALL(*pConfigurationManager, Get18xTimer).WillByDefault(Return(n18xWaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(n100WaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_18X_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n18xWaitTimer));
 
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_100_WAIT, n100WaitTimer));
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
@@ -336,8 +337,10 @@ TEST_F(IdleStateTest, StartSetsMoTimersForEmergencyCall)
 
     IMS_SINT32 n100WaitTimer = 10000;
     IMS_SINT32 n18xWaitTimer = 20000;
-    ON_CALL(*pConfigurationManager, GetEmergencyTCallTimer).WillByDefault(Return(n100WaitTimer));
-    ON_CALL(*pConfigurationManager, GetEmergency18xTimer).WillByDefault(Return(n18xWaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigEmergency::KEY_EMERGENCY_TCALL_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n100WaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigEmergency::KEY_EMERGENCY_18X_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n18xWaitTimer));
 
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_100_WAIT, n100WaitTimer));
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
@@ -359,8 +362,10 @@ TEST_F(IdleStateTest, StartSetsMoTimersForWifiEmergencyCall)
 
     IMS_SINT32 n100WaitTimer = 10000;
     IMS_SINT32 n18xWaitTimer = 20000;
-    ON_CALL(*pConfigurationManager, GetEmergencyTCallTimer).WillByDefault(Return(n100WaitTimer));
-    ON_CALL(*pConfigurationManager, GetWifiEmergency18xTimer).WillByDefault(Return(n18xWaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigEmergency::KEY_EMERGENCY_TCALL_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n100WaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigEmergency::KEY_WIFI_EMERGENCY_18X_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n18xWaitTimer));
 
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_100_WAIT, n100WaitTimer));
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
@@ -380,7 +385,8 @@ TEST_F(IdleStateTest, StartSetsOnly100WaitTimerAndTransitsToOutgoingState)
     ON_CALL(objCallContext, CreateSession()).WillByDefault(Return(&objMtcSession));
     ON_CALL(objMtcSession, Start).WillByDefault(Return(IMS_SUCCESS));
     IMS_SINT32 n100WaitTimer = 10000;
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(n100WaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(n100WaitTimer));
 
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_100_WAIT, n100WaitTimer));
     EXPECT_CALL(objTimerWrapper, IsActive(MtcCallState::TimerType::TIMER_MO_18X_WAIT))
@@ -552,8 +558,10 @@ TEST_F(IdleStateTest, StartUssiSetsMoTimersAndTransitsToOutgoingState)
     ON_CALL(objMtcSession, Start).WillByDefault(Return(IMS_SUCCESS));
     IMS_SINT32 n100WaitTimer = 10000;
     IMS_SINT32 n18xWaitTimer = 20000;
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(n100WaitTimer));
-    ON_CALL(*pConfigurationManager, Get18xTimer).WillByDefault(Return(n18xWaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(n100WaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_18X_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n18xWaitTimer));
 
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_100_WAIT, n100WaitTimer));
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
@@ -691,9 +699,10 @@ TEST_F(IdleStateTest, StartConferenceSetsMoTimersAndTransitsOutgoingState)
 
     IMS_SINT32 n100WaitTimer = 10000;
     IMS_SINT32 n18xWaitTimer = 20000;
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(n100WaitTimer));
-    ON_CALL(*pConfigurationManager, Get18xTimer).WillByDefault(Return(n18xWaitTimer));
-
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(n100WaitTimer));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_18X_TIMER_MILLIS_INT))
+            .WillByDefault(Return(n18xWaitTimer));
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_100_WAIT, n100WaitTimer));
     EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
 
@@ -796,7 +805,8 @@ TEST_F(IdleStateTest, HandleIncomingRejectsIfOfferlessInviteIsNotSupported)
 
     EXPECT_CALL(objMtcSession, HandleRequest(RequestType::START, IsEqualMessage(pMessage)));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMessageUtils, HasSdp(pMessage)).WillByDefault(Return(IMS_FALSE));
 
     CallReasonInfo objReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE);
@@ -823,7 +833,8 @@ TEST_F(IdleStateTest, HandleIncomingReturnsIdleStateIfBlockCheckResultIsPending)
 
     EXPECT_CALL(objMtcSession, HandleRequest(RequestType::START, IsEqualMessage(pMessage)));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(*pBlockChecker, Check)
             .WillByDefault(
                     Return(IMtcBlockChecker::Result(IMtcBlockChecker::Result::Status::PENDING)));
@@ -849,7 +860,8 @@ TEST_F(IdleStateTest, HandleIncomingRejectsIfBlockCheckResultIsBlocked)
 
     EXPECT_CALL(objMtcSession, HandleRequest(RequestType::START, IsEqualMessage(pMessage)));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     CallReasonInfo objReasonInfo(CODE_LOCAL_NOT_REGISTERED);
     ON_CALL(*pBlockChecker, Check)
             .WillByDefault(Return(IMtcBlockChecker::Result(
@@ -877,7 +889,8 @@ TEST_F(IdleStateTest, HandleIncomingInvokesSendPreIncomingCallReceived)
 
     EXPECT_CALL(objMtcSession, HandleRequest(RequestType::START, IsEqualMessage(pMessage)));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(*pBlockChecker, Check)
             .WillByDefault(
                     Return(IMtcBlockChecker::Result(IMtcBlockChecker::Result::Status::UNBLOCKED)));
@@ -903,8 +916,10 @@ TEST_F(IdleStateTest, HandleIncomingInvokesOnCallReceivedForLastComeFirstServedH
     MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("supportedExtension")));
     ON_CALL(objMtcSession, GetExtensionSet).WillByDefault(ReturnRef(objMtcExtensionSet));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationManager, GetPreAlertingTimer).WillByDefault(Return(7000));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_PREALERTING_TIMER_MILLIS_INT))
+            .WillByDefault(Return(7000));
     const IMS_UINTP ANY_KEY = 100;
     ON_CALL(objCallContext, GetCallKey()).WillByDefault(Return(ANY_KEY));
     EXPECT_CALL(objLastComeFirstServedHelper, OnCallReceived(ANY_KEY)).Times(1);
@@ -932,8 +947,10 @@ TEST_F(IdleStateTest, HandleIncomingDoesNothingForLastComeFirstServedHelperIfNot
     MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("supportedExtension")));
     ON_CALL(objMtcSession, GetExtensionSet).WillByDefault(ReturnRef(objMtcExtensionSet));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationManager, GetPreAlertingTimer).WillByDefault(Return(0));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_PREALERTING_TIMER_MILLIS_INT))
+            .WillByDefault(Return(0));
     const IMS_UINTP ANY_KEY = 100;
     ON_CALL(objCallContext, GetCallKey()).WillByDefault(Return(ANY_KEY));
     EXPECT_CALL(objLastComeFirstServedHelper, OnCallReceived(ANY_KEY)).Times(0);
@@ -1043,7 +1060,8 @@ TEST_F(IdleStateTest, HandleIncomingUssiRejectsIfOfferlessInviteIsNotSupported)
     ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_START))
             .WillByDefault(Return(pMessage));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMessageUtils, HasSdp(pMessage)).WillByDefault(Return(IMS_FALSE));
 
     CallReasonInfo objReasonInfo(CODE_MEDIA_NOT_ACCEPTABLE);
@@ -1061,7 +1079,8 @@ TEST_F(IdleStateTest, HandleIncomingUssiRejectsIfMessageHasInvalidXml)
     ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_START))
             .WillByDefault(Return(pMessage));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(*pUssiController, HasValidXmlBodyForNetworkInitiatedUssi(pMessage))
             .WillByDefault(Return(IMS_FALSE));
 
@@ -1080,7 +1099,8 @@ TEST_F(IdleStateTest, HandleIncomingUssiReturnsIdleStateIfBlockCheckResultIsPend
     ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_START))
             .WillByDefault(Return(pMessage));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(*pUssiController, HasValidXmlBodyForNetworkInitiatedUssi(pMessage))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(*pBlockChecker, Check)
@@ -1099,7 +1119,8 @@ TEST_F(IdleStateTest, HandleIncomingUssiRejectsIfBlockCheckResultIsBlocked)
     ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_START))
             .WillByDefault(Return(pMessage));
 
-    ON_CALL(*pConfigurationManager, IsRejectOfferlessInvite).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_REJECT_OFFERLESS_INVITE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(*pUssiController, HasValidXmlBodyForNetworkInitiatedUssi(pMessage))
             .WillByDefault(Return(IMS_TRUE));
     CallReasonInfo objReasonInfo(CODE_LOCAL_NOT_REGISTERED);
@@ -1264,7 +1285,8 @@ TEST_F(IdleStateTest, OnBlockCheckedTriggersEpsFbForRrcReject)
     ON_CALL(*pBlockChecker, Check)
             .WillByDefault(Return(IMtcBlockChecker::Result(
                     IMtcBlockChecker::Result::Status::BLOCKED, objReasonInfo)));
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(nTimerVzw));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(nTimerVzw));
 
     EXPECT_CALL(objUiNotifier, SendIncomingCallRejected(objReasonInfo)).Times(0);
     EXPECT_CALL(
@@ -1287,7 +1309,8 @@ TEST_F(IdleStateTest, OnBlockCheckedDoesNotTriggerEpsFbForRrcRejectIfRejectTimeI
     ON_CALL(*pBlockChecker, Check)
             .WillByDefault(Return(IMtcBlockChecker::Result(
                     IMtcBlockChecker::Result::Status::BLOCKED, objReasonInfo)));
-    ON_CALL(*pConfigurationManager, GetMoCallRequestTimeout).WillByDefault(Return(nTimerVzw));
+    ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_MO_CALL_REQUEST_TIMEOUT_MILLIS_INT))
+            .WillByDefault(Return(nTimerVzw));
 
     EXPECT_CALL(objUiNotifier, SendStartFailed(objReasonInfo.ConvertFromInternal()));
     EXPECT_CALL(*pEpsFbTrigger, TriggerEpsFallback(_, _)).Times(0);

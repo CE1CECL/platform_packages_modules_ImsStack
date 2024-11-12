@@ -27,7 +27,7 @@
 #include "call/IMtcCall.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/MockIMtcSession.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcSupplementaryService.h"
 #include "media/MockIMediaQosEventListener.h"
@@ -85,8 +85,7 @@ public:
             pListener(new MockIMediaReportEventListener()),
             objISession(),
             objIMessage(),
-            pConfigurationManager(new MockIMtcConfigurationManager()),
-            pConfigurationProxy(new MtcConfigurationProxy(pConfigurationManager)),
+            pConfigurationProxy(new MockMtcConfigurationProxy()),
             objMessageUtils(),
             pMediaProfileManager(IMS_NULL)
     {
@@ -102,8 +101,7 @@ public:
     MockIMediaSession objMediaSession;
     MockISession objISession;
     MockIMessage objIMessage;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MockIMessageUtils objMessageUtils;
     MockMtcMediaProfileManager* pMediaProfileManager;
 
@@ -258,7 +256,8 @@ TEST_F(MtcMediaManagerTest, MediaSessionNotifyWithNwToneReceiveFailedAndStarted)
 {
     ON_CALL(*pMediaProfileManager, GetActiveSession()).WillByDefault(Return(&objISession));
     ON_CALL(*pMediaProfileManager, IsConfirmed(&objISession)).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(0));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_TRUE));
@@ -277,7 +276,8 @@ TEST_F(MtcMediaManagerTest,
 {
     ON_CALL(*pMediaProfileManager, GetActiveSession()).WillByDefault(Return(&objISession));
     ON_CALL(*pMediaProfileManager, IsConfirmed(&objISession)).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(0));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_FALSE));
@@ -293,7 +293,8 @@ TEST_F(MtcMediaManagerTest,
 {
     ON_CALL(*pMediaProfileManager, GetActiveSession()).WillByDefault(Return(&objISession));
     ON_CALL(*pMediaProfileManager, IsConfirmed(&objISession)).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(1));
 
     EXPECT_CALL(*pListener, OnReceivingNetworkToneFailed()).Times(1);
@@ -607,7 +608,9 @@ TEST_F(MtcMediaManagerTest, UpdatePemTypeDoesNothingIfNoPemAndConfigDoesNotRequi
 {
     ON_CALL(objMessageUtils, GetHeader(&objIMessage, ISipHeader::P_EARLY_MEDIA, _))
             .WillByDefault(Return(AString::ConstEmpty()));
-    EXPECT_CALL(*pConfigurationManager, IsInitializePemWhenNoHeader()).WillOnce(Return(IMS_FALSE));
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_INITIALIZE_P_EARLY_MEDIA_WHEN_NO_HEADER_BOOL))
+            .WillOnce(Return(IMS_FALSE));
 
     EXPECT_CALL(*pMediaProfileManager, SetPemType(&objISession, PemType::NONE)).Times(0);
     pMediaManager->UpdatePemType(&objISession, &objIMessage);
@@ -617,7 +620,9 @@ TEST_F(MtcMediaManagerTest, UpdatePemTypeUpdatesProfileManagerIfNoPemButConfigRe
 {
     ON_CALL(objMessageUtils, GetHeader(&objIMessage, ISipHeader::P_EARLY_MEDIA, _))
             .WillByDefault(Return(AString::ConstEmpty()));
-    EXPECT_CALL(*pConfigurationManager, IsInitializePemWhenNoHeader()).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_INITIALIZE_P_EARLY_MEDIA_WHEN_NO_HEADER_BOOL))
+            .WillOnce(Return(IMS_TRUE));
 
     EXPECT_CALL(*pMediaProfileManager, SetPemType(&objISession, PemType::NONE));
     pMediaManager->UpdatePemType(&objISession, &objIMessage);
@@ -772,7 +777,8 @@ TEST_F(MtcMediaManagerTest, RunAndLocalToneStateIsNotChangedIf180IsReceivedInCas
     ON_CALL(objContext, GetCallInfo()).WillByDefault(ReturnRef(objCallInfo));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(-1));
     ON_CALL(*pMediaProfileManager, GetNegoId(&objISession)).WillByDefault(Return(NEGO_ID));
     ON_CALL(objMediaSession, GetNegoState(NEGO_ID))
@@ -789,7 +795,8 @@ TEST_F(MtcMediaManagerTest, RunIf180IsReceivedInCaseOfUsingDynamicNwToneTimer)
     ON_CALL(objContext, GetCallInfo()).WillByDefault(ReturnRef(objCallInfo));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(0));
     ON_CALL(*pMediaProfileManager, GetNegoId(&objISession)).WillByDefault(Return(NEGO_ID));
     ON_CALL(objMediaSession, GetNegoState(NEGO_ID))
@@ -841,7 +848,8 @@ TEST_F(MtcMediaManagerTest, RunIf180IsReceivedInCaseOfNotUsingDynamicNwToneTimer
     ON_CALL(objContext, GetCallInfo()).WillByDefault(ReturnRef(objCallInfo));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(1));
     ON_CALL(*pMediaProfileManager, GetNegoId(&objISession)).WillByDefault(Return(NEGO_ID));
     ON_CALL(objMediaSession, GetNegoState(NEGO_ID))
@@ -896,7 +904,8 @@ TEST_F(MtcMediaManagerTest, RunIf180IsReceivedAndMessageIsNullInCaseOfLocalToneW
     ON_CALL(objContext, GetCallInfo()).WillByDefault(ReturnRef(objCallInfo));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(2));
     ON_CALL(*pMediaProfileManager, GetNegoId(&objISession)).WillByDefault(Return(NEGO_ID));
     ON_CALL(objMediaSession, GetNegoState(NEGO_ID))
@@ -926,7 +935,8 @@ TEST_F(MtcMediaManagerTest, RunIf180IsReceivedInCaseOfLocalToneWith180ByForce)
     ON_CALL(objContext, GetCallInfo()).WillByDefault(ReturnRef(objCallInfo));
     ON_CALL(objMessageUtils, IsResponseExist(&objISession, SipStatusCode::SC_180))
             .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationManager, GetPolicyForLocalRingbackToneWith180Response())
+    ON_CALL(*pConfigurationProxy,
+            GetInt(ConfigVoice::KEY_POLICY_FOR_LOCAL_RINGBACK_TONE_WITH_180_RESPONSE_INT))
             .WillByDefault(Return(2));
     ON_CALL(*pMediaProfileManager, GetNegoId(&objISession)).WillByDefault(Return(NEGO_ID));
     ON_CALL(objMediaSession, GetNegoState(NEGO_ID))

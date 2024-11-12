@@ -139,7 +139,7 @@ PUBLIC VIRTUAL CallStateName UpdatingState::RejectUpdate(IN const CallReasonInfo
         IMS_SINT32 nRejectCode =
                 ConfigService::GetConfigService()
                         ->GetCarrierConfig(m_objContext.GetSlotId())
-                        ->GetInt(CarrierConfig::ImsVoice::
+                        ->GetInt(ConfigVoice::
                                         KEY_SIP_STATUS_CODE_FOR_REJECTING_CALL_TYPE_CHANGE_INT);
         if (nRejectCode == SipStatusCode::SC_200)
         {
@@ -638,8 +638,9 @@ GLOBAL PUBLIC IMS_BOOL UpdatingState::IsPreconditionRequired(
         IN const MtcConfigurationProxy& objConfigProxy, IN const UpdatingInfo& objInfo)
 {
     return objInfo.IsModified() && !objInfo.IsDowngraded() &&
-            objConfigProxy.GetInt(Feature::POLICY_FOR_CHECKING_QOS_WHILE_CALL_UPGRADING) ==
-            CarrierConfig::ImsVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_DURING_UPGRADING;
+            objConfigProxy.GetInt(
+                    ConfigVoice::KEY_POLICY_FOR_CHECKING_QOS_WHILE_CALL_UPGRADING_INT) ==
+            ConfigVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_DURING_UPGRADING;
 }
 
 PROTECTED VIRTUAL CallStateName UpdatingState::HandleSrvccStarted()
@@ -727,7 +728,8 @@ IMS_RESULT UpdatingState::SendRecoverUpdate()
     pSession->Update(UpdateType::SESSION, IMS_FALSE, SipMethod::INVITE);
 
     m_objContext.GetTimer().Start(TIMER_CONVERT_REMOTE_RESPONSE,
-            m_objContext.GetConfigurationProxy().GetInt(Feature::CONVERT_REMOTE_RESPONSE_TIMER));
+            m_objContext.GetConfigurationProxy().GetInt(
+                    ConfigVt::KEY_CONVERT_REMOTE_RESPONSE_TIMER_MILLIS_INT));
 
     return IMS_SUCCESS;
 }

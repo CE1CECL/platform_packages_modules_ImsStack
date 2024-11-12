@@ -29,7 +29,7 @@
 #include "call/IMtcCall.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/ParticipantInfo.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcLocationObject.h"
 #include "helper/MtcSupplementaryService.h"
@@ -66,8 +66,7 @@ public:
 
     MockIMtcCallContext objContext;
     MockIMtcService objService;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     CallInfo objCallInfo;
     ParticipantInfo* pParticipantInfo;
     MtcSupplementaryService* pSupplementaryService;
@@ -89,8 +88,7 @@ protected:
         ON_CALL(objContext, GetSubscriberConfig).WillByDefault(Return(&objSubscriberConfig));
         ConfigurationManager::GetInstance()->DestroyConfigs();
 
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objContext, GetConfigurationProxy).WillByDefault(ReturnRef(*pConfigurationProxy));
 
         pSupplementaryService = new MtcSupplementaryService(objContext, *pConfigurationProxy);
@@ -162,9 +160,9 @@ TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsFalseIfAosConnecto
 
 TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForWifiNormal)
 {
-    ON_CALL(*pConfigurationManager,
-            IsSupportGeolocationPidfInSipInvite(
-                    CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI))
+    ON_CALL(*pConfigurationProxy,
+            Contains(ConfigIms::KEY_GEOLOCATION_PIDF_IN_SIP_INVITE_SUPPORT_INT_ARRAY,
+                    ConfigIms::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_WIFI))
             .WillByDefault(Return(IMS_TRUE));
 
     objCallInfo.eEmergencyType = EmergencyType::NONE;
@@ -185,9 +183,9 @@ TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForWifiNorma
 TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForWifiEmergency)
 {
     const IMS_BOOL bConfig = IMS_TRUE;
-    ON_CALL(*pConfigurationManager,
-            IsSupportGeolocationPidfInSipInvite(
-                    CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_WIFI))
+    ON_CALL(*pConfigurationProxy,
+            Contains(ConfigIms::KEY_GEOLOCATION_PIDF_IN_SIP_INVITE_SUPPORT_INT_ARRAY,
+                    ConfigIms::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_WIFI))
             .WillByDefault(Return(bConfig));
 
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
@@ -200,9 +198,9 @@ TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForWifiEmerg
 TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForCellularNormal)
 {
     const IMS_BOOL bConfig = IMS_TRUE;
-    ON_CALL(*pConfigurationManager,
-            IsSupportGeolocationPidfInSipInvite(
-                    CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_CELLULAR))
+    ON_CALL(*pConfigurationProxy,
+            Contains(ConfigIms::KEY_GEOLOCATION_PIDF_IN_SIP_INVITE_SUPPORT_INT_ARRAY,
+                    ConfigIms::GEOLOCATION_PIDF_FOR_NON_EMERGENCY_ON_CELLULAR))
             .WillByDefault(Return(bConfig));
 
     objCallInfo.eEmergencyType = EmergencyType::NONE;
@@ -215,9 +213,9 @@ TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForCellularN
 TEST_F(MtcLocationObjectTest, IsGeolocationInfoRequiredReturnsConfigForCellularEmergency)
 {
     const IMS_BOOL bConfig = IMS_TRUE;
-    ON_CALL(*pConfigurationManager,
-            IsSupportGeolocationPidfInSipInvite(
-                    CarrierConfig::Ims::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_CELLULAR))
+    ON_CALL(*pConfigurationProxy,
+            Contains(ConfigIms::KEY_GEOLOCATION_PIDF_IN_SIP_INVITE_SUPPORT_INT_ARRAY,
+                    ConfigIms::GEOLOCATION_PIDF_FOR_EMERGENCY_ON_CELLULAR))
             .WillByDefault(Return(bConfig));
 
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
@@ -440,8 +438,9 @@ TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsEmptyIfNoCreator)
 TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsLocationWithLatAndLong)
 {
     GeolocationHelper::GetInstance()->CreatePidfCreator(SLOT_ID);
-    ON_CALL(*pConfigurationManager, GetInformationLevelOfGeolocationPidf(_, _, _))
-            .WillByDefault(Return(CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG));
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigIms::KEY_INFORMATION_LEVEL_OF_GEOLOCATION_PIDF_INT_ARRAY, _))
+            .WillByDefault(Return(ConfigVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG));
     SetupDeviceLocation();
 
     AString strExpected =
@@ -481,9 +480,9 @@ TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsLocationWithLatAndLong)
 TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsLocationWithLatAndLongAndCivic)
 {
     GeolocationHelper::GetInstance()->CreatePidfCreator(SLOT_ID);
-    ON_CALL(*pConfigurationManager, GetInformationLevelOfGeolocationPidf(_, _, _))
-            .WillByDefault(
-                    Return(CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG_AND_CIVIC));
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigIms::KEY_INFORMATION_LEVEL_OF_GEOLOCATION_PIDF_INT_ARRAY, _))
+            .WillByDefault(Return(ConfigVoice::GEOLOCATION_PIDF_INFO_LAT_AND_LONG_AND_CIVIC));
     SetupDeviceLocation();
 
     AString strExpected =
@@ -529,9 +528,9 @@ TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsLocationWithLatAndLongAnd
 TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsLocationWithCountry)
 {
     GeolocationHelper::GetInstance()->CreatePidfCreator(SLOT_ID);
-    ON_CALL(*pConfigurationManager, GetInformationLevelOfGeolocationPidf(_, _, _))
-            .WillByDefault(
-                    Return(CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_COUNTRY_CODE_ONLY));
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigIms::KEY_INFORMATION_LEVEL_OF_GEOLOCATION_PIDF_INT_ARRAY, _))
+            .WillByDefault(Return(ConfigVoice::GEOLOCATION_PIDF_INFO_COUNTRY_CODE_ONLY));
     SetupDeviceLocation();
 
     AString strExpected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -562,9 +561,9 @@ TEST_F(MtcLocationObjectTest, CreateLocationBodyReturnsLocationWithCountryAndSta
 {
     ConfigurationManager::GetInstance()->RefreshConfigs(objContext.GetSlotId());
     GeolocationHelper::GetInstance()->CreatePidfCreator(SLOT_ID);
-    ON_CALL(*pConfigurationManager, GetInformationLevelOfGeolocationPidf(_, _, _))
-            .WillByDefault(
-                    Return(CarrierConfig::ImsVoice::GEOLOCATION_PIDF_INFO_COUNTRY_CODE_AND_STATE));
+    ON_CALL(*pConfigurationProxy,
+            GetIntFromArray(ConfigIms::KEY_INFORMATION_LEVEL_OF_GEOLOCATION_PIDF_INT_ARRAY, _))
+            .WillByDefault(Return(ConfigVoice::GEOLOCATION_PIDF_INFO_COUNTRY_CODE_AND_STATE));
     SetupDeviceLocation();
 
     AString strExpected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"

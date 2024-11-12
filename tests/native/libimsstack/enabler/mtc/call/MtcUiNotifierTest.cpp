@@ -28,7 +28,7 @@
 #include "call/MtcUiNotifier.h"
 #include "call/ParticipantInfo.h"
 #include "call/UpdatingInfo.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MtcSupplementaryService.h"
 #include "media/MockIMtcMediaManager.h"
@@ -52,8 +52,7 @@ public:
     MockIMtcMediaManager objMediaManager;
     MockIJniEnabler objMockJniEnabler;
     MockIJniMtcCallThread objMockCallThread;
-    MockIMtcConfigurationManager* pConfigurationManager;
-    MtcConfigurationProxy* pConfigurationProxy;
+    MockMtcConfigurationProxy* pConfigurationProxy;
 
     JniEnablerConnector* pConnector;
     MtcUiNotifier* pNotifier;
@@ -74,8 +73,7 @@ protected:
         pParticipantInfo = new ParticipantInfo(objContext);
         pNotifier = new MtcUiNotifier(objContext);
         pUpdatingInfo = new UpdatingInfo(objContext);
-        pConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         pSupplementaryService = new MtcSupplementaryService(objContext, *pConfigurationProxy);
 
         pConnector = &JniEnablerConnector::GetInstance();

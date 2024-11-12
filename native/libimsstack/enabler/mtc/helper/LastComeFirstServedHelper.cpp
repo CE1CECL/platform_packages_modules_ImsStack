@@ -15,6 +15,7 @@
  */
 
 #include "CallReasonInfo.h"
+#include "CarrierConfig.h"
 #include "IMessage.h"
 #include "IMtcContext.h"
 #include "INetworkWatcher.h"
@@ -47,7 +48,7 @@ PUBLIC VIRTUAL LastComeFirstServedHelper::~LastComeFirstServedHelper()
 PUBLIC GLOBAL IMS_BOOL LastComeFirstServedHelper::IsSupported(
         IN const MtcConfigurationProxy& objConfigurationProxy)
 {
-    return objConfigurationProxy.GetInt(Feature::PRE_ALERTING_TIMER) > 0;
+    return objConfigurationProxy.GetInt(ConfigVoice::KEY_PREALERTING_TIMER_MILLIS_INT) > 0;
 }
 
 PUBLIC VIRTUAL void LastComeFirstServedHelper::OnCallReceived(IN CallKey nIncomingCallKey)
@@ -126,8 +127,8 @@ PRIVATE
 void LastComeFirstServedHelper::StartPreAlertingGuardTimer() const
 {
     IMS_TRACE_D("StartPreAlertingGuardTimer", 0, 0, 0);
-    IMS_SINT32 nPreAlertingTime =
-            m_objContext.GetConfigurationProxy().GetInt(Feature::PRE_ALERTING_TIMER);
+    IMS_SINT32 nPreAlertingTime = m_objContext.GetConfigurationProxy().GetInt(
+            ConfigVoice::KEY_PREALERTING_TIMER_MILLIS_INT);
     m_objContext.GetPassiveTimerHolder().AddTimer(
             IPassiveTimerHolder::Type::PRE_ALERTING_GUARD, nPreAlertingTime, IMS_TRUE);
 }

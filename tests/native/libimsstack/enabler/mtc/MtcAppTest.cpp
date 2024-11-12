@@ -25,7 +25,6 @@
 #include "call/IMtcCallManager.h"
 #include "call/radio/IMtcRadioChecker.h"
 #include "conferencecall/IConferenceManager.h"
-#include "configuration/MtcConfigurationManager.h"
 #include "dialingplan/IMtcDialingPlan.h"
 #include "ect/IEctManager.h"
 #include "emergency/IMtcEmergencyServiceManager.h"
@@ -133,8 +132,7 @@ TEST_F(MtcAppTest, ReturnNullForGetServiceForUnknownType)
 
 TEST_F(MtcAppTest, StartDoesNotCreateMultiEndPointManagerIfNotSupported)
 {
-    ON_CALL(m_objMockICarrierConfig,
-            GetBoolean(CarrierConfig::ImsVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL, _))
+    ON_CALL(m_objMockICarrierConfig, GetBoolean(ConfigVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL, _))
             .WillByDefault(Return(IMS_FALSE));
     pMtcApp->Start();
     EXPECT_EQ(pMtcApp->GetMultiEndpointManager(), nullptr);
@@ -143,8 +141,7 @@ TEST_F(MtcAppTest, StartDoesNotCreateMultiEndPointManagerIfNotSupported)
 
 TEST_F(MtcAppTest, StartCreatesMultiEndpointManagerIfSupported)
 {
-    ON_CALL(m_objMockICarrierConfig,
-            GetBoolean(CarrierConfig::ImsVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL, _))
+    ON_CALL(m_objMockICarrierConfig, GetBoolean(ConfigVoice::KEY_MULTIENDPOINT_SUPPORTED_BOOL, _))
             .WillByDefault(Return(IMS_TRUE));
 
     pMtcApp->Start();

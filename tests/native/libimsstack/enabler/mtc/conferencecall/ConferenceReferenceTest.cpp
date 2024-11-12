@@ -33,7 +33,7 @@
 #include "conferencecall/ConferenceDef.h"
 #include "conferencecall/ConferenceReference.h"
 #include "conferencecall/MockIConferenceReferenceListener.h"
-#include "configuration/MockIMtcConfigurationManager.h"
+#include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockICallStateProxy.h"
 #include "helper/sipinterfaceholder/MockIInterfaceHolderListener.h"
@@ -62,8 +62,7 @@ public:
     ConferenceReference* pConferenceReference;
     MockIMtcContext objMockContext;
     MockIConferenceReferenceListener objMockListener;
-    MtcConfigurationProxy* pConfigurationProxy;
-    MockIMtcConfigurationManager* pMockConfigurationManager;
+    MockMtcConfigurationProxy* pConfigurationProxy;
     MockICallStateProxy objMockCallStateProxy;
     MockIMtcSipInterfaceFactory objMockInterfaceFactory;
     MockReferenceInterfaceHolder* pMockReferenceInterfaceHolder;
@@ -91,8 +90,7 @@ public:
 protected:
     virtual void SetUp() override
     {
-        pMockConfigurationManager = new MockIMtcConfigurationManager();
-        pConfigurationProxy = new MtcConfigurationProxy(pMockConfigurationManager);
+        pConfigurationProxy = new MockMtcConfigurationProxy();
         ON_CALL(objMockContext, GetConfigurationProxy)
                 .WillByDefault(ReturnRef(*pConfigurationProxy));
         ON_CALL(objMockContext, GetMessageUtils).WillByDefault(ReturnRef(objMessageUtils));
@@ -205,7 +203,8 @@ TEST_F(ConferenceReferenceTest, Constructor)
 
 TEST_F(ConferenceReferenceTest, OnReferenceDeliveredAndSubsSupported)
 {
-    ON_CALL(*pMockConfigurationManager, IsSupportConferenceReferSubscribe)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_SUPPORT_CONFERENCE_REFER_SUBSCRIBE_BOOL))
             .WillByDefault(Return(IMS_TRUE));
 
     EXPECT_CALL(objMockListener, OnReferenceStarted(_)).Times(1);
@@ -215,7 +214,8 @@ TEST_F(ConferenceReferenceTest, OnReferenceDeliveredAndSubsSupported)
 
 TEST_F(ConferenceReferenceTest, OnReferenceDeliveredInvokesOnReferenceStartedWithNoRefer)
 {
-    ON_CALL(*pMockConfigurationManager, IsSupportConferenceReferSubscribe)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_SUPPORT_CONFERENCE_REFER_SUBSCRIBE_BOOL))
             .WillByDefault(Return(IMS_FALSE));
     ON_CALL(objMockReference, GetPreviousResponse(IMessage::REFERENCE_REFER))
             .WillByDefault(Return(static_cast<IMessage*>(IMS_NULL)));
@@ -227,7 +227,8 @@ TEST_F(ConferenceReferenceTest, OnReferenceDeliveredInvokesOnReferenceStartedWit
 
 TEST_F(ConferenceReferenceTest, OnReferenceDeliveredAndNoSubsSupported)
 {
-    ON_CALL(*pMockConfigurationManager, IsSupportConferenceReferSubscribe)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_SUPPORT_CONFERENCE_REFER_SUBSCRIBE_BOOL))
             .WillByDefault(Return(IMS_FALSE));
 
     MockIMessage objMockMessage;
@@ -242,7 +243,8 @@ TEST_F(ConferenceReferenceTest, OnReferenceDeliveredAndNoSubsSupported)
 
 TEST_F(ConferenceReferenceTest, OnReferenceDeliveredInvokesOnReferenceStartFailed)
 {
-    ON_CALL(*pMockConfigurationManager, IsSupportConferenceReferSubscribe)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_SUPPORT_CONFERENCE_REFER_SUBSCRIBE_BOOL))
             .WillByDefault(Return(IMS_FALSE));
 
     MockIMessage objMockMessage;
@@ -316,7 +318,8 @@ TEST_F(ConferenceReferenceTest, SendInviteFailedWithTerminatingState)
 
 TEST_F(ConferenceReferenceTest, SendInviteInvokesSendInviteForSingleUser)
 {
-    ON_CALL(*pMockConfigurationManager, IsConferenceReferToUriSourcePaid)
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_CONFERENCE_REFER_TO_URI_SOURCE_PAID_BOOL))
             .WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(*pMockReferenceInterfaceHolder, GetIReference(_, _, _))
@@ -343,9 +346,14 @@ TEST_F(ConferenceReferenceTest, SendInviteInvokesSendInviteForMultipleUser)
     ConferenceReference* pConferenceReferenceWithMultipleUser = new ConferenceReference(
             objMockContext, CONFERENCE_CALL_KEY, objConfUsers, objMockListener);
 
-    EXPECT_CALL(*pMockConfigurationManager, IsConferenceReferToUriSourcePaid).Times(0);
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_SUPPORT_CONFERENCE_REFER_SUBSCRIBE_BOOL))
+            .Times(1);
+    EXPECT_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_CONFERENCE_REFER_TO_URI_SOURCE_PAID_BOOL))
+            .Times(0);
 
-    ON_CALL(*pMockConfigurationManager, GetConferenceFactoryUri)
+    ON_CALL(*pConfigurationProxy, GetString(ConfigVoice::KEY_CONFERENCE_FACTORY_URI_STRING))
             .WillByDefault(Return(AString("sip:conference-factory1@mrfc1.home1.net")));
     ON_CALL(*pMockReferenceInterfaceHolder, GetIReference(_, _, _))
             .WillByDefault(Return(&objMockReference));
