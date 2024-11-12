@@ -39,8 +39,6 @@ __IMS_TRACE_TAG_COM_MTC__;
 
 LOCAL const AString HEADER_P_EMERGENCY_INFO = "P-Emergency-Info";
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 EmergencyMessageFormatter::EmergencyMessageFormatter(
         IN IMtcCallContext& objContext, IN ISession& objSession) :
         MessageFormatter(objContext, objSession),
@@ -50,15 +48,11 @@ EmergencyMessageFormatter::EmergencyMessageFormatter(
     IMS_TRACE_I("+EmergencyMessageFormatter", 0, 0, 0);
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PUBLIC VIRTUAL EmergencyMessageFormatter::~EmergencyMessageFormatter()
 {
     IMS_TRACE_I("~EmergencyMessageFormatter", 0, 0, 0);
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PUBLIC VIRTUAL IMS_RESULT EmergencyMessageFormatter::FormStartMessage(IN CallType eCallType)
 {
     if (MessageFormatter::FormStartMessage(eCallType) == IMS_FAILURE)
@@ -82,8 +76,6 @@ PUBLIC VIRTUAL IMS_RESULT EmergencyMessageFormatter::FormStartMessage(IN CallTyp
     return IMS_SUCCESS;
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PROTECTED VIRTUAL
 void EmergencyMessageFormatter::SetAcceptHeader()
 {
@@ -100,8 +92,6 @@ void EmergencyMessageFormatter::SetAcceptHeader()
             ISipHeader::ACCEPT);
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 void EmergencyMessageFormatter::SetPPreferredIdentityHeader()
 {
@@ -122,8 +112,6 @@ void EmergencyMessageFormatter::SetPPreferredIdentityHeader()
     SetPPreferredIdentityHeaderByUserId();
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByUserId()
 {
@@ -149,8 +137,6 @@ void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByUserId()
     }
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByDeviceId()
 {
@@ -203,8 +189,6 @@ void EmergencyMessageFormatter::SetPPreferredIdentityHeaderByDeviceId()
             m_piNextMessage, strValue, ISipHeader::P_PREFERRED_IDENTITY);
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 void EmergencyMessageFormatter::SetSipInstanceFeature()
 {
@@ -235,8 +219,6 @@ void EmergencyMessageFormatter::SetSipInstanceFeature()
     piFeatureCaps->AddFeature(pParameter->GetName(), pParameter->GetValue());
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 void EmergencyMessageFormatter::SetRecvInfoHeader()
 {
@@ -250,8 +232,6 @@ void EmergencyMessageFormatter::SetRecvInfoHeader()
             MessageUtil::STR_PACKAGE_CURRENT_LOCATION_DISCOVERY, ISipHeader::RECV_INFO);
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 void EmergencyMessageFormatter::SetPEmergencyInfoHeader()
 {
@@ -275,8 +255,6 @@ void EmergencyMessageFormatter::SetPEmergencyInfoHeader()
             m_piNextMessage, strPei, ISipHeader::UNKNOWN, HEADER_P_EMERGENCY_INFO);
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 IMS_UINT32 EmergencyMessageFormatter::GetAosRegMode(IN ServiceType eServiceType) const
 {
@@ -289,8 +267,6 @@ IMS_UINT32 EmergencyMessageFormatter::GetAosRegMode(IN ServiceType eServiceType)
     return pAosConnector->GetRegistrationMode();
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 IMS_RESULT EmergencyMessageFormatter::GetLocalIpAddress(OUT AString& strIpAddress) const
 {
@@ -310,8 +286,6 @@ IMS_RESULT EmergencyMessageFormatter::GetLocalIpAddress(OUT AString& strIpAddres
     return IMS_SUCCESS;
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 IMS_UINT32 EmergencyMessageFormatter::GetLocalPort() const
 {
@@ -324,8 +298,6 @@ IMS_UINT32 EmergencyMessageFormatter::GetLocalPort() const
     return pAosConnector->GetLocalPort();
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 AString EmergencyMessageFormatter::GetWifiCallingAddressId() const
 {
@@ -334,8 +306,6 @@ AString EmergencyMessageFormatter::GetWifiCallingAddressId() const
             ->GetWifiCallingAddressId();
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 AString EmergencyMessageFormatter::GetDeviceId() const
 {
@@ -345,8 +315,6 @@ AString EmergencyMessageFormatter::GetDeviceId() const
     return strDeviceId;
 }
 
-/* -------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------- */
 PRIVATE
 AString EmergencyMessageFormatter::GetMacAddress() const
 {
