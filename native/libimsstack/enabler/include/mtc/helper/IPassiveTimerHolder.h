@@ -44,10 +44,10 @@ public:
      * @brief Adds a timer with a specific type.
      *
      * @param eType The type of the timer.
-     * @param nTimeInMillis The duration time of the timer to be active.
+     * @param nTimeInMillis The duration time of the timer to be active. Do nothing if < 0.
      * @param bAllowReset Reset the active timer if it is true.
      */
-    virtual void AddTimer(IN IPassiveTimerHolder::Type eType, IN IMS_UINT32 nTimeInMillis,
+    virtual void AddTimer(IN IPassiveTimerHolder::Type eType, IN IMS_SINT32 nTimeInMillis,
             IN IMS_BOOL bAllowReset = IMS_FALSE) = 0;
 
     /**
