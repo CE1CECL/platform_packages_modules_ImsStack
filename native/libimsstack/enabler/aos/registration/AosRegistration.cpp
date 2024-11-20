@@ -2751,6 +2751,16 @@ PROTECTED VIRTUAL void AosRegistration::ClearRetryCount(IN IMS_BOOL bForced /* =
 
     A_IMS_TRACE_D(REGID, "ClearRetryCount :: (%d) -> (%d)", m_nConsecutiveFailure, 0, 0);
     m_nConsecutiveFailure = 0;
+
+    if (GET_N_CONFIG(m_piContext->GetSlotId())->IsExtraRegErrRetryCntSharedForRegAndSubRequired())
+    {
+        IMS_UINT32 nType = (m_eRegType == AosRegistrationType::EMERGENCY)
+                ? AosRetryRepository::TYPE_EMERGENCY
+                : AosRetryRepository::TYPE_NORMAL;
+        AosProvider::GetInstance()
+                ->GetRetryRepository(m_piContext->GetSlotId())
+                ->ResetRetryCount(nType);
+    }
 }
 
 PROTECTED VIRTUAL void AosRegistration::ClearRetryValues(IN IMS_BOOL bRegSuccess /* = IMS_FALSE */)
@@ -4973,8 +4983,9 @@ PROTECTED VIRTUAL void AosRegistration::Registration_Started()
     ClearAuthChallengedCount();
     ClearAuthIpsecCount();
 
-    if (GET_N_CONFIG(m_nSlotId)->GetRegRetryCountResetPolicy() ==
-            CarrierConfig::Assets::REG_RETRY_CNT_RESET_POLICY_REGISTRATION)
+    if (m_eRegType != AosRegistrationType::NORMAL ||
+            GET_N_CONFIG(m_nSlotId)->GetRegRetryCountResetPolicy() ==
+                    CarrierConfig::Assets::REG_RETRY_CNT_RESET_POLICY_REGISTRATION)
     {
         ClearRetryCount(IMS_TRUE);
     }
@@ -5073,8 +5084,9 @@ PROTECTED VIRTUAL void AosRegistration::Registration_Updated()
     ClearAuthIpsecCount();
     SetReregFailureReportOnIpcanChangeRequired(IMS_FALSE);
 
-    if (GET_N_CONFIG(m_nSlotId)->GetRegRetryCountResetPolicy() ==
-            CarrierConfig::Assets::REG_RETRY_CNT_RESET_POLICY_REGISTRATION)
+    if (m_eRegType != AosRegistrationType::NORMAL ||
+            GET_N_CONFIG(m_nSlotId)->GetRegRetryCountResetPolicy() ==
+                    CarrierConfig::Assets::REG_RETRY_CNT_RESET_POLICY_REGISTRATION)
     {
         ClearRetryCount(IMS_TRUE);
     }
