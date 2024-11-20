@@ -1553,6 +1553,20 @@ TEST_F(AosRegistrationTest, RetryCount)
     EXPECT_EQ(m_pAosRegistration->GetConsecutiveFailureCount(), 0);
 }
 
+TEST_F(AosRegistrationTest, ResetRetryCountWhenRetryCntSharedRegAndSubIsSupported)
+{
+    m_pAosRegistration->SetRegType(AosRegistrationType::NORMAL);
+    ON_CALL(m_objMockIAosNConfiguration, GetRegRetryCountResetPolicy())
+            .WillByDefault(Return(CarrierConfig::Assets::REG_RETRY_CNT_RESET_POLICY_NOTIFY));
+    ON_CALL(m_objMockIAosNConfiguration, IsExtraRegErrRetryCntSharedForRegAndSubRequired())
+            .WillByDefault(Return(IMS_TRUE));
+
+    // AosRetryRepository::TYPE_NORMAL = 0
+    EXPECT_CALL(m_objMockIAosRetryRepository, ResetRetryCount(0));
+
+    m_pAosRegistration->ClearRetryCount(IMS_TRUE);
+}
+
 TEST_F(AosRegistrationTest, AddSpecificOperationWhileInRoamingAddsIpsecBlockReason)
 {
     m_pAosRegistration->SetRegType(AosRegistrationType::EMERGENCY);
