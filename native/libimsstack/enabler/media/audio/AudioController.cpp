@@ -24,8 +24,8 @@ __IMS_TRACE_TAG_MEDIA__;
 PUBLIC
 AudioController::AudioController() :
         m_listAudioSession(ImsList<AudioMediaSession*>()),
-        m_nAudioSessionState(AudioMediaSession::STATE_NONE),
-        m_eUpdateCondition(EARLY_SESSION),
+        m_eMediaState(AudioMediaSession::STATE_NONE),
+        m_eCallState(EARLY_SESSION),
         m_objLocalAddr(IpAddress::IPv6NONE),
         m_nPort(0),
         m_nCurrentActiveNegoId(UNDEFINED_NEGO_ID)
@@ -36,9 +36,9 @@ AudioController::AudioController() :
 PUBLIC
 AudioController::~AudioController()
 {
-    IMS_TRACE_I("~AudioController() - state[%d]", m_nAudioSessionState, 0, 0);
+    IMS_TRACE_I("~AudioController() - state[%d]", m_eMediaState, 0, 0);
 
-    if (m_nAudioSessionState != AudioMediaSession::STATE_NONE)
+    if (m_eMediaState != AudioMediaSession::STATE_NONE)
     {
         CloseSession();
     }
@@ -51,11 +51,11 @@ void AudioController::SetConfirmSession(IN IMS_BOOL bConfirmed)
 {
     if (bConfirmed)
     {
-        m_eUpdateCondition = CONFIRMED_SESSION;
+        m_eCallState = CONFIRMED_SESSION;
     }
     else
     {
-        m_eUpdateCondition = EARLY_SESSION;
+        m_eCallState = EARLY_SESSION;
     }
 }
 
@@ -113,7 +113,7 @@ IMS_BOOL AudioController::UpdateSession(
     IMS_TRACE_D("UpdateSession() - res: %d, anbr enable: %d", bAnbrResult,
             pNego->ProfileCasting(pNego->GetNegotiatedNegoProfile())->IsAnbrSupported(), 0);
 
-    if (m_eUpdateCondition == READY_TO_CONFIRM && m_listAudioSession.GetSize() > 1)
+    if (m_eCallState == READY_TO_CONFIRM && m_listAudioSession.GetSize() > 1)
     {
         UpdateRtpConfig(nNegoId, nAccessNetwork, pNego);
         UpdateQualityThreshold(nNegoId, pNego);
@@ -152,13 +152,13 @@ IMS_BOOL AudioController::OpenSession(IN IMS_UINTP nNegoId)
 
     AudioMediaSession* pAudioSession = FindAudioSession(nNegoId);
 
-    if (pAudioSession != IMS_NULL && m_nAudioSessionState == AudioMediaSession::STATE_NONE)
+    if (pAudioSession != IMS_NULL && m_eMediaState == AudioMediaSession::STATE_NONE)
     {
         pAudioSession->SetLocalEndPoint(m_objLocalAddr, m_nPort);
 
         if (pAudioSession->Open() == IMS_TRUE)
         {
-            m_nAudioSessionState = AudioMediaSession::STATE_IDLE;
+            m_eMediaState = AudioMediaSession::STATE_IDLE;
             return IMS_TRUE;
         }
     }
@@ -181,12 +181,12 @@ IMS_BOOL AudioController::AddSession(
     AudioMediaSession* pAudioSession = FindAudioSession(nNegoId);
     IMS_BOOL bResult = IMS_FALSE;
 
-    if (pAudioSession != IMS_NULL && m_nAudioSessionState != AudioMediaSession::STATE_NONE)
+    if (pAudioSession != IMS_NULL && m_eMediaState != AudioMediaSession::STATE_NONE)
     {
         if (UpdateRtpConfig(nNegoId, nAccessNetwork, pNego) == IMS_TRUE)
         {
             UpdateQualityThreshold(nNegoId, pNego);
-            pAudioSession->SetMediaQuality(m_eUpdateCondition);
+            pAudioSession->SetMediaQuality(m_eCallState);
             bResult = pAudioSession->Add();
         }
     }
@@ -252,8 +252,8 @@ IMS_BOOL AudioController::ConfirmSession(IN IMS_UINTP nNegoId)
             }
         }
 
-        m_eUpdateCondition = CONFIRMED_SESSION;
-        pAudioSession->SetMediaQuality(m_eUpdateCondition);
+        m_eCallState = CONFIRMED_SESSION;
+        pAudioSession->SetMediaQuality(m_eCallState);
 
         return IMS_TRUE;
     }
@@ -286,7 +286,7 @@ IMS_BOOL AudioController::SetMediaQuality(IN IMS_UINTP nNegoId)
 
     if (pAudioSession != NULL)
     {
-        return pAudioSession->SetMediaQuality(m_eUpdateCondition);
+        return pAudioSession->SetMediaQuality(m_eCallState);
     }
 
     return IMS_FALSE;
@@ -322,14 +322,14 @@ IMS_BOOL AudioController::DeleteSession(IN IMS_UINTP nNegoId)
 PUBLIC
 IMS_BOOL AudioController::CloseSession()
 {
-    IMS_TRACE_I("CloseSession() - state[%d]", m_nAudioSessionState, 0, 0);
+    IMS_TRACE_I("CloseSession() - state[%d]", m_eMediaState, 0, 0);
     AudioMediaSession* pAudioSession = FindAudioSession();
 
     if (pAudioSession != IMS_NULL)
     {
         if (pAudioSession->Close() == IMS_TRUE)
         {
-            m_nAudioSessionState = AudioMediaSession::STATE_NONE;
+            m_eMediaState = AudioMediaSession::STATE_NONE;
             ClearSession();
             return IMS_TRUE;
         }
@@ -422,7 +422,7 @@ IMS_BOOL AudioController::UpdateAccessNetwork(IN IMS_UINT32 accessNetwork)
             IMS_BOOL bResult = pAudioSession->Modify();
             if (bResult)
             {
-                pAudioSession->SetMediaQuality(m_eUpdateCondition);
+                pAudioSession->SetMediaQuality(m_eCallState);
             }
 
             return bResult;
@@ -465,7 +465,7 @@ IMS_BOOL AudioController::UpdateQualityThreshold(IN IMS_UINTP nNegoId, IN AudioN
         }
 
         return pAudioSession->UpdateMediaQualityThreshold(
-                !MEDIA_DIRECTION_IS_AUDIO_HOLD(pAudioSession->GetDirection()), m_eUpdateCondition,
+                !MEDIA_DIRECTION_IS_AUDIO_HOLD(pAudioSession->GetDirection()), m_eCallState,
                 bEnableRtcp);
     }
 
