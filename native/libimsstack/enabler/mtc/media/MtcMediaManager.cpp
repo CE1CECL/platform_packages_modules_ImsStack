@@ -586,6 +586,22 @@ PUBLIC VIRTUAL void MtcMediaManager::AdjustDirectionForAutoAnswer()
     }
 }
 
+PUBLIC VIRTUAL void MtcMediaManager::AdjustDirectionForLocalResourceConfirmation(
+        IN CallType eCallType)
+{
+    SetDirectionToActiveFromInactive(MEDIATYPE_AUDIO, m_pMediaInfo->eAudioDirection);
+
+    if (eCallType == CallType::VT || eCallType == CallType::VIDEO_RTT)
+    {
+        SetDirectionToActiveFromInactive(MEDIATYPE_VIDEO, m_pMediaInfo->eVideoDirection);
+    }
+
+    if (eCallType == CallType::RTT || eCallType == CallType::VIDEO_RTT)
+    {
+        SetDirectionToActiveFromInactive(MEDIATYPE_TEXT, m_pMediaInfo->eTextDirection);
+    }
+}
+
 PUBLIC VIRTUAL void MtcMediaManager::SetSrvccState(IN SrvccState eState)
 {
     if (!m_piMediaSession)
@@ -873,4 +889,13 @@ IMS_BOOL MtcMediaManager::IsDynamicRbtRequired(IN ISession* piSession)
     }
 
     return IMS_TRUE;
+}
+
+PRIVATE
+void MtcMediaManager::SetDirectionToActiveFromInactive(IN IMS_UINT32 eMediaType, IN IMS_SINT32 eDir)
+{
+    if (eDir == DIRECTION_INACTIVE)
+    {
+        UpdateMediaDirection(eMediaType, DIRECTION_SEND_RECEIVE);
+    }
 }

@@ -1219,6 +1219,63 @@ TEST_F(MtcMediaManagerTest, AdjustDirectionForAutoAnswerSetsDirectionToInactiveF
     EXPECT_EQ(pMediaManager->GetMediaInfo().eTextDirection, DIRECTION_INACTIVE);
 }
 
+TEST_F(MtcMediaManagerTest,
+        AdjustDirectionForLocalResourceConfirmationSetDirectionToActiveFromInactiveOnVoip)
+{
+    MediaInfo objMediaInfo;
+    objMediaInfo.eAudioDirection = DIRECTION_INACTIVE;
+    pMediaManager->SetMediaInfo(objMediaInfo);
+
+    pMediaManager->AdjustDirectionForLocalResourceConfirmation(CallType::VOIP);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eAudioDirection, DIRECTION_SEND_RECEIVE);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eVideoDirection, DIRECTION_INVALID);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eTextDirection, DIRECTION_INVALID);
+}
+
+TEST_F(MtcMediaManagerTest,
+        AdjustDirectionForLocalResourceConfirmationSetDirectionToActiveFromInactiveOnVt)
+{
+    MediaInfo objMediaInfo;
+    objMediaInfo.eAudioDirection = DIRECTION_INACTIVE;
+    objMediaInfo.eVideoDirection = DIRECTION_INACTIVE;
+    pMediaManager->SetMediaInfo(objMediaInfo);
+
+    pMediaManager->AdjustDirectionForLocalResourceConfirmation(CallType::VT);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eAudioDirection, DIRECTION_SEND_RECEIVE);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eVideoDirection, DIRECTION_SEND_RECEIVE);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eTextDirection, DIRECTION_INVALID);
+}
+
+TEST_F(MtcMediaManagerTest,
+        AdjustDirectionForLocalResourceConfirmationSetDirectionToActiveFromInactiveOnVideoRtt)
+{
+    MediaInfo objMediaInfo;
+    objMediaInfo.eAudioDirection = DIRECTION_INACTIVE;
+    objMediaInfo.eVideoDirection = DIRECTION_INACTIVE;
+    objMediaInfo.eTextDirection = DIRECTION_INACTIVE;
+    pMediaManager->SetMediaInfo(objMediaInfo);
+
+    pMediaManager->AdjustDirectionForLocalResourceConfirmation(CallType::VIDEO_RTT);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eAudioDirection, DIRECTION_SEND_RECEIVE);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eVideoDirection, DIRECTION_SEND_RECEIVE);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eTextDirection, DIRECTION_SEND_RECEIVE);
+}
+
+TEST_F(MtcMediaManagerTest,
+        AdjustDirectionForLocalResourceConfirmationDoesNothingIfAlreadyActiveDirection)
+{
+    MediaInfo objMediaInfo;
+    objMediaInfo.eAudioDirection = DIRECTION_SEND_RECEIVE;
+    objMediaInfo.eVideoDirection = DIRECTION_SEND;
+    objMediaInfo.eTextDirection = DIRECTION_RECEIVE;
+    pMediaManager->SetMediaInfo(objMediaInfo);
+
+    pMediaManager->AdjustDirectionForLocalResourceConfirmation(CallType::VIDEO_RTT);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eAudioDirection, DIRECTION_SEND_RECEIVE);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eVideoDirection, DIRECTION_SEND);
+    EXPECT_EQ(pMediaManager->GetMediaInfo().eTextDirection, DIRECTION_RECEIVE);
+}
+
 TEST_F(MtcMediaManagerTest, IsOnHoldReturnsTrueIfAudioDirectionIsNotSendReceiveAndInvalid)
 {
     MediaInfo objMediaInfo;

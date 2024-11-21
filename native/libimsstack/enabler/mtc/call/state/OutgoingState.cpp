@@ -112,6 +112,9 @@ PUBLIC VIRTUAL CallStateName OutgoingState::QosReserved(
         return GetStateName();
     }
 
+    m_objContext.GetMediaManager().AdjustDirectionForLocalResourceConfirmation(
+            m_objContext.GetSession(piSession)->GetCallType());
+
     if (SendEarlyUpdate(UpdateType::NORMAL, m_objContext.GetSession(piSession)) == IMS_FAILURE)
     {
         IMS_TRACE_D("QosReserved : Fail to send early UPDATE.", 0, 0, 0);
@@ -388,6 +391,8 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionPrackDelivered(IN ISession* p
             return GetStateName();
         }
 
+        objMediaManager.AdjustDirectionForLocalResourceConfirmation(pSession->GetCallType());
+
         if (SendEarlyUpdate(UpdateType::NORMAL, m_objContext.GetSession(piSession)) == IMS_FAILURE)
         {
             CallReasonInfo objReason(CODE_REJECT_INTERNAL_ERROR);
@@ -577,7 +582,13 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionRprReceived(
     }
     else
     {
-        if (pSession->SendPrack(IsNeedToSendLocalResourceConfirmation(piSession)) == IMS_FAILURE)
+        IMS_BOOL bNeedToConfirm = IsNeedToSendLocalResourceConfirmation(piSession);
+        if (bNeedToConfirm)
+        {
+            objMediaManager.AdjustDirectionForLocalResourceConfirmation(pSession->GetCallType());
+        }
+
+        if (pSession->SendPrack(bNeedToConfirm) == IMS_FAILURE)
         {
             CallReasonInfo objReason(CODE_LOCAL_INTERNAL_ERROR);
             HandleCancel(piSession, objReason);
