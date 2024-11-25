@@ -26,7 +26,7 @@
 class AudioController
 {
 public:
-    enum AudioUpdateCondition
+    enum AudioCallSessionState
     {
         EARLY_SESSION = 0,
         READY_TO_CONFIRM,   // session just become confirm
@@ -243,8 +243,8 @@ private:
     void ClearSession();
 
     ImsList<AudioMediaSession*> m_listAudioSession;
-    IMS_SINT32 m_nAudioSessionState;
-    IMS_UINT32 m_eUpdateCondition;
+    IMS_UINT32 m_eMediaState;
+    IMS_UINT32 m_eCallState;
     IpAddress m_objLocalAddr;
     IMS_UINT32 m_nPort;
     IMS_UINTP m_nCurrentActiveNegoId;
