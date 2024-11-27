@@ -40,8 +40,8 @@ PUBLIC VIRTUAL CallWaitingBlockRule::Result CallWaitingBlockRule::Check(
         return Result(Result::Status::UNBLOCKED);
     }
 
-    if (m_objService.GetTbcwStatus() == TbcwStatus::UNPROVISIONED ||
-            m_objService.GetTbcwStatus() == TbcwStatus::PROVISIONED_ENABLED)
+    if (m_objService.GetTbcwStatus() == SuppStatus::UNPROVISIONED ||
+            m_objService.GetTbcwStatus() == SuppStatus::PROVISIONED_ENABLED)
     {
         return Result(Result::Status::UNBLOCKED);
     }

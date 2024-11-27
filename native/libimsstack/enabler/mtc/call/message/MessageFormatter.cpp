@@ -147,7 +147,6 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormStartMessage(IN CallType eCallTy
     SetPPreferredServiceHeader();
     AddSrvccFeature();
     SetCallerIdHeader();
-    // SetTipHeader();
     SetPEarlyMediaHeader();
     SetReplacesHeader();
     SetCarrierSpecificHeaders();
@@ -173,7 +172,7 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormProvisionalResponseMessage(
 
     SetAlertInfoHeader(bIncludeAlertInfo);
     AddSrvccFeature();
-    // SetTipHeader();
+    SetTipHeader();
 
     if (m_objContext.GetConfigurationProxy().Contains(
                 ConfigVoice::KEY_MESSAGE_TYPE_SUPPORT_GEOLOCATION_PIDF_INT_ARRAY,
@@ -237,7 +236,7 @@ PUBLIC VIRTUAL IMS_RESULT MessageFormatter::FormAcceptMessage()
     }
 
     SetSrvccContactParameter();
-    // SetTipHeader();
+    SetTipHeader();
     SetCarrierSpecificHeaders();
 
     if (m_objContext.GetConfigurationProxy().Contains(
@@ -523,38 +522,15 @@ void MessageFormatter::SetCallerIdHeader()
     }
 }
 
-// PRIVATE
-// void MessageFormatter::SetTipHeader()
-// {
-//     if (!m_objContext.GetSession()->GetExtensionSet()
-//                 .IsAvailableOnBoth(MtcExtensionSet::OPTION_TAG_FROM_CHANGE))
-//     {
-//         return;
-//     }
-
-//     if (m_eFormType != FormType::PROVISIONAL_RESPONSE)
-//     {
-//         return;
-//     }
-
-//     IMS_SINT32 eTipMode = TIP_MODE_TEMPORARY;  // TODO, SESSION_SP_TIP_MODE
-//     if (eTipMode != TIP_MODE_TEMPORARY)
-//     {
-//         return;
-//     }
-
-//     IMS_SINT32 eTipType = TIP_TYPE_IDENTITY;  // TODO, from user settings
-//     if (eTipType == TIP_TYPE_RESTRICTED)
-//     {
-//         m_objContext.GetMessageUtils().SetHeader(m_piNextMessage, MessageUtil::STR_ID,
-//         ISipHeader::PRIVACY);
-//     }
-//     else if (eTipType == TIP_TYPE_IDENTITY)
-//     {
-//         m_objContext.GetMessageUtils().SetHeader(m_piNextMessage, MessageUtil::STR_NONE,
-//         ISipHeader::PRIVACY);
-//     }
-// }
+PRIVATE
+void MessageFormatter::SetTipHeader()
+{
+    if (m_objContext.GetService().GetTirStatus() == SuppStatus::PROVISIONED_ENABLED)
+    {
+        m_objContext.GetMessageUtils().SetHeader(
+                m_piNextMessage, MessageUtil::STR_ID, ISipHeader::PRIVACY);
+    }
+}
 
 PRIVATE
 void MessageFormatter::SetPEarlyMediaHeader()

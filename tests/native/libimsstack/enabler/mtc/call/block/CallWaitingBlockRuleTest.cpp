@@ -101,7 +101,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsUnblockedIfActiveCallExistsAndCwUnp
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::UPDATING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::UNPROVISIONED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::UNPROVISIONED));
 
     Result objResult = pBlockRule->Check(objListener);
 
@@ -118,7 +118,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsUnblockedIfActiveCallExistsAndCwEna
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::UPDATING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_ENABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_ENABLED));
 
     Result objResult = pBlockRule->Check(objListener);
 
@@ -130,7 +130,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsBlockedIfIdleCallExistsAndCwDisable
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::IDLE));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_DISABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_DISABLED));
 
     Result objResult = pBlockRule->Check(objListener);
 
@@ -143,7 +143,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsBlockedIfOutgoingCallExistsAndCwDis
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::OUTGOING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_DISABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_DISABLED));
 
     Result objResult = pBlockRule->Check(objListener);
 
@@ -156,7 +156,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsBlockedIfIncomingCallExistsAndCwDis
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::INCOMING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_DISABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_DISABLED));
     Result objResult = pBlockRule->Check(objListener);
 
     EXPECT_EQ(Result::Status::BLOCKED, objResult.eStatus);
@@ -168,7 +168,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsBlockedIfAlertingCallExistsAndCwDis
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::ALERTING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_DISABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_DISABLED));
 
     Result objResult = pBlockRule->Check(objListener);
 
@@ -181,7 +181,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsBlockedIfEstablishedCallExistsAndCw
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::ESTABLISHED));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_DISABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_DISABLED));
 
     Result objResult = pBlockRule->Check(objListener);
 
@@ -194,7 +194,7 @@ TEST_F(CallWaitingBlockRuleTest, CheckReturnsBlockedIfHasUpdatingCallAndCwDisabl
     lstOtherCalls.Append(CreateMockIMtcCall(IMtcCall::State::UPDATING));
     ON_CALL(objContext, GetOtherCalls).WillByDefault(Return(lstOtherCalls));
 
-    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(TbcwStatus::PROVISIONED_DISABLED));
+    ON_CALL(objService, GetTbcwStatus).WillByDefault(Return(SuppStatus::PROVISIONED_DISABLED));
 
     Result objResult = pBlockRule->Check(objListener);
 

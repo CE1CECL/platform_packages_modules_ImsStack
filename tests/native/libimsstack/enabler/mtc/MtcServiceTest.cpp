@@ -691,7 +691,7 @@ TEST_F(MtcServiceTest, GetSrvccStateReturnsValueFromSrvccStateManager)
 
 TEST_F(MtcServiceTest, SetAndCheckTerminalBasedCallWaiting)
 {
-    EXPECT_EQ(TbcwStatus::UNPROVISIONED, pNormalMtcService->GetTbcwStatus());
+    EXPECT_EQ(SuppStatus::UNPROVISIONED, pNormalMtcService->GetTbcwStatus());
 
     ImsVector<IMS_SINT32> objTbcw;
     objTbcw.Add(0);
@@ -705,16 +705,16 @@ TEST_F(MtcServiceTest, SetAndCheckTerminalBasedCallWaiting)
             .WillOnce(Return(objTbcw));
 
     pNormalMtcService->SetTerminalBasedCallWaiting(IMS_FALSE);
-    EXPECT_EQ(TbcwStatus::UNPROVISIONED, pNormalMtcService->GetTbcwStatus());
+    EXPECT_EQ(SuppStatus::UNPROVISIONED, pNormalMtcService->GetTbcwStatus());
 
     pNormalMtcService->SetTerminalBasedCallWaiting(IMS_FALSE);
-    EXPECT_EQ(TbcwStatus::PROVISIONED_DISABLED, pNormalMtcService->GetTbcwStatus());
+    EXPECT_EQ(SuppStatus::PROVISIONED_DISABLED, pNormalMtcService->GetTbcwStatus());
 
     pNormalMtcService->SetTerminalBasedCallWaiting(IMS_TRUE);
-    EXPECT_EQ(TbcwStatus::PROVISIONED_DISABLED, pNormalMtcService->GetTbcwStatus());
+    EXPECT_EQ(SuppStatus::PROVISIONED_DISABLED, pNormalMtcService->GetTbcwStatus());
 
     pNormalMtcService->SetTerminalBasedCallWaiting(IMS_TRUE);
-    EXPECT_EQ(TbcwStatus::PROVISIONED_ENABLED, pNormalMtcService->GetTbcwStatus());
+    EXPECT_EQ(SuppStatus::PROVISIONED_ENABLED, pNormalMtcService->GetTbcwStatus());
 }
 
 TEST_F(MtcServiceTest, OpenEmergencyServiceCallsEmergencyServiceManager)
@@ -741,6 +741,17 @@ TEST_F(MtcServiceTest, ProcessTestCommandChangesInternalAosState)
     pNormalMtcService->ProcessTestCommand(1 /* TEST_COMMAND_AOS_DISCONNECTED */, nReason, 0);
 
     pNormalMtcService->ProcessTestCommand(2 /* Not defined */, 0, 0);
+}
+
+TEST_F(MtcServiceTest, SetAndCheckTerminalBasedTir)
+{
+    EXPECT_EQ(SuppStatus::UNPROVISIONED, pNormalMtcService->GetTirStatus());
+
+    pNormalMtcService->SetTerminalBasedTir(IMS_TRUE);
+    EXPECT_EQ(SuppStatus::PROVISIONED_ENABLED, pNormalMtcService->GetTirStatus());
+
+    pNormalMtcService->SetTerminalBasedTir(IMS_FALSE);
+    EXPECT_EQ(SuppStatus::PROVISIONED_DISABLED, pNormalMtcService->GetTirStatus());
 }
 
 TEST_F(MtcServiceTest, NotifyJniEnablerSetDoesNothing)
