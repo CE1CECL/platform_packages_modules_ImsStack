@@ -61,7 +61,6 @@ IMS_BOOL GeolocationPidfCreator::CreateWithoutPosition(IN const AString& strEnti
                                                 : ILocationInfo::LOCATION_POSITION_N_COUNTRY);
     if (piLocation == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ILocationProperties is not available", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -106,7 +105,6 @@ IMS_BOOL GeolocationPidfCreator::CreateWithPosition(IN const AString& strEntityU
     ILocationProperties* piLocation = GetLocationProperties();
     if (piLocation == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ILocationProperties is not available", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -170,7 +168,6 @@ IMS_BOOL GeolocationPidfCreator::CreateWithPositionAndCountry(IN const AString& 
             GetLocationProperties(ILocationInfo::LOCATION_POSITION_N_COUNTRY);
     if (piLocation == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ILocationProperties is not available", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -228,7 +225,6 @@ IMS_BOOL GeolocationPidfCreator::CreateWithoutCivic(IN const AString& strEntityU
     ILocationProperties* piLocation = GetLocationProperties(ILocationInfo::LOCATION_POSITION);
     if (piLocation == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ILocationProperties is not available", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -277,12 +273,21 @@ ILocationProperties* GeolocationPidfCreator::GetLocationProperties(IN IMS_SINT32
 {
     ILocationInfo* piLocationInfo =
             PhoneInfoService::GetPhoneInfoService()->GetLocationInfo(GetSlotId());
-    if (piLocationInfo == IMS_NULL)
+    ILocationProperties* piLocationProperties = piLocationInfo->GetLocationProperties(nType);
+
+    if (piLocationInfo == IMS_NULL || piLocationProperties == IMS_NULL)
     {
+        IMS_TRACE_E(0, "Location is not available", 0, 0, 0);
         return IMS_NULL;
     }
 
-    return piLocationInfo->GetLocationProperties(nType);
+    if (piLocationProperties->GetCurrentTime().GetLength() <= 0)
+    {
+        IMS_TRACE_E(0, "Timestamp is not available", 0, 0, 0);
+        return IMS_NULL;
+    }
+
+    return piLocationProperties;
 }
 
 PRIVATE

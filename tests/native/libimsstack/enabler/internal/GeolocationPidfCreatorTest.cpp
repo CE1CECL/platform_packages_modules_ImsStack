@@ -106,6 +106,16 @@ TEST_F(GeolocationPidfCreatorTest, CreateWithoutPositionFailsWhenCountryUnknown)
     EXPECT_FALSE(pCreator->CreateWithoutPosition("entity_uri", IMS_FALSE, bAny, objContent));
 }
 
+TEST_F(GeolocationPidfCreatorTest, CreateWithoutPositionFailsWhenTimestampUnknown)
+{
+    const IMS_BOOL bAny = IMS_FALSE;
+    ByteArray objContent;
+
+    const AString strEmptyTimestamp = "";
+    ON_CALL(objLocationProperties, GetCurrentTime).WillByDefault(ReturnRef(strEmptyTimestamp));
+    EXPECT_FALSE(pCreator->CreateWithoutPosition("entity_uri", IMS_FALSE, bAny, objContent));
+}
+
 TEST_F(GeolocationPidfCreatorTest, CreateWithoutPosition)
 {
     const IMS_BOOL bAny = IMS_FALSE;
@@ -177,6 +187,15 @@ TEST_F(GeolocationPidfCreatorTest, CreateWithPositionFailsWhenPositionUnknown)
 
     ON_CALL(objLocationProperties, GetLatitude).WillByDefault(ReturnRef(strUnknownPosition));
     ON_CALL(objLocationProperties, GetLongitude).WillByDefault(ReturnRef(strUnknownPosition));
+    EXPECT_FALSE(pCreator->CreateWithPosition("entity_uri", objContent));
+}
+
+TEST_F(GeolocationPidfCreatorTest, CreateWithPositionFailsWhenTimestampUnknown)
+{
+    ByteArray objContent;
+
+    const AString strEmptyTimestamp = "";
+    ON_CALL(objLocationProperties, GetCurrentTime).WillByDefault(ReturnRef(strEmptyTimestamp));
     EXPECT_FALSE(pCreator->CreateWithPosition("entity_uri", objContent));
 }
 
@@ -480,6 +499,15 @@ TEST_F(GeolocationPidfCreatorTest, CreateWithPositionAndCountryFailsWhenPosition
     EXPECT_FALSE(pCreator->CreateWithPositionAndCountry("entity_uri", objContent));
 }
 
+TEST_F(GeolocationPidfCreatorTest, CreateWithPositionAndCountryFailsWhenTimestampUnknown)
+{
+    ByteArray objContent;
+
+    const AString strEmptyTimestamp = "";
+    ON_CALL(objLocationProperties, GetCurrentTime).WillByDefault(ReturnRef(strEmptyTimestamp));
+    EXPECT_FALSE(pCreator->CreateWithPositionAndCountry("entity_uri", objContent));
+}
+
 TEST_F(GeolocationPidfCreatorTest, CreateWithPositionAndCountryWithNoMethod)
 {
     ByteArray objContent;
@@ -757,6 +785,15 @@ TEST_F(GeolocationPidfCreatorTest, CreateWithoutCivicFailsWhenPositionUnknown)
 
     ON_CALL(objLocationProperties, GetLatitude).WillByDefault(ReturnRef(strUnknownPosition));
     ON_CALL(objLocationProperties, GetLongitude).WillByDefault(ReturnRef(strUnknownPosition));
+    EXPECT_FALSE(pCreator->CreateWithoutCivic("entity_uri", objContent));
+}
+
+TEST_F(GeolocationPidfCreatorTest, CreateWithoutCivicFailsWhenTimestampUnknown)
+{
+    ByteArray objContent;
+
+    const AString strEmptyTimestamp = "";
+    ON_CALL(objLocationProperties, GetCurrentTime).WillByDefault(ReturnRef(strEmptyTimestamp));
     EXPECT_FALSE(pCreator->CreateWithoutCivic("entity_uri", objContent));
 }
 
