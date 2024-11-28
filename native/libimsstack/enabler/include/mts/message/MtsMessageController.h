@@ -101,7 +101,7 @@ private:
     void SetLocationToMessage(IN IMessage* piMessage);
 
     ICoreService* GetICoreService(IN IMS_BOOL bEmergency) const;
-    AString GetPreviousCallId(IN const ByteArray& objContent);
+    AString GetPreviousCallId(IN const IMtsMessage* piMtsMessage) const;
     static IMS_BOOL GetSmsgwFromReceivedMessage(
             IN const IPageMessage* piPageMessage, OUT AString& strSmsgw);
     static void GetUriFromHeaders(IN const AString& strFromHdr, OUT AString& strUri);

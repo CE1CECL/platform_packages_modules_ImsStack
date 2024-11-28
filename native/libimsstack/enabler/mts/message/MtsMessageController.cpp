@@ -643,7 +643,9 @@ IMS_BOOL MtsMessageController::ConstructSendMessage(IN IMessage* piMessage,
                 SmsFormatType::SMSFORMAT_3GPP, objContent);
         if (nMti == SMS_3GPP_MTI_RP_ACK_FROM_MS || nMti == SMS_3GPP_MTI_RP_ERROR_FROM_MS)
         {
-            AString strCallId = GetPreviousCallId(objContent);
+            IMtsMessage* piMtsMessage =
+                    Search(m_pMtsDynamicLoader->GetMtsSmUtils()->GetRpMr(objContent));
+            AString strCallId = GetPreviousCallId(piMtsMessage);
             // Set the Call-ID in the In-Reply-To header
             if (strCallId.GetLength())
             {
@@ -1079,13 +1081,9 @@ ICoreService* MtsMessageController::GetICoreService(IN IMS_BOOL bEmergency) cons
 }
 
 PRIVATE
-AString MtsMessageController::GetPreviousCallId(IN const ByteArray& objContent)
+AString MtsMessageController::GetPreviousCallId(IN const IMtsMessage* piMtsMessage) const
 {
     AString strCallId;
-
-    // Get an IMtsMessage object with the message reference
-    IMtsMessage* piMtsMessage = Search(m_pMtsDynamicLoader->GetMtsSmUtils()->GetRpMr(objContent));
-
     if (piMtsMessage != IMS_NULL)
     {
         IPageMessage* piPageMessage = piMtsMessage->GetPageMessage();
