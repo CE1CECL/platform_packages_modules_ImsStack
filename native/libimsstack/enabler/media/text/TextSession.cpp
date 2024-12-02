@@ -16,7 +16,6 @@
 
 #include <stdio.h>
 #include "ISessionDescriptor.h"
-#include "Configuration.h"
 #include "ServicePhoneInfo.h"
 #include "ServiceNetworkPolicy.h"
 #include "ServiceNetwork.h"
@@ -27,6 +26,7 @@
 #include "IMediaSessionListener.h"
 #include "IJniMedia.h"
 #include "MediaManager.h"
+#include "config/TextConfiguration.h"
 #include "text/TextSession.h"
 #include "text/TextProfileUtil.h"
 
@@ -37,7 +37,6 @@ __IMS_TRACE_TAG_MEDIA__;
 
 PUBLIC TextSession::TextSession(IN IMS_SINT32 nSlotId) :
         BaseSession(nSlotId),
-        m_pConfig(IMS_NULL),
         m_objMediaQualityThreshold(MediaQualityThreshold()),
         m_objLocalAddress(IpAddress::IPv6NONE),
         m_nLocalPort(0)
@@ -55,11 +54,6 @@ PUBLIC VIRTUAL TextSession::~TextSession()
     {
         delete m_pRtpConfig;
     }
-}
-
-PUBLIC void TextSession::SetConfig(TextConfiguration* pConfig)
-{
-    m_pConfig = pConfig;
 }
 
 PUBLIC IMS_BOOL TextSession::UpdateRtpConfig(
@@ -198,20 +192,25 @@ PUBLIC
 IMS_BOOL TextSession::UpdateMediaQualityThreshold(
         IN IMS_BOOL bActiveSession, IN IMS_BOOL bEnableRtcp)
 {
+    if (GetConfiguration() == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
     /** TODO_MEDIA need to get real value when it's ready. */
     if (bActiveSession)
     {
         m_objMediaQualityThreshold.setRtpInactivityTimerMillis(
-                std::vector<int32_t>{m_pConfig->GetRtpInactivityTimerMillis()});
+                std::vector<int32_t>{GetConfiguration()->GetRtpInactivityTimerMillis()});
 
         m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
-                (bEnableRtcp) ? m_pConfig->GetRtcpInactivityTimerMillis() : 0);
+                (bEnableRtcp) ? GetConfiguration()->GetRtcpInactivityTimerMillis() : 0);
     }
     else
     {
         m_objMediaQualityThreshold.setRtpInactivityTimerMillis(std::vector<int32_t>{0});
         m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
-                m_pConfig->GetRtcpInactivityTimerMillis());
+                GetConfiguration()->GetRtcpInactivityTimerMillis());
     }
 
     IMS_TRACE_D("UpdateMediaQualityThreshold() - bActiveSession[%d], RtpInactivity[%d], "
@@ -330,4 +329,16 @@ PUBLIC
 IMS_SINT32 TextSession::GetRemotePort()
 {
     return m_pRtpConfig->getRemotePort();
+}
+
+PRIVATE
+TextConfiguration* TextSession::GetConfiguration()
+{
+    if (m_pConfiguration == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "GetConfiguration() - m_pConfiguration is null", 0, 0, 0);
+        return IMS_NULL;
+    }
+
+    return static_cast<TextConfiguration*>(m_pConfiguration);
 }

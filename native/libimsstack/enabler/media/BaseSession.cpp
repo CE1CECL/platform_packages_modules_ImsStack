@@ -23,6 +23,7 @@ __IMS_TRACE_TAG_MEDIA__;
 PUBLIC
 BaseSession::BaseSession(IN IMS_SINT32 nSlotId) :
         m_nSlotId(nSlotId),
+        m_pConfiguration(IMS_NULL),
         m_piMediaSessionListener(IMS_NULL),
         m_pEnvironment(IMS_NULL),
         m_pRtpConfig(IMS_NULL),
@@ -32,6 +33,12 @@ BaseSession::BaseSession(IN IMS_SINT32 nSlotId) :
 }
 
 PUBLIC VIRTUAL BaseSession::~BaseSession() {}
+
+PUBLIC
+void BaseSession::SetConfiguration(IN MediaConfiguration* pConfiguration)
+{
+    m_pConfiguration = pConfiguration;
+}
 
 PUBLIC VIRTUAL void BaseSession::SetServiceType(MEDIA_SERVICE_TYPE eServiceType)
 {

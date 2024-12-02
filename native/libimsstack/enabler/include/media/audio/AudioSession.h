@@ -25,7 +25,8 @@
 #include "IJniMedia.h"
 #include "audio/AudioDef.h"
 #include "audio/AudioProfile.h"
-#include "config/AudioConfiguration.h"
+
+class AudioConfiguration;
 
 using namespace android::telephony::imsmedia;
 
@@ -106,13 +107,6 @@ public:
      * parameters
      */
     IMS_BOOL IsSameNegoId(IMS_UINTP nNegoId);
-
-    /**
-     * @brief Set the audio configuration
-     *
-     * @param pConfig The AudioConfiguration instance to set
-     */
-    void SetConfig(IN AudioConfiguration* pConfig);
 
     /**
      * @brief Set AudioConfig for libpixelimsmedia from src/dest/negotiated profile
@@ -252,9 +246,9 @@ private:
     IMS_SINT32 GetRtpInactivityTimer(IN IMS_BOOL bActiveSession);
     IMS_SINT32 GetRtcpInactivityTimer(IN IMS_BOOL bActiveSession);
     IMS_BOOL IsRtpInactivityForQnsNeeded(IN IMS_BOOL bConfirmedSession);
+    AudioConfiguration* GetConfiguration();
 
 protected:
-    AudioConfiguration* m_pConfig;
     MediaQualityThreshold m_objMediaQualityThreshold;
     IpAddress m_objLocalAddress;
     IMS_SINT32 m_nLocalPort;

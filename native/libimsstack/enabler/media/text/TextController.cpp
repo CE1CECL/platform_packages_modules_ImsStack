@@ -50,7 +50,7 @@ IMS_BOOL TextController::CreateSession(IMediaSessionListener* pListener, TextCon
         IMS_TRACE_D("CreateSession()", 0, 0, 0);
         m_pSession = new TextSession();
         m_pSession->SetMediaSessionListener(pListener);
-        m_pSession->SetConfig(pConfig);
+        m_pSession->SetConfiguration(pConfig);
         return IMS_TRUE;
     }
 
