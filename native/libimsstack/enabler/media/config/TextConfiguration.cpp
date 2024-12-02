@@ -64,9 +64,6 @@ PUBLIC VIRTUAL IMS_BOOL TextConfiguration::Create(IN ICarrierConfig* piCc)
             piCc->GetInt(CarrierConfig::ImsRtt::KEY_TEXT_RTCP_INACTIVITY_TIMER_MILLIS_INT,
                     DEFAULT_RTCP_INACTIVITY);
 
-    IMS_TRACE_D("Create - RtpInactivityTimerMillis[%d] RtcpInactivityTimerMillis[%d]",
-            m_nRtpInactivityTimerMillis, m_nRtcpInactivityTimerMillis, 0);
-
     /** According to RFC 2474, six bits of the DS field are used as a codepoint (DSCP),
      * a two-bit currently unused (CU) field is reserved. So two left shift operations are required.
      */
@@ -154,8 +151,7 @@ PROTECTED VIRTUAL void TextConfiguration::ToDebugString() const
             m_nT140PayloadType, m_nRedPayloadType, m_bTextCodecEmptyRedundantEnabled);
     IMS_TRACE_D("AsBandwidthKbps[%d], RsBandwidthBps[%d], RrBandwidthBps[%d]", m_nAsBandwidthKbps,
             m_nRsBandwidthBps, m_nRrBandwidthBps);
-    IMS_TRACE_D("TextDscp[%d], RtpInactivityTimerMillis[%d], RtcpInactivityTimerMillis[%d]",
-            m_nTextDscp, m_nRtpInactivityTimerMillis, m_nRtcpInactivityTimerMillis);
+    IMS_TRACE_D("TextDscp[%d]", m_nTextDscp, 0, 0);
 
     for (IMS_UINT32 i = 0; i < m_objCodecConfigs.GetSize(); ++i)
     {

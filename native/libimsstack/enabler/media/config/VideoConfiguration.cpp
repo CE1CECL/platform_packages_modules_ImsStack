@@ -199,6 +199,8 @@ PROTECTED VIRTUAL IMS_BOOL VideoConfiguration::CreateCodecConfigs(IN ICarrierCon
 
 PROTECTED VIRTUAL void VideoConfiguration::ToDebugString() const
 {
+    MediaConfiguration::ToDebugString();
+
     IMS_TRACE_D("Dscp[%d], SendPeriodicSpsPps[%d], CvoId[%d]", m_nVideoDscp,
             m_nVideoSendPeriodicSpsPps, m_nCvoId);
     IMS_TRACE_D("AvpfEnabled[%d], AvpfTrrEnabled[%d], AvpfNackEnabled[%d]", m_bVideoAvpfEnabled,
