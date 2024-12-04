@@ -2754,9 +2754,9 @@ PROTECTED VIRTUAL void AosRegistration::ClearRetryCount(IN IMS_BOOL bForced /* =
 
     if (GET_N_CONFIG(m_piContext->GetSlotId())->IsExtraRegErrRetryCntSharedForRegAndSubRequired())
     {
-        IMS_UINT32 nType = (m_eRegType == AosRegistrationType::EMERGENCY)
-                ? AosRetryRepository::TYPE_EMERGENCY
-                : AosRetryRepository::TYPE_NORMAL;
+        IMS_UINT32 nType = (m_eRegType == AosRegistrationType::NORMAL)
+                ? AosRetryRepository::TYPE_NORMAL
+                : AosRetryRepository::TYPE_EMERGENCY;
         AosProvider::GetInstance()
                 ->GetRetryRepository(m_piContext->GetSlotId())
                 ->ResetRetryCount(nType);
