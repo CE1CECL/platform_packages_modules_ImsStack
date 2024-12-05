@@ -73,7 +73,8 @@ using ::testing::ReturnRef;
     using Base::ProcessDefaultFlowRecovery_Start;                            \
     using Base::ProcessDefaultFlowRecovery_StartWithSpecifiedIntervalPolicy; \
     using Base::ProcessTransactionTimerExpired;                              \
-    using Base::CallbackModeChanged;
+    using Base::CallbackModeChanged;                                         \
+    using Base::ProcessNormalDefaultFlowRecovery_Start;
 
 const IMS_SINT32 SLOT_ID = 0;
 
@@ -738,8 +739,12 @@ TEST_F(AosERegistrationTest, StartWithSpecifiedIntervalPolicytWhenRetryRuleForER
 {
     ON_CALL(m_objMockIAosNConfiguration, IsRegRetryRuleForERegUsed())
             .WillByDefault(Return(IMS_TRUE));
+    ON_CALL(m_objMockIAosNConfiguration, GetRegActualWaitTimePolicy())
+            .WillByDefault(Return(CarrierConfig::Assets::AWT_POLICY_SPECIFIED_INTERVAL));
+    ON_CALL(m_objMockIAosNConfiguration, IsExtraRegErrRetryCntSharedForRegAndSubRequired())
+            .WillByDefault(Return(IMS_TRUE));
 
-    m_pAosERegistration->ProcessDefaultFlowRecovery_Start();
+    m_pAosERegistration->ProcessDefaultFlowRecovery_Start(400);
 
     EXPECT_EQ(m_pAosERegistration->GetInvokedCount(
                       "ProcessDefaultFlowRecovery_StartWithSpecifiedIntervalPolicy"),
@@ -758,7 +763,7 @@ TEST_F(AosERegistrationTest, DefaultFlowRecoveryDuringStartWhenFakeRegistration)
                     IAosRegistration::RESULT_FAILURE, IAosRegistration::REASON_FAILURE_INTERNAL))
             .Times(1);
 
-    m_pAosERegistration->ProcessDefaultFlowRecovery_Start();
+    m_pAosERegistration->ProcessDefaultFlowRecovery_Start(400);
 
     EXPECT_EQ(m_pAosERegistration->GetState(), IAosRegistration::STATE_OFFLINE);
 }
@@ -769,7 +774,7 @@ TEST_F(AosERegistrationTest, DefaultFlowRecoveryDuringStartWhenConfiguredAsFallb
             .WillByDefault(
                     Return(CarrierConfig::ImsEmergency::PREFERRED_EMERGENCY_REGISTRATION_FALLBACK));
 
-    m_pAosERegistration->ProcessDefaultFlowRecovery_Start();
+    m_pAosERegistration->ProcessDefaultFlowRecovery_Start(400);
 
     EXPECT_TRUE(m_pAosERegistration->IsFakeRegistration());
     EXPECT_EQ(m_pAosERegistration->GetMode(), IAosRegistration::MODE_FAKE);
@@ -843,6 +848,34 @@ TEST_F(AosERegistrationTest, ReportFailureIfNotPossibleToIncreaseCountAndNoPcscf
                     IAosRegistration::RESULT_FAILURE, IAosRegistration::REASON_FAILURE_GENERAL));
 
     m_pAosERegistration->ProcessDefaultFlowRecovery_StartWithSpecifiedIntervalPolicy(10);
+}
+
+TEST_F(AosERegistrationTest, ReturnTrueWhenFollowingNoramlRulesWith305Policy3GPP)
+{
+    ON_CALL(m_objMockIAosNConfiguration, GetRegRetrySip305CodePolicy())
+            .WillByDefault(Return(CarrierConfig::Assets::SIP_305_CODE_POLICY_3GPP));
+
+    EXPECT_TRUE(m_pAosERegistration->ProcessNormalDefaultFlowRecovery_Start(305));
+}
+
+TEST_F(AosERegistrationTest, ReturnFalseWhenFollowingNoramlRulesWith305PolicyDefault)
+{
+    ON_CALL(m_objMockIAosNConfiguration, GetRegRetrySip305CodePolicy())
+            .WillByDefault(Return(CarrierConfig::Assets::SIP_305_CODE_POLICY_DEFAULT));
+    ON_CALL(m_objMockIAosNConfiguration, GetRegActualWaitTimePolicy())
+            .WillByDefault(Return(CarrierConfig::Assets::AWT_POLICY_RFC_RULE));
+
+    EXPECT_FALSE(m_pAosERegistration->ProcessNormalDefaultFlowRecovery_Start(305));
+}
+
+TEST_F(AosERegistrationTest, ReturnFalseWhenFollowingNoramlRuleAndSharedCntNotUsed)
+{
+    ON_CALL(m_objMockIAosNConfiguration, GetRegActualWaitTimePolicy())
+            .WillByDefault(Return(CarrierConfig::Assets::AWT_POLICY_SPECIFIED_INTERVAL));
+    ON_CALL(m_objMockIAosNConfiguration, IsExtraRegErrRetryCntSharedForRegAndSubRequired())
+            .WillByDefault(Return(IMS_FALSE));
+
+    EXPECT_FALSE(m_pAosERegistration->ProcessNormalDefaultFlowRecovery_Start(400));
 }
 
 TEST_F(AosERegistrationTest, StartFailedWithStatusCode423)
