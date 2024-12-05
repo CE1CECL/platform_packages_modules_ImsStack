@@ -15,7 +15,6 @@
  */
 
 #include "ISessionDescriptor.h"
-#include "Configuration.h"
 #include "ServicePhoneInfo.h"
 #include "ServiceNetworkPolicy.h"
 #include "ServiceNetwork.h"
@@ -27,6 +26,7 @@
 #include "IJniMedia.h"
 #include "MediaManager.h"
 #include "MediaResourceManager.h"
+#include "config/VideoConfiguration.h"
 #include "video/VideoSession.h"
 #include "video/VideoProfileUtil.h"
 
@@ -37,7 +37,6 @@ __IMS_TRACE_TAG_MEDIA__;
 
 PUBLIC VideoSession::VideoSession(IN IMS_SINT32 nSlotId) :
         BaseSession(nSlotId),
-        m_pConfig(IMS_NULL),
         m_objMediaQualityThreshold(MediaQualityThreshold()),
         m_objLocalAddress(IpAddress::IPv6NONE),
         m_nLocalPort(0),
@@ -59,11 +58,6 @@ PUBLIC VIRTUAL VideoSession::~VideoSession()
     {
         delete m_pRtpConfig;
     }
-}
-
-PUBLIC void VideoSession::SetConfig(VideoConfiguration* pConfig)
-{
-    m_pConfig = pConfig;
 }
 
 PUBLIC IMS_BOOL VideoSession::UpdateRtpConfig(IN VideoProfile* pLocalProfile,
@@ -115,7 +109,10 @@ PUBLIC IMS_BOOL VideoSession::UpdateRtpConfig(IN VideoProfile* pLocalProfile,
     pVideoConfig->setRemoteAddress(
             android::String8(pPeerProfile->GetIpAddress().ToString().GetStr()));
     pVideoConfig->setRemotePort(pPeerProfile->GetDataPort());
-    pVideoConfig->setDscp(m_pConfig->GetVideoDscp());
+    if (GetConfiguration() != IMS_NULL)
+    {
+        pVideoConfig->setDscp(GetConfiguration()->GetVideoDscp());
+    }
     pVideoConfig->setMaxMtuBytes(1500);
 
     MediaManager* pMediaManager = MediaManager::GetInstance(m_nSlotId);
@@ -243,7 +240,10 @@ PUBLIC IMS_BOOL VideoSession::UpdateRtpConfig(IN VideoProfile* pLocalProfile,
     }
 
     pVideoConfig->setSamplingRateKHz((int8_t)(pNegoPayload->GetRtpMap().GetSamplingRate() / 1000));
-    pVideoConfig->setIntraFrameInterval(m_pConfig->GetVideoIframeIntervalSec());
+    if (GetConfiguration() != IMS_NULL)
+    {
+        pVideoConfig->setIntraFrameInterval(GetConfiguration()->GetVideoIframeIntervalSec());
+    }
     pVideoConfig->setCameraId(m_nCameraId);
     pVideoConfig->setCameraZoom(m_nCameraZoom);
     pVideoConfig->setPauseImagePath(android::String8("/image/path"));
@@ -323,22 +323,27 @@ PUBLIC
 IMS_BOOL VideoSession::UpdateMediaQualityThreshold(
         IN IMS_BOOL bActiveSession, IN IMS_BOOL bConfirmedSession, IN IMS_BOOL bEnableRtcp)
 {
+    if (GetConfiguration() == IMS_NULL)
+    {
+        return IMS_FALSE;
+    }
+
     /** TODO_MEDIA need to get real value when it's ready. */
     if (bActiveSession)
     {
         m_objMediaQualityThreshold.setRtpInactivityTimerMillis(
-                std::vector<int32_t>{m_pConfig->GetRtpInactivityTimerMillis()});
+                std::vector<int32_t>{GetConfiguration()->GetRtpInactivityTimerMillis()});
 
         m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
-                (bEnableRtcp) ? m_pConfig->GetRtcpInactivityTimerMillis() : 0);
+                (bEnableRtcp) ? GetConfiguration()->GetRtcpInactivityTimerMillis() : 0);
         m_objMediaQualityThreshold.setVideoBitrateBps(
-                (bConfirmedSession) ? m_pConfig->GetVideoLowestBitrateBps() : 0);
+                (bConfirmedSession) ? GetConfiguration()->GetVideoLowestBitrateBps() : 0);
     }
     else
     {
         m_objMediaQualityThreshold.setRtpInactivityTimerMillis(std::vector<int32_t>{0});
         m_objMediaQualityThreshold.setRtcpInactivityTimerMillis(
-                m_pConfig->GetRtcpInactivityTimerMillis());
+                GetConfiguration()->GetRtcpInactivityTimerMillis());
         m_objMediaQualityThreshold.setVideoBitrateBps(0);
     }
 
@@ -773,4 +778,16 @@ IMS_UINT32 VideoSession::convertHevcLevel(IN IMS_UINT32 nLevel)
         default:
             return VideoConfig::HEVC_MAINTIER_LEVEL_1;
     }
+}
+
+PRIVATE
+VideoConfiguration* VideoSession::GetConfiguration()
+{
+    if (m_pConfiguration == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "GetConfiguration() - m_pConfiguration is null", 0, 0, 0);
+        return IMS_NULL;
+    }
+
+    return static_cast<VideoConfiguration*>(m_pConfiguration);
 }

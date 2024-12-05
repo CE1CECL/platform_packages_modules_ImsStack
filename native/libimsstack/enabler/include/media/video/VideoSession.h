@@ -21,7 +21,8 @@
 #include "BaseSession.h"
 #include "video/VideoDef.h"
 #include "video/VideoProfile.h"
-#include "config/VideoConfiguration.h"
+
+class VideoConfiguration;
 
 class VideoSession : public BaseSession
 {
@@ -52,7 +53,6 @@ public:
 
     explicit VideoSession(IN IMS_SINT32 nSlotId = 0);
     virtual ~VideoSession();
-    void SetConfig(IN VideoConfiguration* pConfig);
 
     /**
      * @brief Set VideoConfig for libpixelimsmedia from src/dest/negotiated profile
@@ -139,8 +139,8 @@ private:
     IMS_UINT32 convertHevcProfile(IN IMS_UINT32 nProfile);
     IMS_UINT32 convertAvcLevel(IN IMS_UINT32 nLevel);
     IMS_UINT32 convertHevcLevel(IN IMS_UINT32 nLevel);
+    VideoConfiguration* GetConfiguration();
 
-    VideoConfiguration* m_pConfig;
     MediaQualityThreshold m_objMediaQualityThreshold;
     IpAddress m_objLocalAddress;
     IMS_SINT32 m_nLocalPort;

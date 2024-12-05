@@ -17,7 +17,6 @@
 #include "ISessionDescriptor.h"
 #include "ServiceTimer.h"
 
-#include "Configuration.h"
 #include "ServicePhoneInfo.h"
 #include "ServiceNetworkPolicy.h"
 #include "ServiceNetwork.h"
@@ -27,6 +26,7 @@
 #include "IJniMedia.h"
 #include "IMediaSessionListener.h"
 #include "MediaManager.h"
+#include "config/AudioConfiguration.h"
 #include "audio/AudioSession.h"
 #include "audio/AudioProfileUtil.h"
 
@@ -40,7 +40,6 @@ __IMS_TRACE_TAG_MEDIA__;
 PUBLIC
 AudioSession::AudioSession(IN IMS_SINT32 nSlotId) :
         BaseSession(nSlotId),
-        m_pConfig(IMS_NULL),
         m_objMediaQualityThreshold(MediaQualityThreshold()),
         m_objLocalAddress(IpAddress::IPv6NONE),
         m_nLocalPort(0),
@@ -168,12 +167,6 @@ IMS_BOOL AudioSession::IsSameNegoId(IMS_UINTP nNegoId)
 }
 
 PUBLIC
-void AudioSession::SetConfig(IN AudioConfiguration* pConfig)
-{
-    m_pConfig = pConfig;
-}
-
-PUBLIC
 AudioConfig* AudioSession::UpdateRtpConfig(IN const IMS_UINT32 nAccessNetwork,
         IN AudioProfile* pLocalProfile, IN AudioProfile* pPeerProfile,
         IN AudioProfile* pNegoProfile)
@@ -226,7 +219,10 @@ AudioConfig* AudioSession::UpdateRtpConfig(IN const IMS_UINT32 nAccessNetwork,
     objAudioConfig.setRemoteAddress(
             android::String8(pPeerProfile->GetIpAddress().ToString().GetStr()));
     objAudioConfig.setRemotePort(pPeerProfile->GetDataPort());
-    objAudioConfig.setDscp(m_pConfig->GetRtpDscp());
+    if (GetConfiguration() != IMS_NULL)
+    {
+        objAudioConfig.setDscp(GetConfiguration()->GetRtpDscp());
+    }
 
     objAudioConfig.setRxPayloadTypeNumber(pPeerPayload->GetRtpMap().GetPayloadNumber());
 
@@ -701,20 +697,23 @@ IMS_BOOL AudioSession::Close()
 PUBLIC
 IMS_BOOL AudioSession::SendDtmf(IN IMS_CHAR cDtmfCode)
 {
-    if (m_pConfig == IMS_NULL)
+    if (GetConfiguration() == IMS_NULL)
     {
         return IMS_FALSE;
     }
 
+    IMS_SINT32 nDtmfDuration = GetConfiguration()->GetDtmfDuration();
+
     IMS_TRACE_I("SendDtmf() - state[%d], DtmfCode[%d], DtmfDuration[%d]", m_nState, cDtmfCode,
-            m_pConfig->GetDtmfDuration());
+            nDtmfDuration);
+
     IMS_BOOL bResult = IMS_FALSE;
 
     if (m_piMediaSessionListener != IMS_NULL)
     {
         ImsMediaMsgDtmfParam* pParam = new ImsMediaMsgDtmfParam();
         pParam->m_dtmfCode = cDtmfCode;
-        pParam->m_nDuration = m_pConfig->GetDtmfDuration();
+        pParam->m_nDuration = nDtmfDuration;
         bResult = m_piMediaSessionListener->MediaSession_SendMsgToMediaManager(
                 IJniMedia::REQUEST_SEND_DTMF, pParam);
     }
@@ -919,6 +918,11 @@ IMS_SINT32 AudioSession::GetRtpInactivityTimer(IN IMS_BOOL bActiveSession)
     IMS_TRACE_D("GetRtpInactivityTimer() - ActiveSession[%d] ServiceType[%d]", bActiveSession,
             m_eServiceType, 0);
 
+    if (GetConfiguration() == IMS_NULL)
+    {
+        return 0;
+    }
+
     IMS_SINT32 nRtpTimer = 0;
 
     if (bActiveSession)
@@ -927,9 +931,9 @@ IMS_SINT32 AudioSession::GetRtpInactivityTimer(IN IMS_BOOL bActiveSession)
                 ? E911_RTP_INACTIVITY_ON_CONNECTED
                 : RTP_INACTIVITY_ON_CONNECTED;
 
-        if (m_pConfig->IsAudioInactivityCallEndReason(nType))
+        if (GetConfiguration()->IsAudioInactivityCallEndReason(nType))
         {
-            nRtpTimer = m_pConfig->GetRtpInactivityTimerMillis();
+            nRtpTimer = GetConfiguration()->GetRtpInactivityTimerMillis();
         }
     }
 
@@ -943,6 +947,11 @@ IMS_SINT32 AudioSession::GetRtcpInactivityTimer(IN IMS_BOOL bActiveSession)
     IMS_TRACE_D("GetRtcpInactivityTimer() - ActiveSession[%d] ServiceType[%d]", bActiveSession,
             m_eServiceType, 0);
 
+    if (GetConfiguration() == IMS_NULL)
+    {
+        return 0;
+    }
+
     IMS_SINT32 nType = RTCP_INACTIVITY_ON_HOLD;
 
     if (bActiveSession)
@@ -951,8 +960,8 @@ IMS_SINT32 AudioSession::GetRtcpInactivityTimer(IN IMS_BOOL bActiveSession)
                                                             : RTCP_INACTIVITY_ON_CONNECTED;
     }
 
-    IMS_SINT32 nRtcpTimer = (m_pConfig->IsAudioInactivityCallEndReason(nType))
-            ? m_pConfig->GetRtcpInactivityTimerMillis()
+    IMS_SINT32 nRtcpTimer = GetConfiguration()->IsAudioInactivityCallEndReason(nType)
+            ? GetConfiguration()->GetRtcpInactivityTimerMillis()
             : 0;
     // TODO : Need to set RtcpTimer with Rtcp_on_hold timer when hold later
     IMS_TRACE_D("GetRtcpInactivityTimer() - RtcpTimer[%d]", nRtcpTimer, 0, 0);
@@ -966,4 +975,16 @@ IMS_BOOL AudioSession::IsRtpInactivityForQnsNeeded(IN IMS_BOOL bConfirmedSession
     IMS_TRACE_D("IsRtpInactivityForQnsNeeded() - confirmed session[%d], direction[%d]",
             bConfirmedSession, GetDirection(), 0);
     return bConfirmedSession ? !MEDIA_DIRECTION_IS_AUDIO_HOLD(GetDirection()) : IMS_FALSE;
+}
+
+PRIVATE
+AudioConfiguration* AudioSession::GetConfiguration()
+{
+    if (m_pConfiguration == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "GetConfiguration() - m_pConfiguration is null", 0, 0, 0);
+        return IMS_NULL;
+    }
+
+    return static_cast<AudioConfiguration*>(m_pConfiguration);
 }

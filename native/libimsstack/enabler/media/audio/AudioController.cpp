@@ -95,7 +95,7 @@ IMS_BOOL AudioController::CreateSession(IN IMediaSessionListener* pListener, IN 
     pAudioSession->SetServiceType(eServiceType);
     pAudioSession->SetNegoId(nNegoId);
     pAudioSession->SetMediaSessionListener(pListener);
-    pAudioSession->SetConfig(pConfig);
+    pAudioSession->SetConfiguration(pConfig);
     m_listAudioSession.Append(pAudioSession);
     return IMS_TRUE;
 }

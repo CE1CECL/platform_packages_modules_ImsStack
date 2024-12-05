@@ -19,6 +19,7 @@
 
 #include "ImsList.h"
 #include "MediaDef.h"
+#include "config/MediaConfiguration.h"
 #include <RtpConfig.h>
 using namespace android::telephony::imsmedia;
 
@@ -30,6 +31,13 @@ class BaseSession
 public:
     explicit BaseSession(IN IMS_SINT32 nSlotId = 0);
     virtual ~BaseSession();
+
+    /**
+     * @brief Set the text configuration
+     *
+     * @param pConfiguration The Media(Audio/Video/Text)Configuration instance to set
+     */
+    void SetConfiguration(IN MediaConfiguration* pConfiguration);
 
     /**
      * @brief Set the media service type of the sesison
@@ -95,6 +103,7 @@ public:
 
 protected:
     IMS_SINT32 m_nSlotId;
+    MediaConfiguration* m_pConfiguration;
     IMediaSessionListener* m_piMediaSessionListener;
     MediaEnvironment* m_pEnvironment;
     RtpConfig* m_pRtpConfig;

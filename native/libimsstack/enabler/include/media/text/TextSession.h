@@ -21,7 +21,8 @@
 #include "BaseSession.h"
 #include "text/TextDef.h"
 #include "text/TextProfile.h"
-#include "config/TextConfiguration.h"
+
+class TextConfiguration;
 
 class TextSession : public BaseSession
 {
@@ -40,13 +41,6 @@ public:
 
     explicit TextSession(IN IMS_SINT32 nSlotId = 0);
     virtual ~TextSession();
-
-    /**
-     * @brief Set the text configuration
-     *
-     * @param pConfig The TextConfiguration instance to set
-     */
-    void SetConfig(IN TextConfiguration* pConfig);
 
     /**
      * @brief Set TextConfig for libpixelimsmedia from src/dest/negotiated profile
@@ -128,7 +122,8 @@ public:
     IMS_SINT32 GetRemotePort();
 
 private:
-    TextConfiguration* m_pConfig;
+    TextConfiguration* GetConfiguration();
+
     MediaQualityThreshold m_objMediaQualityThreshold;
     IpAddress m_objLocalAddress;
     IMS_SINT32 m_nLocalPort;
