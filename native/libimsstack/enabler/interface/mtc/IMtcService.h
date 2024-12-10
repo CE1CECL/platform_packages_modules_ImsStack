@@ -29,7 +29,7 @@ class ISrvccStateListener;
 enum class ServiceStatus;
 enum class ServiceType;
 enum class SrvccState;
-enum class TbcwStatus;
+enum class SuppStatus;
 
 class IMtcService : public INativeEnabler
 {
@@ -210,7 +210,21 @@ public:
      *
      * @return
      */
-    virtual TbcwStatus GetTbcwStatus() const = 0;
+    virtual SuppStatus GetTbcwStatus() const = 0;
+
+    /**
+     * @brief Sets a value for the Terminal based TIR.
+     */
+    virtual void SetTerminalBasedTir(IN IMS_BOOL bEnabled) = 0;
+
+    /**
+     * @brief Gets a value for the Terminal based TIR.
+     *
+     * Currently, this value is always SuppStatus::UNPROVISIONED.
+     * It will be modified when the Terminal-based TIR is actually implemented.
+     * Please refer to a comment in ag/30608488.
+     */
+    virtual SuppStatus GetTirStatus() const = 0;
 };
 
 enum class ServiceStatus
@@ -227,7 +241,7 @@ enum class ServiceType
     EMERGENCY = 1 << 1,
 };
 
-enum class TbcwStatus
+enum class SuppStatus
 {
     UNPROVISIONED,
     PROVISIONED_ENABLED,

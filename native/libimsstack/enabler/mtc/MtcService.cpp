@@ -74,7 +74,8 @@ MtcService::MtcService(IN IMtcContext& objContext, IN ServiceType eType) :
         m_pAosEventHandler(IMS_NULL),
         m_pSrvccStateManager(IMS_NULL),
         m_pRoutingRejectHandler(IMS_NULL),
-        m_eTbcwStatus(TbcwStatus::UNPROVISIONED)
+        m_eTbcwStatus(SuppStatus::UNPROVISIONED),
+        m_eTirStatus(SuppStatus::UNPROVISIONED)
 {
     IMS_TRACE_I("+MtcService [slot_%d][type:%d]", m_objContext.GetSlotId(), m_eType, 0);
     Init();
@@ -255,7 +256,7 @@ PUBLIC VIRTUAL void MtcService::SetTerminalBasedCallWaiting(IN IMS_BOOL bEnabled
         {
             IMS_TRACE_I("SetTerminalBasedCallWaiting provisioned", 0, 0, 0);
             m_eTbcwStatus =
-                    bEnabled ? TbcwStatus::PROVISIONED_ENABLED : TbcwStatus::PROVISIONED_DISABLED;
+                    bEnabled ? SuppStatus::PROVISIONED_ENABLED : SuppStatus::PROVISIONED_DISABLED;
             break;
         }
     }
@@ -286,6 +287,13 @@ PUBLIC VIRTUAL void MtcService::ProcessTestCommand(
         default:
             break;
     }
+}
+
+PUBLIC VIRTUAL void MtcService::SetTerminalBasedTir(IN IMS_BOOL bEnabled)
+{
+    IMS_TRACE_I("SetTerminalBasedTir bEnabled[%s]", _TRACE_B_(bEnabled), 0, 0);
+
+    m_eTirStatus = bEnabled ? SuppStatus::PROVISIONED_ENABLED : SuppStatus::PROVISIONED_DISABLED;
 }
 
 PUBLIC VIRTUAL void MtcService::CoreService_ServiceClosed(

@@ -405,6 +405,24 @@ public class ImsTestHelperTest extends ImsStackTest {
         verify(mtcCall).accept(anyInt(), anyObject());
     }
 
+    @Test
+    @SmallTest
+    public void sendMtcTestCommand_setTerminalBasedTir() {
+        MtcApp mtcApp = Mockito.mock(MtcApp.class);
+        ImsCallManager manager = Mockito.mock(ImsCallManager.class);
+        when(manager.getMtcApp()).thenReturn(mtcApp);
+        when(mCallApp.getCallManager()).thenReturn(manager);
+
+        int[] extra = new int[]{1};
+        Intent intentSrv = new Intent();
+        intentSrv.setAction(INTENT_MTC_TEST);
+        intentSrv.putExtra("slotid", SLOT0);
+        intentSrv.putExtra("command", 107);
+        intentSrv.putExtra("extras", extra);
+        mBroadcastReceiver.onReceive(mContext, intentSrv);
+        verify(mtcApp).setTerminalBasedTir(true);
+    }
+
     private void openCall(int attributes, int serviceType, boolean emergency, boolean offline,
             boolean ussi) {
         int[] extra = new int[]

@@ -351,6 +351,10 @@ public final class ImsTestHelper {
                     }
                 });
                 return;
+            } else if (command == 107) {
+                ImsLog.d("sendMtcTestCommand :: setTerminalBasedTir");
+                mtcApp.setTerminalBasedTir(extras[0] == 1);
+                return;
             }
 
             Parcel parcel = Parcel.obtain();

@@ -60,7 +60,9 @@ public:
     MOCK_METHOD(void, StopEmergencyService, (), (override));
     MOCK_METHOD(
             void, ProcessTestCommand, (IN IMS_SINT32, IN IMS_SINT32, IN IMS_SINT32), (override));
-    MOCK_METHOD(TbcwStatus, GetTbcwStatus, (), (const, override));
+    MOCK_METHOD(SuppStatus, GetTbcwStatus, (), (const, override));
+    MOCK_METHOD(void, SetTerminalBasedTir, (IN IMS_BOOL bEnabled), (override));
+    MOCK_METHOD(SuppStatus, GetTirStatus, (), (const, override));
 
     // IEnablerService
     MOCK_METHOD(void, NotifyJniEnablerSet, (), (override));

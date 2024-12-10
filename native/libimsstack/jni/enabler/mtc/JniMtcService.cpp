@@ -127,6 +127,9 @@ PROTECTED VIRTUAL void JniMtcService::HandleMessage(
         case IuMtcService::TEST_COMMAND:
             ProcessTestCommand(objParcel);
             break;
+        case IuMtcService::SET_TERMINAL_BASED_TIR:
+            SetTerminalBasedTir(objParcel);
+            break;
         default:
             break;
     }
@@ -167,6 +170,18 @@ void JniMtcService::SetTerminalBasedCallWaiting(IN const android::Parcel& objPar
     }
     IMS_BOOL bEnabled = (objParcel.readInt32() == 1) ? IMS_TRUE : IMS_FALSE;
     piNativeService->SetTerminalBasedCallWaiting(bEnabled);
+}
+
+PRIVATE
+void JniMtcService::SetTerminalBasedTir(IN const android::Parcel& objParcel)
+{
+    IMtcService* piNativeService = GetNativeService();
+    if (piNativeService == IMS_NULL)
+    {
+        return;
+    }
+    IMS_BOOL bEnabled = (objParcel.readInt32() == 1) ? IMS_TRUE : IMS_FALSE;
+    piNativeService->SetTerminalBasedTir(bEnabled);
 }
 
 PRIVATE

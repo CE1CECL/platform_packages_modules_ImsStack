@@ -317,6 +317,20 @@ public class MtcApp implements Closeable {
         sendNotification(parcel);
     }
 
+    /**
+     * Sets a value for the Terminal based TIR.
+     */
+    public void setTerminalBasedTir(boolean enabled) {
+        logi("setTerminalBasedTir :: enabled=" + enabled);
+
+        Parcel parcel = Parcel.obtain();
+
+        parcel.writeInt(IUMtcService.SET_TERMINAL_BASED_TIR);
+        parcel.writeInt(enabled ? 1 : 0);
+
+        sendNotification(parcel);
+    }
+
     public boolean isServiceValid() {
         return mNativeObject != 0;
     }

@@ -94,7 +94,7 @@ private:
     void AddSrvccFeature();
     void SetSrvccContactParameter();
     void SetCallerIdHeader();
-    // void SetTipHeader();
+    void SetTipHeader();
     void SetPEarlyMediaHeader();
     void SetAlertInfoHeader(IN IMS_BOOL bIncludeAlertInfo);
     void SetReasonHeader(IN const AString& strReason);

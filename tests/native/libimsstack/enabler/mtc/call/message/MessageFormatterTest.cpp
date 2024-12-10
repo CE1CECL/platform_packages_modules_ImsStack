@@ -17,6 +17,7 @@
 #include "CallReasonInfo.h"
 #include "CarrierConfig.h"
 #include "FeatureCaps.h"
+#include "IMtcService.h"
 #include "MediaNego.h"
 #include "MockICoreService.h"
 #include "MockIMessage.h"
@@ -711,6 +712,25 @@ TEST_F(MessageFormatterTest, SetCallerIdHeaderIgnoreRestrictingIfEmergency)
     EXPECT_CALL(objMessageUtils, SetHeader(&objMessage, _, ISipHeader::FROM, AString::ConstNull()))
             .Times(0);
     pFormatter->FormStartMessage(CallType::VOIP);
+}
+
+TEST_F(MessageFormatterTest, SetTipHeader)
+{
+    EXPECT_CALL(objService, GetTirStatus)
+            .WillOnce(Return(SuppStatus::UNPROVISIONED))
+            .WillOnce(Return(SuppStatus::PROVISIONED_ENABLED));
+
+    EXPECT_CALL(objMessageUtils,
+            SetHeader(&objMessage, AString(MessageUtil::STR_ID), ISipHeader::PRIVACY,
+                    AString::ConstNull()))
+            .Times(0);
+    pFormatter->FormProvisionalResponseMessage(IMS_FALSE);
+
+    EXPECT_CALL(objMessageUtils,
+            SetHeader(&objMessage, AString(MessageUtil::STR_ID), ISipHeader::PRIVACY,
+                    AString::ConstNull()))
+            .Times(1);
+    pFormatter->FormProvisionalResponseMessage(IMS_FALSE);
 }
 
 TEST_F(MessageFormatterTest, SetPEarlyMediaHeader)
