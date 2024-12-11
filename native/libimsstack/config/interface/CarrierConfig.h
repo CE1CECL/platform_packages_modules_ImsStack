@@ -308,6 +308,7 @@ public:
         static const IMS_CHAR KEY_REJECT_CODE_REQUIRE_TEMP_FAILURE_INT_ARRAY[];
         static const IMS_CHAR KEY_REJECT_CODE_REQUIRE_PERM_FAILURE_INT_ARRAY[];
         static const IMS_CHAR KEY_POLICY_FOR_EMERGENCY_URN_INT_ARRAY[];
+        static const IMS_CHAR KEY_SILENT_REDIAL_WITH_VOIP_BY_RTT_REJECTION_BOOL[];
 
         // Preferred Emergency Registration Type
         enum
