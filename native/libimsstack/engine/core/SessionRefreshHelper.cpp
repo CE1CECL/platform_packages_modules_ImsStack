@@ -952,33 +952,16 @@ PUBLIC
 IMS_SINT32 SessionRefreshHelper::GetRefreshMethod() const
 {
     const SipConfigV* pSipConfigV = m_pService->GetSipConfigV();
+    IMS_SINT32 nRefreshMethod = (pSipConfigV != IMS_NULL)
+            ? pSipConfigV->GetSessionMethod()
+            : SipConfigV::SESSION_REFRESH_UPDATE_PREFERRED;
 
-    if (pSipConfigV == IMS_NULL)
-    {
-        return SipMethod::INVALID;
-    }
-
-    IMS_SINT32 nRefreshMethod = pSipConfigV->GetSessionMethod();
-
-    if (nRefreshMethod == SipConfigV::SESSION_REFRESH_INVITE)
-    {
-        return SipMethod::INVITE;
-    }
-    else if (nRefreshMethod == SipConfigV::SESSION_REFRESH_UPDATE)
+    if (m_bUpdateMethodAllowed && nRefreshMethod == SipConfigV::SESSION_REFRESH_UPDATE_PREFERRED)
     {
         return SipMethod::UPDATE;
     }
-    else
-    {
-        if (m_bUpdateMethodAllowed)
-        {
-            return SipMethod::UPDATE;
-        }
-        else
-        {
-            return SipMethod::INVITE;
-        }
-    }
+
+    return SipMethod::INVITE;
 }
 
 PUBLIC
@@ -1140,21 +1123,17 @@ PROTECTED VIRTUAL IMS_SINT32 SessionRefreshHelper::GetTimerInterval() const
         const SipConfigV* pSipConfigV = m_pService->GetSipConfigV();
         // Unit : seconds
         IMS_SINT32 nRefreshMethodTxnTv = (-1);
+        IMS_SINT32 nRefreshMethod = GetRefreshMethod();
 
-        if (pSipConfigV != IMS_NULL)
+        if (nRefreshMethod == SipMethod::INVITE)
         {
-            IMS_SINT32 nRefreshMethod = pSipConfigV->GetSessionMethod();
-
-            if (nRefreshMethod == SipConfigV::SESSION_REFRESH_INVITE)
-            {
-                nRefreshMethodTxnTv = SipConfigProxy::GetTimerValueB(
-                        m_pService->GetSlotId(), m_pService->GetSipProfile(), pSipConfigV);
-            }
-            else if (nRefreshMethod == SipConfigV::SESSION_REFRESH_UPDATE)
-            {
-                nRefreshMethodTxnTv = SipConfigProxy::GetTimerValueF(
-                        m_pService->GetSlotId(), m_pService->GetSipProfile(), pSipConfigV);
-            }
+            nRefreshMethodTxnTv = SipConfigProxy::GetTimerValueB(
+                    m_pService->GetSlotId(), m_pService->GetSipProfile(), pSipConfigV);
+        }
+        else
+        {
+            nRefreshMethodTxnTv = SipConfigProxy::GetTimerValueF(
+                    m_pService->GetSlotId(), m_pService->GetSipProfile(), pSipConfigV);
         }
 
         if (nRefreshMethodTxnTv < 0)

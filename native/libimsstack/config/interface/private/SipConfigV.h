@@ -40,7 +40,7 @@ private:
         inline Session() :
                 bSessionTimerSupported(IMS_TRUE),
                 nRefresher(SESSION_REFRESHER_LOCAL),
-                nRefreshMethod(SESSION_REFRESH_UPDATE),
+                nRefreshMethod(SESSION_REFRESH_UPDATE_PREFERRED),
                 nMinSe(90),
                 nSessionExpires(3600),
                 nHeaders(SESSION_HEADER_ALL),
@@ -167,9 +167,7 @@ public:
     enum
     {
         SESSION_REFRESH_INVITE = 0,
-        SESSION_REFRESH_UPDATE,
-        /// Depends on the context
-        SESSION_REFRESH_ANY
+        SESSION_REFRESH_UPDATE_PREFERRED
     };
 
     enum
