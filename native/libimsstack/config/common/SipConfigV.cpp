@@ -213,13 +213,9 @@ PROTECTED VIRTUAL IMS_BOOL SipConfigV::ReadFrom()
     {
         m_objSession.nRefreshMethod = SESSION_REFRESH_INVITE;
     }
-    else if (nRefreshMethod == CarrierConfig::ImsVoice::SESSION_REFRESH_METHOD_UPDATE_PREFERRED)
-    {
-        m_objSession.nRefreshMethod = SESSION_REFRESH_UPDATE;
-    }
     else
     {
-        m_objSession.nRefreshMethod = SESSION_REFRESH_ANY;
+        m_objSession.nRefreshMethod = SESSION_REFRESH_UPDATE_PREFERRED;
     }
 
     m_objSession.nMinSe =
