@@ -607,3 +607,8 @@ TEST_F(MtcCallStateTest, OnIpcanChangedDoesNothing)
     EXPECT_EQ(INITIAL_CALL_STATE, pState->OnIpcanChanged(IIpcan::CATEGORY_WLAN));
     EXPECT_EQ(INITIAL_CALL_STATE, pState->OnIpcanChanged(IIpcan::CATEGORY_ANY));
 }
+
+TEST_F(MtcCallStateTest, OnConnectionFailedDoesNothing)
+{
+    EXPECT_EQ(INITIAL_CALL_STATE, pState->OnConnectionFailed(1, 2));
+}

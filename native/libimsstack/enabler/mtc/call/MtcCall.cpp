@@ -36,6 +36,7 @@
 #include "call/MtcSession.h"
 #include "call/block/MtcBlockChecker.h"
 #include "call/message/MessageSender.h"
+#include "call/radio/IMtcRadioChecker.h"
 #include "call/state/MtcCallState.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "emergency/CurrentLocationDiscoveryController.h"
@@ -86,6 +87,7 @@ MtcCall::MtcCall(IN IMtcContext& objContext, IN IMtcService& objService,
     m_objService.AddAosStateListener(this);
     m_objService.AddSrvccStateListener(this);
     m_objService.AddNetworkWatcherListener(this);
+    GetRadioChecker().AddTrafficCheckerListener(*this);
 }
 
 PUBLIC VIRTUAL MtcCall::~MtcCall()
@@ -95,6 +97,7 @@ PUBLIC VIRTUAL MtcCall::~MtcCall()
     m_objService.RemoveAosStateListener(this);
     m_objService.RemoveSrvccStateListener(this);
     m_objService.RemoveNetworkWatcherListener(this);
+    GetRadioChecker().RemoveTrafficCheckerListener(*this);
 
     for (IMS_UINT32 nIndex = 0; nIndex < m_lstSessions.GetSize(); nIndex++)
     {
@@ -1229,6 +1232,18 @@ PUBLIC VIRTUAL void MtcCall::OnRatChanged(IMS_SINT32 eRatType)
     IMS_TRACE_I("OnRatChanged :  RAT=%d", eRatType, 0, 0);
 
     m_objUiNotifier.SendRatChanged(eRatType);
+}
+
+PUBLIC VIRTUAL void MtcCall::OnConnectionFailed(
+        IN IMS_UINT32 nFailureReason, IN IMS_UINT32 nWaitTimeMillis)
+{
+    IMS_TRACE_I("OnConnectionFailed Reason[%d] Time[%d]", nFailureReason, nWaitTimeMillis, 0);
+
+    m_objStateMachine.RunStateOperation(
+            [&](IMtcCallState* pState)
+            {
+                return pState->OnConnectionFailed(nFailureReason, nWaitTimeMillis);
+            });
 }
 
 PRIVATE

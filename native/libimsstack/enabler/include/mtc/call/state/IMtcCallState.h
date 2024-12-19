@@ -638,6 +638,22 @@ public:
      * @return
      */
     virtual CallStateName OnIpcanChanged(IN IMS_UINT32 eIpcan) = 0;
+
+    /**
+     * Reports the OnConnectionFailed information received from the IMtcRadioCheckerListener.
+     * <p>
+     * This method forwards the connection failure details, including the reason and
+     * suggested wait time before retrying, originally provided by the network through
+     * the {@link IMtcRadioCheckerListener} and {@link IImsRadioConnectionListener}.
+     *
+     * @param nFailureReason The reason for the connection failure.
+     *                       See {@link IImsRadio#ConnectionFailureReason} for possible values.
+     * @param nWaitTimeMillis The retry wait time suggested by the network, in milliseconds.
+     *
+     * @return The CallStateName after handling this event.
+     */
+    virtual CallStateName OnConnectionFailed(
+            IN IMS_UINT32 nFailureReason, IN IMS_UINT32 nWaitTimeMillis) = 0;
 };
 
 #endif

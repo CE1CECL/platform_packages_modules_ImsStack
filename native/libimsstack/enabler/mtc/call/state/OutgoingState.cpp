@@ -704,8 +704,7 @@ PROTECTED VIRTUAL CallStateName OutgoingState::HandleAosConnected()
     return GetStateName();
 }
 
-PUBLIC
-CallStateName OutgoingState::OnTimerExpired(IN IMS_SINT32 nType)
+PUBLIC VIRTUAL CallStateName OutgoingState::OnTimerExpired(IN IMS_SINT32 nType)
 {
     switch (nType)
     {
@@ -742,6 +741,35 @@ CallStateName OutgoingState::OnTimerExpired(IN IMS_SINT32 nType)
         default:
             return GetStateName();
     }
+}
+
+PUBLIC VIRTUAL CallStateName OutgoingState::OnConnectionFailed(
+        IN IMS_UINT32 nFailureReason, IN [[maybe_unused]] IMS_UINT32 nWaitTimeMillis)
+{
+    if (m_objContext.GetMessageUtils().GetPreviousResponse(
+                GetISession(), IMessage::SESSION_START) != IMS_NULL)
+    {
+        IMS_TRACE_I("OnConnectionFailed : INVITE was already received by the server.", 0, 0, 0);
+        return GetStateName();
+    }
+
+    IMS_TRACE_E(0, "OnConnectionFailed", 0, 0, 0);
+    IMS_SINT32 eCode;
+    IMS_SINT32 eExtraCode;
+    if (m_objContext.GetService().IsCsfbAvailable())
+    {
+        eCode = CODE_LOCAL_CALL_CS_RETRY_REQUIRED;
+        eExtraCode = EXTRA_CODE_CALL_RETRY_SILENT_REDIAL;
+    }
+    else
+    {
+        eCode = CODE_CALL_BARRED;
+        eExtraCode = -1;
+    }
+    CallReasonInfo objReason(eCode, eExtraCode);
+    HandleCancel(GetISession(), objReason);
+    OnStartFailed(objReason);
+    return CallStateName::TERMINATING;
 }
 
 PRIVATE

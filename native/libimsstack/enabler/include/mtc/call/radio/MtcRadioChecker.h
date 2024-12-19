@@ -98,6 +98,8 @@ public:
     void CreateCallTrafficInfoWithGivenValue(IN TrafficType eTrafficType,
             IN CallDirection eCallDirection, IN IMS_BOOL bActive, IN CallKey nCallKeyIn);
 
+    static IMS_BOOL IsReasonToIgnore(IN IMS_UINT32 nFailureReason);
+
 private:
     void DeInit();
     static TrafficType ConvertCallTypeToTrafficType(IN CallType eCallType, IN IMS_BOOL bEmergency);

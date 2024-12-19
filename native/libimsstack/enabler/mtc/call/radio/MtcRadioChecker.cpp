@@ -152,32 +152,20 @@ PUBLIC VIRTUAL void MtcRadioChecker::OnConnectionFailed(IN TrafficType eTrafficT
     IMS_TRACE_D("OnConnectionFailed TrafficType[%d] FailureReason[%d]", eTrafficType,
             nFailureReason, 0);
 
-    switch (nFailureReason)
+    if (IsReasonToIgnore(nFailureReason))
     {
-        case IImsRadio::REASON_ACCESS_DENIED:
-        case IImsRadio::REASON_INTERNAL_ERROR:
-        case IImsRadio::REASON_RRC_REJECT:
-            for (IMS_UINT32 i = 0; i < m_objMtcRadioCheckerListeners.GetSize(); i++)
-            {
-                m_objMtcRadioCheckerListeners.GetAt(i)->OnConnectionFailed(
-                        nFailureReason, nWaitTimeMillis);
-            }
-            break;
-
-        case IImsRadio::REASON_NAS_FAILURE:
-        case IImsRadio::REASON_RACH_FAILURE:
-        case IImsRadio::REASON_RLC_FAILURE:
-        case IImsRadio::REASON_RRC_TIMEOUT:
-        case IImsRadio::REASON_NO_SERVICE:
-        case IImsRadio::REASON_PDN_NOT_AVAILABLE:
-        case IImsRadio::REASON_RF_BUSY:
-            // Calls will be blocked in these cases (e.g. message cannot be sent),
-            // so they could be handled as success here.
-            for (IMS_UINT32 i = 0; i < m_objMtcRadioCheckerListeners.GetSize(); i++)
-            {
-                m_objMtcRadioCheckerListeners.GetAt(i)->OnConnectionSetupPrepared();
-            }
-            break;
+        for (IMS_UINT32 i = 0; i < m_objMtcRadioCheckerListeners.GetSize(); i++)
+        {
+            m_objMtcRadioCheckerListeners.GetAt(i)->OnConnectionSetupPrepared();
+        }
+    }
+    else
+    {
+        for (IMS_UINT32 i = 0; i < m_objMtcRadioCheckerListeners.GetSize(); i++)
+        {
+            m_objMtcRadioCheckerListeners.GetAt(i)->OnConnectionFailed(
+                    nFailureReason, nWaitTimeMillis);
+        }
     }
 }
 
@@ -206,6 +194,21 @@ PUBLIC void MtcRadioChecker::CreateCallTrafficInfoWithGivenValue(IN TrafficType 
     if (nCallKeyIn != IMtcCall::CALL_KEY_INVALID)
     {
         pMtcTrafficInfo->m_objCallKeys.Append(nCallKeyIn);
+    }
+}
+
+PUBLIC GLOBAL IMS_BOOL MtcRadioChecker::IsReasonToIgnore(IN IMS_UINT32 nFailureReason)
+{
+    switch (nFailureReason)
+    {
+        case IImsRadio::REASON_ACCESS_DENIED:
+        case IImsRadio::REASON_INTERNAL_ERROR:
+            return IMS_FALSE;
+
+        default:
+            // Calls will be blocked in these cases (e.g. message cannot be sent),
+            // so they could be handled as success here.
+            return IMS_TRUE;
     }
 }
 

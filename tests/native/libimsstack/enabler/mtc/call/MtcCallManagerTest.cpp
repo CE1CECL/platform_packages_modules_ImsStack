@@ -21,6 +21,7 @@
 #include "call/IMtcCall.h"
 #include "call/MtcCall.h"
 #include "call/MtcCallManager.h"
+#include "call/radio/MockIMtcRadioChecker.h"
 #include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/MockICallStateProxy.h"
@@ -41,6 +42,7 @@ public:
     MockMtcConfigurationProxy* pConfigurationProxy;
     MtcCallManager* pCallManager;
     MockIMtcService objService;
+    MockIMtcRadioChecker objRadioChecker;
 
 protected:
     virtual void SetUp() override
@@ -58,6 +60,7 @@ protected:
                         {
                             return std::make_unique<MockMtcTimerWrapper>();
                         }));
+        ON_CALL(objContext, GetRadioChecker).WillByDefault(ReturnRef(objRadioChecker));
 
         pCallManager = new MtcCallManager(objContext);
     }

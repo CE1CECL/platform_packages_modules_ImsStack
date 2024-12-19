@@ -34,6 +34,7 @@
 #include "call/UpdatingInfo.h"
 #include "call/block/IMtcBlockChecker.h"
 #include "call/message/MtcMessageMediator.h"
+#include "call/radio/IMtcRadioChecker.h"
 #include "call/state/CallStateFactory.h"
 #include "call/state/IMtcCallState.h"
 #include "call/state/MtcCallStateMachine.h"
@@ -94,7 +95,8 @@ class MtcCall final :
         public IMediaReportEventListener,
         public ISrvccStateListener,
         public IMtcAosStateListener,
-        public IMtcNetworkWatcherListener
+        public IMtcNetworkWatcherListener,
+        public IMtcRadioCheckerListener
 {
 public:
     MtcCall(IN IMtcContext& objContext, IN IMtcService& objService, IN const CallInfo& objCallInfo,
@@ -316,6 +318,9 @@ public:
     void OnIpcanChanged(IN IMtcService& objMtcService, IN IMS_UINT32 eIpcan) override;
 
     void OnRatChanged(IMS_SINT32 eRatType) override;
+
+    inline void OnConnectionSetupPrepared() override {}
+    void OnConnectionFailed(IN IMS_UINT32 nFailureReason, IN IMS_UINT32 nWaitTimeMillis) override;
 
 private:
     static IMutex* s_pKeyCreationLock;

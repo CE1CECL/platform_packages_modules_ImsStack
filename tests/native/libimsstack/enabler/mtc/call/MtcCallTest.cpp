@@ -88,6 +88,7 @@ public:
     MockICallStateProxy objCallStateProxy;
     MockIMtcSipInterfaceFactory objSipInterfaceFactory;
     MockMtcConfigurationProxy* pConfigurationProxy;
+    MockIMtcRadioChecker objRadioChecker;
     MockSessionInterfaceHolder* pSessionInterfaceHolder;
     MessageUtils objMessageUtils;
 
@@ -114,6 +115,7 @@ protected:
                         {
                             return std::make_unique<MockMtcTimerWrapper>();
                         }));
+        ON_CALL(objContext, GetRadioChecker).WillByDefault(ReturnRef(objRadioChecker));
     }
 
     virtual void TearDown() override
@@ -140,6 +142,28 @@ protected:
         return CreateStateFactory(new MockIMtcCallState());
     }
 };
+
+TEST_F(MtcCallTest, ConstructorAddsListeners)
+{
+    EXPECT_CALL(objService, AddAosStateListener(_));
+    EXPECT_CALL(objService, AddSrvccStateListener(_));
+    EXPECT_CALL(objService, AddNetworkWatcherListener(_));
+    EXPECT_CALL(objRadioChecker, AddTrafficCheckerListener(_));
+
+    MockIMtcCallState* pState = new MockIMtcCallState();
+    MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory(pState));
+}
+
+TEST_F(MtcCallTest, DestructorRemovesListeners)
+{
+    EXPECT_CALL(objService, RemoveAosStateListener(_));
+    EXPECT_CALL(objService, RemoveSrvccStateListener(_));
+    EXPECT_CALL(objService, RemoveNetworkWatcherListener(_));
+    EXPECT_CALL(objRadioChecker, RemoveTrafficCheckerListener(_));
+
+    MockIMtcCallState* pState = new MockIMtcCallState();
+    MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory(pState));
+}
 
 TEST_F(MtcCallTest, AttachNotCallsStateForMo)
 {
@@ -1100,8 +1124,7 @@ TEST_F(MtcCallTest, GetRadioCheckerCallsMtcContext)
 {
     MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory());
 
-    MockIMtcRadioChecker objTrafficChecker;
-    EXPECT_CALL(objContext, GetRadioChecker).Times(1).WillRepeatedly(ReturnRef(objTrafficChecker));
+    EXPECT_CALL(objContext, GetRadioChecker).Times(2).WillRepeatedly(ReturnRef(objRadioChecker));
 
     objCall.GetRadioChecker();
 }
@@ -2186,4 +2209,16 @@ TEST_F(MtcCallTest, OnIpcanChangedCallsState)
     MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory(pState));
 
     objCall.OnIpcanChanged(objService, eAnyType);
+}
+
+TEST_F(MtcCallTest, OnConnectionFailedCallsState)
+{
+    IMS_UINT32 nFailureReason = 0;
+    IMS_UINT32 nWaitTimeMillis = 1;
+    MockIMtcCallState* pState = new MockIMtcCallState();
+    EXPECT_CALL(*pState, OnConnectionFailed(nFailureReason, nWaitTimeMillis)).Times(1);
+
+    MtcCall objCall(objContext, objService, objCallInfo, CreateStateFactory(pState));
+
+    objCall.OnConnectionFailed(nFailureReason, nWaitTimeMillis);
 }

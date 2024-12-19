@@ -488,6 +488,13 @@ PUBLIC VIRTUAL CallStateName MtcCallState::OnIpcanChanged(IN IMS_UINT32 /*eIpcan
     return GetStateName();
 }
 
+PUBLIC VIRTUAL CallStateName MtcCallState::OnConnectionFailed(IN
+        [[maybe_unused]] IMS_UINT32 nFailureReason,
+        IN [[maybe_unused]] IMS_UINT32 nWaitTimeMillis)
+{
+    return GetStateName();
+}
+
 PROTECTED VIRTUAL CallStateName MtcCallState::SendUpdateBySrvcc(IN UpdateType eType)
 {
     // Not checking the state because EstablishedState overrides this and UpdatingState will put
