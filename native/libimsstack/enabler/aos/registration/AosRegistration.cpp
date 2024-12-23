@@ -6093,20 +6093,19 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::AddLocationHeaderBody(
 PRIVATE
 void AosRegistration::ControlPrivateHeader()
 {
-    if (!IsRegTypeEqual(AosRegistrationType::NORMAL))
+    switch (GET_N_CONFIG(m_nSlotId)->GetRegistrationPrivateHeader())
     {
-        return;
-    }
-
-    IMS_SINT32 nPrivateHeader = GET_N_CONFIG(m_nSlotId)->GetRegistrationPrivateHeader();
-    if (nPrivateHeader == CarrierConfig::ImsWfc::REGISTRATION_P_NOT_SUPPORTED)
-    {
-        return;
-    }
-
-    if (nPrivateHeader == CarrierConfig::ImsWfc::REGISTRATION_P_LAST_ACCESS_NETWORK_INFO)
-    {
-        SetPlaniHeader();
+        case CarrierConfig::ImsWfc::REGISTRATION_P_CELLULAR_NETWORK_INFO:
+            SetPcniHeader();
+            break;
+        case CarrierConfig::ImsWfc::REGISTRATION_P_LAST_ACCESS_NETWORK_INFO:
+            if (IsRegTypeEqual(AosRegistrationType::NORMAL))
+            {
+                SetPlaniHeader();
+            }
+            break;
+        default:
+            return;
     }
 }
 
@@ -6182,6 +6181,34 @@ void AosRegistration::SetContactAddressConfiguration(IN IMS_BOOL bAdd)
     {
         piRtConfigHelper->RemoveConfig(SipRtConfig::CONFIG_I_REG_CONTACT_ADDRESS, IMS_NULL);
     }
+}
+
+PRIVATE
+void AosRegistration::SetPcniHeader()
+{
+    IMS_BOOL bSet = m_pIpsecHelper != IMS_NULL && m_pIpsecHelper->IsEstablished() &&
+            GetRegIpcanCategory() == IIpcan::CATEGORY_WLAN;
+
+    ISipRtConfigHelper* piConfHelper = SipFactory::GetRtConfigHelper(m_nSlotId);
+    if (bSet &&
+            piConfHelper->GetHeader(AString(AosString::STR_P_CELLULAR_NETWORK_INFO)) != IMS_NULL)
+    {
+        return;
+    }
+
+    SipRtConfig::Header* pPcniHeader = new SipRtConfig::Header();
+    pPcniHeader->strName = AosString::STR_P_CELLULAR_NETWORK_INFO;
+
+    if (bSet)
+    {
+        piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, pPcniHeader);
+    }
+    else
+    {
+        piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, pPcniHeader);
+    }
+
+    delete pPcniHeader;
 }
 
 PRIVATE
