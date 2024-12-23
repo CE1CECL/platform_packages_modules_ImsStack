@@ -277,12 +277,19 @@ TEST_F(PAccessNetworkInfoHeaderTest, SetHeader)
 
     piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPlaniHeader);
 
+    SipRtConfig::Header objPcniHeader;
+
+    objPcniHeader.strName = "P-Cellular-Network-Info";
+    objPcniHeader.strParameter = "\\2023-03-05T13%3A15%3A10Z\\";
+
+    piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPcniHeader);
+
     EXPECT_CALL(m_objNetworkConnection, IsePDGEnabled())
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
     EXPECT_CALL(m_pPhoneInfoService->GetMockNetworkWatcher(), GetNetworkType())
             .WillRepeatedly(Return(INetworkWatcher::RADIOTECH_TYPE_LTE));
-    EXPECT_CALL(objMockISipMessage, GetMethod()).Times(3);
+    EXPECT_CALL(objMockISipMessage, GetMethod()).Times(4);
     EXPECT_CALL(m_objNetworkConnection, GetExtraInfo(_, _)).Times(AnyNumber());
 
     ON_CALL(objMockISipMessage, GetMethod()).WillByDefault(ReturnRef(m_objMethod));
@@ -296,9 +303,9 @@ TEST_F(PAccessNetworkInfoHeaderTest, SetHeader)
                     }));
 
     EXPECT_CALL(m_objNetworkConnection, GetAccessNetworkInfo(_)).Times(1);
-    EXPECT_CALL(m_objNetworkConnection, GetLastAccessNetworkInfo(_, _, _)).Times(2);
+    EXPECT_CALL(m_objNetworkConnection, GetLastAccessNetworkInfo(_, _, _)).Times(3);
     EXPECT_CALL(objMockISipMessage, SetHeader(ISipHeader::UNKNOWN, _, _))
-            .Times(2)
+            .Times(3)
             .WillRepeatedly(Return(IMS_SUCCESS));
     EXPECT_CALL(objMockISipMessage, SetHeader(ISipHeader::P_ACCESS_NETWORK_INFO, _, _))
             .Times(1)
@@ -310,6 +317,7 @@ TEST_F(PAccessNetworkInfoHeaderTest, SetHeader)
 
     piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objCniHeader);
     piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPlaniHeader);
+    piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPcniHeader);
 }
 
 }  // namespace android
