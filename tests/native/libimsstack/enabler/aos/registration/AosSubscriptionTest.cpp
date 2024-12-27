@@ -758,7 +758,7 @@ TEST_F(AosSubscriptionTest, ReturnTrueWhenErrRegRequiredInWifiIsMatchedBySingleD
             Subscription_StateChanged(
                     AosSubscription::STATE_OFFLINE, AosSubscription::REASON_SUB_FAILED));
     EXPECT_CALL(m_objMockIAosSubscriptionListener,
-            Subscription_Request(AosSubscription::CMD_REG_REQUIRED, 0, IMS_TRUE));
+            Subscription_Request(AosSubscription::CMD_REG_REQUIRED, 0, IMS_FALSE));
     EXPECT_TRUE(m_pAosSubscription->IsInitialRegistrationRequiredInWifi(301, IMS_FALSE));
     EXPECT_EQ(m_pAosSubscription->GetState(), AosSubscription::STATE_OFFLINE);
 }
@@ -779,7 +779,7 @@ TEST_F(AosSubscriptionTest, ReturnTrueWhenWfcErrorMessageIsSupported)
             .WillByDefault(Return(IMS_TRUE));
 
     // RequestCommand
-    ON_CALL(m_objMockIAosConfig, GetRegRetryCountResetPolicy()).WillByDefault(Return(2));
+    ON_CALL(m_objMockIAosConfig, GetRegRetryCountResetPolicy()).WillByDefault(Return(1));
 
     EXPECT_CALL(m_objMockIAosSubscriptionListener,
             Subscription_StateChanged(

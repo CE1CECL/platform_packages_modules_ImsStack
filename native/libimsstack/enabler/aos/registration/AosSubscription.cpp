@@ -843,8 +843,8 @@ PROTECTED VIRTUAL void AosSubscription::RequestCommand(
 
     ReportState(nReason, nCommand,
             bIsRegRequired &&
-                    GET_N_CONFIG(m_piContext->GetSlotId())->GetRegRetryCountResetPolicy() !=
-                            CarrierConfig::Ims::REG_RETRY_CNT_RESET_POLICY_REGISTRATION,
+                    GET_N_CONFIG(m_piContext->GetSlotId())->GetRegRetryCountResetPolicy() ==
+                            CarrierConfig::Ims::REG_RETRY_CNT_RESET_POLICY_SUBSCRIPTION,
             nRetryAfter);
 }
 
