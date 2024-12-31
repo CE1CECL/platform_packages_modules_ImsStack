@@ -65,6 +65,7 @@
 #include <initializer_list>
 
 using ::testing::_;
+using ::testing::Ref;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
@@ -666,6 +667,27 @@ TEST_F(OutgoingStateTest, SessionStartedSetsConferenceCallToMediaManagerIfConfer
     EXPECT_EQ(CallStateName::ESTABLISHED, pOutgoingState->SessionStarted(&objSession));
 }
 
+TEST_F(OutgoingStateTest, SessionStartedRemovesInactiveSessions)
+{
+    MockIMtcSession objMtcSession2;
+    objSessions.Append(&objMtcSession2);
+    ON_CALL(objCallContext, GetSessions()).WillByDefault(ReturnRef(objSessions));
+
+    MockIMessage objMessage;
+    ON_CALL(objMessageUtils, GetPreviousResponse(&objSession, IMessage::SESSION_START, -1))
+            .WillByDefault(Return(&objMessage));
+    ON_CALL(objMessageUtils, IsHeaderPresent(_, _, _)).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_200));
+
+    ON_CALL(objMessageUtils, IsResponseExist(&objSession, SipStatusCode::SC_200))
+            .WillByDefault(Return(IMS_TRUE));
+
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(0);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession2))).Times(1);
+
+    EXPECT_EQ(CallStateName::ESTABLISHED, pOutgoingState->SessionStarted(&objSession));
+}
+
 TEST_F(OutgoingStateTest, SessionStartFailedKeepsOutgoingStateIfSrvccStartedAndAosDisconnected)
 {
     ON_CALL(objService, GetSrvccState).WillByDefault(Return(SrvccState::STARTED));
@@ -1051,6 +1073,20 @@ TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateFailedWith503InvokesRedial)
     EXPECT_EQ(CallStateName::IDLE, pOutgoingState->SessionEarlyMediaUpdateFailed(&objSession));
 }
 
+TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateFailedTerminatesSessionAndKeepsCurrentState)
+{
+    MockIMtcSession objMtcSession2;
+    objSessions.Append(&objMtcSession2);
+    ON_CALL(objCallContext, GetSessions()).WillByDefault(ReturnRef(objSessions));
+
+    EXPECT_CALL(objMtcSession, Terminate(IMS_TRUE, CallReasonInfo(CODE_SIP_SERVER_ERROR)));
+    EXPECT_CALL(objUiNotifier, SendStartFailed(_)).Times(0);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(1);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession2))).Times(0);
+
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionEarlyMediaUpdateFailed(&objSession));
+}
+
 TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateReceivedRejectsRequestIfSdpOaFails)
 {
     MockIMessage objMessage;
@@ -1139,7 +1175,7 @@ TEST_F(OutgoingStateTest, SessionForkedResponseReceivedAddsISession)
     EXPECT_CALL(objMtcSession,
             Terminate(IMS_TRUE, CallReasonInfo(CODE_INTERNAL_EARLYDIALOG_FORKED_TERMINATED)))
             .Times(0);
-    EXPECT_CALL(objCallContext, RemoveSession(&objSession)).Times(0);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(0);
 
     MockISession objForkedSession;
     EXPECT_CALL(*pSessionInterfaceHolder, AddISession(_, &objForkedSession));
@@ -1155,7 +1191,7 @@ TEST_F(OutgoingStateTest, SessionForkedResponseReceivedTerminatesOriginalSession
     EXPECT_CALL(objMtcSession,
             Terminate(IMS_TRUE, CallReasonInfo(CODE_INTERNAL_EARLYDIALOG_FORKED_TERMINATED)))
             .Times(1);
-    EXPECT_CALL(objCallContext, RemoveSession(&objSession)).Times(1);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(1);
 
     MockISession objForkedSession;
     EXPECT_EQ(CallStateName::OUTGOING,
@@ -1173,7 +1209,7 @@ TEST_F(OutgoingStateTest, SessionForkedResponseReceivedDoesNotTerminateOriginalS
     EXPECT_CALL(objMtcSession,
             Terminate(IMS_TRUE, CallReasonInfo(CODE_INTERNAL_EARLYDIALOG_FORKED_TERMINATED)))
             .Times(0);
-    EXPECT_CALL(objCallContext, RemoveSession(&objSession)).Times(0);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(0);
 
     MockISession objForkedSession;
     EXPECT_EQ(CallStateName::OUTGOING,
@@ -1380,6 +1416,23 @@ TEST_F(OutgoingStateTest, SessionPrackDeliveryFailedByNoResponseTerminatesCall)
             SendStartFailed(CallReasonInfo(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_PRACK)));
 
     EXPECT_EQ(CallStateName::TERMINATING, pOutgoingState->SessionPrackDeliveryFailed(&objSession));
+}
+
+TEST_F(OutgoingStateTest, SessionPrackDeliveryFailedTerminatesSessionAndKeepsCurrentState)
+{
+    ON_CALL(*pConfigurationProxy, GetBoolean(ConfigVoice::KEY_IGNORE_PRACK_DELIVERY_FAILURE_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
+
+    MockIMtcSession objMtcSession2;
+    objSessions.Append(&objMtcSession2);
+    ON_CALL(objCallContext, GetSessions()).WillByDefault(ReturnRef(objSessions));
+
+    EXPECT_CALL(objMtcSession, Terminate(IMS_TRUE, CallReasonInfo(CODE_SIP_SERVER_ERROR)));
+    EXPECT_CALL(objUiNotifier, SendStartFailed(_)).Times(0);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(1);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession2))).Times(0);
+
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionPrackDeliveryFailed(&objSession));
 }
 
 TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedStopsTimersIfNot100)
@@ -1912,6 +1965,29 @@ TEST_F(OutgoingStateTest, SessionRprReceivedDoesNotInvokeSendPrackIfFinalRespons
             .WillByDefault(Return(IMS_TRUE));
 
     EXPECT_CALL(objMtcSession, SendPrack(_)).Times(0);
+
+    EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
+}
+
+TEST_F(OutgoingStateTest, SessionRprReceivedWithNegoFailureTerminatesSessionAndKeepsCurrentState)
+{
+    MockIMtcSession objMtcSession2;
+    objSessions.Append(&objMtcSession2);
+    ON_CALL(objCallContext, GetSessions()).WillByDefault(ReturnRef(objSessions));
+
+    MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("supportedExtension")));
+    ON_CALL(objMtcSession, GetExtensionSet).WillByDefault(ReturnRef(objMtcExtensionSet));
+    ON_CALL(objMessageUtils, GetResponseStatusCode(&objSession, IMessage::SESSION_START, 0))
+            .WillByDefault(Return(SipStatusCode::SC_183));
+    MockIMessage objMessage;
+    ON_CALL(objMessageUtils, GetPreviousResponse(&objSession, IMessage::SESSION_START, 0))
+            .WillByDefault(Return(&objMessage));
+    SetSdpOaFailure(objMessage);
+
+    EXPECT_CALL(objMtcSession, Terminate(IMS_TRUE, CallReasonInfo(CODE_SIP_NOT_ACCEPTABLE)));
+    EXPECT_CALL(objUiNotifier, SendStartFailed(_)).Times(0);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession))).Times(1);
+    EXPECT_CALL(objCallContext, RemoveSession(Ref(objMtcSession2))).Times(0);
 
     EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
 }
