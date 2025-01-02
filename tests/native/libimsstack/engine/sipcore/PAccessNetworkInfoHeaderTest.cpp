@@ -262,19 +262,12 @@ TEST_F(PAccessNetworkInfoHeaderTest, SetHeader)
 
     m_pNetworkService->SetConnection(&m_objNetworkConnection);
 
-    SipRtConfig::Header objPlciHeader;
-
-    objPlciHeader.strName = "P-Last-Cell-ID";
-    objPlciHeader.strParameter = "\\2023-03-05T13%3A15%3A30Z\\";
-
-    ISipRtConfigHelper* piConfHelper = SipFactory::GetRtConfigHelper(IMS_SLOT_0);
-    piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPlciHeader);
-
     SipRtConfig::Header objCniHeader;
 
     objCniHeader.strName = SipHeaderName::CELLULAR_NETWORK_INFO;
     objCniHeader.strParameter = "\\2023-03-05T13%3A15%3A32Z\\";
 
+    ISipRtConfigHelper* piConfHelper = SipFactory::GetRtConfigHelper(IMS_SLOT_0);
     piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objCniHeader);
 
     SipRtConfig::Header objPlaniHeader;
@@ -283,6 +276,13 @@ TEST_F(PAccessNetworkInfoHeaderTest, SetHeader)
     objPlaniHeader.strParameter = "\\2023-03-05T13%3A15%3A10Z\\";
 
     piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPlaniHeader);
+
+    SipRtConfig::Header objPcniHeader;
+
+    objPcniHeader.strName = "P-Cellular-Network-Info";
+    objPcniHeader.strParameter = "\\2023-03-05T13%3A15%3A10Z\\";
+
+    piConfHelper->SetConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPcniHeader);
 
     EXPECT_CALL(m_objNetworkConnection, IsePDGEnabled())
             .Times(AnyNumber())
@@ -315,9 +315,9 @@ TEST_F(PAccessNetworkInfoHeaderTest, SetHeader)
 
     PAccessNetworkInfoHeader::SetHeader(IMS_SLOT_0, objIpAddress, m_pSipProfile.Get(), piSipMsg);
 
-    piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPlciHeader);
     piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objCniHeader);
     piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPlaniHeader);
+    piConfHelper->RemoveConfig(SipRtConfig::CONFIG_I_SIP_HEADER, &objPcniHeader);
 }
 
 }  // namespace android

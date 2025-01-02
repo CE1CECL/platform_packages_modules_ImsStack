@@ -26,6 +26,7 @@ const IMS_CHAR AosString::STR_ACCESS_TYPE_CELLULAR[] = "\"cellular\"";
 const IMS_CHAR AosString::STR_ACCESS_TYPE_CELLULAR2[] = "\"cellular2\"";
 const IMS_CHAR AosString::STR_ACCESS_TYPE_WLAN[] = "\"wlan\"";
 const IMS_CHAR AosString::STR_ACCESS_TYPE_WLAN1[] = "\"wlan1\"";
+const IMS_CHAR AosString::STR_P_CELLULAR_NETWORK_INFO[] = "P-Cellular-Network-Info";
 const IMS_CHAR AosString::STR_P_LAST_ACCESS_NETWORK_INFO[] = "P-Last-Access-Network-Info";
 const IMS_CHAR AosString::STR_CS[] = "cs";
 const IMS_CHAR AosString::STR_CS_WITH_DQ[] = "\"cs\"";

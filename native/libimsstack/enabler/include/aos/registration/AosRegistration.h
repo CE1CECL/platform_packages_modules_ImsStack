@@ -395,6 +395,7 @@ private:
     IMS_UINT32 GetSpecificErrWaitTime();
     void ProcessImsiBasedSubscriber();
     void SetContactAddressConfiguration(IN IMS_BOOL bAdd);
+    void SetPcniHeader();
     void SetPlaniHeader();
     void UpdateUserInfoInContact();
     void UpdateCallingNumberVerification();

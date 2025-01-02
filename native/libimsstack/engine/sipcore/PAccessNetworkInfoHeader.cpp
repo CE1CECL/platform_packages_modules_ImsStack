@@ -125,7 +125,7 @@ PUBLIC GLOBAL void PAccessNetworkInfoHeader::SetHeader(IN IMS_SINT32 nSlotId,
 
     if (piConnection->IsePDGEnabled())
     {
-        SetPrivateHeaderForPlci(nSlotId, piConnection, piSipMsg);
+        SetPrivateHeaderForPcni(nSlotId, piConnection, piSipMsg);
         SetCniHeader(nSlotId, piConnection, pSipProfile, piSipMsg);
     }
 }
@@ -345,7 +345,7 @@ PRIVATE GLOBAL void PAccessNetworkInfoHeader::SetPrivateHeaderForPlani(
     ////////
 }
 
-PRIVATE GLOBAL void PAccessNetworkInfoHeader::SetPrivateHeaderForPlci(
+PRIVATE GLOBAL void PAccessNetworkInfoHeader::SetPrivateHeaderForPcni(
         IN IMS_SINT32 nSlotId, IN INetworkConnection* piConnection, IN_OUT ISipMessage*& piSipMsg)
 {
     if (piConnection == IMS_NULL)
@@ -354,57 +354,46 @@ PRIVATE GLOBAL void PAccessNetworkInfoHeader::SetPrivateHeaderForPlci(
     }
 
     const SipMethod& objMethod = piSipMsg->GetMethod();
-
     if (objMethod.Equals(SipMethod::ACK) || objMethod.Equals(SipMethod::CANCEL))
     {
         return;
     }
 
-    const AString strPlciHeaderName("P-Last-Cell-ID");
+    const AString strHeaderName("P-Cellular-Network-Info");
     ISipRtConfigHelper* piRtConfigHelper = SipFactory::GetRtConfigHelper(nSlotId);
-    const SipRtConfig::Header* pHeader = piRtConfigHelper->GetHeader(strPlciHeaderName);
+    const SipRtConfig::Header* pHeader = piRtConfigHelper->GetHeader(strHeaderName);
 
     if (pHeader == IMS_NULL)
     {
         return;
     }
 
-    AString strLastKnownPanInfo;
+    AString strHeader;
     AString strTimestamp;
     AString strCellInfoAge;
     AccessNetworkInfo objAnInfo;
 
     piConnection->GetLastAccessNetworkInfo(objAnInfo, strTimestamp, strCellInfoAge);
 
-    if (!FormHeader(nSlotId, objAnInfo, strLastKnownPanInfo))
+    if (!FormHeader(nSlotId, objAnInfo, strHeader))
     {
-        IMS_TRACE_D("PLCI: FormHeader fails", 0, 0, 0);
+        IMS_TRACE_D("P-CNI: FormHeader fails", 0, 0, 0);
         return;
     }
 
-    if (strLastKnownPanInfo.GetLength() == 0)
+    if (strHeader.GetLength() == 0)
     {
-        IMS_TRACE_D("PLCI: length 0", 0, 0, 0);
+        IMS_TRACE_D("P-CNI: length 0", 0, 0, 0);
         return;
     }
 
-    // Timestamp for last known cell identity
-    strLastKnownPanInfo.Append(';');
-    strLastKnownPanInfo.Append('\"');
-    strLastKnownPanInfo.Append(strTimestamp);
-    strLastKnownPanInfo.Append('\"');
+    // The relative time since the information about the cell identity was collected by the UE
+    strHeader.Append(";cell-info-age=");
+    strHeader.Append(strCellInfoAge);
 
-    // Timestamp for IMS-REG over WiFi (ePDG)
-    if (pHeader->strParameter.GetLength() > 0)
+    if (piSipMsg->SetHeader(ISipHeader::UNKNOWN, strHeader, strHeaderName) != IMS_SUCCESS)
     {
-        strLastKnownPanInfo.Append(';');
-        strLastKnownPanInfo.Append(pHeader->strParameter);
-    }
-
-    if (piSipMsg->SetHeader(ISipHeader::UNKNOWN, strLastKnownPanInfo, strPlciHeaderName) !=
-            IMS_SUCCESS)
-    {
-        IMS_TRACE_E(0, "Setting %s header failed", strPlciHeaderName.GetStr(), 0, 0);
+        IMS_TRACE_E(0, "Setting %s header failed", strHeaderName.GetStr(), 0, 0);
     }
 }
 

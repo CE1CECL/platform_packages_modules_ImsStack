@@ -32,6 +32,7 @@ public:
     static const IMS_CHAR STR_ACCESS_TYPE_CELLULAR2[];
     static const IMS_CHAR STR_ACCESS_TYPE_WLAN[];
     static const IMS_CHAR STR_ACCESS_TYPE_WLAN1[];
+    static const IMS_CHAR STR_P_CELLULAR_NETWORK_INFO[];
     static const IMS_CHAR STR_P_LAST_ACCESS_NETWORK_INFO[];
     static const IMS_CHAR STR_CS[];
     static const IMS_CHAR STR_CS_WITH_DQ[];
