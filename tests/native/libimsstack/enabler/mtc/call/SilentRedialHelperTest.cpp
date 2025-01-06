@@ -35,6 +35,7 @@
 #include "helper/MockMtcTimerWrapper.h"
 #include "helper/MtcSupplementaryService.h"
 #include "media/MockIMtcMediaManager.h"
+#include "precondition/MockIMtcPreconditionManager.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -71,6 +72,7 @@ public:
     MockIMtcCallController objController;
     MockIMtcCall objMtcCall;
     MockIMtcCallManager objMtcCallManager;
+    MockIMtcPreconditionManager objPreconditionManager;
     MockIMtcMediaManager objMediaManager;
     MockIMtcSession objMtcSession;
     MockISession objSession;
@@ -87,6 +89,8 @@ protected:
     {
         ON_CALL(objContext, GetCallKey).WillByDefault(Return(ANY_CALL_KEY));
         ON_CALL(objContext, GetSession()).WillByDefault(Return(&objMtcSession));
+        ON_CALL(objContext, GetPreconditionManager)
+                .WillByDefault(ReturnRef(objPreconditionManager));
         ON_CALL(objContext, GetMediaManager).WillByDefault(ReturnRef(objMediaManager));
         ON_CALL(objMediaManager, GetMediaInfo).WillByDefault(ReturnRef(objMediaInfo));
         ON_CALL(objMtcSession, GetISession).WillByDefault(ReturnRef(objSession));
@@ -257,6 +261,7 @@ TEST_F(SilentRedialHelperTest, IsSynchronousCallRequiredReturnsTrue)
 
 TEST_F(SilentRedialHelperTest, RedialReleasesSessionResources)
 {
+    EXPECT_CALL(objPreconditionManager, InitializeMobileRatInformation());
     EXPECT_CALL(objMediaManager, DestroyMediaSession());
     EXPECT_CALL(objContext, RemoveSession(Ref(objMtcSession)));
     EXPECT_CALL(objTimerWrapper, StopAll());
@@ -268,6 +273,7 @@ TEST_F(SilentRedialHelperTest, RedialReleasesSessionResources)
 
 TEST_F(SilentRedialHelperTest, RedialReleaseSessionResourceIfRedialEmergency)
 {
+    EXPECT_CALL(objPreconditionManager, InitializeMobileRatInformation());
     EXPECT_CALL(objMediaManager, DestroyMediaSession());
     EXPECT_CALL(objContext, RemoveSession(Ref(objMtcSession)));
     EXPECT_CALL(objTimerWrapper, Stop(_));

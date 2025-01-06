@@ -1229,8 +1229,9 @@ PUBLIC VIRTUAL void MtcCall::OnIpcanChanged(IN IMtcService& /*objMtcService*/, I
 
 PUBLIC VIRTUAL void MtcCall::OnRatChanged(IMS_SINT32 eRatType)
 {
-    IMS_TRACE_I("OnRatChanged :  RAT=%d", eRatType, 0, 0);
+    IMS_TRACE_I("OnRatChanged : RAT=%d", eRatType, 0, 0);
 
+    m_objPreconditionManager.OnRatChanged(eRatType);
     m_objUiNotifier.SendRatChanged(eRatType);
 }
 

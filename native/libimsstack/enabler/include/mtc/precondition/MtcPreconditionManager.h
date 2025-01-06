@@ -86,6 +86,7 @@ public:
     virtual void CreateQos(IN ISession* piSession) override;
     virtual void DestroyQos(IN ISession* piSession) override;
     virtual void SetListener(IN IMtcPreconditionListener* pListener) override;
+    virtual void InitializeMobileRatInformation() override;
     virtual IMS_BOOL IsPreconditionSupportedInLocal() const override;
     virtual IMS_BOOL IsDedicatedBearerAllocated(
             IN ISession* piSession, IN IMS_UINT32 eMediaType) const override;
@@ -100,6 +101,7 @@ public:
     virtual void OnMessageReceived(IN ISession* piSession, IN IMessage* piMessage) override;
     virtual void OnCallEstablished(IN ISession* piSession) override;
     virtual void OnCallModified(IN ISession* piSession) override;
+    virtual void OnRatChanged(IN IMS_SINT32 eRatType) override;
 
 public:
     virtual void OnQosStatusChanged(
@@ -129,6 +131,7 @@ private:
     void NotifyQosStatusToListener(
             IN ISession* piSession, IN IMS_BOOL bReserved, IN IMS_UINT32 eMediaTypes);
     void SetOnWlan(IN IMS_BOOL bOnWlan);
+    void UpdateMobileRatType(IN IMS_SINT32 eRatType);
     void SetRemoteResourceAvailable(IN ISession* piSession) const;
     void UpdateSupportingPrecondition(IN ISession* piSession, IN IMS_BOOL bRemoteSupported) const;
     void UpdateQosAttributesFromRemoteSdp(IN ISession* piSession);
@@ -152,7 +155,8 @@ private:
     QosLossPolicy GetQosLossPolicy(IN IMS_UINT32 eMediaType) const;
     QosLossPolicy GetActionForQosLoss(IN ISession* piSession) const;
     IMS_BOOL IsConfirmationRequired(IN const ISession& objISession) const;
-    IMS_BOOL IsRoaming() const;
+    IMS_BOOL IsEpsFallback() const;
+    IMS_BOOL IsNotUsingDedicatedWaitTimerByRatCondition() const;
 
 protected:
     ImsMap<ISession*, QosInfo*> m_objQosInfos;
@@ -160,6 +164,8 @@ protected:
     IMtcCallContext& m_objContext;
     SdpPreconditionHelper* m_pSdpPreconditionHelper;
     IMS_BOOL m_bOnWlan;
+    IMS_SINT32 m_ePreviousRatType;
+    IMS_SINT32 m_eCurrentRatType;
 };
 
 #endif

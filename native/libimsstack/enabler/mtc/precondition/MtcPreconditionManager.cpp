@@ -18,6 +18,7 @@
 #include "Configuration.h"
 #include "IMessage.h"
 #include "IMtcImsEventReceiver.h"
+#include "INetworkWatcher.h"
 #include "ISipHeader.h"
 #include "ISubscriberConfig.h"
 #include "ImsEventDef.h"
@@ -50,6 +51,7 @@ MtcPreconditionManager::MtcPreconditionManager(IN IMtcCallContext& objContext) :
 {
     IMS_TRACE_D("+MtcPreconditionManager Callkey[%d]", m_objContext.GetCallKey(), 0, 0);
     m_objContext.GetMediaManager().SetQosListener(this);
+    InitializeMobileRatInformation();
 }
 
 PUBLIC VIRTUAL MtcPreconditionManager::~MtcPreconditionManager()
@@ -93,6 +95,12 @@ PUBLIC VIRTUAL void MtcPreconditionManager::DestroyQos(IN ISession* piSession)
 PUBLIC VIRTUAL void MtcPreconditionManager::SetListener(IN IMtcPreconditionListener* pListener)
 {
     m_pListener = pListener;
+}
+
+PUBLIC VIRTUAL void MtcPreconditionManager::InitializeMobileRatInformation()
+{
+    m_ePreviousRatType = m_objContext.GetService().GetMobileRatType();
+    m_eCurrentRatType = m_ePreviousRatType;
 }
 
 PUBLIC VIRTUAL IMS_BOOL MtcPreconditionManager::IsPreconditionSupportedInLocal() const
@@ -379,6 +387,14 @@ PUBLIC VIRTUAL void MtcPreconditionManager::OnCallModified(IN ISession* piSessio
                     m_objContext.GetSession()->GetCallType()));
         }
     }
+}
+
+PUBLIC VIRTUAL void MtcPreconditionManager::OnRatChanged(IN IMS_SINT32 eRatType)
+{
+    IMS_TRACE_D("OnRatChanged RAT type[%d]", eRatType, 0, 0);
+
+    // TODO: updates m_bOnWlan via this API
+    UpdateMobileRatType(m_objContext.GetService().GetMobileRatType());
 }
 
 PUBLIC VIRTUAL void MtcPreconditionManager::OnQosStatusChanged(
@@ -783,6 +799,18 @@ void MtcPreconditionManager::SetOnWlan(IN IMS_BOOL bOnWlan)
 }
 
 PRIVATE
+void MtcPreconditionManager::UpdateMobileRatType(IN IMS_SINT32 eRatType)
+{
+    if (eRatType == m_eCurrentRatType)
+    {
+        return;
+    }
+
+    m_ePreviousRatType = m_eCurrentRatType;
+    m_eCurrentRatType = eRatType;
+}
+
+PRIVATE
 void MtcPreconditionManager::SetRemoteResourceAvailable(IN ISession* piSession) const
 {
     QosStatusTable* pStatusTable = GetQosStatusTable(piSession);
@@ -870,7 +898,7 @@ IMS_BOOL MtcPreconditionManager::IsDefaultBearerAllowed(IN IMS_UINT32 eMediaType
     if (eMediaType == MEDIATYPE_AUDIO)
     {
         // IR.92 2.4.3.1: A roaming UE is disallowed from sending media over the default bearer.
-        return !IsRoaming() &&
+        return !m_objContext.GetService().IsRoaming() &&
                 m_objContext.GetConfigurationProxy().GetBoolean(
                         ConfigVoice::KEY_VOICE_ON_DEFAULT_BEARER_SUPPORTED_BOOL);
     }
@@ -1021,6 +1049,11 @@ IMS_BOOL MtcPreconditionManager::IsNeedToStartWaitAudioAvailableTimer(
     }
 
     if (IsLocalResourceReservedByMediaType(piSession, MEDIATYPE_AUDIO))
+    {
+        return IMS_FALSE;
+    }
+
+    if (IsNotUsingDedicatedWaitTimerByRatCondition())
     {
         return IMS_FALSE;
     }
@@ -1249,8 +1282,35 @@ IMS_BOOL MtcPreconditionManager::IsConfirmationRequired(IN const ISession& objIS
 }
 
 PRIVATE
-IMS_BOOL MtcPreconditionManager::IsRoaming() const
+IMS_BOOL MtcPreconditionManager::IsEpsFallback() const
 {
-    return m_objContext.GetImsEventReceiver().GetWParam(IMS_EVENT_ROAMING_STATE) ==
-            IMS_ROAMING_STATE_ON;
+    if (m_ePreviousRatType != INetworkWatcher::RADIOTECH_TYPE_NR)
+    {
+        return IMS_FALSE;
+    }
+
+    return (m_eCurrentRatType == INetworkWatcher::RADIOTECH_TYPE_LTE ||
+            m_eCurrentRatType == INetworkWatcher::RADIOTECH_TYPE_LTE_CA);
+}
+
+PRIVATE
+IMS_BOOL MtcPreconditionManager::IsNotUsingDedicatedWaitTimerByRatCondition() const
+{
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+                ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_NR) &&
+            m_eCurrentRatType == INetworkWatcher::RADIOTECH_TYPE_NR)
+    {
+        return IMS_TRUE;
+    }
+
+    if (m_objContext.GetConfigurationProxy().Contains(
+                ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+                ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_EPS_FALLBACK) &&
+            IsEpsFallback())
+    {
+        return IMS_TRUE;
+    }
+
+    return IMS_FALSE;
 }

@@ -32,6 +32,7 @@ public:
     MOCK_METHOD(void, CreateQos, (IN ISession* piSession), (override));
     MOCK_METHOD(void, DestroyQos, (IN ISession* piSession), (override));
     MOCK_METHOD(void, SetListener, (IN IMtcPreconditionListener* pListener), (override));
+    MOCK_METHOD(void, InitializeMobileRatInformation, (), (override));
     MOCK_METHOD(IMS_BOOL, IsPreconditionSupportedInLocal, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsDedicatedBearerAllocated,
             (IN ISession* piSession, IN IMS_UINT32 eMediaType), (const, override));
@@ -49,6 +50,7 @@ public:
             void, OnMessageReceived, (IN ISession* piSession, IN IMessage* piMessage), (override));
     MOCK_METHOD(void, OnCallEstablished, (IN ISession* piSession), (override));
     MOCK_METHOD(void, OnCallModified, (IN ISession* piSession), (override));
+    MOCK_METHOD(void, OnRatChanged, (IN IMS_SINT32 eRatType), (override));
 };
 
 #endif

@@ -35,6 +35,7 @@
 #include "helper/MtcTimerWrapper.h"
 #include "media/IMtcMediaManager.h"
 #include "media/MtcMediaUtil.h"
+#include "precondition/MtcPreconditionManager.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
@@ -216,6 +217,7 @@ void SilentRedialHelper::ReleaseCallResources()
         m_objContext.RemoveSession(*pSession);
     }
 
+    m_objContext.GetPreconditionManager().InitializeMobileRatInformation();
     m_objContext.GetMediaManager().DestroyMediaSession();
     StopCallTimers();
 }

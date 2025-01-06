@@ -1157,6 +1157,8 @@ public class CarrierConfig {
                 KEY_PREFIX + "registration_to_18x_timer_millis_int_array";
         public static final String KEY_ALLOW_SOS_PARAM_IN_CONTACT_BOOL =
                 KEY_PREFIX + "allow_sos_param_in_contact_bool";
+        public static final String KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY =
+                KEY_PREFIX + "rat_condition_for_not_waiting_dedicated_bearer_int_array";
         // Media
         public static final String KEY_AUDIO_RTP_PORT_RANGE_INT_ARRAY =
                 KEY_PREFIX + "audio_rtp_port_range_int_array";

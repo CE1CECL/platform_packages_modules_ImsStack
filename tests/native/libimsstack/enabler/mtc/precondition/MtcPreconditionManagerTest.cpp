@@ -386,8 +386,7 @@ TEST_F(MtcPreconditionManagerTest,
     ON_CALL(*pConfigurationProxy,
             GetBoolean(ConfigVoice::KEY_VOICE_ON_DEFAULT_BEARER_SUPPORTED_BOOL))
             .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(objImsEventReceiver, GetWParam(IMS_EVENT_ROAMING_STATE))
-            .WillByDefault(Return(IMS_ROAMING_STATE_ON));
+    ON_CALL(objService, IsRoaming()).WillByDefault(Return(IMS_TRUE));
     EXPECT_TRUE(pPreconditionManager->IsCheckingResourcesRequiredToAlertUser());
 }
 

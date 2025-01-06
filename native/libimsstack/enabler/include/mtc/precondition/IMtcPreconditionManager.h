@@ -52,6 +52,16 @@ public:
     virtual void SetListener(IN IMtcPreconditionListener* pListener) = 0;
 
     /**
+     * @brief Initializes the RAT information.
+     *
+     * This initializes the values of {@link MtcPreconditionManager#m_ePreviousRatType} and
+     * {@link MtcPreconditionManager#m_eCurrentRatType} which store RAT information.
+     * It is called when the {@code MtcPreconditionManager} is created and when the resources of an
+     * existing call are released for internal silent call redial.
+     */
+    virtual void InitializeMobileRatInformation() = 0;
+
+    /**
      * @brief Checks
      *
      * @return
@@ -142,6 +152,16 @@ public:
      * @param piSession
      */
     virtual void OnCallModified(IN ISession* piSession) = 0;
+
+    /**
+     * @brief Handles the RAT(Radio Access Technology) changed event.
+     *
+     * The received RAT type for determining conditions such as handover between WiFi and mobile
+     * network, or fallback from NR to EPS.
+     *
+     * @param eRatType The changed RAT type
+     */
+    virtual void OnRatChanged(IN IMS_SINT32 eRatType) = 0;
 };
 
 #endif
