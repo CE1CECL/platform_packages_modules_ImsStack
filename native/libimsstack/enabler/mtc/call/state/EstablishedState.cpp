@@ -120,6 +120,14 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Hold(IN MediaInfo& objMediaInfo)
         return GetStateName();
     }
 
+    if (!UpdatingInfo::IsValidHoldDirection(
+                m_objContext.GetMediaManager().GetMediaInfo().eAudioDirection,
+                objMediaInfo.eAudioDirection))
+    {
+        m_objContext.GetUiNotifier().SendHoldFailed(CallReasonInfo(CODE_SUPP_SVC_FAILED));
+        return GetStateName();
+    }
+
     if (HandleUpdate(UpdateType::HOLD, m_objContext.GetSession()->GetCallType(), objMediaInfo) ==
             IMS_FAILURE)
     {
@@ -139,6 +147,14 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Resume(IN MediaInfo& objMediaInfo
                 {
                     return pState->Resume(objMediaInfo);
                 });
+        return GetStateName();
+    }
+
+    if (!UpdatingInfo::IsValidResumeDirection(
+                m_objContext.GetMediaManager().GetMediaInfo().eAudioDirection,
+                objMediaInfo.eAudioDirection))
+    {
+        m_objContext.GetUiNotifier().SendResumeFailed(CallReasonInfo(CODE_SUPP_SVC_FAILED));
         return GetStateName();
     }
 
