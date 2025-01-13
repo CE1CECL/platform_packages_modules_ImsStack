@@ -44,14 +44,13 @@ public:
             (const, override));
     MOCK_METHOD(
             void, FormPreconditionSdp, (IN ISession* piSession, IN IMS_BOOL bFailure), (override));
-    MOCK_METHOD(void, HandleQosOnIpcanChanged, (), (override));
-    MOCK_METHOD(void, OnSdpReceived, (IN ISession* piSession, IN IMessage* piMessage), (override));
+    MOCK_METHOD(void, OnSdpReceived, (IN ISession * piSession), (override));
+    MOCK_METHOD(void, OnSdpSent, (IN ISession * piSession, IN IMS_BOOL bInitialInvite), (override));
     MOCK_METHOD(
             void, OnMessageReceived, (IN ISession* piSession, IN IMessage* piMessage), (override));
     MOCK_METHOD(void, OnCallEstablished, (IN ISession* piSession), (override));
     MOCK_METHOD(void, OnCallModified, (IN ISession* piSession), (override));
     MOCK_METHOD(void, OnRatChanged, (IN IMS_SINT32 eRatType), (override));
-    MOCK_METHOD(void, OnInitialInviteSent, (IN ISession * piSession), (override));
 };
 
 #endif

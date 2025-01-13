@@ -118,18 +118,18 @@ public:
     virtual void FormPreconditionSdp(IN ISession* piSession, IN IMS_BOOL bFailure) = 0;
 
     /**
-     * @brief Handles
-     *
-     */
-    virtual void HandleQosOnIpcanChanged() = 0;
-
-    /**
      * @brief Updates
      *
      * @param piSession
-     * @param piMessage
      */
-    virtual void OnSdpReceived(IN ISession* piSession, IN IMessage* piMessage) = 0;
+    virtual void OnSdpReceived(IN ISession* piSession) = 0;
+
+    /**
+     * @brief
+     *
+     * @param piSession
+     */
+    virtual void OnSdpSent(IN ISession* piSession, IN IMS_BOOL bInitialInvite = IMS_FALSE) = 0;
 
     /**
      * @brief Updates
@@ -162,16 +162,6 @@ public:
      * @param eRatType The changed RAT type
      */
     virtual void OnRatChanged(IN IMS_SINT32 eRatType) = 0;
-
-    /**
-     * @brief Handles sending an initial INVITE request event.
-     *
-     * If the carrier configuration to start waiting dedicated bearer timer is enabled, it starts
-     * the timer when this API is invoked.
-     *
-     * @param piSession ISession of the call
-     */
-    virtual void OnInitialInviteSent(IN ISession* piSession) = 0;
 };
 
 #endif

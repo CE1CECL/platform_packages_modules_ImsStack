@@ -641,7 +641,7 @@ TEST_F(UpdatingStateTest,
     EXPECT_CALL(objMtcSession, HandleResponse(ResponseType::ACCEPT_UPDATE, _)).Times(1);
     EXPECT_CALL(objMtcSession, SendAck()).Times(1);
     EXPECT_CALL(objMediaManager, NegotiateSdp(_)).Times(1);
-    EXPECT_CALL(objMtcPreconditionManager, OnSdpReceived(_, _)).Times(1);
+    EXPECT_CALL(objMtcPreconditionManager, OnSdpReceived(_)).Times(1);
     EXPECT_CALL(objUiNotifier, SendIncomingUpdate(_)).Times(1);
     EXPECT_EQ(CallStateName::UPDATING, pUpdatingState->SessionUpdated(&objSession));
 }

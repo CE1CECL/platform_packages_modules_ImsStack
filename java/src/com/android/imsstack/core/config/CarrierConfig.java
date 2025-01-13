@@ -1169,10 +1169,20 @@ public class CarrierConfig {
                 KEY_PREFIX + "registration_to_18x_timer_millis_int_array";
         public static final String KEY_ALLOW_SOS_PARAM_IN_CONTACT_BOOL =
                 KEY_PREFIX + "allow_sos_param_in_contact_bool";
+        public static final String KEY_QOS_ACQUISITION_AFTER_W2L_HANDOVER_WAIT_TIMER_MILLIS_INT =
+                KEY_PREFIX + "qos_acquisition_after_w2l_handover_wait_timer_millis_int";
+        public static final String KEY_WAIT_VIDEO_TEXT_QOS_AFTER_AUDIO_QOS_ACQUISITION_TIMER_MILLIS_INT =
+                KEY_PREFIX + "wait_video_text_qos_after_audio_qos_acquisition_timer_millis_int";
+        public static final String KEY_QOS_LOST_GUARD_TIMER_MILLIS_INT =
+                KEY_PREFIX + "qos_lost_guard_timer_millis_int";
+        public static final String KEY_QOS_FORCED_ACQUISITION_TIMER_MILLIS_INT =
+                KEY_PREFIX + "qos_forced_acquisition_timer_millis_int";
         public static final String KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY =
                 KEY_PREFIX + "rat_condition_for_not_waiting_dedicated_bearer_int_array";
         public static final String KEY_TRIGGER_DEDICATED_BEARER_WAIT_TIMER_BY_SENDING_INITIAL_INVITE_BOOL =
                 KEY_PREFIX + "trigger_dedicated_bearer_wait_timer_by_sending_initial_invite_bool";
+        public static final String KEY_RESTART_DEDICATED_BEARER_WAIT_TIMER_BY_EPS_FALLBACK_BOOL =
+                KEY_PREFIX + "restart_dedicated_bearer_wait_timer_by_eps_fallback_bool";
         // Media
         public static final String KEY_AUDIO_RTP_PORT_RANGE_INT_ARRAY =
                 KEY_PREFIX + "audio_rtp_port_range_int_array";

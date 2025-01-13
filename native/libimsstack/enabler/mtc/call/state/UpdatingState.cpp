@@ -707,7 +707,7 @@ IMS_RESULT UpdatingState::HandleSdpAnswer()
             m_objContext.GetMediaManager().GetMediaInfo();
     m_objContext.GetUpdatingInfo().GetModifiedInfo() =
             m_objContext.GetMediaManager().GetMediaInfo();
-    m_objContext.GetPreconditionManager().OnSdpReceived(piSession, piMessage);
+    m_objContext.GetPreconditionManager().OnSdpReceived(piSession);
 
     return IMS_SUCCESS;
 }

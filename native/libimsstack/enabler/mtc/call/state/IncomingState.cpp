@@ -289,7 +289,6 @@ PUBLIC VIRTUAL CallStateName IncomingState::OnIpcanChanged(IN IMS_UINT32 eIpcan)
 PROTECTED VIRTUAL CallStateName IncomingState::HandleAosConnected()
 {
     IMS_TRACE_I("HandleAosConnected", 0, 0, 0);
-    m_objContext.GetPreconditionManager().HandleQosOnIpcanChanged();
 
     if (m_objContext.GetEpsFallbackTrigger().IsWaitingEpsFallbackForNoTrigger() &&
             !m_objContext.GetService().IsNr())

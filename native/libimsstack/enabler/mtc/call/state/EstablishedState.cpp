@@ -590,8 +590,7 @@ CallReasonInfo EstablishedState::HandleReceivedUpdate(OUT CallStateName& eStateN
 
     m_objContext.GetUpdatingInfo().GetAlertingInfo() =
             m_objContext.GetMediaManager().GetMediaInfo();
-    m_objContext.GetPreconditionManager().OnSdpReceived(
-            &objSession, objSession.GetPreviousRequest(IMessage::SESSION_UPDATE));
+    m_objContext.GetPreconditionManager().OnSdpReceived(&objSession);
 
     eStateName = CallStateName::UPDATING;
 

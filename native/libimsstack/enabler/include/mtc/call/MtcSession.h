@@ -101,8 +101,9 @@ private:
     CallType GetCallTypeByRegisteredFeature();
     CallType GetCallTypeByHistory();
     CallType MayGetFirstCallType();
-    ResultSetSdp SetSdpToSend(
-            IN IMS_BOOL bAllowReOffer, IN IMS_BOOL bAnswerForOfferlessReInvite = IMS_FALSE);
+    ResultSetSdp SetSdpToSend(IN IMS_BOOL bAllowReOffer,
+            IN IMS_BOOL bAnswerForOfferlessReInvite = IMS_FALSE,
+            IN IMS_BOOL bInitialInvite = IMS_FALSE);
 
     IMS_BOOL IsRegisteredFeature(IMS_UINT32 nFeature) const;
     IMS_BOOL IsCallWaiting() const;

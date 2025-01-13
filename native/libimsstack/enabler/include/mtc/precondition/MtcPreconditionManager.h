@@ -39,7 +39,8 @@ public:
             eTextStatus(QosStatus::IDLE),
             objTimer(QosTimer(pListener)),
             objStatusTable(QosStatusTable()),
-            bSupportPrecondition(IMS_FALSE)
+            bSupportPrecondition(IMS_FALSE),
+            bWaitAudioDedicatedBearerTimerStarted(IMS_FALSE)
     {
     }
     inline virtual ~QosInfo() {}
@@ -53,6 +54,10 @@ public:
     inline virtual QosTimer& GetTimer() { return objTimer; }
     inline virtual QosStatusTable& GetStatusTable() { return objStatusTable; }
     inline virtual IMS_BOOL IsPreconditionSupported() const { return bSupportPrecondition; }
+    inline virtual IMS_BOOL IsWaitAudioDedicatedBearerTimerStarted() const
+    {
+        return bWaitAudioDedicatedBearerTimerStarted;
+    }
 
     inline virtual void SetAudioStatus(IN QosStatus eStatus) { eAudioStatus = eStatus; }
     inline virtual void SetVideoStatus(IN QosStatus eStatus) { eVideoStatus = eStatus; }
@@ -60,6 +65,10 @@ public:
     inline virtual void SetSupportingPrecondition(IN IMS_BOOL bSupported)
     {
         bSupportPrecondition = bSupported;
+    }
+    inline virtual void SetWaitAudioDedicatedBearerTimerStarted()
+    {
+        bWaitAudioDedicatedBearerTimerStarted = IMS_TRUE;
     }
 
 private:
@@ -69,6 +78,7 @@ private:
     QosTimer objTimer;
     QosStatusTable objStatusTable;
     IMS_BOOL bSupportPrecondition;
+    IMS_BOOL bWaitAudioDedicatedBearerTimerStarted;
 };
 
 class MtcPreconditionManager :
@@ -96,13 +106,12 @@ public:
     virtual IMS_BOOL IsAvailableToSendLocalResourceConfirmation(
             IN ISession* piSession) const override;
     virtual void FormPreconditionSdp(IN ISession* piSession, IN IMS_BOOL bFailure) override;
-    virtual void HandleQosOnIpcanChanged() override;
-    virtual void OnSdpReceived(IN ISession* piSession, IN IMessage* piMessage) override;
+    virtual void OnSdpReceived(IN ISession* piSession) override;
+    virtual void OnSdpSent(IN ISession* piSession, IN IMS_BOOL bInitialInvite = IMS_FALSE) override;
     virtual void OnMessageReceived(IN ISession* piSession, IN IMessage* piMessage) override;
     virtual void OnCallEstablished(IN ISession* piSession) override;
     virtual void OnCallModified(IN ISession* piSession) override;
     virtual void OnRatChanged(IN IMS_SINT32 eRatType) override;
-    virtual void OnInitialInviteSent(IN ISession* piSession) override;
 
 public:
     virtual void OnQosStatusChanged(
@@ -111,20 +120,24 @@ public:
 
 protected:
     virtual QosInfo* GetQosInfo(IN ISession* piSession) const;
+    IMS_BOOL IsEpsFallback() const;
 
 private:
     void DestroyAllQosInfo();
-    void SetQosStatus(IN ISession* piSession, QosStatus eStatus, IN IMS_UINT32 eMediaType) const;
+    IMS_RESULT SetQosStatus(
+            IN ISession* piSession, QosStatus eStatus, IN IMS_UINT32 eMediaType) const;
     QosStatus GetQosStatus(IN ISession* piSession, IN IMS_UINT32 eMediaType) const;
     QosTimer* GetQosTimer(IN ISession* piSession) const;
     QosStatusTable* GetQosStatusTable(IN ISession* piSession) const;
     void StartQosTimer(IN ISession* piSession, IN QosTimerType eType) const;
     void StopQosTimer(IN ISession* piSession, IN QosTimerType eType) const;
     void StopAllQosTimer(IN ISession* piSession) const;
+    void OnWaitAudioDedicatedBearerTimerExpired(IN QosTimer* pTimer);
+    void OnWaitAvailableAfterW2LHandoverTimerExpired(IN QosTimer* pTimer);
+    void OnWaitVideoTextAvailableTimerExpired(IN QosTimer* pTimer);
     void OnForceAvailableTimerExpired(IN QosTimer* pTimer);
-    void OnGuardAvailableTimerExpired(IN QosTimer* pTimer);
     void HandleReservationFailureByTimerExpiration(IN const QosTimer* pTimer);
-    void InitializeStatusForLostQos(IN ISession* piSession, IN IMS_BOOL bRemovedMedia) const;
+    void InitializeStatusForUnusedLostQos(IN ISession* piSession) const;
     void CreateStatusRecordsWithActiveMediaTypes(IN ISession* piSession);
     void CreateStatusRecords(IN ISession* piSession, IN IMS_UINT32 eMediaType);
     void HandleQosTimer(IN ISession* piSession, IN QosStatus eCurrentStatus,
@@ -142,11 +155,12 @@ private:
     IMS_BOOL IsLocalResourceReserved(IN ISession* piSession, IN IMS_BOOL bAtLeastOneReserved) const;
     IMS_BOOL IsLocalResourceReservedByMediaType(
             IN ISession* piSession, IN IMS_UINT32 eMediaType) const;
+    IMS_BOOL IsLocalResourceReservedForVideoOrText(IN ISession* piSession);
     IMS_BOOL IsPreconditionSupported(IN ISession* piSession) const;
     IMS_BOOL IsPreconditionSupportedInLocal(IN IMS_UINT32 eMediaType) const;
     static IMS_BOOL IsConfirmedDialog(IN const ISession* piSession);
-    IMS_BOOL IsNeedToStartWaitAudioAvailableTimer(
-            IN ISession* piSession, IN IMessage* piMessage) const;
+    IMS_BOOL IsNeedToStartWaitAudioDedicatedBearerTimer(
+            IN ISession* piSession, IN IMS_BOOL bSendingInitialInvite) const;
     IMS_UINT32 SetLocalResourceAvailable(IN ISession* piSession) const;
     IMS_SINT32 GetQosTime(IN QosTimerType eType) const;
     static IMS_SINT32 GetSdpMediaType(IN IMS_UINT32 eMediaType);
@@ -156,8 +170,8 @@ private:
     QosLossPolicy GetQosLossPolicy(IN IMS_UINT32 eMediaType) const;
     QosLossPolicy GetActionForQosLoss(IN ISession* piSession) const;
     IMS_BOOL IsConfirmationRequired(IN const ISession& objISession) const;
-    IMS_BOOL IsEpsFallback() const;
     IMS_BOOL IsNotUsingDedicatedWaitTimerByRatCondition() const;
+    IMS_BOOL IsVideoOrTextIncluded(IN CallType eCallType) const;
 
 protected:
     ImsMap<ISession*, QosInfo*> m_objQosInfos;
