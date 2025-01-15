@@ -701,7 +701,6 @@ PROTECTED VIRTUAL CallStateName OutgoingState::HandleAosConnected()
         m_objContext.GetEpsFallbackTrigger().OnEpsFallbackCompleted();
     }
 
-    m_objContext.GetPreconditionManager().HandleQosOnIpcanChanged();
     return GetStateName();
 }
 

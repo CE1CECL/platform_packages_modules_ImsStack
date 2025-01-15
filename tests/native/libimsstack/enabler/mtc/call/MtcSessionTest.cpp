@@ -163,6 +163,7 @@ TEST_F(MtcSessionTest, StartInvokesStartInMessageSender)
 {
     IMS_RESULT eResult = IMS_SUCCESS;
     SetUpForSetSdp(NegotiationState::STATE_IDLE, IMS_SUCCESS);
+    EXPECT_CALL(objPreconditionManager, OnSdpSent(&objSession, IMS_TRUE)).Times(1);
     EXPECT_CALL(*pMessageSender, Start(CallType::VOIP)).WillOnce(Return(eResult));
     CreateMtcSession();
     EXPECT_EQ(pMtcSession->Start(), eResult);
@@ -171,6 +172,7 @@ TEST_F(MtcSessionTest, StartInvokesStartInMessageSender)
 TEST_F(MtcSessionTest, StartFailsIfSetSdpFails)
 {
     SetUpForSetSdp(NegotiationState::STATE_IDLE, IMS_FAILURE);
+    EXPECT_CALL(objPreconditionManager, OnSdpSent(&objSession, IMS_TRUE)).Times(0);
     EXPECT_CALL(*pMessageSender, Start(CallType::VOIP)).Times(0);
     CreateMtcSession();
     EXPECT_EQ(pMtcSession->Start(), IMS_FAILURE);
@@ -198,6 +200,7 @@ TEST_F(MtcSessionTest, SendProvisionalResponseSends183ReliablyWithSdp)
     ImsList<IMtcCall*> objCalls;
     ON_CALL(objCallManager, GetCalls).WillByDefault(Return(objCalls));
 
+    EXPECT_CALL(objPreconditionManager, OnSdpSent(&objSession, IMS_FALSE)).Times(1);
     EXPECT_CALL(*pMessageSender,
             SendProvisionalResponse(SipStatusCode::SC_183, IMS_TRUE, IMS_TRUE, IMS_FALSE))
             .Times(1);
@@ -237,6 +240,7 @@ TEST_F(MtcSessionTest, SendProvisionalResponseSends183WithoutAlertInfoIfItIsConf
 
     ON_CALL(objThisCall, GetState).WillByDefault(Return(IMtcCall::State::UPDATING));
 
+    EXPECT_CALL(objPreconditionManager, OnSdpSent(&objSession, IMS_FALSE)).Times(1);
     EXPECT_CALL(*pMessageSender,
             SendProvisionalResponse(SipStatusCode::SC_183, IMS_TRUE, IMS_TRUE, IMS_FALSE))
             .Times(1);

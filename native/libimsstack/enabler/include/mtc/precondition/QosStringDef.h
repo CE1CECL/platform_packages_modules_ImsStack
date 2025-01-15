@@ -124,14 +124,14 @@ public:
     {
         switch (eTimerType)
         {
-            case QosTimerType::WAIT_AUDIO_AVAILABLE:
-                return "wait audio available";
-            case QosTimerType::GUARD_AVAILABLE:
-                return "guard available";
+            case QosTimerType::WAIT_AUDIO_DEDICATED_BEARER:
+                return "wait audio dedicated bearer";
+            case QosTimerType::WAIT_AVAILABLE_AFTER_W2L_HANDOVER:
+                return "wait available after w2l handover";
+            case QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE:
+                return "wait video text available";
             case QosTimerType::GUARD_AFTER_LOST:
                 return "guard after lost";
-            case QosTimerType::WAIT_AVAILABLE_AFTER_HANDOVER:
-                return "wait available after handover";
             default:  // QosTimerType::FORCE_AVAILABLE:
                 return "force available";
         }

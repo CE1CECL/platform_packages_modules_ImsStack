@@ -509,8 +509,6 @@ PROTECTED VIRTUAL CallStateName MtcCallState::SendUpdateBySrvcc(IN UpdateType eT
 PROTECTED
 CallStateName MtcCallState::HandleAosConnected()
 {
-    IMS_TRACE_I("HandleAosConnected", 0, 0, 0);
-    m_objContext.GetPreconditionManager().HandleQosOnIpcanChanged();
     return GetStateName();
 }
 
@@ -632,7 +630,7 @@ IMS_SINT32 MtcCallState::HandleReceivedSdp(IN ISession* piSession, IN IMessage* 
         return CODE_MEDIA_NOT_ACCEPTABLE;
     }
 
-    m_objContext.GetPreconditionManager().OnSdpReceived(piSession, piMessage);
+    m_objContext.GetPreconditionManager().OnSdpReceived(piSession);
 
     IMS_TRACE_D("HandleReceivedSdp - Nego Done", 0, 0, 0);
     return CODE_NONE;

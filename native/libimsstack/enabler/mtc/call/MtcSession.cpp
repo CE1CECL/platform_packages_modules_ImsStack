@@ -96,7 +96,7 @@ PUBLIC VIRTUAL IMS_RESULT MtcSession::Start()
 {
     IMS_TRACE_D("Start", 0, 0, 0);
 
-    if (SetSdpToSend(IMS_FALSE) == ResultSetSdp::FAILURE)
+    if (SetSdpToSend(IMS_FALSE, IMS_FALSE, IMS_TRUE) == ResultSetSdp::FAILURE)
     {
         return IMS_FAILURE;
     }
@@ -593,8 +593,9 @@ CallType MtcSession::GetCallTypeByHistory()
 }
 
 PRIVATE
-MtcSession::ResultSetSdp MtcSession::SetSdpToSend(
-        IN IMS_BOOL bAllowReOffer, IN IMS_BOOL bAnswerForOfferlessReInvite /* = IMS_FALSE*/)
+MtcSession::ResultSetSdp MtcSession::SetSdpToSend(IN IMS_BOOL bAllowReOffer,
+        IN IMS_BOOL bAnswerForOfferlessReInvite /* = IMS_FALSE*/,
+        IN IMS_BOOL bInitialInvite /* = IMS_FALSE */)
 {
     // Answering for offerless re-INVITE case must not come into this.
     IMtcMediaManager& objMediaManager = m_objContext.GetMediaManager();
@@ -621,8 +622,10 @@ MtcSession::ResultSetSdp MtcSession::SetSdpToSend(
 
     IMS_TRACE_D("SetSdpToSend - Set Done", 0, 0, 0);
 
+    IMtcPreconditionManager& objPreconditionManager = m_objContext.GetPreconditionManager();
     // TODO: bFailure to true for failure cases is not in this api?
-    m_objContext.GetPreconditionManager().FormPreconditionSdp(&m_objSession, IMS_FALSE);
+    objPreconditionManager.FormPreconditionSdp(&m_objSession, IMS_FALSE);
+    objPreconditionManager.OnSdpSent(&m_objSession, bInitialInvite);
 
     return ResultSetSdp::SUCCESS;
 }

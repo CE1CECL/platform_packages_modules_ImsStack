@@ -512,11 +512,6 @@ TEST_F(MtcCallStateTest, OnSrvccStateUpdateDoesNothingIfFailedOrCanceledButNegoS
 TEST_F(MtcCallStateTest, OnAosConnectedDoesNothing)
 {
     IMS_UINT32 nAnyAosReason = 1;
-
-    MockIMtcPreconditionManager objPreconditionManager;
-    ON_CALL(objContext, GetPreconditionManager).WillByDefault(ReturnRef(objPreconditionManager));
-    EXPECT_CALL(objPreconditionManager, HandleQosOnIpcanChanged).Times(1);
-
     EXPECT_EQ(INITIAL_CALL_STATE, pState->OnAosStateChanged(MtcAosState::CONNECTED, nAnyAosReason));
 }
 

@@ -895,12 +895,26 @@ const IMS_CHAR CarrierConfig::ImsVoice::KEY_REGISTRATION_TO_18X_TIMER_MILLIS_INT
 const IMS_CHAR CarrierConfig::ImsVoice::KEY_ALLOW_SOS_PARAM_IN_CONTACT_BOOL[] =
         KEY_IMS_VOICE_PREFIX "allow_sos_param_in_contact_bool";
 const IMS_CHAR
+        CarrierConfig::ImsVoice::KEY_QOS_ACQUISITION_AFTER_W2L_HANDOVER_WAIT_TIMER_MILLIS_INT[] =
+                KEY_IMS_VOICE_PREFIX "qos_acquisition_after_w2l_handover_wait_timer_millis_int";
+const IMS_CHAR CarrierConfig::ImsVoice::
+        KEY_WAIT_VIDEO_TEXT_QOS_AFTER_AUDIO_QOS_ACQUISITION_TIMER_MILLIS_INT[] =
+                KEY_IMS_VOICE_PREFIX
+        "wait_video_text_qos_after_audio_qos_acquisition_timer_millis_int";
+const IMS_CHAR CarrierConfig::ImsVoice::KEY_QOS_LOST_GUARD_TIMER_MILLIS_INT[] =
+        KEY_IMS_VOICE_PREFIX "qos_lost_guard_timer_millis_int";
+const IMS_CHAR CarrierConfig::ImsVoice::KEY_QOS_FORCED_ACQUISITION_TIMER_MILLIS_INT[] =
+        KEY_IMS_VOICE_PREFIX "qos_forced_acquisition_timer_millis_int";
+const IMS_CHAR
         CarrierConfig::ImsVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY[] =
                 KEY_IMS_VOICE_PREFIX "rat_condition_for_not_waiting_dedicated_bearer_int_array";
 const IMS_CHAR CarrierConfig::ImsVoice::
         KEY_TRIGGER_DEDICATED_BEARER_WAIT_TIMER_BY_SENDING_INITIAL_INVITE_BOOL[] =
                 KEY_IMS_VOICE_PREFIX
         "trigger_dedicated_bearer_wait_timer_by_sending_initial_invite_bool";
+const IMS_CHAR
+        CarrierConfig::ImsVoice::KEY_RESTART_DEDICATED_BEARER_WAIT_TIMER_BY_EPS_FALLBACK_BOOL[] =
+                KEY_IMS_VOICE_PREFIX "restart_dedicated_bearer_wait_timer_by_eps_fallback_bool";
 // Media
 const IMS_CHAR CarrierConfig::ImsVoice::KEY_AUDIO_JITTER_BUFFER_SIZE_INT_ARRAY[] =
         KEY_IMS_VOICE_PREFIX "audio_jitter_buffer_size_int_array";

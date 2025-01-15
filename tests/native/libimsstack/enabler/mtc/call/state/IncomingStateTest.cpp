@@ -366,8 +366,7 @@ TEST_F(IncomingStateTest, SessionPrackReceivedInvokesRejectIncomingIfOfferAnswer
             .WillByDefault(Return(NegotiationState::STATE_OFFER_SENT));
     ON_CALL(objMediaManager, NegotiateSdp(&objISession))
             .WillByDefault(Return(NegotiationResult::NO_ERROR));
-    ON_CALL(objPreconditionManager, OnSdpReceived(&objISession, &objIMessage))
-            .WillByDefault(Return());
+    ON_CALL(objPreconditionManager, OnSdpReceived(&objISession)).WillByDefault(Return());
 
     const SipMethod objMethod = SipMethod::PRACK;
     ON_CALL(objIMessage, GetMethod).WillByDefault(ReturnRef(objMethod));
@@ -564,7 +563,6 @@ TEST_F(IncomingStateTest, OnAosConnectedInvokesPreconditionManagerIpCanChanged)
     IMS_UINT32 nAnyAosReason = 1;
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallbackForNoTrigger).WillByDefault(Return(IMS_FALSE));
 
-    EXPECT_CALL(objPreconditionManager, HandleQosOnIpcanChanged);
     EXPECT_EQ(CallStateName::INCOMING,
             pIncomingState->OnAosStateChanged(MtcAosState::CONNECTED, nAnyAosReason));
 }

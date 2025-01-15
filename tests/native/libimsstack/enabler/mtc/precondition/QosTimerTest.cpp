@@ -60,27 +60,27 @@ protected:
 
 TEST_F(QosTimerTest, StartQosTimerStopQosTimerAddsRemovesTimer)
 {
-    pQosTimer->StartQosTimer(QosTimerType::GUARD_AVAILABLE, nAnyDuration);
+    pQosTimer->StartQosTimer(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE, nAnyDuration);
 
-    EXPECT_TRUE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AVAILABLE));
+    EXPECT_TRUE(pQosTimer->IsQosTimerActivated(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE));
     EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AFTER_LOST));
 
-    pQosTimer->StopQosTimer(QosTimerType::GUARD_AVAILABLE);
+    pQosTimer->StopQosTimer(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE);
 
-    EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AVAILABLE));
+    EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE));
     EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AFTER_LOST));
 }
 
 TEST_F(QosTimerTest, TimerTimerExpiredRemovesTimerAndNotifies)
 {
-    pQosTimer->StartQosTimer(QosTimerType::GUARD_AVAILABLE, nAnyDuration);
+    pQosTimer->StartQosTimer(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE, nAnyDuration);
 
-    EXPECT_TRUE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AVAILABLE));
+    EXPECT_TRUE(pQosTimer->IsQosTimerActivated(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE));
     EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AFTER_LOST));
 
     pQosTimer->Timer_TimerExpired(&(objTimerService.GetMockTimer()));
 
-    EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AVAILABLE));
+    EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE));
     EXPECT_FALSE(pQosTimer->IsQosTimerActivated(QosTimerType::GUARD_AFTER_LOST));
     EXPECT_TRUE(bTimerExpired);
 }
@@ -92,7 +92,7 @@ TEST_F(QosTimerTest, DestructorClearsITimer)
 
     QosTimer* pQosTimerForDestructor = new QosTimer(this);
     pQosTimerForDestructor->StartQosTimer(
-            QosTimerType::WAIT_AVAILABLE_AFTER_HANDOVER, nAnyDuration);
+            QosTimerType::WAIT_AVAILABLE_AFTER_W2L_HANDOVER, nAnyDuration);
     EXPECT_CALL(objMockITimer, KillTimer);
 
     delete pQosTimerForDestructor;
