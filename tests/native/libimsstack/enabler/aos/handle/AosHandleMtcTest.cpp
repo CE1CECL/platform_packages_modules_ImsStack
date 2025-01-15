@@ -90,10 +90,12 @@ using ::testing::SetArgReferee;
     using Base::ReevaluateUnavailableFeature;       \
     using Base::Request;                            \
     using Base::ResetSuspendedReason;               \
+    using Base::ServicePhone_PlmnChanged;           \
     using Base::SetHandleState;                     \
     using Base::SetSuspendedReason;                 \
     using Base::StartVolteHysTimer;                 \
     using Base::StopVolteHysTimer;                  \
+    using Base::Timer_TimerExpired;                 \
     using Base::UpdateGGsmaRcsTelephonyFeatureTag;
 
 class TestAosHandleMtc : public AosHandleMtc
@@ -265,8 +267,6 @@ protected:
                 PlatformContext::SERVICE_RADIO, m_pPlatformService);
     }
 
-    void SetBlocked(IMS_BOOL bBlocked) { m_pAosHandleMtc->m_bBlocked = bBlocked; }
-
     IMS_BOOL GetNetSrvIn() { return m_pAosHandleMtc->m_bNetSrvIn; }
 
     void SetNetSrvIn(IMS_BOOL bNetSrvIn) { m_pAosHandleMtc->m_bNetSrvIn = bNetSrvIn; }
@@ -331,11 +331,6 @@ protected:
         m_pAosHandleMtc->AosHandle::AddBlock(nBlock, m_pAosHandleMtc->m_nHoldingBlocksForWifi);
     }
 
-    ImsList<IMS_UINT32> GetHoldingBlocksPolicyForWifi()
-    {
-        return m_pAosHandleMtc->m_objHoldingBlocksPolicyForWifi;
-    }
-
     void SetRoamingState(IN IMS_UINT32 nState) { m_pAosHandleMtc->m_nRoamingState = nState; }
 
     void SetCsVoiceAvailable(IN IMS_BOOL bIsCsVoiceAvailable)
@@ -354,11 +349,7 @@ protected:
 
     IMS_BOOL IsSsacHeld() { return m_pAosHandleMtc->m_bSsacHeld; }
 
-    void ServicePhone_PlmnChanged() { m_pAosHandleMtc->ServicePhone_PlmnChanged(); }
-
     ITimer* GetVolteHysTimer() { return m_pAosHandleMtc->m_piVolteHysTimer; }
-
-    void Timer_TimerExpired(IN ITimer* piTimer) { m_pAosHandleMtc->Timer_TimerExpired(piTimer); }
 
     inline void SetServiceType(IN IMS_UINT32 nServiceType)
     {
@@ -3460,7 +3451,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_On)
     m_pAosHandleMtc->ProcessVopsStateChanged(IMS_VOICE_OVER_PS_SUPPORTED);
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    ServicePhone_PlmnChanged();
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
 }
@@ -3503,7 +3494,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_Off_Plmn1_On)
     ASSERT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
 
     // Plmn2_Off (No vops event will come)
-    ServicePhone_PlmnChanged();
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
@@ -3511,7 +3502,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_Off_Plmn1_On)
     m_pAosHandleMtc->ProcessVopsStateChanged(IMS_VOICE_OVER_PS_SUPPORTED);
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
-    ServicePhone_PlmnChanged();
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 }
@@ -3554,7 +3545,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_Off_Plmn2_On)
     ASSERT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
 
     // Plmn2_Off (No vops event will come)
-    ServicePhone_PlmnChanged();
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
@@ -3612,7 +3603,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn1_On_Plmn2_On)
     EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
 
     // Plmn2_On (No vops event will come)
-    ServicePhone_PlmnChanged();
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
 }
@@ -3665,7 +3656,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn1_On_Plmn2_Off)
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
     EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    ServicePhone_PlmnChanged();  // nothing to do
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();  // nothing to do
 }
 
 TEST_F(AosHandleMtcTest, ShouldNotifyMtcIfB2cCallComposerCapabilityIsChanged)
@@ -4479,18 +4470,18 @@ TEST_F(AosHandleMtcTest, ServicePhone_PlmnChanged_Test)
             .Times(AnyNumber())
             .WillOnce(Return(NW_REPORT_RADIO_CDMA))
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
-    ServicePhone_PlmnChanged();  // Nothing to do on invalid network
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();  // Nothing to do on invalid network
 
     EXPECT_CALL(m_objMockIAosNConfiguration, GetVolteHysTime())
             .Times(AnyNumber())
             .WillOnce(Return(0))
             .WillRepeatedly(Return(60));
-    ServicePhone_PlmnChanged();  // Nothing to do for no hys timer support
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();  // Nothing to do for no hys timer support
 
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_VOPS);
     m_pAosHandleMtc->StartVolteHysTimer(60);
     ASSERT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
-    ServicePhone_PlmnChanged();
+    m_pAosHandleMtc->ServicePhone_PlmnChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
 }
@@ -4501,16 +4492,16 @@ TEST_F(AosHandleMtcTest, Timer_TimerExpired_Test)
     //              Else run ProcessVolteHysTimerExpired.
 
     m_pAosHandleMtc->StartVolteHysTimer(60);
-    Timer_TimerExpired(IMS_NULL);
+    m_pAosHandleMtc->Timer_TimerExpired(IMS_NULL);
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
     ITimer* piTestTimer = AosUtil::GetInstance()->StartTimer(
             60 * 1000, m_pAosHandleMtc, "AosHandleMtcTest_Timer");
 
-    Timer_TimerExpired(piTestTimer);
+    m_pAosHandleMtc->Timer_TimerExpired(piTestTimer);
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
-    Timer_TimerExpired(GetVolteHysTimer());
+    m_pAosHandleMtc->Timer_TimerExpired(GetVolteHysTimer());
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
     AosUtil::GetInstance()->StopTimer(piTestTimer, "AosHandleMtcTest_Timer");
