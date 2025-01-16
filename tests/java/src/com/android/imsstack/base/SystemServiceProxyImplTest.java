@@ -52,6 +52,7 @@ import android.net.QosSocketInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CarrierConfigManager.CarrierConfigChangeListener;
 import android.telephony.SmsManager;
@@ -76,6 +77,7 @@ import com.android.imsstack.base.SystemServiceProxy.ProvisioningManagerProxy;
 import com.android.imsstack.base.SystemServiceProxy.SensorManagerProxy;
 import com.android.imsstack.base.SystemServiceProxy.SmsManagerProxy;
 import com.android.imsstack.base.SystemServiceProxy.SubscriptionManagerProxy;
+import com.android.imsstack.base.SystemServiceProxy.TelecomManagerProxy;
 
 import org.junit.After;
 import org.junit.Before;
@@ -154,6 +156,10 @@ public class SystemServiceProxyImplTest {
 
         ImsManagerProxy imsProxy = mSystemServiceProxy.getSystemService(ImsManagerProxy.class);
         assertNotNull(imsProxy);
+
+        TelecomManagerProxy telecomProxy =
+                mSystemServiceProxy.getSystemService(TelecomManagerProxy.class);
+        assertNotNull(telecomProxy);
 
         assertThrows(IllegalArgumentException.class, () -> {
             mSystemServiceProxy.getSystemService(UnknownProxy.class);
@@ -744,5 +750,20 @@ public class SystemServiceProxyImplTest {
         pmp.getProvisioningStatusForCapability(voiceCapability, lteTech);
         verify(provisioningManager)
                 .getProvisioningStatusForCapability(eq(voiceCapability), eq(lteTech));
+    }
+
+    @Test
+    @SmallTest
+    public void testTelecomManagerProxy_isInEmergencyCall() {
+        TelecomManager telecomManager = mContext.getSystemService(TelecomManager.class);
+        TelecomManagerProxy tmp = mSystemServiceProxy.getSystemService(TelecomManagerProxy.class);
+
+        tmp.isInEmergencyCall();
+        verify(telecomManager).isInEmergencyCall();
+
+        // Expected that the TelecomManager is null.
+        mContextFixture.setSystemService(Context.TELECOM_SERVICE, null);
+        assertFalse(tmp.isInEmergencyCall());
+        verifyNoMoreInteractions(telecomManager);
     }
 }
