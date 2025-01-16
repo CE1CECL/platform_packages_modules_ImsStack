@@ -113,8 +113,6 @@ protected:
 
 protected:
     IImsRadio* m_piImsRadio;
-
-private:
     ITimer* m_piVolteHysTimer;
     IMS_BOOL m_bSsacBarred;
     IMS_BOOL m_bSsacHeld;
