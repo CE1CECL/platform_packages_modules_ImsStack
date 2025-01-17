@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.net.annotations.PolicyDirection;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CarrierConfigManager.CarrierConfigChangeListener;
 import android.telephony.SmsManager;
@@ -89,6 +90,7 @@ public class SystemServiceProxyImpl implements SystemServiceProxy {
         mManagerProxies.put(SensorManagerProxy.class, new SensorManagerProxyImpl());
         mManagerProxies.put(SmsManagerProxy.class, new SmsManagerProxyImpl());
         mManagerProxies.put(ImsManagerProxy.class, new ImsManagerProxyImpl());
+        mManagerProxies.put(TelecomManagerProxy.class, new TelecomManagerProxyImpl());
     }
 
     /**
@@ -516,6 +518,14 @@ public class SystemServiceProxyImpl implements SystemServiceProxy {
                 @MmTelFeature.MmTelCapabilities.MmTelCapability int capability,
                 @ImsRegistrationImplBase.ImsRegistrationTech int tech) {
             return mProvisioningManager.getProvisioningStatusForCapability(capability, tech);
+        }
+    }
+
+    class TelecomManagerProxyImpl implements TelecomManagerProxy {
+        @Override
+        public boolean isInEmergencyCall() {
+            TelecomManager tm = mContext.getSystemService(TelecomManager.class);
+            return tm != null ? tm.isInEmergencyCall() : false;
         }
     }
 }

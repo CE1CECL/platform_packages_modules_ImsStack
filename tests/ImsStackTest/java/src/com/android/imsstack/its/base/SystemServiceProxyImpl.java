@@ -45,6 +45,7 @@ public class SystemServiceProxyImpl implements SystemServiceProxy {
         mManagerProxies.put(SensorManagerProxy.class, new SensorManagerProxyImpl(mContext));
         mManagerProxies.put(SmsManagerProxy.class, new SmsManagerProxyImpl());
         mManagerProxies.put(ImsManagerProxy.class, new ImsManagerProxyImpl());
+        mManagerProxies.put(TelecomManagerProxy.class, new TelecomManagerProxyImpl());
     }
 
     /**

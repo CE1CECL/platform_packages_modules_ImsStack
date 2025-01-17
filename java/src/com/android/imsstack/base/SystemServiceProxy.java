@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.net.annotations.PolicyDirection;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.telecom.TelecomManager;
 import android.telephony.CarrierConfigManager.CarrierConfigChangeListener;
 import android.telephony.SubscriptionManager.PhoneNumberSource;
 import android.telephony.ims.ImsMmTelManager.WiFiCallingMode;
@@ -61,6 +62,7 @@ import java.util.concurrent.Executor;
  *     {@link android.net.IpSecManager}
  *     {@link android.location.LocationManager}
  *     {@link android.hardware.SensorManager}
+ *     {@link android.telecom.TelecomManager}
  *     {@link android.telephony.SmsManager}
  *     {@link android.telephony.ims.ImsManager}
  *     {@link android.telephony.ims.ImsMmTelManager}
@@ -617,5 +619,19 @@ public interface SystemServiceProxy {
         boolean getProvisioningStatusForCapability(
                 @MmTelFeature.MmTelCapabilities.MmTelCapability int capability,
                 @ImsRegistrationImplBase.ImsRegistrationTech int tech);
+    }
+
+    /**
+     * A proxy interface for accessing the {@link TelecomManager} class.
+     */
+    interface TelecomManagerProxy {
+        /**
+         * Determines if there is an ongoing emergency call.
+         * This can be either an outgoing emergency call, as identified by the dialed number, or
+         * because a call was identified by the network as an emergency call.
+         *
+         * @return {@code true} if there is an ongoing emergency call, {@code false} otherwise.
+         */
+        boolean isInEmergencyCall();
     }
 }
