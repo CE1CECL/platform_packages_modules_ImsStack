@@ -616,6 +616,46 @@ TEST_F(AosEApplicationTest,
     EXPECT_FALSE(m_pTestAosEApplication->IsTimerRunning(TIMER_APP_CONNECTED));
 }
 
+TEST_F(AosEApplicationTest,
+        ShouldStopAppConnectedTimerIfIsStopERegTimerOnEpdnConnectedAndRegRetryTimerEnabledWhenEPdnIsActivated)
+{
+    // GIVEN
+    ImsMessage objMessageCnx(MSG_CONNECTION, CONNECTION_ACTIVATED, 0);
+    m_pTestAosEApplication->SetAppState(IAosApplication::STATE_READY);
+    m_pTestAosEApplication->StartTimer(TIMER_APP_CONNECTED, 10000);
+
+    ON_CALL(m_objMockIAosNConfiguration, GetEmcRegRetryTimerMillis()).WillByDefault(Return(10000));
+    ON_CALL(m_objMockIAosNConfiguration, IsStopERegTimerOnEpdnConnected())
+            .WillByDefault(Return(IMS_TRUE));
+    ON_CALL(m_objMockAosConnector, IsReady()).WillByDefault(Return(IMS_TRUE));
+
+    // WHEN
+    m_pTestAosEApplication->StateReady_Connection(objMessageCnx);
+
+    // THEN
+    EXPECT_FALSE(m_pTestAosEApplication->IsTimerRunning(TIMER_APP_CONNECTED));
+}
+
+TEST_F(AosEApplicationTest,
+        ShouldNotStopAppConnectedTimerIfIsStopERegTimerOnEpdnConnectedAndRegRetryTimerDisabledWhenEPdnIsActivated)
+{
+    // GIVEN
+    ImsMessage objMessageCnx(MSG_CONNECTION, CONNECTION_ACTIVATED, 0);
+    m_pTestAosEApplication->SetAppState(IAosApplication::STATE_READY);
+    m_pTestAosEApplication->StartTimer(TIMER_APP_CONNECTED, 10000);
+
+    ON_CALL(m_objMockIAosNConfiguration, GetEmcRegRetryTimerMillis()).WillByDefault(Return(0));
+    ON_CALL(m_objMockIAosNConfiguration, IsStopERegTimerOnEpdnConnected())
+            .WillByDefault(Return(IMS_TRUE));
+    ON_CALL(m_objMockAosConnector, IsReady()).WillByDefault(Return(IMS_TRUE));
+
+    // WHEN
+    m_pTestAosEApplication->StateReady_Connection(objMessageCnx);
+
+    // THEN
+    EXPECT_TRUE(m_pTestAosEApplication->IsTimerRunning(TIMER_APP_CONNECTED));
+}
+
 TEST_F(AosEApplicationTest, SetRegBlockInCbmWhenConnectionActivatedInReadyState)
 {
     m_pTestAosEApplication->SetAppState(IAosApplication::STATE_READY);

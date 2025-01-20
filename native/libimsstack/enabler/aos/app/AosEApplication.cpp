@@ -294,6 +294,12 @@ PROTECTED VIRTUAL IMS_BOOL AosEApplication::StateReady_Connection(IN IMSMSG& obj
             {
                 StopTimer(TIMER_APP_CONNECTED);
             }
+            else if (GET_N_CONFIG(m_nSlotId)->IsStopERegTimerOnEpdnConnected() &&
+                    GET_N_CONFIG(m_nSlotId)->GetEmcRegRetryTimerMillis() > 0)
+            {
+                StopTimer(TIMER_APP_CONNECTED);
+            }
+
             if (!IsRegBlockInCbm())
             {
                 if (m_piRegistration->IsInCallbackMode())
