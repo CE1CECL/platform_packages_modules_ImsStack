@@ -124,6 +124,23 @@ public:
     }
     inline IMS_BOOL IsVopsIgnoredForVolteEnabled() { return m_bVopsIgnoredForVolteEnabled; }
     inline void SetEpdgEnabled(IN IMS_BOOL bEnabled) { m_bEpdgEnabled = bEnabled; }
+    inline IMS_BOOL GetNetSrvIn() { return m_bNetSrvIn; }
+    inline void SetNetSrvIn(IMS_BOOL bNetSrvIn) { m_bNetSrvIn = bNetSrvIn; }
+    inline void SetDataConnected(IN IMS_BOOL bConnected) { m_bDataConnected = bConnected; }
+    inline IMS_BOOL IsDataConnected() { return m_bDataConnected; }
+    inline void SetRoamingState(IN IMS_UINT32 nState) { m_nRoamingState = nState; }
+    inline void SetCsVoiceAvailable(IN IMS_BOOL bIsCsVoiceAvailable)
+    {
+        m_bCsVoiceAvailable = bIsCsVoiceAvailable;
+    }
+    inline void SetSsacBarred(IN IMS_BOOL bIsSsacBarred) { m_bSsacBarred = bIsSsacBarred; }
+    inline void SetSsacHeld(IN IMS_BOOL bIsSsacHeld) { m_bSsacHeld = bIsSsacHeld; }
+    inline IMS_UINT32 GetNetworkType() { return m_nNetworkType; }
+    inline void SetNetworkType(IMS_UINT32 nNetworkType) { m_nNetworkType = nNetworkType; }
+    inline IMS_BOOL IsSsacBarred() { return m_bSsacBarred; }
+    inline IMS_BOOL IsSsacHeld() { return m_bSsacHeld; }
+    inline ITimer* GetVolteHysTimer() { return m_piVolteHysTimer; }
+    inline void SetServiceType(IN IMS_UINT32 nServiceType) { m_nServiceType = nServiceType; }
 
     IMS_BOOL IsHandleBlocked(IN IMS_UINT32 nBlock) const
     {
@@ -147,6 +164,22 @@ public:
     }
     void AddBlock(IN IMS_UINT32 nBlock) { AosHandle::AddBlock(nBlock, m_nBlocks); }
     void RemoveBlock(IN IMS_UINT32 nBlock) { AosHandle::RemoveBlock(nBlock, m_nBlocks); }
+    IMS_BOOL IsHoldingBlockForMobile(IN IMS_UINT32 nBlock)
+    {
+        return AosHandle::IsHandleBlocked(m_nHoldingBlocksForMobile, nBlock);
+    }
+    IMS_BOOL IsHoldingBlockForWifi(IN IMS_UINT32 nBlock)
+    {
+        return AosHandle::IsHandleBlocked(m_nHoldingBlocksForWifi, nBlock);
+    }
+    void AddHoldingBlockForMobile(IN IMS_UINT32 nBlock)
+    {
+        AosHandle::AddBlock(nBlock, m_nHoldingBlocksForMobile);
+    }
+    void AddHoldingBlockForWifi(IN IMS_UINT32 nBlock)
+    {
+        AosHandle::AddBlock(nBlock, m_nHoldingBlocksForWifi);
+    }
 };
 
 class AosHandleMtcTest : public ::testing::Test
@@ -177,65 +210,49 @@ public:
 protected:
     void SetUp() override
     {
-        EXPECT_CALL(m_objMockIAosAppContext, GetSlotId())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(0));
+        ON_CALL(m_objMockIAosAppContext, GetSlotId()).WillByDefault(Return(0));
 
         const AString strValue = AString("test");
-        EXPECT_CALL(m_objMockIAosAppContext, GetProfileId())
-                .Times(AnyNumber())
-                .WillRepeatedly(ReturnRef(strValue));
+        ON_CALL(m_objMockIAosAppContext, GetProfileId()).WillByDefault(ReturnRef(strValue));
 
         const AString strAppId = AString("ims.app.mtc.test");
         const AString strServiceId = AString("ims.service.mtc.test");
         const IMS_UINT32 nServiceType = -1;
 
         m_piAosNConfiguration = AosProvider::GetInstance()->GetNConfiguration();
-        AosProvider::GetInstance()->SetNConfiguration(
-                static_cast<IAosNConfiguration*>(&m_objMockIAosNConfiguration));
+        AosProvider::GetInstance()->SetNConfiguration(&m_objMockIAosNConfiguration);
 
-        EXPECT_CALL(m_objMockIAosAppContext, GetApp())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(&m_objMockIAosApplication));
-
-        EXPECT_CALL(m_objMockIAosAppContext, GetNetTracker())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(&m_objMockIAosNetTracker));
+        ON_CALL(m_objMockIAosAppContext, GetApp()).WillByDefault(Return(&m_objMockIAosApplication));
+        ON_CALL(m_objMockIAosAppContext, GetNetTracker())
+                .WillByDefault(Return(&m_objMockIAosNetTracker));
 
         m_piAosCallTracker = AosProvider::GetInstance()->GetCallTracker();
-        AosProvider::GetInstance()->SetCallTracker(
-                static_cast<IAosCallTracker*>(&m_objMockIAosCallTracker), 0);
+        AosProvider::GetInstance()->SetCallTracker(&m_objMockIAosCallTracker, 0);
 
-        EXPECT_CALL(m_objMockIAosNConfiguration, SetListener(_)).Times(1);
+        // ON_CALL(m_objMockIAosNConfiguration, SetListener(_)).Times(1);
 
-        EXPECT_CALL(m_objMockIAosAppContext, GetRegistration())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(static_cast<IAosRegistration*>(&m_objMockIAosRegistration)));
+        ON_CALL(m_objMockIAosAppContext, GetRegistration())
+                .WillByDefault(Return(&m_objMockIAosRegistration));
 
-        EXPECT_CALL(m_objMockIAosAppContext, GetConnection())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(&m_objMockIAosConnection));
+        ON_CALL(m_objMockIAosAppContext, GetConnection())
+                .WillByDefault(Return(&m_objMockIAosConnection));
 
-        EXPECT_CALL(m_objMockIAosRegistration, RequestCmd(_, _)).Times(AnyNumber());
+        // ON_CALL(m_objMockIAosRegistration, RequestCmd(_, _)).WillByDefault();
 
-        EXPECT_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(IMS_FALSE));
+        ON_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
+                .WillByDefault(Return(IMS_FALSE));
 
-        EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(IMS_FALSE));
+        ON_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable()).WillByDefault(Return(IMS_FALSE));
 
-        EXPECT_CALL(m_objMockIAosNConfiguration,
+        ON_CALL(m_objMockIAosNConfiguration,
                 IsGGsmaRcsTelephonyFeatureTagUsedAsAvailableVoiceCallType())
-                .Times(AnyNumber())
-                .WillRepeatedly(Return(IMS_FALSE));
+                .WillByDefault(Return(IMS_FALSE));
 
         ON_CALL(m_objMockIAosNConfiguration, IsVerstatSupportedBasedOnNetworkForReg())
                 .WillByDefault(Return(IMS_TRUE));
 
         m_piAosService = AosProvider::GetInstance()->GetService();
-        AosProvider::GetInstance()->SetService(static_cast<IAosService*>(&m_objMockIAosService));
+        AosProvider::GetInstance()->SetService(&m_objMockIAosService);
 
         m_pPlatformService =
                 PlatformContext::GetInstance()->GetService(PlatformContext::SERVICE_RADIO);
@@ -247,8 +264,8 @@ protected:
 
         ASSERT_TRUE(m_pAosHandleMtc != nullptr);
 
-        m_pAosHandleMtc->m_bDataConnected = IMS_TRUE;
-        m_pAosHandleMtc->m_bVopsIgnoredForVolteEnabled = IMS_FALSE;
+        m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
+        m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_FALSE);
     }
 
     void TearDown() override
@@ -260,20 +277,11 @@ protected:
         }
 
         AosProvider::GetInstance()->SetNConfiguration(m_piAosNConfiguration);
-        AosProvider::GetInstance()->SetCallTracker(
-                static_cast<IAosCallTracker*>(m_piAosCallTracker), 0);
+        AosProvider::GetInstance()->SetCallTracker(m_piAosCallTracker, 0);
         AosProvider::GetInstance()->SetService(m_piAosService);
         PlatformContext::GetInstance()->SetService(
                 PlatformContext::SERVICE_RADIO, m_pPlatformService);
     }
-
-    IMS_BOOL GetNetSrvIn() { return m_pAosHandleMtc->m_bNetSrvIn; }
-
-    void SetNetSrvIn(IMS_BOOL bNetSrvIn) { m_pAosHandleMtc->m_bNetSrvIn = bNetSrvIn; }
-
-    IMS_UINT32 GetNetworkType() { return m_pAosHandleMtc->m_nNetworkType; }
-
-    void SetNetworkType(IMS_UINT32 nNetworkType) { m_pAosHandleMtc->m_nNetworkType = nNetworkType; }
 
     IMS_BOOL IsEqualCapabilities(IN const ImsMap<IMS_UINT32, IMS_UINT32>& objSrcCapabilities,
             IN const ImsMap<IMS_UINT32, IMS_UINT32>& objDestCapabilities)
@@ -300,60 +308,6 @@ protected:
         }
 
         return IMS_TRUE;
-    }
-
-    void SetDataConnected(IN IMS_BOOL bConnected)
-    {
-        m_pAosHandleMtc->m_bDataConnected = bConnected;
-    }
-
-    IMS_BOOL IsDataConnected() { return m_pAosHandleMtc->m_bDataConnected; }
-
-    IMS_BOOL IsHoldingBlockForMobile(IN IMS_UINT32 nBlock)
-    {
-        return m_pAosHandleMtc->AosHandle::IsHandleBlocked(
-                m_pAosHandleMtc->m_nHoldingBlocksForMobile, nBlock);
-    }
-
-    IMS_BOOL IsHoldingBlockForWifi(IN IMS_UINT32 nBlock)
-    {
-        return m_pAosHandleMtc->AosHandle::IsHandleBlocked(
-                m_pAosHandleMtc->m_nHoldingBlocksForWifi, nBlock);
-    }
-
-    void AddHoldingBlockForMobile(IN IMS_UINT32 nBlock)
-    {
-        m_pAosHandleMtc->AosHandle::AddBlock(nBlock, m_pAosHandleMtc->m_nHoldingBlocksForMobile);
-    }
-
-    void AddHoldingBlockForWifi(IN IMS_UINT32 nBlock)
-    {
-        m_pAosHandleMtc->AosHandle::AddBlock(nBlock, m_pAosHandleMtc->m_nHoldingBlocksForWifi);
-    }
-
-    void SetRoamingState(IN IMS_UINT32 nState) { m_pAosHandleMtc->m_nRoamingState = nState; }
-
-    void SetCsVoiceAvailable(IN IMS_BOOL bIsCsVoiceAvailable)
-    {
-        m_pAosHandleMtc->m_bCsVoiceAvailable = bIsCsVoiceAvailable;
-    }
-
-    void SetSsacBarred(IN IMS_BOOL bIsSsacBarred)
-    {
-        m_pAosHandleMtc->m_bSsacBarred = bIsSsacBarred;
-    }
-
-    void SetSsacHeld(IN IMS_BOOL bIsSsacHeld) { m_pAosHandleMtc->m_bSsacHeld = bIsSsacHeld; }
-
-    IMS_BOOL IsSsacBarred() { return m_pAosHandleMtc->m_bSsacBarred; }
-
-    IMS_BOOL IsSsacHeld() { return m_pAosHandleMtc->m_bSsacHeld; }
-
-    ITimer* GetVolteHysTimer() { return m_pAosHandleMtc->m_piVolteHysTimer; }
-
-    inline void SetServiceType(IN IMS_UINT32 nServiceType)
-    {
-        m_pAosHandleMtc->m_nServiceType = nServiceType;
     }
 };
 
@@ -422,7 +376,7 @@ TEST_F(AosHandleMtcTest,
 {
     // GIVEN
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     IMS_UINT32 nExpectedFeatures =
             ImsAosFeature::MMTEL | ImsAosFeature::VIDEO | ImsAosFeature::TEXT;
@@ -452,7 +406,7 @@ TEST_F(AosHandleMtcTest,
 {
     // GIVEN
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     IMS_UINT32 nExpectedFeatures = ImsAosFeature::MMTEL | ImsAosFeature::VIDEO |
             ImsAosFeature::TEXT | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
@@ -575,14 +529,14 @@ TEST_F(AosHandleMtcTest, CallTracker_StateChanged_Test4)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
     m_pAosHandleMtc->SetHoldingVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    SetSsacHeld(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacHeld(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsPlmnBlockWithTimeoutOnVoiceCallUnavailable())
             .Times(AnyNumber())
@@ -598,17 +552,17 @@ TEST_F(AosHandleMtcTest, CallTracker_StateChanged_Test4)
     EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
     EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsSsacBarred());
-    EXPECT_FALSE(IsSsacHeld());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacHeld());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 
     // reset condiitons for plmn block
     m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_SUPPORTED);
     m_pAosHandleMtc->SetHoldingVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    SetSsacBarred(IMS_FALSE);
-    SetSsacHeld(IMS_TRUE);
-    SetRoamingState(IMS_ROAMING_STATE_ON);
-    SetCsVoiceAvailable(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_FALSE);
+    m_pAosHandleMtc->SetSsacHeld(IMS_TRUE);
+    m_pAosHandleMtc->SetRoamingState(IMS_ROAMING_STATE_ON);
+    m_pAosHandleMtc->SetCsVoiceAvailable(IMS_TRUE);
 
     m_pAosHandleMtc->CallTracker_StateChanged(IAosCallTracker::TYPE_NORMAL, CallState::IDLE);
 
@@ -617,8 +571,8 @@ TEST_F(AosHandleMtcTest, CallTracker_StateChanged_Test4)
     EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
     EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsSsacBarred());
-    EXPECT_FALSE(IsSsacHeld());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacHeld());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
 
@@ -642,14 +596,14 @@ TEST_F(AosHandleMtcTest, CallTracker_StateChanged_Test5)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
     m_pAosHandleMtc->SetHoldingVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    SetSsacHeld(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacHeld(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosApplication, RequestCmd(ImsAosControl::PLMN_BLOCK_WITH_TIMEOUT, 0))
             .Times(0);
@@ -661,8 +615,8 @@ TEST_F(AosHandleMtcTest, CallTracker_StateChanged_Test5)
     EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
     EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
-    EXPECT_TRUE(IsSsacBarred());
-    EXPECT_FALSE(IsSsacHeld());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacHeld());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
 
@@ -737,10 +691,10 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test1)
     //        Blocked BLOCK_VILTE_CAPABILITY
     // Expectation: call ImsAos_Resumed(), unblock BLOCK_VILTE_CAPABILITY
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
     m_pAosHandleMtc->SetSuspendedReason(AosReason::SUSPEND_NO_LTE_COVERAGE);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_VILTE_CAPABILITY);
 
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended())
@@ -768,7 +722,7 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test1)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    m_pAosHandleMtc->SetListener(static_cast<IImsAosListener*>(&m_objMockIImsAosListener));
+    m_pAosHandleMtc->SetListener(&m_objMockIImsAosListener);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Resumed()).Times(1);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
@@ -786,9 +740,9 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test2)
     // Test2: Srv In, Network changed to 2G(GSM)
     // Expectation: Set SUSPEND_NO_LTE_COVERAGE, call ImsAos_Suspended()
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended())
             .Times(AnyNumber())
@@ -806,7 +760,7 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    m_pAosHandleMtc->SetListener(static_cast<IImsAosListener*>(&m_objMockIImsAosListener));
+    m_pAosHandleMtc->SetListener(&m_objMockIImsAosListener);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Suspended(ImsAosReason::SUSPEND_NO_RAT_COVERAGE))
             .Times(1);
 
@@ -824,10 +778,10 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test3)
     // Test3: Srv In, Network not changed (LTE)
     // Expectation: No suspended reason, no call ImsAos_Suspended() or ImsAos_Resumed()
 
-    SetNetSrvIn(IMS_TRUE);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended())
             .Times(AnyNumber())
@@ -845,7 +799,7 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test3)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    m_pAosHandleMtc->SetListener(static_cast<IImsAosListener*>(&m_objMockIImsAosListener));
+    m_pAosHandleMtc->SetListener(&m_objMockIImsAosListener);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Suspended(_)).Times(0);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Resumed()).Times(0);
 
@@ -859,9 +813,9 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test4)
     // Test4: Srv In, Network changed to 3G(WCDMA) / Unavailable feature policy is existed
     // Expectation: Set SUSPEND_NO_LTE_COVERAGE, call ImsAos_Suspended()
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended())
             .Times(AnyNumber())
@@ -883,7 +837,7 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test4)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    m_pAosHandleMtc->SetListener(static_cast<IImsAosListener*>(&m_objMockIImsAosListener));
+    m_pAosHandleMtc->SetListener(&m_objMockIImsAosListener);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Suspended(ImsAosReason::SUSPEND_NO_RAT_COVERAGE))
             .Times(1);
 
@@ -897,9 +851,9 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test5)
     // Test5: Srv In, Network changed to 3G(WCDMA) / No unavailable feature policy
     // Expectation: Suspended reason SUSPEND_NONE (cleared when detach), call ImsAos_Suspended()
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended())
             .Times(AnyNumber())
@@ -921,7 +875,7 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test5)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    m_pAosHandleMtc->SetListener(static_cast<IImsAosListener*>(&m_objMockIImsAosListener));
+    m_pAosHandleMtc->SetListener(&m_objMockIImsAosListener);
     EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Suspended(ImsAosReason::SUSPEND_NO_RAT_COVERAGE))
             .Times(1);
 
@@ -936,9 +890,9 @@ TEST_F(AosHandleMtcTest, NetTracker_StatusChanged_Test6)
     // Test6: Srv Out, Network changed to 3G(WCDMA) / No unavailable feature policy
     // Expectation: Suspended reason SUSPEND_NONE (cleared when detach), Blocked BLOCK_NETWORK
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTING);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, IsSuspended())
             .Times(AnyNumber())
@@ -1472,8 +1426,8 @@ TEST_F(AosHandleMtcTest, CheckSuspended_Test1)
     m_pAosHandleMtc->CheckSuspended();
     EXPECT_EQ(m_pAosHandleMtc->GetSuspendedReason(), AosReason::SUSPEND_NO_SERVICE);
 
-    EXPECT_FALSE(GetNetSrvIn());
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_LTE);
+    EXPECT_FALSE(m_pAosHandleMtc->GetNetSrvIn());
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_LTE);
 }
 
 TEST_F(AosHandleMtcTest, CheckSuspended_Test2)
@@ -1492,8 +1446,8 @@ TEST_F(AosHandleMtcTest, CheckSuspended_Test2)
     EXPECT_EQ(m_pAosHandleMtc->GetSuspendedReason(),
             (AosReason::SUSPEND_NO_SERVICE | AosReason::SUSPEND_NO_LTE_COVERAGE));
 
-    EXPECT_FALSE(GetNetSrvIn());
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_GSM);
+    EXPECT_FALSE(m_pAosHandleMtc->GetNetSrvIn());
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_GSM);
 }
 
 TEST_F(AosHandleMtcTest, CheckSuspended_Test3)
@@ -1511,8 +1465,8 @@ TEST_F(AosHandleMtcTest, CheckSuspended_Test3)
     m_pAosHandleMtc->CheckSuspended();
     EXPECT_EQ(m_pAosHandleMtc->GetSuspendedReason(), AosReason::NONE);
 
-    EXPECT_TRUE(GetNetSrvIn());
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_LTE);
+    EXPECT_TRUE(m_pAosHandleMtc->GetNetSrvIn());
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_LTE);
 }
 
 TEST_F(AosHandleMtcTest, SetSuspendedReason_ResetSuspendedReason_Test)
@@ -1907,7 +1861,7 @@ TEST_F(AosHandleMtcTest, ProcessBlockChanged_Test2)
 
     EXPECT_CALL(m_objMockIAosAppContext, GetHandle(ImsAosService::MTS))
             .Times(1)
-            .WillOnce(Return(static_cast<IAosHandle*>(IMS_NULL)));
+            .WillOnce(Return(nullptr));
 
     EXPECT_CALL(
             m_objMockIAosHandle, Handle_Notify(ImsAosService::MTC, m_pAosHandleMtc->IsBlocked()))
@@ -1927,7 +1881,7 @@ TEST_F(AosHandleMtcTest, ProcessBlockChanged_Test3)
 
     EXPECT_CALL(m_objMockIAosAppContext, GetHandle(ImsAosService::MTS))
             .Times(1)
-            .WillOnce(Return(static_cast<IAosHandle*>(&m_objMockIAosHandle)));
+            .WillOnce(Return(&m_objMockIAosHandle));
 
     EXPECT_CALL(
             m_objMockIAosHandle, Handle_Notify(ImsAosService::MTC, m_pAosHandleMtc->IsBlocked()))
@@ -1939,7 +1893,7 @@ TEST_F(AosHandleMtcTest, ProcessBlockChanged_Test3)
 TEST_F(AosHandleMtcTest, DoNothingIfEmergencyServiceWhenCapabilityChanged)
 {
     // GIVEN
-    SetServiceType(ImsAosService::EMERGENCY_MTC);
+    m_pAosHandleMtc->SetServiceType(ImsAosService::EMERGENCY_MTC);
 
     ImsMap<IMS_UINT32, IMS_UINT32> objNewCapabilities, objExpectedCapabilities;
 
@@ -1977,7 +1931,7 @@ TEST_F(AosHandleMtcTest,
         BlockCallComposerIfB2cCallComposerIsRemovedWhileCallComposerFeatureTagForB2cIsTrue)
 {
     // GIVEN
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     ON_CALL(m_objMockIAosNConfiguration, IsB2cCallComposerFeatureTagInRegContact())
             .WillByDefault(Return(IMS_TRUE));
 
@@ -2002,7 +1956,7 @@ TEST_F(AosHandleMtcTest,
         UnblockCallComposerIfB2cCallComposerIsAddedWhileCallComposerFeatureTagForB2cIsTrue)
 {
     // GIVEN
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_CALL_COMPOSER_CAPABILITY);
     ON_CALL(m_objMockIAosNConfiguration, IsB2cCallComposerFeatureTagInRegContact())
             .WillByDefault(Return(IMS_TRUE));
@@ -2028,7 +1982,7 @@ TEST_F(AosHandleMtcTest,
         KeepBlockCallComposerIfB2cCallComposerIsRemovedWhileCallComposerFeatureTagForB2cIsFalse)
 {
     // GIVEN
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_CALL_COMPOSER_CAPABILITY);
     ON_CALL(m_objMockIAosNConfiguration, IsB2cCallComposerFeatureTagInRegContact())
             .WillByDefault(Return(IMS_FALSE));
@@ -2054,7 +2008,7 @@ TEST_F(AosHandleMtcTest,
         KeepBlockCallComposerIfB2cCallComposerIsAddedWhileCallComposerFeatureTagForB2cIsFalse)
 {
     // GIVEN
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_CALL_COMPOSER_CAPABILITY);
     ON_CALL(m_objMockIAosNConfiguration, IsB2cCallComposerFeatureTagInRegContact())
             .WillByDefault(Return(IMS_FALSE));
@@ -2079,7 +2033,7 @@ TEST_F(AosHandleMtcTest,
 TEST_F(AosHandleMtcTest, ShouldBlockTextCapabilityIfItIsNotInTheListWhenCapabilitiesChanged)
 {
     // GIVEN
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     ImsMap<IMS_UINT32, IMS_UINT32> objCapabilities;
     objCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::LTE),
@@ -2101,7 +2055,7 @@ TEST_F(AosHandleMtcTest, ShouldBlockTextCapabilityIfItIsNotInTheListWhenCapabili
 TEST_F(AosHandleMtcTest, ShouldUnblockTextCapabilityIfItIsInTheListWhenCapabilitiesChanged)
 {
     // GIVEN
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     ImsMap<IMS_UINT32, IMS_UINT32> objCapabilities;
     objCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::LTE),
@@ -2141,7 +2095,7 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test2)
     objExpectedCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2158,8 +2112,8 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test2)
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objExpectedCapabilities));
     EXPECT_EQ(m_pAosHandleMtc->GetFeatureTagList().GetUnavailableFeatures(), ImsAosFeature::NONE);
 }
@@ -2184,7 +2138,7 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test3)
     objExpectedCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
@@ -2204,8 +2158,8 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test3)
 
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objExpectedCapabilities));
@@ -2231,20 +2185,20 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test4)
     objNewCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
-    AddHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY);
+    m_pAosHandleMtc->AddHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objNewCapabilities);
 
-    EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objNewCapabilities));
 }
 
@@ -2267,20 +2221,20 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test5)
     objNewCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
-    AddHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY);
+    m_pAosHandleMtc->AddHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_TRUE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objNewCapabilities);
 
-    EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objNewCapabilities));
 }
 
@@ -2304,10 +2258,10 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test6)
     objNewCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
-    AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
+    m_pAosHandleMtc->AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
@@ -2317,11 +2271,11 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test6)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objNewCapabilities);
 
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objNewCapabilities));
 }
 
@@ -2345,10 +2299,10 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test7)
     objNewCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
-    AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
+    m_pAosHandleMtc->AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
@@ -2358,11 +2312,11 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test7)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objNewCapabilities);
 
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objNewCapabilities));
 }
 
@@ -2386,10 +2340,10 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test8)
     objNewCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
-    AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
+    m_pAosHandleMtc->AddHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
@@ -2399,11 +2353,11 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test8)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objNewCapabilities);
 
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objNewCapabilities));
 }
 
@@ -2427,7 +2381,7 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test9)
     objExpectedCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2444,8 +2398,8 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test9)
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
-    EXPECT_FALSE(IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VOWIFI_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForWifi(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objExpectedCapabilities));
     EXPECT_EQ(m_pAosHandleMtc->GetFeatureTagList().GetUnavailableFeatures(), ImsAosFeature::NONE);
 }
@@ -2470,7 +2424,7 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test10)
     objExpectedCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::UTRAN),
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
@@ -2490,8 +2444,8 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_Test10)
 
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOLTE_CAPABILITY));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VOLTE_CAPABILITY));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VILTE_CAPABILITY));
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOWIFI_CAPABILITY));
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VIWIFI_CAPABILITY));
     EXPECT_TRUE(IsEqualCapabilities(m_pAosHandleMtc->GetCapabilities(), objExpectedCapabilities));
@@ -2518,7 +2472,7 @@ TEST_F(AosHandleMtcTest, ProcessCapabilitiesChanged_CallComposer)
             static_cast<IMS_UINT32>(AosCapability::VOICE) |
                     static_cast<IMS_UINT32>(AosCapability::VIDEO));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
@@ -2573,7 +2527,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test1)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_NETWORK);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -2609,7 +2563,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test2)
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
@@ -2650,7 +2604,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test3)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_NR);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_NR);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2690,7 +2644,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test4)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_NR);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_NR);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2739,25 +2693,25 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test5)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_WCDMA);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WCDMA);
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase());
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objCapabilitiesVoice);
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
 
-    SetNetworkType(NW_REPORT_RADIO_WCDMA);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WCDMA);
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
 
     m_pAosHandleMtc->ProcessCapabilitiesChanged(objCapabilitiesVoiceVideo);
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VILTE_CAPABILITY));
 }
@@ -2777,7 +2731,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test6)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_GSM);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_GSM);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2815,7 +2769,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test7)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_GSM);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_GSM);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2853,7 +2807,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test8)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_WCDMA);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WCDMA);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2875,7 +2829,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test8)
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_NETWORK));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_NETWORK));
 }
@@ -2896,8 +2850,8 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test9)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_WCDMA);
-    SetDataConnected(IMS_FALSE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WCDMA);
+    m_pAosHandleMtc->SetDataConnected(IMS_FALSE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -2919,12 +2873,12 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test9)
 
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_NETWORK));
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_NETWORK));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_NETWORK));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_NETWORK));
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_NETWORK));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_NETWORK));
 }
 
 TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test10)
@@ -2943,9 +2897,9 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test10)
             static_cast<IMS_UINT32>(AosCapability::NONE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
-    AddHoldingBlockForMobile(AosHandle::BLOCK_NETWORK);
+    m_pAosHandleMtc->AddHoldingBlockForMobile(AosHandle::BLOCK_NETWORK);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -2965,7 +2919,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_Test10)
             .WillRepeatedly(Return(IMS_TRUE));
 
     m_pAosHandleMtc->ProcessNetworkChanged();
-    EXPECT_TRUE(IsHoldingBlockForMobile(AosHandle::BLOCK_NETWORK));
+    EXPECT_TRUE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_NETWORK));
 }
 
 TEST_F(AosHandleMtcTest, ProcessNetworkChanged_CallComposer)
@@ -2990,7 +2944,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_CallComposer)
             ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
@@ -3012,7 +2966,7 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_CallComposer)
     EXPECT_FALSE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(
             ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
 
     m_pAosHandleMtc->ProcessNetworkChanged();
@@ -3039,7 +2993,7 @@ TEST_F(AosHandleMtcTest, ShouldBlockTextCapabilityIfUeMovesToTheNetworkHasNoText
             static_cast<IMS_UINT32>(AosCapability::VOICE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_NR);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_NR);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
 
     ON_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable()).WillByDefault(Return(IMS_TRUE));
@@ -3075,7 +3029,7 @@ TEST_F(AosHandleMtcTest, ShouldUnblockTextCapabilityIfUeMovesToTheNetworkHasText
             static_cast<IMS_UINT32>(AosCapability::VOICE));
 
     m_pAosHandleMtc->SetCapabilities(objCapabilities);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_TEXT_CAPABILITY);
 
@@ -3123,22 +3077,22 @@ TEST_F(AosHandleMtcTest, ProcessNetworkChanged_RefreshSsacInfoOnLte)
             .Times(AnyNumber())
             .WillRepeatedly(Return(0));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetEpdgEnabled(IMS_FALSE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
 
     m_pAosHandleMtc->Init();
 
     m_pAosHandleMtc->ProcessNetworkChanged();
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
 
     m_pAosHandleMtc->ProcessNetworkChanged();
-    EXPECT_TRUE(IsSsacBarred());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
 }
 
 TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test1)
@@ -3173,7 +3127,7 @@ TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
             .Times(AnyNumber())
@@ -3257,7 +3211,7 @@ TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test5)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
             .Times(AnyNumber())
@@ -3309,7 +3263,7 @@ TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test6)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
             .Times(AnyNumber())
@@ -3361,7 +3315,7 @@ TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_VolteHysTimerRunning_by_Ssac)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
             .Times(AnyNumber())
@@ -3394,13 +3348,13 @@ TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_VolteHysTimerRunning_by_Ssac)
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 0;
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    ASSERT_TRUE(IsSsacBarred());
+    ASSERT_TRUE(m_pAosHandleMtc->IsSsacBarred());
     ASSERT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 
     objSsacInfo.nBarringFactorForVoice = 100;
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
     ASSERT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
-    ASSERT_FALSE(IsSsacBarred());
+    ASSERT_FALSE(m_pAosHandleMtc->IsSsacBarred());
     ASSERT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 
     m_pAosHandleMtc->ProcessVopsStateChanged(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
@@ -3416,7 +3370,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_On)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
@@ -3462,7 +3416,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_Off_Plmn1_On)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
@@ -3513,7 +3467,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn2_Off_Plmn2_On)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
@@ -3565,7 +3519,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn1_On_Plmn2_On)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
@@ -3614,7 +3568,7 @@ TEST_F(AosHandleMtcTest, VopsChangeWithPlmnChange_Plmn1_Off_Plmn1_On_Plmn2_Off)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_CALL(m_objMockIAosNetTracker, GetMobileNetworkType())
             .Times(AnyNumber())
             .WillRepeatedly(Return(NW_REPORT_RADIO_LTE));
@@ -3663,7 +3617,7 @@ TEST_F(AosHandleMtcTest, ShouldNotifyMtcIfB2cCallComposerCapabilityIsChanged)
 {
     // GIVEN
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     ImsMap<IMS_UINT32, IMS_UINT32> objCapabilities;
     objCapabilities.Add(static_cast<IMS_UINT32>(AosNetworkType::LTE),
@@ -3694,7 +3648,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test1)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
             .Times(AnyNumber())
@@ -3725,7 +3679,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     ImsMap<IMS_UINT32, IMS_UINT32> objCapabilitiesVoice;
     objCapabilitiesVoice.Add(static_cast<IMS_UINT32>(AosNetworkType::LTE),
@@ -3762,7 +3716,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test3)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_HSPA);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_HSPA);
 
     EXPECT_CALL(m_objMockIAosRegistration,
             RequestCmd(IAosRegistration::CMD_UPDATE_FEATURE_WITHOUT_REG, 0))
@@ -3773,7 +3727,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test3)
     EXPECT_TRUE(m_pAosHandleMtc->GetFeatureTagList().HasUnavailableFeature(ImsAosFeature::VIDEO));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_NETWORK));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     m_pAosHandleMtc->ProcessNetworkChanged();
     EXPECT_FALSE(m_pAosHandleMtc->GetFeatureTagList().HasUnavailableFeature(ImsAosFeature::MMTEL));
@@ -3791,7 +3745,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test4)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
             .Times(AnyNumber())
@@ -3805,7 +3759,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test4)
     objSsacInfo.nBarringFactorForVoice = 0;
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
 
-    ASSERT_TRUE(IsSsacBarred());
+    ASSERT_TRUE(m_pAosHandleMtc->IsSsacBarred());
 
     EXPECT_CALL(m_objMockIAosRegistration,
             RequestCmd(IAosRegistration::CMD_UPDATE_FEATURE_WITHOUT_REG, 0))
@@ -3832,7 +3786,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test5)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
             .Times(AnyNumber())
@@ -3870,7 +3824,7 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test6)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
             .Times(AnyNumber())
@@ -3902,19 +3856,19 @@ TEST_F(AosHandleMtcTest, ReevaluateUnavailableFeature_Test6)
 
 TEST_F(AosHandleMtcTest, GetVoiceBlockReasonForIpcan_Test)
 {
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_EQ(m_pAosHandleMtc->GetVoiceBlockReasonForIpcan(), AosHandle::BLOCK_VOLTE_CAPABILITY);
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
     EXPECT_EQ(m_pAosHandleMtc->GetVoiceBlockReasonForIpcan(), AosHandle::BLOCK_VOWIFI_CAPABILITY);
 }
 
 TEST_F(AosHandleMtcTest, GetVideoBlockReasonForIpcan_Test)
 {
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_EQ(m_pAosHandleMtc->GetVideoBlockReasonForIpcan(), AosHandle::BLOCK_VILTE_CAPABILITY);
 
-    SetNetworkType(NW_REPORT_RADIO_WLAN);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WLAN);
     EXPECT_EQ(m_pAosHandleMtc->GetVideoBlockReasonForIpcan(), AosHandle::BLOCK_VIWIFI_CAPABILITY);
 }
 
@@ -3976,10 +3930,10 @@ TEST_F(AosHandleMtcTest, IsPlmnBlockCondition_Test1)
             .WillOnce(Return(IMS_FALSE))
             .WillOnce(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     EXPECT_FALSE(m_pAosHandleMtc->IsPlmnBlockCondition());
 
-    SetNetworkType(NW_REPORT_RADIO_WCDMA);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_WCDMA);
     EXPECT_FALSE(m_pAosHandleMtc->IsPlmnBlockCondition());
 }
 
@@ -3992,12 +3946,12 @@ TEST_F(AosHandleMtcTest, IsPlmnBlockCondition_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
-    SetCsVoiceAvailable(IMS_FALSE);
+    m_pAosHandleMtc->SetCsVoiceAvailable(IMS_FALSE);
     EXPECT_TRUE(m_pAosHandleMtc->IsPlmnBlockCondition());
 
-    SetCsVoiceAvailable(IMS_TRUE);
+    m_pAosHandleMtc->SetCsVoiceAvailable(IMS_TRUE);
     EXPECT_FALSE(m_pAosHandleMtc->IsPlmnBlockCondition());
 }
 
@@ -4010,12 +3964,12 @@ TEST_F(AosHandleMtcTest, IsPlmnBlockCondition_Nr)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_NR);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_NR);
 
-    SetCsVoiceAvailable(IMS_FALSE);
+    m_pAosHandleMtc->SetCsVoiceAvailable(IMS_FALSE);
     EXPECT_TRUE(m_pAosHandleMtc->IsPlmnBlockCondition());
 
-    SetCsVoiceAvailable(IMS_TRUE);
+    m_pAosHandleMtc->SetCsVoiceAvailable(IMS_TRUE);
     EXPECT_TRUE(m_pAosHandleMtc->IsPlmnBlockCondition());
 }
 
@@ -4053,16 +4007,16 @@ TEST_F(AosHandleMtcTest, ProcessHoldingSsacState_Test)
             .WillOnce(Return(IMS_TRUE));
 
     EXPECT_FALSE(m_pAosHandleMtc->ProcessHoldingSsacState(0));
-    EXPECT_FALSE(IsSsacHeld());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacHeld());
 
     EXPECT_FALSE(m_pAosHandleMtc->ProcessHoldingSsacState(100));
-    EXPECT_FALSE(IsSsacHeld());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacHeld());
 
     EXPECT_TRUE(m_pAosHandleMtc->ProcessHoldingSsacState(0));
-    EXPECT_TRUE(IsSsacHeld());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacHeld());
 
     EXPECT_TRUE(m_pAosHandleMtc->ProcessHoldingSsacState(100));
-    EXPECT_FALSE(IsSsacHeld());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacHeld());
 }
 
 TEST_F(AosHandleMtcTest, ProcessVolteHysTimerExpired_Test)
@@ -4074,23 +4028,23 @@ TEST_F(AosHandleMtcTest, ProcessVolteHysTimerExpired_Test)
     m_pAosHandleMtc->ProcessVolteHysTimerExpired();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
 
-    AddHoldingBlockForMobile(AosHandle::BLOCK_VOPS);
+    m_pAosHandleMtc->AddHoldingBlockForMobile(AosHandle::BLOCK_VOPS);
     m_pAosHandleMtc->StartVolteHysTimer(60);
     m_pAosHandleMtc->ProcessVolteHysTimerExpired();
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_VOPS));
 
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
     m_pAosHandleMtc->StartVolteHysTimer(60);
     m_pAosHandleMtc->ProcessVolteHysTimerExpired();
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 
-    AddHoldingBlockForMobile(AosHandle::BLOCK_SSAC);
+    m_pAosHandleMtc->AddHoldingBlockForMobile(AosHandle::BLOCK_SSAC);
     m_pAosHandleMtc->StartVolteHysTimer(60);
     m_pAosHandleMtc->ProcessVolteHysTimerExpired();
-    EXPECT_FALSE(IsHoldingBlockForMobile(AosHandle::BLOCK_SSAC));
+    EXPECT_FALSE(m_pAosHandleMtc->IsHoldingBlockForMobile(AosHandle::BLOCK_SSAC));
 
     m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
     m_pAosHandleMtc->StartVolteHysTimer(60);
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     m_pAosHandleMtc->ProcessVolteHysTimerExpired();
@@ -4160,7 +4114,7 @@ TEST_F(AosHandleMtcTest, NConfiguration_NotifyConfigChanged_Test2)
             .WillOnce(Return(IMS_FALSE))
             .WillOnce(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_GSM);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_GSM);
 
     m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
     m_pAosHandleMtc->NConfiguration_NotifyConfigChanged();
@@ -4181,7 +4135,7 @@ TEST_F(AosHandleMtcTest, NConfiguration_NotifyConfigChanged_Test3)
             .WillOnce(Return(IMS_FALSE))
             .WillOnce(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_SUPPORTED);
 
     m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
@@ -4205,7 +4159,7 @@ TEST_F(AosHandleMtcTest, NConfiguration_NotifyConfigChanged_Test4)
             .WillOnce(Return(IMS_TRUE))
             .WillOnce(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_VOPS);
 
@@ -4229,7 +4183,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test1)
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 0;
 
-    SetSsacBarred(IMS_FALSE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_FALSE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRequiredVolteBlockBySsac())
             .Times(3)
@@ -4238,7 +4192,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test1)
             .WillOnce(Return(IMS_TRUE));
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
 
     EXPECT_CALL(m_objMockIAosCallTracker, IsNormalCallActive())
             .Times(2)
@@ -4246,12 +4200,12 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test1)
             .WillOnce(Return(IMS_FALSE));
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
 
-    SetNetworkType(NW_REPORT_RADIO_NR);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_NR);
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
 }
 
 TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test2)
@@ -4263,8 +4217,8 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
-    SetSsacBarred(IMS_FALSE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_FALSE);
 
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 0;
@@ -4273,13 +4227,13 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test2)
             .Times(1)
             .WillOnce(Return(IMS_TRUE));
 
-    SetRoamingState(IMS_ROAMING_STATE_OFF);
+    m_pAosHandleMtc->SetRoamingState(IMS_ROAMING_STATE_OFF);
 
     EXPECT_CALL(m_objMockIAosApplication, RequestCmd(ImsAosControl::PLMN_BLOCK_WITH_TIMEOUT, 0))
             .Times(1);
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_TRUE(IsSsacBarred());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
 
@@ -4292,9 +4246,9 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test3)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
-    SetDataConnected(IMS_TRUE);
-    SetSsacBarred(IMS_FALSE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_FALSE);
 
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 0;
@@ -4308,7 +4262,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test3)
             .WillOnce(Return(IMS_FALSE));
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_TRUE(IsSsacBarred());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
 
@@ -4321,13 +4275,13 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test4)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
 
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 100;
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
 }
 
 TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test5)
@@ -4339,7 +4293,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test5)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
             .Times(AnyNumber())
@@ -4354,28 +4308,28 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test5)
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 100;
 
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
-    SetNetworkType(NW_REPORT_RADIO_NR);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_NR);
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_VOPS);
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
 
@@ -4390,16 +4344,16 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_Test6)
 
     EXPECT_CALL(m_objMockIAosNConfiguration, GetVolteHysTime()).Times(1).WillOnce(Return(60));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     SsacInfo objSsacInfo;
     objSsacInfo.nBarringFactorForVoice = 100;
 
-    SetSsacBarred(IMS_TRUE);
+    m_pAosHandleMtc->SetSsacBarred(IMS_TRUE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
-    EXPECT_FALSE(IsSsacBarred());
+    EXPECT_FALSE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
@@ -4412,7 +4366,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_VolteHysTimerRunning_by_Vops)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
             .Times(AnyNumber())
@@ -4439,7 +4393,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_VolteHysTimerRunning_by_Vops)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
 
     m_pAosHandleMtc->ProcessVopsStateChanged(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
     ASSERT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
@@ -4455,7 +4409,7 @@ TEST_F(AosHandleMtcTest, ImsRadio_OnSsacChanged_VolteHysTimerRunning_by_Vops)
 
     m_pAosHandleMtc->ImsRadio_OnSsacChanged(objSsacInfo);
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
-    EXPECT_TRUE(IsSsacBarred());
+    EXPECT_TRUE(m_pAosHandleMtc->IsSsacBarred());
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_VOPS));
 }
@@ -4501,7 +4455,7 @@ TEST_F(AosHandleMtcTest, Timer_TimerExpired_Test)
     m_pAosHandleMtc->Timer_TimerExpired(piTestTimer);
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
-    m_pAosHandleMtc->Timer_TimerExpired(GetVolteHysTimer());
+    m_pAosHandleMtc->Timer_TimerExpired(m_pAosHandleMtc->GetVolteHysTimer());
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
     AosUtil::GetInstance()->StopTimer(piTestTimer, "AosHandleMtcTest_Timer");
@@ -4532,16 +4486,16 @@ TEST_F(AosHandleMtcTest, StopVolteHysTimer_PdnLost_Then_UmtsGsm)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetDataConnected(IMS_TRUE);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
     m_pAosHandleMtc->StartVolteHysTimer(60);
 
     m_pAosHandleMtc->NetTracker_StatusChanged();  // Data changed
-    EXPECT_FALSE(IsDataConnected());
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_LTE);
+    EXPECT_FALSE(m_pAosHandleMtc->IsDataConnected());
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_LTE);
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
     EXPECT_CALL(m_objMockIAosNetTracker, GetNetworkType())
@@ -4549,7 +4503,7 @@ TEST_F(AosHandleMtcTest, StopVolteHysTimer_PdnLost_Then_UmtsGsm)
             .WillRepeatedly(Return(NW_REPORT_RADIO_GSM));
 
     m_pAosHandleMtc->NetTracker_StatusChanged();  // Moves to unsupported RAT(=GSM)
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_GSM);
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_GSM);
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
@@ -4579,16 +4533,16 @@ TEST_F(AosHandleMtcTest, StopVolteHysTimer_UmtsGsm_Then_PdnLost)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    SetNetSrvIn(IMS_TRUE);
+    m_pAosHandleMtc->SetNetSrvIn(IMS_TRUE);
     m_pAosHandleMtc->SetHandleState(AosHandle::STATE_CONNECTED);
-    SetDataConnected(IMS_TRUE);
-    SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetDataConnected(IMS_TRUE);
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_SSAC);
     m_pAosHandleMtc->StartVolteHysTimer(60);
 
     m_pAosHandleMtc->NetTracker_StatusChanged();  // Moves to unsupported RAT(=WCDMA)
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_WCDMA);
-    EXPECT_TRUE(IsDataConnected());
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_WCDMA);
+    EXPECT_TRUE(m_pAosHandleMtc->IsDataConnected());
     EXPECT_TRUE(m_pAosHandleMtc->IsVolteHysTimerRunning());
 
     EXPECT_CALL(m_objMockIAosConnection, GetState())
@@ -4596,8 +4550,8 @@ TEST_F(AosHandleMtcTest, StopVolteHysTimer_UmtsGsm_Then_PdnLost)
             .WillRepeatedly(Return(IAosConnection::STATE_IDLE));
 
     m_pAosHandleMtc->NetTracker_StatusChanged();  // Data changed
-    EXPECT_FALSE(IsDataConnected());
-    EXPECT_EQ(GetNetworkType(), NW_REPORT_RADIO_WCDMA);
+    EXPECT_FALSE(m_pAosHandleMtc->IsDataConnected());
+    EXPECT_EQ(m_pAosHandleMtc->GetNetworkType(), NW_REPORT_RADIO_WCDMA);
     EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlocked(AosHandle::BLOCK_SSAC));
 }
