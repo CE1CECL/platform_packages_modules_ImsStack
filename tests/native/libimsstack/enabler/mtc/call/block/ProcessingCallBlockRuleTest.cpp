@@ -81,9 +81,17 @@ protected:
     }
 };
 
-TEST_F(ProcessingCallBlockRuleTest, CheckReturnsUnblockedIfEmergencyCall)
+TEST_F(ProcessingCallBlockRuleTest, CheckReturnsUnblockedIfEmergencyRoutingCall)
 {
     objCallInfo.eEmergencyType = EmergencyType::EMERGENCY_ROUTING;
+    Result objResult = pBlockRule->Check(objListener);
+
+    EXPECT_EQ(Result::Status::UNBLOCKED, objResult.eStatus);
+}
+
+TEST_F(ProcessingCallBlockRuleTest, CheckReturnsUnblockedIfNormalRoutingCall)
+{
+    objCallInfo.eEmergencyType = EmergencyType::NORMAL_ROUTING;
     Result objResult = pBlockRule->Check(objListener);
 
     EXPECT_EQ(Result::Status::UNBLOCKED, objResult.eStatus);

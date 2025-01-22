@@ -32,7 +32,7 @@ PUBLIC VIRTUAL ProcessingCallBlockRule::~ProcessingCallBlockRule() {}
 PUBLIC VIRTUAL ProcessingCallBlockRule::Result ProcessingCallBlockRule::Check(
         IN IMtcBlockRuleCheckListener& /* objListener */)
 {
-    if (m_objContext.GetCallInfo().IsEmergency())
+    if (m_objContext.GetCallInfo().eEmergencyType != EmergencyType::NONE)
     {
         return Result(Result::Status::UNBLOCKED);
     }
