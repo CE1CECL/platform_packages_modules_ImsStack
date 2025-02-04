@@ -259,9 +259,9 @@ TEST_F(AosNetTrackerTest, IsNetworkIn)
     EXPECT_TRUE(m_pAosNetTracker->IsNetworkIn());
 }
 
-TEST_F(AosNetTrackerTest, IsEmergencyLteAttach)
+TEST_F(AosNetTrackerTest, IsEmergencyAttach)
 {
-    EXPECT_CALL(m_objMockINetworkWatcher, IsLteEmergencyOnly())
+    EXPECT_CALL(m_objMockINetworkWatcher, IsEmergencyOnly())
             .Times(2)
             .WillOnce(Return(IMS_TRUE))
             .WillOnce(Return(IMS_FALSE));

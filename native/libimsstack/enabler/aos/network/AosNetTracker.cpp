@@ -146,7 +146,7 @@ PUBLIC VIRTUAL IMS_BOOL AosNetTracker::IsNetworkIn()
 
 PUBLIC VIRTUAL IMS_BOOL AosNetTracker::IsEmergencyLteAttach()
 {
-    return m_piNetWatcherInfo->IsLteEmergencyOnly();
+    return m_piNetWatcherInfo->IsEmergencyOnly();
 }
 
 PUBLIC VIRTUAL IMS_BOOL AosNetTracker::IsSuspended()
