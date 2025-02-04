@@ -128,6 +128,7 @@ public class CallReasonInfo implements Parcelable {
     public static final int CODE_REJECT_ONGOING_CALL_UPGRADE = 1616;
     public static final int CODE_REJECT_ONGOING_CONFERENCE_CALL = 1618;
     public static final int CODE_REJECT_ONGOING_CS_CALL = 1621;
+    public static final int CODE_EMERGENCY_CALL_OVER_WFC_NOT_AVAILABLE = 1622;
 
     // CODE_LOCAL_CALL_CS_RETRY_REQUIRED
     public static final int EXTRA_CODE_CALL_RETRY_NORMAL = 0;

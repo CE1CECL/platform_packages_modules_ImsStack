@@ -1248,6 +1248,8 @@ public class ImsCallUtils {
                 ImsReasonInfo.CODE_REJECT_ONGOING_CONFERENCE_CALL);
         sMtcReasonToImsReason.put(CallReasonInfo.CODE_REJECT_ONGOING_CS_CALL,
                 ImsReasonInfo.CODE_REJECT_ONGOING_CS_CALL);
+        sMtcReasonToImsReason.put(CallReasonInfo.CODE_EMERGENCY_CALL_OVER_WFC_NOT_AVAILABLE,
+                ImsReasonInfo.CODE_EMERGENCY_CALL_OVER_WFC_NOT_AVAILABLE);
 
         // User's status: from user status (int) to user status (string)
         sUserStatusToString = new LinkedHashMap<Integer, String>();
