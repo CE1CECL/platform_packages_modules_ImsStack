@@ -83,6 +83,12 @@ public class MediaConfig {
      * @param rtpConfig object to Rtp Configurations
      */
     public void updateRtpConfig(RtpConfig rtpConfig) {
+        if (mRtpConfig != null && mRtpConfig.getAccessNetwork() != rtpConfig.getAccessNetwork()) {
+            mNotifyCurrentStatus = true;
+        } else {
+            mNotifyCurrentStatus = false;
+        }
+        ImsLog.d("updateRtpConfig - mNotifyCurrentStatus: " + mNotifyCurrentStatus);
         mRtpConfig = rtpConfig;
     }
 
