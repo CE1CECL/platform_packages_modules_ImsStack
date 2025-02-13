@@ -2131,9 +2131,10 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::AddFeatureTagForMtc(
         bFeatureTagUpdated = IMS_TRUE;
     }
 
-    if (((nRegFeatures & ImsAosFeature::USSI) > 0) && bFinalFeatureTag == IMS_FALSE)
+    if (((nRegFeatures & ImsAosFeature::NW_INIT_USSI) > 0) && bFinalFeatureTag == IMS_FALSE)
     {
-        m_piRegContact->AddExtraCapability(AosString::STR_USSI_FEATURE, AString::ConstNull());
+        m_piRegContact->AddExtraCapability(
+                AosString::STR_NW_INIT_USSI_FEATURE, AString::ConstNull());
     }
 
     if (((nRegFeatures & ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY) > 0) && !bFinalFeatureTag)
@@ -2202,9 +2203,10 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::RemoveFeatureTagForMtc(IN IMS_UINT32
             bFeatureTagUpdated = IMS_TRUE;
         }
     }
-    if ((nRegFeatures & ImsAosFeature::USSI) > 0)
+    if ((nRegFeatures & ImsAosFeature::NW_INIT_USSI) > 0)
     {
-        m_piRegContact->RemoveExtraCapability(AosString::STR_USSI_FEATURE, AString::ConstNull());
+        m_piRegContact->RemoveExtraCapability(
+                AosString::STR_NW_INIT_USSI_FEATURE, AString::ConstNull());
     }
     if ((nRegFeatures & ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY) > 0)
     {

@@ -303,9 +303,9 @@ PROTECTED VIRTUAL void AosHandleMtc::InitializeServiceFeature()
         m_objFeatureTagList.AddFeature(ImsAosFeature::VERSTAT);
     }
 
-    if (piConfig->GetUssdMethod() != CarrierConfig::USSD_OVER_CS_ONLY)
+    if (piConfig->IsNetworkInitiatedUssdOverImsSupported())
     {
-        m_objFeatureTagList.AddFeature(ImsAosFeature::USSI);
+        m_objFeatureTagList.AddFeature(ImsAosFeature::NW_INIT_USSI);
     }
 
     A_IMS_TRACE_I(APPPROFILE, "InitializeServiceFeature :: Features(%x)",

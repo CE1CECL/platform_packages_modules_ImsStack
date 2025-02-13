@@ -25,7 +25,7 @@ public:
     static const IMS_CHAR STR_APPLICATION[];
     static const IMS_CHAR STR_3GPP_IMS_XML[];
     static const IMS_CHAR STR_VERSTAT_FEATURE[];
-    static const IMS_CHAR STR_USSI_FEATURE[];
+    static const IMS_CHAR STR_NW_INIT_USSI_FEATURE[];
     static const IMS_CHAR STR_RTT_FEATURE[];
     static const IMS_CHAR STR_ACCESS_TYPE_FEATURE[];
     static const IMS_CHAR STR_ACCESS_TYPE_CELLULAR[];

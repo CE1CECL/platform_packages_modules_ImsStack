@@ -971,9 +971,8 @@ TEST_F(AosHandleMtcTest, InitializeServiceFeature_Test1)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_TRUE));
 
-    EXPECT_CALL(m_objMockIAosNConfiguration, GetUssdMethod())
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(CarrierConfig::USSD_OVER_IMS_PREFERRED));
+    ON_CALL(m_objMockIAosNConfiguration, IsNetworkInitiatedUssdOverImsSupported())
+            .WillByDefault(Return(IMS_TRUE));
 
     m_pAosHandleMtc->InitializeServiceFeature();
 
@@ -983,7 +982,7 @@ TEST_F(AosHandleMtcTest, InitializeServiceFeature_Test1)
             ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY));
     EXPECT_TRUE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::TEXT));
     EXPECT_TRUE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::VERSTAT));
-    EXPECT_TRUE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::USSI));
+    EXPECT_TRUE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::NW_INIT_USSI));
 }
 
 TEST_F(AosHandleMtcTest, InitializeServiceFeature_Test2)
@@ -999,9 +998,8 @@ TEST_F(AosHandleMtcTest, InitializeServiceFeature_Test2)
             .Times(AnyNumber())
             .WillRepeatedly(Return(IMS_FALSE));
 
-    EXPECT_CALL(m_objMockIAosNConfiguration, GetUssdMethod())
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(CarrierConfig::USSD_OVER_CS_ONLY));
+    ON_CALL(m_objMockIAosNConfiguration, IsNetworkInitiatedUssdOverImsSupported())
+            .WillByDefault(Return(IMS_FALSE));
 
     m_pAosHandleMtc->InitializeServiceFeature();
 
@@ -1010,7 +1008,7 @@ TEST_F(AosHandleMtcTest, InitializeServiceFeature_Test2)
     EXPECT_FALSE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(
             ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY));
     EXPECT_FALSE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::VERSTAT));
-    EXPECT_FALSE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::USSI));
+    EXPECT_FALSE(m_pAosHandleMtc->GetFeatureTagList().HasFeature(ImsAosFeature::NW_INIT_USSI));
 }
 
 TEST_F(AosHandleMtcTest,
