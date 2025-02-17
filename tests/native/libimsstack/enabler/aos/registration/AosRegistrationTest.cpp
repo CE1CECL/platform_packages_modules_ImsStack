@@ -1698,12 +1698,13 @@ TEST_F(AosRegistrationTest, AddExtraCapabilityIfFinalFeatureTagWhenAddFeatureTag
     m_pAosRegistration->GetUtil()->SetISipConfigV(&m_objMockISipConfigV);
 
     EXPECT_CALL(m_objMockIRegContact,
-            AddExtraCapability(AString(AosString::STR_USSI_FEATURE), AString::ConstNull()));
+            AddExtraCapability(AString(AosString::STR_NW_INIT_USSI_FEATURE), AString::ConstNull()));
     EXPECT_CALL(m_objMockIRegContact,
             AddExtraCapability(
                     AString(FeatureTags::CALL_COMPOSER_VIA_TELEPHONY), AString::ConstNull()));
 
-    IMS_UINT32 nRegFeatures = ImsAosFeature::USSI | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
+    IMS_UINT32 nRegFeatures =
+            ImsAosFeature::NW_INIT_USSI | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
     m_pAosRegistration->AddFeatureTagForMtc(nRegFeatures, IMS_FALSE);
 
     m_pAosRegistration->GetUtil()->SetISipConfigV(IMS_NULL);
@@ -1715,7 +1716,8 @@ TEST_F(AosRegistrationTest, DoNotAddExtraCapabilityIfNotFinalFeatureTagWhenAddFe
 
     EXPECT_CALL(m_objMockIRegContact, AddExtraCapability(_, _)).Times(0);
 
-    IMS_UINT32 nRegFeatures = ImsAosFeature::USSI | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
+    IMS_UINT32 nRegFeatures =
+            ImsAosFeature::NW_INIT_USSI | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
     m_pAosRegistration->AddFeatureTagForMtc(nRegFeatures, IMS_TRUE);
 
     m_pAosRegistration->GetUtil()->SetISipConfigV(IMS_NULL);
@@ -1750,12 +1752,14 @@ TEST_F(AosRegistrationTest, UpdateFeatureTagOptionsWhenRemoveFeatureTagForMtc)
 TEST_F(AosRegistrationTest, RemoveExtraCapabilityWhenRemoveFeatureTagForMtc)
 {
     EXPECT_CALL(m_objMockIRegContact,
-            RemoveExtraCapability(AString(AosString::STR_USSI_FEATURE), AString::ConstNull()));
+            RemoveExtraCapability(
+                    AString(AosString::STR_NW_INIT_USSI_FEATURE), AString::ConstNull()));
     EXPECT_CALL(m_objMockIRegContact,
             RemoveExtraCapability(
                     AString(FeatureTags::CALL_COMPOSER_VIA_TELEPHONY), AString::ConstNull()));
 
-    IMS_UINT32 nRegFeatures = ImsAosFeature::USSI | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
+    IMS_UINT32 nRegFeatures =
+            ImsAosFeature::NW_INIT_USSI | ImsAosFeature::CALL_COMPOSER_VIA_TELEPHONY;
     m_pAosRegistration->RemoveFeatureTagForMtc(nRegFeatures);
 }
 
