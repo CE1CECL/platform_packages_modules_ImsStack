@@ -82,6 +82,27 @@ public:
 
     virtual ~IMtcCall(){};
 
+    inline static const IMS_CHAR* PrintState(IN const State eState)
+    {
+        switch (eState)
+        {
+            case State::IDLE:
+                return "IDLE";
+            case State::OUTGOING:
+                return "OUTGOING";
+            case State::INCOMING:
+                return "INCOMING";
+            case State::ALERTING:
+                return "ALERTING";
+            case State::ESTABLISHED:
+                return "ESTABLISHED";
+            case State::UPDATING:
+                return "UPDATING";
+            default:  // State::TERMINATING:
+                return "TERMINATING";
+        }
+    }
+
     // Sets thread to interact with the Java layer. Nothing happens if the thread is null.
 
     /**
@@ -285,6 +306,13 @@ public:
      * @return
      */
     virtual IMtcCallContext& GetCallContext() = 0;
+
+    inline const AString ToString() const
+    {
+        AString strCall;
+        strCall.Sprintf("MtcCall[%lu][%s]", GetKey(), PrintState(GetState()));
+        return strCall;
+    }
 };
 
 struct CallInfo

@@ -55,18 +55,15 @@ PUBLIC
 EstablishedState::EstablishedState(IN IMtcCallContext& objContext) :
         MtcCallState(CallStateName::ESTABLISHED, objContext)
 {
-    IMS_TRACE_D("+EstablishedState", 0, 0, 0);
 }
 
 PUBLIC VIRTUAL EstablishedState::~EstablishedState()
 {
-    IMS_TRACE_D("~EstablishedState", 0, 0, 0);
     m_objContext.ReleaseAsyncOperation(this);
 }
 
 PUBLIC VIRTUAL void EstablishedState::OnEnter()
 {
-    IMS_TRACE_D("OnEnter", 0, 0, 0);
     if (CurrentLocationDiscoveryController::IsPeriodicLocationDiscoveryRequired(
                 m_objContext.GetCallInfo().IsEmergency(),
                 m_objContext.GetConfigurationProxy().GetInt(
@@ -100,8 +97,6 @@ PUBLIC VIRTUAL void EstablishedState::OnEnter()
 
 PUBLIC VIRTUAL CallStateName EstablishedState::Hold(IN MediaInfo& objMediaInfo)
 {
-    IMS_TRACE_D("Hold", 0, 0, 0);
-
     if (ShouldPendOperation())
     {
         m_objContext.GetPendingOperationHolder().PushPendingOperation(
@@ -139,7 +134,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Hold(IN MediaInfo& objMediaInfo)
 
 PUBLIC VIRTUAL CallStateName EstablishedState::Resume(IN MediaInfo& objMediaInfo)
 {
-    IMS_TRACE_D("Resume", 0, 0, 0);
     if (ShouldPendOperation())
     {
         m_objContext.GetPendingOperationHolder().PushPendingOperation(
@@ -170,7 +164,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Resume(IN MediaInfo& objMediaInfo
 PUBLIC VIRTUAL CallStateName EstablishedState::Update(
         IN CallType eCallType, IN MediaInfo& objMediaInfo)
 {
-    IMS_TRACE_D("Update", 0, 0, 0);
     if (ShouldPendOperation())
     {
         m_objContext.GetPendingOperationHolder().PushPendingOperation(
@@ -191,8 +184,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Update(
 
 PUBLIC VIRTUAL CallStateName EstablishedState::Terminate(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_D("Terminate", 0, 0, 0);
-
     // SetTerminateCodeForInvitedSessionToConf
 
     const CallReasonInfo objTerminateReason = GetAudioInactivityReasonOnTermination(objReason);
@@ -205,8 +196,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Terminate(IN const CallReasonInfo
 
 PUBLIC VIRTUAL CallStateName EstablishedState::SessionTerminated(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionTerminated", 0, 0, 0);
-
     m_objContext.GetUiNotifier().SendTerminated(IsConferenceCallParticipant()
                     ? CallReasonInfo(CODE_LOCAL_ENDED_BY_CONFERENCE_MERGE)
                     : TerminationHandler(m_objContext).Handle(*piSession));
@@ -216,8 +205,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::SessionTerminated(IN ISession* pi
 
 PUBLIC VIRTUAL CallStateName EstablishedState::SessionUpdateReceived(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionUpdateReceived", 0, 0, 0);
-
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_UPDATE);
 
     IMtcSession* pSession = m_objContext.GetSession();
@@ -381,7 +368,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::NotifyErrorToUssiInfo(
 PUBLIC VIRTUAL CallStateName EstablishedState::Refresh_NotifyCompleted(
         IN ISipClientConnection* /*piScc*/)
 {
-    IMS_TRACE_D("Refresh_NotifyCompleted", 0, 0, 0);
     m_objContext.RunAsyncOperation(this,
             [&]()
             {
@@ -392,11 +378,8 @@ PUBLIC VIRTUAL CallStateName EstablishedState::Refresh_NotifyCompleted(
 }
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnReceivingMediaDataFailed(
-        IN IMS_UINT32 eMediaType, IN IMS_UINT32 eProtocolType)
+        IN IMS_UINT32 eMediaType, IN [[maybe_unused]] IMS_UINT32 eProtocolType)
 {
-    IMS_TRACE_I(
-            "OnReceivingMediaDataFailed : Media[%d] Protocol[%d]", eMediaType, eProtocolType, 0);
-
     if (eMediaType == MEDIATYPE_AUDIO)
     {
         CallReasonInfo objReason(CODE_MEDIA_NO_DATA);
@@ -418,8 +401,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnReceivingMediaDataFailed(
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnVideoLowestBitRate()
 {
-    IMS_TRACE_I("OnVideoLowestBitRate", 0, 0, 0);
-
     CallType eCallType = m_objContext.GetSession()->GetCallType();
     if (eCallType == CallType::VT)
     {
@@ -436,7 +417,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnVideoLowestBitRate()
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnReceivingNetworkToneStarted()
 {
-    IMS_TRACE_I("OnReceivingNetworkToneStarted", 0, 0, 0);
     m_objContext.GetUiNotifier().SendHeldBy();
 
     return GetStateName();
@@ -444,7 +424,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnReceivingNetworkToneStarted()
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnReceivingNetworkToneFailed()
 {
-    IMS_TRACE_I("OnReceivingNetworkToneFailed", 0, 0, 0);
     m_objContext.GetUiNotifier().SendHeldBy();
 
     return GetStateName();
@@ -452,8 +431,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnReceivingNetworkToneFailed()
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnMediaFailed(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_I("OnMediaFailed", 0, 0, 0);
-
     HandleTerminate(objReason);
     m_objContext.GetUiNotifier().SendTerminated(objReason);
 
@@ -463,7 +440,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnMediaFailed(IN const CallReason
 PUBLIC VIRTUAL CallStateName EstablishedState::QosReserveFailed(
         IN ISession* /* piSession */, IN QosLossPolicy eNextAction)
 {
-    IMS_TRACE_I("QosReserveFailed", 0, 0, 0);
     if (eNextAction == QosLossPolicy::RELEASE)
     {
         CallReasonInfo objReason(CODE_LOCAL_CALL_RESOURCE_RESERVATION_FAILED);
@@ -485,8 +461,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::QosReserveFailed(
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnIpcanChanged(IN IMS_UINT32 eIpcan)
 {
-    IMS_TRACE_I("OnIpcanChanged", 0, 0, 0);
-
     if (!m_objContext.GetConfigurationProxy().GetBoolean(
                 ConfigVoice::KEY_ENABLE_SEND_REINVITE_ON_RAT_CHANGE_BOOL))
     {
@@ -510,8 +484,6 @@ PUBLIC VIRTUAL CallStateName EstablishedState::OnIpcanChanged(IN IMS_UINT32 eIpc
 
 PUBLIC VIRTUAL CallStateName EstablishedState::OnTimerExpired(IN IMS_SINT32 nType)
 {
-    IMS_TRACE_D("OnTimerExpired : %d", nType, 0, 0);
-
     switch (nType)
     {
         case TIMER_DELAY_UPDATE_AFTER_CONNECTED:
