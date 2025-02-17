@@ -31,9 +31,11 @@ import android.telephony.TelephonyManager;
 import android.testing.AndroidTestingRunner;
 import android.testing.TestableLooper;
 
+import com.android.imsstack.base.MSimUtils;
 import com.android.imsstack.base.TelephonyManagerProxy;
 import com.android.imsstack.base.TestAppContext;
 import com.android.imsstack.core.agents.AgentFactory;
+import com.android.imsstack.core.agents.Sim;
 import com.android.imsstack.core.agents.SimInterface;
 import com.android.imsstack.enabler.aos.IAosInfo.EmergencyCallbackModeState;
 import com.android.imsstack.enabler.aos.IAosInfo.EmergencyCallbackModeType;
@@ -100,7 +102,7 @@ public class AosEmergencyCallbackModeTrackerTest {
                 captureEmergencyCbmListener();
 
         emergencyCbmListener.onCallbackModeStarted(TelephonyManager.EMERGENCY_CALLBACK_MODE_CALL,
-                Duration.ofMillis(300000L), SUB_ID_1);
+                Duration.ofMinutes(5), SUB_ID_1);
 
         verify(mMockAosService).notifyEmergencyCallbackModeChanged(
                 eq(EmergencyCallbackModeType.CALL), eq(EmergencyCallbackModeState.START), eq(300L));
@@ -112,10 +114,10 @@ public class AosEmergencyCallbackModeTrackerTest {
                 captureEmergencyCbmListener();
 
         emergencyCbmListener.onCallbackModeRestarted(TelephonyManager.EMERGENCY_CALLBACK_MODE_SMS,
-                Duration.ofMillis(200000L), SUB_ID_1);
+                Duration.ofMinutes(3), SUB_ID_1);
 
         verify(mMockAosService).notifyEmergencyCallbackModeChanged(
-                eq(EmergencyCallbackModeType.SMS), eq(EmergencyCallbackModeState.START), eq(200L));
+                eq(EmergencyCallbackModeType.SMS), eq(EmergencyCallbackModeState.START), eq(180L));
     }
 
     @Test
@@ -144,14 +146,47 @@ public class AosEmergencyCallbackModeTrackerTest {
     }
 
     @Test
-    public void testOnCallbackModeStarted_notMatchedSubId() {
+    public void testOnCallbackModeStartedWithInvalidSubId() {
         TelephonyCallback.EmergencyCallbackModeListener emergencyCbmListener =
                 captureEmergencyCbmListener();
 
         emergencyCbmListener.onCallbackModeStarted(TelephonyManager.EMERGENCY_CALLBACK_MODE_CALL,
-                Duration.ofMillis(300000L), SUB_ID_2);
+                Duration.ofMinutes(5), MSimUtils.INVALID_SUB_ID);
+
+        verify(mMockAosService).notifyEmergencyCallbackModeChanged(
+                eq(EmergencyCallbackModeType.CALL), eq(EmergencyCallbackModeState.START), eq(300L));
+    }
+
+    @Test
+    public void testOnCallbackModeStartedWithExistingSubId_whenUpdatedSubId() {
+        Sim.Listener simListener = captureSimListener();
+        when(mSimInterface.getSubId()).thenReturn(SUB_ID_2);
+        simListener.onSimStateChanged();
+
+        TelephonyCallback.EmergencyCallbackModeListener emergencyCbmListener =
+                captureEmergencyCbmListener();
+
+        emergencyCbmListener.onCallbackModeStarted(TelephonyManager.EMERGENCY_CALLBACK_MODE_CALL,
+                Duration.ofMinutes(5), SUB_ID_1);
 
         verify(mMockAosService, never()).notifyEmergencyCallbackModeChanged(
+                eq(EmergencyCallbackModeType.CALL), eq(EmergencyCallbackModeState.START), eq(300L));
+    }
+
+
+    @Test
+    public void testOnCallbackModeStartedWithUpdatedSubId_whenUpdatedSubId() {
+        Sim.Listener simListener = captureSimListener();
+        when(mSimInterface.getSubId()).thenReturn(SUB_ID_2);
+        simListener.onSimStateChanged();
+
+        TelephonyCallback.EmergencyCallbackModeListener emergencyCbmListener =
+                captureEmergencyCbmListener();
+
+        emergencyCbmListener.onCallbackModeStarted(TelephonyManager.EMERGENCY_CALLBACK_MODE_CALL,
+                Duration.ofMinutes(5), SUB_ID_2);
+
+        verify(mMockAosService).notifyEmergencyCallbackModeChanged(
                 eq(EmergencyCallbackModeType.CALL), eq(EmergencyCallbackModeState.START), eq(300L));
     }
 
@@ -159,5 +194,11 @@ public class AosEmergencyCallbackModeTrackerTest {
         ArgumentCaptor<TelephonyCallback> captor = ArgumentCaptor.forClass(TelephonyCallback.class);
         verify(mTelephonyManagerProxy).registerTelephonyCallback(any(), captor.capture());
         return (TelephonyCallback.EmergencyCallbackModeListener) captor.getValue();
+    }
+
+    private Sim.Listener captureSimListener() {
+        ArgumentCaptor<Sim.Listener> captor = ArgumentCaptor.forClass(Sim.Listener.class);
+        verify(mSimInterface).addListener(captor.capture());
+        return (Sim.Listener) captor.getValue();
     }
 }

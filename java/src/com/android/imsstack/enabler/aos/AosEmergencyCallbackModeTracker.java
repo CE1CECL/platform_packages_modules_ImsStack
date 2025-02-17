@@ -107,35 +107,33 @@ public class AosEmergencyCallbackModeTracker {
     private void handleSimStateChanged() {
         SimInterface sim = AgentFactory.getInstance().getAgent(SimInterface.class, mSlotId);
 
-        if (sim == null || !sim.isSimLoadCompleted()) {
+        if (sim == null) {
             return;
         }
 
         int subId = sim.getSubId();
 
-        if (mSubId == subId || subId == MSimUtils.INVALID_SUB_ID) {
+        if (mSubId == subId) {
             return;
         }
 
         ImsLog.i(this, mSlotId, "handleSimStateChanged: subId=" + subId);
-        unregisterTelephonyCallback();
         mSubId = subId;
-        registerTelephonyCallback();
     }
 
     private void registerTelephonyCallback() {
         if (mTelephonyCallback == null) {
             mTelephonyCallback = new EmergencyCallbackModeCallback();
-            TelephonyManagerProxy tmp =
-                    AppContext.getTelephonyManagerProxy(mSubId);
+            TelephonyManagerProxy tmp = AppContext.getInstance().getSystemServiceProxy(
+                    TelephonyManagerProxy.class);
             tmp.registerTelephonyCallback(mHandler::post, mTelephonyCallback);
         }
     }
 
     private void unregisterTelephonyCallback() {
         if (mTelephonyCallback != null) {
-            TelephonyManagerProxy tmp =
-                    AppContext.getTelephonyManagerProxy(mSubId);
+            TelephonyManagerProxy tmp = AppContext.getInstance().getSystemServiceProxy(
+                    TelephonyManagerProxy.class);
             tmp.unregisterTelephonyCallback(mTelephonyCallback);
             mTelephonyCallback = null;
         }
@@ -146,7 +144,7 @@ public class AosEmergencyCallbackModeTracker {
         @Override
         public void onCallbackModeStarted(@TelephonyManager.EmergencyCallbackModeType int type,
                 @NonNull Duration timerDuration, int subId) {
-            if (subId != mSubId) {
+            if (subId != MSimUtils.INVALID_SUB_ID && subId != mSubId) {
                 return;
             }
 
@@ -158,7 +156,7 @@ public class AosEmergencyCallbackModeTracker {
         @Override
         public void onCallbackModeRestarted(@TelephonyManager.EmergencyCallbackModeType int type,
                 @NonNull Duration timerDuration, int subId) {
-            if (subId != mSubId) {
+            if (subId != MSimUtils.INVALID_SUB_ID && subId != mSubId) {
                 return;
             }
 
@@ -170,7 +168,7 @@ public class AosEmergencyCallbackModeTracker {
         @Override
         public void onCallbackModeStopped(@TelephonyManager.EmergencyCallbackModeType int type,
                 @TelephonyManager.EmergencyCallbackModeStopReason int reason, int subId) {
-            if (subId != mSubId) {
+            if (subId != MSimUtils.INVALID_SUB_ID && subId != mSubId) {
                 return;
             }
 
