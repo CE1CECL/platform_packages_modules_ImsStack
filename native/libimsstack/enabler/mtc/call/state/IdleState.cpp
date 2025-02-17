@@ -128,7 +128,6 @@ PUBLIC VIRTUAL CallStateName IdleState::StartConference(IN CallType eCallType,
         IN const ImsMap<SuppType, SuppService*>& objSuppServices,
         IN const ImsList<ConfUser*>& lstUsers)
 {
-    IMS_TRACE_D("StartConference", 0, 0, 0);
     m_objContext.GetSupplementaryService().UpdateOutgoingServices(objSuppServices);
     m_objContext.GetCallInfo().eInitialCallType = eCallType;
     m_objContext.GetCallInfo().ePeerType = PeerType::MO;
@@ -150,8 +149,6 @@ PUBLIC VIRTUAL CallStateName IdleState::StartConference(IN CallType eCallType,
 PUBLIC VIRTUAL CallStateName IdleState::StartConference(
         IN CallType eCallType, IN const AString& strTarget, IN const ImsList<ConfUser*>& lstUsers)
 {
-    IMS_TRACE_D("StartConference", 0, 0, 0);
-
     m_objContext.GetCallInfo().eInitialCallType = eCallType;
     m_objContext.GetCallInfo().ePeerType = PeerType::MO;
     m_objContext.GetCallInfo().bConference = IMS_TRUE;
@@ -177,8 +174,6 @@ PUBLIC VIRTUAL CallStateName IdleState::StartConference(
 
 PUBLIC VIRTUAL CallStateName IdleState::HandleIncoming(IN ISession* piSession)
 {
-    IMS_TRACE_D("HandleIncoming", 0, 0, 0);
-
     m_objContext.GetCallInfo().eInitialCallType = CallType::UNKNOWN;
     m_objContext.GetCallInfo().ePeerType = PeerType::MT;
 
@@ -224,7 +219,6 @@ PUBLIC VIRTUAL CallStateName IdleState::HandleIncoming(IN ISession* piSession)
 
 PUBLIC VIRTUAL CallStateName IdleState::Terminate(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_I("Terminate : reason[%s]", _TRACE_CR_(objReason), 0, 0);
     m_objContext.GetUiNotifier().SendStartFailed(objReason);
 
     return CallStateName::TERMINATING;
@@ -308,8 +302,6 @@ PUBLIC VIRTUAL CallStateName IdleState::OnAttached()
 
 PROTECTED VIRTUAL CallStateName IdleState::HandleAosConnected()
 {
-    IMS_TRACE_I("HandleAosConnected", 0, 0, 0);
-
     if (m_objContext.GetEpsFallbackTrigger().IsWaitingEpsFallbackForNoTrigger())
     {
         m_objContext.GetEpsFallbackTrigger().OnEpsFallbackCompleted();
@@ -389,7 +381,6 @@ PUBLIC VIRTUAL CallStateName IdleState::OnUssiAttached()
 PRIVATE
 CallStateName IdleState::ContinueStart()
 {
-    IMS_TRACE_D("ContinueStart", 0, 0, 0);
     if (m_objContext.CreateSession() == IMS_NULL)
     {
         m_objContext.GetUiNotifier().SendStartFailed(CallReasonInfo(CODE_REJECT_INTERNAL_ERROR));

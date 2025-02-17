@@ -319,8 +319,6 @@ PUBLIC VIRTUAL CallStateName MtcCallState::SessionRprReceived(
 PUBLIC VIRTUAL CallStateName MtcCallState::SessionTransactionReceived(
         IN ISession* /* piSession */, IN ISipServerConnection* piSipServerConnection)
 {
-    IMS_TRACE_I("SessionTransactionReceived", 0, 0, 0);
-
     if (CurrentLocationDiscoveryController::IsCurrentLocationDiscoveryInfoReceived(
             *piSipServerConnection))
     {
@@ -402,27 +400,23 @@ PUBLIC VIRTUAL CallStateName MtcCallState::ClientConnection_NotifyResponse(
     return GetStateName();
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::Error_NotifyError(
-        IN ISipConnection* piSc, IN IMS_SINT32 nCode, IN const AString& strMessage)
+PUBLIC VIRTUAL CallStateName MtcCallState::Error_NotifyError(IN ISipConnection* piSc,
+        IN [[maybe_unused]] IMS_SINT32 nCode, IN [[maybe_unused]] const AString& strMessage)
 {
-    IMS_TRACE_D("Error_NotifyError : Code[%d] Message[%s]", nCode, strMessage.GetStr(), 0);
     piSc->Close();
 
     return GetStateName();
 }
 
 PUBLIC VIRTUAL CallStateName MtcCallState::OnReceivingMediaDataStarted(
-        IN IMS_UINT32 /*eMediaType*/, IN IMS_UINT32 /*eProtocolType*/)
+        IN [[maybe_unused]] IMS_UINT32 eMediaType, IN [[maybe_unused]] IMS_UINT32 eProtocolType)
 {
     return GetStateName();
 }
 
 PUBLIC VIRTUAL CallStateName MtcCallState::OnReceivingMediaDataFailed(
-        IN IMS_UINT32 eMediaType, IN IMS_UINT32 eProtocolType)
+        IN [[maybe_unused]] IMS_UINT32 eMediaType, IN [[maybe_unused]] IMS_UINT32 eProtocolType)
 {
-    IMS_TRACE_I(
-            "OnReceivingMediaDataFailed : Media[%d] Protocol[%d]", eMediaType, eProtocolType, 0);
-
     return GetStateName();
 }
 
@@ -475,7 +469,6 @@ PUBLIC VIRTUAL CallStateName MtcCallState::OnSrvccStateUpdated(IN SrvccState eSt
 PUBLIC VIRTUAL CallStateName MtcCallState::OnAosStateChanged(
         IN MtcAosState eState, IN IMS_UINT32 eAosReason)
 {
-    IMS_TRACE_I("OnAosStateChanged state[%d]", eState, 0, 0);
     switch (eState)
     {
         case MtcAosState::CONNECTED:

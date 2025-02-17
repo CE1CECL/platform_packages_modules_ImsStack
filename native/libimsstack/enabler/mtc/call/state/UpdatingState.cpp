@@ -44,13 +44,9 @@ PUBLIC
 UpdatingState::UpdatingState(IN IMtcCallContext& objContext) :
         MtcCallState(CallStateName::UPDATING, objContext)
 {
-    IMS_TRACE_D("+UpdatingState", 0, 0, 0);
 }
 
-PUBLIC VIRTUAL UpdatingState::~UpdatingState()
-{
-    IMS_TRACE_D("~UpdatingState", 0, 0, 0);
-}
+PUBLIC VIRTUAL UpdatingState::~UpdatingState() {}
 
 PUBLIC VIRTUAL void UpdatingState::OnExit()
 {
@@ -95,8 +91,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::Update(
 PUBLIC VIRTUAL CallStateName UpdatingState::AcceptUpdate(
         IN CallType eCallType, IN MediaInfo& objMediaInfo)
 {
-    IMS_TRACE_D("AcceptUpdate", 0, 0, 0);
-
     m_objContext.GetTimer().Stop(TIMER_CONVERT_USER_RESPONSE);
 
     IMtcSession* pSession = m_objContext.GetSession();
@@ -128,8 +122,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::AcceptUpdate(
 
 PUBLIC VIRTUAL CallStateName UpdatingState::RejectUpdate(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_D("RejectUpdate", 0, 0, 0);
-
     IMtcSession* pMtcSession = m_objContext.GetSession();
     // TODO: need to check ISession state?
     if (m_objContext.GetMediaManager().GetNegotiationState(&pMtcSession->GetISession()) !=
@@ -168,8 +160,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::RejectUpdate(IN const CallReasonInfo
 
 PUBLIC VIRTUAL CallStateName UpdatingState::CancelUpdate(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_D("CancelUpdate", 0, 0, 0);
-
     m_objContext.GetTimer().Stop(TIMER_CONVERT_REMOTE_RESPONSE);
 
     // TODO: Internal error handling
@@ -181,8 +171,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::CancelUpdate(IN const CallReasonInfo
 PUBLIC VIRTUAL CallStateName UpdatingState::AcceptResume(
         IN CallType eCallType, IN MediaInfo& objMediaInfo)
 {
-    IMS_TRACE_D("AcceptResume", 0, 0, 0);
-
     m_objContext.GetTimer().Stop(TIMER_CONVERT_USER_RESPONSE);
 
     IMtcSession* pSession = m_objContext.GetSession();
@@ -209,8 +197,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::AcceptResume(
 
 PUBLIC VIRTUAL CallStateName UpdatingState::RejectResume(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_D("RejectResume", 0, 0, 0);
-
     m_objContext.GetTimer().Stop(TIMER_CONVERT_USER_RESPONSE);
 
     // TODO: Internal error handling
@@ -221,8 +207,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::RejectResume(IN const CallReasonInfo
 
 PUBLIC VIRTUAL CallStateName UpdatingState::Terminate(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_D("Terminate", 0, 0, 0);
-
     StopTimer();
 
     const CallReasonInfo objTerminateReason = GetAudioInactivityReasonOnTermination(objReason);
@@ -235,8 +219,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::Terminate(IN const CallReasonInfo& o
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionTerminated(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionTerminated", 0, 0, 0);
-
     StopTimer();
 
     m_objContext.GetUiNotifier().SendTerminated(
@@ -247,8 +229,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionTerminated(IN ISession* piSes
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionUpdated(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionUpdated", 0, 0, 0);
-
     StopTimer();
 
     if (m_objContext.GetUpdatingInfo().IsModifier())
@@ -282,8 +262,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionUpdated(IN ISession* piSessio
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionUpdateFailed(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionUpdateFailed", 0, 0, 0);
-
     IMessage* piResponse =
             m_objContext.GetMessageUtils().GetPreviousResponse(piSession, IMessage::SESSION_UPDATE);
     CallReasonInfo objReason = UpdateErrorHandler(m_objContext).Handle(piResponse);
@@ -342,7 +320,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionCancelDeliveryFailed(IN ISess
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdated(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionEarlyMediaUpdated", 0, 0, 0);
     IMessage* piMessage = m_objContext.GetMessageUtils().GetPreviousResponse(
             piSession, IMessage::SESSION_EARLY_UPDATE);
 
@@ -361,8 +338,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdated(IN ISession
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdateFailed(IN ISession*)
 {
-    IMS_TRACE_D("SessionEarlyMediaUpdateFailed", 0, 0, 0);
-
     // TODO: Send CANCEL. Handle retry if 491.
     RecoverModificationFailure();
     NotifyFailure();
@@ -371,7 +346,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdateFailed(IN ISe
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdateReceived(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionEarlyMediaUpdateReceived", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_EARLY_UPDATE);
     IMtcSession* pMtcSession = m_objContext.GetSession();
     pMtcSession->HandleRequest(RequestType::EARLY_UPDATE, *piMessage);
@@ -401,7 +375,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionEarlyMediaUpdateReceived(IN I
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackDelivered(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPrackDelivered", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousResponse(IMessage::SESSION_PRACK);
     IMtcSession* pSession = m_objContext.GetSession(piSession);
     pSession->HandleResponse(ResponseType::PRACK_RESPONSE, *piMessage);
@@ -438,7 +411,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackDeliveryFailed(IN ISessi
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackReceived(IN ISession* piSession)
 {
-    IMS_TRACE_D("SessionPrackReceived", 0, 0, 0);
     IMessage* piMessage = piSession->GetPreviousRequest(IMessage::SESSION_PRACK);
     IMtcSession* pSession = m_objContext.GetSession(piSession);
     pSession->HandleRequest(RequestType::PRACK, *piMessage);
@@ -466,8 +438,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionPrackReceived(IN ISession* pi
 
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionRprDeliveryFailed(IN ISession*)
 {
-    IMS_TRACE_D("SessionRprDeliveryFailed", 0, 0, 0);
-
     // TODO: send CANCEL.
     RecoverModificationFailure();
     NotifyFailure();
@@ -477,7 +447,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::SessionRprDeliveryFailed(IN ISession
 PUBLIC VIRTUAL CallStateName UpdatingState::SessionRprReceived(
         IN ISession* piSession, IN IMS_UINT32 nIndex)
 {
-    IMS_TRACE_D("SessionRprReceived", 0, 0, 0);
     IMessage* piMessage = m_objContext.GetMessageUtils().GetPreviousResponse(
             piSession, IMessage::SESSION_UPDATE, nIndex);
     IMtcSession* pSession = m_objContext.GetSession(piSession);
@@ -515,8 +484,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::Refresh_NotifyTimerExpired(
 
 PUBLIC VIRTUAL CallStateName UpdatingState::OnTimerExpired(IN IMS_SINT32 nType)
 {
-    IMS_TRACE_D("OnTimerExpired : %d", nType, 0, 0);
-
     switch (nType)
     {
         case TIMER_CONVERT_USER_RESPONSE:
@@ -535,9 +502,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::OnTimerExpired(IN IMS_SINT32 nType)
 PUBLIC VIRTUAL CallStateName UpdatingState::OnReceivingMediaDataFailed(
         IN IMS_UINT32 eMediaType, IN IMS_UINT32 eProtocolType)
 {
-    IMS_TRACE_I(
-            "OnReceivingMediaDataFailed : Media[%d] Protocol[%d]", eMediaType, eProtocolType, 0);
-
     if (eMediaType == MEDIATYPE_AUDIO)
     {
         CallReasonInfo objReason(CODE_MEDIA_NO_DATA);
@@ -556,7 +520,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::OnReceivingMediaDataFailed(
 
 PUBLIC VIRTUAL CallStateName UpdatingState::OnVideoLowestBitRate()
 {
-    IMS_TRACE_I("OnVideoLowestBitRate", 0, 0, 0);
     m_objContext.GetPendingOperationHolder().PushPendingOperation(
             [](IMtcCallState* pState)
             {
@@ -567,8 +530,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::OnVideoLowestBitRate()
 
 PUBLIC VIRTUAL CallStateName UpdatingState::OnMediaFailed(IN const CallReasonInfo& objReason)
 {
-    IMS_TRACE_I("OnMediaFailed", 0, 0, 0);
-
     HandleTerminate(objReason);
     m_objContext.GetUiNotifier().SendTerminated(objReason);
 
@@ -576,9 +537,8 @@ PUBLIC VIRTUAL CallStateName UpdatingState::OnMediaFailed(IN const CallReasonInf
 }
 
 PUBLIC VIRTUAL CallStateName UpdatingState::QosReserved(
-        IN ISession* piSession, IN IMS_UINT32 eMediaType)
+        IN ISession* piSession, IN [[maybe_unused]] IMS_UINT32 eMediaType)
 {
-    IMS_TRACE_D("QosReserved : Media[%d] is reserved.", eMediaType, 0, 0);
     IMessage* piMessage = piSession->GetPreviousResponse(IMessage::SESSION_PRACK);
     if (piMessage == IMS_NULL || piMessage->GetStatusCode() != SipStatusCode::SC_200)
     {
@@ -608,7 +568,6 @@ PUBLIC VIRTUAL CallStateName UpdatingState::QosReserved(
 PUBLIC VIRTUAL CallStateName UpdatingState::QosReserveFailed(
         IN ISession* piSession, IN QosLossPolicy eNextAction)
 {
-    IMS_TRACE_I("QosReserveFailed", 0, 0, 0);
     if (eNextAction == QosLossPolicy::RELEASE)
     {
         CallReasonInfo objReason(CODE_LOCAL_CALL_RESOURCE_RESERVATION_FAILED);

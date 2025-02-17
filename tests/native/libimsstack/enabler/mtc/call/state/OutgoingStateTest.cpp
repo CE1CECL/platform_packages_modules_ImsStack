@@ -1205,16 +1205,6 @@ TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateReceivedInvokesSendProgressing)
             CallStateName::OUTGOING, pOutgoingState->SessionEarlyMediaUpdateReceived(&objSession));
 }
 
-TEST_F(OutgoingStateTest, SessionForkedResponseReceivedDoesNothingIfSessionIsNull)
-{
-    EXPECT_CALL(*pSessionInterfaceHolder, AddISession(_, _)).Times(0);
-    EXPECT_EQ(CallStateName::OUTGOING,
-            pOutgoingState->SessionForkedResponseReceived(IMS_NULL, IMS_NULL));
-
-    EXPECT_EQ(CallStateName::OUTGOING,
-            pOutgoingState->SessionForkedResponseReceived(&objSession, IMS_NULL));
-}
-
 TEST_F(OutgoingStateTest, SessionForkedResponseReceivedAddsISession)
 {
     ON_CALL(*pConfigurationProxy,

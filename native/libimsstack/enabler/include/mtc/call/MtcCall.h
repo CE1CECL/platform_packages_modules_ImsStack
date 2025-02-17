@@ -329,7 +329,6 @@ private:
 
     static CallKey CreateCallKey();
     void OnInternalFailure();
-    void OnAttached();
     IMS_BOOL IsInUpdateAfterConnectedDelay() const;
 
     IMtcContext& m_objContext;

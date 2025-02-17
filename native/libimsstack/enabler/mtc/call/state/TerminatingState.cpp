@@ -34,12 +34,10 @@ TerminatingState::TerminatingState(IN IMtcCallContext& objContext) :
         MtcCallState(CallStateName::TERMINATING, objContext),
         m_bSessionReleasedNotified(IMS_FALSE)
 {
-    IMS_TRACE_D("+TerminatingState", 0, 0, 0);
 }
 
 PUBLIC VIRTUAL TerminatingState::~TerminatingState()
 {
-    IMS_TRACE_D("~TerminatingState", 0, 0, 0);
     if (!m_bSessionReleasedNotified)
     {
         NotifyCallSessionReleased();
@@ -73,7 +71,6 @@ PUBLIC VIRTUAL void TerminatingState::OnEnter()
 PUBLIC VIRTUAL CallStateName TerminatingState::SessionStartFailed(
         IN [[maybe_unused]] ISession* piSession)
 {
-    IMS_TRACE_D("SessionStartFailed", 0, 0, 0);
     HandleCallSessionReleased();
 
     return GetStateName();
@@ -82,7 +79,6 @@ PUBLIC VIRTUAL CallStateName TerminatingState::SessionStartFailed(
 PUBLIC VIRTUAL CallStateName TerminatingState::SessionTerminated(
         IN [[maybe_unused]] ISession* piSession)
 {
-    IMS_TRACE_D("SessionTerminated", 0, 0, 0);
     HandleCallSessionReleased();
 
     return GetStateName();
