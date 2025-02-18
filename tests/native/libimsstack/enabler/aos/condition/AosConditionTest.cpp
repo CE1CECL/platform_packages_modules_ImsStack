@@ -753,6 +753,7 @@ TEST_F(AosConditionTest, ShouldSetCsCallStartedBlockWhenStateChangedInCaseOfCsAn
     // GIVEN
     m_pAosCondition->Start();
 
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsBlockRegOnCsCall()).WillRepeatedly(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockIAosBlock, SetBlockReason(_, _));
     EXPECT_CALL(m_objMockIAosBlock, ResetBlockReason(_, _)).Times(0);
 
@@ -767,6 +768,7 @@ TEST_F(AosConditionTest, ShouldResetCsCallStartedBlockWhenStateChangedInCaseOfCs
     // GIVEN
     m_pAosCondition->Start();
 
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsBlockRegOnCsCall()).WillRepeatedly(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockIAosBlock, SetBlockReason(_, _)).Times(0);
     EXPECT_CALL(m_objMockIAosBlock, ResetBlockReason(_, _));
 
@@ -776,11 +778,29 @@ TEST_F(AosConditionTest, ShouldResetCsCallStartedBlockWhenStateChangedInCaseOfCs
     // THEN : GIVEN conditions should be met.
 }
 
+TEST_F(AosConditionTest,
+        ShouldNotSetCsCallStartedBlockWhenStateChangedInCaseOfCsAndOffhookAndBlockRegOnCsCallIsFalse)
+{
+    // GIVEN
+    m_pAosCondition->Start();
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsBlockRegOnCsCall())
+            .WillRepeatedly(Return(IMS_FALSE));
+    EXPECT_CALL(m_objMockIAosBlock, SetBlockReason(_, _)).Times(0);
+    EXPECT_CALL(m_objMockIAosBlock, ResetBlockReason(_, _)).Times(0);
+
+    // WHEN
+    m_pAosCondition->CallTracker_StateChanged(IAosCallTracker::TYPE_CS, CallState::OFFHOOK);
+
+    // THEN : GIVEN conditions should be met.
+}
+
 TEST_F(AosConditionTest, ShouldNotDoAnythingWhenStateChangedInCaseOfNotCs)
 {
     // GIVEN
     m_pAosCondition->Start();
 
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsBlockRegOnCsCall()).WillRepeatedly(Return(IMS_TRUE));
     EXPECT_CALL(m_objMockIAosBlock, SetBlockReason(_, _)).Times(0);
     EXPECT_CALL(m_objMockIAosBlock, ResetBlockReason(_, _)).Times(0);
 

@@ -368,13 +368,23 @@ PROTECTED VIRTUAL void AosCondition::CallTracker_StateChanged(
 
     if (nType == IAosCallTracker::TYPE_CS)
     {
-        if (eState == CallState::OFFHOOK)
+        IMS_BOOL bBlockRegOnCsCall = IMS_TRUE;
+        const IAosNConfiguration* piNConfig = GET_N_CONFIG(m_nSlotId);
+        if (piNConfig != IMS_NULL)
         {
-            SetBlock(BLOCK_CSCALL_STARTED);
+            bBlockRegOnCsCall = piNConfig->IsBlockRegOnCsCall();
         }
-        else
+
+        if (bBlockRegOnCsCall)
         {
-            ResetBlock(BLOCK_CSCALL_STARTED);
+            if (eState == CallState::OFFHOOK)
+            {
+                SetBlock(BLOCK_CSCALL_STARTED);
+            }
+            else
+            {
+                ResetBlock(BLOCK_CSCALL_STARTED);
+            }
         }
     }
 
