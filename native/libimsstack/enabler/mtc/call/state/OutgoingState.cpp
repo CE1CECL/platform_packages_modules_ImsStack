@@ -62,7 +62,7 @@ PUBLIC
 OutgoingState::OutgoingState(IN IMtcCallContext& objContext) :
         MtcCallState(CallStateName::OUTGOING, objContext),
         m_pUdpKeepAliveSender(IMS_NULL),
-        m_bWaitingRedial(IMS_FALSE)
+        m_bWaitingServiceConnectedForRedial(IMS_FALSE)
 {
 }
 
@@ -194,7 +194,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionStarted(IN ISession* piSessio
 
 PUBLIC VIRTUAL CallStateName OutgoingState::SessionStartFailed(IN ISession* piSession)
 {
-    if (IsNeedToIgnoreStartFailure() || m_bWaitingRedial)
+    if (IsNeedToIgnoreStartFailure() || m_bWaitingServiceConnectedForRedial)
     {
         return GetStateName();
     }
@@ -211,7 +211,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionStartFailed(IN ISession* piSe
         if (objReason.nExtraCode == EXTRA_CODE_REDIAL_WITH_NEXT_PCSCF ||
                 objReason.nExtraCode == EXTRA_CODE_REDIAL_EMERGENCY_WITH_NEXT_PCSCF)
         {
-            m_bWaitingRedial = IMS_TRUE;
+            m_bWaitingServiceConnectedForRedial = IMS_TRUE;
             return GetStateName();
         }
 
@@ -271,7 +271,7 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionEarlyMediaUpdateFailed(IN ISe
     {
         if (objReason.nExtraCode == EXTRA_CODE_REDIAL_WITH_NEXT_PCSCF)
         {
-            m_bWaitingRedial = IMS_TRUE;
+            m_bWaitingServiceConnectedForRedial = IMS_TRUE;
             return GetStateName();
         }
 
@@ -646,9 +646,9 @@ PUBLIC VIRTUAL CallStateName OutgoingState::OnIpcanChanged(IN IMS_UINT32 eIpcan)
 
 PROTECTED VIRTUAL CallStateName OutgoingState::HandleAosConnected()
 {
-    if (m_bWaitingRedial)
+    if (m_bWaitingServiceConnectedForRedial)
     {
-        m_bWaitingRedial = IMS_FALSE;
+        m_bWaitingServiceConnectedForRedial = IMS_FALSE;
         return HandleSilentRedial(CallReasonInfo(CODE_INTERNAL_REDIAL,
                 m_objContext.GetCallInfo().IsEmergency()
                         ? EXTRA_CODE_REDIAL_EMERGENCY_WITH_NEXT_PCSCF
