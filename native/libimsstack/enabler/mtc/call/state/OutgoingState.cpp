@@ -799,10 +799,8 @@ CallStateName OutgoingState::HandleSilentRedialReason(IN const CallReasonInfo& o
         return GetStateName();
     }
 
-    if (objReason.nExtraCode == EXTRA_CODE_REDIAL_AFTER_EPS_FALLBACK)
+    if (objReason.nExtraCode == EXTRA_CODE_REDIAL_BY_EPS_FALLBACK)
     {
-        m_objContext.GetEpsFallbackTrigger().TriggerEpsFallback(
-                EpsFallbackReason::NO_NETWORK_RESPONSE);  // TODO: move into StartErrorHandler
         return GetStateName();
     }
 
