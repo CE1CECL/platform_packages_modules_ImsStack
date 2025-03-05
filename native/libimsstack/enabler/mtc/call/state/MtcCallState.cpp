@@ -486,7 +486,13 @@ PUBLIC VIRTUAL CallStateName MtcCallState::OnAosStateChanged(
     }
 }
 
-PUBLIC VIRTUAL CallStateName MtcCallState::OnIpcanChanged(IN IMS_UINT32 /*eIpcan*/)
+PUBLIC VIRTUAL CallStateName MtcCallState::OnIpcanChanged(IN [[maybe_unused]] IMS_UINT32 eIpcan)
+{
+    return GetStateName();
+}
+
+PUBLIC VIRTUAL CallStateName MtcCallState::OnRatChanged(
+        IN [[maybe_unused]] IMS_SINT32 eOldRatType, IN [[maybe_unused]] IMS_SINT32 eRatType)
 {
     return GetStateName();
 }
