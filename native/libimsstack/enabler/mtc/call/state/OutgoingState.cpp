@@ -420,17 +420,17 @@ PUBLIC VIRTUAL CallStateName OutgoingState::SessionProvisionalResponseReceived(
     IMS_SINT32 nStatusCode = m_objContext.GetMessageUtils().GetResponseStatusCode(
             piSession, IMessage::SESSION_START, nIndex);
     StopTimer(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON);
-    if (SipStatusCode::IsProvisional(nStatusCode))
+    if (nStatusCode == SipStatusCode::SC_100)
     {
-        StopTimer(TIMER_MO_18X_WAIT);
-        m_objContext.GetPassiveTimerHolder().RemoveTimer(
-                IPassiveTimerHolder::Type::REGISTRATION_TO_18X);
+        return On100TryingReceived();
     }
-    StartTimer(TIMER_MO_NOANSWER);
 
-    // 100 Trying is not a reliable response so UdpKeepAliveSender is started
-    // by receiving any first provisional response.
-    if (UdpKeepAliveSender::IsRequired(m_objContext.GetConfigurationProxy()) && nIndex == 0)
+    StopTimer(TIMER_MO_18X_WAIT);
+    StartTimer(TIMER_MO_NOANSWER);
+    m_objContext.GetPassiveTimerHolder().RemoveTimer(
+            IPassiveTimerHolder::Type::REGISTRATION_TO_18X);
+
+    if (nIndex == 0 && UdpKeepAliveSender::IsRequired(m_objContext.GetConfigurationProxy()))
     {
         m_pUdpKeepAliveSender.reset(m_objContext.CreateUdpKeepAliveSender());
         m_pUdpKeepAliveSender->Start();
@@ -755,6 +755,13 @@ PUBLIC VIRTUAL CallStateName OutgoingState::OnConnectionFailed(
     HandleCancel(GetISession(), objReason);
     OnStartFailed(objReason);
     return CallStateName::TERMINATING;
+}
+
+PRIVATE
+CallStateName OutgoingState::On100TryingReceived()
+{
+    StartTimer(TIMER_MO_18X_WAIT);
+    return GetStateName();
 }
 
 PRIVATE

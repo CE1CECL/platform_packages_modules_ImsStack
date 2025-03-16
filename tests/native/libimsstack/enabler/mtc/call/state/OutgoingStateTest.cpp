@@ -1696,6 +1696,20 @@ TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedStopsTimersIfNot100)
     pOutgoingState->SessionProvisionalResponseReceived(&objSession, 0);
 }
 
+TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedDoesNotStart18xWaitTimerIfNot100)
+{
+    MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("supportedExtension")));
+    ON_CALL(objMtcSession, GetExtensionSet).WillByDefault(ReturnRef(objMtcExtensionSet));
+
+    ON_CALL(objMessageUtils, GetResponseStatusCode(&objSession, IMessage::SESSION_START, 0))
+            .WillByDefault(Return(SipStatusCode::SC_183));
+
+    EXPECT_CALL(objTimer, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, _)).Times(0);
+    EXPECT_CALL(objTimer, Start(MtcCallState::TimerType::TIMER_MO_NOANSWER, _));
+
+    pOutgoingState->SessionProvisionalResponseReceived(&objSession, 0);
+}
+
 TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedStops100WaitTimerIf100)
 {
     MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("supportedExtension")));
@@ -1713,6 +1727,19 @@ TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedStops100WaitTimerIf1
 
     EXPECT_CALL(objPassiveTimer, RemoveTimer(IPassiveTimerHolder::Type::REGISTRATION_TO_18X))
             .Times(0);
+
+    pOutgoingState->SessionProvisionalResponseReceived(&objSession, 0);
+}
+
+TEST_F(OutgoingStateTest, SessionProvisionalResponseReceivedStarts18xWaitTimerIf100)
+{
+    MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("supportedExtension")));
+    ON_CALL(objMtcSession, GetExtensionSet).WillByDefault(ReturnRef(objMtcExtensionSet));
+
+    ON_CALL(objMessageUtils, GetResponseStatusCode(&objSession, IMessage::SESSION_START, 0))
+            .WillByDefault(Return(SipStatusCode::SC_100));
+
+    EXPECT_CALL(objTimer, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, _));
 
     pOutgoingState->SessionProvisionalResponseReceived(&objSession, 0);
 }

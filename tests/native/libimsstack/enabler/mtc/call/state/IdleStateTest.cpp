@@ -475,7 +475,8 @@ TEST_F(IdleStateTest, StartSetsMoTimersAndTransitsToOutgoingState)
     EXPECT_CALL(objTimerWrapper,
             Start(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON,
                     nResponseTimeoutForReasonTimer));
-    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
+    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer))
+            .Times(0);
 
     EXPECT_EQ(CallStateName::OUTGOING,
             pIdleState->Start(eCallType, strTarget, objInputMediaInfo, objInputSuppServices));
@@ -504,7 +505,8 @@ TEST_F(IdleStateTest, StartSetsMoTimersForEmergencyCall)
     EXPECT_CALL(objTimerWrapper,
             Start(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON,
                     nResponseTimeoutForReasonTimer));
-    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
+    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer))
+            .Times(0);
 
     pIdleState->Start(CallType::VOIP, "target", objInputMediaInfo, objInputSuppServices);
 }
@@ -532,36 +534,10 @@ TEST_F(IdleStateTest, StartSetsMoTimersForWifiEmergencyCall)
     EXPECT_CALL(objTimerWrapper,
             Start(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON,
                     nResponseTimeoutForReasonTimer));
-    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
+    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer))
+            .Times(0);
 
     pIdleState->Start(CallType::VOIP, "target", objInputMediaInfo, objInputSuppServices);
-}
-
-TEST_F(IdleStateTest, StartSetsOnlyResponseWaitTimerAndTransitsToOutgoingState)
-{
-    CallType eCallType = CallType::VOIP;
-    AString strTarget("some_target");
-
-    ON_CALL(objCallContext, IsUssi).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pBlockChecker, Check)
-            .WillByDefault(
-                    Return(IMtcBlockChecker::Result(IMtcBlockChecker::Result::Status::UNBLOCKED)));
-    ON_CALL(objCallContext, CreateSession()).WillByDefault(Return(&objMtcSession));
-    ON_CALL(objMtcSession, Start).WillByDefault(Return(IMS_SUCCESS));
-    IMS_SINT32 nResponseTimeoutForReasonTimer = 10000;
-    ON_CALL(*pConfigurationProxy,
-            GetInt(ConfigVoice::KEY_USER_CANCEL_REASON_AFTER_RESPONSE_TIMEOUT_TIMER_MILLIS_INT))
-            .WillByDefault(Return(nResponseTimeoutForReasonTimer));
-
-    EXPECT_CALL(objTimerWrapper,
-            Start(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON,
-                    nResponseTimeoutForReasonTimer));
-    EXPECT_CALL(objTimerWrapper, IsActive(MtcCallState::TimerType::TIMER_MO_18X_WAIT))
-            .WillOnce(Return(IMS_TRUE));
-    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, _)).Times(0);
-
-    EXPECT_EQ(CallStateName::OUTGOING,
-            pIdleState->Start(eCallType, strTarget, objInputMediaInfo, objInputSuppServices));
 }
 
 TEST_F(IdleStateTest, StartNotifiesInitiating)
@@ -734,7 +710,8 @@ TEST_F(IdleStateTest, StartUssiSetsMoTimersAndTransitsToOutgoingState)
     EXPECT_CALL(objTimerWrapper,
             Start(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON,
                     nResponseTimeoutForReasonTimer));
-    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
+    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer))
+            .Times(0);
 
     EXPECT_EQ(CallStateName::OUTGOING,
             pIdleState->Start(eCallType, strTarget, objInputMediaInfo, objInputSuppServices));
@@ -877,7 +854,8 @@ TEST_F(IdleStateTest, StartConferenceSetsMoTimersAndTransitsOutgoingState)
     EXPECT_CALL(objTimerWrapper,
             Start(MtcCallState::TimerType::TIMER_MO_RESPONSE_TIMEOUT_FOR_REASON,
                     nResponseTimeoutForReasonTimer));
-    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer));
+    EXPECT_CALL(objTimerWrapper, Start(MtcCallState::TimerType::TIMER_MO_18X_WAIT, n18xWaitTimer))
+            .Times(0);
 
     EXPECT_EQ(CallStateName::OUTGOING,
             pIdleState->StartConference(
