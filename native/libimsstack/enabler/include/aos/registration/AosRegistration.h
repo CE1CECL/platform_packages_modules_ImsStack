@@ -134,6 +134,7 @@ protected:
     IMS_BOOL IsRegTrying() const;
     IMS_BOOL IsNetworkBindingSupported(IN IAosHandle* piHandle);
     IMS_BOOL IsCallStateRequired() const;
+    IMS_BOOL IsValidCallType(IN IMS_UINT32 nType) const;
     IMS_BOOL IsRadioWaiting() const;
     IMS_BOOL IsTrafficPriorityBlocked() const;
     IMS_BOOL IsReregFailureReportOnIpcanChangeRequired() const;

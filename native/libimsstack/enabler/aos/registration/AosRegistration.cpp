@@ -894,6 +894,14 @@ IMS_BOOL AosRegistration::IsCallStateRequired() const
 }
 
 PROTECTED
+IMS_BOOL AosRegistration::IsValidCallType(IN IMS_UINT32 nType) const
+{
+    return (nType == IAosCallTracker::TYPE_NORMAL) ||
+            ((nType == IAosCallTracker::TYPE_EMERGENCY &&
+                    GET_N_CONFIG(m_nSlotId)->IsRegRequiredAfterImsECallEndOnRegHeld()));
+}
+
+PROTECTED
 IMS_BOOL AosRegistration::IsRadioWaiting() const
 {
     return m_bIsRadioWaiting;
@@ -6024,12 +6032,27 @@ PROTECTED VIRTUAL void AosRegistration::Block_Changed(
 PROTECTED VIRTUAL void AosRegistration::CallTracker_StateChanged(
         IN IMS_UINT32 nType, IN CallState eState)
 {
-    if (nType != IAosCallTracker::TYPE_NORMAL)
+    if (!IsValidCallType(nType))
     {
         return;
     }
 
-    SetImsCall((eState > CallState::IDLE) ? IMS_TRUE : IMS_FALSE);
+    IMS_BOOL bImsCallStarted = IMS_FALSE;
+    if (GET_N_CONFIG(m_nSlotId)->IsRegRequiredAfterImsECallEndOnRegHeld())
+    {
+        IAosCallTracker* piCt = AosProvider::GetInstance()->GetCallTracker(m_nSlotId);
+        if (piCt != IMS_NULL)
+        {
+            bImsCallStarted = piCt->IsNormalCallActive() || piCt->IsEmergencyCallActive();
+        }
+    }
+    else
+    {
+        // IAosCallTracker::TYPE_NORMAL state only.
+        bImsCallStarted = (eState > CallState::IDLE) ? IMS_TRUE : IMS_FALSE;
+    }
+
+    SetImsCall(bImsCallStarted);
 
     if (!IsImsCall() && IsHeldByCall())
     {
@@ -6046,7 +6069,8 @@ PROTECTED VIRTUAL void AosRegistration::CallTracker_StateChanged(
             }
         }
 
-        if (GET_N_CONFIG(m_nSlotId)->IsRegRequiredAfterImsCallEndOnRegHeld())
+        if (GET_N_CONFIG(m_nSlotId)->IsRegRequiredAfterImsCallEndOnRegHeld() ||
+                GET_N_CONFIG(m_nSlotId)->IsRegRequiredAfterImsECallEndOnRegHeld())
         {
             ProcessReinitiate();
             return;
