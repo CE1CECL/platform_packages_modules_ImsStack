@@ -84,7 +84,9 @@ const std::unordered_map<IMS_SINT32, StartErrorHandler::ActionFunc>
     {ConfigVoice::START_ERROR_ACTION_TERMINATE_BY_RESPONSE_SOURCE,
             &StartErrorHandler::HandleTerminateByResponseSource},
     {ConfigVoice::START_ERROR_ACTION_TERMINATE_BY_REASON_HEADER_TEXT,
-            &StartErrorHandler::HandleTerminateByReasonHeaderText}
+            &StartErrorHandler::HandleTerminateByReasonHeaderText},
+    {ConfigVoice::START_ERROR_ACTION_REGISTRATION_TO_ALTERNATE_PCSCF,
+            &StartErrorHandler::HandleRegistrationToAlternatePcscf}
 };
 // clang-format on
 
@@ -330,13 +332,13 @@ CallReasonInfo StartErrorHandler::HandleRegistrationRestorationOnIms3gppByPolicy
                 __IMS_FALLTHROUGH__
             case ConfigVoice::REGISTRATION_RESTORATION_INITIAL_REGISTER_WITH_NEXT_PCSCF:
                 ControlAos(ImsAosControl::PCSCF_NEXT);
-                break;
+                return GetDefaultCallReasonInfo(m_objContext, objMessage);
 
             case ConfigVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION:
                 // If there is an operator that requires PDN reconnect, AoS I/F should be added.
             case ConfigVoice::REGISTRATION_RESTORATION_RECOVER_REGISTRATION_WITHOUT_PDN_RECONNECT:
                 ControlAos(ImsAosControl::REGISTER_REINITIATE);
-                break;
+                return GetDefaultCallReasonInfo(m_objContext, objMessage);
         }
     }
 
@@ -392,7 +394,7 @@ CallReasonInfo StartErrorHandler::HandleNonUeDetectableEmergencyCall(
 }
 
 PRIVATE
-CallReasonInfo StartErrorHandler::HandleForbiddenByPolicy(IN const IMessage& /*objMessage*/) const
+CallReasonInfo StartErrorHandler::HandleForbiddenByPolicy(IN const IMessage& objMessage) const
 {
     IMS_TRACE_I("HandleForbiddenByPolicy", 0, 0, 0);
     const IMS_SINT32 nPolicy = m_objContext.GetConfigurationProxy().GetInt(
@@ -404,11 +406,11 @@ CallReasonInfo StartErrorHandler::HandleForbiddenByPolicy(IN const IMessage& /*o
 
         case ConfigVoice::SIP_403_POLICY_TERMINATE_CALL_AND_RECOVER_REGISTRATION:
             ControlAos(ImsAosControl::REGISTER_REINITIATE);
-            break;
+            return GetDefaultCallReasonInfo(m_objContext, objMessage);
 
         case ConfigVoice::SIP_403_POLICY_TERMINATE_CALL_AND_REFRESH_REGISTRATION:
             ControlAos(ImsAosControl::REGISTER_REFRESH);
-            break;
+            return GetDefaultCallReasonInfo(m_objContext, objMessage);
 
         case ConfigVoice::SIP_403_POLICY_CSFB:
             if (m_objContext.GetService().IsCsfbAvailable())
@@ -530,9 +532,11 @@ CallReasonInfo StartErrorHandler::HandleTerminateByResponseSource(
     return CallReasonInfo(CODE_NONE);
 }
 
+PRIVATE
 CallReasonInfo StartErrorHandler::HandleTerminateByReasonHeaderText(
         IN const IMessage& objMessage) const
 {
+    IMS_TRACE_I("HandleTerminateByReasonHeaderText", 0, 0, 0);
     ReasonHeaderValue objValue =
             m_objContext.GetMessageUtils().GetCauseAndTextFromReasonHeader(&objMessage);
 
@@ -543,6 +547,16 @@ CallReasonInfo StartErrorHandler::HandleTerminateByReasonHeaderText(
     }
 
     return CallReasonInfo(CODE_NONE);
+}
+
+PRIVATE
+CallReasonInfo StartErrorHandler::HandleRegistrationToAlternatePcscf(
+        IN const IMessage& objMessage) const
+{
+    IMS_TRACE_I("HandleRegistrationToAlternatePcscf", 0, 0, 0);
+
+    ControlAos(ImsAosControl::PCSCF_NEXT);
+    return GetDefaultCallReasonInfo(m_objContext, objMessage);
 }
 
 PRIVATE
