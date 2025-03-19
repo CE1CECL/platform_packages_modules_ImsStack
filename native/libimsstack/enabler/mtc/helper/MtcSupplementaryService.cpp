@@ -690,7 +690,6 @@ void MtcSupplementaryService::GetCnapByHeader(IN IMessage* piMessage, IN IMS_BOO
     IMS_SINT32 nDeterminationPolicyHeader =
             bFromHeader ? ISipHeader::FROM : ISipHeader::P_ASSERTED_IDENTITY;
     strCnap = m_objContext.GetMessageUtils().GetDisplayName(piMessage, nDeterminationPolicyHeader);
-    ConvertGlobalNumberToLocalNumber(m_objConfigurationProxy, strCnap);
 
     if (strCnap.GetLength() <= 0 && bDoFallBack)
     {

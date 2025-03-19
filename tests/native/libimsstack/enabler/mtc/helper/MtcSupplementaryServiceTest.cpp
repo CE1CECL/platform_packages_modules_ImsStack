@@ -824,4 +824,12 @@ TEST_F(MtcSupplementaryServiceTest, ConvertGlobalNumberToLocalNumerUpdateTheNumb
     EXPECT_EQ(strRemoteNumberAsLocal, strRemoteNumberAsGlobal);
 }
 
+TEST_F(MtcSupplementaryServiceTest, UpdateCnapDoesNotConvertToLocalNumber)
+{
+    EXPECT_CALL(*pConfigurationProxy,
+            GetString(ConfigVoice::KEY_LOCAL_NUMBER_PRESENTATION_SET_STRING))
+            .Times(0);
+    pMtcSupplementaryService->UpdateCnap(static_cast<IMessage*>(&objMockIMessage));
+}
+
 }  // namespace android
