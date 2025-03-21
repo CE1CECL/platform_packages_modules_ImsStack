@@ -40,6 +40,7 @@ public:
             bImsDeregOn3gNetwork(IMS_FALSE),
             bImsiBasedUriPrioritized(IMS_FALSE),
             bInitializeIpsecWithNewPcscf(IMS_FALSE),
+            bInitSubUponSubTerminated(IMS_FALSE),
             bKeepEPdnUponPcscfUnavailable(IMS_FALSE),
             bKeepERegRetryOnWlan(IMS_FALSE),
             bKeepRegRetryCntUponPdnReconnect(IMS_FALSE),
@@ -138,6 +139,7 @@ public:
     IMS_BOOL bImsDeregOn3gNetwork;
     IMS_BOOL bImsiBasedUriPrioritized;
     IMS_BOOL bInitializeIpsecWithNewPcscf;
+    IMS_BOOL bInitSubUponSubTerminated;
     IMS_BOOL bKeepEPdnUponPcscfUnavailable;
     IMS_BOOL bKeepERegRetryOnWlan;
     IMS_BOOL bKeepRegRetryCntUponPdnReconnect;

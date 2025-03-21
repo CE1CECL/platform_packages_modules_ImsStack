@@ -456,6 +456,16 @@ public:
     virtual IMS_BOOL IsIpsecInitializedWithNewPcscf() const = 0;
 
     /**
+     * @brief Flag indicating whether to send initial subscription when the subscription is
+     *        terminated.
+     *
+     * @return IMS_BOOL Return whether to initialize subscription when the subscription is
+     *         terminated.
+     * @see {@code ims.init_sub_upon_sub_terminated_bool}
+     */
+    virtual IMS_BOOL IsInitSubUponSubTerminated() const = 0;
+
+    /**
      * @brief Flag indicating whether to keep the emergency pdn when pcscf is unavailable by
      *        requesting fake registration with the next pcscf.
      *

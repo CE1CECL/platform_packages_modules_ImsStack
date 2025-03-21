@@ -351,6 +351,11 @@ PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsIpsecInitializedWithNewPcscf() cons
     return m_objAsset.bInitializeIpsecWithNewPcscf;
 }
 
+PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsInitSubUponSubTerminated() const
+{
+    return m_objAsset.bInitSubUponSubTerminated;
+}
+
 PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsKeepEPdnUponPcscfUnavailable() const
 {
     return m_objAsset.bKeepEPdnUponPcscfUnavailable;
@@ -1449,6 +1454,8 @@ void AosNConfiguration::InitAssetsConfig(IN const ICarrierConfig* piCc)
             piCc->GetBoolean(CarrierConfig::Ims::KEY_IMSI_BASED_URI_PRIORITIZED_BOOL);
     m_objAsset.bInitializeIpsecWithNewPcscf =
             piCc->GetBoolean(CarrierConfig::Ims::KEY_INIT_IPSEC_SETTING_WITH_NEW_PCSCF_BOOL);
+    m_objAsset.bInitSubUponSubTerminated =
+            piCc->GetBoolean(CarrierConfig::Ims::KEY_INIT_SUB_UPON_SUB_TERMINATED_BOOL);
     m_objAsset.bKeepEPdnUponPcscfUnavailable = piCc->GetBoolean(
             CarrierConfig::ImsEmergency::KEY_KEEP_EPDN_UPON_PCSCF_UNAVAILABLE_BOOL);
     m_objAsset.bKeepERegRetryOnWlan =

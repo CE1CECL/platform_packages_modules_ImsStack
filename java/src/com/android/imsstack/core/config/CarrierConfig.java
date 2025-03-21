@@ -427,6 +427,8 @@ public class CarrierConfig {
                 KEY_PREFIX + "imsi_based_uri_prioritized_bool";
         public static final String KEY_INIT_IPSEC_SETTING_WITH_NEW_PCSCF_BOOL =
                 KEY_PREFIX + "init_ipsec_setting_with_new_pcscf_bool";
+        public static final String KEY_INIT_SUB_UPON_SUB_TERMINATED_BOOL =
+                KEY_PREFIX + "init_sub_upon_sub_terminated_bool";
         public static final String KEY_KEEP_REG_RETRY_CNT_UPON_PDN_RECONNECT_BOOL =
                 KEY_PREFIX + "keep_reg_retry_cnt_upon_pdn_reconnect_bool";
         public static final String KEY_NO_INIT_REG_ON_PCSCF_CHANGE_BOOL =

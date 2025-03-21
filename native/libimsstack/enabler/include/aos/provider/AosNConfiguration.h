@@ -90,6 +90,7 @@ public:
     IMS_BOOL IsDeregOn3gNetwork() const override;
     IMS_BOOL IsImsiBasedUriPrioritized() const override;
     IMS_BOOL IsIpsecInitializedWithNewPcscf() const override;
+    IMS_BOOL IsInitSubUponSubTerminated() const override;
     IMS_BOOL IsKeepEPdnUponPcscfUnavailable() const override;
     IMS_BOOL IsKeepERegRetryOnWlanRequired() const override;
     IMS_BOOL IsKeepRegRetryCntUponPdnReconnect() const override;
