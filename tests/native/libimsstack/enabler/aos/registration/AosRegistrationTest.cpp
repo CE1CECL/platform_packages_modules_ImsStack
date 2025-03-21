@@ -5479,6 +5479,20 @@ TEST_F(AosRegistrationTest, CallTrackerStateChangedForEmergencyTypeDoesNothing)
     EXPECT_TRUE(m_pAosRegistration->IsImsCall());
 }
 
+TEST_F(AosRegistrationTest,
+        CallTrackerStateChangedForEmergencyTypeUpdateStateWhenRegRequiredAfterImsECallEnd)
+{
+    m_pAosRegistration->SetImsCall(IMS_FALSE);
+    ON_CALL(m_objMockIAosCallTracker, IsEmergencyCallActive()).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(m_objMockIAosNConfiguration, IsRegRequiredAfterImsECallEndOnRegHeld())
+            .WillByDefault(Return(IMS_TRUE));
+
+    m_pAosRegistration->CallTracker_StateChanged(
+            IAosCallTracker::TYPE_EMERGENCY, CallState::OFFHOOK);
+
+    EXPECT_TRUE(m_pAosRegistration->IsImsCall());
+}
+
 TEST_F(AosRegistrationTest, CallTrackerStateChangedHandlesPendingPlmnBlock)
 {
     m_pAosRegistration->SetImsCall(IMS_TRUE);
@@ -5508,6 +5522,38 @@ TEST_F(AosRegistrationTest, CallTrackerStateChangedTriggersReinitiateRegIfRequir
     m_pAosRegistration->CallTracker_StateChanged(IAosCallTracker::TYPE_NORMAL, CallState::IDLE);
 
     EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_REGISTERING);
+}
+
+TEST_F(AosRegistrationTest, CallTrackerStateChangedForEmergencyTypeTriggersReinitiateRegIfRequired)
+{
+    m_pAosRegistration->SetImsCall(IMS_TRUE);
+    m_pAosRegistration->SetHeldByCall(IMS_TRUE);
+    ON_CALL(m_objMockIAosCallTracker, IsEmergencyCallActive()).WillByDefault(Return(IMS_FALSE));
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsRegRequiredAfterImsECallEndOnRegHeld())
+            .WillRepeatedly(Return(IMS_TRUE));
+    EXPECT_CALL(m_objMockIRegistration, Register(_)).WillOnce(Return(IMS_SUCCESS));
+
+    m_pAosRegistration->CallTracker_StateChanged(IAosCallTracker::TYPE_EMERGENCY, CallState::IDLE);
+
+    EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_REGISTERING);
+}
+
+TEST_F(AosRegistrationTest,
+        CallTrackerStateChangedForNormalTypeNotTriggersReinitiateRegDuringEmergencyCall)
+{
+    m_pAosRegistration->SetImsCall(IMS_TRUE);
+    m_pAosRegistration->SetHeldByCall(IMS_TRUE);
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+    ON_CALL(m_objMockIAosCallTracker, IsEmergencyCallActive()).WillByDefault(Return(IMS_TRUE));
+
+    EXPECT_CALL(m_objMockIAosNConfiguration, IsRegRequiredAfterImsECallEndOnRegHeld())
+            .WillRepeatedly(Return(IMS_TRUE));
+    EXPECT_CALL(m_objMockIRegistration, Register(_)).Times(0);
+
+    m_pAosRegistration->CallTracker_StateChanged(IAosCallTracker::TYPE_NORMAL, CallState::IDLE);
+
+    EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_REGISTERED);
 }
 
 TEST_F(AosRegistrationTest, CallTrackerStateChangedHandlesPendingUpdate)
