@@ -19,7 +19,6 @@
 
 #include <gmock/gmock.h>
 
-#include "ImsTypeDef.h"
 #include <video/VideoNego.h>
 
 class MockVideoNego : public VideoNego

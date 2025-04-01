@@ -17,12 +17,19 @@
 #include <gtest/gtest.h>
 
 #include "ImsStrLib.h"
+#include "ImsTypeDef.h"
+
+#include "video/VideoNego.h"
+
 #include "MockICarrierConfig.h"
 #include "MockICoreService.h"
 #include "MockISessionDescriptor.h"
-#include "media/MockIMediaDescriptor.h"
-#include "offeranswer/SdpAvCodec.h"
-#include "video/VideoNego.h"
+#include "MockMediaProfileFactory.h"
+#include "MockMediaProfileGenerator.h"
+#include "core/media/MockIMediaDescriptor.h"
+#include "video/MockVideoProfileNegotiator.h"
+#include "video/MockVideoSdpGenerator.h"
+#include "video/MockVideoSdpParser.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -32,18 +39,7 @@ const IMS_SINT32 DEFAULT_SLOT_ID = 0;
 const AString LOCAL_IP = "127.0.0.1";
 const IMS_SINT32 HEVC_PAYLOAD = 115;
 const IMS_SINT32 AVC_PAYLOAD = 104;
-
-class FakeVideoNego : public VideoNego
-{
-public:
-    explicit FakeVideoNego(IN IMS_UINT32 nSlotId) :
-            VideoNego(nSlotId)
-    {
-    }
-    virtual ~FakeVideoNego() {}
-
-protected:
-};
+const IMS_SINT32 LOCAL_PORT = 10000;
 
 MATCHER_P(IsSameKey, key, "")
 {
@@ -53,7 +49,7 @@ MATCHER_P(IsSameKey, key, "")
 class VideoNegoTest : public ::testing::Test
 {
 public:
-    FakeVideoNego* m_pVideoNego;
+    std::unique_ptr<VideoNego> m_pVideoNego;
     std::shared_ptr<MediaEnvironment> m_pEnvironment;
     VideoConfiguration* m_pConfig;
     MockICarrierConfig* m_pMockICarrierConfig;
@@ -63,6 +59,12 @@ public:
     MockICarrierConfig* m_pHevcSubBundle;
     MockICarrierConfig* m_pAvcSubBundle;
     MockICoreService* m_pICoreService;
+    std::shared_ptr<MockMediaProfileGenerator> m_pMockProfileGenerator;
+    std::shared_ptr<MockVideoSdpParser> m_pMockVideoSdpParser;
+    std::shared_ptr<MockVideoSdpGenerator> m_pMockVideoSdpGenerator;
+    std::shared_ptr<MockVideoProfileNegotiator> m_pMockProfileNegotiator;
+
+    VideoProfile* m_pBaseProfile;
     IpAddress m_objIpAddr;
     ImsVector<IMS_SINT32> m_objHevcPayloadType;
     ImsVector<IMS_SINT32> m_objAvcPayloadType;
@@ -86,7 +88,30 @@ protected:
 
     void CreateNegoProfile()
     {
-        m_pVideoNego = new FakeVideoNego(DEFAULT_SLOT_ID);
+        m_pVideoNego = std::make_unique<VideoNego>(DEFAULT_SLOT_ID);
+        m_pMockVideoSdpGenerator = std::make_shared<MockVideoSdpGenerator>();
+        m_pMockVideoSdpParser = std::make_shared<MockVideoSdpParser>();
+        m_pMockProfileNegotiator = std::make_shared<MockVideoProfileNegotiator>();
+        m_pMockProfileGenerator = std::make_shared<MockMediaProfileGenerator>();
+
+        m_pVideoNego->SetSdpGenerator(m_pMockVideoSdpGenerator);
+        m_pVideoNego->SetSdpParser(m_pMockVideoSdpParser);
+        m_pVideoNego->SetProfileNegotiator(m_pMockProfileNegotiator);
+        m_pVideoNego->SetProfileGenerator(m_pMockProfileGenerator);
+
+        m_pBaseProfile = new VideoProfile();
+        VideoProfile::Payload* pAvcPayload = new VideoProfile::Payload();
+        pAvcPayload->SetRtpMap(AVC_PAYLOAD, "H264", 90000, 1);
+        VideoProfile::AvcFmtp* pAvcFmtp = new VideoProfile::AvcFmtp();
+        pAvcFmtp->SetProfile(AVC_PROFILE_B);
+        pAvcFmtp->SetLevel(12);
+        pAvcPayload->SetFmtp(pAvcFmtp);
+
+        m_pBaseProfile->GetPayloadList().Append(pAvcPayload);
+        m_pBaseProfile->SetDataPort(LOCAL_PORT);
+
+        ON_CALL(*m_pMockProfileGenerator, Generate(_, _, _, _))
+                .WillByDefault(Return(m_pBaseProfile));
         m_pVideoNego->CreateProfiles(m_pEnvironment, m_pConfig);
     }
 
@@ -155,7 +180,6 @@ protected:
 
     virtual void TearDown() override
     {
-        delete m_pVideoNego;
         delete m_pICoreService;
         delete m_pMockICarrierConfig;
         delete m_pVideoBundle;
@@ -174,43 +198,336 @@ TEST_F(VideoNegoTest, testIsMediaCodecFromSdpSupported)
 {
     MockIMediaDescriptor objVideoDescriptor;
     MockISessionDescriptor objSessionDescriptor;
-    ImsList<SdpMediaFormat*> lstMediaFormat;
+    MockMediaProfileFactory objMediaProfileFactory;
+    MockMediaProfileFactory::SetInstance(&objMediaProfileFactory);
 
-    SdpAvCodec objAvCodec;
-    objAvCodec.SetValue("115");
-    objAvCodec.SetParameters("115 H265/90000", "115 profile-id=1; level-id=93");
-    lstMediaFormat.Append(&objAvCodec);
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_FALSE));
+    EXPECT_EQ(
+            m_pVideoNego->IsMediaCodecFromSdpSupported(&objSessionDescriptor, &objVideoDescriptor),
+            IMS_FALSE);
 
-    ON_CALL(objVideoDescriptor, GetRemotePort()).WillByDefault(Return(50010));
-    ON_CALL(objVideoDescriptor, GetMediaFormats()).WillByDefault(ReturnRef(lstMediaFormat));
+    VideoProfile* pProfile = new VideoProfile();
+    VideoProfile::Payload* pAvcPayload = new VideoProfile::Payload();
+    pAvcPayload->SetRtpMap(99, "H264", 90000, 1);
+
+    VideoProfile::AvcFmtp* pAvcFmtp = new VideoProfile::AvcFmtp();
+    pAvcFmtp->SetProfile(AVC_PROFILE_B);
+    pAvcFmtp->SetLevel(12);
+    pAvcPayload->SetFmtp(pAvcFmtp);
+
+    pProfile->GetPayloadList().Append(pAvcPayload);
+    pProfile->SetDataPort(LOCAL_PORT);
+
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockProfileNegotiator, Negotiate(_, _, _, _, _)).WillByDefault(Return(IMS_TRUE));
+    EXPECT_CALL(objMediaProfileFactory, CreateProfile(_, IMS_NULL))
+            .WillOnce(Return(IMS_NULL))
+            .WillOnce(Return(pProfile));
+    EXPECT_CALL(objMediaProfileFactory, CreateProfile(_, testing::NotNull()))
+            .WillRepeatedly(Return(IMS_NULL));
 
     EXPECT_EQ(
             m_pVideoNego->IsMediaCodecFromSdpSupported(&objSessionDescriptor, &objVideoDescriptor),
             IMS_TRUE);
 
-    ON_CALL(objVideoDescriptor, GetRemotePort()).WillByDefault(Return(0));
+    MockMediaProfileFactory::SetInstance(IMS_NULL);
+}
 
-    EXPECT_EQ(
-            m_pVideoNego->IsMediaCodecFromSdpSupported(&objSessionDescriptor, &objVideoDescriptor),
-            IMS_FALSE);
+TEST_F(VideoNegoTest, testFormSdpNullArguments)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
 
-    ON_CALL(objVideoDescriptor, GetRemotePort()).WillByDefault(Return(50010));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(
+            STATE_IDLE, nullptr, &objMediaDescriptor, MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, nullptr,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_NEGOTIATED, nullptr, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_NEGOTIATED, &objSessionDescriptor, nullptr,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_OFFER_RECEIVED, nullptr, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_OFFER_RECEIVED, &objSessionDescriptor, nullptr,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+}
 
-    lstMediaFormat.Clear();
-    objAvCodec.SetValue("104");
-    objAvCodec.SetParameters("104 H264/90000", "104 profile-level-id=42E00C;packetization-mode=1;");
-    lstMediaFormat.Append(&objAvCodec);
+TEST_F(VideoNegoTest, testFormSdpOfferIdle)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
 
-    EXPECT_EQ(
-            m_pVideoNego->IsMediaCodecFromSdpSupported(&objSessionDescriptor, &objVideoDescriptor),
-            IMS_TRUE);
+    ON_CALL(*m_pMockVideoSdpGenerator, Generate(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    EXPECT_TRUE(m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+}
 
-    lstMediaFormat.Clear();
-    objAvCodec.SetValue("25");
-    objAvCodec.SetParameters("25 CELB/90000", "25 CIF=2;QCIF=2;SQCIF=2;CUSTOM=360,240,2");
-    lstMediaFormat.Append(&objAvCodec);
+TEST_F(VideoNegoTest, testFormSdpOfferNegotiated)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
 
-    EXPECT_EQ(
-            m_pVideoNego->IsMediaCodecFromSdpSupported(&objSessionDescriptor, &objVideoDescriptor),
-            IMS_FALSE);
+    ON_CALL(*m_pMockVideoSdpGenerator, Generate(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    EXPECT_TRUE(m_pVideoNego->FormSdp(STATE_NEGOTIATED, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+}
+
+TEST_F(VideoNegoTest, testFormSdpOfferOfferReceivedFail)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+
+    // fail case: calling without negotiation
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_OFFER_RECEIVED, &objSessionDescriptor,
+            &objMediaDescriptor, MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+}
+
+TEST_F(VideoNegoTest, testFormSdpReoffer)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+
+    ON_CALL(*m_pMockVideoSdpGenerator, Generate(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    EXPECT_TRUE(m_pVideoNego->FormSdp(STATE_NEGOTIATED, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_TRUE));
+}
+
+TEST_F(VideoNegoTest, testFormSdpInvalid)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_OFFER_SENT, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(
+            STATE_IDLE, nullptr, &objMediaDescriptor, MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, nullptr,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_INVALID, IMS_FALSE, IMS_FALSE));
+}
+
+TEST_F(VideoNegoTest, testFormSdpOfferIdleGenerateFail)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+
+    ON_CALL(*m_pMockVideoSdpGenerator, Generate(_, _, _)).WillByDefault(Return(IMS_FALSE));
+    EXPECT_FALSE(m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpIdleParseFail)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_FALSE));
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpInvalidArguments)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, nullptr, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, &objSessionDescriptor, nullptr, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+    m_pVideoNego->NegotiateSdp(STATE_NEGOTIATED, nullptr, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+    m_pVideoNego->NegotiateSdp(STATE_NEGOTIATED, &objSessionDescriptor, nullptr, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+    m_pVideoNego->NegotiateSdp(STATE_OFFER_SENT, nullptr, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+    m_pVideoNego->NegotiateSdp(STATE_OFFER_SENT, &objSessionDescriptor, nullptr, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpIdleNegotiateFail)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockProfileNegotiator, Negotiate(_, _, _, _, _)).WillByDefault(Return(IMS_FALSE));
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpIdleSuccessAndFormSdpOfferReceived)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+
+    // setup the valid OA model
+    MockMediaProfileFactory objMediaProfileFactory;
+    MockMediaProfileFactory::SetInstance(&objMediaProfileFactory);
+
+    VideoProfile* pLocalProfile = new VideoProfile();
+    VideoProfile::Payload* pAvcPayload = new VideoProfile::Payload();
+    pAvcPayload->SetRtpMap(99, "H264", 90000, 1);
+
+    VideoProfile::AvcFmtp* pAvcFmtp = new VideoProfile::AvcFmtp();
+    pAvcFmtp->SetProfile(AVC_PROFILE_B);
+    pAvcFmtp->SetLevel(12);
+    pAvcPayload->SetFmtp(pAvcFmtp);
+
+    pLocalProfile->GetPayloadList().Append(pAvcPayload);
+    pLocalProfile->SetDataPort(LOCAL_PORT);
+    pLocalProfile->SetDirection(MEDIA_DIRECTION_SEND);
+
+    VideoProfile* pPeerProfile = new VideoProfile(*pLocalProfile);
+    VideoProfile* pNegoProfile = new VideoProfile(*pLocalProfile);
+
+    EXPECT_CALL(objMediaProfileFactory, CreateProfile(_, _))
+            .WillOnce(Return(pLocalProfile))
+            .WillOnce(Return(pPeerProfile))
+            .WillOnce(Return(pNegoProfile));
+
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockProfileNegotiator, Negotiate(_, _, _, _, _)).WillByDefault(Return(IMS_TRUE));
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_SEND);
+
+    ON_CALL(*m_pMockVideoSdpGenerator, Generate(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    EXPECT_TRUE(m_pVideoNego->FormSdp(STATE_OFFER_RECEIVED, &objSessionDescriptor,
+            &objMediaDescriptor, MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+
+    MockMediaProfileFactory::SetInstance(IMS_NULL);
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpOfferSentFail)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+    m_pVideoNego->NegotiateSdp(
+            STATE_OFFER_SENT, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpOfferSentSuccess)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+
+    // setup the valid OA model
+    MockMediaProfileFactory objMediaProfileFactory;
+    MockMediaProfileFactory::SetInstance(&objMediaProfileFactory);
+
+    VideoProfile* pLocalProfile = new VideoProfile();
+    VideoProfile::Payload* pAvcPayload = new VideoProfile::Payload();
+    pAvcPayload->SetRtpMap(99, "H264", 90000, 1);
+
+    VideoProfile::AvcFmtp* pAvcFmtp = new VideoProfile::AvcFmtp();
+    pAvcFmtp->SetProfile(AVC_PROFILE_B);
+    pAvcFmtp->SetLevel(12);
+    pAvcPayload->SetFmtp(pAvcFmtp);
+
+    pLocalProfile->GetPayloadList().Append(pAvcPayload);
+    pLocalProfile->SetDataPort(LOCAL_PORT);
+    pLocalProfile->SetDirection(MEDIA_DIRECTION_SEND);
+
+    VideoProfile* pPeerProfile = new VideoProfile(*pLocalProfile);
+    VideoProfile* pNegoProfile = new VideoProfile(*pLocalProfile);
+
+    EXPECT_CALL(objMediaProfileFactory, CreateProfile(_, _))
+            .WillOnce(Return(pLocalProfile))
+            .WillOnce(Return(pPeerProfile))
+            .WillOnce(Return(pNegoProfile));
+
+    // form offer in the idle state
+    ON_CALL(*m_pMockVideoSdpGenerator, Generate(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    EXPECT_TRUE(m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE));
+
+    IMS_SINT32 nDirection;
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockProfileNegotiator, Negotiate(_, _, _, _, _)).WillByDefault(Return(IMS_TRUE));
+
+    m_pVideoNego->NegotiateSdp(
+            STATE_OFFER_SENT, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_SEND);
+
+    MockMediaProfileFactory::SetInstance(IMS_NULL);
+}
+
+TEST_F(VideoNegoTest, testNegotiateSdpOfferReceivedFail)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+    m_pVideoNego->NegotiateSdp(
+            STATE_OFFER_RECEIVED, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_EQ(nDirection, MEDIA_DIRECTION_INVALID);
+}
+
+TEST_F(VideoNegoTest, testFinalizeSdp)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    EXPECT_EQ(m_pVideoNego->GetOaModelList().GetSize(), 0);
+
+    m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE);
+    EXPECT_EQ(m_pVideoNego->GetOaModelList().GetSize(), 1);
+    m_pVideoNego->FinalizeSdp(&objSessionDescriptor, STATE_OFFER_RECEIVED);
+    EXPECT_EQ(m_pVideoNego->GetOaModelList().GetSize(), 1);
+    m_pVideoNego->FormSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor,
+            MEDIA_DIRECTION_SEND, IMS_FALSE, IMS_FALSE);
+    EXPECT_EQ(m_pVideoNego->GetOaModelList().GetSize(), 2);
+    m_pVideoNego->FinalizeSdp(&objSessionDescriptor, STATE_OFFER_SENT);
+    EXPECT_EQ(m_pVideoNego->GetOaModelList().GetSize(), 2);
+    m_pVideoNego->FinalizeSdp(&objSessionDescriptor, STATE_NEGOTIATED);
+    EXPECT_EQ(m_pVideoNego->GetOaModelList().GetSize(), 1);
+}
+
+TEST_F(VideoNegoTest, testGetNegotiatedPayloadValid)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockProfileNegotiator, Negotiate(_, _, _, _, _)).WillByDefault(Return(IMS_TRUE));
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_NE(m_pVideoNego->GetNegotiatedPayload(), IMS_NULL);
+}
+
+TEST_F(VideoNegoTest, testGetNegotiatedRtpPortValid)
+{
+    MockISessionDescriptor objSessionDescriptor;
+    MockIMediaDescriptor objMediaDescriptor;
+    IMS_SINT32 nDirection;
+
+    ON_CALL(*m_pMockVideoSdpParser, Parse(_, _, _)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockProfileNegotiator, Negotiate(_, _, _, _, _)).WillByDefault(Return(IMS_TRUE));
+    m_pVideoNego->NegotiateSdp(STATE_IDLE, &objSessionDescriptor, &objMediaDescriptor, nDirection);
+    EXPECT_NE(m_pVideoNego->GetNegotiatedRtpPort(), -1);
+}
+
+TEST_F(VideoNegoTest, testSetPort)
+{
+    EXPECT_TRUE(m_pVideoNego->SetPort(LOCAL_PORT));
+    EXPECT_TRUE(m_pVideoNego->SetPort(0));
+}
+
+TEST_F(VideoNegoTest, testGetters)
+{
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedResolution(), VIDEO_RESOLUTION_INVALID);
+    EXPECT_EQ(m_pVideoNego->GetLocalPort(), LOCAL_PORT);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedBandwidth(), -1);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedPayload(), nullptr);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedDirection(), MEDIA_DIRECTION_INVALID);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedRemoteAddress(), IpAddress::NONE);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedLocalProfile(), nullptr);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedNegoProfile(), nullptr);
+    EXPECT_EQ(m_pVideoNego->GetNegotiatedPeerProfile(), nullptr);
+    EXPECT_EQ(m_pVideoNego->GetRemotePort(), MEDIA_PORT_INVALID);
 }

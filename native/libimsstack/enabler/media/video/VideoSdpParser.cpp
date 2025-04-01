@@ -1,14 +1,14 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the"License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an"AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -40,20 +40,19 @@ IMS_BOOL VideoSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
 {
     if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "Parse(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    IMS_TRACE_I("Parse()", 0, 0, 0);
-
     MediaSdpParser::Parse(pSessionDescriptor, pDescriptor, pProfile);
-    ParseTranportType(pDescriptor, pProfile);
+    ParseTransportType(pDescriptor, pProfile);
     SetAvpfSupport(pProfile);
 
     // read CapaNego profile From SDP
-    if (ParseCapaNego(pDescriptor, &(pProfile->GetCapaNego())) == IMS_TRUE)
+    if (ParseCapaNego(pDescriptor, &(pProfile->GetCapaNego())))
     {
         // Get Capa nego value from the incoming SDP
-        if (IsAvpfSupported(pProfile) == IMS_TRUE)
+        if (IsAvpfSupported(pProfile))
         {
             pProfile->SetSupportCapaNegoForAvpf(IMS_TRUE);
         }
@@ -66,16 +65,17 @@ IMS_BOOL VideoSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
 
     ParseCvo(pDescriptor, pProfile);
 
-    IMS_TRACE_I("Parse() - Ended[%d]", pProfile->GetPayloadList().GetSize(), 0, 0);
+    IMS_TRACE_I("Parse(): Ended[%d]", pProfile->GetPayloadList().GetSize(), 0, 0);
     return IMS_TRUE;
 }
 
 PRIVATE
-void VideoSdpParser::ParseTranportType(
+void VideoSdpParser::ParseTransportType(
         IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseTransportType(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -84,7 +84,7 @@ void VideoSdpParser::ParseTranportType(
     if (pSdpMedia != IMS_NULL)
     {
         pProfile->SetTransportType(pSdpMedia->GetTransportProtocolEx());
-        IMS_TRACE_D("ParseTranportType() - transport type[%s]",
+        IMS_TRACE_D("ParseTransportType(): transport type[%s]",
                 pProfile->GetTransportType().GetStr(), 0, 0);
     }
 }
@@ -94,21 +94,22 @@ void VideoSdpParser::SetAvpfSupport(OUT VideoProfile* pProfile)
 {
     if (pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetAvpfSupport(): invalid arguments", 0, 0, 0);
         return;
     }
 
-    if (pProfile->GetTransportType().EqualsIgnoreCase("RTP/AVP") == IMS_TRUE)
+    if (pProfile->GetTransportType().EqualsIgnoreCase("RTP/AVP"))
     {
         pProfile->SetSupportAvpf(IMS_FALSE);
         pProfile->SetSupportCapaNegoForAvpf(IMS_FALSE);
     }
-    else if (pProfile->GetTransportType().EqualsIgnoreCase("RTP/AVPF") == IMS_TRUE)
+    else if (pProfile->GetTransportType().EqualsIgnoreCase("RTP/AVPF"))
     {
         pProfile->SetSupportAvpf(IMS_TRUE);
         pProfile->SetSupportCapaNegoForAvpf(IMS_TRUE);
     }
 
-    IMS_TRACE_D("SetAvpfSupport() - support AVPF[%d], support CapaNego[%d]",
+    IMS_TRACE_D("SetAvpfSupport(): support AVPF[%d], support CapaNego[%d]",
             pProfile->IsAvpfSupported(), pProfile->IsCapaNegoForAvpfSupported(), 0);
 }
 
@@ -117,6 +118,7 @@ void VideoSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT VideoPr
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParsePayloads(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -135,7 +137,7 @@ void VideoSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT VideoPr
             continue;
         }
 
-        IMS_TRACE_I("ParsePayloads() - At[%d]", i, 0, 0);
+        IMS_TRACE_I("ParsePayloads(): At[%d]", i, 0, 0);
 
         ParseRtpMap(pSdpCodec, pPayload);
 
@@ -176,6 +178,7 @@ void VideoSdpParser::ParseRtpMap(
 {
     if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseRtpMap(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -184,7 +187,7 @@ void VideoSdpParser::ParseRtpMap(
     IMS_UINT32 nSamplingRate = pSdpCodec->GetClockRate();
     pPayload->SetRtpMap(nPayloadTypeNumber, strCodecName, nSamplingRate);
 
-    IMS_TRACE_D("ParseRtpMap() - Payload[%d], Codec[%s], Sampling rate[%d]", nPayloadTypeNumber,
+    IMS_TRACE_D("ParseRtpMap(): Payload[%d], Codec[%s], Sampling rate[%d]", nPayloadTypeNumber,
             strCodecName.GetStr(), nSamplingRate);
 }
 
@@ -211,7 +214,7 @@ VIDEO_CODEC VideoSdpParser::SetCodec(IN VideoProfile::Payload* pPayload)
     else
     {
         eVideoCodec = VIDEO_CODEC_NOTUSED;
-        IMS_TRACE_I("SetCodec() - codec[%s] not used", strPayload.GetStr(), 0, 0);
+        IMS_TRACE_I("SetCodec(): codec[%s] not used", strPayload.GetStr(), 0, 0);
     }
 
     return eVideoCodec;
@@ -232,6 +235,7 @@ AString VideoSdpParser::ParseImageAttr(IN const SdpAvCodec* pSdpCodec,
 
     if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseImageAttr(): invalid arguments", 0, 0, 0);
         return strImageAttr;
     }
 
@@ -242,7 +246,7 @@ AString VideoSdpParser::ParseImageAttr(IN const SdpAvCodec* pSdpCodec,
         strImageAttr = objImageAttributes.GetAt(nIndex);
     }
 
-    IMS_TRACE_D("ParseImageAttr() - Included[%d], Image Attribute[%s]",
+    IMS_TRACE_D("ParseImageAttr(): Included[%d], Image Attribute[%s]",
             pPayload->IsImageAttrIncluded(), strImageAttr.GetStr(), 0);
 
     return strImageAttr;
@@ -256,6 +260,7 @@ AString VideoSdpParser::ParseFrameSize(IN const SdpAvCodec* pSdpCodec,
 
     if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseFrameSize(): invalid arguments", 0, 0, 0);
         return strFrameSize;
     }
 
@@ -266,7 +271,7 @@ AString VideoSdpParser::ParseFrameSize(IN const SdpAvCodec* pSdpCodec,
         pPayload->SetIncludeFrameSize(IMS_TRUE);
     }
 
-    IMS_TRACE_D("ParseFrameSize() - Included[%d], FrameSize[%s]", pPayload->IsFrameSizeIncluded(),
+    IMS_TRACE_D("ParseFrameSize(): Included[%d], FrameSize[%s]", pPayload->IsFrameSizeIncluded(),
             strFrameSize.GetStr(), 0);
 
     return strFrameSize;
@@ -277,7 +282,7 @@ void VideoSdpParser::ParseCvo(IN IMediaDescriptor* pDescriptor, OUT VideoProfile
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ParseCvo() - invalid argument", 0, 0, 0);
+        IMS_TRACE_E(0, "ParseCvo(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -288,7 +293,7 @@ void VideoSdpParser::ParseCvo(IN IMediaDescriptor* pDescriptor, OUT VideoProfile
     {
         AString strExtmap = objAttributes.GetAt(nIndex);
 
-        if (strExtmap.Contains("urn:3gpp:video-orientation") == IMS_TRUE)
+        if (strExtmap.Contains("urn:3gpp:video-orientation"))
         {
             AString strCvoTrim = strExtmap.Trim();
             ImsList<AString> strSplitSpace = strCvoTrim.Split(' ');
@@ -309,7 +314,7 @@ void VideoSdpParser::ParseCvo(IN IMediaDescriptor* pDescriptor, OUT VideoProfile
                     pProfile->SetCvoId(strSplitSpace.GetAt(0).ToInt32());
                 }
 
-                IMS_TRACE_D("ParseCvo() - CVO found. ID[%d]", pProfile->GetCvoId(), 0, 0);
+                IMS_TRACE_D("ParseCvo(): CVO found. ID[%d]", pProfile->GetCvoId(), 0, 0);
             }
         }
     }
@@ -321,6 +326,7 @@ IMS_BOOL VideoSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
 {
     if (pPayload == IMS_NULL || pSdpCodec == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseFmtp(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -337,12 +343,13 @@ IMS_BOOL VideoSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
     }
     else
     {
-        IMS_TRACE_E(0, "ParseFmtp() - NOT SUPPORTED video codec", 0, 0, 0);
+        IMS_TRACE_E(0, "ParseFmtp(): NOT SUPPORTED video codec", 0, 0, 0);
         return IMS_FALSE;
     }
 
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseFmtp(): invalid fmtp", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -364,7 +371,7 @@ IMS_BOOL VideoSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
         if (objSplitEqual.GetSize() < 2)
         {
             const AString& strTmp = objSplitColon.GetAt(i);
-            IMS_TRACE_D("ParseFmtp() - Invalid video fmtp parameter(%s) at index(%d)",
+            IMS_TRACE_D("ParseFmtp(): Invalid video fmtp parameter(%s) at index(%d)",
                     strTmp.GetStr(), i, 0);
             continue;
         }
@@ -374,7 +381,7 @@ IMS_BOOL VideoSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
             continue;
         }
 
-        if (ParseVideoBaseFmtp(objSplitEqual, pFmtp) == IMS_FALSE)
+        if (!ParseVideoBaseFmtp(objSplitEqual, pFmtp))
         {
             switch (eVideoCodec)
             {
@@ -412,6 +419,7 @@ IMS_BOOL VideoSdpParser::ParseVideoBaseFmtp(
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseVideoBaseFmtp(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -429,6 +437,7 @@ void VideoSdpParser::ParseAvcFmtp(IN const ImsList<AString>& objSplitEqual,
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseAvcFmtp(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -448,6 +457,7 @@ void VideoSdpParser::ParseHevcFmtp(IN const ImsList<AString>& objSplitEqual, OUT
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseHevcFmtp(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -479,15 +489,16 @@ IMS_BOOL VideoSdpParser::ParsePacketizationMode(
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParsePacketizationMode(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    if (objSplitEqual.GetAt(0).Equals("packetization-mode") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("packetization-mode"))
     {
         pFmtp->SetPacketizationMode((IMS_UINT32)objSplitEqual.GetAt(1).ToInt32());
         pFmtp->SetShowPacketizationMode(IMS_TRUE);
 
-        IMS_TRACE_I("ParsePacketizationMode() - Packetization mode[%d], Visible[%d]",
+        IMS_TRACE_I("ParsePacketizationMode(): Packetization mode[%d], Visible[%d]",
                 pFmtp->GetPacketizationMode(), pFmtp->IsPacketizationModeVisible(), 0);
 
         return IMS_TRUE;
@@ -502,10 +513,11 @@ IMS_BOOL VideoSdpParser::ParseProfileLevelId(
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseProfileLevelId(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    if (objSplitEqual.GetAt(0).Equals("profile-level-id") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("profile-level-id"))
     {
         pFmtp->SetProfileLevelId(objSplitEqual.GetAt(1));
         pFmtp->SetProfile(
@@ -514,9 +526,9 @@ IMS_BOOL VideoSdpParser::ParseProfileLevelId(
                 VideoProfileUtil::GetAvcLevelFromProfileLevelId(pFmtp->GetProfileLevelId()));
         pFmtp->SetShowProfileLevelId(IMS_TRUE);
 
-        IMS_TRACE_I("ParseProfileLevelId() - profile-level-id[%s], Visible[%d]",
+        IMS_TRACE_I("ParseProfileLevelId(): profile-level-id[%s], Visible[%d]",
                 pFmtp->GetProfileLevelId().GetStr(), pFmtp->IsProfileLevelIdVisible(), 0);
-        IMS_TRACE_I("ParseProfileLevelId() - Profile[%d], Level[%d]", pFmtp->GetProfile(),
+        IMS_TRACE_I("ParseProfileLevelId(): Profile[%d], Level[%d]", pFmtp->GetProfile(),
                 pFmtp->GetLevel(), 0);
 
         return IMS_TRUE;
@@ -531,21 +543,22 @@ IMS_BOOL VideoSdpParser::ParseSpropParameterSets(IN const ImsList<AString>& objS
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseSpropParameterSets(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    if (objSplitEqual.GetAt(0).Equals("sprop-parameter-sets") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("sprop-parameter-sets"))
     {
         ImsList<AString> objSplitComma = strSpropParam.Split(',');
         if (objSplitComma.GetSize() < 2)
         {
-            IMS_TRACE_E(0, "ParseAvcFmtp() - objSplitComma's size less than 2 !!!", 0, 0, 0);
+            IMS_TRACE_E(0, "ParseAvcFmtp(): objSplitComma's size less than 2 !!!", 0, 0, 0);
             return IMS_FALSE;
         }
         else if ((objSplitComma.GetAt(0).GetLength() % 4 != 0) &&
                 (objSplitComma.GetAt(1).GetLength() % 4 != 0))
         {
-            IMS_TRACE_E(0, "ParseAvcFmtp() - Sprop Length Error - SPS[%d], PPS[%d]",
+            IMS_TRACE_E(0, "ParseAvcFmtp(): Sprop Length Error - SPS[%d], PPS[%d]",
                     objSplitComma.GetAt(0).GetLength(), objSplitComma.GetAt(1).GetLength(), 0);
             return IMS_FALSE;
         }
@@ -553,7 +566,7 @@ IMS_BOOL VideoSdpParser::ParseSpropParameterSets(IN const ImsList<AString>& objS
         pFmtp->SetSpropParam(strSpropParam);
         pFmtp->SetShowSpropParam(IMS_TRUE);
 
-        IMS_TRACE_I("ParseSpropParameterSets() - Sprop Params[%s], Visible[%d]",
+        IMS_TRACE_I("ParseSpropParameterSets(): Sprop Params[%s], Visible[%d]",
                 pFmtp->GetSpropParam().GetStr(), pFmtp->IsSpropParamVisible(), 0);
 
         return IMS_TRUE;
@@ -568,15 +581,16 @@ IMS_BOOL VideoSdpParser::ParseProfileId(
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseProfileId(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    if (objSplitEqual.GetAt(0).Equals("profile-id") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("profile-id"))
     {
         pFmtp->SetProfile((VIDEO_PROFILE_HEVC)objSplitEqual.GetAt(1).ToInt32());
         pFmtp->SetShowProfile(IMS_TRUE);
 
-        IMS_TRACE_I("ParseProfileId() - Profile Id[%d], Visible[%d]", pFmtp->GetProfile(),
+        IMS_TRACE_I("ParseProfileId(): Profile Id[%d], Visible[%d]", pFmtp->GetProfile(),
                 pFmtp->IsProfileVisible(), 0);
 
         return IMS_TRUE;
@@ -591,15 +605,16 @@ IMS_BOOL VideoSdpParser::ParseLevelId(
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseLevelId(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    if (objSplitEqual.GetAt(0).Equals("level-id") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("level-id"))
     {
         pFmtp->SetLevel((IMS_UINT32)objSplitEqual.GetAt(1).ToInt32());
         pFmtp->SetShowLevel(IMS_TRUE);
 
-        IMS_TRACE_I("ParseLevelId() - Level Id[%d], Visible[%d]", pFmtp->GetLevel(),
+        IMS_TRACE_I("ParseLevelId(): Level Id[%d], Visible[%d]", pFmtp->GetLevel(),
                 pFmtp->IsLevelVisible(), 0);
 
         return IMS_TRUE;
@@ -611,11 +626,11 @@ IMS_BOOL VideoSdpParser::ParseLevelId(
 PRIVATE
 IMS_BOOL VideoSdpParser::ParseVps(IN const ImsList<AString>& objSplitEqual, OUT AString& strVps)
 {
-    if (objSplitEqual.GetAt(0).Equals("sprop-vps") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("sprop-vps"))
     {
         strVps = objSplitEqual.GetAt(1);
 
-        IMS_TRACE_D("ParseVps() - Sprop Vps[%s]", strVps.GetStr(), 0, 0);
+        IMS_TRACE_D("ParseVps(): Sprop Vps[%s]", strVps.GetStr(), 0, 0);
 
         return IMS_TRUE;
     }
@@ -626,11 +641,11 @@ IMS_BOOL VideoSdpParser::ParseVps(IN const ImsList<AString>& objSplitEqual, OUT 
 PRIVATE
 IMS_BOOL VideoSdpParser::ParseSps(IN const ImsList<AString>& objSplitEqual, OUT AString& strSps)
 {
-    if (objSplitEqual.GetAt(0).Equals("sprop-sps") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("sprop-sps"))
     {
         strSps = objSplitEqual.GetAt(1);
 
-        IMS_TRACE_D("ParseSps() - Sprop Sps[%s]", strSps.GetStr(), 0, 0);
+        IMS_TRACE_D("ParseSps(): Sprop Sps[%s]", strSps.GetStr(), 0, 0);
 
         return IMS_TRUE;
     }
@@ -641,11 +656,11 @@ IMS_BOOL VideoSdpParser::ParseSps(IN const ImsList<AString>& objSplitEqual, OUT 
 PRIVATE
 IMS_BOOL VideoSdpParser::ParsePps(IN const ImsList<AString>& objSplitEqual, OUT AString& strPps)
 {
-    if (objSplitEqual.GetAt(0).Equals("sprop-pps") == IMS_TRUE)
+    if (objSplitEqual.GetAt(0).Equals("sprop-pps"))
     {
         strPps = objSplitEqual.GetAt(1);
 
-        IMS_TRACE_D("ParsePps() - Sprop Pps[%s]", strPps.GetStr(), 0, 0);
+        IMS_TRACE_D("ParsePps(): Sprop Pps[%s]", strPps.GetStr(), 0, 0);
 
         return IMS_TRUE;
     }
@@ -659,6 +674,7 @@ void VideoSdpParser::ParseSpropParam(IN const AString& strVps, IN const AString&
 {
     if (pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseSpropParam(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -674,7 +690,7 @@ void VideoSdpParser::ParseSpropParam(IN const AString& strVps, IN const AString&
         pFmtp->SetSpropParam(strTemp);
         pFmtp->SetShowSpropParam(IMS_TRUE);
 
-        IMS_TRACE_I("ParseSpropParam() - Sprop Param[%s], Visible[%d]",
+        IMS_TRACE_I("ParseSpropParam(): Sprop Param[%s], Visible[%d]",
                 pFmtp->GetSpropParam().GetStr(), pFmtp->IsSpropParamVisible(), 0);
     }
 }
@@ -685,6 +701,7 @@ void VideoSdpParser::ParseResolution(OUT VideoProfile::Payload* pPayload, AStrin
 {
     if (pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseResolution(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -698,7 +715,7 @@ void VideoSdpParser::ParseResolution(OUT VideoProfile::Payload* pPayload, AStrin
     pFmtp->SetResolution(
             GetResolutionFromSdp(eVideoCodec, strImageAttr, strFrameSize, pFmtp->GetSpropParam()));
 
-    IMS_TRACE_I("ParseResolution() - resolution[%d]", pFmtp->GetResolution(), 0, 0);
+    IMS_TRACE_I("ParseResolution(): resolution[%d]", pFmtp->GetResolution(), 0, 0);
 }
 
 PRIVATE
@@ -707,17 +724,17 @@ void VideoSdpParser::ParseAvpfAttribute(
 {
     if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL || pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseAvpfAttribute(): invalid arguments", 0, 0, 0);
         return;
     }
 
-    if (pProfile->IsAvpfSupported() == IMS_TRUE)
+    if (pProfile->IsAvpfSupported())
     {
         IMS_TRACE_I("ParseAvpfAttribute()", 0, 0, 0);
 
-        if (GetAvpfFromAttributes(
-                    pSdpCodec, &pProfile->GetCapaNego(), &pPayload->GetRtcpFbAttr()) == IMS_FALSE)
+        if (!GetAvpfFromAttributes(pSdpCodec, &pProfile->GetCapaNego(), &pPayload->GetRtcpFbAttr()))
         {
-            GetAvpfFromAttributes_EX(&pProfile->GetCapaNego(), &pPayload->GetRtcpFbAttr());
+            GetAvpfFromAttributesEx(&pProfile->GetCapaNego(), &pPayload->GetRtcpFbAttr());
         }
     }
 }
@@ -726,6 +743,7 @@ PRIVATE IMS_BOOL VideoSdpParser::IsAvpfSupported(IN VideoProfile* pProfile)
 {
     if (pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "IsAvpfSupported(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -737,14 +755,13 @@ PRIVATE IMS_BOOL VideoSdpParser::IsAvpfSupported(IN VideoProfile* pProfile)
     {
         strTcap = pProfile->GetCapaNego().GetMapTcap().GetValueAt(i);
 
-        if (strTcap.Contains(strAvpf) == IMS_TRUE)
+        if (strTcap.Contains(strAvpf))
         {
-            IMS_TRACE_I("IsAvpfSupported() - found AVPF from profile ", 0, 0, 0);
             return IMS_TRUE;
         }
     }
 
-    IMS_TRACE_I("IsAvpfSupported() - Not Supported ", 0, 0, 0);
+    IMS_TRACE_I("IsAvpfSupported(): not supported", 0, 0, 0);
     return IMS_FALSE;
 }
 
@@ -760,10 +777,9 @@ PRIVATE IMS_BOOL VideoSdpParser::GetCorrectImageIndex(
             return IMS_FALSE;
         }
 
-        // add a case of wild-card
         if (objTokens.GetAt(0).Equals("*"))
         {
-            IMS_TRACE_D("GetCorrectImageIndex()-wild-card - nIndex[%d], nPayloadNum[%d]", *nIndex,
+            IMS_TRACE_D("GetCorrectImageIndex(): wild-card, index[%d], payload[%d]", *nIndex,
                     nPayloadTypeNum, 0);
             return IMS_TRUE;
         }
@@ -771,34 +787,31 @@ PRIVATE IMS_BOOL VideoSdpParser::GetCorrectImageIndex(
         if (nPayloadTypeNum == objTokens.GetAt(0).ToInt32())
         {
             *nIndex = i;
-            IMS_TRACE_D("GetCorrectImageIndex()-nIndex[%d], nPayloadNum[%d]", *nIndex,
-                    nPayloadTypeNum, 0);
+            IMS_TRACE_D(
+                    "GetCorrectImageIndex(): index[%d], payload[%d]", *nIndex, nPayloadTypeNum, 0);
 
             return IMS_TRUE;
         }
     }
 
-    IMS_TRACE_E(0, "GetCorrectImageIndex()-No matched", 0, 0, 0);
-
+    IMS_TRACE_I("GetCorrectImageIndex(): not matched", 0, 0, 0);
     return IMS_FALSE;
 }
 
-PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromSdp(IN VIDEO_CODEC codecType,
+PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromSdp(IN VIDEO_CODEC /*codecType*/,
         IN const AString& strImageAttr, IN const AString& strFrameSize,
-        IN const AString& strSpropParam, IN IMS_SINT32 nQcif)
+        IN const AString& /*strSpropParam*/, IN IMS_SINT32 nQcif)
 {
     IMS_UINT32 nWidth, nHeight;
 
     // Get nWidth, nHeight From Image Attribute
     if (strImageAttr.GetLength() != 0 &&
-            (GetWidthHeightFromSdp_ImageAttr(strImageAttr, &nWidth, &nHeight) != IMS_FALSE))
+            (GetWidthHeightFromSdpImageAttr(strImageAttr, &nWidth, &nHeight) != IMS_FALSE))
     {
         return GetResolutionFromWidthHeight(nWidth, nHeight);
     }
 
-    /** TODO_MEDIA video sprop */
-    (void)codecType;
-    (void)strSpropParam;
+    /** TODO: parse the video sprop */
     // // - Get nWidth, nHeight From SpropParam
     // if (strSpropParam.GetLength() != 0 &&
     //        (GetWidthHeightFromSdp_SpropParam(
@@ -807,9 +820,8 @@ PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromSdp(IN VIDEO_CODEC cod
     //    return GetResolutionFromWidthHeight(nWidth, nHeight);
     // }
 
-    // Get nWidth, nHeight From Framesize
     if (strFrameSize.GetLength() != 0 &&
-            (GetWidthHeightFromSdp_FrameSize(strFrameSize, &nWidth, &nHeight) != IMS_FALSE))
+            (GetWidthHeightFromSdpFrameSize(strFrameSize, &nWidth, &nHeight) != IMS_FALSE))
     {
         return GetResolutionFromWidthHeight(nWidth, nHeight);
     }
@@ -821,7 +833,7 @@ PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromSdp(IN VIDEO_CODEC cod
     }
     else
     {
-        IMS_TRACE_E(0, "GetResolutionFromSdp() - No preferred resolution from SDP...", 0, 0, 0);
+        IMS_TRACE_E(0, "GetResolutionFromSdp(): no preferred resolution from SDP", 0, 0, 0);
         return VIDEO_RESOLUTION_NOT_USED;
     }
 }
@@ -830,20 +842,26 @@ PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes(IN SdpMediaFormat* pMedia
         IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr)
 {
     if (pMediaFormat == IMS_NULL || pRtcpFbAttr == IMS_NULL || pCapaNego == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "GetAvpfFromAttributes(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
+    }
 
     ImsList<SdpMediaFormatParameter*> lstRTCPFeedback = pMediaFormat->GetExtraParameters();
 
-    IMS_TRACE_I("GetAvpfFromAttributes() - Entered. number of RTCP attributes[%d]",
-            lstRTCPFeedback.GetSize(), 0, 0);
     if (lstRTCPFeedback.GetSize() == 0)
+    {
+        IMS_TRACE_E(0, "GetAvpfFromAttributes(): empty RTCP-FB attribute", 0, 0, 0);
         return IMS_FALSE;
+    }
 
     for (IMS_UINT32 i = 0; i < lstRTCPFeedback.GetSize(); i++)
     {
         SdpMediaFormatParameter* pMediaParam = lstRTCPFeedback.GetAt(i);
         if (pMediaParam == IMS_NULL)
+        {
             continue;
+        }
 
         if (pMediaParam->GetAttribute() == SdpAttribute::RTCP_FB)
         {
@@ -875,18 +893,16 @@ PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes(IN SdpMediaFormat* pMedia
                 }
             }
 
-            IMS_TRACE_D("GetAvpfFromAttributes() - pRtcpParam->GetType[%s], GetParamName[%s]",
+            IMS_TRACE_D("GetAvpfFromAttributes(): type[%s], name[%s]",
                     pRtcpParam->GetType().GetStr(), pRtcpParam->GetParamName().GetStr(), 0);
         }
     }
 
     if (pCapaNego->GetMapAcap().GetSize() > 0)
     {
-        IMS_TRACE_D("GetAvpfFromAttributes() - AttributeCapa value exist - Size[%d]",
-                pCapaNego->GetMapAcap().GetSize(), 0, 0);
         for (IMS_UINT32 i = 0; i < pCapaNego->GetMapAcap().GetSize(); i++)
         {
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("trr-int") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("trr-int"))
             {
                 ImsList<AString> strTemp =
                         pCapaNego->GetMapAcap().GetValueAt(i).Split(TextParser::CHAR_SP);
@@ -897,40 +913,40 @@ PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes(IN SdpMediaFormat* pMedia
                     pRtcpFbAttr->SetTrrSupported(IMS_TRUE);
                 }
             }
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("nack") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("nack"))
                 pRtcpFbAttr->SetNackSupported(IMS_TRUE);
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("pli") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("pli"))
                 pRtcpFbAttr->SetPliSupported(IMS_TRUE);
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("fir") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("fir"))
                 pRtcpFbAttr->SetFirSupported(IMS_TRUE);
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("tmmbr") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("tmmbr"))
                 pRtcpFbAttr->SetTmmbrSupported(IMS_TRUE);
         }
     }
 
-    IMS_TRACE_D("GetAvpfFromAttributes() - support = bNACK[%d], bPLI[%d], bTMMBR[%d]",
+    IMS_TRACE_D("GetAvpfFromAttributes(): support NACK[%d], PLI[%d], TMMBR[%d]",
             pRtcpFbAttr->IsNackSupported(), pRtcpFbAttr->IsPliSupported(),
             pRtcpFbAttr->IsTmmbrSupported());
-    IMS_TRACE_D("GetAvpfFromAttributes() - support = bFIR[%d], bTRR_Int[%d]",
+    IMS_TRACE_D("GetAvpfFromAttributes(): support FIR[%d], TRR_Int[%d]",
             pRtcpFbAttr->IsFirSupported(), pRtcpFbAttr->IsTrrSupported(), 0);
 
     return IMS_TRUE;
 }
 
-PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes_EX(
+PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributesEx(
         IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr)
 {
     if (pRtcpFbAttr == IMS_NULL || pCapaNego == IMS_NULL)
+    {
+        IMS_TRACE_E(0, "GetAvpfFromAttributesEx(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
+    }
 
-    // check attribute..
     if (pCapaNego->GetMapAcap().GetSize() > 0)
     {
-        IMS_TRACE_D("GetAvpfFromAttributes_EX() - AttributeCapa value exist - Size[%d]",
-                pCapaNego->GetMapAcap().GetSize(), 0, 0);
         for (IMS_UINT32 i = 0; i < pCapaNego->GetMapAcap().GetSize(); i++)
         {
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("trr-int") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("trr-int"))
             {
                 ImsList<AString> strTemp =
                         pCapaNego->GetMapAcap().GetValueAt(i).Split(TextParser::CHAR_SP);
@@ -941,19 +957,19 @@ PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes_EX(
                     pRtcpFbAttr->SetTrrSupported(IMS_TRUE);
                 }
             }
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("nack") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("nack"))
                 pRtcpFbAttr->SetNackSupported(IMS_TRUE);
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("pli") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("pli"))
                 pRtcpFbAttr->SetPliSupported(IMS_TRUE);
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("fir") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("fir"))
                 pRtcpFbAttr->SetFirSupported(IMS_TRUE);
-            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("tmmbr") == IMS_TRUE)
+            if (pCapaNego->GetMapAcap().GetValueAt(i).Contains("tmmbr"))
                 pRtcpFbAttr->SetTmmbrSupported(IMS_TRUE);
         }
-        IMS_TRACE_D("GetAvpfFromAttributes_EX() - support = NACK[%d], PLI[%d], TMMBR[%d]",
+        IMS_TRACE_D("GetAvpfFromAttributesEx(): support NACK[%d], PLI[%d], TMMBR[%d]",
                 pRtcpFbAttr->IsNackSupported(), pRtcpFbAttr->IsPliSupported(),
                 pRtcpFbAttr->IsTmmbrSupported());
-        IMS_TRACE_D("GetAvpfFromAttributes_EX() - support = FIR[%d], TRR[%d], TTR-Int[%d]",
+        IMS_TRACE_D("GetAvpfFromAttributesEx(): support FIR[%d], TRR[%d], TTR-Int[%d]",
                 pRtcpFbAttr->IsFirSupported(), pRtcpFbAttr->IsTrrSupported(),
                 pRtcpFbAttr->GetTrrInt());
     }
@@ -961,7 +977,7 @@ PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes_EX(
     return IMS_TRUE;
 }
 
-PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
+PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdpImageAttr(
         IN const AString& strImageAttr, OUT IMS_UINT32* nImageWidth, OUT IMS_UINT32* nImageHeight)
 {
     IMS_UINT32 nImagePayloadNum = 0;  // Payload Number in Image Attr
@@ -970,12 +986,10 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
     ImsList<AString> objTokens;
     ImsList<AString> strTempValue;
     AString nRealValueString = AString::ConstNull();
-    // Check SPACE is ...
-    if (strImageAttr.Contains(TextParser::CHAR_SP) == IMS_FALSE)
+
+    if (!strImageAttr.Contains(TextParser::CHAR_SP))
     {
-        IMS_TRACE_E(0,
-                "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have CHAR_SP, ...", 0,
-                0, 0);
+        IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_SP", 0, 0, 0);
         return IMS_FALSE;
     }
     else
@@ -984,47 +998,33 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
 
         if (objTokens.GetSize() < 3)
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - the size of Peer ImageAttr is too small "
-                    "to parse it ...",
-                    0, 0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): too small size to parse", 0, 0, 0);
             return IMS_FALSE;
         }
     }
 
-    // 1st step : Take "Payload Number" out of Image Attribute.
     nImagePayloadNum = objTokens.GetAt(0).ToInt32();
 
-    // 2nd step : Take "Image Size Values" out of Image Size according the Send/Recv direction.
-    if (objTokens.GetAt(nDirection).EqualsIgnoreCase("send") == IMS_TRUE)
+    if (objTokens.GetAt(nDirection).EqualsIgnoreCase("send"))
     {
-        if (objTokens.GetAt(nImageValueIndex).Equals("*") == IMS_TRUE)
+        if (objTokens.GetAt(nImageValueIndex).Equals("*"))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - PeerResolution-Wildcard, Not Support", 0,
-                    0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): wildcard, not support", 0, 0, 0);
             return IMS_FALSE;
         }
-        // remove spaces in Bracket, [ ]
         for (IMS_UINT32 i = nImageValueIndex; i < objTokens.GetSize(); i++)
         {
-            if (objTokens.GetAt(i).EqualsIgnoreCase("recv") == IMS_TRUE)
+            if (objTokens.GetAt(i).EqualsIgnoreCase("recv"))
             {
-                // IMS_TRACE_D("GetWidthHeightFromSdp_ImageAttr() Removed all spaces in send
-                // direction Bracket", 0, 0, 0);
                 break;
             }
             nRealValueString.Append(objTokens.GetAt(i));
         }
 
-        // Check LSBRACKET is ...
         if ((nRealValueString == AString::ConstNull()) ||
-                (nRealValueString.Contains(TextParser::CHAR_LSBRACKET) == IMS_FALSE))
+                (!nRealValueString.Contains(TextParser::CHAR_LSBRACKET)))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have "
-                    "CHAR_LSBRACKET, [ ...",
-                    0, 0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_LSBRACKET", 0, 0, 0);
             return IMS_FALSE;
         }
         else
@@ -1032,13 +1032,9 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
             strTempValue = nRealValueString.Split(TextParser::CHAR_LSBRACKET);
         }
 
-        // Check RSBRACKET is ...
-        if (strTempValue.GetAt(1).Contains(TextParser::CHAR_RSBRACKET) == IMS_FALSE)
+        if (!strTempValue.GetAt(1).Contains(TextParser::CHAR_RSBRACKET))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have "
-                    "CHAR_RSBRACKET, ] ...",
-                    0, 0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_RSBRACKET", 0, 0, 0);
             return IMS_FALSE;
         }
         else
@@ -1046,13 +1042,9 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
             strTempValue = strTempValue.GetAt(1).Split(TextParser::CHAR_RSBRACKET);
         }
 
-        // Check COMMA is ...
-        if (strTempValue.GetAt(0).Contains(TextParser::CHAR_COMMA) == IMS_FALSE)
+        if (!strTempValue.GetAt(0).Contains(TextParser::CHAR_COMMA))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have a CHAR_COMMA, "
-                    ", ...",
-                    0, 0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_COMMA", 0, 0, 0);
             return IMS_FALSE;
         }
         else
@@ -1062,85 +1054,55 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
 
         for (IMS_UINT32 i = 0; i < strTempValue.GetSize(); i++)
         {
-            // Check EQUAL is ...
-            if (strTempValue.GetAt(i).Contains(TextParser::CHAR_EQUAL) == IMS_FALSE)
+            if (!strTempValue.GetAt(i).Contains(TextParser::CHAR_EQUAL))
             {
-                IMS_TRACE_E(0,
-                        "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have a "
-                        "CHAR_EQUAL, = ...",
-                        0, 0, 0);
+                IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_EQUAL", 0, 0, 0);
                 return IMS_FALSE;
             }
             else
             {
                 ImsList<AString> strSendValue = strTempValue.GetAt(i).Split(TextParser::CHAR_EQUAL);
 
-                if (strSendValue.GetAt(0).Equals("x") == IMS_TRUE)
+                if (strSendValue.GetAt(0).Equals("x"))
                 {
                     (*nImageWidth) =
                             strSendValue.GetAt(1).ToInt32();  // Image Width for Send Direction
                 }
-                else if (strSendValue.GetAt(0).Equals("y") == IMS_TRUE)
+                else if (strSendValue.GetAt(0).Equals("y"))
                 {
                     (*nImageHeight) =
                             strSendValue.GetAt(1).ToInt32();  // Image Height for Send Direction
                 }
-                /* TODO: need to add
-                else if (strSendValue.GetAt(0).Equals("sar") == IMS_TRUE)
-                {
-                    // dImageOptSAR = (IMS_DOUBLE)strSendValue.GetAt(1).GetStr();  // Sample Aspect
-                    // Ratio for Send Direction
-                }
-                else if (strSendValue.GetAt(0).Equals("par") == IMS_TRUE)
-                {
-                    // dImageOptPAR = strSendValue.GetAt(1).ToDouble();  // Picture Aspect Ratio for
-                    // Send Direction
-                }
-                else if (strSendValue.GetAt(0).Equals("q") == IMS_TRUE)
-                {
-                    // dImageOptQ = strSendValue.GetAt(1).ToDouble();    // Higher Preference for
-                    // Send Direction
-                }
-                */
             }
         }
 
-        IMS_TRACE_D("GetWidthHeightFromSdp_ImageAttr() nImagePayloadNum[%d] ImageWidth[%d], "
-                    "ImageHeight[%d]",
+        IMS_TRACE_D("GetWidthHeightFromSdpImageAttr(): payload[%d] width[%d], height[%d]",
                 nImagePayloadNum, (*nImageWidth), (*nImageHeight));
 
         return IMS_TRUE;
     }
-    else if (objTokens.GetAt(nDirection).Equals("recv") == IMS_TRUE)
+    else if (objTokens.GetAt(nDirection).Equals("recv"))
     {
-        if (objTokens.GetAt(nImageValueIndex).Equals("*") == IMS_TRUE)
+        if (objTokens.GetAt(nImageValueIndex).Equals("*"))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - PeerResolution-Wildcard, Not Support", 0,
-                    0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): wildcard, not Support", 0, 0, 0);
             return IMS_FALSE;
         }
-        // remove spaces in Bracket, [ ]
+
         for (IMS_UINT32 i = nImageValueIndex; i < objTokens.GetSize(); i++)
         {
-            if (objTokens.GetAt(i).Equals("send") == IMS_TRUE)
+            if (objTokens.GetAt(i).Equals("send"))
             {
-                // IMS_TRACE_D("GetWidthHeightFromSdp_ImageAttr() Removed all spaces in recv
-                // direction Bracket", 0, 0, 0);
                 break;
             }
 
             nRealValueString.Append(objTokens.GetAt(i));
         }
 
-        // Check LSBRACKET is ...
         if ((nRealValueString == AString::ConstNull()) ||
-                (nRealValueString.Contains(TextParser::CHAR_LSBRACKET) == IMS_FALSE))
+                (!nRealValueString.Contains(TextParser::CHAR_LSBRACKET)))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have "
-                    "CHAR_LSBRACKET, [ ...",
-                    0, 0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_LSBRACKET", 0, 0, 0);
             return IMS_FALSE;
         }
         else
@@ -1148,13 +1110,9 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
             strTempValue = nRealValueString.Split(TextParser::CHAR_LSBRACKET);
         }
 
-        // Check RSBRACKET is ...
-        if (strTempValue.GetAt(1).Contains(TextParser::CHAR_RSBRACKET) == IMS_FALSE)
+        if (!strTempValue.GetAt(1).Contains(TextParser::CHAR_RSBRACKET))
         {
-            IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have "
-                    "CHAR_RSBRACKET, ] ...",
-                    0, 0, 0);
+            IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_RSBRACKET", 0, 0, 0);
             return IMS_FALSE;
         }
         else
@@ -1162,12 +1120,11 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
             strTempValue = strTempValue.GetAt(1).Split(TextParser::CHAR_RSBRACKET);
         }
 
-        // Check COMMA is ...
-        if (strTempValue.GetAt(0).Contains(TextParser::CHAR_COMMA) == IMS_FALSE)
+        if (!strTempValue.GetAt(0).Contains(TextParser::CHAR_COMMA))
         {
             IMS_TRACE_E(0,
-                    "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have CHAR_COMMA, , "
-                    "...",
+                    "GetWidthHeightFromSdpImageAttr(): no CHAR_COMMA, ,"
+                    "",
                     0, 0, 0);
             return IMS_FALSE;
         }
@@ -1178,50 +1135,29 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
 
         for (IMS_UINT32 i = 0; i < strTempValue.GetSize(); i++)
         {
-            if (strTempValue.GetAt(i).Contains(TextParser::CHAR_EQUAL) == IMS_FALSE)
+            if (!strTempValue.GetAt(i).Contains(TextParser::CHAR_EQUAL))
             {
-                IMS_TRACE_E(0,
-                        "GetWidthHeightFromSdp_ImageAttr() - Peer ImageAttr doesn't have "
-                        "CHAR_EQUAL, = ...",
-                        0, 0, 0);
+                IMS_TRACE_E(0, "GetWidthHeightFromSdpImageAttr(): no CHAR_EQUAL, =", 0, 0, 0);
                 return IMS_FALSE;
             }
             else
             {
                 ImsList<AString> strRecvValue = strTempValue.GetAt(i).Split(TextParser::CHAR_EQUAL);
 
-                if (strRecvValue.GetAt(0).Equals("x") == IMS_TRUE)
+                if (strRecvValue.GetAt(0).Equals("x"))
                 {
                     (*nImageWidth) =
                             strRecvValue.GetAt(1).ToInt32();  // Image Width for Recv Direction
                 }
-                else if (strRecvValue.GetAt(0).Equals("y") == IMS_TRUE)
+                else if (strRecvValue.GetAt(0).Equals("y"))
                 {
                     (*nImageHeight) =
                             strRecvValue.GetAt(1).ToInt32();  // Image Height for Recv Direction
                 }
-                /* TODO: Need to add
-                else if (strRecvValue.GetAt(0).Equals("sar") == IMS_TRUE)
-                {
-                    // dImageOptSAR = strRecvValue.GetAt(1).ToDouble();  // Sample Aspect Ratio for
-                    // Recv Direction
-                }
-                else if (strRecvValue.GetAt(0).Equals("par") == IMS_TRUE)
-                {
-                    // dImageOptPAR = strRecvValue.GetAt(1).ToDouble();  // Picture Aspect Ratio for
-                    // Recv Direction
-                }
-                else if (strRecvValue.GetAt(0).Equals("q") == IMS_TRUE)
-                {
-                    // dImageOptQ = strRecvValue.GetAt(1).ToDouble();    // Higher Preference for
-                    // Recv Direction
-                }
-                */
             }
         }
 
-        IMS_TRACE_D("GetWidthHeightFromSdp_ImageAttr() nImagePayloadNum[%d] ImageWidth[%d], "
-                    "ImageHeight[%d]",
+        IMS_TRACE_D("GetWidthHeightFromSdpImageAttr() payload[%d] width[%d], height[%d]",
                 nImagePayloadNum, (*nImageWidth), (*nImageHeight));
         return IMS_TRUE;
     }
@@ -1232,7 +1168,7 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_ImageAttr(
 PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromWidthHeight(
         IN IMS_UINT32 nWidth, IN IMS_UINT32 nHeight)
 {
-    IMS_TRACE_D("GetResolutionFromWidthHeight() Widht[%d], Height[%d]", nWidth, nHeight, 0);
+    IMS_TRACE_D("GetResolutionFromWidthHeight(): width[%d], height[%d]", nWidth, nHeight, 0);
     if (nWidth == 480 && nHeight == 640)
         return VIDEO_RESOLUTION_VGA_PR;
     else if (nWidth == 640 && nHeight == 480)
@@ -1266,16 +1202,15 @@ PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromWidthHeight(
     else if (nWidth == 1920 && nHeight == 1080)
         return VIDEO_RESOLUTION_FHD_LS;
     else
-        IMS_TRACE_E(0, "GetResolutionFromWidthHeight() INVALID Widht[%d], Height[%d]", nWidth,
-                nHeight, 0);
+        IMS_TRACE_E(0, "GetResolutionFromWidthHeight(): not supported width[%d], height[%d]",
+                nWidth, nHeight, 0);
     return VIDEO_RESOLUTION_QCIF_PR;
 }
 
-PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_FrameSize(
+PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdpFrameSize(
         IN AString strFrameSize, OUT IMS_UINT32* nImageWidth, OUT IMS_UINT32* nImageHeight)
 {
-    IMS_UINT32 nFrameSizePayloadNum = 0;  // Payload Number in Image Attr
-
+    IMS_UINT32 nFrameSizePayloadNum = 0;
     ImsList<AString> objTokens = strFrameSize.Split(TextParser::CHAR_SP);
 
     if (objTokens.GetSize() < 2)
@@ -1283,16 +1218,11 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_FrameSize(
         return IMS_FALSE;
     }
 
-    // 1st step : Take "Payload Number" out of Image Attribute.
     nFrameSizePayloadNum = objTokens.GetAt(0).ToInt32();
 
-    // 2nd step : Take "Frame Size Values" out of Frame Size Attribute.
-    // Check CHAR_HYPHEN is ...
-    if (objTokens.GetAt(1).Contains(TextParser::CHAR_HYPHEN) == IMS_FALSE)
+    if (!objTokens.GetAt(1).Contains(TextParser::CHAR_HYPHEN))
     {
-        IMS_TRACE_E(0,
-                "GetWidthHeightFromSdp_FrameSize() - Peer ImageAttr doesn't have CHAR_HYPHEN, "
-                "[%s], ...",
+        IMS_TRACE_E(0, "GetWidthHeightFromSdpFrameSize(): no CHAR_HYPHEN. [%s]",
                 strFrameSize.GetStr(), 0, 0);
         return IMS_FALSE;
     }
@@ -1300,10 +1230,9 @@ PRIVATE IMS_BOOL VideoSdpParser::GetWidthHeightFromSdp_FrameSize(
     {
         ImsList<AString> strFrameSizeValue = objTokens.GetAt(1).Split(TextParser::CHAR_HYPHEN);
 
-        *nImageWidth = strFrameSizeValue.GetAt(0).ToInt32();   // Width
-        *nImageHeight = strFrameSizeValue.GetAt(1).ToInt32();  // Height
-        IMS_TRACE_D("GetWidthHeightFromSdp_FrameSize() nFrameSizePayloadNum[%d] ImageWidth[%d], "
-                    "ImageHeight[%d]",
+        *nImageWidth = strFrameSizeValue.GetAt(0).ToInt32();
+        *nImageHeight = strFrameSizeValue.GetAt(1).ToInt32();
+        IMS_TRACE_D("GetWidthHeightFromSdpFrameSize(): payload[%d] width[%d], height[%d]",
                 nFrameSizePayloadNum, *nImageWidth, *nImageHeight);
 
         return IMS_TRUE;

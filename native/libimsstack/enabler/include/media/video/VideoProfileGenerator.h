@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,9 @@
 #define VIDEO_PROFILE_GENERATOR_H_
 
 #include "MediaProfileGenerator.h"
+#include "config/CodecVideoConfig.h"
+#include "config/VideoConfiguration.h"
 #include "video/VideoProfile.h"
-
-class CodecVideoConfig;
-class VideoConfiguration;
 
 /**
  * This class is to generate a video profile by parsing a video configuration

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,8 +32,8 @@ public:
     VideoSdpGenerator();
     virtual ~VideoSdpGenerator();
 
-    IMS_BOOL Generate(OUT ISessionDescriptor* pSessionDescriptor, OUT IMediaDescriptor* pDescriptor,
-            IN MediaBaseProfile* pBaseProfile) override;
+    virtual IMS_BOOL Generate(OUT ISessionDescriptor* pSessionDescriptor,
+            OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile) override;
 
 protected:
     void GeneratePayload(OUT IMediaDescriptor* pDescriptor, IN VideoProfile* pProfile);
@@ -71,27 +71,16 @@ protected:
             OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile::CapaNego& objCapaNego);
     void GeneratePcfg(
             OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile::CapaNego& objCapaNego);
-
     IMS_BOOL MakeImageAttributeLine(IN IMS_UINT32 nPayloadType, IN VIDEO_RESOLUTION eResolutionId,
             OUT AString& strImageAttr);
     IMS_BOOL MakeFrameSizeLine(IN IMS_UINT32 nPayloadType, IN VIDEO_RESOLUTION eResolutionId,
             OUT AString& strFrameSize);
-    /**
-     * @brief Get the width and height from video resolution enum id
-     *
-     * @param eResolutionId The enum of video resolution set
-     * @param pnWidth The width of video resolution
-     * @param pnHeight The height of video resolution
-     * @return IMS_BOOL
-     */
     IMS_BOOL GetWidthHeightFromResolutionId(
             IN VIDEO_RESOLUTION eResolutionId, OUT IMS_UINT32* pnWidth, OUT IMS_UINT32* pnHeight);
-
     AString GenerateAvcFmtp(IN VideoProfile::AvcFmtp* pAvcFmtp);
     void AddProfileLevelIdToFmtp(IN VideoProfile::AvcFmtp* pFmtp, OUT AString& strFmtp);
     void AddPacketizationModeToFmtp(IN VideoProfile::VideoFmtp* pFmtp, OUT AString& strFmtp);
     void AddSpropParameterSetsToFmtp(IN VideoProfile::VideoFmtp* pFmtp, OUT AString& strFmtp);
-
     AString GenerateHevcFmtp(IN VideoProfile::HevcFmtp* pHevcFmtp);
     void AddProfileIdToFmtp(IN VideoProfile::HevcFmtp* pFmtp, OUT AString& strFmtp);
     void AddLevelIdToFmtp(IN VideoProfile::HevcFmtp* pFmtp, OUT AString& strFmtp);

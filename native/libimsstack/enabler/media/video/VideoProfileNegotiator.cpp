@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 #include "ServiceTrace.h"
 
 #include "MediaProfileUtil.h"
-#include "config/VideoConfiguration.h"
 #include "video/VideoProfileNegotiator.h"
 #include "video/VideoProfileUtil.h"
 
@@ -41,17 +40,17 @@ PUBLIC IMS_BOOL VideoProfileNegotiator::Negotiate(IN VideoProfile* pLocalProfile
     if (pLocalProfile == IMS_NULL || pPeerProfile == IMS_NULL || pNegotiatedProfile == IMS_NULL ||
             pConfig == IMS_NULL)
     {
-        IMS_TRACE_E(0, "Negotiate() - invalid argument", 0, 0, 0);
+        IMS_TRACE_E(0, "Negotiate(): invalid argument", 0, 0, 0);
         return IMS_FALSE;
     }
 
     m_bIsOfferReceived = bIsOfferReceived;
 
-    IMS_TRACE_I("Negotiate() - IsOfferReceived[%d]", m_bIsOfferReceived, 0, 0);
+    IMS_TRACE_I("Negotiate(): IsOfferReceived[%d]", m_bIsOfferReceived, 0, 0);
 
     IMS_BOOL ret = IMS_FALSE;
 
-    if (NegotiateIpPort(pLocalProfile, pPeerProfile, pNegotiatedProfile) != IMS_TRUE)
+    if (!NegotiateIpPort(pLocalProfile, pPeerProfile, pNegotiatedProfile))
     {
         ResetNegotiatedProfile(pLocalProfile, &pNegotiatedProfile);
         return IMS_TRUE;
@@ -64,10 +63,10 @@ PUBLIC IMS_BOOL VideoProfileNegotiator::Negotiate(IN VideoProfile* pLocalProfile
     IMS_SINT32 nNegotiatedMaxFrameRate = 0;
     IMS_SINT32 nNegotiatedMaxAs = 0;
 
-    if (NegotiatePayload(pLocalProfile, pPeerProfile, pNegotiatedProfile, &pNegotiatedPayload,
-                &nNegotiatedMaxFrameRate, &nNegotiatedMaxAs) != IMS_TRUE)
+    if (!NegotiatePayload(pLocalProfile, pPeerProfile, pNegotiatedProfile, &pNegotiatedPayload,
+                &nNegotiatedMaxFrameRate, &nNegotiatedMaxAs))
     {
-        IMS_TRACE_I("Negotiate() - NegotiatePayload failed", 0, 0, 0);
+        IMS_TRACE_I("Negotiate(): NegotiatePayload failed", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -91,7 +90,7 @@ PUBLIC IMS_BOOL VideoProfileNegotiator::Negotiate(IN VideoProfile* pLocalProfile
         if (pNegotiatedProfile->GetBandwidthRs() == 0 && pNegotiatedProfile->GetBandwidthRr() == 0)
         {
             pNegotiatedProfile->SetRtcpInterval(0);
-            IMS_TRACE_D("Negotiate() - negotiated rs and rr are 0, disable rtcp", 0, 0, 0);
+            IMS_TRACE_D("Negotiate(): negotiated rs and rr are 0, disable rtcp", 0, 0, 0);
         }
         else
         {
@@ -119,7 +118,7 @@ PUBLIC IMS_BOOL VideoProfileNegotiator::Negotiate(IN VideoProfile* pLocalProfile
     {
         if (pLocalProfile->GetPayloadList().GetSize() > 0)
         {
-            IMS_TRACE_D("Negotiate() - No negotiated payload. copy LocalProfile and make port 0", 0,
+            IMS_TRACE_D("Negotiate(): No negotiated payload. copy LocalProfile and make port 0", 0,
                     0, 0);
 
             ResetNegotiatedProfile(pLocalProfile, &pNegotiatedProfile);
@@ -127,7 +126,7 @@ PUBLIC IMS_BOOL VideoProfileNegotiator::Negotiate(IN VideoProfile* pLocalProfile
         }
         else
         {
-            IMS_TRACE_E(0, "Negotiate() - No Payload in Src Profile", 0, 0, 0);
+            IMS_TRACE_E(0, "Negotiate(): No Payload in Src Profile", 0, 0, 0);
         }
     }
 
@@ -162,26 +161,25 @@ void VideoProfileNegotiator::NegotiateAvpf(IN VideoProfile* pLocalProfile,
         return;
     }
 
-    if (pLocalProfile->IsAvpfSupported() == IMS_TRUE && pPeerProfile->IsAvpfSupported() == IMS_TRUE)
+    if (pLocalProfile->IsAvpfSupported() && pPeerProfile->IsAvpfSupported())
     {
         pNegotiatedProfile->SetSupportAvpf(IMS_TRUE);
     }
 
     pNegotiatedProfile->SetSupportCapaNegoForAvpf(pPeerProfile->IsCapaNegoForAvpfSupported());
 
-    IMS_TRACE_I("NegotiateAvpf() - Avpf[%d], CapaNegoForAVPF[%d]",
+    IMS_TRACE_I("NegotiateAvpf(): Avpf[%d], CapaNegoForAVPF[%d]",
             pNegotiatedProfile->IsAvpfSupported(), pNegotiatedProfile->IsCapaNegoForAvpfSupported(),
             0);
 
     // Capability Negotiation for AVPF, SRTP
-    if (pNegotiatedProfile->IsCapaNegoForAvpfSupported() == IMS_TRUE)
+    if (pNegotiatedProfile->IsCapaNegoForAvpfSupported())
     {
-        if (MakeNegotiatedCapaNegoProfile(&(pLocalProfile->GetCapaNego()),
-                    &(pPeerProfile->GetCapaNego()),
-                    &(pNegotiatedProfile->GetCapaNego())) != IMS_TRUE)
+        if (!MakeNegotiatedCapaNegoProfile(&(pLocalProfile->GetCapaNego()),
+                    &(pPeerProfile->GetCapaNego()), &(pNegotiatedProfile->GetCapaNego())))
         {
             // Capa Nego Fail, return to original transport protocol.
-            IMS_TRACE_D("NegotiateAvpf() - Capability Negotiation Fail Case", 0, 0, 0);
+            IMS_TRACE_D("NegotiateAvpf(): Capability Negotiation Fail Case", 0, 0, 0);
         }
         else
         {
@@ -193,13 +191,13 @@ void VideoProfileNegotiator::NegotiateAvpf(IN VideoProfile* pLocalProfile,
             {
                 AString strAttribute = pNegotiatedProfile->GetCapaNego().GetMapTcap().GetValueAt(i);
 
-                if (strAttribute != IMS_NULL && strAttribute.Contains("AVPF") == IMS_TRUE)
+                if (strAttribute != IMS_NULL && strAttribute.Contains("AVPF"))
                 {
                     bNegotiatedAVPF = IMS_TRUE;
                 }
             }
 
-            if (pNegotiatedProfile->IsCapaNegoForAvpfSupported() == IMS_TRUE)
+            if (pNegotiatedProfile->IsCapaNegoForAvpfSupported())
             {
                 pNegotiatedProfile->SetSupportAvpf(bNegotiatedAVPF);
             }
@@ -219,9 +217,9 @@ void VideoProfileNegotiator::NegotiateTransportType(OUT VideoProfile* pNegotiate
     }
 
     pNegotiatedProfile->SetTransportType(
-            (pNegotiatedProfile->IsAvpfSupported() == IMS_TRUE) ? "RTP/AVPF" : "RTP/AVP");
+            (pNegotiatedProfile->IsAvpfSupported()) ? "RTP/AVPF" : "RTP/AVP");
 
-    IMS_TRACE_D("NegotiateTransportType() - Transport Type[%s]",
+    IMS_TRACE_D("NegotiateTransportType(): Transport Type[%s]",
             pNegotiatedProfile->GetTransportType().GetStr(), 0, 0);
 }
 
@@ -245,7 +243,7 @@ IMS_BOOL VideoProfileNegotiator::NegotiatePayload(IN VideoProfile* pLocalProfile
     IMS_UINT32 nPeerIndex = 0;
     IMS_UINT32 nLocalIndex = 0;
 
-    IMS_TRACE_D("NegotiatePayload() - local payload count[%d], peer payload count[%d]",
+    IMS_TRACE_D("NegotiatePayload(): local payload count[%d], peer payload count[%d]",
             pLocalProfile->GetPayloadList().GetSize(), pPeerProfile->GetPayloadList().GetSize(), 0);
 
     for (nPeerIndex = 0; nPeerIndex < pPeerProfile->GetPayloadList().GetSize(); nPeerIndex++)
@@ -314,7 +312,7 @@ IMS_BOOL VideoProfileNegotiator::NegotiatePayload(IN VideoProfile* pLocalProfile
     }
 
     IMS_TRACE_D(
-            "NegotiatePayload() - size[%d]", pNegotiatedProfile->GetPayloadList().GetSize(), 0, 0);
+            "NegotiatePayload(): size[%d]", pNegotiatedProfile->GetPayloadList().GetSize(), 0, 0);
 
     if (pNegotiatedProfile->GetPayloadList().GetSize() > 0)
     {
@@ -375,21 +373,21 @@ IMS_BOOL VideoProfileNegotiator::NegotiateAvc(IN VideoProfile::Payload* pLocalPa
         return IMS_FALSE;
     }
 
-    IMS_TRACE_D("NegotiateAvc() - Local profileLevelID[%s] <-> Peer profileLevelID[%s]",
+    IMS_TRACE_D("NegotiateAvc(): Local profileLevelID[%s] <-> Peer profileLevelID[%s]",
             pLocalFmtp->GetProfileLevelId().GetStr(), pPeerFmtp->GetProfileLevelId().GetStr(), 0);
-    IMS_TRACE_D("NegotiateAvc() - Local Level[%d] <-> Peer Level[%d]", pLocalFmtp->GetLevel(),
+    IMS_TRACE_D("NegotiateAvc(): Local Level[%d] <-> Peer Level[%d]", pLocalFmtp->GetLevel(),
             pPeerFmtp->GetLevel(), 0);
-    IMS_TRACE_D("NegotiateAvc() - Local Profile[%d] <-> Peer Profile[%d]", pLocalFmtp->GetProfile(),
+    IMS_TRACE_D("NegotiateAvc(): Local Profile[%d] <-> Peer Profile[%d]", pLocalFmtp->GetProfile(),
             pPeerFmtp->GetProfile(), 0);
 
     // same level is adapt first, reject higher level
     if (pLocalFmtp->GetLevel() < pPeerFmtp->GetLevel())
     {
-        IMS_TRACE_D("NegotiateAvc() - NOT MATCHED AVC Level", 0, 0, 0);
+        IMS_TRACE_D("NegotiateAvc(): NOT MATCHED AVC Level", 0, 0, 0);
 
         if (*pTempPayload == IMS_NULL)
         {
-            IMS_TRACE_D("NegotiateAvc() - Accept Highest Temp Src profileLevelID[%s]",
+            IMS_TRACE_D("NegotiateAvc(): Accept Highest Temp Src profileLevelID[%s]",
                     pLocalFmtp->GetProfileLevelId().GetStr(), 0, 0);
             *pTempPayload = pLocalPayload;
             *pMatchedPeerPayload = pPeerPayload;
@@ -424,7 +422,7 @@ IMS_BOOL VideoProfileNegotiator::NegotiateAvc(IN VideoProfile::Payload* pLocalPa
                 }
             }
 
-            if (bFoundPayload == IMS_TRUE)
+            if (bFoundPayload)
             {
                 return IMS_FALSE;
             }
@@ -442,14 +440,14 @@ IMS_BOOL VideoProfileNegotiator::NegotiateAvc(IN VideoProfile::Payload* pLocalPa
         if (eTempResolution != VIDEO_RESOLUTION_NOT_USED &&
                 eTempResolution != VIDEO_RESOLUTION_INVALID)
         {
-            IMS_TRACE_D("NegotiateAvc() - Far Resolution is not specified[%d] -> Temp use Prev. "
+            IMS_TRACE_D("NegotiateAvc(): Far Resolution is not specified[%d] -> Temp use Prev. "
                         "Negotiated Resolution[%d]",
                     pPeerFmtp->GetResolution(), eTempResolution, 0);
             pPeerFmtp->SetResolution(eTempResolution);
         }
         else
         {
-            IMS_TRACE_D("NegotiateAvc() - Far Resolution is not specified[%d] -> Temp use Src "
+            IMS_TRACE_D("NegotiateAvc(): Far Resolution is not specified[%d] -> Temp use Src "
                         "Resolution[%d]",
                     pPeerFmtp->GetResolution(), pLocalFmtp->GetResolution(), 0);
 
@@ -459,14 +457,14 @@ IMS_BOOL VideoProfileNegotiator::NegotiateAvc(IN VideoProfile::Payload* pLocalPa
 
     if (pLocalFmtp->GetResolution() != pPeerFmtp->GetResolution())
     {
-        IMS_TRACE_D("NegotiateAvc() - NOT MATCHED Avc Resolution[%d]<->[%d]",
+        IMS_TRACE_D("NegotiateAvc(): NOT MATCHED Avc Resolution[%d]<->[%d]",
                 pLocalFmtp->GetResolution(), pPeerFmtp->GetResolution(), 0);
 
         // Keep 1st payload(resolution mismatched) to be used
         // when no strictly matched resolution is found
         if (*pTempPayload == IMS_NULL)
         {
-            IMS_TRACE_D("NegotiateAvc() - Keep profileLevelID[%s]",
+            IMS_TRACE_D("NegotiateAvc(): Keep profileLevelID[%s]",
                     pLocalFmtp->GetProfileLevelId().GetStr(), 0, 0);
             *pTempPayload = pLocalPayload;
             *pMatchedPeerPayload = pPeerPayload;
@@ -475,7 +473,7 @@ IMS_BOOL VideoProfileNegotiator::NegotiateAvc(IN VideoProfile::Payload* pLocalPa
         return IMS_FALSE;
     }
 
-    IMS_TRACE_D("NegotiateAvc() - Matched payload found, Profile[%d], Level[%d], Resolution[%d]",
+    IMS_TRACE_D("NegotiateAvc(): Matched payload found, Profile[%d], Level[%d], Resolution[%d]",
             pLocalFmtp->GetProfile(), pLocalFmtp->GetLevel(), pLocalFmtp->GetResolution());
 
     return MakeNegotiatedPayload(pLocalPayload, pPeerPayload, &pNegoPayload);
@@ -503,18 +501,18 @@ IMS_BOOL VideoProfileNegotiator::NegotiateHevc(IN VideoProfile::Payload* pLocalP
         return IMS_FALSE;
     }
 
-    IMS_TRACE_D("NegotiateHevc() - Local profileId[%d] <-> Peer profileId[%d]",
+    IMS_TRACE_D("NegotiateHevc(): Local profileId[%d] <-> Peer profileId[%d]",
             pLocalFmtp->GetProfile(), pPeerFmtp->GetProfile(), 0);
 
     // same level is adapt first, reject higher level
     if (pLocalFmtp->GetLevel() < pPeerFmtp->GetLevel())
     {
-        IMS_TRACE_D("NegotiateHevc() - NOT MATCHED HEVC Local Level[%d] <-> Peer Level[%d]",
+        IMS_TRACE_D("NegotiateHevc(): NOT MATCHED HEVC Local Level[%d] <-> Peer Level[%d]",
                 pLocalFmtp->GetLevel(), pPeerFmtp->GetLevel(), 0);
 
         if (*pTempPayload == IMS_NULL)
         {
-            IMS_TRACE_D("NegotiateHevc() - Accept Highest Temp Src profileID[%d]",
+            IMS_TRACE_D("NegotiateHevc(): Accept Highest Temp Src profileID[%d]",
                     pLocalFmtp->GetProfile(), 0, 0);
             *pTempPayload = pLocalPayload;
             *pMatchedPeerPayload = pPeerPayload;
@@ -534,14 +532,14 @@ IMS_BOOL VideoProfileNegotiator::NegotiateHevc(IN VideoProfile::Payload* pLocalP
         if (eTempResolution != VIDEO_RESOLUTION_NOT_USED &&
                 eTempResolution != VIDEO_RESOLUTION_INVALID)
         {
-            IMS_TRACE_D("NegotiateHevc() - Far Resolution is not specified[%d] -> Temp use Prev. "
+            IMS_TRACE_D("NegotiateHevc(): Far Resolution is not specified[%d] -> Temp use Prev. "
                         "Negotiated Resolution[%d]",
                     pPeerFmtp->GetResolution(), eTempResolution, 0);
             pPeerFmtp->SetResolution(eTempResolution);
         }
         else
         {
-            IMS_TRACE_D("NegotiateHevc() - Far Resolution is not specified[%d] -> Temp use Src "
+            IMS_TRACE_D("NegotiateHevc(): Far Resolution is not specified[%d] -> Temp use Src "
                         "Resolution[%d]",
                     pPeerFmtp->GetResolution(), pPeerFmtp->GetResolution(), 0);
             pPeerFmtp->SetResolution(pLocalFmtp->GetResolution());
@@ -550,12 +548,12 @@ IMS_BOOL VideoProfileNegotiator::NegotiateHevc(IN VideoProfile::Payload* pLocalP
 
     if (pLocalFmtp->GetResolution() != pPeerFmtp->GetResolution())
     {
-        IMS_TRACE_D("NegotiateHevc() - NOT MATCHED HEVC Resolution [%d]<->[%d]",
+        IMS_TRACE_D("NegotiateHevc(): NOT MATCHED HEVC Resolution [%d]<->[%d]",
                 pLocalFmtp->GetResolution(), pPeerFmtp->GetResolution(), 0);
 
         if (*pTempPayload == IMS_NULL)
         {
-            IMS_TRACE_D("NegotiateHevc() - keep 1st payload profile[%d]", pLocalFmtp->GetProfile(),
+            IMS_TRACE_D("NegotiateHevc(): keep 1st payload profile[%d]", pLocalFmtp->GetProfile(),
                     0, 0);
 
             *pTempPayload = pLocalPayload;
@@ -565,7 +563,7 @@ IMS_BOOL VideoProfileNegotiator::NegotiateHevc(IN VideoProfile::Payload* pLocalP
         return IMS_FALSE;
     }
 
-    IMS_TRACE_D("NegotiateHevc() - Matched payload found, Profile[%d], Level[%d], Resolution[%d]",
+    IMS_TRACE_D("NegotiateHevc(): Matched payload found, Profile[%d], Level[%d], Resolution[%d]",
             pLocalFmtp->GetProfile(), pLocalFmtp->GetLevel(), pLocalFmtp->GetResolution());
 
     // make nego payload
@@ -583,7 +581,7 @@ VideoProfile::Payload* VideoProfileNegotiator::SetClosestPayload(IN VideoProfile
         return IMS_NULL;
     }
 
-    IMS_TRACE_D("SetClosestPayload() - payload[%s]",
+    IMS_TRACE_D("SetClosestPayload(): payload[%s]",
             pMatchedPeerPayload->GetRtpMap().GetPayloadType().GetStr(), 0, 0);
 
     VideoProfile::Payload* pNegoPayload = new VideoProfile::Payload();
@@ -652,13 +650,13 @@ IMS_BOOL VideoProfileNegotiator::SetClosestAvc(
     }
 
     // decide by level
-    if (bFoundResol != IMS_TRUE)
+    if (!bFoundResol)
     {
         VIDEO_RESOLUTION eProperResolution = GetAvcMaxResolutionFromLevel(pAvcFmtp->GetLevel());
         pAvcFmtp->SetResolution(eProperResolution);
     }
 
-    IMS_TRACE_D("SetClosestAvc() - payload[%d], resolution[%d]",
+    IMS_TRACE_D("SetClosestAvc(): payload[%d], resolution[%d]",
             pNegoPayload->GetRtpMap().GetPayloadNumber(), pAvcFmtp->GetResolution(), 0);
 
     return IMS_TRUE;
@@ -683,7 +681,7 @@ IMS_BOOL VideoProfileNegotiator::SetClosestHevc(
             static_cast<VideoProfile::VideoFmtp*>(pMatchedPeerPayload->GetFmtp());
     fmtp->SetResolution(pTempLocalFmtp->GetResolution());
 
-    IMS_TRACE_D("SetClosestHevc() - payload[%d], resolution[%d]",
+    IMS_TRACE_D("SetClosestHevc(): payload[%d], resolution[%d]",
             pNegoPayload->GetRtpMap().GetPayloadNumber(), fmtp->GetResolution(), 0);
 
     return IMS_TRUE;
@@ -697,53 +695,55 @@ void VideoProfileNegotiator::NegotiateRtcpFb(OUT VideoProfile* pNegotiatedProfil
     if (pNegotiatedProfile == IMS_NULL || pLocalPayload == IMS_NULL || pPeerPayload == IMS_NULL ||
             pNegoPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "NegotiateRtcpFb(): invalid arguments", 0, 0, 0);
         return;
     }
 
-    if (pNegotiatedProfile->IsAvpfSupported() != IMS_TRUE)
+    if (!pNegotiatedProfile->IsAvpfSupported())
     {
+        IMS_TRACE_E(0, "NegotiateRtcpFb(): avpf unsupported", 0, 0, 0);
         return;
     }
 
     if (pLocalPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("H264"))
     {
-        if (pLocalPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE &&
-                pPeerPayload->GetRtcpFbAttr().IsTrrSupported() == IMS_TRUE)
+        if (pLocalPayload->GetRtcpFbAttr().IsTrrSupported() &&
+                pPeerPayload->GetRtcpFbAttr().IsTrrSupported())
         {
             pNegoPayload->GetRtcpFbAttr().SetTrrInt(pPeerPayload->GetRtcpFbAttr().GetTrrInt());
             pNegoPayload->GetRtcpFbAttr().SetTrrSupported(IMS_TRUE);
         }
     }
 
-    if (pLocalPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE &&
-            pPeerPayload->GetRtcpFbAttr().IsNackSupported() == IMS_TRUE)
+    if (pLocalPayload->GetRtcpFbAttr().IsNackSupported() &&
+            pPeerPayload->GetRtcpFbAttr().IsNackSupported())
     {
         pNegoPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
     }
 
-    if (pLocalPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE &&
-            pPeerPayload->GetRtcpFbAttr().IsTmmbrSupported() == IMS_TRUE)
+    if (pLocalPayload->GetRtcpFbAttr().IsTmmbrSupported() &&
+            pPeerPayload->GetRtcpFbAttr().IsTmmbrSupported())
     {
         pNegoPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
     }
 
-    if (pLocalPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE &&
-            pPeerPayload->GetRtcpFbAttr().IsPliSupported() == IMS_TRUE)
+    if (pLocalPayload->GetRtcpFbAttr().IsPliSupported() &&
+            pPeerPayload->GetRtcpFbAttr().IsPliSupported())
     {
         pNegoPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
     }
 
-    if (pLocalPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE &&
-            pPeerPayload->GetRtcpFbAttr().IsFirSupported() == IMS_TRUE)
+    if (pLocalPayload->GetRtcpFbAttr().IsFirSupported() &&
+            pPeerPayload->GetRtcpFbAttr().IsFirSupported())
     {
         pNegoPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
     }
 
-    IMS_TRACE_D("NegotiateRtcpFb() - AVPF supported. NACK[%d], TMMBR[%d], PLI[%d]",
+    IMS_TRACE_D("NegotiateRtcpFb(): AVPF supported. NACK[%d], TMMBR[%d], PLI[%d]",
             pNegoPayload->GetRtcpFbAttr().IsNackSupported(),
             pNegoPayload->GetRtcpFbAttr().IsTmmbrSupported(),
             pNegoPayload->GetRtcpFbAttr().IsPliSupported());
-    IMS_TRACE_D("NegotiateRtcpFb() - AVPF supported. FIR[%d], TRR[%d], Trr-int[%d]",
+    IMS_TRACE_D("NegotiateRtcpFb(): AVPF supported. FIR[%d], TRR[%d], Trr-int[%d]",
             pNegoPayload->GetRtcpFbAttr().IsFirSupported(),
             pNegoPayload->GetRtcpFbAttr().IsTrrSupported(),
             pNegoPayload->GetRtcpFbAttr().GetTrrInt());
@@ -755,6 +755,7 @@ IMS_BOOL VideoProfileNegotiator::SetNegotiatedPayloadIndex(OUT VideoProfile* pLo
 {
     if (pLocalProfile == IMS_NULL || pPeerProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetNegotiatedPayloadIndex(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -775,6 +776,7 @@ void VideoProfileNegotiator::NegotiatePayloadNumber(
 {
     if (pLocalProfile == IMS_NULL || pPeerPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "NegotiatePayloadNumber(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -794,6 +796,7 @@ void VideoProfileNegotiator::NegotiateCvo(IN VideoProfile* pLocalProfile,
 {
     if (pLocalProfile == IMS_NULL || pPeerProfile == IMS_NULL || pNegotiatedProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "NegotiateCvo(): invalid arguments", 0, 0, 0);
         return;
     }
 
@@ -813,7 +816,7 @@ void VideoProfileNegotiator::NegotiateCvo(IN VideoProfile* pLocalProfile,
         }
     }
 
-    IMS_TRACE_D("NegotiateCvo() - CVO Id[%d]", pNegotiatedProfile->GetCvoId(), 0, 0);
+    IMS_TRACE_D("NegotiateCvo(): CVO Id[%d]", pNegotiatedProfile->GetCvoId(), 0, 0);
 }
 
 PRIVATE
@@ -841,6 +844,7 @@ IMS_SINT32 VideoProfileNegotiator::FindPayloadIndexFromProfile(
 {
     if (pProfile == IMS_NULL || pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "FindPayloadIndexFromProfile(): invalid arguments", 0, 0, 0);
         return -1;
     }
 
@@ -853,7 +857,7 @@ IMS_SINT32 VideoProfileNegotiator::FindPayloadIndexFromProfile(
 
         if (comparedPayload == pPayload)
         {
-            IMS_TRACE_D("FindPayloadIndexFromProfile() - FindIndex[%d]", i, 0, 0);
+            IMS_TRACE_D("FindPayloadIndexFromProfile(): FindIndex[%d]", i, 0, 0);
             return i;
         }
     }
@@ -862,18 +866,18 @@ IMS_SINT32 VideoProfileNegotiator::FindPayloadIndexFromProfile(
 }
 
 PUBLIC
-MEDIA_DIRECTION VideoProfileNegotiator::UpdateDirectionToMine(
-        IN MEDIA_DIRECTION ePeerDir, IN MEDIA_DIRECTION eSrcDir, IN IMS_BOOL bIsMtCase)
+MEDIA_DIRECTION VideoProfileNegotiator::UpdateDirectionToMine(IN MEDIA_DIRECTION ePeerDirection,
+        IN MEDIA_DIRECTION eLocalDirection, IN IMS_BOOL bIsMtCase)
 {
-    IMS_TRACE_D("UpdateDirectionToMine() - ePeerDir[%d], eSrcDir[%d], bIsMtCase[%d]", ePeerDir,
-            eSrcDir, bIsMtCase);
+    IMS_TRACE_D("UpdateDirectionToMine(): PeerDirection[%d], LocalDirection[%d], IsMtCase[%d]",
+            ePeerDirection, eLocalDirection, bIsMtCase);
     MEDIA_DIRECTION eNegotiatedDir = MEDIA_DIRECTION_INVALID;
 
-    switch (ePeerDir)
+    switch (ePeerDirection)
     {
         case MEDIA_DIRECTION_INACTIVE:
         case MEDIA_DIRECTION_SEND_RECEIVE:
-            eNegotiatedDir = ePeerDir;
+            eNegotiatedDir = ePeerDirection;
             break;
         case MEDIA_DIRECTION_RECEIVE:
             eNegotiatedDir = MEDIA_DIRECTION_SEND;
@@ -885,16 +889,17 @@ MEDIA_DIRECTION VideoProfileNegotiator::UpdateDirectionToMine(
             return MEDIA_DIRECTION_INVALID;
     }
 
-    if (bIsMtCase == IMS_FALSE)
+    if (!bIsMtCase)
     {
         // direction check strictly
-        if ((eSrcDir == MEDIA_DIRECTION_SEND &&
-                    (ePeerDir == MEDIA_DIRECTION_SEND ||
-                            ePeerDir == MEDIA_DIRECTION_SEND_RECEIVE)) ||
-                (eSrcDir == MEDIA_DIRECTION_RECEIVE &&
-                        (ePeerDir == MEDIA_DIRECTION_RECEIVE ||
-                                ePeerDir == MEDIA_DIRECTION_SEND_RECEIVE)) ||
-                (eSrcDir == MEDIA_DIRECTION_INACTIVE && (ePeerDir != MEDIA_DIRECTION_INACTIVE)))
+        if ((eLocalDirection == MEDIA_DIRECTION_SEND &&
+                    (ePeerDirection == MEDIA_DIRECTION_SEND ||
+                            ePeerDirection == MEDIA_DIRECTION_SEND_RECEIVE)) ||
+                (eLocalDirection == MEDIA_DIRECTION_RECEIVE &&
+                        (ePeerDirection == MEDIA_DIRECTION_RECEIVE ||
+                                ePeerDirection == MEDIA_DIRECTION_SEND_RECEIVE)) ||
+                (eLocalDirection == MEDIA_DIRECTION_INACTIVE &&
+                        (ePeerDirection != MEDIA_DIRECTION_INACTIVE)))
         {
             return MEDIA_DIRECTION_INVALID;
         }
@@ -908,7 +913,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
 {
     if (pLocalCapaNego == IMS_NULL || pPeerCapaNego == IMS_NULL || pNegotiatedCapaNego == IMS_NULL)
     {
-        IMS_TRACE_E(0, "MakeNegotiatedCapaNego() - invalid argument, %" PFLS_x " %" PFLS_x,
+        IMS_TRACE_E(0, "MakeNegotiatedCapaNego(): invalid argument, %" PFLS_x " %" PFLS_x,
                 pLocalCapaNego, pPeerCapaNego, 0);
         return IMS_FALSE;
     }
@@ -927,12 +932,12 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
 
     if (pPeerCapaNego->GetAcfg().GetLength() > 0)
     {
-        if (mapPeerTCap.IsEmpty() == IMS_TRUE)
+        if (mapPeerTCap.IsEmpty())
         {
             pNegotiatedCapaNego->GetMapTcap() = mapLocalTCap;
         }
 
-        IMS_TRACE_I("MakeNegotiatedCapaNego() - ACFG[%s]", pPeerCapaNego->GetAcfg().GetStr(), 0, 0);
+        IMS_TRACE_I("MakeNegotiatedCapaNego(): ACFG[%s]", pPeerCapaNego->GetAcfg().GetStr(), 0, 0);
         return IMS_TRUE;
     }
 
@@ -958,14 +963,14 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
                 if (lstSplitEquals.GetSize() == 0)
                     continue;
 
-                if (lstSplitEquals.GetAt(0).Equals('t') == IMS_TRUE && lstSplitEquals.GetSize() > 1)
+                if (lstSplitEquals.GetAt(0).Equals('t') && lstSplitEquals.GetSize() > 1)
                 {
                     // compare transport capa
                     AString strTmp = mapPeerTCap.GetValue(lstSplitEquals.GetAt(1).ToInt32());
 
                     for (k = 0; k < mapLocalTCap.GetSize(); k++)
                     {
-                        if (strTmp.Equals(mapLocalTCap.GetValueAt(k)) == IMS_TRUE)
+                        if (strTmp.Equals(mapLocalTCap.GetValueAt(k)))
                         {
                             bAttributeCheckable = IMS_TRUE;
                             bPCFGSupportable = IMS_TRUE;
@@ -982,7 +987,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
                     if (bAttributeCheckable == IMS_FALSE)
                     {
                         IMS_TRACE_I(
-                                "MakeNegotiatedCapaNego() - does not match transport capa - PCFG "
+                                "MakeNegotiatedCapaNego(): does not match transport capa - PCFG "
                                 "#[%d]",
                                 i, 0, 0);
                         break;
@@ -1005,7 +1010,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
                 if (lstSplitEquals.GetSize() == 0)
                     continue;
 
-                if (lstSplitEquals.GetAt(0).Equals('a') == IMS_TRUE && lstSplitEquals.GetSize() > 1)
+                if (lstSplitEquals.GetAt(0).Equals('a') && lstSplitEquals.GetSize() > 1)
                 {
                     IMS_UINT32 cnt = 0;
                     // compare Attribute capa
@@ -1013,7 +1018,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
 
                     // attribute comma parsing..
                     ImsList<AString> lstSplitComma = strTmp.Split(',');
-                    IMS_TRACE_I("MakeNegotiatedCapaNego() - attribute size[%d]",
+                    IMS_TRACE_I("MakeNegotiatedCapaNego(): attribute size[%d]",
                             lstSplitComma.GetSize(), 0, 0);
 
                     if (lstSplitComma.GetSize() == 0)
@@ -1024,27 +1029,27 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
                     {
                         AString strDestAttributeCapa =
                                 mapPeerACap.GetValue(lstSplitComma.GetAt(k).ToInt32());
-                        IMS_TRACE_I("MakeNegotiatedCapaNego() - strDestAttributeCapa [%s]",
+                        IMS_TRACE_I("MakeNegotiatedCapaNego(): strDestAttributeCapa [%s]",
                                 strDestAttributeCapa.GetStr(), 0, 0);
 
-                        if (strDestAttributeCapa.Contains("trr-int") == IMS_TRUE ||
-                                strDestAttributeCapa.Contains("nack") == IMS_TRUE)
+                        if (strDestAttributeCapa.Contains("trr-int") ||
+                                strDestAttributeCapa.Contains("nack"))
                         {
                             cnt++;
                             pNegotiatedCapaNego->GetMapAcap().Add(
                                     lstSplitComma.GetAt(k).ToInt32(), strDestAttributeCapa);
                         }
-                        else if (strDestAttributeCapa.Contains("ccm") == IMS_TRUE)
+                        else if (strDestAttributeCapa.Contains("ccm"))
                         {
-                            if (strDestAttributeCapa.Contains("fir") == IMS_TRUE ||
-                                    strDestAttributeCapa.Contains("tmmbr") == IMS_TRUE)
+                            if (strDestAttributeCapa.Contains("fir") ||
+                                    strDestAttributeCapa.Contains("tmmbr"))
                             {
                                 cnt++;
                                 pNegotiatedCapaNego->GetMapAcap().Add(
                                         lstSplitComma.GetAt(k).ToInt32(), strDestAttributeCapa);
                             }
                         }
-                        else if (strDestAttributeCapa.Contains("crypto") == IMS_TRUE)
+                        else if (strDestAttributeCapa.Contains("crypto"))
                         {
                             // crypto attribute negotiate only srtp profile type
                             ImsList<AString> lstSrcCryptoAttribute =
@@ -1052,15 +1057,14 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
                             ImsList<AString> lstDestCryptoAttribute =
                                     strDestAttributeCapa.Split(' ');
                             if (lstDestCryptoAttribute.GetAt(1).Equals(
-                                        lstSrcCryptoAttribute.GetAt(1)) == IMS_TRUE)
+                                        lstSrcCryptoAttribute.GetAt(1)))
                             {
                                 cnt++;
                                 pNegotiatedCapaNego->GetMapAcap().Add(
                                         lstSplitComma.GetAt(k).ToInt32(), strDestAttributeCapa);
 
-                                IMS_TRACE_I(
-                                        "MakeNegotiatedCapaNego() - strDestAttributeCapa.Equals "
-                                        "CNT[%d]",
+                                IMS_TRACE_I("MakeNegotiatedCapaNego(): strDestAttributeCapa.Equals "
+                                            "CNT[%d]",
                                         cnt, 0, 0);
                                 break;
                             }
@@ -1072,7 +1076,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
                     if (cnt == lstSplitComma.GetSize())
                     {
                         IMS_TRACE_I(
-                                "MakeNegotiatedCapaNego() - capa nego success, cnt[%d]", cnt, 0, 0);
+                                "MakeNegotiatedCapaNego(): capa nego success, cnt[%d]", cnt, 0, 0);
                         bPCFGSupportable = IMS_TRUE;
                         break;
                     }
@@ -1081,10 +1085,10 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
         }
 
         // check capa nego success
-        if (bPCFGSupportable == IMS_TRUE)
+        if (bPCFGSupportable)
         {
             pNegotiatedCapaNego->GetAcfg().Sprintf("%s", strPCFGline.GetStr());
-            IMS_TRACE_I("MakeNegotiatedCapaNego() - UE support capa nego- ACFG [%s]",
+            IMS_TRACE_I("MakeNegotiatedCapaNego(): UE support capa nego- ACFG [%s]",
                     strPCFGline.GetStr(), 0, 0);
             // strAcfg value available, if capa nego success.
             ret = IMS_TRUE;
@@ -1093,7 +1097,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedCapaNegoProfile(
         else  // capa nego dose not succsee case//
         {
             // clear saved negotiatedCapaNego imfo.
-            IMS_TRACE_I("MakeNegotiatedCapaNego() - capa nego does not success pcfg[%d]", i, 0, 0);
+            IMS_TRACE_I("MakeNegotiatedCapaNego(): capa nego does not success pcfg[%d]", i, 0, 0);
             pNegotiatedCapaNego->GetMapTcap().Clear();
             pNegotiatedCapaNego->GetMapAcap().Clear();
         }
@@ -1108,6 +1112,7 @@ VIDEO_RESOLUTION VideoProfileNegotiator::GetNegotiatedResolution(
 {
     if (pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "GetNegotiatedResolution(): invalid payload", 0, 0, 0);
         return VIDEO_RESOLUTION_INVALID;
     }
 
@@ -1137,6 +1142,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedPayload(
 {
     if (pLocalPayload == IMS_NULL || pPeerPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "MakeNegotiatedPayload(): invalid payload", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -1149,7 +1155,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedPayload(
 PRIVATE
 VIDEO_RESOLUTION VideoProfileNegotiator::GetAvcMaxResolutionFromLevel(IN IMS_UINT32 nLevel)
 {
-    IMS_TRACE_D("GetAvcMaxResolutionFromLevel() - Level[%d]", nLevel, 0, 0);
+    IMS_TRACE_D("GetAvcMaxResolutionFromLevel(): Level[%d]", nLevel, 0, 0);
 
     if (nLevel > 31)
     {
@@ -1199,7 +1205,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedBandwidth(IN VideoConfigu
             pNegotiatedProfile->SetBandwidthRs(pLocalProfile->GetBandwidthRs());
             pNegotiatedProfile->SetBandwidthRr(pLocalProfile->GetBandwidthRr());
 
-            IMS_TRACE_D("MakeNegotiatedBandwidth() - Negotiated Profile AS[%d] RS[%d] RR[%d]",
+            IMS_TRACE_D("MakeNegotiatedBandwidth(): Negotiated Profile AS[%d] RS[%d] RR[%d]",
                     pNegotiatedProfile->GetBandwidthAs(), pNegotiatedProfile->GetBandwidthRs(),
                     pNegotiatedProfile->GetBandwidthRr());
 
@@ -1263,7 +1269,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedBandwidth(IN VideoConfigu
                 pNegotiatedProfile->SetBandwidthRs(pLocalProfile->GetBandwidthRs());
                 pNegotiatedProfile->SetBandwidthRr(pLocalProfile->GetBandwidthRr());
 
-                IMS_TRACE_D("MakeNegotiatedBandwidth() - Negotiated Profile AS[%d] RS[%d] RR[%d]",
+                IMS_TRACE_D("MakeNegotiatedBandwidth(): Negotiated Profile AS[%d] RS[%d] RR[%d]",
                         pNegotiatedProfile->GetBandwidthAs(), pNegotiatedProfile->GetBandwidthRs(),
                         pNegotiatedProfile->GetBandwidthRr());
 
@@ -1286,7 +1292,7 @@ PRIVATE IMS_BOOL VideoProfileNegotiator::MakeNegotiatedBandwidth(IN VideoConfigu
         }
     }
 
-    IMS_TRACE_D("MakeNegotiatedBandwidth() - Negotiated Profile AS[%d] RS[%d] RR[%d]",
+    IMS_TRACE_D("MakeNegotiatedBandwidth(): Negotiated Profile AS[%d] RS[%d] RR[%d]",
             pNegotiatedProfile->GetBandwidthAs(), pNegotiatedProfile->GetBandwidthRs(),
             pNegotiatedProfile->GetBandwidthRr());
 

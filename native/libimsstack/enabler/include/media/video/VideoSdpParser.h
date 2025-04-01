@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,11 +30,24 @@ public:
     explicit VideoSdpParser();
     virtual ~VideoSdpParser();
 
-    IMS_BOOL Parse(IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor,
-            OUT VideoProfile* pProfile);
+    /**
+     * @brief It is the core function responsible for extracting video-related attributes from
+     * the SDP (Session Description Protocol) message. It takes the SDP data and populates a
+     * VideoProfile object with the parsed parameters
+     *
+     * @param pSessionDescriptor This pointer provides access to the overall SDP session description
+     * @param pDescriptor This pointer contains the SDP media description specifically for the video
+     * stream
+     * @param pProfile This is an output parameter. The method will populate this object with the
+     * parsed video parameters.
+     * @return IMS_BOOL Returns IMS_FALSE when error handling to gracefully manage situations where
+     * the SDP message is malformed or missing crucial video parameters.
+     */
+    virtual IMS_BOOL Parse(IN ISessionDescriptor* pSessionDescriptor,
+            IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
 
 private:
-    void ParseTranportType(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
+    void ParseTransportType(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     void SetAvpfSupport(OUT VideoProfile* pProfile);
     void ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     void ParseRtpMap(IN const SdpAvCodec* pSdpCodec, OUT VideoProfile::Payload* pPayload);
@@ -80,12 +93,12 @@ private:
             IN const AString& strSpropParam, IN IMS_SINT32 nQcif = -1);
     IMS_BOOL GetAvpfFromAttributes(IN SdpMediaFormat* pMediaFormat,
             IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr);
-    IMS_BOOL GetAvpfFromAttributes_EX(
+    IMS_BOOL GetAvpfFromAttributesEx(
             IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr);
-    IMS_BOOL GetWidthHeightFromSdp_ImageAttr(IN const AString& strImageAttrFromSdp,
+    IMS_BOOL GetWidthHeightFromSdpImageAttr(IN const AString& strImageAttrFromSdp,
             OUT IMS_UINT32* nImageWidth, OUT IMS_UINT32* nImageHeight);
     VIDEO_RESOLUTION GetResolutionFromWidthHeight(IN IMS_UINT32 nWidth, IN IMS_UINT32 nHeight);
-    IMS_BOOL GetWidthHeightFromSdp_FrameSize(IN AString strFrameSizeFromSdp,
+    IMS_BOOL GetWidthHeightFromSdpFrameSize(IN AString strFrameSizeFromSdp,
             OUT IMS_UINT32* nImageWidth, OUT IMS_UINT32* nImageHeight);
 };
 

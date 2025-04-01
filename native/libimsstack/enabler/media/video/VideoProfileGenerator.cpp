@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,7 @@ VideoProfile* VideoProfileGenerator::SetProfile(IN MediaBaseProfile* pProfile,
 {
     if (pProfile == IMS_NULL || pConfig == IMS_NULL || pIService == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetProfile(): invalid argument", 0, 0, 0);
         return IMS_NULL;
     }
 
@@ -58,7 +59,7 @@ VideoProfile* VideoProfileGenerator::SetProfile(IN MediaBaseProfile* pProfile,
 
     pVideoProfile->SetCvoId(pVideoConfig->GetCvoId());
 
-    if (pVideoConfig->IsVideoAvpfEnabled() == IMS_TRUE)
+    if (pVideoConfig->IsVideoAvpfEnabled())
     {
         pVideoProfile->SetSupportAvpf(IMS_TRUE);
 
@@ -72,7 +73,7 @@ VideoProfile* VideoProfileGenerator::SetProfile(IN MediaBaseProfile* pProfile,
 
     SetMaxProfileFrameRate(static_cast<VideoProfile*>(pProfile));
 
-    IMS_TRACE_D("SetProfile() - SupportAvpf[%d], SupportCapaNegoForAvpf[%d]",
+    IMS_TRACE_D("SetProfile(): SupportAvpf[%d], SupportCapaNegoForAvpf[%d]",
             pVideoProfile->IsAvpfSupported(), pVideoProfile->IsCapaNegoForAvpfSupported(), 0);
 
     return pVideoProfile;
@@ -87,7 +88,7 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetTransportCapability(OUT VideoProf
         AString strTemp("RTP/AVPF");
         pVideoProfile->GetCapaNego().GetMapTcap().SetValue(++nTcap, strTemp);
 
-        IMS_TRACE_I("SetTransportCapability() - Tcap[%d][%s]", nTcap,
+        IMS_TRACE_I("SetTransportCapability(): Tcap[%d][%s]", nTcap,
                 pVideoProfile->GetCapaNego().GetMapTcap().GetValue(nTcap).GetStr(), 0);
     }
 
@@ -100,10 +101,11 @@ void VideoProfileGenerator::CreateCodecPayloads(IN MediaBaseProfile* pProfile, I
 {
     if (pProfile == IMS_NULL || pConfig == IMS_NULL || pCodecConfig == IMS_NULL)
     {
+        IMS_TRACE_E(0, "CreateCodecPayloads(): invalid argument", 0, 0, 0);
         return;
     }
 
-    IMS_TRACE_D("CreateCodecPayloads() - codec[%s]", ImsCodec::CodecToString(nCodec), 0, 0);
+    IMS_TRACE_D("CreateCodecPayloads(): codec[%s]", ImsCodec::CodecToString(nCodec), 0, 0);
 
     if (nCodec > ImsCodec::VIDEO_NONE && nCodec < ImsCodec::VIDEO_MAX)
     {
@@ -130,6 +132,7 @@ PROTECTED VideoProfile::Payload* VideoProfileGenerator::CreateAvcPayload(
 {
     if (pCodecConfig == IMS_NULL || pConfig == IMS_NULL)
     {
+        IMS_TRACE_E(0, "CreateAvcPayload(): invalid argument", 0, 0, 0);
         return IMS_NULL;
     }
 
@@ -141,9 +144,8 @@ PROTECTED VideoProfile::Payload* VideoProfileGenerator::CreateAvcPayload(
 
     if (pAvcConfig->GetProfileLevelId() == AString::ConstEmpty())
     {
-        IMS_TRACE_D("CreateAvcPayload() - ProfileLevelId is empty, delete pAvcFmtp", 0, 0, 0);
+        IMS_TRACE_D("CreateAvcPayload(): ProfileLevelId is empty, delete pAvcFmtp", 0, 0, 0);
         delete pAvcFmtp;
-
         return IMS_NULL;
     }
 
@@ -153,7 +155,7 @@ PROTECTED VideoProfile::Payload* VideoProfileGenerator::CreateAvcPayload(
             VideoProfileUtil::GetAvcProfileFromProfileLevelId(pAvcConfig->GetProfileLevelId()));
     pAvcFmtp->SetLevel(
             VideoProfileUtil::GetAvcLevelFromProfileLevelId(pAvcConfig->GetProfileLevelId()));
-    IMS_TRACE_I("CreateAvcPayload() - Profile[%d], Level[%d]", pAvcFmtp->GetProfile(),
+    IMS_TRACE_I("CreateAvcPayload(): Profile[%d], Level[%d]", pAvcFmtp->GetProfile(),
             pAvcFmtp->GetLevel(), 0);
 
     const IMS_CHAR* pbAvc4SpropParameterSets;
@@ -164,7 +166,7 @@ PROTECTED VideoProfile::Payload* VideoProfileGenerator::CreateAvcPayload(
             pAvcFmtp->GetResolution(), pAvcFmtp->GetProfile(), pAvcFmtp->GetLevel());
     */
 
-    IMS_TRACE_I("CreateAvcPayload() - SpropParameterSets[%s]", pbAvc4SpropParameterSets, 0, 0);
+    IMS_TRACE_I("CreateAvcPayload(): SpropParameterSets[%s]", pbAvc4SpropParameterSets, 0, 0);
 
     if (pAvcConfig->GetProfileLevelId().GetLength() != 0)
     {
@@ -191,6 +193,7 @@ PROTECTED VideoProfile::Payload* VideoProfileGenerator::CreateHevcPayload(
 {
     if (pCodecConfig == IMS_NULL || pConfig == IMS_NULL)
     {
+        IMS_TRACE_E(0, "CreateHevcPayload(): invalid argument", 0, 0, 0);
         return IMS_NULL;
     }
 
@@ -233,6 +236,7 @@ PROTECTED void VideoProfileGenerator::SetVideoCodecFmtp(IN CodecVideoConfig* pCo
 {
     if (pCodecConfig == IMS_NULL || pVideoConfig == IMS_NULL || pFmtp == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetVideoCodecFmtp(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -248,9 +252,9 @@ PROTECTED void VideoProfileGenerator::SetVideoCodecFmtp(IN CodecVideoConfig* pCo
         pFmtp->SetShowPacketizationMode(IMS_TRUE);
     }
 
-    IMS_TRACE_D("SetVideoCodecFmtp() - FrameRate[%d], Resolution[%d], Bitrate[%d]",
+    IMS_TRACE_D("SetVideoCodecFmtp(): FrameRate[%d], Resolution[%d], Bitrate[%d]",
             pFmtp->GetFramerate(), pFmtp->GetResolution(), pFmtp->GetBitrate());
-    IMS_TRACE_D("SetVideoCodecFmtp() - AS[%d], PacketizationMode[%d]", pFmtp->GetAs(),
+    IMS_TRACE_D("SetVideoCodecFmtp(): AS[%d], PacketizationMode[%d]", pFmtp->GetAs(),
             pFmtp->GetPacketizationMode(), 0);
 }
 
@@ -259,6 +263,7 @@ PROTECTED void VideoProfileGenerator::SetVideoCodecPayload(IN CodecVideoConfig* 
 {
     if (pCodecConfig == IMS_NULL || pVideoConfig == IMS_NULL || pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetVideoCodecPayload(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -276,31 +281,31 @@ PROTECTED void VideoProfileGenerator::SetVideoCodecPayload(IN CodecVideoConfig* 
         pPayload->SetIncludeFrameSize(IMS_TRUE);
     }
 
-    if (pVideoConfig->IsVideoAvpfEnabled() == IMS_TRUE)
+    if (pVideoConfig->IsVideoAvpfEnabled())
     {
-        if (pVideoConfig->IsVideoAvpfTrrEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfTrrEnabled())
         {
             pPayload->GetRtcpFbAttr().SetTrrSupported(IMS_TRUE);
             pPayload->GetRtcpFbAttr().SetTrrInt(pVideoConfig->GetRtcpIntervalOnHold() * 1000);
         }
 
-        if (pVideoConfig->IsVideoAvpfNackEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfNackEnabled())
         {
             pPayload->GetRtcpFbAttr().SetNackSupported(IMS_TRUE);
         }
 
-        if (pVideoConfig->IsVideoAvpfTmmbrEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfTmmbrEnabled())
         {
             pPayload->GetRtcpFbAttr().SetTmmbrSupported(IMS_TRUE);
             pPayload->GetRtcpFbAttr().SetTmmbrSmaxPr(40);
         }
 
-        if (pVideoConfig->IsVideoAvpfPliEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfPliEnabled())
         {
             pPayload->GetRtcpFbAttr().SetPliSupported(IMS_TRUE);
         }
 
-        if (pVideoConfig->IsVideoAvpfFirEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfFirEnabled())
         {
             pPayload->GetRtcpFbAttr().SetFirSupported(IMS_TRUE);
         }
@@ -329,7 +334,7 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetAttributeCapability(
         nAcap = SetAvpfTmmbr(pVideoProfile, pVideoConfig, nAcap);
     }
 
-    IMS_TRACE_I("SetAttributeCapability() - Acap[%d]", nAcap, 0, 0);
+    IMS_TRACE_I("SetAttributeCapability(): Acap[%d]", nAcap, 0, 0);
 
     return nAcap;
 }
@@ -339,14 +344,14 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetAvpfTrr(
 {
     if (pVideoProfile != IMS_NULL && pVideoConfig != IMS_NULL)
     {
-        if (pVideoConfig->IsVideoAvpfTrrEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfTrrEnabled())
         {
             AString strTemp = AString::ConstEmpty();
             strTemp.Sprintf(
                     "%s %d", "rtcp-fb:* trr-int", pVideoConfig->GetRtcpIntervalOnHold() * 1000);
             pVideoProfile->GetCapaNego().GetMapAcap().SetValue(++nAcap, strTemp);
 
-            IMS_TRACE_I("SetAvpfTrr() - Acap[%d][%s]", nAcap,
+            IMS_TRACE_I("SetAvpfTrr(): Acap[%d][%s]", nAcap,
                     pVideoProfile->GetCapaNego().GetMapAcap().GetValue(nAcap).GetStr(), 0);
         }
     }
@@ -359,13 +364,13 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetAvpfNack(
 {
     if (pVideoProfile != IMS_NULL && pVideoConfig != IMS_NULL)
     {
-        if (pVideoConfig->IsVideoAvpfNackEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfNackEnabled())
         {
             AString strTemp = AString::ConstEmpty();
             strTemp = "rtcp-fb:* nack";
             pVideoProfile->GetCapaNego().GetMapAcap().SetValue(++nAcap, strTemp);
 
-            IMS_TRACE_I("SetAvpfNack() - Acap[%d][%s]", nAcap,
+            IMS_TRACE_I("SetAvpfNack(): Acap[%d][%s]", nAcap,
                     pVideoProfile->GetCapaNego().GetMapAcap().GetValue(nAcap).GetStr(), 0);
         }
     }
@@ -378,13 +383,13 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetAvpfPli(
 {
     if (pVideoProfile != IMS_NULL && pVideoConfig != IMS_NULL)
     {
-        if (pVideoConfig->IsVideoAvpfPliEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfPliEnabled())
         {
             AString strTemp = AString::ConstEmpty();
             strTemp = "rtcp-fb:* nack pli";
             pVideoProfile->GetCapaNego().GetMapAcap().SetValue(++nAcap, strTemp);
 
-            IMS_TRACE_I("SetAvpfPli() - Acap[%d][%s]", nAcap,
+            IMS_TRACE_I("SetAvpfPli(): Acap[%d][%s]", nAcap,
                     pVideoProfile->GetCapaNego().GetMapAcap().GetValue(nAcap).GetStr(), 0);
         }
     }
@@ -397,13 +402,13 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetAvpfFir(
 {
     if (pVideoProfile != IMS_NULL && pVideoConfig != IMS_NULL)
     {
-        if (pVideoConfig->IsVideoAvpfFirEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfFirEnabled())
         {
             AString strTemp = AString::ConstEmpty();
             strTemp = "rtcp-fb:* ccm fir";
             pVideoProfile->GetCapaNego().GetMapAcap().SetValue(++nAcap, strTemp);
 
-            IMS_TRACE_I("SetAvpfFir() - Acap[%d][%s]", nAcap,
+            IMS_TRACE_I("SetAvpfFir(): Acap[%d][%s]", nAcap,
                     pVideoProfile->GetCapaNego().GetMapAcap().GetValue(nAcap).GetStr(), 0);
         }
     }
@@ -416,13 +421,13 @@ PROTECTED IMS_SINT32 VideoProfileGenerator::SetAvpfTmmbr(
 {
     if (pVideoProfile != IMS_NULL && pVideoConfig != IMS_NULL)
     {
-        if (pVideoConfig->IsVideoAvpfTmmbrEnabled() == IMS_TRUE)
+        if (pVideoConfig->IsVideoAvpfTmmbrEnabled())
         {
             AString strTemp = AString::ConstEmpty();
             strTemp = "rtcp-fb:* ccm tmmbr";
             pVideoProfile->GetCapaNego().GetMapAcap().SetValue(++nAcap, strTemp);
 
-            IMS_TRACE_I("SetAvpfTmmbr() - Acap[%d][%s]", nAcap,
+            IMS_TRACE_I("SetAvpfTmmbr(): Acap[%d][%s]", nAcap,
                     pVideoProfile->GetCapaNego().GetMapAcap().GetValue(nAcap).GetStr(), 0);
         }
     }
@@ -435,16 +440,17 @@ PROTECTED void VideoProfileGenerator::SetCapaNegoForAvpf(OUT VideoProfile* pVide
 {
     if (pVideoProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetCapaNegoForAvpf(): invalid argument", 0, 0, 0);
         return;
     }
 
-    IMS_TRACE_I("SetCapaNegoForAvpf() - Acap[%d], Tcap[%d]", nTcap, nAcap, 0);
+    IMS_TRACE_I("SetCapaNegoForAvpf(): Acap[%d], Tcap[%d]", nTcap, nAcap, 0);
 
     pVideoProfile->SetSupportCapaNegoForAvpf(
             (nCapaNegoForAvpfOption > MediaConfiguration::CAPNEG_OFFER_NONE) ? IMS_TRUE
                                                                              : IMS_FALSE);
 
-    if (pVideoProfile->IsCapaNegoForAvpfSupported() == IMS_TRUE)
+    if (pVideoProfile->IsCapaNegoForAvpfSupported())
     {
         AString strPcfg = AString::ConstNull();
         strPcfg.Sprintf("t=%d", nTcap);
@@ -478,6 +484,7 @@ PROTECTED void VideoProfileGenerator::SetMaxProfileFrameRate(OUT VideoProfile* p
 {
     if (pVideoProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetMaxProfileFrameRate(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -500,7 +507,7 @@ PROTECTED void VideoProfileGenerator::SetMaxProfileFrameRate(OUT VideoProfile* p
             nMaxFrameRate = nFrameRate;
         }
 
-        IMS_TRACE_I("SetMaxProfileFrameRate() - nMaxFrameRate[%d], payload framerate[%d]",
+        IMS_TRACE_I("SetMaxProfileFrameRate(): nMaxFrameRate[%d], payload framerate[%d]",
                 nMaxFrameRate, nFrameRate, 0);
     }
 
