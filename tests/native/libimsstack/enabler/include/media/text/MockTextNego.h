@@ -19,7 +19,6 @@
 
 #include <gmock/gmock.h>
 
-#include "ImsTypeDef.h"
 #include <text/TextNego.h>
 
 class MockTextNego : public TextNego

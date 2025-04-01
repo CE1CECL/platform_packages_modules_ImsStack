@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 #define TEXT_SDP_GENERATOR_H_
 
 #include "MediaSdpGenerator.h"
+#include "TextProfile.h"
 
 /**
  * This class is to generate a text Sdp by adding text attributes from text profile to the
@@ -29,8 +30,8 @@ public:
     TextSdpGenerator();
     virtual ~TextSdpGenerator();
 
-    IMS_BOOL Generate(OUT ISessionDescriptor* pSessionDescriptor, OUT IMediaDescriptor* pDescriptor,
-            IN MediaBaseProfile* pBaseProfile) override;
+    virtual IMS_BOOL Generate(OUT ISessionDescriptor* pSessionDescriptor,
+            OUT IMediaDescriptor* pDescriptor, IN MediaBaseProfile* pBaseProfile) override;
 
 private:
     void CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile);

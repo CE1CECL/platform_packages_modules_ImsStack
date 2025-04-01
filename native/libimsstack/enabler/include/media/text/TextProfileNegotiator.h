@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,8 @@
 #define TEXT_PROFILE_NEGOTIATOR_H_
 
 #include "MediaProfileNegotiator.h"
-#include "text/TextProfileUtil.h"
-
-class MediaConfiguration;
+#include "config/MediaConfiguration.h"
+#include "text/TextProfile.h"
 
 /**
  * This class is to generate a negotiated text profile by negotiating a local text profile and a
@@ -32,7 +31,18 @@ public:
     TextProfileNegotiator();
     virtual ~TextProfileNegotiator();
 
-    IMS_BOOL Negotiate(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
+    /**
+     * @brief Make the negotiated profile using the local and peer profiles
+     *
+     * @param pLocalProfile The local profile
+     * @param pPeerProfile The peer profile
+     * @param bIsOfferReceived The option to check that the case is in sdp offer received
+     * @param pNegotiatedProfile The negotiated profile to update
+     * @param pConfig The configuration set
+     * @return IMS_BOOL Return IMS_TRUE when there is no error in negotiation vise versa when there
+     * is invalid parameter and the negotiation is failed
+     */
+    virtual IMS_BOOL Negotiate(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
             IN IMS_BOOL bIsOfferReceived, OUT TextProfile* pNegotiatedProfile,
             IN MediaConfiguration* pConfig);
 
@@ -45,7 +55,12 @@ private:
     void NegotiateDirection(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
             OUT TextProfile* pNegotiatedProfile);
     void NegotiateBandwidth(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
-            IN IMS_SINT32 nAsValueOfNegoticatedCodec, OUT TextProfile* pNegotiatedProfile);
+            IN IMS_SINT32 nAsValueOfNegotiatedCodec, OUT TextProfile* pNegotiatedProfile);
+    void NegotiateBandwidthForOfferReceived(IN TextProfile* pLocalProfile,
+            IN TextProfile* pPeerProfile, IN IMS_SINT32 nAsValueOfNegotiatedCodec,
+            OUT TextProfile* pNegotiatedProfile);
+    void NegotiateBandwidthForOfferSent(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
+            OUT TextProfile* pNegotiatedProfile);
     void NegotiateRtcpInterval(OUT TextProfile* pNegotiatedProfile, IN MediaConfiguration* pConfig);
     IMS_BOOL FindT140InProfile(IN TextProfile* pProfile, IN TextProfile::Payload* pPayload);
     MEDIA_DIRECTION UpdateDirectionToMine(
