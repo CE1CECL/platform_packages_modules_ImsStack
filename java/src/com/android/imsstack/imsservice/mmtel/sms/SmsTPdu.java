@@ -471,7 +471,123 @@ public class SmsTPdu {
 
     @Override
     public String toString() {
-        // TODO : add implementation
-        return "";
+        StringBuilder builder = new StringBuilder("SmsTPdu {");
+        builder.append("\n  Direction: ").append(mDirection);
+        builder.append("\n  MTI: ").append(mMessageTypeIndicator);
+        builder.append(" (").append(getMtiString()).append(")");
+        builder.append("\n  TP-RP (Reply Path): ").append(mReplyPath);
+        builder.append("\n  TP-UDHI (UDH Indicator): ").append(mUserDataHeaderIndicator);
+
+        if (mDirection == Direction.MS_TO_SC) {
+            if (mMessageTypeIndicator == MTI_SUBMIT) {
+                builder.append("\n  TP-SRR (Status Report Request): ").append(mStatusReportRequest);
+                builder.append("\n  TP-VPF (Validity Period Format): ")
+                        .append(mValidityPeriodFormat);
+                builder.append("\n  TP-RD (Reject Duplicate): ").append(mRejectDuplicate);
+                builder.append("\n  TP-MR (Message Reference): ").append(mMessageRef);
+                builder.append("\n  TP-DA (Destination Address): ")
+                        .append(byteArrayToString(mDestinationAddress));
+                builder.append("\n  TP-PID (Protocol ID): ")
+                        .append(String.format("0x%02X", mProtocolIdentifier));
+                builder.append("\n  TP-DCS (Data Coding Scheme): ")
+                        .append(getDataCodingSchemeHex());
+                builder.append("\n  TP-UDL (User Data Length): ")
+                        .append(mUserDataLength);
+            } else if (mMessageTypeIndicator == MTI_DELIVER_REPORT) {
+                builder.append("\n  TP-FCS (Failure Cause): ")
+                        .append(String.format("0x%02X", mFailureCause));
+                appendOptionalParams(builder);
+            }
+        } else { // SC_TO_MS
+            if (mMessageTypeIndicator == MTI_DELIVER || mMessageTypeIndicator == MTI_RESERVED) {
+                builder.append("\n  TP-SRI (Status Report Indication): ")
+                        .append(mStatusReportIndication);
+                builder.append("\n  TP-MMS (More Messages to Send): ").append(mMoreMessageToSend);
+                builder.append("\n  TP-OA (Originating Address): ")
+                        .append(byteArrayToString(mOriginatingAddress));
+                builder.append("\n  TP-PID (Protocol ID): ")
+                        .append(String.format("0x%02X", mProtocolIdentifier));
+                builder.append("\n  TP-DCS (Data Coding Scheme): ")
+                        .append(getDataCodingSchemeHex());
+                builder.append("\n  TP-UDL (User Data Length): ")
+                        .append(mUserDataLength); // Note: Value context depends on DCS/UDHI
+            } else if (mMessageTypeIndicator == MTI_STATUS_REPORT) {
+                builder.append("\n  TP-SRQ (Status Report Qualifier): ")
+                        .append(mStatusReportQualifier);
+                builder.append("\n  TP-LP (Loop Prevention): ").append(mLoopPrevention);
+                builder.append("\n  TP-MMS (More Messages to Send): ").append(mMoreMessageToSend);
+                builder.append("\n  TP-MR (Message Reference): ").append(mMessageRef);
+                builder.append("\n  TP-RA (Recipient Address): ")
+                        .append(byteArrayToString(mDestinationAddress));
+                builder.append("\n  TP-ST (Status): ").append(String.format("0x%02X", mStatus));
+                appendOptionalParams(builder);
+            } else if (mMessageTypeIndicator == MTI_SUBMIT_REPORT) {
+                builder.append("\n  TP-FCS (Failure Cause): ")
+                        .append(String.format("0x%02X", mFailureCause));
+                appendOptionalParams(builder);
+            }
+        }
+
+        if (mUserDataHeaderIndicator == USER_DATA_HEADER_PRESENT && mUserDataHeader != null) {
+            builder.append("\n  TP-UDH (User Data Header): ")
+                    .append(byteArrayToString(mUserDataHeader));
+            if (mUdhIei != -1
+                    && (mUdhIei == IEI_CONCATENATED_SMS_8BIT
+                            || mUdhIei == IEI_CONCATENATED_SMS_16BIT)) {
+                builder.append("\n    Concat IEI: ").append(String.format("0x%02X", mUdhIei));
+                builder.append("\n    Concat Ref: ").append(mUdhReference);
+                builder.append("\n    Concat Max: ").append(mUdhMaxNum);
+                builder.append("\n    Concat Seq: ").append(mUdhSeqNum);
+            }
+        } else {
+            builder.append("\n  TP-UDH (User Data Header): null");
+        }
+
+        builder.append("\n  TP-UD (User Data): ").append(byteArrayToString(mUserData));
+        builder.append("\n  Raw TPDU: ").append(byteArrayToString(mPdu));
+        builder.append("\n}");
+        return builder.toString();
+    }
+
+    private void appendOptionalParams(StringBuilder builder) {
+        if (mParameterIndicator != -1) {
+            builder.append("\n  TP-PI (Parameter Indicator): ")
+                    .append(String.format("0x%02X", mParameterIndicator));
+            if ((mParameterIndicator & 0x01) != 0) {
+                builder.append("\n    TP-PID: ")
+                        .append(String.format("0x%02X", mProtocolIdentifier));
+            }
+            if ((mParameterIndicator & 0x02) != 0) {
+                builder.append("\n    TP-DCS: ").append(getDataCodingSchemeHex());
+            }
+            if ((mParameterIndicator & 0x04) != 0) {
+                builder.append("\n    TP-UDL: ").append(mUserDataLength);
+            }
+        } else {
+            builder.append("\n  TP-PI (Parameter Indicator): Not Present");
+        }
+    }
+
+    private boolean isReportPdu() {
+        if (mDirection == Direction.MS_TO_SC) {
+            return mMessageTypeIndicator == MTI_DELIVER_REPORT;
+        } else { // Direction == Direction.SC_TO_MS
+            return mMessageTypeIndicator == MTI_SUBMIT_REPORT
+                    || mMessageTypeIndicator == MTI_STATUS_REPORT;
+        }
+    }
+
+    private String getMtiString() {
+        boolean isReport = isReportPdu();
+        switch (mMessageTypeIndicator) {
+            case MTI_DELIVER:
+                return isReport ? "DELIVER-REPORT" : "DELIVER";
+            case MTI_SUBMIT:
+                return isReport ? "SUBMIT-REPORT" : "SUBMIT";
+            case MTI_STATUS_REPORT:
+                return "STATUS-REPORT";
+            default:
+                return "COMMAND or RESERVED";
+        }
     }
 }
