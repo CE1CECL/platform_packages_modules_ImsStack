@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,15 +36,12 @@ PUBLIC IMS_BOOL TextSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
 {
     if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
-        IMS_TRACE_E(0, "Parse() - invalid argument", 0, 0, 0);
+        IMS_TRACE_E(0, "Parse(): invalid argument", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    IMS_TRACE_I("Parse()", 0, 0, 0);
-
     MediaSdpParser::Parse(pSessionDescriptor, pDescriptor, pProfile);
     ParsePayloads(pDescriptor, pProfile);
-
     return IMS_TRUE;
 }
 
@@ -53,7 +50,7 @@ void TextSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProf
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ParsePayloads() - invalid argument", 0, 0, 0);
+        IMS_TRACE_E(0, "ParsePayloads(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -70,8 +67,6 @@ void TextSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProf
             continue;
         }
 
-        IMS_TRACE_I("ParsePayloads() - At[%d]", i, 0, 0);
-
         AString strCodecName = AString::ConstNull();
         ParseRtpMap(pSdpCodec, pPayload, strCodecName);
 
@@ -82,7 +77,7 @@ void TextSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProf
         }
         else if (!strCodecName.EqualsIgnoreCase("t140"))
         {
-            IMS_TRACE_E(0, "ParsePayloads() - Invalid codec[%s]", strCodecName.GetStr(), 0, 0);
+            IMS_TRACE_E(0, "ParsePayloads(): Invalid codec[%s]", strCodecName.GetStr(), 0, 0);
             delete pPayload;
             continue;
         }
@@ -97,6 +92,7 @@ void TextSdpParser::ParseRtpMap(IN const SdpAvCodec* pSdpCodec, OUT TextProfile:
 {
     if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "ParseRtpMap(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -106,7 +102,7 @@ void TextSdpParser::ParseRtpMap(IN const SdpAvCodec* pSdpCodec, OUT TextProfile:
 
     pPayload->SetRtpMap(nPayloadTypeNumber, strCodecName, nSamplingRate);
 
-    IMS_TRACE_D("ParseRtpMap() - Payload[%d], Codec[%s], Sampling rate[%d]", nPayloadTypeNumber,
+    IMS_TRACE_D("ParseRtpMap(): Payload[%d], Codec[%s], Sampling rate[%d]", nPayloadTypeNumber,
             strCodecName.GetStr(), nSamplingRate);
 }
 
@@ -122,18 +118,10 @@ IMS_BOOL TextSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
     AString strFmtp = pSdpCodec->GetFormatSpecificParameter();
     TextProfile::RedFmtp* pRedFmtp = new TextProfile::RedFmtp();
 
-    if (pRedFmtp == IMS_NULL)
+    if (!ParseRedFmtp(strFmtp, pRedFmtp) ||
+            !ParseRedSubPtExist(pRedFmtp->GetRedPayload(), lstMediaFormat))
     {
-        return IMS_FALSE;
-    }
-
-    IMS_TRACE_I("ParseFmtp()", 0, 0, 0);
-
-    if (ParseRedFmtp(strFmtp, pRedFmtp) == IMS_FALSE ||
-            ParseRedSubPtExist(pRedFmtp->GetRedPayload(), lstMediaFormat) == IMS_FALSE)
-    {
-        IMS_TRACE_E(0, "ParseFmtp() - cannot make red fmtp or No matched subtype", 0, 0, 0);
-
+        IMS_TRACE_E(0, "ParseFmtp(): cannot make red fmtp or No matched subtype", 0, 0, 0);
         delete pRedFmtp;
         return IMS_FALSE;
     }
@@ -146,18 +134,18 @@ IMS_BOOL TextSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
 PRIVATE IMS_BOOL TextSdpParser::ParseRedFmtp(
         IN const AString& strFmtp, OUT TextProfile::RedFmtp* pFmtp)
 {
-    if (pFmtp == IMS_NULL || strFmtp.IsEmpty() == IMS_TRUE)
+    if (pFmtp == IMS_NULL || strFmtp.IsEmpty())
     {
+        IMS_TRACE_E(0, "ParseRedFmtp(): invalid fmtp", 0, 0, 0);
         return IMS_FALSE;
     }
-
-    IMS_TRACE_I("ParseRedFmtp()", 0, 0, 0);
 
     ImsList<AString> strArrTemp = strFmtp.Split('/');
     pFmtp->SetRedLevel(strArrTemp.GetSize());
 
     if (pFmtp->GetRedLevel() == 0)
     {
+        IMS_TRACE_E(0, "ParseRedFmtp(): RED level is 0", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -169,7 +157,7 @@ PRIVATE IMS_BOOL TextSdpParser::ParseRedFmtp(
         {
             pFmtp->SetRedLevel(-1);
             pFmtp->SetRedPayload(-1);
-
+            IMS_TRACE_E(0, "ParseRedFmtp(): invalid payload", 0, 0, 0);
             return IMS_FALSE;
         }
     }
@@ -194,7 +182,7 @@ PRIVATE IMS_BOOL TextSdpParser::ParseRedSubPtExist(
             continue;
         }
 
-        IMS_TRACE_D("ParseRedSubPtExist() - Check RedSubPT, PT[%d] of PL[%d] / Red Payload[%d]",
+        IMS_TRACE_D("ParseRedSubPtExist(): Check RedSubPT, PT[%d] of PL[%d] / Red Payload[%d]",
                 pSdpCodec->GetPayloadType(), i, nRedPayload);
 
         if (pSdpCodec->GetPayloadType() == nRedPayload)
@@ -203,7 +191,7 @@ PRIVATE IMS_BOOL TextSdpParser::ParseRedSubPtExist(
         }
     }
 
-    IMS_TRACE_I("ParseRedSubPtExist() - RedSubPtExist[%d]", bRedSubPtExist, 0, 0);
+    IMS_TRACE_I("ParseRedSubPtExist(): RedSubPtExist[%d]", bRedSubPtExist, 0, 0);
 
     return bRedSubPtExist;
 }

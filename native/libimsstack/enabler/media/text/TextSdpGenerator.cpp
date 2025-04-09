@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 
 #include "ServiceTrace.h"
 
-#include "text/TextProfileUtil.h"
 #include "text/TextSdpGenerator.h"
 
 __IMS_TRACE_TAG_MEDIA__;
@@ -38,10 +37,11 @@ IMS_BOOL TextSdpGenerator::Generate(OUT ISessionDescriptor* pSessionDescriptor,
 {
     if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pBaseProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "Generate(): invalid argument", 0, 0, 0);
         return IMS_FALSE;
     }
 
-    IMS_TRACE_I("Generate() - PayloadSize[%d]", pBaseProfile->GetPayloadList().GetSize(), 0, 0);
+    IMS_TRACE_I("Generate(): PayloadSize[%d]", pBaseProfile->GetPayloadList().GetSize(), 0, 0);
 
     GenerateCommonAttributes(pSessionDescriptor, pDescriptor, pBaseProfile);
 
@@ -59,6 +59,7 @@ void TextSdpGenerator::CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile)
 {
     if (pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "CheckRedPayloadSubTypeValidity(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -81,8 +82,7 @@ void TextSdpGenerator::CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile)
                 continue;
             }
 
-            IMS_TRACE_I("CheckRedPayloadSubTypeValidity() - fmtp, Redundancy Level [%d], Red "
-                        "Payload[%d]",
+            IMS_TRACE_I("CheckRedPayloadSubTypeValidity(): level[%d], Red Payload[%d]",
                     pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), 0);
 
             IMS_BOOL bRedSubPTExist = IMS_FALSE;
@@ -96,9 +96,8 @@ void TextSdpGenerator::CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile)
                     continue;
                 }
 
-                IMS_TRACE_I("CheckRedPayloadSubTypeValidity() - RedSubPT, PT[%d] of PL(%d) / Red "
-                            "Payload [%d]",
-                        pTempPayload->GetRtpMap().GetPayloadNumber(), j, pRedFmtp->GetRedPayload());
+                IMS_TRACE_I("CheckRedPayloadSubTypeValidity(): payload[%d], Red Payload[%d]",
+                        pTempPayload->GetRtpMap().GetPayloadNumber(), pRedFmtp->GetRedPayload(), 0);
 
                 if (pTempPayload->GetRtpMap().GetPayloadNumber() ==
                         (IMS_UINT32)pRedFmtp->GetRedPayload())
@@ -108,10 +107,10 @@ void TextSdpGenerator::CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile)
                 }
             }
 
-            if (bRedSubPTExist == IMS_FALSE)
+            if (!bRedSubPTExist)
             {
                 IMS_TRACE_E(0,
-                        "CheckRedPayloadSubTypeValidity() - SubPayloadtype for Redundancy isn't "
+                        "CheckRedPayloadSubTypeValidity(): SubPayloadtype isn't "
                         "exist. skip Payload, Payload[%s], PT[%d]",
                         pPayload->GetRtpMap().GetPayloadType().GetStr(),
                         pPayload->GetRtpMap().GetPayloadNumber(), 0);
@@ -120,9 +119,6 @@ void TextSdpGenerator::CheckRedPayloadSubTypeValidity(OUT TextProfile* pProfile)
             }
         }
     }
-
-    IMS_TRACE_I("CheckRedPayloadSubTypeValidity() - After Checking Validity, PayloadSize[%d]",
-            pProfile->GetPayloadList().GetSize(), 0, 0);
 }
 
 PRIVATE
@@ -130,6 +126,7 @@ void TextSdpGenerator::GeneratePayload(OUT IMediaDescriptor* pDescriptor, IN Tex
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
+        IMS_TRACE_E(0, "GeneratePayload(): invalid argument", 0, 0, 0);
         return;
     }
 
@@ -160,6 +157,7 @@ IMS_BOOL TextSdpGenerator::GenerateFmtp(OUT AString& strFmtp, IN TextProfile::Pa
 {
     if (pPayload == IMS_NULL)
     {
+        IMS_TRACE_E(0, "GenerateFmtp(): invalid argument", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -169,6 +167,7 @@ IMS_BOOL TextSdpGenerator::GenerateFmtp(OUT AString& strFmtp, IN TextProfile::Pa
 
         if (pRedFmtp == IMS_NULL)
         {
+            IMS_TRACE_E(0, "GenerateFmtp(): invalid fmtp", 0, 0, 0);
             return IMS_FALSE;
         }
 
@@ -187,7 +186,7 @@ IMS_BOOL TextSdpGenerator::GenerateFmtp(OUT AString& strFmtp, IN TextProfile::Pa
             nCount--;
         }
 
-        IMS_TRACE_I("GenerateFmtp() - Add fmtp, nRedundancy[%d], Red Payload[%d], Fmtp[%s]",
+        IMS_TRACE_I("GenerateFmtp(): Redundancy[%d], RED Payload[%d], Fmtp[%s]",
                 pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), strFmtp.GetStr());
     }
 

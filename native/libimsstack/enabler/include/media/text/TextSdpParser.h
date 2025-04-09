@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,21 @@ public:
     explicit TextSdpParser();
     virtual ~TextSdpParser();
 
-    IMS_BOOL Parse(IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor,
-            OUT TextProfile* pProfile);
+    /**
+     * @brief It is the core function responsible for extracting text-related attributes from
+     * the SDP (Session Description Protocol) message. It takes the SDP data and populates a
+     * TextProfile object with the parsed parameters
+     *
+     * @param pSessionDescriptor This pointer provides access to the overall SDP session description
+     * @param pDescriptor This pointer contains the SDP media description specifically for the text
+     * stream
+     * @param pProfile This is an output parameter. The method will populate this object with the
+     * parsed text parameters.
+     * @return IMS_BOOL Returns IMS_FALSE when error handling to gracefully manage situations where
+     * the SDP message is malformed or missing crucial text parameters.
+     */
+    virtual IMS_BOOL Parse(IN ISessionDescriptor* pSessionDescriptor,
+            IN IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile);
 
 private:
     void ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile);

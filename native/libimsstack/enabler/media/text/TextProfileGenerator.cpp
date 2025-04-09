@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,7 @@ TextProfile* TextProfileGenerator::SetProfile(IN MediaBaseProfile* pProfile,
 {
     if (pProfile == IMS_NULL || pConfig == IMS_NULL || pIService == IMS_NULL)
     {
+        IMS_TRACE_E(0, "SetProfile(): invalid arguments", 0, 0, 0);
         return IMS_NULL;
     }
 
@@ -52,7 +53,7 @@ TextProfile* TextProfileGenerator::SetProfile(IN MediaBaseProfile* pProfile,
     pTextProfile->SetTransportType("RTP/AVP");
     pTextProfile->SetKeepRedundantLevel(pTextConfig->IsTextCodecEmptyRedundantEnabled());
 
-    IMS_TRACE_I("SetProfile() - transport type[%s], keep red level[%d]",
+    IMS_TRACE_I("SetProfile(): transport type[%s], keep red level[%d]",
             pTextProfile->GetTransportType().GetStr(), pTextProfile->GetKeepRedundantLevel(), 0);
 
     return pTextProfile;
@@ -64,10 +65,11 @@ void TextProfileGenerator::CreateCodecPayloads(IN MediaBaseProfile* pProfile, IN
 {
     if (pProfile == IMS_NULL || pConfig == IMS_NULL || pCodecConfig == IMS_NULL)
     {
+        IMS_TRACE_E(0, "CreateCodecPayloads(): invalid arguments", 0, 0, 0);
         return;
     }
 
-    IMS_TRACE_D("CreateCodecPayloads() - codec[%s]", ImsCodec::CodecToString(nCodec), 0, 0);
+    IMS_TRACE_D("CreateCodecPayloads(): codec[%s]", ImsCodec::CodecToString(nCodec), 0, 0);
 
     if (nCodec > ImsCodec::TEXT_NONE && nCodec < ImsCodec::TEXT_MAX)
     {
@@ -90,6 +92,7 @@ PROTECTED TextProfile::Payload* TextProfileGenerator::CreateT140Payload(
 {
     if (pCodecConfig == IMS_NULL || pConfig == IMS_NULL)
     {
+        IMS_TRACE_E(0, "CreateT140Payload(): invalid arguments", 0, 0, 0);
         return IMS_NULL;
     }
 
@@ -104,9 +107,8 @@ PROTECTED TextProfile::Payload* TextProfileGenerator::CreateT140Payload(
         TextProfile::RedFmtp* pRedFmtp = new TextProfile::RedFmtp(pT140Config->GetRedLevel(),
                 static_cast<TextConfiguration*>(pConfig)->GetT140PayloadType());
 
-        IMS_TRACE_I("CreateT140Payload() add fmtp - red level(%d), red payload(%d)",
-                pRedFmtp->GetRedLevel(), pRedFmtp->GetRedPayload(), 0);
-
+        IMS_TRACE_I("CreateT140Payload(): RED level[%d], RED payload[%d]", pRedFmtp->GetRedLevel(),
+                pRedFmtp->GetRedPayload(), 0);
         pTextPayload->SetFmtp(pRedFmtp);
     }
     else
