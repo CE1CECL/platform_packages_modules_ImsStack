@@ -1897,7 +1897,7 @@ PROTECTED VIRTUAL void AosApplication::ProcessConnectionDeactivated(IN IMS_UINT3
         m_pCondition->SetBlock(BLOCK_PERMANENT_DATA_FAILED, IMS_FALSE);
         CleanAll(AosReason::DATA_PERMANENTLY_FAILED);
     }
-    else if (nReason == AosConnector::AosConnector::REASON_IP_CHANGED)
+    else if (nReason == AosConnector::REASON_IP_CHANGED)
     {
         CleanAll(AosReason::IP_CHANGED);
     }
