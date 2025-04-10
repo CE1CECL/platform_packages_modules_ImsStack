@@ -1169,8 +1169,6 @@ const IMS_CHAR CarrierConfig::ImsVt::KEY_SUPPORT_VIDEO_CALL_ONLY_IN_VOPS_OFF_STA
 const IMS_CHAR
         CarrierConfig::ImsEmergency::KEY_BLOCK_WIFI_EMERGENCY_CALL_IF_NOT_PROVISIONED_BOOL[] =
                 KEY_IMS_EMERGENCY_PREFIX "block_wifi_emergency_call_if_not_provisioned_bool";
-const IMS_CHAR CarrierConfig::ImsVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY[] =
-        KEY_IMS_VOICE_PREFIX "registration_disconnect_reason_to_ignore_int_array";
 const IMS_CHAR CarrierConfig::ImsEmergency::KEY_WIFI_EMERGENCY_18X_TIMER_MILLIS_INT[] =
         KEY_IMS_EMERGENCY_PREFIX "wifi_emergency_18x_timer_millis_int";
 const IMS_CHAR CarrierConfig::ImsVoice::

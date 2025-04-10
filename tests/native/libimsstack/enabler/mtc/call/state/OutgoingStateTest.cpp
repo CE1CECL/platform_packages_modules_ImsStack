@@ -1220,10 +1220,6 @@ TEST_F(OutgoingStateTest, SessionStartFailedIfWaitingForSilentNormalRedial)
     ON_CALL(objTimer, IsActive(MtcCallState::TimerType::TIMER_MO_CALL_INITIATION_TO_18X_WAIT))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                    ImsAosReason::REG_NEW_REQUIRED))
-            .WillByDefault(Return(IMS_TRUE));
-    ON_CALL(*pConfigurationProxy,
             GetInt(ConfigVoice::KEY_SILENT_REDIAL_REGISTRATION_WAIT_TIME_MILLIS_INT))
             .WillByDefault(Return(1000));
 

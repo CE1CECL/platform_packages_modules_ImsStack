@@ -1182,8 +1182,6 @@ public class CarrierConfig {
                 KEY_PREFIX + "add_replace_header_for_conference_bool";
         public static final String KEY_POLICY_FOR_PRACK_DELIVERY_FAILURE_INT =
                 KEY_PREFIX + "policy_for_prack_delivery_failure_int";
-        public static final String KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY =
-                KEY_PREFIX + "registration_disconnect_reason_to_ignore_int_array";
         public static final String KEY_USE_CARRIER_SPECIFIC_CONTACT_HEADER_FOR_OPTIONS_RESPONSE_BOOL =
                 KEY_PREFIX + "use_carrier_specific_contact_header_for_options_response_bool";
         public static final String KEY_USE_CARRIER_SPECIFIC_REJECT_PHRASE_FOR_INCOMING_CALL_DURING_NO_REGISTRATION_BOOL =

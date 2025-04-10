@@ -526,6 +526,12 @@ CallStateName MtcCallState::HandleAosConnected()
 PROTECTED
 CallStateName MtcCallState::HandleAosDisconnected(IN IMS_UINT32 eAosReason)
 {
+    if (eAosReason == ImsAosReason::REG_NEW_REQUIRED)
+    {
+        // AoS will trigger a new registration to continue the call.
+        return GetStateName();
+    }
+
     if (m_objContext.GetService().GetSrvccState() == SrvccState::STARTED)
     {
         IMS_TRACE_I("HandleAosDisconnected : Ignore during SRVCC", 0, 0, 0);
@@ -538,14 +544,7 @@ CallStateName MtcCallState::HandleAosDisconnected(IN IMS_UINT32 eAosReason)
         return GetStateName();
     }
 
-    if (m_objContext.GetConfigurationProxy().Contains(
-                ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                static_cast<IMS_SINT32>(eAosReason)))
-    {
-        return GetStateName();
-    }
-    const CallReasonInfo objReason(GetCallReasonByAosReason(eAosReason));
-    return Terminate(objReason);
+    return Terminate(CallReasonInfo(GetCallReasonByAosReason(eAosReason)));
 }
 
 PROTECTED

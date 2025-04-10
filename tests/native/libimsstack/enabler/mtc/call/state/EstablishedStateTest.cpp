@@ -923,10 +923,6 @@ TEST_F(EstablishedStateTest,
     MockEpsFallbackTrigger* pEpsFbTrigger = new MockEpsFallbackTrigger(objMockCallContext);
     ON_CALL(objMockCallContext, GetEpsFallbackTrigger).WillByDefault(ReturnRef(*pEpsFbTrigger));
     ON_CALL(*pEpsFbTrigger, IsWaitingRegistration).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                    ImsAosReason::REG_TERMINATING))
-            .WillByDefault(Return(IMS_FALSE));
 
     const CallReasonInfo objReasonInfo(CODE_LOCAL_SERVICE_UNAVAILABLE);
     EXPECT_CALL(objMockMtcSession, Terminate(IMS_TRUE, objReasonInfo));
@@ -942,10 +938,6 @@ TEST_F(EstablishedStateTest,
 {
     ON_CALL(objService, GetSrvccState).WillByDefault(Return(SrvccState::IDLE));
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallback).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                    ImsAosReason::WIFI_OFF))
-            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(objService, GetLastConnectedRatType)
             .WillByDefault(Return(INetworkWatcher::RADIOTECH_TYPE_IWLAN));
 
@@ -963,10 +955,6 @@ TEST_F(EstablishedStateTest,
 {
     ON_CALL(objService, GetSrvccState).WillByDefault(Return(SrvccState::IDLE));
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallback).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                    ImsAosReason::AIRPLANE_MODE))
-            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(objService, GetLastConnectedRatType)
             .WillByDefault(Return(INetworkWatcher::RADIOTECH_TYPE_LTE));
 
@@ -984,10 +972,6 @@ TEST_F(EstablishedStateTest,
 {
     ON_CALL(objService, GetSrvccState).WillByDefault(Return(SrvccState::IDLE));
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallback).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                    ImsAosReason::AIRPLANE_MODE))
-            .WillByDefault(Return(IMS_FALSE));
     ON_CALL(objService, IsCrossSimConnected).WillByDefault(Return(IMS_TRUE));
 
     const CallReasonInfo objReasonInfo(CODE_OEM_CAUSE_3);
@@ -1003,10 +987,6 @@ TEST_F(EstablishedStateTest, HandleAosDisconnectedWithWifiOffInvokesTerminateWit
 {
     ON_CALL(objService, GetSrvccState).WillByDefault(Return(SrvccState::IDLE));
     ON_CALL(*pEpsFbTrigger, IsWaitingEpsFallback).WillByDefault(Return(IMS_FALSE));
-    ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_REGISTRATION_DISCONNECT_REASON_TO_IGNORE_INT_ARRAY,
-                    ImsAosReason::WIFI_OFF))
-            .WillByDefault(Return(IMS_FALSE));
 
     const CallReasonInfo objReasonInfo(CODE_WIFI_LOST);
     EXPECT_CALL(objMockMtcSession, Terminate(IMS_TRUE, objReasonInfo));
