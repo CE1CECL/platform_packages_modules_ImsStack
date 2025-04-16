@@ -927,7 +927,8 @@ PROTECTED IMS_BOOL AosERegistration::IsFakeModeCondition()
         return IMS_TRUE;
     }
 
-    if (m_piContext->GetNetTracker()->IsEmergencyAttach())
+    if (!m_piContext->GetConnection()->IsEpdgEnabled() &&
+            m_piContext->GetNetTracker()->IsEmergencyAttach())
     {
         A_IMS_TRACE_I(REGID, "IsFakeModeCondition :: emergency attach", 0, 0, 0);
         if (!GET_N_CONFIG(m_nSlotId)->IsSupportERegWhenEAttachWithValidSim())
