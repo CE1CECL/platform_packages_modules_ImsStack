@@ -259,6 +259,13 @@ public:
     virtual IMS_SINT32 GetSlotId() const = 0;
 
     /**
+     * @brief Gets the SIP profile of this SIP connection.
+     *
+     * @return SIP profile of this SIP connection.
+     */
+    virtual SipProfile* GetSipProfile() const = 0;
+
+    /**
      * @brief Sets the SIP profile for specific configuration of this SIP connection.
      *
      * @param pProfile SIP profile for this SIP connection

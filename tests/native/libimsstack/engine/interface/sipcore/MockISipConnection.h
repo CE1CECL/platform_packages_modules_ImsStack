@@ -51,6 +51,7 @@ public:
     MOCK_METHOD(IMS_SINT32, GetHeaderCount, (IN const AString& strName), (const, override));
     MOCK_METHOD(ISipMessage*, GetMessage, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetSlotId, (), (const, override));
+    MOCK_METHOD(SipProfile*, GetSipProfile, (), (const, override));
     MOCK_METHOD(void, SetSipProfile, (IN SipProfile * pProfile), (override));
     MOCK_METHOD(void, SetTransactionTimerValues, (IN const SipTimerValues& objTv), (override));
 
