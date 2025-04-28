@@ -62,6 +62,7 @@ public:
     virtual IMS_RESULT SetContent(IN const ByteArray& objContent);
     virtual IMS_SINT32 GetHeaderCount(IN const AString& strName) const;
     inline virtual ISipMessage* GetMessage() const { return m_pMessage; }
+    inline virtual SipProfile* GetSipProfile() const { return IMS_NULL; }
     inline virtual void SetSipProfile(IN SipProfile* /*pProfile*/) {}
     void SetTransactionTimerValues(IN const SipTimerValues& objTimerValues);
 

@@ -65,6 +65,7 @@ public:
     const ByteArray& GetContent() const override;
     IMS_RESULT SetContent(IN const ByteArray& objContent) override;
     IMS_SINT32 GetHeaderCount(IN const AString& strName) const override;
+    SipProfile* GetSipProfile() const override;
     void SetSipProfile(IN SipProfile* pProfile) override;
 
     // ISipClientConnection interface

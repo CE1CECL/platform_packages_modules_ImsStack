@@ -64,6 +64,7 @@ private:
     IMS_SINT32 GetHeaderCount(IN const AString& strName) const override;
     ISipMessage* GetMessage() const override;
     IMS_SINT32 GetSlotId() const override;
+    SipProfile* GetSipProfile() const override;
     void SetSipProfile(IN SipProfile* pProfile) override;
     void SetTransactionTimerValues(IN const SipTimerValues& objTimerValues) override;
 

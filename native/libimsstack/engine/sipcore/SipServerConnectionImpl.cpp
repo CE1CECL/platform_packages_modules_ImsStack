@@ -156,6 +156,11 @@ PRIVATE VIRTUAL IMS_SINT32 SipServerConnectionImpl::GetSlotId() const
     return m_pSsc->GetSlotId();
 }
 
+PRIVATE VIRTUAL SipProfile* SipServerConnectionImpl::GetSipProfile() const
+{
+    return m_pSsc->GetSipProfile();
+}
+
 PRIVATE VIRTUAL void SipServerConnectionImpl::SetSipProfile(IN SipProfile* pProfile)
 {
     m_pSsc->SetSipProfile(pProfile);

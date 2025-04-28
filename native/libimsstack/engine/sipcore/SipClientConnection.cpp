@@ -435,12 +435,14 @@ PUBLIC VIRTUAL IMS_SINT32 SipClientConnection::GetHeaderCount(IN const AString& 
     return SipConnection::GetHeaderCount(strName);
 }
 
+PUBLIC VIRTUAL SipProfile* SipClientConnection::GetSipProfile() const
+{
+    return m_pCtState->GetSipProfile();
+}
+
 PUBLIC VIRTUAL void SipClientConnection::SetSipProfile(IN SipProfile* pProfile)
 {
-    if (!m_pCtState.IsNull())
-    {
-        m_pCtState->SetSipProfile(pProfile);
-    }
+    m_pCtState->SetSipProfile(pProfile);
 }
 
 PUBLIC
