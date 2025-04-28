@@ -2733,7 +2733,7 @@ IMS_BOOL Registration::RespondToPendingChallenge(IN const Credential& objCredent
         {
             ISipMessage* piSipMsg = m_piOngoingScc->GetMessage();
             PAccessNetworkInfoHeader::SetHeader(GetSlotId(), m_pStateTracker->GetIpAddress(),
-                    m_pStateTracker->GetSipProfile(), piSipMsg);
+                    m_piOngoingScc->GetSipProfile(), piSipMsg);
         }
         else
         {
@@ -2746,7 +2746,7 @@ IMS_BOOL Registration::RespondToPendingChallenge(IN const Credential& objCredent
             {
                 ISipMessage* piSipMsg = m_piOngoingScc->GetMessage();
                 PAccessNetworkInfoHeader::SetHeader(GetSlotId(), m_pStateTracker->GetIpAddress(),
-                        m_pStateTracker->GetSipProfile(), piSipMsg);
+                        m_piOngoingScc->GetSipProfile(), piSipMsg);
             }
         }
 
@@ -2841,8 +2841,8 @@ IMS_BOOL Registration::RespondToPendingChallenge(IN const Credential& objCredent
 
         // Sets a new P-Access-Network-Info header on re-submitted message (2nd-REGISTER)
         ISipMessage* piSipMsg = piScc->GetMessage();
-        PAccessNetworkInfoHeader::SetHeader(GetSlotId(), m_pStateTracker->GetIpAddress(),
-                m_pStateTracker->GetSipProfile(), piSipMsg);
+        PAccessNetworkInfoHeader::SetHeader(
+                GetSlotId(), m_pStateTracker->GetIpAddress(), piScc->GetSipProfile(), piSipMsg);
 
         // SIP_MESSAGE_MEDIATOR
         (void)AdjustMessage(piScc->GetMessage(), IMessageMediator::MESSAGE_RESUBMIT);
@@ -3101,8 +3101,8 @@ IMS_RESULT Registration::SetHeaders(IN ISipClientConnection* piScc)
         // re-REG / de-REG
         if (GetState() == STATE_ACTIVE)
         {
-            PAccessNetworkInfoHeader::SetHeader(GetSlotId(), piContact->GetIpAddress(),
-                    m_pStateTracker->GetSipProfile(), piSipMsg);
+            PAccessNetworkInfoHeader::SetHeader(
+                    GetSlotId(), piContact->GetIpAddress(), piScc->GetSipProfile(), piSipMsg);
         }
         else
         {
@@ -3111,8 +3111,8 @@ IMS_RESULT Registration::SetHeaders(IN ISipClientConnection* piScc)
                         GetSlotId(), m_pStateTracker->GetSipProfile()) ||
                     m_pRegParam->IsSecurityAssociationPresent())
             {
-                PAccessNetworkInfoHeader::SetHeader(GetSlotId(), piContact->GetIpAddress(),
-                        m_pStateTracker->GetSipProfile(), piSipMsg);
+                PAccessNetworkInfoHeader::SetHeader(
+                        GetSlotId(), piContact->GetIpAddress(), piScc->GetSipProfile(), piSipMsg);
             }
         }
     }
@@ -3657,7 +3657,9 @@ PRIVATE GLOBAL ISipClientConnection* Registration::CreateConnection(IN Registrat
         return IMS_NULL;
     }
 
-    piScc->SetSipProfile(pReg->m_pStateTracker->GetSipProfile());
+    RcPtr<SipProfile> pSipProfile =
+            SipProfile::Create(pReg->GetSipProfile(), pReg->IsEmergencyRegistration());
+    piScc->SetSipProfile(pSipProfile.Get());
 
     // Sets the transport tuples
     // RFC5626_FLOW_CONTROL
