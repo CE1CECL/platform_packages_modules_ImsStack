@@ -144,6 +144,7 @@ using ::testing::SetArgReferee;
     using Base::ProcessSubReinitiate;                             \
     using Base::ProcessSubscriberFailed;                          \
     using Base::ProcessUpdateFailed_Others;                       \
+    using Base::ProcessUnpredictableFailure;                      \
     using Base::Registration_AuthenticationChallenged;            \
     using Base::Registration_NotifyAkaResponse;                   \
     using Base::Registration_RefreshTimerExpired;                 \
@@ -6623,4 +6624,20 @@ TEST_F(AosRegistrationTest,
 
     // THEN
     EXPECT_TRUE(objBindedList.HasFeature(ImsAosFeature::VERSTAT));
+}
+
+TEST_F(AosRegistrationTest, ShouldNotifyDeregisteredForUnpredictableFailure)
+{
+    // GIVEN
+    m_pAosRegistration->SetRegType(AosRegistrationType::NORMAL);
+    m_pAosRegistration->SetState(IAosRegistration::STATE_REGISTERED);
+
+    EXPECT_CALL(m_objMockIAosService,
+            NotifyDeregistered(
+                    IAosRegistration::IMS_REG_TYPE_NORMAL, _, AosReasonCode::INTERNAL_ERROR));
+
+    // WHEN
+    m_pAosRegistration->ProcessUnpredictableFailure();
+
+    // THEN: The GIVEN condition should be met.
 }
