@@ -81,10 +81,10 @@ public class ConfigXmlUtilsTest {
                 + "    <item value=\"text1\"/>\n"
                 + "    <item value=\"text2\"/>\n"
                 + "</string-array>\n"
-                + "<pbundle name=\"config_bundle\">\n"
+                + "<pbundle_as_map name=\"config_bundle\">\n"
                 + "    <boolean name=\"config_bool\" value=\"false\"/>\n"
                 + "    <int name=\"config_int\" value=\"111\"/>\n"
-                + "</pbundle>\n"
+                + "</pbundle_as_map>\n"
                 + "</config>";
         setUpXmlParser(xmlConfig);
 
@@ -386,12 +386,12 @@ public class ConfigXmlUtilsTest {
                 + "    <item value=\"text1\"/>\n"
                 + "    <item value=\"text2\"/>\n"
                 + "</string-array>\n"
-                + "<pbundle name=\"config_bundle\">\n"
-                + "    <pbundle name=\"inner_config_bundle\">\n"
+                + "<pbundle_as_map name=\"config_bundle\">\n"
+                + "    <pbundle_as_map name=\"inner_config_bundle\">\n"
                 + "        <boolean name=\"config_bool\" value=\"true\"/>\n"
                 + "        <int name=\"config_int\" value=\"111\"/>\n"
-                + "    </pbundle>\n"
-                + "</pbundle>\n"
+                + "    </pbundle_as_map>\n"
+                + "</pbundle_as_map>\n"
                 + "</config>";
         setUpXmlParser(xmlConfig);
         ConfigXmlUtils.readConfigKeys(mParser, configKeys);
