@@ -1261,7 +1261,7 @@ PROTECTED VIRTUAL IMS_BOOL AosHandle::IsBlockForWifi(IN IMS_UINT32 nBlock) const
     return IMS_TRUE;
 }
 
-PROTECTED VIRTUAL void AosHandle::ReevaluateCapabilities(IN IMS_BOOL /*bNetworkChanged*/)
+PROTECTED VIRTUAL void AosHandle::ReevaluateCapabilities()
 {
     // Implemented in child classes
 }
