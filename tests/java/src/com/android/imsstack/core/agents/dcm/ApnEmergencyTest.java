@@ -118,6 +118,7 @@ public class ApnEmergencyTest {
         assertTrue(mApnEmergency.connect());
         assertEquals(EApnReqState.APN_REQUEST_DONE, mApnEmergency.getApnReqState());
         assertEquals(TelephonyManager.DATA_CONNECTING, mApnEmergency.getDataState());
+        verify(mMockIDcNetWatcher).clearNetworkRegistrationRejectCause();
         verify(mConnectivityManager).requestNetwork(
                 any(NetworkRequest.class), any(ConnectivityManager.NetworkCallback.class),
                 any(Handler.class));

@@ -58,6 +58,10 @@ public final class ApnEmergency extends Apn {
             return true;
         }
 
+        if (mDcNetWatcher != null) {
+            mDcNetWatcher.clearNetworkRegistrationRejectCause();
+        }
+
         setApnReqState(EApnReqState.APN_REQUEST_DONE);
 
         requestNetwork();
