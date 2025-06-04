@@ -57,6 +57,7 @@ import com.android.imsstack.util.ImsLog;
 import com.android.imsstack.util.MessageExecutor;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -65,12 +66,32 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Implementation of IUtInterface class that provides query and update APIs for supplementary
- * service configuration over Ut reference point using XCAP
+ * service configuration over Ut reference point using XCAP.
  */
 public class SscServiceImpl implements IUtInterface {
     private static final int EVENT_UT_TRANSACTION_STARTED = 1001;
     private static final int REQUEST_TYPE_QUERY = 0;
     private static final int REQUEST_TYPE_UPDATE = 1;
+
+
+    // Call Waiting and Call Forwarding services are not supported as TB within IMS.
+    private static final List<Integer> TERMINAL_BASED_SERVICE_LIST = List.of(
+            SscConfig.SERVICE_TYPE_BAOC,
+            SscConfig.SERVICE_TYPE_BOIC,
+            SscConfig.SERVICE_TYPE_BOIC_EXHC,
+            SscConfig.SERVICE_TYPE_BAIC,
+            SscConfig.SERVICE_TYPE_BIC_ROAM,
+            SscConfig.SERVICE_TYPE_ACR,
+            SscConfig.SERVICE_TYPE_OIP,
+            SscConfig.SERVICE_TYPE_OIR,
+            SscConfig.SERVICE_TYPE_TIP,
+            SscConfig.SERVICE_TYPE_TIR
+    );
+
+    private static final List<Integer> SERVICE_CLASS_LIST = List.of(
+            SscServiceClassUtil.SERVICE_CLASS_VOICE,
+            SscServiceClassUtil.SERVICE_CLASS_VIDEO
+    );
 
     private final int mSlotId;
     private final ConcurrentLinkedDeque<SscRequestData> mSscRequestQueue;
@@ -731,13 +752,79 @@ public class SscServiceImpl implements IUtInterface {
             TerminalBasedSupplementaryServiceConfigurationChangeListener listener) {
         mTbSscChangeListeners.add(listener);
 
-        // TODO: Notify current status to the added listener.
+        postAndRunTask(() -> notifyTbSscStatus(listener));
     }
 
     @Override
     public void removeTbSscChangeListener(
             TerminalBasedSupplementaryServiceConfigurationChangeListener listener) {
         mTbSscChangeListeners.remove(listener);
+    }
+
+    private void notifyTbSscStatus(
+            TerminalBasedSupplementaryServiceConfigurationChangeListener listener) {
+        List<SupplementaryServiceConfiguration> sscList = new ArrayList<>();
+
+        for (int service : TERMINAL_BASED_SERVICE_LIST) {
+            if (!SscConfig.isTerminalBasedService(mSlotId, service)) {
+                continue;
+            }
+
+            switch (service) {
+                case SscConfig.SERVICE_TYPE_BAOC:
+                case SscConfig.SERVICE_TYPE_BOIC:
+                case SscConfig.SERVICE_TYPE_BOIC_EXHC:
+                case SscConfig.SERVICE_TYPE_BAIC:
+                case SscConfig.SERVICE_TYPE_BIC_ROAM:
+                case SscConfig.SERVICE_TYPE_ACR: {
+                    int condition = SscUtils.getConditionFromSsType(service);
+                    for (int serviceClass : SERVICE_CLASS_LIST) {
+                        int status = mSscPreferenceHelper.queryCb(condition, serviceClass);
+                        if (status != SscConstant.STATUS_NOT_REGISTERED) {
+                            sscList.add(new CbData(condition, serviceClass, status));
+                        }
+                    }
+                    break;
+                }
+                case SscConfig.SERVICE_TYPE_OIP: {
+                    int status = mSscPreferenceHelper.queryOip();
+                    if (status != SscConstant.STATUS_NOT_REGISTERED) {
+                        sscList.add(new OipData(status));
+                    }
+                    break;
+                }
+                case SscConfig.SERVICE_TYPE_OIR: {
+                    int mode = mSscPreferenceHelper.queryOir();
+                    if (mode != SscConstant.STATUS_NOT_REGISTERED) {
+                        sscList.add(new OirData(mode == SscConstant.OIR_INVOCATION
+                                ? SscConstant.STATUS_ENABLE : SscConstant.STATUS_DISABLE));
+                    }
+                    break;
+                }
+                case SscConfig.SERVICE_TYPE_TIP: {
+                    int status = mSscPreferenceHelper.queryTip();
+                    if (status != SscConstant.STATUS_NOT_REGISTERED) {
+                        sscList.add(new TipData(status));
+                    }
+                    break;
+                }
+                case SscConfig.SERVICE_TYPE_TIR: {
+                    int provisionStatus = mSscPreferenceHelper.queryTir();
+                    if (provisionStatus != SscConstant.STATUS_NOT_REGISTERED) {
+                        sscList.add(new TirData(provisionStatus == SscConstant.TIR_PROVISIONED
+                                ? SscConstant.STATUS_ENABLE : SscConstant.STATUS_DISABLE));
+                    }
+                    break;
+                }
+                default:
+                    ImsLog.e(mSlotId, "Invalid service type : " + service);
+                    break;
+            }
+        }
+
+        if (!sscList.isEmpty()) {
+            listener.onSupplementaryServiceConfigurationChanged(sscList);
+        }
     }
 
     private void startTransaction(SscData data) {
@@ -1094,23 +1181,9 @@ public class SscServiceImpl implements IUtInterface {
             return false;
         }
 
-        List<Integer> actualTbSs = java.util.Arrays.stream(terminalBasedServices).boxed().toList();
+        List<Integer> tbSs = java.util.Arrays.stream(terminalBasedServices).boxed().toList();
 
-        // Call Waiting and Call Forwarding services are not supported as TB within IMS.
-        List<Integer> supportedTbdSs = List.of(
-                SscConfig.SERVICE_TYPE_BAOC,
-                SscConfig.SERVICE_TYPE_BOIC,
-                SscConfig.SERVICE_TYPE_BOIC_EXHC,
-                SscConfig.SERVICE_TYPE_BAIC,
-                SscConfig.SERVICE_TYPE_BIC_ROAM,
-                SscConfig.SERVICE_TYPE_ACR,
-                SscConfig.SERVICE_TYPE_OIP,
-                SscConfig.SERVICE_TYPE_OIR,
-                SscConfig.SERVICE_TYPE_TIP,
-                SscConfig.SERVICE_TYPE_TIR
-        );
-
-        return !Collections.disjoint(actualTbSs, supportedTbdSs);
+        return !Collections.disjoint(tbSs, TERMINAL_BASED_SERVICE_LIST);
     }
 
     private boolean isCsVoiceNetworkRegistered() {

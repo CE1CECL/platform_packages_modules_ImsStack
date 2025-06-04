@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -1489,6 +1490,8 @@ public class SscServiceImplTest {
                 .thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 70;
 
         mSscServiceImpl.updateCallBarringForServiceClass(
@@ -1526,6 +1529,8 @@ public class SscServiceImplTest {
                 .thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 71;
 
         mSscServiceImpl.updateCallBarringForServiceClass(
@@ -1565,6 +1570,8 @@ public class SscServiceImplTest {
                 .thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 71;
 
         mSscServiceImpl.updateCallBarringForServiceClass(
@@ -1602,6 +1609,8 @@ public class SscServiceImplTest {
                 .thenReturn(false);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 72;
 
         mSscServiceImpl.updateCallBarringForServiceClass(
@@ -1633,6 +1642,8 @@ public class SscServiceImplTest {
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.setListener(null);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 73;
 
         mSscServiceImpl.updateCallBarringForServiceClass(
@@ -2048,6 +2059,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateOir(anyInt())).thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 1;
 
         mSscServiceImpl.updateCLIR(tId, SscConstant.OIR_INVOCATION);
@@ -2148,6 +2161,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateOir(anyInt())).thenReturn(false);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 1;
 
         mSscServiceImpl.updateCLIR(tId, SscConstant.OIR_INVOCATION);
@@ -2268,6 +2283,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateOip(eq(SscConstant.STATUS_ENABLE))).thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 40;
 
         mSscServiceImpl.updateCLIP(tId, true);
@@ -2296,6 +2313,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateOip(eq(SscConstant.STATUS_DISABLE))).thenReturn(false);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 41;
 
         mSscServiceImpl.updateCLIP(tId, false);
@@ -2388,6 +2407,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateTir(eq(expectedStatus))).thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 50;
 
         mSscServiceImpl.updateCOLR(tId, presentation);
@@ -2418,6 +2439,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateTir(eq(expectedStatus))).thenReturn(false);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 51;
 
         mSscServiceImpl.updateCOLR(tId, presentation);
@@ -2508,6 +2531,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateTip(eq(expectedStatus))).thenReturn(true);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 60;
 
         mSscServiceImpl.updateCOLP(tId, true);
@@ -2536,6 +2561,8 @@ public class SscServiceImplTest {
         when(mMockSscPreferenceHelper.updateTip(eq(expectedStatus))).thenReturn(false);
         mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
         mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+        reset(mMockTbSscChangeListener);
         int tId = 61;
 
         mSscServiceImpl.updateCOLP(tId, false);
@@ -2573,10 +2600,168 @@ public class SscServiceImplTest {
     }
 
     @Test
-    public void testAddTbSscChangeListener() {
-        mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+    public void testAddTbSscChangeListener_notifyTbSscStatus() {
+        int boicExhcVoiceStatus = SscConstant.STATUS_ENABLE;
+        int baicVideoStatus = SscConstant.STATUS_DISABLE;
+        int bicWrVoiceStatus = SscConstant.STATUS_ENABLE;
+        int oipStatus = SscConstant.STATUS_ENABLE;
+        int tipStatus = SscConstant.STATUS_DISABLE;
+        int oirStatus = SscConstant.STATUS_DISABLE; // SscConstant.OIR_SUPPRESSION.
+        int tirStatus = SscConstant.STATUS_ENABLE; // SscConstant.TIR_PROVISIONED.
+        when(mMockCarrierConfig.getIntArray(
+                CarrierConfigManager.ImsSs.KEY_UT_TERMINAL_BASED_SERVICES_INT_ARRAY))
+                .thenReturn(new int[]{
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BAOC,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BOIC,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BOIC_EXHC,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BAIC,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BIC_ROAM,
+                        // Remove ACR to verify that it is not notified.
+                        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_ACR,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_OIP,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_TIP,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_OIR,
+                        CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_TIR,
+                });
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BAOC, SscServiceClassUtil.SERVICE_CLASS_VOICE))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BAOC, SscServiceClassUtil.SERVICE_CLASS_VIDEO))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BOIC, SscServiceClassUtil.SERVICE_CLASS_VOICE))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BOIC, SscServiceClassUtil.SERVICE_CLASS_VIDEO))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BOIC_EXHC, SscServiceClassUtil.SERVICE_CLASS_VOICE))
+                .thenReturn(boicExhcVoiceStatus);
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BOIC_EXHC, SscServiceClassUtil.SERVICE_CLASS_VIDEO))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BAIC, SscServiceClassUtil.SERVICE_CLASS_VOICE))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BAIC, SscServiceClassUtil.SERVICE_CLASS_VIDEO))
+                .thenReturn(baicVideoStatus);
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BIC_WR, SscServiceClassUtil.SERVICE_CLASS_VOICE))
+                .thenReturn(bicWrVoiceStatus);
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_BIC_WR, SscServiceClassUtil.SERVICE_CLASS_VIDEO))
+                .thenReturn(SscConstant.STATUS_NOT_REGISTERED); // Not registered. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_ACR, SscServiceClassUtil.SERVICE_CLASS_VOICE))
+                .thenReturn(SscConstant.STATUS_ENABLE); // Not supported. Will not notify.
+        when(mMockSscPreferenceHelper
+                .queryCb(SscConstant.CONDITION_ACR, SscServiceClassUtil.SERVICE_CLASS_VIDEO))
+                .thenReturn(SscConstant.STATUS_DISABLE); // Not supported. Will not notify.
+        when(mMockSscPreferenceHelper.queryOip()).thenReturn(oipStatus);
+        when(mMockSscPreferenceHelper.queryTip()).thenReturn(tipStatus);
+        when(mMockSscPreferenceHelper.queryOir()).thenReturn(SscConstant.OIR_SUPPRESSION);
+        when(mMockSscPreferenceHelper.queryTir()).thenReturn(SscConstant.TIR_PROVISIONED);
+        mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
 
-        // TODO: Verify the callback for the listener.
+        mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BAOC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VOICE));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BAOC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VIDEO));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BOIC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VOICE));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BOIC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VIDEO));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BOIC_EXHC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VOICE));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BOIC_EXHC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VIDEO));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BAIC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VOICE));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BAIC),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VIDEO));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BIC_WR),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VOICE));
+        verify(mMockSscPreferenceHelper).queryCb(eq(SscConstant.CONDITION_BIC_WR),
+                eq(SscServiceClassUtil.SERVICE_CLASS_VIDEO));
+        verify(mMockSscPreferenceHelper).queryOip();
+        verify(mMockSscPreferenceHelper).queryTip();
+        verify(mMockSscPreferenceHelper).queryOir();
+        verify(mMockSscPreferenceHelper).queryTir();
+        verifyNoMoreInteractions(mMockSscPreferenceHelper);
+
+        verify(mMockTbSscChangeListener)
+                .onSupplementaryServiceConfigurationChanged(mCaptorSscs.capture());
+
+        List<SupplementaryServiceConfiguration> capturedList = mCaptorSscs.getValue();
+        // Expected count:
+        // 1 for BOIC_EXHC (voice)
+        // 1 for BAIC (video)
+        // 1 for BIC_ROAM (voice)
+        // 1 for OIP
+        // 1 for OIR
+        // 1 for TIP
+        // 1 for TIR
+        // Total = 7
+        assertEquals(7, capturedList.size());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BOIC_EXHC, Voice.
+        assertTrue(capturedList.get(0) instanceof CbData);
+        CbData cbData0 = (CbData) capturedList.get(0);
+        assertEquals(SscConstant.CONDITION_BOIC_EXHC, cbData0.getCondition());
+        assertEquals(boicExhcVoiceStatus, cbData0.getStatus());
+        assertEquals(SscServiceClassUtil.SERVICE_CLASS_VOICE, cbData0.getServiceClass());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BAIC, Video.
+        assertTrue(capturedList.get(1) instanceof CbData);
+        CbData cbData1 = (CbData) capturedList.get(1);
+        assertEquals(SscConstant.CONDITION_BAIC, cbData1.getCondition());
+        assertEquals(baicVideoStatus, cbData1.getStatus());
+        assertEquals(SscServiceClassUtil.SERVICE_CLASS_VIDEO, cbData1.getServiceClass());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_CB_BIC_ROAM, Voice.
+        assertTrue(capturedList.get(2) instanceof CbData);
+        CbData cbData2 = (CbData) capturedList.get(2);
+        assertEquals(SscConstant.CONDITION_BIC_WR, cbData2.getCondition());
+        assertEquals(bicWrVoiceStatus, cbData2.getStatus());
+        assertEquals(SscServiceClassUtil.SERVICE_CLASS_VOICE, cbData2.getServiceClass());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_OIP.
+        assertTrue(capturedList.get(3) instanceof OipData);
+        OipData oipData = (OipData) capturedList.get(3);
+        assertEquals(oipStatus, oipData.getStatus());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_OIR.
+        assertTrue(capturedList.get(4) instanceof OirData);
+        OirData oirData = (OirData) capturedList.get(4);
+        assertEquals(oirStatus, oirData.getStatus());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_TIP.
+        assertTrue(capturedList.get(5) instanceof TipData);
+        TipData tipData = (TipData) capturedList.get(5);
+        assertEquals(tipStatus, tipData.getStatus());
+
+        // CarrierConfigManager.ImsSs.SUPPLEMENTARY_SERVICE_IDENTIFICATION_TIR.
+        assertTrue(capturedList.get(6) instanceof TirData);
+        TirData tirData = (TirData) capturedList.get(6);
+        assertEquals(tirStatus, tirData.getStatus());
+    }
+
+    @Test
+    public void testAddTbSscChangeListener_noTbService_doNotNotifyTbSscStatus() {
+        when(mMockCarrierConfig.getIntArray(
+                CarrierConfigManager.ImsSs.KEY_UT_TERMINAL_BASED_SERVICES_INT_ARRAY))
+                .thenReturn(new int[]{});
+        mSscServiceImpl.setSscPreferenceHelper(mMockSscPreferenceHelper);
+
+        mSscServiceImpl.addTbSscChangeListener(mMockTbSscChangeListener);
+        mLooper.processAllMessages();
+
+        verify(mMockTbSscChangeListener, never()).onSupplementaryServiceConfigurationChanged(any());
     }
 
     @Test
