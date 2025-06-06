@@ -331,10 +331,10 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageAddsPeiHeaderWithImei)
 {
     ON_CALL(objService, IsWlanIpCanType).WillByDefault(Return(IMS_TRUE));
 
-    AString strPei = "WSS-Wi-Fi-KEY;generic-key=#IMEI#";
+    AString strPei1 = "WSS-Wi-Fi-KEY;generic-key=#IMEI#";
     ON_CALL(*pConfigurationProxy,
             GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
-            .WillByDefault(Return(strPei));
+            .WillByDefault(Return(strPei1));
 
     ON_CALL(objPhoneInfoService.GetMockDeviceInfo(), GetDeviceId(_, _))
             .WillByDefault(Invoke(
@@ -347,6 +347,25 @@ TEST_F(EmergencyMessageFormatterTest, FormStartMessageAddsPeiHeaderWithImei)
     EXPECT_CALL(objMessageUtils, AddValueIfNotExists(_, _, _, _)).Times(AnyNumber());
     EXPECT_CALL(objMessageUtils,
             AddValueIfNotExists(&objMessage, AString("WSS-Wi-Fi-KEY;generic-key=123456789012340"),
+                    ISipHeader::UNKNOWN, HEADER_P_EMERGENCY_INFO));
+    EXPECT_EQ(pFormatter->FormStartMessage(CallType::VOIP), IMS_SUCCESS);
+
+    AString strPei2 = "WSS-Wi-Fi-KEY;generic-key=#IMEIWITHHYPHEN#";
+    ON_CALL(*pConfigurationProxy,
+            GetString(ConfigEmergency::KEY_P_EMERGENCY_INFO_HEADER_IN_INVITE_STRING))
+            .WillByDefault(Return(strPei2));
+
+    ON_CALL(objPhoneInfoService.GetMockDeviceInfo(), GetDeviceId(_, _))
+            .WillByDefault(Invoke(
+                    [](Unused, OUT AString& strImei)
+                    {
+                        strImei = "123456789012345";
+                        return IMS_TRUE;
+                    }));
+
+    EXPECT_CALL(objMessageUtils, AddValueIfNotExists(_, _, _, _)).Times(AnyNumber());
+    EXPECT_CALL(objMessageUtils,
+            AddValueIfNotExists(&objMessage, AString("WSS-Wi-Fi-KEY;generic-key=12345678-901234-0"),
                     ISipHeader::UNKNOWN, HEADER_P_EMERGENCY_INFO));
     EXPECT_EQ(pFormatter->FormStartMessage(CallType::VOIP), IMS_SUCCESS);
 }
@@ -576,6 +595,34 @@ TEST_F(EmergencyMessageFormatterTest, SetPPreferredIdentityHeaderByUserId)
 
     nResult = pFormatter->FormStartMessage(CallType::VOIP);
     EXPECT_EQ(nResult, IMS_SUCCESS);
+}
+
+TEST_F(EmergencyMessageFormatterTest, SetPPreferredIdentityHeaderByImeiWithHyphen)
+{
+    ON_CALL(objMessageUtils, IsHeaderPresent(_, ISipHeader::P_PREFERRED_IDENTITY, _))
+            .WillByDefault(Return(IMS_FALSE));
+    ImsVector<AString> lstPpi;
+    lstPpi.Add("sip:#IMEIWITHHYPHEN#@#IP#:#PORT#");
+    ON_CALL(*pConfigurationProxy,
+            GetStringArray(
+                    ConfigEmergency::KEY_P_PREFERRED_IDENTITY_INFO_HEADER_IN_INVITE_STRING_ARRAY))
+            .WillByDefault(Return(lstPpi));
+
+    ON_CALL(objPhoneInfoService.GetMockDeviceInfo(), GetDeviceId(_, _))
+            .WillByDefault(Invoke(
+                    [](Unused, OUT AString& strImei)
+                    {
+                        strImei = "123456789012345";
+                        return IMS_TRUE;
+                    }));
+    ON_CALL(objAosConnector, GetLocalAddress).WillByDefault(Return("ip"));
+    ON_CALL(objAosConnector, GetLocalPort).WillByDefault(Return(5060));
+
+    EXPECT_CALL(objMessageUtils, SetHeader(_, _, _, _)).Times(AnyNumber());
+    EXPECT_CALL(objMessageUtils,
+            SetHeader(_, AString("sip:12345678-901234-0@ip:5060"), ISipHeader::P_PREFERRED_IDENTITY,
+                    _));
+    EXPECT_EQ(pFormatter->FormStartMessage(CallType::VOIP), IMS_SUCCESS);
 }
 
 TEST_F(EmergencyMessageFormatterTest, SetSipInstanceFeature)

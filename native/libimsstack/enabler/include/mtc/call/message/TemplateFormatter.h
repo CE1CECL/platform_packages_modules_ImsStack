@@ -39,6 +39,7 @@ public:
 
 private:
     static AString GetImei(IN const IMtcCallContext& objContext);
+    static AString GetImeiWithHyphen(IN const IMtcCallContext& objContext);
     static AString GetImsi(IN const IMtcCallContext& objContext);
     static AString GetMacAddress(IN const IMtcCallContext& objContext);
     static AString GetIpAddress(IN IMtcCallContext& objContext);

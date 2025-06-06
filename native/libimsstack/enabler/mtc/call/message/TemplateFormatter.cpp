@@ -31,6 +31,8 @@
 __IMS_TRACE_TAG_COM_MTC__;
 
 LOCAL const AString ALL_ZERO_ADDRESS("0000:0000:0000:0000");
+LOCAL const IMS_UINT8 IMEI_INSERT_INDEX_1 = 8;
+LOCAL const IMS_UINT8 IMEI_INSERT_INDEX_2 = 15;
 
 PUBLIC GLOBAL AString TemplateFormatter::Format(
         IN const AString& strFormatString, IN IMtcCallContext& objContext)
@@ -38,6 +40,7 @@ PUBLIC GLOBAL AString TemplateFormatter::Format(
     AString strResult = strFormatString;
     // clang-format off
     Replace(strResult, "#IMEI#", [&]() { return GetImei(objContext); });
+    Replace(strResult, "#IMEIWITHHYPHEN#", [&]() { return GetImeiWithHyphen(objContext); });
     Replace(strResult, "#IMSI#", [&]() { return GetImsi(objContext); });
     Replace(strResult, "#MAC#", [&]() { return GetMacAddress(objContext); });
     Replace(strResult, "#IP#", [&]() { return GetIpAddress(objContext); });
@@ -61,6 +64,17 @@ PRIVATE GLOBAL AString TemplateFormatter::GetImei(IN const IMtcCallContext& objC
     AString strDeviceIdSpareDigit;
     strDeviceIdSpareDigit.Sprintf("%-14.14s0", strDeviceId.GetStr()).Replace(' ', '0');
     return strDeviceIdSpareDigit;
+}
+
+/**
+ * The IMEI based identity included in P-Preferred-Identity header shall be encoded according to
+ * ABNF of imeival as defined in IETF RFC 7254 below:
+ *     imeival  =  tac "-" snr "-" spare
+ */
+PRIVATE GLOBAL AString TemplateFormatter::GetImeiWithHyphen(IN const IMtcCallContext& objContext)
+{
+    AString strImei = GetImei(objContext);
+    return strImei.Insert(IMEI_INSERT_INDEX_1, '-').Insert(IMEI_INSERT_INDEX_2, '-');
 }
 
 PRIVATE GLOBAL AString TemplateFormatter::GetImsi(IN const IMtcCallContext& objContext)
