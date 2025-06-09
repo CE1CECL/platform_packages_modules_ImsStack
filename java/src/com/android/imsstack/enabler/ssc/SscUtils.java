@@ -16,6 +16,7 @@
 
 package com.android.imsstack.enabler.ssc;
 
+import android.annotation.SuppressLint;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
@@ -333,6 +334,24 @@ public class SscUtils {
             default:
                 return SscConfig.SERVICE_TYPE_INVALID;
         }
+    }
+
+    @SuppressLint("SwitchIntDef")
+    protected static int getConditionFromSsType(@CarrierConfigServiceType int ssType) {
+        return switch (ssType) {
+            case SscConfig.SERVICE_TYPE_CFU -> SscConstant.CONDITION_CFU;
+            case SscConfig.SERVICE_TYPE_CFB -> SscConstant.CONDITION_CFB;
+            case SscConfig.SERVICE_TYPE_CFNRY -> SscConstant.CONDITION_CFNR;
+            case SscConfig.SERVICE_TYPE_CFNRC -> SscConstant.CONDITION_CFNRC;
+            case SscConfig.SERVICE_TYPE_CFNL -> SscConstant.CONDITION_CFNL;
+            case SscConfig.SERVICE_TYPE_BAOC -> SscConstant.CONDITION_BAOC;
+            case SscConfig.SERVICE_TYPE_BOIC -> SscConstant.CONDITION_BOIC;
+            case SscConfig.SERVICE_TYPE_BOIC_EXHC -> SscConstant.CONDITION_BOIC_EXHC;
+            case SscConfig.SERVICE_TYPE_BAIC -> SscConstant.CONDITION_BAIC;
+            case SscConfig.SERVICE_TYPE_BIC_ROAM -> SscConstant.CONDITION_BIC_WR;
+            case SscConfig.SERVICE_TYPE_ACR -> SscConstant.CONDITION_ACR;
+            default -> SscConstant.CONDITION_INVALID;
+        };
     }
 
     protected long getCurrentUtcTimeEpochMs() {
