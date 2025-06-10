@@ -1170,6 +1170,28 @@ TEST_F(AosRegistrationTest, StartWithNextPcscfIfAvailableWhenRequestForScscfRest
     EXPECT_EQ(m_pAosRegistration->GetState(), IAosRegistration::STATE_REGISTERING);
 }
 
+TEST_F(AosRegistrationTest, ReportFailureIfNoAvailablePcscfWhenRequestForScscfRestoration)
+{
+    // GIVEN
+    ON_CALL(m_objMockIAosPcscf, HasNextPcscf()).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(m_objMockIAosAppContext, GetHandle(ImsAosService::MTC))
+            .WillByDefault(Return(&m_objMockIAosHandle));
+    ON_CALL(m_objMockIAosHandle, IsRegToNextPcscfRequested()).WillByDefault(Return(IMS_TRUE));
+
+    EXPECT_CALL(m_objMockIAosRegistrationListener,
+            Registration_StateChanged(IAosRegistration::RESULT_FAILURE,
+                    IAosRegistration::REASON_FAILURE_NO_PCSCF_AVAILABLE));
+
+    EXPECT_CALL(m_objMockIAosRegistrationListener,
+            Registration_StateChanged(IAosRegistration::RESULT_FAILURE,
+                    IAosRegistration::REASON_FAILURE_PDN_RECONNECT));
+
+    // WHEN
+    m_pAosRegistration->RequestCmd(IAosRegistration::CMD_SCSCF_RESTORATION);
+
+    // THEN: The GIVEN condition should be met.
+}
+
 TEST_F(AosRegistrationTest, ReconnectPdnIfNoAvailablePcscfWhenRequestForScscfRestoration)
 {
     // GIVEN

@@ -3331,7 +3331,7 @@ PROTECTED VIRTUAL void AosRegistration::ProcessScscfRestoration(
         IAosHandle* piHandleMtc = m_piContext->GetHandle(ImsAosService::MTC);
         if (piHandleMtc != IMS_NULL && piHandleMtc->IsRegToNextPcscfRequested())
         {
-            piHandleMtc->NotifyAllPcscfsUnavailable();
+            ReportStateChanged(RESULT_FAILURE, REASON_FAILURE_NO_PCSCF_AVAILABLE);
         }
 
         Destroy();
