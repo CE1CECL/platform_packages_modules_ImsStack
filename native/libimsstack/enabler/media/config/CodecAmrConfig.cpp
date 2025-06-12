@@ -23,7 +23,7 @@ __IMS_TRACE_TAG_MEDIA__;
 const IMS_SINT32 CodecAmrConfig::DEFAULT_PAYLOAD_FORMAT = CodecAmrConfig::BANDWIDTH_EFFICIENT;
 const IMS_SINT32 CodecAmrConfig::DEFAULT_SAMPLING_RATE_AMR = 8000;
 const IMS_SINT32 CodecAmrConfig::DEFAULT_SAMPLING_RATE_AMRWB = 16000;
-const IMS_SINT32 CodecAmrConfig::NO_ITEM = -2;
+const IMS_SINT32 CodecAmrConfig::NOT_DEFINED = -2;
 
 PUBLIC
 CodecAmrConfig::CodecAmrConfig(IN IMS_SINT32 nType, IN IMS_SINT32 nPayloadTypeNum) :
@@ -128,8 +128,8 @@ PUBLIC VIRTUAL IMS_BOOL CodecAmrConfig::Create(IN ICarrierConfig* piCc)
 
             IMS_SINT32 nModeChangeCapability = piCcSubBundle->GetInt(
                     CarrierConfig::ImsVoice::KEY_CODEC_ATTRIBUTE_MODE_CHANGE_CAPABILITY_INT,
-                    NO_ITEM);
-            if (nModeChangeCapability != NO_ITEM)
+                    NOT_DEFINED);
+            if (nModeChangeCapability != NOT_DEFINED)
             {
                 SetModeChangeCapability(nModeChangeCapability);
                 SetVisibleModeChangeCapability(IMS_TRUE);
@@ -151,8 +151,9 @@ PUBLIC VIRTUAL IMS_BOOL CodecAmrConfig::Create(IN ICarrierConfig* piCc)
             }
 
             IMS_SINT32 nModeChangePeriod = piCcSubBundle->GetInt(
-                    CarrierConfig::ImsVoice::KEY_CODEC_ATTRIBUTE_MODE_CHANGE_PERIOD_INT, NO_ITEM);
-            if (nModeChangePeriod != NO_ITEM)
+                    CarrierConfig::ImsVoice::KEY_CODEC_ATTRIBUTE_MODE_CHANGE_PERIOD_INT,
+                    NOT_DEFINED);
+            if (nModeChangePeriod != NOT_DEFINED)
             {
                 SetModeChangePeriod(nModeChangePeriod);
                 SetVisibleModeChangePeriod(IMS_TRUE);
@@ -174,8 +175,9 @@ PUBLIC VIRTUAL IMS_BOOL CodecAmrConfig::Create(IN ICarrierConfig* piCc)
             }
 
             IMS_SINT32 nModeChangeNeighbor = piCcSubBundle->GetInt(
-                    CarrierConfig::ImsVoice::KEY_CODEC_ATTRIBUTE_MODE_CHANGE_NEIGHBOR_INT, NO_ITEM);
-            if (nModeChangeNeighbor != NO_ITEM)
+                    CarrierConfig::ImsVoice::KEY_CODEC_ATTRIBUTE_MODE_CHANGE_NEIGHBOR_INT,
+                    NOT_DEFINED);
+            if (nModeChangeNeighbor != NOT_DEFINED)
             {
                 SetModeChangeNeighbor(nModeChangeNeighbor);
                 SetVisibleModeChangeNeighbor(IMS_TRUE);

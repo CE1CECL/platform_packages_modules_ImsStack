@@ -79,13 +79,13 @@ protected:
         EXPECT_EQ(config.GetDtx(), DEFAULT_DTX);
         EXPECT_EQ(config.GetModeSetList(), DEFAULT_MODESET_AMRWB);
         EXPECT_EQ(config.GetDefaultModeSetList(), DEFAULT_MODESET_AMRWB);
-        EXPECT_EQ(config.GetShowModeSet(), IMS_FALSE);
+        EXPECT_EQ(config.GetVisibleModeSet(), IMS_FALSE);
         EXPECT_EQ(config.GetModeChangeCapability(), DEFAULT_MODECHANGE_CAPABILITY);
         EXPECT_EQ(config.GetModeChangePeriod(), DEFAULT_MODECHANGE_PERIOD);
         EXPECT_EQ(config.GetModeChangeNeighbor(), DEFAULT_MODECHANGE_NEIGHBOR);
 
         // Values from CodecEvsConfig constructor
-        EXPECT_EQ(config.GetShowDtx(), IMS_FALSE);
+        EXPECT_EQ(config.GetVisibleModeSet(), IMS_FALSE);
         EXPECT_EQ(config.GetDtxRecv(), DEFAULT_DTX_RECV);
         EXPECT_EQ(config.GetHfOnly(), DEFAULT_HF_ONLY);
         EXPECT_EQ(config.GetEvsModeSwitch(), DEFAULT_EVS_MODESWITCH);

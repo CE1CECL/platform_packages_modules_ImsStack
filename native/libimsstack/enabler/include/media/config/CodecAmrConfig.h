@@ -78,7 +78,7 @@ public:
     static const IMS_SINT32 DEFAULT_PAYLOAD_FORMAT;
     static const IMS_SINT32 DEFAULT_SAMPLING_RATE_AMR;
     static const IMS_SINT32 DEFAULT_SAMPLING_RATE_AMRWB;
-    static const IMS_SINT32 NO_ITEM;
+    static const IMS_SINT32 NOT_DEFINED;
 
 private:
     IMS_SINT32 m_nOctetAlign;
