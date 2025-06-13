@@ -1271,6 +1271,20 @@ TEST_F(IdleStateTest, TerminateInvokesSendStartFailed)
     EXPECT_EQ(CallStateName::TERMINATING, pIdleState->Terminate(objReasonInfo));
 }
 
+TEST_F(IdleStateTest, SessionTerminatedTransitsStateToTerminated)
+{
+    ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_TERMINATE))
+            .WillByDefault(Return(nullptr));
+    EXPECT_CALL(objUiNotifier, SendIncomingCallRejected(_));
+    EXPECT_EQ(CallStateName::TERMINATING, pIdleState->SessionTerminated(&objSession));
+
+    MockIMessage objMessage;
+    ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_TERMINATE))
+            .WillByDefault(Return(&objMessage));
+    EXPECT_CALL(objUiNotifier, SendIncomingCallRejected(_));
+    EXPECT_EQ(CallStateName::TERMINATING, pIdleState->SessionTerminated(&objSession));
+}
+
 TEST_F(IdleStateTest, OnAttachedRejectsIfSdpOaFailed)
 {
     MockIMessage objMessage;
