@@ -334,7 +334,8 @@ TEST_F(AosIpsecHelperTest, Create)
 
     // SetUePortnSpi() - GetValidUePort()
     IpAddress objIpAddr(m_strIpAddr1);
-    EXPECT_CALL(m_objMockIRegContact, GetIpAddress()).Times(3).WillRepeatedly(ReturnRef(objIpAddr));
+    // Initial Reg (Port C and Port S) 2 times + Non-initial reg (Port C) 1 time = 5 times
+    EXPECT_CALL(m_objMockIRegContact, GetIpAddress()).Times(5).WillRepeatedly(ReturnRef(objIpAddr));
 
     EXPECT_CALL(m_objMockIRegContact, SetPort(_)).Times(AnyNumber());
 
