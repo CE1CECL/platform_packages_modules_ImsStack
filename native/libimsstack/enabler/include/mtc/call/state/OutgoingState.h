@@ -19,6 +19,7 @@
 
 #include "ImsTypeDef.h"
 #include "MtcDef.h"
+#include "call/ISilentRedialHelper.h"
 #include "call/state/MtcCallState.h"
 #include <memory>
 
@@ -26,7 +27,6 @@ class AString;
 class IMessage;
 class IMtcCalContext;
 class IMtcSession;
-class ISilentRedialHelper;
 class SuppService;
 class UdpKeepAliveSender;
 enum class QosLossPolicy;
@@ -85,7 +85,8 @@ private:
     CallStateName MaySendPreconditionConfirmation(IN ISession& objSession);
     CallReasonInfo MayGetUpdatedReasonByResponseWaitTimeout(IN IMS_SINT32 nReasonCode) const;
     CallStateName HandleSilentRedialReason(IN const CallReasonInfo& objReason);
-    CallStateName PerformSilentRedial();
+    CallStateName PerformSilentRedial(
+            IN IMS_SINT32 nIntervalInMillis = ISilentRedialHelper::INTERVAL_BY_TYPE);
     IMS_BOOL HasNotRespondedQosConfirmation(IN ISession& objISession) const;
     void OnStarted(IN IMtcSession& objMtcSession);
     void OnStartFailed(
@@ -97,6 +98,8 @@ private:
     ISilentRedialHelper* m_pSilentRedialHelper;
     IMS_BOOL m_bWaitingServiceConnectedForRedial;
     IMS_BOOL m_bMoResponseTimeoutForReasonTimerExpired;
+
+    static const IMS_SINT32 DEFAULT_RETRY_AFTER = 1;
 };
 
 #endif

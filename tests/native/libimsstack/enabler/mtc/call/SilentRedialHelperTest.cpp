@@ -349,7 +349,7 @@ TEST_F(SilentRedialHelperTest, RedialReleasesSessionResources)
 
     const CallReasonInfo objAnyReason(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_FOR_REDIRECTION);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial());
+    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, RedialReleaseSessionResourceIfRedialEmergency)
@@ -362,7 +362,7 @@ TEST_F(SilentRedialHelperTest, RedialReleaseSessionResourceIfRedialEmergency)
     const CallReasonInfo objAnyReason(
             CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_EMERGENCY_WITH_NEXT_PCSCF);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial());
+    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, RedialStartsTimer)
@@ -371,7 +371,7 @@ TEST_F(SilentRedialHelperTest, RedialStartsTimer)
     IMS_SINT32 nRedirectionInterval = 0;
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
     EXPECT_CALL(objTimer, SetTimer(nRedirectionInterval, pRedialHelper));
-    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial());
+    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, RedialReturnsFailureIfCountExceedsMaxRedialCount)
@@ -379,11 +379,11 @@ TEST_F(SilentRedialHelperTest, RedialReturnsFailureIfCountExceedsMaxRedialCount)
     ON_CALL(objPreviousResponse, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_488));
     const CallReasonInfo objAnyReason(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_FOR_REDIRECTION);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
-    pRedialHelper->Redial();
-    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial());
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
+    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
     EXPECT_EQ(CallReasonInfo(CODE_SIP_NOT_ACCEPTABLE, SipStatusCode::SC_488),
-            pRedialHelper->Redial());
+            pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, RedialReturnsFailureIfMaxDurationExpires)
@@ -396,7 +396,7 @@ TEST_F(SilentRedialHelperTest, RedialReturnsFailureIfMaxDurationExpires)
             .WillByDefault(Return(INTERVAL_OVER_MAX));
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
     EXPECT_EQ(CallReasonInfo(CODE_SIP_NOT_ACCEPTABLE, SipStatusCode::SC_488),
-            pRedialHelper->Redial());
+            pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, HandleFailureTriggersInitialRegistrationByConfig)
@@ -419,7 +419,7 @@ TEST_F(SilentRedialHelperTest, HandleFailureTriggersInitialRegistrationByConfig)
 
     ON_CALL(objPreviousResponse, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_488));
     EXPECT_EQ(CallReasonInfo(CODE_SIP_NOT_ACCEPTABLE, SipStatusCode::SC_488),
-            pRedialHelper->Redial());
+            pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, HandleFailureTriggersCsfbByConfig)
@@ -436,11 +436,11 @@ TEST_F(SilentRedialHelperTest, HandleFailureTriggersCsfbByConfig)
 
     EXPECT_EQ(
             CallReasonInfo(CODE_LOCAL_CALL_CS_RETRY_REQUIRED, EXTRA_CODE_CALL_RETRY_SILENT_REDIAL),
-            pRedialHelper->Redial());
+            pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 
     ON_CALL(objPreviousResponse, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_488));
     EXPECT_EQ(CallReasonInfo(CODE_SIP_NOT_ACCEPTABLE, SipStatusCode::SC_488),
-            pRedialHelper->Redial());
+            pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 }
 
 TEST_F(SilentRedialHelperTest, TimerExpiresDoesNothingIfTimerIsNull)
@@ -454,10 +454,13 @@ TEST_F(SilentRedialHelperTest, TimerExpiresDoesNothingIfTimerIsNull)
 
 TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRetryAfterType)
 {
+    IMS_SINT32 nRetryAfterInSeconds = 1;
+    AString strRetryAfterInMillis;
+    strRetryAfterInMillis.SetNumber(nRetryAfterInSeconds * 1000);
     const CallReasonInfo objAnyReason(
-            CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_RETRY_AFTER, "1000");
+            CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_RETRY_AFTER, strRetryAfterInMillis);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(nRetryAfterInSeconds * 1000);
 
     CallInfo objCallInfo;
     ON_CALL(objContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));  // initial type is VOIP
@@ -482,7 +485,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRequestTimeoutType)
 
     const CallReasonInfo objAnyReason(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_REQUEST_TIMEOUT);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     CallInfo objCallInfo;
     ON_CALL(objContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));  // initial type is VOIP
@@ -495,12 +498,12 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRequestTimeoutType)
 
     pRedialHelper->Timer_TimerExpired(&objTimer);
 
-    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial());
+    EXPECT_EQ(CallReasonInfo(CODE_NONE), pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));
 
     ON_CALL(objMessageUtils, GetPreviousResponse(_, _, _)).WillByDefault(Return(nullptr));
     pRedialHelper->Timer_TimerExpired(&objTimer);
     EXPECT_EQ(CallReasonInfo(CODE_NETWORK_RESP_TIMEOUT, EXTRA_CODE_METHOD_INVITE),
-            pRedialHelper->Redial());  // by nMaxCount
+            pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE));  // by nMaxCount
 }
 
 TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRedirectionType)
@@ -509,7 +512,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRedirectionType)
     const CallReasonInfo objAnyReason(
             CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_FOR_REDIRECTION, strContactUri);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     CallInfo objCallInfo;
     ON_CALL(objContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));  // initial type is VOIP
@@ -525,7 +528,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithVideoSdpChangeType)
     const CallReasonInfo objAnyReason(
             CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_FOR_SDP_CHANGE, strMediaTypes);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     ParticipantInfo objParticipantInfo(objContext);
     ON_CALL(objContext, GetParticipantInfo)
@@ -543,7 +546,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithAudioSdpChangeType)
     const CallReasonInfo objAnyReason(
             CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_FOR_SDP_CHANGE, strMediaTypes);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     ParticipantInfo objParticipantInfo(objContext);
     ON_CALL(objContext, GetParticipantInfo)
@@ -559,7 +562,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRedialNormalWithNex
 {
     const CallReasonInfo objAnyReason(CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_WITH_NEXT_PCSCF);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     CallInfo objCallInfo;
     ON_CALL(objContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));  // initial type is VOIP
@@ -579,7 +582,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRedialEmergencyWith
     const CallReasonInfo objAnyReason(
             CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_EMERGENCY_WITH_NEXT_PCSCF);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     CallInfo objCallInfo;
     ON_CALL(objContext, GetCallInfo).WillByDefault(ReturnRef(objCallInfo));  // initial type is VOIP
@@ -599,7 +602,7 @@ TEST_F(SilentRedialHelperTest, TimerExpiresInvokesReStartWithRedialByRttEmergenc
     const CallReasonInfo objAnyReason(
             CODE_INTERNAL_REDIAL, EXTRA_CODE_REDIAL_BY_RTT_EMERGENCY_REJECTION);
     pRedialHelper = new SilentRedialHelper(objContext, objAnyReason);
-    pRedialHelper->Redial();
+    pRedialHelper->Redial(ISilentRedialHelper::INTERVAL_BY_TYPE);
 
     CallInfo objCallInfo;
     objCallInfo.eInitialCallType = CallType::RTT;
