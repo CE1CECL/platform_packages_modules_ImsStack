@@ -90,7 +90,7 @@ public class SscTransaction {
         mSscServiceImplHandler = handler;
     }
 
-    public void close() {
+    public synchronized void close() {
         ImsLog.d(mSlotId, "");
         if (mTransactionHandler != null) {
             mTransactionHandler.removeCallbacksAndMessages(null);
