@@ -88,8 +88,8 @@ TEST_F(AosIpsecTest, IpSecPolicy_OnSecurityAssociationExpired)
 
 TEST_F(AosIpsecTest, CreateUePort)
 {
-    EXPECT_GE(39000, m_pAosIpsec->CreateUePort());
-    EXPECT_LE(38001, m_pAosIpsec->CreateUePort());
+    EXPECT_GE(38999, m_pAosIpsec->CreateUePort());
+    EXPECT_LE(38000, m_pAosIpsec->CreateUePort());
 }
 
 TEST_F(AosIpsecTest, CreateUeSpi)

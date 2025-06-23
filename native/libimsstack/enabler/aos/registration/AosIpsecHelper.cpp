@@ -435,7 +435,7 @@ PROTECTED VIRTUAL void AosIpsecHelper::SetUePortnSpi(IN IMS_BOOL bInitial)
     // ONLY create PortS in initial registration
     if (bInitial)
     {
-        m_pUeIpsecInfo->nPortS = m_pUeIpsecInfo->nPortC + IPSEC_PORT_INTERVAL;
+        m_pUeIpsecInfo->nPortS = GetValidUePort(m_pUeIpsecInfo->nPortC, IPSEC_PORT_INTERVAL);
     }
 
     m_pUeIpsecInfo->nSpiC = m_pNewIpsec->CreateUeSpi();
@@ -652,12 +652,12 @@ void AosIpsecHelper::CloseSecureTCPSocket(IN AosIpsec* pIpsec)
 }
 
 PRIVATE
-IMS_UINT32 AosIpsecHelper::GetValidUePort()
+IMS_UINT32 AosIpsecHelper::GetValidUePort(IN IMS_SINT32 nStartPort, IN IMS_SINT32 nPadding)
 {
     const IMS_UINT32 MAX_COUNT = 20;
     const IpAddress& objUeIPA = m_piRegContact->GetIpAddress();
     NetworkService* pNetworkService = NetworkService::GetNetworkService();
-    IMS_UINT32 nUePort = m_pNewIpsec->CreateUePort();
+    IMS_UINT32 nUePort = (nStartPort == 0 ? m_pNewIpsec->CreateUePort() : nStartPort) + nPadding;
 
     for (IMS_UINT32 i = 0; i < MAX_COUNT; i++)
     {
@@ -667,7 +667,7 @@ IMS_UINT32 AosIpsecHelper::GetValidUePort()
             return nUePort;
         }
 
-        nUePort = m_pNewIpsec->CreateUePort();
+        nUePort = m_pNewIpsec->CreateUePort() + nPadding;
     }
 
     IMS_TRACE_E(0, "there is no valid UE port :: last UE port(%d)", nUePort, 0, 0);

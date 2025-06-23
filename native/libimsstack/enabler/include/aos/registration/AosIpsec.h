@@ -192,9 +192,10 @@ private:
 
 public:
     // ePDG requires a certain range of UE ports. So here we made a change from 58001 to 38001.
-    static const IMS_UINT32 UE_PORT_LOWER = 38001;
-    static const IMS_UINT32 UE_PORT_UPPER = 39000;
-    // UE Server Port 9001 ~ 10000
+    // Plain TCP can be transmitted from a port 40000 to 50000. Avoid this range for Ipsec.
+    static const IMS_UINT32 UE_PORT_LOWER = 38000;
+    static const IMS_UINT32 UE_PORT_UPPER = 38999;
+    // UE Server Port 39000 ~ 39999
     static const IMS_UINT32 PCSCF_PORT_LOWER = 10001;
     static const IMS_UINT32 PCSCF_PORT_UPPER = 11000;
     // Pcscf Server Port 11001 ~ 12000

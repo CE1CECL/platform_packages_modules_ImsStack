@@ -73,7 +73,7 @@ protected:
 private:
     void CloseUnsecureTCPSocket();
     void CloseSecureTCPSocket(IN AosIpsec* pIpsec);
-    IMS_UINT32 GetValidUePort();
+    IMS_UINT32 GetValidUePort(IN IMS_SINT32 nStartPort = 0, IN IMS_SINT32 nPadding = 0);
     void DeleteSamePolicy();
 
 protected:
