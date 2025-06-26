@@ -37,6 +37,7 @@
 #include "SipStatusCode.h"
 #include "TestConfigService.h"
 #include "call/IMtcCall.h"
+#include "call/ISilentRedialHelper.h"
 #include "call/MockEpsFallbackTrigger.h"
 #include "call/MockIMtcCallContext.h"
 #include "call/MockIMtcCallManager.h"
@@ -1257,7 +1258,9 @@ TEST_F(OutgoingStateTest, SessionStartFailedIfWaitingForSilentEmergencyRedial)
     EXPECT_CALL(objAosConnector, Control).Times(1);
     EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionStartFailed(&objSession));
 
-    EXPECT_CALL(objRedialHelper, Redial(_)).Times(1).WillOnce(Return(CallReasonInfo(CODE_NONE)));
+    EXPECT_CALL(objRedialHelper, Redial(ISilentRedialHelper::INTERVAL_BY_TYPE))
+            .Times(1)
+            .WillOnce(Return(CallReasonInfo(CODE_NONE)));
     EXPECT_EQ(CallStateName::IDLE, pOutgoingState->OnAosStateChanged(MtcAosState::CONNECTED, 0, 0));
 }
 
@@ -1300,7 +1303,9 @@ TEST_F(OutgoingStateTest, SessionStartFailedIfWaitingForSilentNormalRedial)
             pOutgoingState->OnAosStateChanged(
                     MtcAosState::DISCONNECTED, ImsAosReason::REG_NEW_REQUIRED, 0));
 
-    EXPECT_CALL(objRedialHelper, Redial(_)).Times(1).WillOnce(Return(CallReasonInfo(CODE_NONE)));
+    EXPECT_CALL(objRedialHelper, Redial(ISilentRedialHelper::INTERVAL_BY_TYPE))
+            .Times(1)
+            .WillOnce(Return(CallReasonInfo(CODE_NONE)));
     EXPECT_EQ(CallStateName::IDLE, pOutgoingState->OnAosStateChanged(MtcAosState::CONNECTED, 0, 0));
 }
 
@@ -1468,7 +1473,9 @@ TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateFailedWith503WaitsRedial)
             pOutgoingState->OnAosStateChanged(
                     MtcAosState::DISCONNECTED, ImsAosReason::REG_NEW_REQUIRED, 0));
 
-    EXPECT_CALL(objRedialHelper, Redial(_)).Times(1).WillOnce(Return(CallReasonInfo(CODE_NONE)));
+    EXPECT_CALL(objRedialHelper, Redial(ISilentRedialHelper::INTERVAL_BY_TYPE))
+            .Times(1)
+            .WillOnce(Return(CallReasonInfo(CODE_NONE)));
     EXPECT_EQ(CallStateName::IDLE, pOutgoingState->OnAosStateChanged(MtcAosState::CONNECTED, 0, 0));
 }
 
@@ -1497,7 +1504,9 @@ TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateFailedWith503InvokesRedial)
     Engine::GetConfiguration()->RefreshConfigs(objCallContext.GetSlotId());
     ON_CALL(objCallContext, IsCsfbAvailable).WillByDefault(Return(IMS_FALSE));
 
-    EXPECT_CALL(objRedialHelper, Redial(_)).Times(1).WillOnce(Return(CallReasonInfo(CODE_NONE)));
+    EXPECT_CALL(objRedialHelper, Redial(nAnyRetryAfter * 1000))
+            .Times(1)
+            .WillOnce(Return(CallReasonInfo(CODE_NONE)));
     EXPECT_EQ(CallStateName::IDLE, pOutgoingState->SessionEarlyMediaUpdateFailed(&objSession));
 }
 

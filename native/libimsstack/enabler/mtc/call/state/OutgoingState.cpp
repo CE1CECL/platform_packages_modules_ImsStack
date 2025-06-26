@@ -914,6 +914,17 @@ CallStateName OutgoingState::HandleSilentRedialReason(IN const CallReasonInfo& o
         case EXTRA_CODE_REDIAL_BY_EPS_FALLBACK:
         case EXTRA_CODE_REDIAL_BY_EPS_FALLBACK_WITH_REG:
             break;
+        case EXTRA_CODE_REDIAL_BY_RETRY_AFTER:
+        {
+            const IMS_SINT32 nRetryAfter = objReason.strExtraMessage.ToInt32();
+            if (nRetryAfter < 0)
+            {
+                CallReasonInfo objReason(CODE_REJECT_INTERNAL_ERROR);
+                OnStartFailed(objReason);
+                return CallStateName::TERMINATING;
+            }
+            return PerformSilentRedial(nRetryAfter == 0 ? DEFAULT_RETRY_AFTER : nRetryAfter);
+        }
         default:
             return PerformSilentRedial();
     }
@@ -922,11 +933,12 @@ CallStateName OutgoingState::HandleSilentRedialReason(IN const CallReasonInfo& o
 }
 
 PRIVATE
-CallStateName OutgoingState::PerformSilentRedial()
+CallStateName OutgoingState::PerformSilentRedial(
+        IN IMS_SINT32 nIntervalInMillis /* = INTERVAL_BY_TYPE*/)
 {
-    IMS_TRACE_D("PerformSilentRedial", 0, 0, 0);
+    IMS_TRACE_D("PerformSilentRedial with interval[%d]", nIntervalInMillis, 0, 0);
     IMS_ASSERT(m_pSilentRedialHelper);
-    CallReasonInfo objResult = m_pSilentRedialHelper->Redial();
+    CallReasonInfo objResult = m_pSilentRedialHelper->Redial(nIntervalInMillis);
     if (objResult.nCode != CODE_NONE)
     {
         OnStartFailed(objResult);

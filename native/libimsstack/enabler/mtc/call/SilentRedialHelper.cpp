@@ -75,8 +75,7 @@ PUBLIC VIRTUAL SilentRedialHelper::~SilentRedialHelper()
     m_objContext.GetCallStateProxy().RemoveListener(this);
 }
 
-PUBLIC VIRTUAL CallReasonInfo SilentRedialHelper::Redial(
-        IN IMS_SINT32 nIntervalInMillis /* = INTERVAL_BY_TYPE*/)
+PUBLIC VIRTUAL CallReasonInfo SilentRedialHelper::Redial(IN IMS_SINT32 nIntervalInMillis)
 {
     if (nIntervalInMillis != INTERVAL_BY_TYPE)
     {
@@ -178,7 +177,7 @@ void SilentRedialHelper::SetRedialDetail()
     switch (m_nType)
     {
         case EXTRA_CODE_REDIAL_BY_RETRY_AFTER:
-            m_nInterval = m_strExtra.ToInt32();
+            // in this case, m_nInterval will be specified when redial() is called
             LoadRetryLimitsFromConfiguration();
             return;
         case EXTRA_CODE_REDIAL_BY_REQUEST_TIMEOUT:

@@ -31,13 +31,12 @@ public:
      * @param nIntervalInMillis The interval in milliseconds to wait before redialing.
      *                          If set to `INTERVAL_BY_TYPE`, the interval is determined by the
      *                          redial type.
-     *                          Defaults to `INTERVAL_BY_TYPE`.
      * @return The CallReasonInfo containing the result of the redial attempt.
      *         If the `nCode` field of the returned object is `CallReasonInfo.CODE_NONE`, the redial
      *         was successful.
      *         Otherwise, the `nCode` field indicates the reason for failure.
      */
-    virtual CallReasonInfo Redial(IN IMS_SINT32 nIntervalInMillis = INTERVAL_BY_TYPE) = 0;
+    virtual CallReasonInfo Redial(IN IMS_SINT32 nIntervalInMillis) = 0;
 
     /**
      * Gets the type of redial.
