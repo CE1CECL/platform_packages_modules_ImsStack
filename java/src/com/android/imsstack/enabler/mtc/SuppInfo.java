@@ -56,6 +56,9 @@ public class SuppInfo implements Parcelable {
     public static final int TYPE_CALL_COMPOSER_IS_BUSINESS = 16;        // boolean
     public static final int TYPE_SESSION_ID = 17;                       // String
 
+    public static final int TYPE_TB_CW = 18;                            // boolean
+    public static final int TYPE_TB_TIR = 19;                           // boolean
+
     // CallerID
     public static final int CALLERID_NONE = 0;
     public static final int CALLERID_NETWORK = 1;

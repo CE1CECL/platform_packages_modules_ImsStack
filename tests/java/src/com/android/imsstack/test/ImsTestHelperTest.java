@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.testing.AndroidTestingRunner;
 import android.testing.TestableLooper;
+import android.util.SparseArray;
 
 import androidx.test.filters.SmallTest;
 
@@ -52,6 +53,8 @@ import com.android.imsstack.imsservice.mmtel.ImsCallApp;
 import com.android.imsstack.imsservice.mmtel.ImsCallManager;
 import com.android.imsstack.imsservice.mmtel.ImsCallSessionImpl;
 import com.android.imsstack.imsservice.mmtel.ImsServiceManager;
+import com.android.imsstack.internal.imsservice.ImsServiceRegistry;
+import com.android.imsstack.internal.imsservice.MmTelFeatureRegistry;
 import com.android.imsstack.system.ISystem;
 import com.android.imsstack.system.ImsEventDef;
 import com.android.imsstack.system.SystemInterface;
@@ -408,11 +411,21 @@ public class ImsTestHelperTest extends ImsStackTest {
 
     @Test
     @SmallTest
-    public void sendMtcTestCommand_setTerminalBasedTir() {
+    public void sendMtcTestCommand_setTerminalBasedCallWaitingStatus() throws Exception {
         MtcApp mtcApp = Mockito.mock(MtcApp.class);
         ImsCallManager manager = Mockito.mock(ImsCallManager.class);
         when(manager.getMtcApp()).thenReturn(mtcApp);
         when(mCallApp.getCallManager()).thenReturn(manager);
+        when(manager.getPhoneId()).thenReturn(SLOT0);
+        SparseArray<ImsServiceRegistry> imsServiceRegistrys = Mockito.mock(SparseArray.class);
+        ImsServiceRegistry imsServiceRegistry = Mockito.mock(ImsServiceRegistry.class);
+        MmTelFeatureRegistry mmTelFeatureRegistry = Mockito.mock(MmTelFeatureRegistry.class);
+        when(imsServiceRegistrys.get(SLOT0)).thenReturn(imsServiceRegistry);
+        when(imsServiceRegistry.getMmTelFeatureRegistry()).thenReturn(
+                mmTelFeatureRegistry);
+        when(mmTelFeatureRegistry.isTerminalBasedCallWaitingEnabled()).thenReturn(true);
+        replaceInstance(ImsServiceRegistry.class, "sImsServiceRegistrys", null,
+                imsServiceRegistrys);
 
         int[] extra = new int[]{1};
         Intent intentSrv = new Intent();
@@ -421,7 +434,9 @@ public class ImsTestHelperTest extends ImsStackTest {
         intentSrv.putExtra("command", 107);
         intentSrv.putExtra("extras", extra);
         mBroadcastReceiver.onReceive(mContext, intentSrv);
-        verify(mtcApp).setTerminalBasedTir(true);
+        verify(mmTelFeatureRegistry).setTerminalBasedCallWaitingStatus(true);
+
+        restoreInstances();
     }
 
     private void openCall(int attributes, int serviceType, boolean emergency, boolean offline,

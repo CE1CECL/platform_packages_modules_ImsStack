@@ -236,19 +236,12 @@ public final class ImsTestHelper {
         private void sendSrvccEvent(int state) {
             ImsLog.d("sendSrvccEvent :: nState=" + state);
 
-            ImsServiceManager sm = ImsServiceManager.getDefault();
-            ImsCallApp callApp = sm.getCallApp(0);
-            if (callApp == null) {
+            MmTelFeatureRegistry mmTelFeatureRegistry = getMmTelFeatureRegistry();
+
+            if (mmTelFeatureRegistry == null) {
                 return;
             }
-
-            MmTelFeatureRegistry mmtelFeatureRegistry = ImsServiceRegistry.getInstance(
-                    callApp.getPhoneId()).getMmTelFeatureRegistry();
-
-            if (mmtelFeatureRegistry == null) {
-                return;
-            }
-            mmtelFeatureRegistry.setSrvccState(state);
+            mmTelFeatureRegistry.setSrvccState(state);
         }
 
         // MTC TEST COMMAND (Native MTC only)
@@ -352,8 +345,13 @@ public final class ImsTestHelper {
                 });
                 return;
             } else if (command == 107) {
-                ImsLog.d("sendMtcTestCommand :: setTerminalBasedTir");
-                mtcApp.setTerminalBasedTir(extras[0] == 1);
+                ImsLog.d("sendMtcTestCommand :: setTerminalBasedCallWaiting");
+                MmTelFeatureRegistry mmTelFeatureRegistry = getMmTelFeatureRegistry();
+
+                if (mmTelFeatureRegistry == null) {
+                    return;
+                }
+                mmTelFeatureRegistry.setTerminalBasedCallWaitingStatus(extras[0] == 1);
                 return;
             }
 
@@ -421,6 +419,23 @@ public final class ImsTestHelper {
             parcel.writeBoolean(result == 1);
 
             MtcJniProxy.getInstance().sendDataToNative(mtcCall.getNativeCallId(), parcel);
+        }
+
+        private MmTelFeatureRegistry getMmTelFeatureRegistry() {
+            ImsServiceManager sm = ImsServiceManager.getDefault();
+            ImsCallApp callApp = sm.getCallApp(0);
+            if (callApp == null) {
+                return null;
+            }
+
+            MmTelFeatureRegistry mmtelFeatureRegistry = ImsServiceRegistry.getInstance(
+                    callApp.getPhoneId()).getMmTelFeatureRegistry();
+
+            if (mmtelFeatureRegistry == null) {
+                return null;
+            }
+
+            return mmtelFeatureRegistry;
         }
     }
 }
