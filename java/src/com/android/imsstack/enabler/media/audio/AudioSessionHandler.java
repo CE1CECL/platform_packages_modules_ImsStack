@@ -1062,10 +1062,16 @@ public class AudioSessionHandler extends MediaState {
             return;
         }
 
+        if (audioConfig.getCodecType() != mCodecType) {
+            ImsLog.e("Anbr codec type is invalid");
+            return;
+        }
+
         if (mAudioSessionCallbackHandler != null) {
             AnbrMode anbrMode = audioConfig.getAnbrMode();
             int anbrDirection = -1;
             int bitrate = -1;
+            int curBitrate = -1;
 
             ImsLog.d("handleTriggerAnbrQuery: ul=" + anbrMode.getAnbrUplinkCodecMode() + " dl="
                     + anbrMode.getAnbrDownlinkCodecMode());
@@ -1083,13 +1089,30 @@ public class AudioSessionHandler extends MediaState {
             }
 
             ImsLog.d("handleTriggerAnbrQuery: dir= " + anbrDirection + " bitrate= " + bitrate);
-            mAudioSessionCallbackHandler.triggerAnbrQuery(AUDIO_TYPE, anbrDirection, bitrate);
+
+            // Need to compare the current bitrate in audioconfig and anbr ul or dl bitrate
+            if (audioConfig.getCodecType() == CODEC_EVS) {
+                curBitrate = convertCodecModeToBitrate(
+                        CODEC_EVS, audioConfig.getEvsParams().getEvsMode());
+                ImsLog.d("handleTriggerAnbrQuery: current bitrate= " + curBitrate);
+            }
+
+            if (bitrate > curBitrate) {
+                ImsLog.d("handleTriggerAnbrQuery: send AnbrQuery");
+                mAudioSessionCallbackHandler.triggerAnbrQuery(AUDIO_TYPE, anbrDirection, bitrate);
+            } else {
+                ImsLog.d("handleTriggerAnbrQuery: skip sending AnbrQuery due to the bitrate");
+                if (mAudioSession != null) {
+                    ImsLog.d("handleTriggerAnbrQuery: send modifysession");
+                    mAudioSession.modifySession(audioConfig);
+                    mMediaConfig.updateRtpConfig(audioConfig);
+                }
+            }
         } else {
             ImsLog.d("Enter Anbr Callback is null");
         }
     }
 
-    @VisibleForTesting
     int convertCodecModeToBitrate(int codecType, int codecMode) {
         int convertedBitrate = -1;
 
