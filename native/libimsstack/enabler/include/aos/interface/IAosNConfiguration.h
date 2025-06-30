@@ -555,6 +555,14 @@ public:
     virtual IMS_BOOL IsNoInitRegOnPcscfChange() const = 0;
 
     /**
+     * @brief Returns whether UE will reconnect PDN when all pcscfs are unavailable.
+     *
+     * @return IMS_BOOL Return whether to reconnect PDN or not.
+     * @see {@code ims.pdn_reconnect_on_all_pcscfs_unavailable_bool}
+     */
+    virtual IMS_BOOL IsPdnReconnectOnAllPcscfsUnavailable() const = 0;
+
+    /**
      * @brief Flag specifying if video call is supported over wifi when voice call is unavailable.
      *
      * @return IMS_BOOL Return whether video call is supported over wifi
