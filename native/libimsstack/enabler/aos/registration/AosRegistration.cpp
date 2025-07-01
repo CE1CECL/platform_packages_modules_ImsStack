@@ -3876,6 +3876,14 @@ PROTECTED VIRTUAL void AosRegistration::ProcessRegRequiredWithNextPcscf()
 {
     DestroyEx();
 
+    IMS_BOOL bPdnReconnectOnAllPcscfsUnavailable =
+            GET_N_CONFIG(m_nSlotId)->IsPdnReconnectOnAllPcscfsUnavailable();
+
+    if (bPdnReconnectOnAllPcscfsUnavailable)
+    {
+        m_piContext->GetPcscf()->SetCurrentPcscfInvalid();
+    }
+
     if (SetNextPcscf(IMS_FALSE))
     {
         if (!CreateRegistration())
@@ -3888,17 +3896,26 @@ PROTECTED VIRTUAL void AosRegistration::ProcessRegRequiredWithNextPcscf()
         ReportTryingState();
         return;
     }
-    else
+
+    if (bPdnReconnectOnAllPcscfsUnavailable)
     {
-        if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrFinalType() ==
-                CarrierConfig::Ims::ERROR_TYPE_RAT_BLOCK)
-        {
-            A_IMS_TRACE_I(REGID,
-                    "ProcessRegRequiredWithNextPcscf :: All P-CSCFs attempted, RAT block required",
-                    0, 0, 0);
-            ReportStateChanged(RESULT_FAILURE, REASON_FAILURE_PDN_RECONNECT);
-            return;
-        }
+        m_nPdnReactivateWaitTime = GetActualWaitTime();
+        A_IMS_TRACE_D(REGID,
+                "ProcessRegRequiredWithNextPcscf :: All P-CSCFs unavailable, reconnect PDN with "
+                "AWT(%d)",
+                m_nPdnReactivateWaitTime, 0, 0);
+        ReportStateChanged(RESULT_FAILURE, REASON_FAILURE_PDN_RECONNECT_WITH_AWT);
+        return;
+    }
+
+    if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrFinalType() ==
+            CarrierConfig::Ims::ERROR_TYPE_RAT_BLOCK)
+    {
+        A_IMS_TRACE_I(REGID,
+                "ProcessRegRequiredWithNextPcscf :: All P-CSCFs attempted, RAT block required", 0,
+                0, 0);
+        ReportStateChanged(RESULT_FAILURE, REASON_FAILURE_PDN_RECONNECT);
+        return;
     }
 
     ClearPcscf();

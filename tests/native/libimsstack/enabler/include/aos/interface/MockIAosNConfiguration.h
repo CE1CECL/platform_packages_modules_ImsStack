@@ -87,6 +87,7 @@ public:
     MOCK_METHOD(IMS_BOOL, IsRegTimerForECallWithRatCheckEnabled, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsStopERegTimerOnEpdnConnected, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsNoInitRegOnPcscfChange, (), (const, override));
+    MOCK_METHOD(IMS_BOOL, IsPdnReconnectOnAllPcscfsUnavailable, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsVideoOverWifiSupportedWithoutVoice, (), (const, override));
     MOCK_METHOD(IMS_BOOL, IsGeolocationPidfSupported, (IN IMS_SINT32 nGeolocationPidfType),
             (const, override));

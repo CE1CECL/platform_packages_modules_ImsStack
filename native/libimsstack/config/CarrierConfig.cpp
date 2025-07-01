@@ -270,6 +270,8 @@ const IMS_CHAR CarrierConfig::Ims::KEY_KEEP_REG_RETRY_TIMER_ON_ALL_ENABLERS_DETA
         KEY_IMS_PREFIX "keep_reg_retry_timer_on_all_enablers_detached_bool";
 const IMS_CHAR CarrierConfig::Ims::KEY_NO_INIT_REG_ON_PCSCF_CHANGE_BOOL[] =
         KEY_IMS_PREFIX "no_init_reg_on_pcscf_change_bool";
+const IMS_CHAR CarrierConfig::Ims::KEY_PDN_RECONNECT_ON_ALL_PCSCFS_UNAVAILABLE_BOOL[] =
+        KEY_IMS_PREFIX "pdn_reconnect_on_all_pcscfs_unavailable_bool";
 const IMS_CHAR CarrierConfig::Ims::KEY_REG_CONTACT_VALIDATION_BOOL[] =
         KEY_IMS_PREFIX "reg_contact_validation_bool";
 const IMS_CHAR CarrierConfig::Ims::KEY_REG_RETRY_WITH_IP_VER_FALLBACK_BOOL[] =

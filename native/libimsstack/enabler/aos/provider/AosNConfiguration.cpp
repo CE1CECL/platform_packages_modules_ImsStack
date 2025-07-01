@@ -406,6 +406,11 @@ PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsNoInitRegOnPcscfChange() const
     return m_objAsset.bNoInitRegOnPcscfChange;
 }
 
+PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsPdnReconnectOnAllPcscfsUnavailable() const
+{
+    return m_objAsset.bPdnReconnectOnAllPcscfsUnavailable;
+}
+
 PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsVideoOverWifiSupportedWithoutVoice() const
 {
     return m_objAsset.bVideoOverWifiSupportedWithoutVoice;
@@ -1536,6 +1541,8 @@ void AosNConfiguration::InitAssetsConfig(IN const ICarrierConfig* piCc)
             CarrierConfig::ImsEmergency::KEY_STOP_EREG_TIMER_ON_EPDN_CONNECTED_BOOL);
     m_objAsset.bNoInitRegOnPcscfChange =
             piCc->GetBoolean(CarrierConfig::Ims::KEY_NO_INIT_REG_ON_PCSCF_CHANGE_BOOL);
+    m_objAsset.bPdnReconnectOnAllPcscfsUnavailable =
+            piCc->GetBoolean(CarrierConfig::Ims::KEY_PDN_RECONNECT_ON_ALL_PCSCFS_UNAVAILABLE_BOOL);
     m_objAsset.bPlmnBlockWithTimeoutOnVoiceCallUnavailable = piCc->GetBoolean(
             CarrierConfig::ImsVoice::KEY_PLMN_BLOCK_WITH_TIMEOUT_ON_VOICE_CALL_UNAVAILABLE_BOOL);
     m_objAsset.bRegContactValidation =

@@ -628,6 +628,10 @@ TEST_F(AosNConfigurationTest, InitAssetConfig)
             GetBoolean(CarrierConfig::Ims::KEY_NO_INIT_REG_ON_PCSCF_CHANGE_BOOL, IMS_FALSE))
             .WillOnce(Return(IMS_FALSE));
     EXPECT_CALL(objCarrierConfig,
+            GetBoolean(CarrierConfig::Ims::KEY_PDN_RECONNECT_ON_ALL_PCSCFS_UNAVAILABLE_BOOL,
+                    IMS_FALSE))
+            .WillOnce(Return(IMS_FALSE));
+    EXPECT_CALL(objCarrierConfig,
             GetBoolean(CarrierConfig::ImsVoice::
                                KEY_PLMN_BLOCK_WITH_TIMEOUT_ON_VOICE_CALL_UNAVAILABLE_BOOL,
                     IMS_FALSE))
@@ -991,6 +995,7 @@ TEST_F(AosNConfigurationTest, InitAssetConfig)
     EXPECT_TRUE(m_pAosNConfiguration->IsRegTimerForECallWithRatCheckEnabled());
     EXPECT_FALSE(m_pAosNConfiguration->IsStopERegTimerOnEpdnConnected());
     EXPECT_FALSE(m_pAosNConfiguration->IsNoInitRegOnPcscfChange());
+    EXPECT_FALSE(m_pAosNConfiguration->IsPdnReconnectOnAllPcscfsUnavailable());
     EXPECT_FALSE(m_pAosNConfiguration->IsPlmnBlockWithTimeoutOnVoiceCallUnavailable());
     EXPECT_FALSE(m_pAosNConfiguration->IsContactUriValidationChecked());
     EXPECT_FALSE(m_pAosNConfiguration->IsRegRetryWithIpVerFallback());
