@@ -6440,7 +6440,7 @@ PROTECTED VIRTUAL void AosRegistration::CallTracker_StateChanged(
     IMS_BOOL bImsCallStarted = IMS_FALSE;
     if (GET_N_CONFIG(m_nSlotId)->IsRegRequiredAfterImsECallEndOnRegHeld())
     {
-        IAosCallTracker* piCt = AosProvider::GetInstance()->GetCallTracker(m_nSlotId);
+        const IAosCallTracker* piCt = AosProvider::GetInstance()->GetCallTracker(m_nSlotId);
         if (piCt != IMS_NULL)
         {
             bImsCallStarted = piCt->IsNormalCallActive() || piCt->IsEmergencyCallActive();
