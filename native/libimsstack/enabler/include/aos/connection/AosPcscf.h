@@ -49,13 +49,6 @@ public:
     inline void IncreaseTriedCount() { m_nTriedCount++; }
     inline IMS_BOOL IsAvailable() { return m_bIsAvailable; }
 
-    inline IMS_BOOL IsEqual(IN const AString& strCurr)
-    {
-        IpAddress objIpaCurr(strCurr);
-        IpAddress objIpa(m_strAddress);
-        return objIpaCurr.Equals(objIpa);
-    }
-
     inline IMS_BOOL IsTried() { return m_bIsTried; }
 
     inline void ResetTriedCount() { m_nTriedCount = 0; }
