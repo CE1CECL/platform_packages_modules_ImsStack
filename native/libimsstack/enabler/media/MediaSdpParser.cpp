@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
  */
 
 #include "ServiceTrace.h"
-
 #include "MediaSdpParser.h"
 
 __IMS_TRACE_TAG_MEDIA__;
@@ -32,8 +31,8 @@ PUBLIC VIRTUAL MediaSdpParser::~MediaSdpParser()
 }
 
 PROTECTED
-void MediaSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
-        IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile* pProfile)
+void MediaSdpParser::Parse(IN const ISessionDescriptor* pSessionDescriptor,
+        IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile* pProfile)
 {
     if (pSessionDescriptor == IMS_NULL || pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -103,8 +102,7 @@ IMS_BOOL MediaSdpParser::ParseCapaNego(
         return IMS_TRUE;
     }
 
-    IMS_BOOL bRet = IMS_FALSE;
-    bRet = ParseTcap(pDescriptor, pObjCapaNego);
+    IMS_BOOL bRet = ParseTcap(pDescriptor, pObjCapaNego);
     bRet |= ParseAcap(pDescriptor, pObjCapaNego);
     bRet |= ParsePcfg(pDescriptor, pObjCapaNego);
 
@@ -113,7 +111,7 @@ IMS_BOOL MediaSdpParser::ParseCapaNego(
 
 PROTECTED
 IMS_BOOL MediaSdpParser::ParseAcfg(
-        IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
+        IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
 {
     ImsList<AString> lstAcfgAttr = pDescriptor->GetAttributes(SdpAttribute::ACFG);
 
@@ -130,7 +128,7 @@ IMS_BOOL MediaSdpParser::ParseAcfg(
 
 PROTECTED
 IMS_BOOL MediaSdpParser::ParseTcap(
-        IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
+        IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
 {
     // Get transport capability(TCAP) list -"'number' SP 'Tcap'" pair
     ImsList<AString> lstTcapAttr = pDescriptor->GetAttributes(SdpAttribute::TCAP);
@@ -176,7 +174,7 @@ IMS_BOOL MediaSdpParser::ParseTcap(
 
 PROTECTED
 IMS_BOOL MediaSdpParser::ParseAcap(
-        IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
+        IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
 {
     // Get attribute capability(ACAP) list -"'number' SP 'Acap'" pair
     ImsList<AString> lstAcapAttr = pDescriptor->GetAttributes(SdpAttribute::ACAP);
@@ -233,7 +231,7 @@ IMS_BOOL MediaSdpParser::ParseAcap(
 
 PROTECTED
 IMS_BOOL MediaSdpParser::ParsePcfg(
-        IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
+        IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego)
 {
     // Get Potential configuration list (pcfg) -"'prio #' SP"t=Tcap #' SP 'a=Acap #'" pair
     pObjCapaNego->SetListPcfg(pDescriptor->GetAttributes(SdpAttribute::PCFG));

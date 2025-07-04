@@ -18,7 +18,8 @@
 #define TEXT_SDP_PARSER_H_
 
 #include "MediaSdpParser.h"
-#include "text/TextProfileUtil.h"
+#include "TextProfile.h"
+#include "offeranswer/SdpAvCodec.h"
 
 /**
  * This class is to generate a peer text profile by parsing SDP media attributes from the
@@ -28,7 +29,7 @@ class TextSdpParser : public MediaSdpParser
 {
 public:
     explicit TextSdpParser();
-    virtual ~TextSdpParser();
+    virtual ~TextSdpParser() override;
 
     /**
      * @brief It is the core function responsible for extracting text-related attributes from
@@ -47,7 +48,7 @@ public:
             IN IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile);
 
 private:
-    void ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile);
+    void ParsePayloads(IN const IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile);
     void ParseRtpMap(IN const SdpAvCodec* pSdpCodec, OUT TextProfile::Payload* pPayload,
             OUT AString& strCodecName);
     IMS_BOOL ParseFmtp(IN const SdpAvCodec* pSdpCodec, OUT TextProfile::Payload* pPayload,

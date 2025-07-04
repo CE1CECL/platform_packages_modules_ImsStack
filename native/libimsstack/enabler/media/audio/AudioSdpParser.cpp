@@ -56,7 +56,8 @@ IMS_BOOL AudioSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
 }
 
 PRIVATE
-void AudioSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
+void AudioSdpParser::ParsePayloads(
+        IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -76,7 +77,7 @@ void AudioSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT AudioPr
 }
 
 PRIVATE
-void AudioSdpParser::ParsePayload(IN const SdpAvCodec* pSdpCodec, OUT AudioProfile* pProfile)
+void AudioSdpParser::ParsePayload(IN SdpAvCodec* pSdpCodec, OUT AudioProfile* pProfile)
 {
     if (pSdpCodec == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -1056,7 +1057,7 @@ void AudioSdpParser::ParseEvents(
 }
 
 PRIVATE
-void AudioSdpParser::ParsePtime(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
+void AudioSdpParser::ParsePtime(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -1070,7 +1071,8 @@ void AudioSdpParser::ParsePtime(IN IMediaDescriptor* pDescriptor, OUT AudioProfi
 }
 
 PRIVATE
-void AudioSdpParser::ParseMaxPtime(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
+void AudioSdpParser::ParseMaxPtime(
+        IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -1084,7 +1086,7 @@ void AudioSdpParser::ParseMaxPtime(IN IMediaDescriptor* pDescriptor, OUT AudioPr
 }
 
 PRIVATE
-void AudioSdpParser::ParseRtcpXr(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
+void AudioSdpParser::ParseRtcpXr(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -1133,7 +1135,7 @@ void AudioSdpParser::ParseRtcpXr(IN IMediaDescriptor* pDescriptor, OUT AudioProf
 }
 
 PRIVATE
-void AudioSdpParser::ParseAnbr(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
+void AudioSdpParser::ParseAnbr(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
