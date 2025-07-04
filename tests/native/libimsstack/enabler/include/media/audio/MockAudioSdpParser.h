@@ -25,7 +25,7 @@ class MockAudioSdpParser : public AudioSdpParser
 {
 public:
     explicit MockAudioSdpParser() {}
-    virtual ~MockAudioSdpParser() {}
+    virtual ~MockAudioSdpParser() override {}
 
     MOCK_METHOD(IMS_BOOL, Parse,
             (IN ISessionDescriptor * pSessionDescriptor, IN IMediaDescriptor* pDescriptor,

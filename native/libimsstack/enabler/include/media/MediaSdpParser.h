@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
 
 #include "ISessionDescriptor.h"
 #include "media/IMediaDescriptor.h"
-#include "offeranswer/SdpAvCodec.h"
 
 #include "MediaBaseProfile.h"
 
@@ -41,18 +40,18 @@ protected:
      * @param pDescriptor The SDP descriptor instance to parse the media level SDP
      * @param pProfile The Profile to be set attribute by parsing media/session level SDP
      */
-    void Parse(IN ISessionDescriptor* pSessionDescriptor, IN IMediaDescriptor* pDescriptor,
-            OUT MediaBaseProfile* pProfile);
+    void Parse(IN const ISessionDescriptor* pSessionDescriptor,
+            IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile* pProfile);
     IMS_BOOL ParseCapaNego(
             IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
     IMS_BOOL ParseAcfg(
-            IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
+            IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
     IMS_BOOL ParseTcap(
-            IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
+            IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
     IMS_BOOL ParseAcap(
-            IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
+            IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
     IMS_BOOL ParsePcfg(
-            IN IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
+            IN const IMediaDescriptor* pDescriptor, OUT MediaBaseProfile::CapaNego* pObjCapaNego);
 
 private:
     MEDIA_CONTENT_TYPE m_eType;

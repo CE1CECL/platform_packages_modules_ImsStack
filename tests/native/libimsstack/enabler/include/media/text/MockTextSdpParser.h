@@ -25,7 +25,7 @@ class MockTextSdpParser : public TextSdpParser
 {
 public:
     explicit MockTextSdpParser() {}
-    virtual ~MockTextSdpParser() {}
+    virtual ~MockTextSdpParser() override {}
 
     MOCK_METHOD(IMS_BOOL, Parse,
             (IN ISessionDescriptor * pSessionDescriptor, IN IMediaDescriptor* pDescriptor,

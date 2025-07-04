@@ -18,7 +18,8 @@
 #define VIDEO_SDP_PARSER_H_
 
 #include "MediaSdpParser.h"
-#include "video/VideoProfile.h"
+#include "VideoProfile.h"
+#include "offeranswer/SdpAvCodec.h"
 
 /**
  * This class is to generate a peer video profile by parsing SDP media attributes from the
@@ -28,7 +29,7 @@ class VideoSdpParser : public MediaSdpParser
 {
 public:
     explicit VideoSdpParser();
-    virtual ~VideoSdpParser();
+    virtual ~VideoSdpParser() override;
 
     /**
      * @brief It is the core function responsible for extracting video-related attributes from
@@ -49,7 +50,7 @@ public:
 private:
     void ParseTransportType(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     void SetAvpfSupport(OUT VideoProfile* pProfile);
-    void ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
+    void ParsePayloads(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     void ParseRtpMap(IN const SdpAvCodec* pSdpCodec, OUT VideoProfile::Payload* pPayload);
     VIDEO_CODEC SetCodec(IN VideoProfile::Payload* pPayload);
     IMS_BOOL IsValidCodec(IN const VIDEO_CODEC eVideoCodec);
@@ -57,7 +58,7 @@ private:
             IN const ImsList<AString>& objImageAttributes, OUT VideoProfile::Payload* pPayload);
     AString ParseFrameSize(IN const SdpAvCodec* pSdpCodec, IN const ImsList<AString>& objFrameSizes,
             OUT VideoProfile::Payload* pPayload);
-    void ParseCvo(IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
+    void ParseCvo(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     IMS_BOOL ParseFmtp(IN const SdpAvCodec* pSdpCodec, OUT VideoProfile::Payload* pPayload,
             IN const VIDEO_CODEC eVideoCodec);
     IMS_BOOL ParseVideoBaseFmtp(
@@ -81,9 +82,9 @@ private:
     IMS_BOOL ParsePps(IN const ImsList<AString>& objSplitEqual, OUT AString& strPps);
     void ParseSpropParam(IN const AString& strVps, IN const AString& strSps,
             IN const AString& strPps, OUT VideoProfile::VideoFmtp* pFmtp);
-    void ParseResolution(OUT VideoProfile::Payload* pPayload, AString& strImageAttr,
-            AString& strFrameSize, VIDEO_CODEC eVideoCodec);
-    void ParseAvpfAttribute(IN SdpAvCodec* pSdpCodec, IN VideoProfile::Payload* pPayload,
+    void ParseResolution(OUT VideoProfile::Payload* pPayload, const AString& strImageAttr,
+            const AString& strFrameSize, VIDEO_CODEC eVideoCodec);
+    void ParseAvpfAttribute(IN const SdpAvCodec* pSdpCodec, IN VideoProfile::Payload* pPayload,
             OUT VideoProfile* pProfile);
     IMS_BOOL IsAvpfSupported(IN VideoProfile* pProfile);
     IMS_BOOL GetCorrectImageIndex(IN IMS_SINT32 nPayloadTypeNum, IN ImsList<AString> objAttributes,
@@ -91,7 +92,7 @@ private:
     VIDEO_RESOLUTION GetResolutionFromSdp(IN VIDEO_CODEC codecType,
             IN const AString& strImageAttrFromSdp, IN const AString& strFrameSizeFromSdp,
             IN const AString& strSpropParam, IN IMS_SINT32 nQcif = -1);
-    IMS_BOOL GetAvpfFromAttributes(IN SdpMediaFormat* pMediaFormat,
+    IMS_BOOL GetAvpfFromAttributes(IN const SdpMediaFormat* pMediaFormat,
             IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr);
     IMS_BOOL GetAvpfFromAttributesEx(
             IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr);

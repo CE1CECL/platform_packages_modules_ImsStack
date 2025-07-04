@@ -19,8 +19,7 @@
 
 #include "MediaSdpParser.h"
 #include "audio/AudioProfile.h"
-
-class SdpAvCodec;
+#include "offeranswer/SdpAvCodec.h"
 
 /**
  * This class is to generate a peer audio profile by parsing SDP media attributes from the
@@ -30,7 +29,7 @@ class AudioSdpParser : public MediaSdpParser
 {
 public:
     explicit AudioSdpParser();
-    virtual ~AudioSdpParser();
+    virtual ~AudioSdpParser() override;
 
     /**
      * @brief Parse the SDP from the session descriptor and the media descriptor and create the
@@ -45,8 +44,8 @@ public:
             IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
 
 private:
-    void ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
-    void ParsePayload(IN const SdpAvCodec* pSdpCodec, OUT AudioProfile* pProfile);
+    void ParsePayloads(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
+    void ParsePayload(IN SdpAvCodec* pSdpCodec, OUT AudioProfile* pProfile);
     void ParseRtpMap(IN const SdpAvCodec* pSdpCodec, OUT AudioProfile::Payload* pPayload,
             OUT IMS_SINT32& nPayloadTypeNumber, OUT AString& strCodecName);
     IMS_BOOL ParseFmtp(IN const SdpAvCodec* pSdpCodec, OUT AudioProfile::Payload* pPayload,
@@ -90,10 +89,10 @@ private:
     IMS_BOOL ParseTelephoneEventFmtp(
             IN const SdpAvCodec* pSdpCodec, OUT AudioProfile::Payload* pPayload);
     void ParseEvents(IN const AString& strFmtp, OUT AudioProfile::TelephoneEventFmtp* pFmtp);
-    void ParsePtime(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
-    void ParseMaxPtime(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
-    void ParseRtcpXr(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
-    void ParseAnbr(IN IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
+    void ParsePtime(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
+    void ParseMaxPtime(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
+    void ParseRtcpXr(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
+    void ParseAnbr(IN const IMediaDescriptor* pDescriptor, OUT AudioProfile* pProfile);
 };
 
 #endif

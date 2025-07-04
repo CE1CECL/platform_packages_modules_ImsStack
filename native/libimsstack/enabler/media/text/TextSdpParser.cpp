@@ -46,7 +46,7 @@ PUBLIC IMS_BOOL TextSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
 }
 
 PRIVATE
-void TextSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile)
+void TextSdpParser::ParsePayloads(IN const IMediaDescriptor* pDescriptor, OUT TextProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -58,7 +58,7 @@ void TextSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT TextProf
 
     for (IMS_UINT32 i = 0; i < lstMediaFormat.GetSize(); i++)
     {
-        SdpAvCodec* pSdpCodec = DYNAMIC_CAST(SdpAvCodec*, lstMediaFormat.GetAt(i));
+        const SdpAvCodec* pSdpCodec = DYNAMIC_CAST(SdpAvCodec*, lstMediaFormat.GetAt(i));
         TextProfile::Payload* pPayload = new TextProfile::Payload();
 
         if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL)
@@ -175,7 +175,7 @@ PRIVATE IMS_BOOL TextSdpParser::ParseRedSubPtExist(
 
     for (IMS_UINT32 i = 0; i < lstMediaFormat.GetSize(); i++)
     {
-        SdpAvCodec* pSdpCodec = DYNAMIC_CAST(SdpAvCodec*, lstMediaFormat.GetAt(i));
+        const SdpAvCodec* pSdpCodec = DYNAMIC_CAST(SdpAvCodec*, lstMediaFormat.GetAt(i));
 
         if (pSdpCodec == IMS_NULL)
         {

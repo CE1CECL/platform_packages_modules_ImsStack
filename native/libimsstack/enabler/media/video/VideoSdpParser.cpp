@@ -79,7 +79,7 @@ void VideoSdpParser::ParseTransportType(
         return;
     }
 
-    SdpMedia* pSdpMedia = const_cast<SdpMedia*>(pDescriptor->GetMediaDescriptionEx());
+    const SdpMedia* pSdpMedia = pDescriptor->GetMediaDescriptionEx();
 
     if (pSdpMedia != IMS_NULL)
     {
@@ -114,7 +114,8 @@ void VideoSdpParser::SetAvpfSupport(OUT VideoProfile* pProfile)
 }
 
 PRIVATE
-void VideoSdpParser::ParsePayloads(IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile)
+void VideoSdpParser::ParsePayloads(
+        IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -278,7 +279,7 @@ AString VideoSdpParser::ParseFrameSize(IN const SdpAvCodec* pSdpCodec,
 }
 
 PRIVATE
-void VideoSdpParser::ParseCvo(IN IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile)
+void VideoSdpParser::ParseCvo(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile)
 {
     if (pDescriptor == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -696,8 +697,8 @@ void VideoSdpParser::ParseSpropParam(IN const AString& strVps, IN const AString&
 }
 
 PRIVATE
-void VideoSdpParser::ParseResolution(OUT VideoProfile::Payload* pPayload, AString& strImageAttr,
-        AString& strFrameSize, VIDEO_CODEC eVideoCodec)
+void VideoSdpParser::ParseResolution(OUT VideoProfile::Payload* pPayload,
+        const AString& strImageAttr, const AString& strFrameSize, VIDEO_CODEC eVideoCodec)
 {
     if (pPayload == IMS_NULL)
     {
@@ -719,8 +720,8 @@ void VideoSdpParser::ParseResolution(OUT VideoProfile::Payload* pPayload, AStrin
 }
 
 PRIVATE
-void VideoSdpParser::ParseAvpfAttribute(
-        IN SdpAvCodec* pSdpCodec, IN VideoProfile::Payload* pPayload, OUT VideoProfile* pProfile)
+void VideoSdpParser::ParseAvpfAttribute(IN const SdpAvCodec* pSdpCodec,
+        IN VideoProfile::Payload* pPayload, OUT VideoProfile* pProfile)
 {
     if (pSdpCodec == IMS_NULL || pPayload == IMS_NULL || pProfile == IMS_NULL)
     {
@@ -838,7 +839,7 @@ PRIVATE VIDEO_RESOLUTION VideoSdpParser::GetResolutionFromSdp(IN VIDEO_CODEC /*c
     }
 }
 
-PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes(IN SdpMediaFormat* pMediaFormat,
+PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes(IN const SdpMediaFormat* pMediaFormat,
         IN VideoProfile::CapaNego* pCapaNego, OUT VideoProfile::RtcpFbAttributes* pRtcpFbAttr)
 {
     if (pMediaFormat == IMS_NULL || pRtcpFbAttr == IMS_NULL || pCapaNego == IMS_NULL)
@@ -865,7 +866,7 @@ PRIVATE IMS_BOOL VideoSdpParser::GetAvpfFromAttributes(IN SdpMediaFormat* pMedia
 
         if (pMediaParam->GetAttribute() == SdpAttribute::RTCP_FB)
         {
-            SdpRtcpFeedback* pRtcpParam = static_cast<SdpRtcpFeedback*>(pMediaParam);
+            const SdpRtcpFeedback* pRtcpParam = static_cast<SdpRtcpFeedback*>(pMediaParam);
             if (pRtcpParam->GetType().Equals("trr-int"))
             {
                 pRtcpFbAttr->SetTrrSupported(IMS_TRUE);
