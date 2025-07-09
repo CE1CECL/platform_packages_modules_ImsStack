@@ -200,16 +200,6 @@ protected:
         ON_CALL(objMediaManager, NegotiateSdp(&objSession)).WillByDefault(Return(eNegoResult));
     }
 
-    void SetSdpOaSuccessWithSdp(IN MockIMessage& objMessage, IN MockISipMessage& objSipMessage)
-    {
-        ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
-        ON_CALL(objSession, IsSdpNegotiationAllowedForNonRpr).WillByDefault(Return(IMS_FALSE));
-        ON_CALL(objMessage, GetMethod).WillByDefault(ReturnRef(objInviteMethod));
-        ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_183));
-        ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-        ON_CALL(objSipMessage, IsMessageRpr).WillByDefault(Return(IMS_FALSE));
-    }
-
     void SetUpStartErrorHandler(IN MockIMessage* pMessage, IN IMS_SINT32 eStatusCode,
             IN IMS_BOOL bCsfb, IN IMS_SINT32 nPolicyOfTimerB, IN IMS_BOOL bWiFi)
     {
@@ -971,10 +961,7 @@ TEST_F(OutgoingStateTest, SessionStartedInvokesStartWatchdogIfSupportedAndSdpAns
             .WillByDefault(Return(&objMessage));
     EXPECT_CALL(objMtcSession, SendAck).Times(1).WillOnce(Return(IMS_SUCCESS));
     ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_200));  // useless
-
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover StartEpsFallbackWatchdogIfNeeded
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
             .WillByDefault(Return(2000));
@@ -1621,9 +1608,8 @@ TEST_F(OutgoingStateTest, SessionEarlyMediaUpdateReceivedInvokesSendProgressing)
     ON_CALL(objSession, GetPreviousRequest(IMessage::SESSION_EARLY_UPDATE))
             .WillByDefault(Return(&objMessage));
 
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover OnMessageReceived()
+    // to cover OnMessageReceived()
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objPreconditionManager, OnMessageReceived(&objSession, &objMessage));
 
     EXPECT_CALL(objMtcSession, RespondToEarlyUpdate(SipStatusCode::SC_200))
@@ -1729,10 +1715,7 @@ TEST_F(OutgoingStateTest, SessionPrackDeliveredReturnsOutgoingIfCodeIs183ButNotN
     MockIMessage objMessage;
     ON_CALL(objSession, GetPreviousResponse(IMessage::SESSION_PRACK))
             .WillByDefault(Return(&objMessage));
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to make IMessage have SDP
-
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
     ON_CALL(objPreconditionManager, IsLocalResourceConfirmationRequired(&objSession))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objPreconditionManager, IsAvailableToSendLocalResourceConfirmation(&objSession))
@@ -1887,7 +1870,8 @@ TEST_F(OutgoingStateTest, SessionPrackDeliveredInvokesSessionStartedIfEstablishe
 
     MockISipMessage objSipMessage;
     ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to make IMessage have SDP
+    ON_CALL(objMessage, GetMethod).WillByDefault(ReturnRef(objInviteMethod));
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(objMessageUtils, GetPreviousResponse(&objSession, IMessage::SESSION_START, -1))
             .WillByDefault(Return(&objMessage));
@@ -2240,9 +2224,7 @@ TEST_F(OutgoingStateTest, SessionRprReceivedStopOrStartMoNoanswerTimerByContext)
             GetBoolean(ConfigVoice::KEY_STOP_RINGBACK_TIMER_BY_183_WITH_SDP_BODY_BOOL))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_183));
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to make IMessage have SDP
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(objTimer, IsActive(MtcCallState::TimerType::TIMER_MO_NOANSWER))
             .WillByDefault(Return(IMS_TRUE));
@@ -2365,9 +2347,7 @@ TEST_F(OutgoingStateTest, SessionRprReceivedUpdatesQosPreconditionInfo)
     ON_CALL(objMessageUtils, GetPreviousResponse(&objSession, IMessage::SESSION_START, 0))
             .WillByDefault(Return(&objMessage));
 
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover OnMessageReceived()
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
     EXPECT_CALL(objPreconditionManager, OnMessageReceived(&objSession, &objMessage));
 
     EXPECT_EQ(CallStateName::OUTGOING, pOutgoingState->SessionRprReceived(&objSession, 0));
@@ -2447,10 +2427,8 @@ TEST_F(OutgoingStateTest, SessionRprReceivedInvokesStartWatchdogFor180WithSdpAns
             .WillByDefault(Return(&objMessage));
 
     ON_CALL(objMtcSession, SendPrack(IMS_FALSE)).WillByDefault(Return(IMS_SUCCESS));
-
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover StartEpsFallbackWatchdogIfNeeded
+    ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_183));
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
             .WillByDefault(Return(2000));
@@ -2472,10 +2450,8 @@ TEST_F(OutgoingStateTest, SessionRprReceivedInvokesStartWatchdogFor181WithSdpAns
             .WillByDefault(Return(&objMessage));
 
     ON_CALL(objMtcSession, SendPrack(IMS_FALSE)).WillByDefault(Return(IMS_SUCCESS));
-
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover StartEpsFallbackWatchdogIfNeeded
+    ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_183));
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
             .WillByDefault(Return(2000));
@@ -2497,10 +2473,8 @@ TEST_F(OutgoingStateTest, SessionRprReceivedInvokesStartWatchdogFor182WithSdpAns
             .WillByDefault(Return(&objMessage));
 
     ON_CALL(objMtcSession, SendPrack(IMS_FALSE)).WillByDefault(Return(IMS_SUCCESS));
-
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover StartEpsFallbackWatchdogIfNeeded
+    ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_183));
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
             .WillByDefault(Return(2000));
@@ -2523,9 +2497,9 @@ TEST_F(OutgoingStateTest, SessionRprReceivedInvokesStartWatchdogFor183WithSdpAns
 
     ON_CALL(objMtcSession, SendPrack(IMS_FALSE)).WillByDefault(Return(IMS_SUCCESS));
 
-    MockISipMessage objSipMessage;
-    ON_CALL(objMessage, GetMessage).WillByDefault(Return(&objSipMessage));
-    SetSdpOaSuccessWithSdp(objMessage, objSipMessage);  // to cover StartEpsFallbackWatchdogIfNeeded
+    // to cover StartEpsFallbackWatchdogIfNeeded
+    ON_CALL(objMessage, GetStatusCode).WillByDefault(Return(SipStatusCode::SC_183));
+    ON_CALL(objMessageUtils, HasSdp(&objMessage)).WillByDefault(Return(IMS_TRUE));
 
     ON_CALL(*pConfigurationProxy, GetInt(ConfigVoice::KEY_EPS_FALLBACK_WATCHDOG_TIME_MILLIS_INT))
             .WillByDefault(Return(2000));

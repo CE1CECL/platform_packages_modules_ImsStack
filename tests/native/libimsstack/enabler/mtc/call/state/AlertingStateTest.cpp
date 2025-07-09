@@ -598,7 +598,6 @@ TEST_F(AlertingStateTest, SessionEarlyMediaUpdateReceivedInvokesRespondToEarlyUp
 {
     ON_CALL(objISession, GetPreviousRequest(IMessage::SESSION_EARLY_UPDATE))
             .WillByDefault(Return(&objIMessage));
-    ON_CALL(objISession, IsSdpNegotiationAllowedForNonRpr).WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMessageUtils, HasSdp(&objIMessage)).WillByDefault(Return(IMS_TRUE));
     ON_CALL(objMediaManager, GetNegotiationState(_))
             .WillByDefault(Return(NegotiationState::STATE_OFFER_RECEIVED));
