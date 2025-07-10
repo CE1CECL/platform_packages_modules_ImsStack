@@ -27,8 +27,6 @@ class IMtcCallStateListener;
 class MockICallStateProxy : public ICallStateProxy
 {
 public:
-    virtual ~MockICallStateProxy() override {}
-
     MOCK_METHOD(void, AddListener, (IN IMtcCallStateListener* pListener), (override));
     MOCK_METHOD(void, RemoveListener, (IN IMtcCallStateListener* pListener), (override));
     MOCK_METHOD(void, UpdateCallState,

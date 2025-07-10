@@ -37,8 +37,6 @@ struct MediaInfo;
 class MockIMtcCall : public IMtcCall
 {
 public:
-    ~MockIMtcCall() override {}
-
     MOCK_METHOD(void, Attach, (), (override));
     MOCK_METHOD(void, Start,
             (IN CallType eCallType, IN const AString& strTarget, IN MediaInfo& objMediaInfo,

@@ -36,8 +36,6 @@ enum class SuppStatus;
 class IMtcService : public INativeEnabler
 {
 public:
-    virtual ~IMtcService() override {}
-
     /**
      * @brief Gets the service type.
      *

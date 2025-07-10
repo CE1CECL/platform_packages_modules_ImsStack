@@ -26,7 +26,6 @@ class IMtcService;
 class MockIMtcAosStateListener : public IMtcAosStateListener
 {
 public:
-    virtual ~MockIMtcAosStateListener() override {}
     MOCK_METHOD(void, OnAosStateChanged,
             (IN IMtcService&, IN MtcAosState, IN IMS_UINT32, IN IMS_SINT32), (override));
 };

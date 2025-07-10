@@ -39,8 +39,6 @@ union Key;
 class IMtcCallController : public INativeEnabler
 {
 public:
-    virtual ~IMtcCallController() override {}
-
     /**
      * Creates a new outgoing call.
      *

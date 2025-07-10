@@ -28,8 +28,6 @@ class ConferenceParticipantList;
 class MockIConferenceController : public IConferenceController
 {
 public:
-    virtual ~MockIConferenceController() override {}
-
     MOCK_METHOD(void, ProcessCommand,
             (IN IMS_UINT32 nCmd, (IN ImsList<ConfUser*> & objUsers), IN CallInfo& objCallInfo,
                     IN MediaInfo& objMediaInfo,

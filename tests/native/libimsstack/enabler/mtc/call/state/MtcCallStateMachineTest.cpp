@@ -28,8 +28,6 @@ using State = IMtcCall::State;
 class TestCallStateFactory : public IMtcCallStateFactory
 {
 public:
-    virtual ~TestCallStateFactory() override {}
-
     IMtcCallState* CreateState(
             IN IMtcCall::State eState, IN IMtcCallContext& /* objContext */) override
     {

@@ -35,8 +35,6 @@ struct ConfUser;
 class MockIMessageUtils : public IMessageUtils
 {
 public:
-    ~MockIMessageUtils() override {}
-
     MOCK_METHOD(IMessage*, GetPreviousResponse, (IN const ISession*, IN IMS_SINT32, IN IMS_SINT32),
             (override));
     MOCK_METHOD(IMessage*, GetRemotePreviousMessage,

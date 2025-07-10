@@ -32,8 +32,6 @@ struct CallReasonInfo;
 class MockIMtcSession : public IMtcSession
 {
 public:
-    virtual ~MockIMtcSession() override {}
-
     MOCK_METHOD(IMS_RESULT, Start, (), (override));
     MOCK_METHOD(IMS_RESULT, SendProvisionalResponse,
             (IN IMS_BOOL bUserAlert, IN IMS_BOOL bReliable), (override));

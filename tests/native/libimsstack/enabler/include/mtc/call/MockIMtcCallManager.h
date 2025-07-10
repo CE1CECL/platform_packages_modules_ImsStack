@@ -28,8 +28,6 @@
 class MockIMtcCallManager : public IMtcCallManager
 {
 public:
-    ~MockIMtcCallManager() override {}
-
     MOCK_METHOD(IMtcCall*, CreateCall, (IN ServiceType eServiceType, IN CallInfo& objCallInfo),
             (override));
     MOCK_METHOD(void, RemoveCall, (IN CallKey nCallKey), (override));

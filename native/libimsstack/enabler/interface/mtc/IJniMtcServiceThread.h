@@ -31,8 +31,6 @@ struct JniExternalCall;
 class IJniMtcServiceThread : public IJniEnablerThread
 {
 public:
-    virtual ~IJniMtcServiceThread() override {}
-
     /**
      * @brief Notifies
      *
