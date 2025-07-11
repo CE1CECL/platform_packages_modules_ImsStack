@@ -29,8 +29,6 @@ struct JniCallInfo;
 class IJniMtcCallThread : public IJniEnablerThread
 {
 public:
-    virtual ~IJniMtcCallThread() override {}
-
     /**
      * @brief Notifies
      *

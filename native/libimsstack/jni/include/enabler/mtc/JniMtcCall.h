@@ -39,7 +39,6 @@ public:
     void Initialize();
 
     IJniEnablerThread* GetJniThread() const override;
-    inline void NotifyNativeEnablerSet() override {}
 
 protected:
     void HandleMessage(IN IMS_SINT32 nMsg, IN const android::Parcel& objParcel) override;
