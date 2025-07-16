@@ -39,7 +39,6 @@ PUBLIC
 MediaNegoHandler::~MediaNegoHandler()
 {
     IMS_TRACE_I("~MediaNegoHandler(): SlotId[%u]", m_nSlotId, 0, 0);
-    ClearAllMediaNego();
 }
 
 PUBLIC
@@ -131,9 +130,7 @@ IMS_BOOL MediaNegoHandler::DeleteMediaNego(IMS_UINTP nNegoId)
         return IMS_FALSE;
     }
 
-    std::shared_ptr<MediaNego> pMediaNego = m_objMapMediaNego.GetValueAt(nIndex);
     m_objMapMediaNego.RemoveAt(nIndex);
-
     return IMS_TRUE;
 }
 
@@ -144,7 +141,6 @@ void MediaNegoHandler::ClearAllMediaNego()
 
     while (!m_objMapMediaNego.IsEmpty())
     {
-        std::shared_ptr<MediaNego> pMediaNego = m_objMapMediaNego.GetValueAt(0);
         m_objMapMediaNego.RemoveAt(0);
     }
 }
@@ -249,27 +245,24 @@ MEDIA_CONTENT_TYPE MediaNegoHandler::GetNegotiatedMediaType(IMS_UINTP nNegoId)
     }
 
     // Re-implement the logic here as it depends on multiple calls to MediaNego
-    MEDIA_CONTENT_TYPE eMedia = MEDIA_TYPE_INVALID;
+    IMS_SINT32 eMediaMask = MEDIA_TYPE_INVALID;
 
     if (pMediaNego->GetNegotiatedAudioQuality() != AUDIO_CODEC_NOT_USED)
     {
-        eMedia = static_cast<MEDIA_CONTENT_TYPE>(
-                (static_cast<IMS_SINT32>(eMedia) | static_cast<IMS_SINT32>(MEDIA_TYPE_AUDIO)));
+        eMediaMask |= MEDIA_TYPE_AUDIO;
     }
 
     if (pMediaNego->GetNegotiatedVideoQuality() != VIDEO_RESOLUTION_NOT_USED)
     {
-        eMedia = static_cast<MEDIA_CONTENT_TYPE>(
-                (static_cast<IMS_SINT32>(eMedia) | static_cast<IMS_SINT32>(MEDIA_TYPE_VIDEO)));
+        eMediaMask |= MEDIA_TYPE_VIDEO;
     }
 
     if (pMediaNego->GetNegotiatedTextQuality() != TEXT_CODEC_NOT_USED)
     {
-        eMedia = static_cast<MEDIA_CONTENT_TYPE>(
-                (static_cast<IMS_SINT32>(eMedia) | static_cast<IMS_SINT32>(MEDIA_TYPE_TEXT)));
+        eMediaMask |= MEDIA_TYPE_TEXT;
     }
 
-    return eMedia;
+    return static_cast<MEDIA_CONTENT_TYPE>(eMediaMask);
 }
 
 PUBLIC
