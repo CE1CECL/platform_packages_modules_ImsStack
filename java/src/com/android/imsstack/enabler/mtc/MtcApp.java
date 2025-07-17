@@ -78,13 +78,14 @@ public class MtcApp implements Closeable {
         }
     }
 
-    private static final int MSG_IMS_SERVICE_STARTED = 1;
-    private static final int MSG_SEND_NOTIFICATION = 2;
+    protected static final int MSG_IMS_SERVICE_STARTED = 1;
+    protected static final int MSG_SEND_NOTIFICATION = 2;
 
     private final IBaseContext mContext;
     private final IMtcCallManager mCM;
     private final MtcAppHandler mHandler;
     private final MtcEmergencyServiceManager mEmergencyServiceManager;
+    private final MtcTerminalBasedSupplementaryServiceNotifier mTbSsNotifier;
     private long mNativeObject = 0;
     private JNIImsListenerProxy mNativeListener = new JNIImsListenerProxy();
     private ServiceStateListener mServiceStateListener = null;
@@ -102,6 +103,8 @@ public class MtcApp implements Closeable {
         mHandler = new MtcAppHandler(mContext.getCallLooper());
         mEmergencyServiceManager =
                 new MtcEmergencyServiceManager(mContext, mCM.getCallStateTracker());
+        mTbSsNotifier = new MtcTerminalBasedSupplementaryServiceNotifier(
+                    this, mContext.getSlotId(), mContext.getCallLooper());
         mMtcJniProxy = MtcJniProxy.getInstance();
 
         init();
@@ -109,12 +112,14 @@ public class MtcApp implements Closeable {
 
     @VisibleForTesting
     public MtcApp(IBaseContext context, IMtcCallManager mtcCallManager, Looper looper,
-            MtcEmergencyServiceManager mtcEmergencyServiceManager, MtcJniProxy mtcJniProxy) {
+            MtcEmergencyServiceManager mtcEmergencyServiceManager,
+            MtcTerminalBasedSupplementaryServiceNotifier tbSsNotifier, MtcJniProxy mtcJniProxy) {
         mContext = context;
 
         mCM = mtcCallManager;
         mHandler = new MtcAppHandler(looper);
         mEmergencyServiceManager = mtcEmergencyServiceManager;
+        mTbSsNotifier = tbSsNotifier;
         mMtcJniProxy = mtcJniProxy;
     }
 
@@ -126,6 +131,7 @@ public class MtcApp implements Closeable {
         mCM.init();
         mContext.addImsServiceListener(mHandler);
         mEmergencyServiceManager.init();
+        mTbSsNotifier.init();
 
         MmTelFeatureRegistry mmtelFr = ImsServiceRegistry.getInstance(mContext.getSlotId())
                 .getMmTelFeatureRegistry();
@@ -146,6 +152,7 @@ public class MtcApp implements Closeable {
         mEmergencyServiceManager.clear();
         mContext.removeImsServiceListener(mHandler);
         mCM.clear();
+        mTbSsNotifier.deinit();
 
         initializeState();
 
@@ -300,11 +307,6 @@ public class MtcApp implements Closeable {
     @VisibleForTesting
     protected class MmtelFeatureListener implements MmTelFeatureRegistry.Listener {
         @Override
-        public void onTerminalBasedCallWaitingStatusChanged() {
-            setTerminalBasedCallWaiting();
-        }
-
-        @Override
         public void onSrvccStateChanged(int srvccState) {
             logi("onSrvccStateChanged :: SRVCC State = " + srvccState);
             Parcel parcel = Parcel.obtain();
@@ -314,20 +316,6 @@ public class MtcApp implements Closeable {
 
             sendNotification(parcel);
         }
-    }
-
-    /**
-     * Sets a value for the Terminal based TIR.
-     */
-    public void setTerminalBasedTir(boolean enabled) {
-        logi("setTerminalBasedTir :: enabled=" + enabled);
-
-        Parcel parcel = Parcel.obtain();
-
-        parcel.writeInt(IUMtcService.SET_TERMINAL_BASED_TIR);
-        parcel.writeInt(enabled ? 1 : 0);
-
-        sendNotification(parcel);
     }
 
     public boolean isServiceValid() {
@@ -401,7 +389,7 @@ public class MtcApp implements Closeable {
             }
 
             mEmergencyServiceManager.setNativeObject(mNativeObject);
-            setTerminalBasedCallWaiting();
+            mTbSsNotifier.notifyInfo();
         }
     }
 
@@ -438,18 +426,6 @@ public class MtcApp implements Closeable {
         }
 
         Message.obtain(mHandler, MSG_SEND_NOTIFICATION, parcel).sendToTarget();
-    }
-
-    private void setTerminalBasedCallWaiting() {
-        MmTelFeatureRegistry mmtelFr = ImsServiceRegistry.getInstance(mContext.getSlotId())
-                .getMmTelFeatureRegistry();
-
-        Parcel parcel = Parcel.obtain();
-
-        parcel.writeInt(IUMtcService.SET_TERMINAL_BASED_CALL_WAITING);
-        parcel.writeInt(mmtelFr.isTerminalBasedCallWaitingEnabled() ? 1 : 0);
-
-        sendNotification(parcel);
     }
 
     private static void log(String s) {
@@ -567,12 +543,11 @@ public class MtcApp implements Closeable {
                 }
             }
             else if (msg == IUMtcService.JNI_READY) {
-                setTerminalBasedCallWaiting();
             }
         }
     }
 
-    private class MtcAppHandler extends Handler implements ImsStackRegistry.ImsServiceListener {
+    protected class MtcAppHandler extends Handler implements ImsStackRegistry.ImsServiceListener {
         public MtcAppHandler(Looper looper) {
             super(looper);
         }
