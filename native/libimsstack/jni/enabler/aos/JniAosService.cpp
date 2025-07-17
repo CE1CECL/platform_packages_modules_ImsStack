@@ -239,6 +239,10 @@ PRIVATE VIRTUAL void JniAosService::HandleMessage(IN IMS_SINT32 nMsg, IN const P
             NotifyAllowedNetworkTypesChanged(objParcel);
             break;
 
+        case IIAosService::J2N_NOTIFY_EMERGENCY_REGISTRATION_STATE_CHANGED:
+            NotifyEmergencyRegistrationStateChanged(objParcel);
+            break;
+
         default:
             break;
     }
@@ -595,6 +599,16 @@ void JniAosService::NotifyAllowedNetworkTypesChanged(IN const android::Parcel& o
     if (piAosService)
     {
         piAosService->NotifyAllowedNetworkTypesChanged(objParcel.readUint64());
+    }
+}
+
+PRIVATE
+void JniAosService::NotifyEmergencyRegistrationStateChanged(IN const android::Parcel& objParcel)
+{
+    IAosService* piAosService = GetNativeService();
+    if (piAosService)
+    {
+        piAosService->NotifyEmergencyRegistrationStateChanged(objParcel.readInt32());
     }
 }
 

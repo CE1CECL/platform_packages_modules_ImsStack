@@ -251,6 +251,12 @@ public interface IDcNetWatcher extends IDc {
          */
         default void onPdnConnectionFailed(EApnType apnType, int smCause) {
         }
+
+        /**
+         * Invoked when network registration state is changed.
+         */
+        default void onNetworkRegistrationStateChanged(int regState) {
+        }
     }
 
     /**

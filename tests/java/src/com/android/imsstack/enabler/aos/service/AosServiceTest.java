@@ -800,6 +800,22 @@ public class AosServiceTest extends ImsStackTest {
     }
 
     @Test
+    public void onNetworkRegistrationStateChanged_notifyEmergencyRegistrationStateChange() {
+        mAosService.setEmergencyAttached(false);
+
+        Parcel parcel = Parcel.obtain();
+        parcel.writeInt(IIAosService.J2N_NOTIFY_EMERGENCY_REGISTRATION_STATE_CHANGED);
+        parcel.writeInt(1);
+        byte[] emergencyRegistrationData = parcel.marshall();
+        parcel.recycle();
+
+        mAosService.onNetworkRegistrationStateChanged(
+                android.telephony.NetworkRegistrationInfo.REGISTRATION_STATE_EMERGENCY);
+
+        verify(mMockJniIms).sendData(mNativeObject, emergencyRegistrationData);
+    }
+
+    @Test
     public void onHandoverStateChanged_doNotNotifyIpcanHandoverExceptFailure() {
         int reason = DataFailCause.OPERATOR_BARRED;
         byte[] ipcanHandoverFailureData = createBytes(
@@ -1588,6 +1604,10 @@ public class AosServiceTest extends ImsStackTest {
 
         public void setPreciseCallState(int state) {
             mPreciseCallState = state;
+        }
+
+        public void setEmergencyAttached(boolean isEmergencyAttached) {
+            mIsEmergencyAttached = isEmergencyAttached;
         }
 
         public void setConnectedOverCrossSim(boolean isConnected) {
