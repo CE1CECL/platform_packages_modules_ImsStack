@@ -115,7 +115,11 @@ protected:
                 .WillByDefault(ReturnRef(IpAddress::NONE));
     }
 
-    void TearDown() override { m_pHandler.reset(); }
+    void TearDown() override
+    {
+        m_pHandler->ClearAllMediaNego();
+        m_pHandler.reset();
+    }
 
     // Helper function to set up a mock nego via the factory for delegation tests
     IMS_UINTP SetupMockNegoForTest(std::shared_ptr<MockMediaNego> pMockNego)
@@ -167,8 +171,7 @@ TEST_F(MediaNegoHandlerTest, CreateMediaNegoForkInvalidId)
 TEST_F(MediaNegoHandlerTest, FindMediaNegoNotFound)
 {
     // Create one to ensure map isn't empty, but search for a different one
-    IMS_UINTP nNegoId1 = SetupMockNegoForTest(m_pMockMediaNego1);
-
+    SetupMockNegoForTest(m_pMockMediaNego1);
     EXPECT_EQ(IMS_NULL, m_pHandler->FindMediaNego(kInvalidNegoId));
 }
 
@@ -182,8 +185,7 @@ TEST_F(MediaNegoHandlerTest, DeleteMediaNegoFailed)
 
 TEST_F(MediaNegoHandlerTest, DeleteMediaNegoNotFound)
 {
-    IMS_UINTP nNegoId1 = SetupMockNegoForTest(m_pMockMediaNego1);
-
+    SetupMockNegoForTest(m_pMockMediaNego1);
     EXPECT_EQ(IMS_FALSE, m_pHandler->DeleteMediaNego(kInvalidNegoId));
 }
 

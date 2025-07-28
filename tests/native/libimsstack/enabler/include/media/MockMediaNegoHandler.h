@@ -33,7 +33,7 @@ public:
     {
     }
 
-    virtual ~MockMediaNegoHandler() = default;
+    virtual ~MockMediaNegoHandler() override = default;
 
     MOCK_METHOD(IMS_UINTP, CreateMediaNego, (IMS_UINTP nExistingNegoId), (override));
     MOCK_METHOD(std::shared_ptr<MediaNego>, FindMediaNego, (IMS_UINTP nNegoId), (override));

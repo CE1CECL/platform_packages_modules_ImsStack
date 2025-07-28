@@ -17,8 +17,6 @@
 #ifndef MEDIA_NEGO_HANDLER_H_
 #define MEDIA_NEGO_HANDLER_H_
 
-#include <memory>
-
 #include "IMediaNegoFactory.h"
 #include "ISession.h"
 #include "ImsMap.h"

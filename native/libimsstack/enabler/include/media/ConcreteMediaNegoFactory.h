@@ -31,16 +31,16 @@ public:
             std::shared_ptr<MediaNego> pExistingNego,
             std::shared_ptr<MediaEnvironment> pEnvironment) override
     {
-        std::shared_ptr<MediaNego> pNewNego = std::make_shared<MediaNego>(nSlotId);
+        auto pNewNego = std::make_shared<MediaNego>(nSlotId);
 
-        if (pExistingNego && pNewNego != IMS_NULL)
+        if (pExistingNego)
         {
             if (!pNewNego->Forking(pExistingNego.get()))
             {
                 return nullptr;
             }
         }
-        else if (pNewNego)
+        else
         {
             pNewNego->CreateProfile(pEnvironment);
         }
