@@ -68,6 +68,10 @@ protected:
         m_objLocalProfile.GetPayloadList().Append(pLocalPayload);
         m_objNegoProfile.GetPayloadList().Append(pNegoPayload);
         m_objPeerProfile.GetPayloadList().Append(pPeerPayload);
+
+        m_objLocalProfile.SetBandwidthAs(32);
+        m_objPeerProfile.SetBandwidthAs(32);
+        m_objNegoProfile.SetBandwidthAs(32);
         m_objLocalProfile.SetDataPort(10000);
         m_objPeerProfile.SetDataPort(20000);
         m_objNegoProfile.SetDataPort(30000);
@@ -114,6 +118,66 @@ TEST_F(VideoSessionTest, testUpdateRtpConfig)
             &m_objLocalProfile, &m_objPeerProfile, &m_objNegoProfile, IMS_TRUE, IMS_TRUE));
 
     EXPECT_EQ(m_pSession->GetRtpConfig()->getMediaDirection(), RtpConfig::MEDIA_DIRECTION_NO_FLOW);
+}
+
+TEST_F(VideoSessionTest, testUpdateRtpConfigCodecSpropWithPeerFmtp)
+{
+    // Arrange: Set up the negotiated and peer profiles with specific codec sprop values.
+    auto pNegoFmtp = m_objNegoProfile.GetPayloadAt(0)->GetFmtp();
+    pNegoFmtp->SetSpropParam("local_sprop_value");
+
+    auto pPeerFmtp = m_objPeerProfile.GetPayloadAt(0)->GetFmtp();
+    pPeerFmtp->SetSpropParam("peer_sprop_value");
+
+    m_objNegoProfile.SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+
+    // Act: Call UpdateRtpConfig.
+    EXPECT_TRUE(m_pSession->UpdateRtpConfig(
+            &m_objLocalProfile, &m_objPeerProfile, &m_objNegoProfile, IMS_TRUE, IMS_TRUE));
+
+    // Assert: Check that the codec sprop in VideoConfig is set to the peer's value.
+    VideoConfig* pVideoConfig = reinterpret_cast<VideoConfig*>(m_pSession->GetRtpConfig());
+    EXPECT_EQ(pVideoConfig->getCodecSprop(), "peer_sprop_value");
+}
+
+TEST_F(VideoSessionTest, testUpdateRtpConfigCodecSpropWithNegoFmtpWhenNullPeerFmtp)
+{
+    // Arrange: Set up the negotiated with specific codec sprop values.
+    auto pNegoFmtp = m_objNegoProfile.GetPayloadAt(0)->GetFmtp();
+    pNegoFmtp->SetSpropParam("local_sprop_value");
+
+    // Set peer profiles with null
+    m_objPeerProfile.GetPayloadAt(0)->SetFmtp(IMS_NULL);
+    m_objNegoProfile.SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+
+    // Act: Call UpdateRtpConfig.
+    EXPECT_TRUE(m_pSession->UpdateRtpConfig(
+            &m_objLocalProfile, &m_objPeerProfile, &m_objNegoProfile, IMS_TRUE, IMS_TRUE));
+
+    // Assert: Check that the codec sprop in VideoConfig is set to the negotiated value.
+    VideoConfig* pVideoConfig = reinterpret_cast<VideoConfig*>(m_pSession->GetRtpConfig());
+    EXPECT_EQ(pVideoConfig->getCodecSprop(), "local_sprop_value");
+}
+
+TEST_F(VideoSessionTest, testUpdateRtpConfigCodecSpropWithNegoFmtpWhenEmptyPeerFmtp)
+{
+    // Arrange: Set up the negotiated with specific codec sprop values.
+    auto pNegoFmtp = m_objNegoProfile.GetPayloadAt(0)->GetFmtp();
+    pNegoFmtp->SetSpropParam("local_sprop_value");
+
+    // Set peer profiles with null
+    auto pPeerFmtp = m_objPeerProfile.GetPayloadAt(0)->GetFmtp();
+    pPeerFmtp->SetSpropParam("");
+
+    m_objNegoProfile.SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+
+    // Act: Call UpdateRtpConfig.
+    EXPECT_TRUE(m_pSession->UpdateRtpConfig(
+            &m_objLocalProfile, &m_objPeerProfile, &m_objNegoProfile, IMS_TRUE, IMS_TRUE));
+
+    // Assert: Check that the codec sprop in VideoConfig is set to the negotiated value.
+    VideoConfig* pVideoConfig = reinterpret_cast<VideoConfig*>(m_pSession->GetRtpConfig());
+    EXPECT_EQ(pVideoConfig->getCodecSprop(), "local_sprop_value");
 }
 
 TEST_F(VideoSessionTest, testUpdateRtpConfigSendRecv)
@@ -205,7 +269,7 @@ TEST_F(VideoSessionTest, testUpdateRtpConfigPayloadType)
 
     // Assert
     VideoConfig* pVideoConfig = reinterpret_cast<VideoConfig*>(m_pSession->GetRtpConfig());
-    ASSERT_TRUE(pVideoConfig != nullptr);
+    ASSERT_TRUE(pVideoConfig != IMS_NULL);
     EXPECT_EQ(pVideoConfig->getTxPayloadTypeNumber(), kNegoPayloadNum);
     EXPECT_EQ(pVideoConfig->getRxPayloadTypeNumber(), kPeerPayloadNum);
 }

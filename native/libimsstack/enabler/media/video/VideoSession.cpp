@@ -202,45 +202,57 @@ PUBLIC IMS_BOOL VideoSession::UpdateRtpConfig(IN VideoProfile* pLocalProfile,
 
     if (pNegoPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("H264"))
     {
-        auto pFmtp = std::static_pointer_cast<VideoProfile::AvcFmtp>(pNegoPayload->GetFmtp());
+        auto pNegoFmtp = std::static_pointer_cast<VideoProfile::AvcFmtp>(pNegoPayload->GetFmtp());
 
         pVideoConfig->setCodecType(VideoConfig::CODEC_AVC);
-        pVideoConfig->setCodecProfile(convertAvcProfile((pFmtp->GetProfile())));
+        pVideoConfig->setCodecProfile(convertAvcProfile((pNegoFmtp->GetProfile())));
 
         /** TODO: check the case for setting AVC_LEVEL_1B */
-        pVideoConfig->setCodecLevel(convertAvcLevel(pFmtp->GetLevel()));
+        pVideoConfig->setCodecLevel(convertAvcLevel(pNegoFmtp->GetLevel()));
 
-        pVideoConfig->setFramerate(pFmtp->GetFramerate());
-        pVideoConfig->setBitrate(pFmtp->GetBitrate());
-        pVideoConfig->setPacketizationMode(pFmtp->GetPacketizationMode());
-        pVideoConfig->setCodecSprop(android::String8(pFmtp->GetSpropParam().GetStr()));
+        pVideoConfig->setFramerate(pNegoFmtp->GetFramerate());
+        pVideoConfig->setBitrate(pNegoFmtp->GetBitrate());
+        pVideoConfig->setPacketizationMode(pNegoFmtp->GetPacketizationMode());
 
         IMS_UINT32 nWidth = 0;
         IMS_UINT32 nHeight = 0;
-        VideoProfileUtil::GetWidthHeightFromResolution(pFmtp->GetResolution(), &nWidth, &nHeight);
+        VideoProfileUtil::GetWidthHeightFromResolution(
+                pNegoFmtp->GetResolution(), &nWidth, &nHeight);
         pVideoConfig->setResolutionWidth(nWidth);
         pVideoConfig->setResolutionHeight(nHeight);
     }
     else if (pNegoPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("H265"))
     {
-        auto pFmtp = std::static_pointer_cast<VideoProfile::HevcFmtp>(pNegoPayload->GetFmtp());
+        auto pNegoFmtp = std::static_pointer_cast<VideoProfile::HevcFmtp>(pNegoPayload->GetFmtp());
 
         pVideoConfig->setCodecType(VideoConfig::CODEC_HEVC);
-        pVideoConfig->setCodecProfile(convertHevcProfile((pFmtp->GetProfile())));
+        pVideoConfig->setCodecProfile(convertHevcProfile((pNegoFmtp->GetProfile())));
 
         /** The levelId received from sdp profile should be converted to a value divided by 3. */
-        pVideoConfig->setCodecLevel(convertHevcLevel(pFmtp->GetLevel() / 3));
+        pVideoConfig->setCodecLevel(convertHevcLevel(pNegoFmtp->GetLevel() / 3));
 
-        pVideoConfig->setFramerate(pFmtp->GetFramerate());
-        pVideoConfig->setBitrate(pFmtp->GetBitrate());
-        pVideoConfig->setPacketizationMode(pFmtp->GetPacketizationMode());
-        pVideoConfig->setCodecSprop(android::String8(pFmtp->GetSpropParam().GetStr()));
+        pVideoConfig->setFramerate(pNegoFmtp->GetFramerate());
+        pVideoConfig->setBitrate(pNegoFmtp->GetBitrate());
+        pVideoConfig->setPacketizationMode(pNegoFmtp->GetPacketizationMode());
 
         IMS_UINT32 nWidth = 0;
         IMS_UINT32 nHeight = 0;
-        VideoProfileUtil::GetWidthHeightFromResolution(pFmtp->GetResolution(), &nWidth, &nHeight);
+        VideoProfileUtil::GetWidthHeightFromResolution(
+                pNegoFmtp->GetResolution(), &nWidth, &nHeight);
         pVideoConfig->setResolutionWidth(nWidth);
         pVideoConfig->setResolutionHeight(nHeight);
+    }
+
+    if (pPeerPayload->GetFmtp() != IMS_NULL &&
+            !pPeerPayload->GetFmtp()->GetSpropParam().EqualsIgnoreCase(""))
+    {
+        pVideoConfig->setCodecSprop(
+                android::String8(pPeerPayload->GetFmtp()->GetSpropParam().GetStr()));
+    }
+    else if (pNegoPayload->GetFmtp() != IMS_NULL)
+    {
+        pVideoConfig->setCodecSprop(
+                android::String8(pNegoPayload->GetFmtp()->GetSpropParam().GetStr()));
     }
 
     pVideoConfig->setSamplingRateKHz((int8_t)(pNegoPayload->GetRtpMap().GetSamplingRate() / 1000));
