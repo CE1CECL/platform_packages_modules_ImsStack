@@ -474,9 +474,11 @@ PROTECTED VIRTUAL IMS_BOOL AosIpsecHelper::SetSecurityClientHeader()
 
             m_pNewIpsec->MakeSecurityClientH(objSecurityClientH);
 
-            objSecurityClientH.SetAlgorithm(objAuthenticationAlgs.GetAt(nIAlgIdx));
+            objSecurityClientH.SetAlgorithm(m_pNewIpsec->GetAuthAlgoForSecurityHeader(
+                    objAuthenticationAlgs.GetAt(nIAlgIdx)));
 
-            objSecurityClientH.SetEncryptionAlgorithm(objEncryptionAlgs.GetAt(nEAlgIdx));
+            objSecurityClientH.SetEncryptionAlgorithm(
+                    m_pNewIpsec->GetEncrAlgoForSecurityHeader(objEncryptionAlgs.GetAt(nEAlgIdx)));
 
             m_piRegParameter->AddSecurityClient(objSecurityClientH);
         }

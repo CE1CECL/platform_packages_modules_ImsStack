@@ -167,8 +167,17 @@ public:
     /// Get Policy Interface
     IIpSecPolicy* GetPolicy();
 
-    /// Get Integrity Algorithm
+    /// Get Integrity & Encryption Algorithm
     IMS_UINT32 GetIntegrityAlgorithm();
+    IMS_UINT32 GetAuthAlgoForIpsec(IN IMS_UINT32 nAlgo) const;
+    IMS_UINT32 GetEncrAlgoForIpsec(IN IMS_UINT32 nAlgo) const;
+    IMS_SINT32 GetAuthAlgoForSecurityHeader(IN IMS_SINT32 nAlgo) const;
+    IMS_SINT32 GetEncrAlgoForSecurityHeader(IN IMS_SINT32 nAlgo) const;
+
+    // Get Security Mode & Protocol Algorithm
+    IMS_SINT32 GetModeForSecurityHeader(IN IMS_UINT32 nMode) const;
+    IMS_UINT32 GetProtocolForIpsec(IN IMS_UINT32 nProtocol) const;
+    IMS_SINT32 GetProtocolForSecurityHeader(IN IMS_UINT32 nProtocol) const;
 
     /// Get UE Port & Spi
     const IpAddress& GetUeIpa() const;
