@@ -1044,6 +1044,16 @@ TEST_F(AosServiceTest, NotifyNetworkTypesWhenAllowedNetworkTypesChangedIfPlmnBlo
     EXPECT_FALSE(m_pAosService->IsPlmnBlocked());
 }
 
+TEST_F(AosServiceTest, NotifyEmergencyRegistrationStateChangedIfEmergencyAttached)
+{
+    MockIAosServicePhoneListener objMockListener;
+    m_pAosService->AddListener(&objMockListener);
+
+    EXPECT_CALL(objMockListener, ServicePhone_EmergencyRegistrationStateChanged(_));
+
+    m_pAosService->NotifyEmergencyRegistrationStateChanged(0);
+}
+
 TEST_F(AosServiceTest, NotifyRegistered)
 {
     const ImsList<AString> objFeatureTags;

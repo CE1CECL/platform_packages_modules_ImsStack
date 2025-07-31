@@ -826,6 +826,9 @@ public class DcNetWatcherTest extends ImsStackTest {
         invokeMethod(mDcNetWatcher.mPhoneStateListener, "onServiceStateChanged",
                 new Class[] {ServiceState.class}, new Object[] {mServiceState});
 
+        verify(mNetWatherListener).onNetworkRegistrationStateChanged(
+                NetworkRegistrationInfo.REGISTRATION_STATE_EMERGENCY);
+
         assertTrue(mDcNetWatcher.isEmergencyOnly());
     }
 

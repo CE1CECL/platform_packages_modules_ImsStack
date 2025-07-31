@@ -988,6 +988,12 @@ public class DcNetWatcher implements IDcNetWatcher {
         }
     }
 
+    private void handleNetworkRegistrationStateChanged(int regState) {
+        for (Listener l : mListeners) {
+            l.onNetworkRegistrationStateChanged(regState);
+        }
+    }
+
     private static int getAirplaneMode() {
         return AppContext.getInstance().getContentProviderProxy().getGlobalSettings()
                 .getInt(AIRPLANE_MODE_ON, -1);
@@ -1149,7 +1155,11 @@ public class DcNetWatcher implements IDcNetWatcher {
             }
 
             // WWAN network registration state
-            mNetworkRegistrationState = getWwanNetworkRegistrationState(serviceState);
+            int networkRegistrationState = getWwanNetworkRegistrationState(serviceState);
+            if (networkRegistrationState != mNetworkRegistrationState) {
+                handleNetworkRegistrationStateChanged(networkRegistrationState);
+                mNetworkRegistrationState = networkRegistrationState;
+            }
 
             // WWAN network registration reject cause
             if (mNetworkRegistrationState == NetworkRegistrationInfo.REGISTRATION_STATE_HOME

@@ -23,6 +23,7 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.os.PersistableBundle;
 import android.telephony.DataFailCause;
+import android.telephony.NetworkRegistrationInfo;
 import android.telephony.PreciseCallState;
 import android.telephony.TelephonyManager;
 import android.telephony.data.ApnSetting;
@@ -94,6 +95,7 @@ public class AosService implements IAosRegistration, IAosInfo, Sim.Listener, Sim
     NetworkType mRegisteredNetworkType = NetworkType.NONE;
     int mFeatureTagBits = 0;
     int mPreciseCallState = PreciseCallState.PRECISE_CALL_STATE_IDLE;
+    boolean mIsEmergencyAttached = false;
     boolean mIsConnectedOverCrossSim = false;
     CapabilityPairs mCapabilityPairs;
 
@@ -547,6 +549,19 @@ public class AosService implements IAosRegistration, IAosInfo, Sim.Listener, Sim
         parcel.writeInt(state);
         parcel.writeString(plmn);
         sendRequest(parcel);
+    }
+
+    @Override
+    public void onNetworkRegistrationStateChanged(int regState) {
+        ImsLog.d(mSlotId, "AosService : onNetworkRegistrationStateChanged");
+
+        boolean isEmergencyAttached = (regState
+                == NetworkRegistrationInfo.REGISTRATION_STATE_EMERGENCY);
+        if (mIsEmergencyAttached != isEmergencyAttached) {
+            mIsEmergencyAttached = isEmergencyAttached;
+            sendRequest(IIAosService.J2N_NOTIFY_EMERGENCY_REGISTRATION_STATE_CHANGED,
+                    mIsEmergencyAttached);
+        }
     }
 
     @Override

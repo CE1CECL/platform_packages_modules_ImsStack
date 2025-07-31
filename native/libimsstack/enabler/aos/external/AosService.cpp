@@ -689,6 +689,24 @@ PUBLIC VIRTUAL void AosService::NotifyAllowedNetworkTypesChanged(IN IMS_ULONG nN
     }
 }
 
+PUBLIC VIRTUAL void AosService::NotifyEmergencyRegistrationStateChanged(
+        IN IMS_UINT32 nIsEmergencyAttached)
+{
+    A_IMS_TRACE_I(AOSTAG, "NotifyEmergencyRegistrationStateChanged :: bEmergencyAttached(%d)",
+            nIsEmergencyAttached, 0, 0);
+
+    for (IMS_UINT32 i = 0; i < m_objAosServicePhoneListeners.GetSize(); ++i)
+    {
+        IAosServicePhoneListener* piListener = m_objAosServicePhoneListeners.GetAt(i);
+
+        if (piListener != IMS_NULL)
+        {
+            piListener->ServicePhone_EmergencyRegistrationStateChanged(
+                    TO_BOOLEAN(nIsEmergencyAttached));
+        }
+    }
+}
+
 PUBLIC VIRTUAL IMS_BOOL AosService::NotifyRegistered(IN IMS_SINT32 nRegType,
         IN AosNetworkType eNetworkType, IN IMS_UINT32 nFeatureTagBits,
         IN const ImsList<AString>& objFeatureTags)

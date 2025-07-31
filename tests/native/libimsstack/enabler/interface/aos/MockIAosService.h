@@ -80,6 +80,8 @@ public:
     MOCK_METHOD(void, NotifyNasSecurityAlgorithmChanged, (IN IMS_UINT32 nIsNullAlgo), (override));
     MOCK_METHOD(void, NotifyAllowedNetworkTypesChanged, (IN IMS_ULONG nNetworkTypesBitMask),
             (override));
+    MOCK_METHOD(void, NotifyEmergencyRegistrationStateChanged, (IN IMS_UINT32 nIsEmergencyAttached),
+            (override));
 
     MOCK_METHOD(IMS_BOOL, NotifyRegistered,
             (IN IMS_SINT32 nRegType, IN AosNetworkType eNetworkType, IN IMS_UINT32 nFeatureTagBits,

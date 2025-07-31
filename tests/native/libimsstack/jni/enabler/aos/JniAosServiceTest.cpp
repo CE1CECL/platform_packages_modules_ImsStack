@@ -501,6 +501,21 @@ TEST_F(JniAosServiceTest, ShouldInvokeAosServiceWhenNotifyAllowedNetworkTypesCha
     // THEN : GIVEN conditions should be met.
 }
 
+TEST_F(JniAosServiceTest, ShouldInvokeAosServiceWhenNotifyEmergencyRegistrationStateChanged)
+{
+    // GIVEN
+    m_objParcel.writeInt32(IIAosService::J2N_NOTIFY_EMERGENCY_REGISTRATION_STATE_CHANGED);
+    m_objParcel.writeInt32(1);
+    m_objParcel.setDataPosition(0);
+
+    EXPECT_CALL(m_objMockIAosService, NotifyEmergencyRegistrationStateChanged(_));
+
+    // WHEN
+    m_pJniAosService->SendData(m_objParcel);
+
+    // THEN : GIVEN conditions should be met.
+}
+
 TEST_F(JniAosServiceTest, ShouldInvokeAosServiceWhenNotifyEmergencyCallbackModeChanged)
 {
     // GIVEN

@@ -149,6 +149,15 @@ public:
      * @param nNetworkTypesBitMask A {@code long} value representing the allowed network types.
      */
     virtual void ServicePhone_AllowedNetworkTypesChanged(IN IMS_ULONG nNetworkTypesBitMask) = 0;
+
+    /**
+     * Called to notify the change of emergency registration state
+     * Called by AosService (JAVA)
+     *
+     * @param bEmergencyAttached {@code IMS_TRUE} if emergency state, {@code IMS_FALSE} if not
+     * emergency attached.
+     */
+    virtual void ServicePhone_EmergencyRegistrationStateChanged(IN IMS_BOOL bEmergencyAttached) = 0;
 };
 
 /**
@@ -226,6 +235,8 @@ public:
     inline void ServicePhone_CrossSimStatusChanged(IN IMS_BOOL /*bCrossSimConnected*/) override {};
     inline void ServicePhone_AllowedNetworkTypesChanged(
             IN IMS_ULONG /*nNetworkTypesBitMask*/) override {};
+    inline void ServicePhone_EmergencyRegistrationStateChanged(
+            IN IMS_BOOL /*bEmergencyAttached*/) override {};
 };
 
 #endif  // INTERFACE_AOS_SERVICE_PHONE_LISTENER_H_
