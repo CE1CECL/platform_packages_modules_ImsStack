@@ -63,6 +63,13 @@ public:
             return (*this);
         }
 
+        bool operator==(IN const RedFmtp& obj) const
+        {
+            return (m_nRedLevel == obj.m_nRedLevel && m_nRedPayload == obj.m_nRedPayload);
+        }
+
+        bool operator!=(IN const RedFmtp& obj) const { return !(*this == obj); }
+
         inline void SetRedLevel(IN const IMS_SINT32 nRedLevel) { m_nRedLevel = nRedLevel; }
         inline IMS_SINT32 GetRedLevel() { return m_nRedLevel; }
         inline void SetRedPayload(IN const IMS_SINT32 nRedPayload) { m_nRedPayload = nRedPayload; }
@@ -113,6 +120,23 @@ public:
 
             return (*this);
         }
+
+        bool operator==(IN const Payload& obj) const
+        {
+            if (!BasePayload::operator==(obj))
+            {
+                return false;
+            }
+
+            if (m_pFmtp == nullptr || obj.m_pFmtp == nullptr)
+            {
+                return m_pFmtp == obj.m_pFmtp;
+            }
+
+            return *m_pFmtp == *obj.m_pFmtp;
+        }
+
+        bool operator!=(IN const Payload& obj) const { return !(*this == obj); }
 
         inline std::shared_ptr<RedFmtp> GetFmtp() { return m_pFmtp; }
         inline void SetFmtp(std::shared_ptr<RedFmtp> pFmtp) { m_pFmtp = pFmtp; }

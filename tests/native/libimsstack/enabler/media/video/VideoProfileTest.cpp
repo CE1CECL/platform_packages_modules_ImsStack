@@ -638,6 +638,64 @@ TEST_F(VideoProfileTest, testVideoPayloadAssignForHevcFmtp)
     delete pPayload3;
 }
 
+TEST_F(VideoProfileTest, testVideoPayloadEqualNotEqual)
+{
+    // Create two identical payloads for AVC
+    VideoProfile::Payload* pPayload1 = new VideoProfile::Payload();
+    pPayload1->GetRtpMap().SetPayloadType(AVC_PAYLOAD_TYPE);
+    pPayload1->GetRtpMap().SetPayloadNumber(100);
+    pPayload1->SetIncludeImageAttr(VIDEO_PAYLOAD_INCLUDE_IMAGE_ATTR);
+    pPayload1->SetImageAttr(VIDEO_PAYLOAD_IMAGE_ATTR);
+
+    auto pFmtp1 = std::make_shared<VideoProfile::AvcFmtp>();
+    pFmtp1->SetProfileLevelId(AVC_FMTP_PROFILE_LEVEL_ID);
+    pPayload1->SetFmtp(pFmtp1);
+
+    VideoProfile::Payload* pPayload2 = new VideoProfile::Payload(*pPayload1);
+
+    // 1. Test for equality
+    EXPECT_EQ(*pPayload1, *pPayload2);
+    EXPECT_FALSE(*pPayload1 != *pPayload2);
+
+    // 2. Test BasePayload inequality
+    pPayload2->GetRtpMap().SetPayloadNumber(101);
+    EXPECT_NE(*pPayload1, *pPayload2);
+    EXPECT_TRUE(*pPayload1 != *pPayload2);
+    pPayload2->GetRtpMap().SetPayloadNumber(100);  // reset
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    // 3. Test other Payload member inequality
+    pPayload2->SetIncludeImageAttr(!VIDEO_PAYLOAD_INCLUDE_IMAGE_ATTR);
+    EXPECT_NE(*pPayload1, *pPayload2);
+    pPayload2->SetIncludeImageAttr(VIDEO_PAYLOAD_INCLUDE_IMAGE_ATTR);  // reset
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    pPayload2->SetImageAttr("different attr");
+    EXPECT_NE(*pPayload1, *pPayload2);
+    pPayload2->SetImageAttr(VIDEO_PAYLOAD_IMAGE_ATTR);  // reset
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    // 4. Test Fmtp inequality (derived class member)
+    auto pFmtp2 = std::static_pointer_cast<VideoProfile::AvcFmtp>(pPayload2->GetFmtp());
+    pFmtp2->SetProfileLevelId("different");
+    EXPECT_NE(*pPayload1, *pPayload2);
+    pFmtp2->SetProfileLevelId(AVC_FMTP_PROFILE_LEVEL_ID);  // reset
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    // 5. Test null Fmtp cases
+    pPayload1->SetFmtp(nullptr);
+    EXPECT_NE(*pPayload1, *pPayload2);
+
+    pPayload2->SetFmtp(nullptr);
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    pPayload1->SetFmtp(pFmtp1);
+    EXPECT_NE(*pPayload1, *pPayload2);
+
+    delete pPayload1;
+    delete pPayload2;
+}
+
 TEST_F(VideoProfileTest, testVideoProfileFrameRate)
 {
     VideoProfile* pProfile = new VideoProfile();

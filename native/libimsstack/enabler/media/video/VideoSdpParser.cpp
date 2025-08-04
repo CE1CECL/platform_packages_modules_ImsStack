@@ -382,7 +382,7 @@ IMS_BOOL VideoSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
             continue;
         }
 
-        if (!ParseVideoBaseFmtp(objSplitEqual, pFmtp))
+        if (!ParseVideoFmtp(objSplitEqual, pFmtp))
         {
             switch (eVideoCodec)
             {
@@ -415,12 +415,12 @@ IMS_BOOL VideoSdpParser::ParseFmtp(IN const SdpAvCodec* pSdpCodec,
 }
 
 PRIVATE
-IMS_BOOL VideoSdpParser::ParseVideoBaseFmtp(IN const ImsList<AString>& objSplitEqual,
+IMS_BOOL VideoSdpParser::ParseVideoFmtp(IN const ImsList<AString>& objSplitEqual,
         OUT std::shared_ptr<VideoProfile::VideoFmtp> pFmtp)
 {
     if (pFmtp == IMS_NULL)
     {
-        IMS_TRACE_E(0, "ParseVideoBaseFmtp(): invalid arguments", 0, 0, 0);
+        IMS_TRACE_E(0, "ParseVideoFmtp(): invalid arguments", 0, 0, 0);
         return IMS_FALSE;
     }
 

@@ -828,6 +828,35 @@ TEST_F(AudioProfileTest, testAudioPayloadAssignForTelephoneEventFmtp)
             TELEPHONY_EVENT_FMTP_EVENTS);
 }
 
+TEST_F(AudioProfileTest, testAudioPayloadEqual)
+{
+    auto pPayload1 = std::make_unique<AudioProfile::Payload>();
+    pPayload1->GetRtpMap().SetPayloadType(AMR_PAYLOAD_TYPE);
+    auto pFmtp1 = std::make_shared<AudioProfile::AmrFmtp>();
+    pFmtp1->SetOctetAlign(1);
+    pPayload1->SetFmtp(pFmtp1);
+
+    auto pPayload2 = std::make_unique<AudioProfile::Payload>();
+    pPayload2->GetRtpMap().SetPayloadType(AMR_PAYLOAD_TYPE);
+    auto pFmtp2 = std::make_shared<AudioProfile::AmrFmtp>();
+    pFmtp2->SetOctetAlign(1);
+    pPayload2->SetFmtp(pFmtp2);
+
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    pFmtp2->SetOctetAlign(0);
+    EXPECT_NE(*pPayload1, *pPayload2);
+
+    // Test with null fmtp
+    pPayload1->SetFmtp(nullptr);
+    pPayload2->SetFmtp(nullptr);
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    auto pFmtp3 = std::make_shared<AudioProfile::AmrFmtp>();
+    pPayload2->SetFmtp(pFmtp3);
+    EXPECT_NE(*pPayload1, *pPayload2);
+}
+
 TEST_F(AudioProfileTest, testRtcpXrAttributesSupportStatisticMetrics)
 {
     auto pRtcpXrAttr = std::make_unique<AudioProfile::RtcpXrAttributes>();

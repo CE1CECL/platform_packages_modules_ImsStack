@@ -127,6 +127,39 @@ TEST_F(TextProfileTest, testTextPayloadAssign)
     delete pPayload3;
 }
 
+TEST_F(TextProfileTest, testTextPayloadEqual)
+{
+    auto pPayload1 = std::make_unique<TextProfile::Payload>();
+    pPayload1->GetRtpMap().SetPayloadType(RED_PAYLOAD_TYPE);
+    auto pFmtp1 = std::make_shared<TextProfile::RedFmtp>(RED_LEVEL, RED_PAYLOAD);
+    pPayload1->SetFmtp(pFmtp1);
+
+    auto pPayload2 = std::make_unique<TextProfile::Payload>();
+    pPayload2->GetRtpMap().SetPayloadType(RED_PAYLOAD_TYPE);
+    auto pFmtp2 = std::make_shared<TextProfile::RedFmtp>(RED_LEVEL, RED_PAYLOAD);
+    pPayload2->SetFmtp(pFmtp2);
+
+    // Should be equal
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    // Change Fmtp part
+    pFmtp2->SetRedLevel(RED_LEVEL + 1);
+    EXPECT_NE(*pPayload1, *pPayload2);
+    pFmtp2->SetRedLevel(RED_LEVEL);
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    // Test with null fmtp
+    pPayload1->SetFmtp(nullptr);
+    EXPECT_NE(*pPayload1, *pPayload2);
+
+    pPayload2->SetFmtp(nullptr);
+    EXPECT_EQ(*pPayload1, *pPayload2);
+
+    // Test one side null
+    pPayload1->SetFmtp(pFmtp1);
+    EXPECT_NE(*pPayload1, *pPayload2);
+}
+
 TEST_F(TextProfileTest, testTextProfileKeepRedundantLevel)
 {
     TextProfile* pProfile = new TextProfile();

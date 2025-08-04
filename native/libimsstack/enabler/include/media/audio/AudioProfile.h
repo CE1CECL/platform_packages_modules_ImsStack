@@ -91,6 +91,23 @@ public:
             return *this;
         }
 
+        bool operator==(IN const AudioFmtp& obj) const
+        {
+            return (m_nModeSetList == obj.m_nModeSetList &&
+                    m_nDefaultRtpModeSet == obj.m_nDefaultRtpModeSet &&
+                    m_nModeChangeCapability == obj.m_nModeChangeCapability &&
+                    m_nModeChangePeriod == obj.m_nModeChangePeriod &&
+                    m_nModeChangeNeighbor == obj.m_nModeChangeNeighbor &&
+                    m_nMaxRed == obj.m_nMaxRed && m_bDtx == obj.m_bDtx &&
+                    m_bVisibleModeSet == obj.m_bVisibleModeSet &&
+                    m_bVisibleModeChangeCapability == obj.m_bVisibleModeChangeCapability &&
+                    m_bVisibleModeChangePeriod == obj.m_bVisibleModeChangePeriod &&
+                    m_bVisibleModeChangeNeighbor == obj.m_bVisibleModeChangeNeighbor &&
+                    m_bVisibleMaxRed == obj.m_bVisibleMaxRed && m_bVisibleDtx == obj.m_bVisibleDtx);
+        }
+
+        bool operator!=(IN const AudioFmtp& obj) const { return !(*this == obj); }
+
         inline void SetModeSetList(IN const IMS_UINT32 nModeSetList)
         {
             m_nModeSetList = nModeSetList;
@@ -196,6 +213,25 @@ public:
 
         virtual ~AmrFmtp() override {}
 
+        AmrFmtp& operator=(IN const AmrFmtp& obj)
+        {
+            if (this != &obj)
+            {
+                AudioFmtp::operator=(obj);
+                m_nOctetAlign = obj.m_nOctetAlign;
+                m_bVisibleOctetAlign = obj.m_bVisibleOctetAlign;
+            }
+            return *this;
+        }
+
+        bool operator==(IN const AmrFmtp& obj) const
+        {
+            return (AudioFmtp::operator==(obj) && m_nOctetAlign == obj.m_nOctetAlign &&
+                    m_bVisibleOctetAlign == obj.m_bVisibleOctetAlign);
+        }
+
+        bool operator!=(IN const AmrFmtp& obj) const { return !(*this == obj); }
+
         inline void SetOctetAlign(IN const IMS_SINT32 nOctetAlign) { m_nOctetAlign = nOctetAlign; }
         inline IMS_SINT32 GetOctetAlign() { return m_nOctetAlign; }
 
@@ -277,6 +313,46 @@ public:
         }
 
         virtual ~EvsFmtp() override {}
+
+        EvsFmtp& operator=(IN const EvsFmtp& obj)
+        {
+            if (this != &obj)
+            {
+                AudioFmtp::operator=(obj);
+                m_nHfOnly = obj.m_nHfOnly;
+                m_nEvsModeSwitch = obj.m_nEvsModeSwitch;
+                m_nBrList = obj.m_nBrList;
+                m_nBrSend = obj.m_nBrSend;
+                m_nBrRecv = obj.m_nBrRecv;
+                m_nBwList = obj.m_nBwList;
+                m_nBwSend = obj.m_nBwSend;
+                m_nBwRecv = obj.m_nBwRecv;
+                m_nCmr = obj.m_nCmr;
+                m_nChAwRecv = obj.m_nChAwRecv;
+                m_nReceivedChAwRecv = obj.m_nReceivedChAwRecv;
+                m_bSendCmr = obj.m_bSendCmr;
+            }
+            return *this;
+        }
+
+        bool operator==(IN const EvsFmtp& obj) const
+        {
+            return (AudioFmtp::operator==(obj) && m_nHfOnly == obj.m_nHfOnly &&
+                    m_nEvsModeSwitch == obj.m_nEvsModeSwitch && m_nBrList == obj.m_nBrList &&
+                    m_nBrSend == obj.m_nBrSend && m_nBrRecv == obj.m_nBrRecv &&
+                    m_nBwList == obj.m_nBwList && m_nBwSend == obj.m_nBwSend &&
+                    m_nBwRecv == obj.m_nBwRecv && m_nCmr == obj.m_nCmr &&
+                    m_nChAwRecv == obj.m_nChAwRecv &&
+                    m_nReceivedChAwRecv == obj.m_nReceivedChAwRecv &&
+                    m_bVisibleHfOnly == obj.m_bVisibleHfOnly &&
+                    m_bVisibleEvsModeSwitch == obj.m_bVisibleEvsModeSwitch &&
+                    m_bVisibleCmr == obj.m_bVisibleCmr &&
+                    m_bVisibleChannelAwMode == obj.m_bVisibleChannelAwMode &&
+                    m_bVisibleBrList == obj.m_bVisibleBrList &&
+                    m_bVisibleBwList == obj.m_bVisibleBwList && m_bSendCmr == obj.m_bSendCmr);
+        }
+
+        bool operator!=(IN const EvsFmtp& obj) const { return !(*this == obj); }
 
         inline void SetHfOnly(IN const IMS_UINT32 nHfOnly) { m_nHfOnly = nHfOnly; }
         inline IMS_UINT32 GetHfOnly() { return m_nHfOnly; }
@@ -438,6 +514,45 @@ public:
         }
 
         virtual ~Payload() override {}
+
+        bool operator==(IN const Payload& obj) const
+        {
+            if (!BasePayload::operator==(obj))
+            {
+                return false;
+            }
+
+            if (m_pFmtp == IMS_NULL || obj.m_pFmtp == IMS_NULL)
+            {
+                return m_pFmtp == obj.m_pFmtp;
+            }
+
+            if (*m_pFmtp != *obj.m_pFmtp)
+            {
+                return false;
+            }
+
+            if (m_objRtpMap.GetPayloadType().EqualsIgnoreCase("AMR-WB") ||
+                    m_objRtpMap.GetPayloadType().EqualsIgnoreCase("AMR"))
+            {
+                return *std::static_pointer_cast<AmrFmtp>(m_pFmtp) ==
+                        *std::static_pointer_cast<AmrFmtp>(obj.m_pFmtp);
+            }
+            else if (m_objRtpMap.GetPayloadType().EqualsIgnoreCase("EVS"))
+            {
+                return *std::static_pointer_cast<EvsFmtp>(m_pFmtp) ==
+                        *std::static_pointer_cast<EvsFmtp>(obj.m_pFmtp);
+            }
+            else if (m_objRtpMap.GetPayloadType().EqualsIgnoreCase("telephone-event"))
+            {
+                return *std::static_pointer_cast<TelephoneEventFmtp>(m_pFmtp) ==
+                        *std::static_pointer_cast<TelephoneEventFmtp>(obj.m_pFmtp);
+            }
+
+            return true;
+        }
+
+        bool operator!=(IN const Payload& obj) const { return !(*this == obj); }
 
         inline void CreateAudioFmtp(IN const Payload& obj)
         {

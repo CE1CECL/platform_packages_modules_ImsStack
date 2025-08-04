@@ -109,6 +109,8 @@ public:
                     m_bVisibleSpropParam == obj.m_bVisibleSpropParam);
         }
 
+        bool operator!=(IN const VideoFmtp& obj) const { return !(*this == obj); }
+
         inline void SetResolution(IN const VIDEO_RESOLUTION eResolution)
         {
             m_eResolution = eResolution;
@@ -206,6 +208,8 @@ public:
                     m_bVisibleProfileLevelId == obj.m_bVisibleProfileLevelId);
         }
 
+        bool operator!=(IN const AvcFmtp& obj) const { return !(*this == obj); }
+
         inline void SetProfileLevelId(IN const AString strProfileLevelId)
         {
             m_strProfileLevelId = strProfileLevelId;
@@ -271,6 +275,8 @@ public:
             return (VideoFmtp::operator==(obj) && m_bVisibleProfile == obj.m_bVisibleProfile &&
                     m_bVisibleLevel == obj.m_bVisibleLevel);
         }
+
+        bool operator!=(IN const HevcFmtp& obj) const { return !(*this == obj); }
 
         inline void SetVisibleProfile(IN const IMS_BOOL nVisible) { m_bVisibleProfile = nVisible; }
         inline IMS_BOOL IsProfileVisible() { return m_bVisibleProfile; }
@@ -414,10 +420,35 @@ public:
 
         bool operator==(IN const Payload& obj) const
         {
-            return (BasePayload::operator==(obj) && m_pFmtp == obj.m_pFmtp &&
-                    m_bIncludeImageAttr == obj.m_bIncludeImageAttr &&
-                    m_bIncludeFrameSize == obj.m_bIncludeFrameSize &&
-                    m_strImageAttr == obj.m_strImageAttr && m_objRtcpFbAttr == obj.m_objRtcpFbAttr);
+            if (!BasePayload::operator==(obj))
+            {
+                return false;
+            }
+
+            if (m_bIncludeImageAttr != obj.m_bIncludeImageAttr ||
+                    m_bIncludeFrameSize != obj.m_bIncludeFrameSize ||
+                    m_strImageAttr != obj.m_strImageAttr || m_objRtcpFbAttr != obj.m_objRtcpFbAttr)
+            {
+                return false;
+            }
+
+            if (m_pFmtp == nullptr || obj.m_pFmtp == nullptr)
+            {
+                return m_pFmtp == obj.m_pFmtp;
+            }
+
+            if (m_objRtpMap.GetPayloadType().EqualsIgnoreCase("H264"))
+            {
+                return *std::static_pointer_cast<AvcFmtp>(m_pFmtp) ==
+                        *std::static_pointer_cast<AvcFmtp>(obj.m_pFmtp);
+            }
+            else if (m_objRtpMap.GetPayloadType().EqualsIgnoreCase("H265"))
+            {
+                return *std::static_pointer_cast<HevcFmtp>(m_pFmtp) ==
+                        *std::static_pointer_cast<HevcFmtp>(obj.m_pFmtp);
+            }
+
+            return *m_pFmtp == *obj.m_pFmtp;
         }
 
         bool operator!=(IN const Payload& obj) const { return !(*this == obj); }

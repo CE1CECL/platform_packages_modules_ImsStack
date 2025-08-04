@@ -61,7 +61,7 @@ private:
     void ParseCvo(IN const IMediaDescriptor* pDescriptor, OUT VideoProfile* pProfile);
     IMS_BOOL ParseFmtp(IN const SdpAvCodec* pSdpCodec, OUT VideoProfile::Payload* pPayload,
             IN const VIDEO_CODEC eVideoCodec);
-    IMS_BOOL ParseVideoBaseFmtp(IN const ImsList<AString>& objSplitEqual,
+    IMS_BOOL ParseVideoFmtp(IN const ImsList<AString>& objSplitEqual,
             OUT std::shared_ptr<VideoProfile::VideoFmtp> pFmtp);
     void ParseAvcFmtp(IN const ImsList<AString>& objSplitEqual, IN const AString& strSpropParam,
             OUT std::shared_ptr<VideoProfile::AvcFmtp> pFmtp);
