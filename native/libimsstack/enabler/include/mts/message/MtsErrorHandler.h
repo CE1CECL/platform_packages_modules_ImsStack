@@ -29,7 +29,7 @@ class MtsErrorHandler final : public IMtsErrorHandler
 {
 public:
     explicit MtsErrorHandler(IN IMtsContext& objContext);
-    ~MtsErrorHandler();
+    ~MtsErrorHandler() override;
 
     IMS_SINT32 Handle(IN const IMtsService& objMtsService, IN IMtsMessage* piMtsMessage) override;
     inline IMS_SINT32 GetRetryAfterValue() const override { return m_nRetryAfterValue; }

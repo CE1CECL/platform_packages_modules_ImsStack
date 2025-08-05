@@ -27,10 +27,9 @@ class JniMtsApp : public BaseService
 {
 public:
     JniMtsApp(IN Jni_SendDataToJava pfnSendDataToJava, IN IMS_SINT32 nSlotId);
-    virtual ~JniMtsApp();
+    virtual ~JniMtsApp() override;
     virtual int SendData(const android::Parcel& objParcel) override;
 
-    inline void NotifyNativeEnablerSet() override {}
     IJniEnablerThread* GetJniThread() const override;
 
 protected:

@@ -34,11 +34,11 @@ const IMS_SINT32 INVALID_EVENT = -1;
 class TestMtsNetworkTracker : public MtsNetworkTracker
 {
 public:
-    TestMtsNetworkTracker(IN IMtsContext& objContext) :
+    explicit TestMtsNetworkTracker(IN IMtsContext& objContext) :
             MtsNetworkTracker(objContext)
     {
     }
-    virtual ~TestMtsNetworkTracker() {}
+    virtual ~TestMtsNetworkTracker() override {}
 
     inline void SetNetworkWatcher(IN INetworkWatcher* piNw) { m_piNetWatcherInfo = piNw; }
 };

@@ -29,7 +29,7 @@ class MtsTraffic final : public IMtsTraffic, public ITimerListener
 public:
     MtsTraffic(IN IMtsContext& objContext, IN IMS_UINT32 nDirection, IN IMS_UINT32 nTrafficType,
             IN IMtsTrafficListener& objListener);
-    ~MtsTraffic();
+    ~MtsTraffic() override;
 
     // IImsRadioConnectionListener
     void ImsRadio_OnConnectionFailed(IN IMS_UINT32 nFailureReason, IN IMS_UINT32 nCauseCode,

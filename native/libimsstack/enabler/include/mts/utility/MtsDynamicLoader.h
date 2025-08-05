@@ -29,7 +29,7 @@ class MtsDynamicLoader final : public IMtsDynamicLoader
 {
 public:
     explicit MtsDynamicLoader(IN IMtsContext& objContext);
-    virtual ~MtsDynamicLoader();
+    virtual ~MtsDynamicLoader() override;
     MtsDynamicLoader(IN const MtsDynamicLoader&) = delete;
     MtsDynamicLoader& operator=(IN const MtsDynamicLoader&) = delete;
 

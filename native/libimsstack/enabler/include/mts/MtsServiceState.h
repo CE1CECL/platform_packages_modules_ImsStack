@@ -27,7 +27,7 @@ class MtsServiceState final : public ICarrierConfigListener, public IMtsServiceS
 {
 public:
     explicit MtsServiceState(IN IMS_SINT32 nSlotId);
-    ~MtsServiceState();
+    ~MtsServiceState() override;
 
     // ICarrierConfigListener
     void CarrierConfig_NotifyConfigChanged(IN IMS_SINT32 nSlotId) override;

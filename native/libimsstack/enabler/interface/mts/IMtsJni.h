@@ -26,8 +26,6 @@ class ByteArray;
 class IMtsJni : public INativeEnabler
 {
 public:
-    virtual ~IMtsJni() {};
-
     /**
      * @brief Sends a request for a mobile originated SMS, dispatching it based on Mts service type.
      *

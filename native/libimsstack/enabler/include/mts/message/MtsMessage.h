@@ -23,7 +23,7 @@ class MtsMessage final : public IMtsMessage
 {
 public:
     explicit MtsMessage(IN IMS_SINT32 nSlotId);
-    ~MtsMessage();
+    ~MtsMessage() override;
 
     // IMtsMessage
     inline AString& GetDestination() override { return m_strDestination; }

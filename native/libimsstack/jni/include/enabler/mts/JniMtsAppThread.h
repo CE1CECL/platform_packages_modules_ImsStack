@@ -25,7 +25,7 @@ class JniMtsAppThread : public BaseServiceThread, public IJniMtsAppThread
 {
 public:
     JniMtsAppThread();
-    virtual ~JniMtsAppThread();
+    virtual ~JniMtsAppThread() override;
 
     void ReportMoStatus(IN IMS_SINT32 nReason, IN SmsFormatType eSmsFormat, IN IMS_SINT32 nSeqId,
             IN IMS_SINT32 nSlotId) override;

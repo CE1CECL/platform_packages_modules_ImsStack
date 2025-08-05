@@ -30,7 +30,7 @@ class IMtsService;
 class MockIMtsContext : public IMtsContext
 {
 public:
-    virtual ~MockIMtsContext() {}
+    virtual ~MockIMtsContext() override {}
 
     MOCK_METHOD(IMS_SINT32, GetSlotId, (), (const, override));
     MOCK_METHOD(

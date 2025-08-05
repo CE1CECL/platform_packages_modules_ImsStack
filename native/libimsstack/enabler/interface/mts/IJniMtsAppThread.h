@@ -25,8 +25,6 @@ class ByteArray;
 class IJniMtsAppThread : public IJniEnablerThread
 {
 public:
-    virtual ~IJniMtsAppThread() {}
-
     virtual void ReportMoStatus(IN IMS_SINT32 nReason, IN SmsFormatType eSmsFormat,
             IN IMS_SINT32 nSeqId, IN IMS_SINT32 nSlotId) = 0;
     virtual void ReportMtSms(

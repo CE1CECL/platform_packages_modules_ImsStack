@@ -40,7 +40,7 @@ class MtsService :
 {
 public:
     explicit MtsService(IN IMtsContext& objContext, IN MtsServiceType eServiceType);
-    virtual ~MtsService();
+    virtual ~MtsService() override;
     MtsService(IN const MtsService&) = delete;
     MtsService& operator=(IN const MtsService&) = delete;
 

@@ -19,11 +19,12 @@
 
 #include "ImsTypeDef.h"
 #include "MtsDef.h"
+#include "IImsRadio.h"
 
 class IMtsTraffic : public IImsRadioConnectionListener
 {
 public:
-    virtual ~IMtsTraffic() {}
+    virtual ~IMtsTraffic() override {}
 
     /**
      * @brief Gets the direction of the SMS traffic.

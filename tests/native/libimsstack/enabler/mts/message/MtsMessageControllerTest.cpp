@@ -61,11 +61,11 @@ const IMS_UINT32 RETRY_COUNT = 0;
 class TestMtsMessageController : public MtsMessageController
 {
 public:
-    TestMtsMessageController(IN IMtsContext& objContext) :
+    explicit TestMtsMessageController(IN IMtsContext& objContext) :
             MtsMessageController(objContext)
     {
     }
-    virtual ~TestMtsMessageController() {}
+    virtual ~TestMtsMessageController() override {}
 
     IMS_UINT32 GetMessageCount() const { return m_objMsgList.GetSize(); }
     IMS_BOOL SendMessage(IN ImsMessage& objMsg) { return OnMessage(objMsg); }

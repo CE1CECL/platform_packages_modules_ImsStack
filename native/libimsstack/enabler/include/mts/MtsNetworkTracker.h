@@ -28,7 +28,7 @@ class MtsNetworkTracker : public IEventListener, public IMtsNetworkTracker
 {
 public:
     explicit MtsNetworkTracker(IN IMtsContext& objContext);
-    virtual ~MtsNetworkTracker();
+    virtual ~MtsNetworkTracker() override;
     MtsNetworkTracker(IN const MtsNetworkTracker&) = delete;
     MtsNetworkTracker& operator=(IN const MtsNetworkTracker&) = delete;
 

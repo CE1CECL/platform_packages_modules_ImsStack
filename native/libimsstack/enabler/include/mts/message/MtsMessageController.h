@@ -40,8 +40,8 @@ class MtsMessageController :
         public ITimerListener
 {
 public:
-    MtsMessageController(IN IMtsContext& objContext);
-    virtual ~MtsMessageController();
+    explicit MtsMessageController(IN IMtsContext& objContext);
+    virtual ~MtsMessageController() override;
     MtsMessageController(IN const MtsMessageController&) = delete;
     MtsMessageController& operator=(IN const MtsMessageController&) = delete;
 
@@ -61,7 +61,7 @@ public:
     void Timer_TimerExpired(IN ITimer* piTimer) override;
 
 protected:
-    IMS_BOOL OnMessage(IN ImsMessage& objMsg);
+    IMS_BOOL OnMessage(IN ImsMessage& objMsg) override;
 
 private:
     void DestroyMtsMessage();

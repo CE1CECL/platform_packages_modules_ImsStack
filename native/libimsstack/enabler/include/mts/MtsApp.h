@@ -37,7 +37,7 @@ class MtsApp final : public IMtsApp, public ImsApp, public IMtsContext, public I
 {
 public:
     explicit MtsApp(IN IMS_SINT32 nSlotId);
-    ~MtsApp();
+    ~MtsApp() override;
     MtsApp(IN const MtsApp&) = delete;
     MtsApp& operator=(IN const MtsApp&) = delete;
 
