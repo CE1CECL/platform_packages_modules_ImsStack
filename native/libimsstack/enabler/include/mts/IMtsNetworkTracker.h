@@ -17,8 +17,6 @@
 #ifndef INTERFACE_MTS_NETWORK_TRACKER_H_
 #define INTERFACE_MTS_NETWORK_TRACKER_H_
 
-#include "MtsDef.h"
-
 class IMtsNetworkTracker
 {
 public:

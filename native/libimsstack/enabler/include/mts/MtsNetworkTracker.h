@@ -20,7 +20,6 @@
 #include "IEventListener.h"
 #include "IMtsNetworkTracker.h"
 #include "ImsTypeDef.h"
-#include "MtsDef.h"
 
 class IMtsContext;
 class INetworkWatcher;

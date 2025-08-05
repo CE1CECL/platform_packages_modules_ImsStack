@@ -17,6 +17,7 @@
 #ifndef INTERFACE_MTS_TRAFFIC_H_
 #define INTERFACE_MTS_TRAFFIC_H_
 
+#include "ImsTypeDef.h"
 #include "MtsDef.h"
 
 class IMtsTraffic : public IImsRadioConnectionListener
