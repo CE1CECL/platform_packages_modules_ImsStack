@@ -3556,80 +3556,6 @@ TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test3)
     EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
 }
 
-TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test4)
-{
-    // Test4: ignore_vops config is true, vops changed to on/off
-    // Expectation: no block BLOCK_VOPS, only the vops state is updated
-
-    m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
-
-    m_pAosHandleMtc->ProcessVopsStateChanged(IMS_VOICE_OVER_PS_NOT_SUPPORTED, AString("123456"));
-
-    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-
-    m_pAosHandleMtc->ProcessVopsStateChanged(IMS_VOICE_OVER_PS_SUPPORTED, AString("123456"));
-
-    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
-}
-
-TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test5)
-{
-    // Test5: ignore_vops config is true/false, no update state,
-    // Expectation: set/reset block BLOCK_VOPS as the state
-    //              No change m_nVopsState
-    //              No change m_nHoldingVopsState
-
-    EXPECT_CALL(m_objMockIAosCallTracker, IsNormalCallActive())
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(IMS_FALSE));
-
-    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
-
-    EXPECT_CALL(m_objMockIAosNConfiguration, IsRegWithFeatureTagUnavailableSupported())
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(IMS_FALSE));
-
-    EXPECT_CALL(m_objMockIAosNConfiguration, IsWfcImsAvailable())
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(IMS_TRUE));
-
-    EXPECT_CALL(m_objMockIAosNConfiguration,
-            IsGGsmaRcsTelephonyFeatureTagUsedAsAvailableVoiceCallType())
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(IMS_FALSE));
-
-    m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
-    m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-
-    m_pAosHandleMtc->ProcessVopsStateChanged(
-            IMS_VOICE_OVER_PS_SUPPORTED, AString("123456"), IMS_FALSE);
-    EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-
-    m_pAosHandleMtc->ProcessVopsStateChanged(
-            IMS_VOICE_OVER_PS_NOT_SUPPORTED, AString("123456"), IMS_FALSE);
-    EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-
-    m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
-
-    m_pAosHandleMtc->ProcessVopsStateChanged(
-            IMS_VOICE_OVER_PS_SUPPORTED, AString("123456"), IMS_FALSE);
-    EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-
-    m_pAosHandleMtc->ProcessVopsStateChanged(
-            IMS_VOICE_OVER_PS_NOT_SUPPORTED, AString("123456"), IMS_FALSE);
-    EXPECT_EQ(m_pAosHandleMtc->GetHoldingVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-}
-
 TEST_F(AosHandleMtcTest, ProcessVopsStateChanged_Test6)
 {
     // Test6: call idle, no unavailalble policy, network=LTE
@@ -4629,31 +4555,85 @@ TEST_F(AosHandleMtcTest, NConfiguration_NotifyConfigChanged_Test3)
     EXPECT_TRUE(m_pAosHandleMtc->IsVopsIgnoredForVolteEnabled());
 }
 
-TEST_F(AosHandleMtcTest, NConfiguration_NotifyConfigChanged_Test4)
+TEST_F(AosHandleMtcTest,
+        ShouldUpdateVopsStateToSupportedIfVopsIgnoredForVolteEnabledIsChangedToTrue)
 {
-    // Test4: VopsIgnoredForVolteEnabled changed, valid network, vops not supported
-    // Expectation: update with the config value
-    //              Set/Reset BLOCK_VOPS if the config is false/true
-    //              No update for vops state
-
-    EXPECT_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
-            .Times(2)
-            .WillOnce(Return(IMS_TRUE))
-            .WillOnce(Return(IMS_FALSE));
-
+    // GIVEN
     m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
     m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_NOT_SUPPORTED);
     m_pAosHandleMtc->AddBlock(AosHandle::BLOCK_VOPS);
 
-    m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_FALSE);
-    m_pAosHandleMtc->NConfiguration_NotifyConfigChanged();
-    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
-    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
-    EXPECT_TRUE(m_pAosHandleMtc->IsVopsIgnoredForVolteEnabled());
+    ON_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
+            .WillByDefault(Return(IMS_TRUE));
 
+    // WHEN
     m_pAosHandleMtc->NConfiguration_NotifyConfigChanged();
+
+    // THEN
+    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
+    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
+    EXPECT_TRUE(m_pAosHandleMtc->IsVopsIgnoredForVolteEnabled());
+    EXPECT_FALSE(m_pAosHandleMtc->IsVolteHysTimerRunning());
+}
+
+TEST_F(AosHandleMtcTest, ShouldKeepVopsStateToSupportedIfVopsIgnoredForVolteEnabledIsChangedToTrue)
+{
+    // GIVEN
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_SUPPORTED);
+
+    ON_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
+            .WillByDefault(Return(IMS_TRUE));
+
+    // WHEN
+    m_pAosHandleMtc->NConfiguration_NotifyConfigChanged();
+
+    // THEN
+    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
+    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
+    EXPECT_TRUE(m_pAosHandleMtc->IsVopsIgnoredForVolteEnabled());
+}
+
+TEST_F(AosHandleMtcTest,
+        ShouldUpdateVopsStateToNotSupportedIfVopsIgnoredForVolteEnabledIsChangedToFalse)
+{
+    // GIVEN
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_SUPPORTED);
+    m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
+
+    ON_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
+            .WillByDefault(Return(IMS_FALSE));
+    ON_CALL(m_objMockIAosNetTracker, IsImsVoiceCallSupported()).WillByDefault(Return(IMS_FALSE));
+    ON_CALL(m_objMockIAosNetTracker, GetNetworkOperator()).WillByDefault(Return("111111"));
+
+    // WHEN
+    m_pAosHandleMtc->NConfiguration_NotifyConfigChanged();
+
+    // THEN
     EXPECT_TRUE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
     EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_NOT_SUPPORTED);
+    EXPECT_FALSE(m_pAosHandleMtc->IsVopsIgnoredForVolteEnabled());
+}
+
+TEST_F(AosHandleMtcTest, ShouldKeepVopsStateToSupportedIfVopsIgnoredForVolteEnabledIsChangedToFalse)
+{
+    // GIVEN
+    m_pAosHandleMtc->SetNetworkType(NW_REPORT_RADIO_LTE);
+    m_pAosHandleMtc->SetVopsState(IMS_VOICE_OVER_PS_SUPPORTED);
+    m_pAosHandleMtc->SetVopsIgnoredForVolteEnabled(IMS_TRUE);
+
+    ON_CALL(m_objMockIAosNConfiguration, IsVopsIgnoredForVolteEnabled())
+            .WillByDefault(Return(IMS_FALSE));
+    ON_CALL(m_objMockIAosNetTracker, IsImsVoiceCallSupported()).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(m_objMockIAosNetTracker, GetNetworkOperator()).WillByDefault(Return("111111"));
+
+    // WHEN
+    m_pAosHandleMtc->NConfiguration_NotifyConfigChanged();
+
+    // THEN
+    EXPECT_FALSE(m_pAosHandleMtc->IsHandleBlockedBase(AosHandle::BLOCK_VOPS));
+    EXPECT_EQ(m_pAosHandleMtc->GetVopsState(), IMS_VOICE_OVER_PS_SUPPORTED);
     EXPECT_FALSE(m_pAosHandleMtc->IsVopsIgnoredForVolteEnabled());
 }
 

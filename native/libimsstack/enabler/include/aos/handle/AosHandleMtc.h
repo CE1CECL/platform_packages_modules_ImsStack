@@ -79,7 +79,8 @@ protected:
     void Request(IN IMS_UINT32 nType, IN IMS_UINT32 nState = 0) override;
 
     void UpdateGGsmaRcsTelephonyFeatureTag();
-    void UpdateVopsInfo(IN IMS_UINT32 nState, IN const AString& strPlmn);
+    void UpdateVopsState();
+    void SetVopsInfo(IN IMS_UINT32 nState, IN const AString& strPlmn);
 
     IMS_UINT32 GetVoiceBlockReasonForIpcan();
     IMS_UINT32 GetVideoBlockReasonForIpcan();
@@ -95,8 +96,7 @@ protected:
     IMS_BOOL ProcessHoldingSsacState(IN IMS_SINT32 nBarringFactorForVoice);
 
     void ProcessVolteHysTimerExpired();
-    void ProcessVopsStateChanged(
-            IN IMS_UINT32 nState, IN const AString& strPlmn, IN IMS_BOOL bUpdateState = IMS_TRUE);
+    void ProcessVopsStateChanged(IN IMS_UINT32 nState, IN const AString& strPlmn);
     void ClearVolteHysTimerBlocks();
     void SetVolteHysTimerBlock(IN IMS_UINT32 nBlock);
 
@@ -122,7 +122,8 @@ protected:
     {
         VOLTE_HYS_TIMER_BLOCK_NONE = 0,
         VOLTE_HYS_TIMER_BLOCK_VOPS_PLMN_CHANGED = 0x1,
-        VOLTE_HYS_TIMER_BLOCK_DATA_DISCONNECTED = 0x2
+        VOLTE_HYS_TIMER_BLOCK_DATA_DISCONNECTED = 0x2,
+        VOLTE_HYS_TIMER_BLOCK_VOPS_IGNORED = 0x4
     };
 
 protected:
