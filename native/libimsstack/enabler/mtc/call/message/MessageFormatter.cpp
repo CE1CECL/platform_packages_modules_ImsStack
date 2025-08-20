@@ -617,7 +617,8 @@ void MessageFormatter::SetCarrierSpecificHeaders()
 PRIVATE
 void MessageFormatter::SetCallComposerElements()
 {
-    MtcSupplementaryService& objSupplementaryServices = m_objContext.GetSupplementaryService();
+    const MtcSupplementaryService& objSupplementaryServices =
+            m_objContext.GetSupplementaryService();
 
     const SuppService* pPriority = objSupplementaryServices.Get(SuppType::CALL_COMPOSER_PRIORITY);
     if (pPriority != IMS_NULL)

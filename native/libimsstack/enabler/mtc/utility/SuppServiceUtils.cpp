@@ -134,7 +134,7 @@ GLOBAL IMS_BOOL SuppServiceUtils::IsSameSuppServices(
 
     for (IMS_UINT32 indexA = 0; indexA < objSuppServicesA.GetSize(); indexA++)
     {
-        SuppService* service = Get(objSuppServicesB, objSuppServicesA.GetAt(indexA)->nType);
+        const SuppService* service = Get(objSuppServicesB, objSuppServicesA.GetAt(indexA)->nType);
         if (!service || *service != *objSuppServicesA.GetAt(indexA))
         {
             return IMS_FALSE;

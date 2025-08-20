@@ -34,7 +34,7 @@ TEST_F(SuppServiceUtilsTest, AddAndDeleteRemovesService)
     SuppServiceUtils::Add(suppServices,
             static_cast<IMS_SINT32>(PermanentSuppType::TB_CB_INCOMING_ALL_VOICE), srtTest);
     EXPECT_EQ(3, suppServices.GetSize());
-    SuppService* service = SuppServiceUtils::Get(
+    const SuppService* service = SuppServiceUtils::Get(
             suppServices, static_cast<IMS_SINT32>(PermanentSuppType::TB_CB_INCOMING_ALL_VOICE));
     EXPECT_NE(IMS_NULL, service);
 

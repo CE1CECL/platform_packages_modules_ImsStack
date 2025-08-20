@@ -38,6 +38,7 @@ public:
     MockIMtcCallContext objContext;
     MockIMtcService objService;
     CallInfo objCallInfo;
+    // cppcheck-suppress unusedStructMember
     MockIMtcBlockRuleCheckListener objListener;
     IncomingCallBarringBlockRule* pBlockRule;
 
