@@ -628,23 +628,7 @@ PROTECTED VIRTUAL void AosHandleMtc::ProcessNetworkChanged()
 
         ReevaluateCapabilities();
 
-        if (!m_bVopsIgnoredForVolteEnabled && IsSupportedNetworkTypeForCellular(m_nNetworkType))
-        {
-            IAosNetTracker* piAosNetTracker = m_piAppContext->GetNetTracker();
-            IMS_UINT32 nNewVopsState = piAosNetTracker->IsImsVoiceCallSupported()
-                    ? IMS_VOICE_OVER_PS_SUPPORTED
-                    : IMS_VOICE_OVER_PS_NOT_SUPPORTED;
-            AString strNetworkOperator = piAosNetTracker->GetNetworkOperator();
-
-            if (m_nVopsState != nNewVopsState)
-            {
-                ProcessVopsStateChanged(nNewVopsState, strNetworkOperator);
-            }
-            else
-            {
-                ClearVolteHysTimerBlocks();
-            }
-        }
+        UpdateVopsState();
 
         if (GET_N_CONFIG(m_nSlotId)->IsRequiredVolteBlockBySsac() &&
                 m_nNetworkType == NW_REPORT_RADIO_LTE)
@@ -859,7 +843,47 @@ void AosHandleMtc::UpdateGGsmaRcsTelephonyFeatureTag()
 }
 
 PROTECTED
-void AosHandleMtc::UpdateVopsInfo(IN IMS_UINT32 nState, IN const AString& strPlmn)
+void AosHandleMtc::UpdateVopsState(IN IMS_BOOL bCheckEmergencyReg /* = IMS_TRUE */)
+{
+    if (!IsSupportedNetworkTypeForCellular(m_nNetworkType))
+    {
+        return;
+    }
+
+    if (m_bVopsIgnoredForVolteEnabled)
+    {
+        if (m_nVopsState == IMS_VOICE_OVER_PS_NOT_SUPPORTED)
+        {
+            SetVolteHysTimerBlock(VOLTE_HYS_TIMER_BLOCK_VOPS_IGNORED);
+            ProcessVopsStateChanged(IMS_VOICE_OVER_PS_SUPPORTED, m_strVopsPlmn);
+        }
+        return;
+    }
+
+    IAosNetTracker* piAosNetTracker = m_piAppContext->GetNetTracker();
+    if (bCheckEmergencyReg && piAosNetTracker->IsEmergencyAttach())
+    {
+        A_IMS_TRACE_D(APPPROFILE, "Not update VoPS due to emergency reg state", 0, 0, 0);
+        return;
+    }
+
+    IMS_UINT32 nNewVopsState = piAosNetTracker->IsImsVoiceCallSupported()
+            ? IMS_VOICE_OVER_PS_SUPPORTED
+            : IMS_VOICE_OVER_PS_NOT_SUPPORTED;
+    AString strNetworkOperator = piAosNetTracker->GetNetworkOperator();
+
+    if (m_nVopsState != nNewVopsState)
+    {
+        ProcessVopsStateChanged(nNewVopsState, strNetworkOperator);
+    }
+    else
+    {
+        ClearVolteHysTimerBlocks();
+    }
+}
+
+PROTECTED
+void AosHandleMtc::SetVopsInfo(IN IMS_UINT32 nState, IN const AString& strPlmn)
 {
     m_nVopsState = nState;
     m_strVopsPlmn = strPlmn;
@@ -1088,15 +1112,8 @@ void AosHandleMtc::ProcessVolteHysTimerExpired()
 }
 
 PROTECTED
-void AosHandleMtc::ProcessVopsStateChanged(
-        IN IMS_UINT32 nState, IN const AString& strPlmn, IN IMS_BOOL bUpdateState /* = IMS_TRUE */)
+void AosHandleMtc::ProcessVopsStateChanged(IN IMS_UINT32 nState, IN const AString& strPlmn)
 {
-    if (m_bVopsIgnoredForVolteEnabled && bUpdateState)
-    {
-        UpdateVopsInfo(nState, strPlmn);
-        return;
-    }
-
     if (ProcessHoldingVopsState(nState))
     {
         A_IMS_TRACE_I(APPPROFILE,
@@ -1111,10 +1128,7 @@ void AosHandleMtc::ProcessVopsStateChanged(
         return;
     }
 
-    if (bUpdateState)
-    {
-        UpdateVopsInfo(nState, strPlmn);
-    }
+    SetVopsInfo(nState, strPlmn);
 
     if (GET_N_CONFIG(m_nSlotId)->IsRegWithFeatureTagUnavailableSupported())
     {
@@ -1224,18 +1238,9 @@ PROTECTED VIRTUAL void AosHandleMtc::NConfiguration_NotifyConfigChanged()
                 IsVopsIgnoredForVolteEnabled(%s), m_nVopsState(%d)",
                 _TRACE_B_(bIsVopsIgnoredForVolteEnabled), m_nVopsState, 0);
 
-        if (IsSupportedNetworkTypeForCellular(m_nNetworkType))
-        {
-            if (m_nVopsState == IMS_VOICE_OVER_PS_NOT_SUPPORTED)
-            {
-                ProcessVopsStateChanged(bIsVopsIgnoredForVolteEnabled
-                                ? IMS_VOICE_OVER_PS_SUPPORTED
-                                : IMS_VOICE_OVER_PS_NOT_SUPPORTED,
-                        m_strVopsPlmn, IMS_FALSE);
-            }
-        }
-
         m_bVopsIgnoredForVolteEnabled = bIsVopsIgnoredForVolteEnabled;
+
+        UpdateVopsState();
     }
 }
 
@@ -1314,6 +1319,27 @@ PROTECTED VIRTUAL void AosHandleMtc::ImsRadio_OnSsacChanged(IN const SsacInfo& o
     }
 }
 
+PROTECTED VIRTUAL void AosHandleMtc::ServicePhone_EmergencyRegistrationStateChanged(
+        IN IMS_BOOL bEmergencyAttached)
+{
+    A_IMS_TRACE_I(APPPROFILE,
+            "ServicePhone_EmergencyRegistrationStateChanged :: bEmergencyAttached(%s)",
+            _TRACE_B_(bEmergencyAttached), 0, 0);
+
+    if (bEmergencyAttached)
+    {
+        if (m_nVopsState == IMS_VOICE_OVER_PS_NOT_SUPPORTED)
+        {
+            SetVolteHysTimerBlock(VOLTE_HYS_TIMER_BLOCK_EMERGENCY_ATTACHED);
+            ProcessVopsStateChanged(IMS_VOICE_OVER_PS_SUPPORTED, m_strVopsPlmn);
+        }
+
+        return;
+    }
+
+    UpdateVopsState(IMS_FALSE);
+}
+
 PROTECTED VIRTUAL void AosHandleMtc::ServicePhone_PlmnChanged(IN const AString& strPlmn)
 {
     A_IMS_TRACE_I(APPPROFILE, "ServicePhone_PlmnChanged :: strPlmn(%s)", strPlmn.GetStr(), 0, 0);
@@ -1338,8 +1364,19 @@ PROTECTED VIRTUAL void AosHandleMtc::ServicePhone_PlmnChanged(IN const AString& 
 PROTECTED VIRTUAL void AosHandleMtc::ServicePhone_VopsStateChanged(
         IN IMS_UINT32 nState, IN const AString& strPlmn)
 {
+    if (m_bVopsIgnoredForVolteEnabled)
+    {
+        return;
+    }
+
     A_IMS_TRACE_I(APPPROFILE, "ServicePhone_VopsStateChanged :: nState(%d), strPlmn(%s)", nState,
             strPlmn.GetStr(), 0);
+
+    if (m_piAppContext->GetNetTracker()->IsEmergencyAttach())
+    {
+        A_IMS_TRACE_D(APPPROFILE, "Not handle the VoPS change to emergency reg state", 0, 0, 0);
+        return;
+    }
 
     if (m_nVopsState != nState || !m_strVopsPlmn.Equals(strPlmn) ||
             (m_nHoldingVopsState == IMS_VOICE_OVER_PS_NOT_SUPPORTED &&
