@@ -163,10 +163,14 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::FormSdp(IN IMS_UINTP nNegoId, OUT ISession
         return IMS_FALSE;
     }
 
-    if (nVideoDirection != MEDIA_DIRECTION_INVALID)
+    if (GetNegotiatedMediaType(nNegoId) & MEDIA_TYPE_VIDEO)
     {
         // open the video session for preview
         OpenMediaSessions(nNegoId, m_pMediaNegoHandler->FindMediaNego(nNegoId), MEDIA_TYPE_VIDEO);
+    }
+    else
+    {
+        CloseMediaSessions(MEDIA_TYPE_VIDEO);
     }
 
     return IMS_TRUE;
@@ -215,16 +219,11 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::NegotiateSdp(IN IMS_UINTP nNegoId, IN ISes
         return IMS_FALSE;
     }
 
-    if (!IS_VALID_MEDIA_DIRECTION(*nVideoDirection))
+    OpenMediaSessions(nNegoId, pMediaNego, GetNegotiatedMediaType(nNegoId));
+
+    if (!(GetNegotiatedMediaType(nNegoId) & MEDIA_TYPE_VIDEO))
     {
-        OpenMediaSessions(nNegoId, pMediaNego,
-                static_cast<MEDIA_CONTENT_TYPE>(static_cast<int>(GetNegotiatedMediaType(nNegoId)) &
-                        ~static_cast<int>(MEDIA_TYPE_VIDEO)));
         CloseMediaSessions(MEDIA_TYPE_VIDEO);
-    }
-    else
-    {
-        OpenMediaSessions(nNegoId, pMediaNego, GetNegotiatedMediaType(nNegoId));
     }
 
     IMS_TRACE_I("NegotiateSdp() - Audio[%d], Video[%d], Text[%d]", *nAudioDirection,

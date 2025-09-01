@@ -125,7 +125,7 @@ protected:
         // Stub Get*Nego methods on the main MediaNego mock to return the sub-nego mock instances
         ON_CALL(*m_pMediaNego, GetAudioNego()).WillByDefault(Return(m_pMockAudioNegoInstance));
         ON_CALL(*m_pMediaNego, GetVideoNego()).WillByDefault(Return(m_pMockVideoNegoInstance));
-        ON_CALL(*m_pMediaNego, GetTextNego()).WillByDefault(Return(nullptr));
+        ON_CALL(*m_pMediaNego, GetTextNego()).WillByDefault(Return(IMS_NULL));
 
         ON_CALL(*m_pMockAudioController, DeleteSession(_)).WillByDefault(Return(IMS_TRUE));
         ON_CALL(*m_pMockAudioController, CloseSession()).WillByDefault(Return(IMS_TRUE));
@@ -251,7 +251,7 @@ TEST_F(MediaSessionTest, testNegotiateSdpSuccess)
     IMS_SINT32 nVideoDir = MEDIA_DIRECTION_INACTIVE;
     IMS_SINT32 nTextDir = MEDIA_DIRECTION_INACTIVE;
     MediaNego::MediaNegoResult errorReason = MediaNego::NO_ERROR;
-    MEDIA_CONTENT_TYPE negotiatedType = MEDIA_TYPE_AUDIOVIDEO;
+    MEDIA_CONTENT_TYPE eNegotiatedType = MEDIA_TYPE_AUDIOVIDEO;
 
     // Expect the negotiation call to the handler
     EXPECT_CALL(*m_pMockMediaNegoHandler,
@@ -262,15 +262,15 @@ TEST_F(MediaSessionTest, testNegotiateSdpSuccess)
 
     // Expect GetNegotiatedMediaType to determine which sessions to open
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedMediaType(nNegoId))
-            .Times(1)
-            .WillOnce(Return(negotiatedType));
+            .Times(2)
+            .WillRepeatedly(Return(eNegotiatedType));
 
     // Expect OpenMediaSessions to be triggered for Audio and Video
     EXPECT_CALL(*m_pMockAudioController, UpdateLocalAddress(_)).Times(1);
     EXPECT_CALL(*m_pMockAudioController, OpenSession(nNegoId)).Times(1);
     EXPECT_CALL(*m_pMockVideoController, UpdateLocalAddress(_)).Times(1);
     EXPECT_CALL(*m_pMockVideoController, OpenSession()).Times(1);
-    // TextController methods should not be called if negotiatedType doesn't include TEXT
+    // TextController methods should not be called if eNegotiatedType doesn't include TEXT
     EXPECT_CALL(*m_pMockTextController, UpdateLocalAddress(_)).Times(0);
     EXPECT_CALL(*m_pMockTextController, OpenSession()).Times(0);
 
@@ -328,7 +328,7 @@ TEST_F(MediaSessionTest, testNegotiateSdpSuccessButNegoNotFound)
     // Simulate FindMediaNego returning NULL after successful negotiation
     EXPECT_CALL(*m_pMockMediaNegoHandler, FindMediaNego(nNegoId))
             .Times(1)
-            .WillOnce(Return(nullptr));
+            .WillOnce(Return(IMS_NULL));
 
     // GetNegotiatedMediaType should NOT be called if FindMediaNego fails
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedMediaType(nNegoId)).Times(0);
@@ -350,7 +350,7 @@ TEST_F(MediaSessionTest, testNegotiateSdpSuccessOpenTextOnly)
     IMS_SINT32 nVideoDir = MEDIA_DIRECTION_INACTIVE;
     IMS_SINT32 nTextDir = MEDIA_DIRECTION_SEND_RECEIVE;  // Expect text direction update
     MediaNego::MediaNegoResult errorReason = MediaNego::NO_ERROR;
-    MEDIA_CONTENT_TYPE negotiatedType = MEDIA_TYPE_TEXT;
+    MEDIA_CONTENT_TYPE eNegotiatedType = MEDIA_TYPE_TEXT;
 
     EXPECT_CALL(*m_pMockMediaNegoHandler,
             NegotiateSdp(nNegoId, m_pIsession.get(), _, _, _, An<MediaNego::MediaNegoResult&>()))
@@ -361,8 +361,8 @@ TEST_F(MediaSessionTest, testNegotiateSdpSuccessOpenTextOnly)
     EXPECT_CALL(*m_pMockMediaNegoHandler, FindMediaNego(nNegoId))
             .WillRepeatedly(Return(m_pMediaNego));
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedMediaType(nNegoId))
-            .Times(1)
-            .WillOnce(Return(negotiatedType));
+            .Times(2)
+            .WillRepeatedly(Return(eNegotiatedType));
 
     // Expect OpenMediaSessions for Text only
     EXPECT_CALL(*m_pMockAudioController, UpdateLocalAddress(_)).Times(0);
@@ -953,7 +953,7 @@ TEST_F(MediaSessionTest, testSendMessageSendDtmfNullParam)
 
     // Call SendMessage with the DTMF command and a null parameter
     EXPECT_FALSE(
-            m_pSession->SendMessage(IJniMedia::SEND_DTMF, reinterpret_cast<IMS_UINTP>(nullptr)));
+            m_pSession->SendMessage(IJniMedia::SEND_DTMF, reinterpret_cast<IMS_UINTP>(IMS_NULL)));
 }
 
 // --- Response Test ---
@@ -1032,7 +1032,7 @@ TEST_F(MediaSessionTest, testSendMessageResponseNullParam)
 
     // Test with one of the response types and a null parameter
     EXPECT_TRUE(m_pSession->SendMessage(
-            IJniMedia::RESPONSE_OPEN_SESSION, reinterpret_cast<IMS_UINTP>(nullptr)));
+            IJniMedia::RESPONSE_OPEN_SESSION, reinterpret_cast<IMS_UINTP>(IMS_NULL)));
     // Note: SendMessage itself returns true even if the param is null,
     // because OnResponse handles the null check internally.
 }
@@ -1100,10 +1100,10 @@ TEST_F(MediaSessionTest, testSetMediaPemType)
 
 TEST_F(MediaSessionTest, testSetMediaPemTypeNegoNotFound)
 {
-    // Expect FindMediaNego to be called and return nullptr
+    // Expect FindMediaNego to be called and return IMS_NULL
     EXPECT_CALL(*m_pMockMediaNegoHandler, FindMediaNego(NEGO_ID))
             .Times(1)
-            .WillOnce(Return(nullptr));
+            .WillOnce(Return(IMS_NULL));
 
     // Expect SetMediaPemType NOT to be called on the controllers
     EXPECT_CALL(*m_pMockAudioController, SetMediaPemType(_, _)).Times(0);
