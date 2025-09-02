@@ -124,6 +124,32 @@ TEST_F(AudioSdpGeneratorAmrTest, TestGenerateAmrFmtp)
     EXPECT_EQ(strFmtp, strResult);
 }
 
+TEST_F(AudioSdpGeneratorAmrTest, TestForceToAddModeSetList)
+{
+    AString strFmtp = AString::ConstNull();
+    auto pAmrFmtp = std::make_shared<AudioProfile::AmrFmtp>();
+    pAmrFmtp->SetModeSetList(MODESET_LIST);
+    pAmrFmtp->SetVisibleModeSet(IMS_FALSE);
+
+    ForceToAddModeSetList(pAmrFmtp, strFmtp);
+    EXPECT_EQ(strFmtp, STR_MODESET_LIST);
+    // Check that visibility is restored
+    EXPECT_FALSE(pAmrFmtp->IsModeSetVisible());
+}
+
+TEST_F(AudioSdpGeneratorAmrTest, TestForceToAddOctetAlign)
+{
+    AString strFmtp = AString::ConstNull();
+    auto pAmrFmtp = std::make_shared<AudioProfile::AmrFmtp>();
+    pAmrFmtp->SetOctetAlign(OCTET_ALIGN);
+    pAmrFmtp->SetVisibleOctetAlign(IMS_FALSE);
+
+    ForceToAddOctetAlign(pAmrFmtp, strFmtp);
+    EXPECT_EQ(strFmtp, STR_OCTETALIGN1);
+    // Check that visibility is restored
+    EXPECT_FALSE(pAmrFmtp->IsOctetAlignVisible());
+}
+
 TEST_F(AudioSdpGeneratorAmrTest, TestAppendSeparatorIfNotEmpty)
 {
     AString strFmtp = AString::ConstNull();
@@ -643,4 +669,96 @@ TEST_F(AudioSdpGeneratorEvsTest, TestAddBrRecvToFmtp)
     m_pEvsFmtpFull->SetBrRecv(64);
     AddBrRecvToFmtp(m_pEvsFmtpFull, strFmtp);
     EXPECT_EQ(strFmtp, "br-recv=24.4");
+}
+
+class AudioSdpGeneratorTest : public AudioSdpGenerator, public ::testing::Test
+{
+protected:
+    virtual void SetUp() override {}
+    virtual void TearDown() override {}
+};
+
+TEST_F(AudioSdpGeneratorTest, TestGenerateFmtpNullPayload)
+{
+    AString strFmtp = "some_initial_value";
+    AudioProfile::Payload* pPayload = nullptr;
+
+    IMS_BOOL result = GenerateFmtp(strFmtp, pPayload);
+
+    EXPECT_FALSE(result);
+    EXPECT_EQ(strFmtp, "some_initial_value");
+}
+
+TEST_F(AudioSdpGeneratorTest, TestGenerateFmtp)
+{
+    AString strFmtp;
+    AudioProfile::Payload payload;
+    IMS_BOOL result;
+
+    // --- AMR/AMR-WB ---
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("AMR-WB");
+    auto amrFmtp = std::make_shared<AudioProfile::AmrFmtp>();
+    amrFmtp->SetModeSetList(0x01);  // mode-set=0
+    amrFmtp->SetVisibleModeSet(IMS_TRUE);
+    payload.SetFmtp(amrFmtp);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(strFmtp, "mode-set=0");
+
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("AMR");
+    payload.SetFmtp(nullptr);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_FALSE(result);
+    EXPECT_EQ(strFmtp, "initial");
+
+    // --- telephone-event ---
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("telephone-event");
+    auto teFmtp = std::make_shared<AudioProfile::TelephoneEventFmtp>("0-15");
+    payload.SetFmtp(teFmtp);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(strFmtp, "0-15");
+
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("telephone-event");
+    payload.SetFmtp(nullptr);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_FALSE(result);
+    EXPECT_EQ(strFmtp, "initial");
+
+    // --- EVS ---
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("EVS");
+    auto evsFmtp = std::make_shared<AudioProfile::EvsFmtp>();
+    evsFmtp->SetBrList(1 << 4);  // br=13.2
+    payload.SetFmtp(evsFmtp);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(strFmtp, "br=13.2");
+
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("EVS");
+    payload.SetFmtp(nullptr);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_FALSE(result);
+    EXPECT_EQ(strFmtp, "initial");
+
+    // --- PCMU/PCMA ---
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("pcmu");
+    payload.SetFmtp(nullptr);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(strFmtp, "initial");
+
+    // --- Unsupported ---
+    strFmtp = "initial";
+    payload.GetRtpMap().SetPayloadType("unsupported-codec");
+    payload.SetFmtp(nullptr);
+    result = GenerateFmtp(strFmtp, &payload);
+    EXPECT_FALSE(result);
+    EXPECT_EQ(strFmtp, "initial");
 }

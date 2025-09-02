@@ -270,10 +270,6 @@ PROTECTED AString AudioSdpGenerator::GenerateAmrFmtp(
 
     AddModeSetListToFmtp(pAmrFmtp, strFmtp);
     AddOctetAlignToFmtp(pAmrFmtp, strFmtp);
-    AddModeChangeCapabilityToFmtp(pAmrFmtp, strFmtp);
-    AddModeChangePeriodToFmtp(pAmrFmtp, strFmtp);
-    AddModeChangeNeighborToFmtp(pAmrFmtp, strFmtp);
-    AddMaxRedToFmtp(pAmrFmtp, strFmtp);
 
     if (strFmtp.IsNull())
     {
@@ -284,6 +280,11 @@ PROTECTED AString AudioSdpGenerator::GenerateAmrFmtp(
             ForceToAddOctetAlign(pAmrFmtp, strFmtp);
         }
     }
+
+    AddModeChangeCapabilityToFmtp(pAmrFmtp, strFmtp);
+    AddModeChangePeriodToFmtp(pAmrFmtp, strFmtp);
+    AddModeChangeNeighborToFmtp(pAmrFmtp, strFmtp);
+    AddMaxRedToFmtp(pAmrFmtp, strFmtp);
 
     return strFmtp;
 }
