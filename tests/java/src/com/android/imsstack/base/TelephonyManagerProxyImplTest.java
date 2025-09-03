@@ -298,11 +298,20 @@ public class TelephonyManagerProxyImplTest {
         assertEquals(TelephonyManager.NETWORK_TYPE_UNKNOWN,
                 mTelephonyManagerProxy.getDataNetworkType(SLOT0));
 
+        // No NetworkRegistrationInfo.
         ServiceState ss = mock(ServiceState.class);
         when(mTelephonyManager.getServiceStateForSlot(eq(SLOT0))).thenReturn(ss);
 
-        mTelephonyManagerProxy.getDataNetworkType(SLOT0);
-        verify(ss).getDataNetworkType();
+        assertEquals(TelephonyManager.NETWORK_TYPE_UNKNOWN,
+                mTelephonyManagerProxy.getDataNetworkType(SLOT0));
+
+        // PS & WWAN: LTE.
+        NetworkRegistrationInfo wwanNri = mock(NetworkRegistrationInfo.class);
+        when(ss.getNetworkRegistrationInfo(anyInt(), eq(TRANSPORT_TYPE_WWAN))).thenReturn(wwanNri);
+        when(wwanNri.getAccessNetworkTechnology()).thenReturn(TelephonyManager.NETWORK_TYPE_LTE);
+
+        assertEquals(TelephonyManager.NETWORK_TYPE_LTE,
+                mTelephonyManagerProxy.getDataNetworkType(SLOT0));
     }
 
     @Test
@@ -321,6 +330,7 @@ public class TelephonyManagerProxyImplTest {
         assertEquals(TelephonyManager.NETWORK_TYPE_UNKNOWN,
                 mTelephonyManagerProxy.getVoiceNetworkType(SLOT0));
 
+        // CS & WWAN: LTE.
         NetworkRegistrationInfo wwanNri = mock(NetworkRegistrationInfo.class);
         when(ss.getNetworkRegistrationInfo(anyInt(), eq(TRANSPORT_TYPE_WWAN))).thenReturn(wwanNri);
         when(wwanNri.getAccessNetworkTechnology()).thenReturn(TelephonyManager.NETWORK_TYPE_LTE);

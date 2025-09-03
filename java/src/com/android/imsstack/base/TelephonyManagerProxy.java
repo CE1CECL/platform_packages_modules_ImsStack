@@ -370,6 +370,8 @@ public interface TelephonyManagerProxy {
      * Returns a constant indicating the radio technology (network type)
      * currently in use on the device for data transmission.
      *
+     * NOTE: This method returns a cellular data network type unlike the Android Framework API.
+     *
      * @param slotIndex The slot index of which the data network type is returned.
      * @return The network type.
      */

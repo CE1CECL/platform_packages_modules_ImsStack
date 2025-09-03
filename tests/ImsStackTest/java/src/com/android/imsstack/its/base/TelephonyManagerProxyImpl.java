@@ -854,28 +854,11 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
      * @return The data network type.
      */
     public static int getDataNetworkType(@NonNull ServiceState ss) {
-        final NetworkRegistrationInfo iwlanRegInfo = ss.getNetworkRegistrationInfo(
-                NetworkRegistrationInfo.DOMAIN_PS, AccessNetworkConstants.TRANSPORT_TYPE_WLAN);
-        final NetworkRegistrationInfo wwanRegInfo = ss.getNetworkRegistrationInfo(
+        final NetworkRegistrationInfo nri = ss.getNetworkRegistrationInfo(
                 NetworkRegistrationInfo.DOMAIN_PS, AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
-
-        // For legacy mode device, or AP-assisted mode device but IWLAN is out of service, use
-        // the RAT from cellular.
-        if (iwlanRegInfo == null || !iwlanRegInfo.isInService()) {
-            return (wwanRegInfo != null) ? wwanRegInfo.getAccessNetworkTechnology()
-                    : TelephonyManager.NETWORK_TYPE_UNKNOWN;
-        }
-
-        // At this point, it must be an AP-assisted mode device and IWLAN is in service. We should
-        // use the RAT from IWLAN service is cellular is out of service, or when both are in service
-        // and any APN type of data is preferred on IWLAN.
-        if (!wwanRegInfo.isInService() /*|| ss.isIwlanPreferred()*/) {
-            return iwlanRegInfo.getAccessNetworkTechnology();
-        }
-
-        // If both cellular and IWLAN are in service, but no APN is preferred on IWLAN, still use
-        // the RAT from cellular.
-        return wwanRegInfo.getAccessNetworkTechnology();
+        return nri != null
+                ? nri.getAccessNetworkTechnology()
+                : TelephonyManager.NETWORK_TYPE_UNKNOWN;
     }
 
     /**

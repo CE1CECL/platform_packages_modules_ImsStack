@@ -130,25 +130,15 @@ public class TelephonyAgentTest {
         assertEquals(TelephonyManager.NETWORK_TYPE_LTE, mTelephonyAgent.getNetworkType());
         verify(mDcNetWatcher).setRatFromTelephonyManager(eq(TelephonyManager.NETWORK_TYPE_LTE));
 
-        // IWLAN & cellular network type: NR
+        // NR
         when(mTelephonyManagerProxy.getDataNetworkType(eq(SLOT0)))
-                .thenReturn(TelephonyManager.NETWORK_TYPE_IWLAN);
-        when(mPhoneStateInterface.getCellularDataNetworkType())
                 .thenReturn(TelephonyManager.NETWORK_TYPE_NR);
         when(mDcNetWatcher.is5GRequired()).thenReturn(true);
 
         assertEquals(TelephonyManager.NETWORK_TYPE_NR, mTelephonyAgent.getNetworkType());
         verify(mDcNetWatcher).setRatFromTelephonyManager(eq(TelephonyManager.NETWORK_TYPE_NR));
 
-        // IWLAN & PhoneStateInterface null
-        AgentFactory.getInstance().setAgent(PhoneStateInterface.class, null, SLOT0);
-
-        assertEquals(TelephonyManager.NETWORK_TYPE_UNKNOWN, mTelephonyAgent.getNetworkType());
-        verify(mDcNetWatcher).setRatFromTelephonyManager(eq(TelephonyManager.NETWORK_TYPE_UNKNOWN));
-
         // NR & 5G not support
-        when(mTelephonyManagerProxy.getDataNetworkType(eq(SLOT0)))
-                .thenReturn(TelephonyManager.NETWORK_TYPE_NR);
         when(mDcNetWatcher.is5GRequired()).thenReturn(false);
 
         assertEquals(TelephonyManager.NETWORK_TYPE_LTE, mTelephonyAgent.getNetworkType());
