@@ -95,11 +95,6 @@ public class TelephonyAgent implements TelephonyInterface {
     public @NetworkType int getNetworkType() {
         TelephonyManagerProxy tmp = getTelephonyManagerProxy();
         int networkType = tmp.getDataNetworkType(mSlotId);
-
-        if (networkType == TelephonyManager.NETWORK_TYPE_IWLAN) {
-            networkType = getCellularDataNetworkType();
-        }
-
         IDcNetWatcher dnw = DcFactory.getDcAgent(IDcNetWatcher.class, mSlotId);
         if (dnw != null) {
             if (is5G(networkType) && !dnw.is5GRequired()) {
@@ -107,7 +102,6 @@ public class TelephonyAgent implements TelephonyInterface {
             }
             dnw.setRatFromTelephonyManager(networkType);
         }
-
         return networkType;
     }
 
@@ -242,14 +236,6 @@ public class TelephonyAgent implements TelephonyInterface {
         TelephonyManagerProxy tmp = getTelephonyManagerProxy();
         return tmp.getEmergencyNumberList().getOrDefault(
                 MSimUtils.getSubId(mSlotId), Collections.emptyList());
-    }
-
-    private @NetworkType int getCellularDataNetworkType() {
-        PhoneStateInterface phoneState = AgentFactory.getInstance().getAgent(
-                PhoneStateInterface.class, mSlotId);
-        return (phoneState != null)
-                ? phoneState.getCellularDataNetworkType()
-                : TelephonyManager.NETWORK_TYPE_UNKNOWN;
     }
 
     private TelephonyManagerProxy getTelephonyManagerProxy() {

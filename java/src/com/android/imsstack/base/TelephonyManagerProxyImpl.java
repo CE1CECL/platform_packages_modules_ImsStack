@@ -334,9 +334,7 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
     @Override
     public @NetworkType int getDataNetworkType(int slotIndex) {
         ServiceState ss = getServiceState(slotIndex);
-        // NOTE: Even though ServiceState#getDataNetworkType() is a hidden API, it is used for now
-        // because there is no replacement.
-        return ss != null ? ss.getDataNetworkType() : TelephonyManager.NETWORK_TYPE_UNKNOWN;
+        return ss != null ? getDataNetworkType(ss) : TelephonyManager.NETWORK_TYPE_UNKNOWN;
     }
 
     @Override
@@ -409,18 +407,31 @@ public class TelephonyManagerProxyImpl implements TelephonyManagerProxy {
     }
 
     /**
+     * Returns the data network type from the given {@link ServiceState} object.
+     *
+     * @param ss The {@link ServiceState} object.
+     * @return The data network type.
+     */
+    private static int getDataNetworkType(ServiceState ss) {
+        final NetworkRegistrationInfo nri = ss.getNetworkRegistrationInfo(
+                NetworkRegistrationInfo.DOMAIN_PS, AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
+        return nri != null
+                ? nri.getAccessNetworkTechnology()
+                : TelephonyManager.NETWORK_TYPE_UNKNOWN;
+    }
+
+    /**
      * Returns the voice network type from the given {@link ServiceState} object.
      *
      * @param ss The {@link ServiceState} object.
      * @return The voice network type.
      */
     private static int getVoiceNetworkType(ServiceState ss) {
-        final NetworkRegistrationInfo regState = ss.getNetworkRegistrationInfo(
+        final NetworkRegistrationInfo nri = ss.getNetworkRegistrationInfo(
                 NetworkRegistrationInfo.DOMAIN_CS, AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
-        if (regState != null) {
-            return regState.getAccessNetworkTechnology();
-        }
-        return TelephonyManager.NETWORK_TYPE_UNKNOWN;
+        return nri != null
+                ? nri.getAccessNetworkTechnology()
+                : TelephonyManager.NETWORK_TYPE_UNKNOWN;
     }
 
     /*

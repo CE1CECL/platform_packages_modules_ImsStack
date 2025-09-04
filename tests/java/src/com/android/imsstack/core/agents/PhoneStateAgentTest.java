@@ -263,7 +263,6 @@ public class PhoneStateAgentTest {
         TelephonyManagerProxy tmp = mock(TelephonyManagerProxy.class);
         when(mTelephonyManagerProxy.createForSubscriptionId(eq(SUB_ID_1)))
                 .thenReturn(tmp);
-        when(tmp.getDataNetworkType(eq(SLOT0))).thenReturn(TelephonyManager.NETWORK_TYPE_IWLAN);
 
         int allEvents = ImsPhoneStateListener.LISTEN_SERVICE_STATE
                 | ImsPhoneStateListener.LISTEN_CALL_STATE
@@ -318,9 +317,6 @@ public class PhoneStateAgentTest {
     @Test
     @SmallTest
     public void testTelephonyCallbackServiceStateChanged() {
-        when(mTelephonyManagerProxy.getDataNetworkType(eq(SLOT0)))
-                .thenReturn(TelephonyManager.NETWORK_TYPE_IWLAN);
-
         int events = mPsAgent.getPhoneStateEvents().getEvents();
         ArgumentCaptor<TelephonyCallback> captor = ArgumentCaptor.forClass(TelephonyCallback.class);
         verify(mTelephonyManagerProxy, times(getEventCount(events)))

@@ -622,18 +622,13 @@ public class PhoneStateAgent implements PhoneStateInterface,
         }
 
         private void updateCellularDataNetworkType(ServiceState serviceState) {
-            TelephonyManagerProxy tmp = getTelephonyManagerProxy(getSubId());
-            int dataNetworkType = tmp.getDataNetworkType(mSlotId);
+            NetworkRegistrationInfo nri = serviceState.getNetworkRegistrationInfo(
+                    NetworkRegistrationInfo.DOMAIN_PS,
+                    AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
 
-            if (dataNetworkType == TelephonyManager.NETWORK_TYPE_IWLAN) {
-                NetworkRegistrationInfo nri = serviceState.getNetworkRegistrationInfo(
-                        NetworkRegistrationInfo.DOMAIN_PS,
-                        AccessNetworkConstants.TRANSPORT_TYPE_WWAN);
-
-                mCellularDataNetworkType = (nri != null)
-                        ? nri.getAccessNetworkTechnology()
-                        : TelephonyManager.NETWORK_TYPE_UNKNOWN;
-            }
+            mCellularDataNetworkType = (nri != null)
+                    ? nri.getAccessNetworkTechnology()
+                    : TelephonyManager.NETWORK_TYPE_UNKNOWN;
         }
 
         private void updateCsNetworkRegistrationState(ServiceState serviceState) {
