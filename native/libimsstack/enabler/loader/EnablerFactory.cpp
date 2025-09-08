@@ -147,7 +147,7 @@ IMS_BOOL EnablerFactory::HasEnablers(IN IMS_SINT32 nSlotId) const
         return IMS_FALSE;
     }
 
-    ImsList<IEnabler*>* pEnablers = m_objImsEnablers.GetValueAt(nIndex);
+    const ImsList<IEnabler*>* pEnablers = m_objImsEnablers.GetValueAt(nIndex);
     return pEnablers != IMS_NULL && !pEnablers->IsEmpty();
 }
 

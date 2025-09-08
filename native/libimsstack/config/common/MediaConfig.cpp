@@ -283,8 +283,8 @@ PUBLIC VIRTUAL MediaConfig::~MediaConfig()
 
 PUBLIC VIRTUAL const AStringArray& MediaConfig::GetMediaCapabilities(IN IMS_SINT32 nMediaType) const
 {
-    MediaProfile* pProfile = m_pConfigPrivate->GetCapabilityProfile();
-    MediaProfileParameter* pParameter = pProfile->GetParameter(nMediaType);
+    const MediaProfile* pProfile = m_pConfigPrivate->GetCapabilityProfile();
+    const MediaProfileParameter* pParameter = pProfile->GetParameter(nMediaType);
 
     if (pParameter == IMS_NULL)
     {
@@ -297,14 +297,14 @@ PUBLIC VIRTUAL const AStringArray& MediaConfig::GetMediaCapabilities(IN IMS_SINT
 PUBLIC VIRTUAL const AStringArray& MediaConfig::GetMediaProfile(
         IN const AString& strName, IN IMS_SINT32 nMediaType) const
 {
-    MediaProfile* pProfile = m_pConfigPrivate->FindProfile(strName);
+    const MediaProfile* pProfile = m_pConfigPrivate->FindProfile(strName);
 
     if (pProfile == IMS_NULL)
     {
         return AStringArray::ConstNull();
     }
 
-    MediaProfileParameter* pParameter = pProfile->GetParameter(nMediaType);
+    const MediaProfileParameter* pParameter = pProfile->GetParameter(nMediaType);
 
     if (pParameter == IMS_NULL)
     {
@@ -325,7 +325,7 @@ void MediaConfig::Refresh()
 PUBLIC
 IMS_BOOL MediaConfig::CreateMediaProfile(IN const AString& strName)
 {
-    MediaProfile* pProfile = m_pConfigPrivate->FindProfile(strName);
+    const MediaProfile* pProfile = m_pConfigPrivate->FindProfile(strName);
 
     if (pProfile != IMS_NULL)
     {

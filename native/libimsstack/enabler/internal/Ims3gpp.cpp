@@ -140,7 +140,7 @@ void Ims3gpp::CreateAlternativeService(IN INode* piNode)
         return;
     }
 
-    INode* piElement = piNode->GetFirstChild();
+    const INode* piElement = piNode->GetFirstChild();
 
     while (piElement != IMS_NULL)
     {
@@ -148,7 +148,7 @@ void Ims3gpp::CreateAlternativeService(IN INode* piNode)
 
         if (strName.EqualsIgnoreCase(ELEMENT_TYPE))
         {
-            INode* piNode_Value = piElement->GetFirstChild();
+            const INode* piNode_Value = piElement->GetFirstChild();
 
             if (piNode_Value != IMS_NULL)
             {
@@ -166,7 +166,7 @@ void Ims3gpp::CreateAlternativeService(IN INode* piNode)
         }
         else if (strName.EqualsIgnoreCase(ELEMENT_ACTION))
         {
-            INode* piNode_Value = piElement->GetFirstChild();
+            const INode* piNode_Value = piElement->GetFirstChild();
 
             if (piNode_Value != IMS_NULL)
             {
@@ -191,7 +191,7 @@ void Ims3gpp::CreateAlternativeService(IN INode* piNode)
         }
         else if (strName.EqualsIgnoreCase(ELEMENT_REASON))
         {
-            INode* piNode_Value = piElement->GetFirstChild();
+            const INode* piNode_Value = piElement->GetFirstChild();
 
             if (piNode_Value != IMS_NULL)
             {
@@ -218,7 +218,7 @@ void Ims3gpp::CreateServiceInfo(IN INode* piNode)
         return;
     }
 
-    INode* piNode_Value = piNode->GetFirstChild();
+    const INode* piNode_Value = piNode->GetFirstChild();
 
     if (piNode_Value != IMS_NULL)
     {

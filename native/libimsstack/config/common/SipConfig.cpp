@@ -297,7 +297,7 @@ PROTECTED VIRTUAL IMS_BOOL SipConfig::Update(
             }
             else
             {
-                ICarrierConfig* piCc = GetCarrierConfig();
+                const ICarrierConfig* piCc = GetCarrierConfig();
                 m_nTcpCriterionLength =
                         piCc->GetInt(CarrierConfig::Ims::KEY_IPV6_SIP_MTU_SIZE_CELLULAR_INT);
             }
@@ -324,7 +324,7 @@ PROTECTED VIRTUAL IMS_BOOL SipConfig::Update(
             }
             else
             {
-                ICarrierConfig* piCc = GetCarrierConfig();
+                const ICarrierConfig* piCc = GetCarrierConfig();
                 m_bRegSubscription = piCc->GetBoolean(
                         CarrierConfig::Ims::KEY_REGISTRATION_EVENT_PACKAGE_SUPPORTED_BOOL);
             }
@@ -399,7 +399,7 @@ IMS_BOOL SipConfig::GetTimerValueForUpdate(IN const IMS_CHAR* pszKey, IN IMS_SIN
     }
     else
     {
-        ICarrierConfig* piCc = GetCarrierConfig();
+        const ICarrierConfig* piCc = GetCarrierConfig();
         nTimerValue = piCc->GetInt(pszKey, nDefaultValue);
     }
 

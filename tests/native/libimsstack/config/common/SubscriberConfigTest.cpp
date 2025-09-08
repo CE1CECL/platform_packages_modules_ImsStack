@@ -252,7 +252,7 @@ TEST_F(SubscriberConfigTest, Init)
     IMS_BOOL bResult = m_pSubscriberConfig->Init();
     ASSERT_TRUE(bResult);
 
-    ServerAddress* pServerAddress = m_pSubscriberConfig->GetPcscfAddress();
+    const ServerAddress* pServerAddress = m_pSubscriberConfig->GetPcscfAddress();
     ASSERT_NE(pServerAddress, nullptr);
     EXPECT_EQ(pServerAddress->GetAddress(), m_objPcscfs.GetElementAt(0));
     EXPECT_EQ(pServerAddress->GetPort(), m_nSipServerPort);
@@ -308,7 +308,7 @@ TEST_F(SubscriberConfigTest, InitWhenUsimEnabled)
     IMS_BOOL bResult = m_pSubscriberConfig->Init();
     ASSERT_TRUE(bResult);
 
-    ServerAddress* pServerAddress = m_pSubscriberConfig->GetPcscfAddress();
+    const ServerAddress* pServerAddress = m_pSubscriberConfig->GetPcscfAddress();
     ASSERT_NE(pServerAddress, nullptr);
     EXPECT_EQ(pServerAddress->GetAddress(), m_objPcscfs.GetElementAt(0));
     EXPECT_EQ(pServerAddress->GetPort(), m_nSipServerPort);
