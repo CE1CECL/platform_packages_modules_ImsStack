@@ -47,7 +47,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidTestingRunner.class)
 @TestableLooper.RunWithLooper
-public class BasicRegistrationTest extends RegistrationTestBase {
+public class PrimaryRegistrationTest extends RegistrationTestBase {
 
     @Before
     public void setUp() throws Exception {
@@ -70,7 +70,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerRegistrationWithDefaultConfig() throws Exception {
+    public void testCarrierDefaultLte_Register_defaultConfig() throws Exception {
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessage(MessageBuildUtils.getDefaultRegister()
@@ -92,7 +92,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerRegistrationWithCapabilityVoiceOnly() throws Exception {
+    public void testCarrierDefaultLte_Register_CapabilityVoice() throws Exception {
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessage(MessageBuildUtils.getDefaultRegister()
@@ -126,7 +126,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerRegistrationWithCapabilityVoiceVideo() throws Exception {
+    public void testCarrierDefaultLte_Register_CapabilityVoiceVideo() throws Exception {
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessage(MessageBuildUtils.getDefaultRegister()
@@ -160,7 +160,12 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerRegistrationRejectedBy423() throws Exception {
+    public void testCarrierDefaultLte_Register_CapabilitySms() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith423() throws Exception {
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessage(MessageBuildUtils.getDefaultRegister().build());
@@ -175,7 +180,57 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerSubscribeWithDefaultConfig() throws Exception {
+    public void testCarrierDefaultLte_Register_ResponseWith403() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith404() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith500() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith503() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith503WithRetryAfter() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith504() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_ResponseWith504WithRetryAfter() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_NoResponse() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_HandoverToNr() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Register_HandoverToWlan() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void testCarrierDefaultLte_Subscribe_defaultConfig() throws Exception {
 
         ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
         generator.addMessage(MessageBuildUtils.getDefaultRegister().build());
@@ -197,37 +252,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerSubscribeWithNetworkNr() throws Exception {
-
-        ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
-        generator.addMessage(MessageBuildUtils.getDefaultRegister().build());
-        generator.addMessages("<200-REGISTER");
-        generator.addMessage(MessageBuildUtils.getDefaultSubscribe()
-                .addRuleSet(new RuleSet.Builder("SUBSCRIBE : Valid P-Access-Network-Info header")
-                        .addRule(new RuleSet.Rule.RuleBuilder("P-Access-Network-Info")
-                                .addContainRule("3GPP-NR")
-                                .build())
-                        .build())
-                .build());
-        generator.addMessages("<200-SUBSCRIBE");
-        mServerControlConnection.sendControlCommand(generator.build().toString());
-
-        ServiceState ss = new ServiceStateBuilder()
-                .addNetworkRegistrationInfoForNrCs()
-                .addNetworkRegistrationInfoForNr()
-                .build();
-
-        mRegistrationHelper.triggerRegistration(this, mInfoBuilder
-                .setServiceState(ss)
-                .build());
-
-        mRegistration.expect().registered();
-
-        mRegistration.expect(1000).nothing();
-    }
-
-    @Test
-    public void testTriggerDeregistrationByNotifyUnregistered() throws Exception {
+    public void testCarrierDefaultLte_Deregister_ByNotifyUnregistered() throws Exception {
 
         logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - "
                 + "NOTIFY(Unregistered)");
@@ -266,7 +291,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerDeregistrationByNotifyRejected() throws Exception {
+    public void testCarrierDefaultLte_Deregister_ByNotifyRejected() throws Exception {
 
         logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - "
                 + "NOTIFY(Rejected)");
@@ -305,7 +330,7 @@ public class BasicRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testTriggerDeregistrationByNotifyDeactivated() throws Exception {
+    public void testCarrierDefaultLte_Deregister_ByNotifyDeactivated() throws Exception {
 
         logi(this, "RegistrationTest: REGISTER - 200(REG) - SUBSCRIBE - 200(SUB) - "
                 + "NOTIFY(Deactivated)");
@@ -341,5 +366,184 @@ public class BasicRegistrationTest extends RegistrationTestBase {
           TODO : Assertion from TISS
           assertTrue(expect, message);
          */
+    }
+
+    @Test
+    public void testCarrierDefaultNr_Register_defaultConfig() throws Exception {
+
+        ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
+        generator.addMessage(MessageBuildUtils.getDefaultRegister().build());
+        generator.addMessages("<200-REGISTER");
+        generator.addMessage(MessageBuildUtils.getDefaultSubscribe()
+                .addRuleSet(new RuleSet.Builder("SUBSCRIBE : Valid P-Access-Network-Info header")
+                        .addRule(new RuleSet.Rule.RuleBuilder("P-Access-Network-Info")
+                                .addContainRule("3GPP-NR")
+                                .build())
+                        .build())
+                .build());
+        generator.addMessages("<200-SUBSCRIBE");
+        mServerControlConnection.sendControlCommand(generator.build().toString());
+
+        ServiceState ss = new ServiceStateBuilder()
+                .addNetworkRegistrationInfoForNrCs()
+                .addNetworkRegistrationInfoForNr()
+                .build();
+
+        mRegistrationHelper.triggerRegistration(this, mInfoBuilder
+                .setServiceState(ss)
+                .build());
+
+        mRegistration.expect().registered();
+
+        mRegistration.expect(1000).nothing();
+    }
+
+    @Test
+    public void testCarrierDefaultNr_Register_CapabilityVoice() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_CapabilityVoiceVideo() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_CapabilitySms() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith423() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith403() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith404() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith500() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith503() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith503WithRetryAfter() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith504() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_ResponseWith504WithRetryAfter() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_NoResponse() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_HandoverToLte() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Register_HandoverToWlan() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Subscribe_defaultConfig() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Deregister_ByNotifyUnregistered() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Deregister_ByNotifyRejected() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultNr_Deregister_ByNotifyDeactivated() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_defaultConfig() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_CapabilityVoice() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_CapabilityVoiceVideo() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_CapabilitySms() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith423() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith403() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith404() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith500() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith503() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith503WithRetryAfter() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith504() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_ResponseWith504WithRetryAfter() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_NoResponse() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_HandoverToLte() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Register_HandoverToNr() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Subscribe_defaultConfig() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Deregister_ByNotifyUnregistered() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Deregister_ByNotifyRejected() throws Exception {
+        // TODO
+    }
+    @Test
+    public void testCarrierDefaultWlan_Deregister_ByNotifyDeactivated() throws Exception {
+        // TODO
     }
 }
