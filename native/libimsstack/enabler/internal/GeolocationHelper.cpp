@@ -192,7 +192,7 @@ PUBLIC GLOBAL const AString& GeolocationHelper::GetCountry(
 
     if (bLocationUpdate)
     {
-        ILocationProperties* piLocation =
+        const ILocationProperties* piLocation =
                 piLocationInfo->GetLocationProperties(ILocationInfo::LOCATION_POSITION_N_COUNTRY);
 
         if (piLocation != IMS_NULL)

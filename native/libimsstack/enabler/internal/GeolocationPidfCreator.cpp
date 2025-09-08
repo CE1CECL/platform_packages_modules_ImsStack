@@ -103,7 +103,7 @@ PUBLIC
 IMS_BOOL GeolocationPidfCreator::CreateWithPosition(IN const AString& strEntityUri,
         OUT ByteArray& objContent, IN IMS_SINT32 nConfidence /*= 0*/) const
 {
-    ILocationProperties* piLocation = GetLocationProperties();
+    const ILocationProperties* piLocation = GetLocationProperties();
     if (piLocation == IMS_NULL)
     {
         return IMS_FALSE;
@@ -165,7 +165,7 @@ PUBLIC
 IMS_BOOL GeolocationPidfCreator::CreateWithPositionAndCountry(IN const AString& strEntityUri,
         OUT ByteArray& objContent, IN IMS_SINT32 nConfidence /*= 0*/) const
 {
-    ILocationProperties* piLocation =
+    const ILocationProperties* piLocation =
             GetLocationProperties(ILocationInfo::LOCATION_POSITION_N_COUNTRY);
     if (piLocation == IMS_NULL)
     {
@@ -223,7 +223,7 @@ PUBLIC
 IMS_BOOL GeolocationPidfCreator::CreateWithoutCivic(IN const AString& strEntityUri,
         OUT ByteArray& objContent, IN IMS_SINT32 nConfidence /*= 0*/) const
 {
-    ILocationProperties* piLocation = GetLocationProperties(ILocationInfo::LOCATION_POSITION);
+    const ILocationProperties* piLocation = GetLocationProperties(ILocationInfo::LOCATION_POSITION);
     if (piLocation == IMS_NULL)
     {
         return IMS_FALSE;

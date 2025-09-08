@@ -435,7 +435,7 @@ PROTECTED VIRTUAL IMS_BOOL SipConfigV::Update(
             }
             else
             {
-                ICarrierConfig* piCc = GetCarrierConfig();
+                const ICarrierConfig* piCc = GetCarrierConfig();
                 m_strServiceVersion =
                         piCc->GetString(CarrierConfig::Ims::KEY_IMS_USER_AGENT_STRING);
             }
@@ -534,7 +534,7 @@ IMS_BOOL SipConfigV::GetTimerValueForUpdate(IN const IMS_CHAR* pszKey, IN IMS_SI
     }
     else
     {
-        ICarrierConfig* piCc = GetCarrierConfig();
+        const ICarrierConfig* piCc = GetCarrierConfig();
         nTimerValue = piCc->GetInt(pszKey, nDefaultValue);
     }
 

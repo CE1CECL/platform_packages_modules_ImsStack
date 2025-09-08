@@ -71,7 +71,7 @@ PROTECTED VIRTUAL void ConfigApp::UpdateAllForHidden(IN IMS_SINT32 nItem, IN IMS
             _TRACE_B_(bSubscriberChanged), _TRACE_B_(bSipConfigChanged),
             _TRACE_B_(bSipConfigVChanged));
 
-    IConfiguration* piConfiguration = Engine::GetConfiguration();
+    const IConfiguration* piConfiguration = Engine::GetConfiguration();
 
     // SUBSCRIBER
     if (bSubscriberChanged)
@@ -141,7 +141,7 @@ PROTECTED VIRTUAL void ConfigApp::UpdateAllForDm(IN IMS_SINT32 nItem, IN IMS_SIN
     IMS_TRACE_I("UpdateAllForDm :: sip=%s, sip-v=%s", _TRACE_B_(bSipConfigChanged),
             _TRACE_B_(bSipConfigVChanged), 0);
 
-    IConfiguration* piConfiguration = Engine::GetConfiguration();
+    const IConfiguration* piConfiguration = Engine::GetConfiguration();
 
     // SIP configuration
     if (bSipConfigChanged)

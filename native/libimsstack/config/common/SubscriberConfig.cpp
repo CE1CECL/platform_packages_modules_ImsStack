@@ -230,44 +230,44 @@ PUBLIC VIRTUAL void SubscriberConfig::UpdateSubscriberInfo(IN const AString& str
 
 PUBLIC VIRTUAL const Credential& SubscriberConfig::GetCredential() const
 {
-    ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
+    const ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
     return (pSubsInfo != IMS_NULL) ? pSubsInfo->GetCredential() : Credential::ConstNull();
 }
 
 PUBLIC VIRTUAL const AString& SubscriberConfig::GetHomeDomainName() const
 {
-    IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
+    const IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
     return (piSubsInfo != IMS_NULL) ? piSubsInfo->GetHomeDomainName() : AString::ConstNull();
 }
 
 PUBLIC VIRTUAL IMS_SINT32 SubscriberConfig::GetIndexOfPrimaryPublicUserId() const
 {
-    IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
+    const IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
     return (piSubsInfo != IMS_NULL) ? piSubsInfo->GetIndexOfPrimaryPublicUserId() : (-1);
 }
 
 PUBLIC VIRTUAL const AString& SubscriberConfig::GetPhoneContext() const
 {
-    IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
+    const IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
     return (piSubsInfo != IMS_NULL) ? piSubsInfo->GetPhoneContext() : AString::ConstNull();
 }
 
 PUBLIC VIRTUAL const AString& SubscriberConfig::GetPrivateUserId() const
 {
-    ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
+    const ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
     return (pSubsInfo != IMS_NULL) ? pSubsInfo->GetPrivateUserId() : AString::ConstNull();
 }
 
 PUBLIC VIRTUAL const AString& SubscriberConfig::GetPublicUserId(
         IN IMS_SINT32 nImpuType /*= IImsSubscriberInfo::IMPU_REF_INDEX*/) const
 {
-    IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
+    const IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
     return (piSubsInfo != IMS_NULL) ? piSubsInfo->GetPublicUserId(nImpuType) : AString::ConstNull();
 }
 
 PUBLIC VIRTUAL const AStringArray& SubscriberConfig::GetPublicUserIds() const
 {
-    IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
+    const IImsSubscriberInfo* piSubsInfo = GetSubscriberInfo();
     return (piSubsInfo != IMS_NULL) ? piSubsInfo->GetPublicUserIds() : AStringArray::ConstNull();
 }
 
@@ -292,14 +292,14 @@ PUBLIC VIRTUAL void SubscriberConfig::Refresh()
 PUBLIC
 const AString& SubscriberConfig::GetScscfAddress() const
 {
-    ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
+    const ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
     return (pSubsInfo != IMS_NULL) ? pSubsInfo->GetScscfAddress() : AString::ConstNull();
 }
 
 PUBLIC
 IMS_BOOL SubscriberConfig::IsAuthRealmLenient() const
 {
-    ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
+    const ImsSubscriberInfo* pSubsInfo = GetSubscriberInfoEx();
     return (pSubsInfo != IMS_NULL) ? pSubsInfo->IsAuthRealmLenient() : IMS_FALSE;
 }
 
@@ -653,7 +653,7 @@ PROTECTED VIRTUAL IMS_BOOL SubscriberConfig::Update(
                 return IMS_FALSE;
             }
 
-            ICarrierConfig* piCc = GetCarrierConfig();
+            const ICarrierConfig* piCc = GetCarrierConfig();
 
             pSubsInfo->m_nRefIndexOfPrimaryImpu =
                     piCc->GetInt(CarrierConfig::Ims::KEY_ISIM_INDEX_FOR_IMPU_INT, 1);
@@ -782,7 +782,7 @@ PROTECTED VIRTUAL IMS_BOOL SubscriberConfig::Update(
                 break;
             }
 
-            ICarrierConfig* piCc = GetCarrierConfig();
+            const ICarrierConfig* piCc = GetCarrierConfig();
 
             pSubsInfo->m_strPhoneContext = (piCc != IMS_NULL)
                     ? piCc->GetString(CarrierConfig::Ims::KEY_PHONE_CONTEXT_DOMAIN_NAME_STRING)
@@ -1099,7 +1099,7 @@ PROTECTED VIRTUAL IMS_BOOL SubscriberConfig::Update(
                 }
                 else
                 {
-                    ICarrierConfig* piCc = GetCarrierConfig();
+                    const ICarrierConfig* piCc = GetCarrierConfig();
                     IMS_SINT32 nPort = (piCc != IMS_NULL)
                             ? piCc->GetInt(CarrierConfig::Ims::KEY_SIP_SERVER_PORT_NUMBER_INT)
                             : (-1);
@@ -1124,7 +1124,7 @@ PROTECTED VIRTUAL IMS_BOOL SubscriberConfig::Update(
                     ImsPrivateProperties::Persistent::KEY_CONFIG_PCSCF_ADDRESS_LIST, GetSlotId());
             ImsList<AString> objPcscfAddresses = strPcscfAddressList.Split(',');
 
-            ICarrierConfig* piCc = GetCarrierConfig();
+            const ICarrierConfig* piCc = GetCarrierConfig();
             IMS_SINT32 nPort = (piCc != IMS_NULL)
                     ? piCc->GetInt(CarrierConfig::Ims::KEY_SIP_SERVER_PORT_NUMBER_INT)
                     : (-1);
@@ -1318,7 +1318,7 @@ void SubscriberConfig::CallSubscriberInfoListener(IN IMS_SINT32 nSubsInfo)
         // ADD operation
         for (IMS_UINT32 i = 0; i < m_objSubscriberInfos.GetSize(); ++i)
         {
-            ImsSubscriberInfo* pSubsInfo = m_objSubscriberInfos.GetAt(i);
+            const ImsSubscriberInfo* pSubsInfo = m_objSubscriberInfos.GetAt(i);
             const AStringArray& objPublicUserIds = pSubsInfo->GetPublicUserIds();
 
             for (IMS_SINT32 j = 0; j < objPublicUserIds.GetCount(); ++j)
@@ -1340,7 +1340,7 @@ void SubscriberConfig::CallSubscriberInfoListener(IN IMS_SINT32 nSubsInfo)
         // REMOVE operation
         for (IMS_UINT32 i = 0; i < m_objSubscriberInfos.GetSize(); ++i)
         {
-            ImsSubscriberInfo* pSubsInfo = m_objSubscriberInfos.GetAt(i);
+            const ImsSubscriberInfo* pSubsInfo = m_objSubscriberInfos.GetAt(i);
             const AStringArray& objPublicUserIds = pSubsInfo->GetPublicUserIds();
 
             for (IMS_SINT32 j = 0; j < objPublicUserIds.GetCount(); ++j)
@@ -1411,7 +1411,7 @@ const AString& SubscriberConfig::GetLog(IN const AString& strValue, IN IMS_SINT3
 PRIVATE
 ImsSubscriberInfo* SubscriberConfig::CreateSubscriberInfo()
 {
-    ICarrierConfig* piCc = GetCarrierConfig();
+    const ICarrierConfig* piCc = GetCarrierConfig();
     ImsSubscriberInfo* pSubsInfo = new ImsSubscriberInfo();
 
     pSubsInfo->m_nRefIndexOfPrimaryImpu = IsIsimSupported()
@@ -1605,7 +1605,7 @@ PRIVATE
 void SubscriberConfig::UpdatePublicUserIds(
         IN ImsSubscriberInfo* pSubsInfo, IN const AStringArray& objPublicUserIds)
 {
-    ICarrierConfig* piCc = GetCarrierConfig();
+    const ICarrierConfig* piCc = GetCarrierConfig();
     IMS_SINT32 nRefIndexOfPrimaryImpu = IsIsimSupported()
             ? piCc->GetInt(CarrierConfig::Ims::KEY_ISIM_INDEX_FOR_IMPU_INT, 1)
             : 0;
@@ -1672,7 +1672,7 @@ void SubscriberConfig::UpdatePcscfAddressesFromIsim(IN const AStringArray& objPc
 PRIVATE
 void SubscriberConfig::UpdatePcscfAddresses()
 {
-    ICarrierConfig* piCc = GetCarrierConfig();
+    const ICarrierConfig* piCc = GetCarrierConfig();
     IMS_SINT32 nPort = piCc->GetInt(CarrierConfig::Ims::KEY_SIP_SERVER_PORT_NUMBER_INT);
     IImsPrivateProperty* piProperty = GetPrivateProperty();
     AString strPcscfAddressList = piProperty->GetPersistent(

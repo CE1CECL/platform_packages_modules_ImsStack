@@ -177,7 +177,7 @@ PUBLIC
 INativeEnabler* JniEnablerConnector::GetNativeEnabler(IN IMS_SINT32 nSlotId, IN EnablerType eType)
 {
     LockGuard objLock(m_piLock);
-    JniConnection* pConnection = GetConnection(nSlotId, eType);
+    const JniConnection* pConnection = GetConnection(nSlotId, eType);
     if (pConnection == IMS_NULL)
     {
         return IMS_NULL;
@@ -190,7 +190,7 @@ IJniEnabler* JniEnablerConnector::GetJniEnabler(
         IN IMS_SINT32 nSlotId, IN EnablerType eType, IN IMS_ULONG nKey /* = KEY_UNIQUE*/)
 {
     LockGuard objLock(m_piLock);
-    JniConnection* pConnection = GetConnection(nSlotId, eType);
+    const JniConnection* pConnection = GetConnection(nSlotId, eType);
     if (pConnection == IMS_NULL)
     {
         return IMS_NULL;

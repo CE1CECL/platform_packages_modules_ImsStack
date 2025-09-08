@@ -49,7 +49,7 @@ PUBLIC VIRTUAL ConfigEnabler::~ConfigEnabler()
 
 PRIVATE VIRTUAL void ConfigEnabler::Start()
 {
-    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(GetSlotId());
+    const ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(GetSlotId());
     ISipRtConfigHelper* piRtConfigHelper = SipFactory::GetRtConfigHelper(GetSlotId());
 
     if (piRtConfigHelper != IMS_NULL)
@@ -60,7 +60,7 @@ PRIVATE VIRTUAL void ConfigEnabler::Start()
 
         piRtConfigHelper->SetConfig(SipRtConfig::CONFIG_I_REUSEADDR, &objSocketOption);
 
-        IConfiguration* piConfiguration = Engine::GetConfiguration();
+        const IConfiguration* piConfiguration = Engine::GetConfiguration();
 
         if (((piConfiguration->GetTraceOption(GetSlotId()) & ITraceOption::OPT_HIDE_PRIVACY) ==
                     ITraceOption::OPT_HIDE_PRIVACY) ||

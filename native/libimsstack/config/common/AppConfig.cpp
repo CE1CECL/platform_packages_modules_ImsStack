@@ -793,7 +793,7 @@ PUBLIC VIRTUAL ImsRegistry* AppConfig::ToRegistry() const
     {
         for (IMS_UINT32 i = 0; i < m_pConfigPrivate->m_objCoreServiceConfigs.GetSize(); ++i)
         {
-            CoreServiceConfig* pCoreServiceConfig =
+            const CoreServiceConfig* pCoreServiceConfig =
                     m_pConfigPrivate->m_objCoreServiceConfigs.GetAt(i);
 
             if (pCoreServiceConfig != IMS_NULL)
@@ -993,7 +993,7 @@ IMS_BOOL AppConfig::IsHeaderWritable(IN const AString& strHeader) const
 PUBLIC
 AStringArray AppConfig::GetCapabilitySdps(IN IMS_SINT32 nSector, IN IMS_SINT32 nMessageType) const
 {
-    CapProperty* pProperty = m_pConfigPrivate->GetCapProperty(nSector, nMessageType);
+    const CapProperty* pProperty = m_pConfigPrivate->GetCapProperty(nSector, nMessageType);
 
     if (pProperty != IMS_NULL)
     {

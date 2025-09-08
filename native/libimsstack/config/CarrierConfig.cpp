@@ -1447,18 +1447,18 @@ const IMS_CHAR
 
 PUBLIC GLOBAL IMS_BOOL CarrierConfig::IsVoLteEnabled(IN IMS_SINT32 nSlotId)
 {
-    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
+    const ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
     return (piCc != IMS_NULL) ? piCc->GetBoolean(KEY_CARRIER_VOLTE_AVAILABLE_BOOL) : IMS_FALSE;
 }
 
 PUBLIC GLOBAL IMS_BOOL CarrierConfig::IsVtEnabled(IN IMS_SINT32 nSlotId)
 {
-    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
+    const ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
     return (piCc != IMS_NULL) ? piCc->GetBoolean(KEY_CARRIER_VT_AVAILABLE_BOOL) : IMS_FALSE;
 }
 
 PUBLIC GLOBAL IMS_BOOL CarrierConfig::IsWfcEnabled(IN IMS_SINT32 nSlotId)
 {
-    ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
+    const ICarrierConfig* piCc = ConfigService::GetConfigService()->GetCarrierConfig(nSlotId);
     return (piCc != IMS_NULL) ? piCc->GetBoolean(KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL) : IMS_FALSE;
 }
