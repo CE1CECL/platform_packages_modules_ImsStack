@@ -26,6 +26,8 @@
 #include "text/TextController.h"
 #include "video/VideoController.h"
 
+class IService;
+
 class MediaSession : public IMediaSessionListener, public IMediaSession
 {
 public:
