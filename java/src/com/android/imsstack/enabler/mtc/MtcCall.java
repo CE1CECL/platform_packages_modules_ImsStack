@@ -2120,6 +2120,7 @@ public class MtcCall extends Call implements ConferenceTracker {
                     mUsingAlreadyOpenedEmergencyService = false;
                     Message.obtain(mHandler, MSG_CLEAR_INTERFACE,
                             Long.valueOf(getNativeCallId())).sendToTarget();
+                    updateNativeCallObject(0);
                     return;
                 }
             }

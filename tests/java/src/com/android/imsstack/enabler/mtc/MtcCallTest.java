@@ -910,10 +910,13 @@ public class MtcCallTest extends ImsStackTest {
                     CallReasonInfo.CODE_LOCAL_CALL_CS_RETRY_REQUIRED,
                     CallReasonInfo.EXTRA_CODE_CALL_RETRY_EMERGENCY,
                     CallReasonInfo.EXTRA_MESSAGE_AOS_DISCONNECTED);
+        doReturn(true).when(mEmergencyCallFailureListener)
+                .onEmergencyCallFailedByAlreadyOpenedServiceClosed();
         sendMessageToJniListener(IUMtcCall.START_FAILED, callReasonInfo);
 
         verify(mEmergencyCallFailureListener, times(1))
                 .onEmergencyCallFailedByAlreadyOpenedServiceClosed();
+        assertEquals(mTestMtcCallWithMockJniProxy.getNativeCallId(), 0);
     }
 
     @Test

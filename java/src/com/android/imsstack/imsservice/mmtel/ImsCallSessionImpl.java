@@ -2710,6 +2710,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
         public void start(String callee) {
             mCallee = callee;
+            setStartDone(false);
 
             if (mServiceStateListener == null) {
                 IServiceStateTracker sst = mCallContext.getServiceStateTracker();
