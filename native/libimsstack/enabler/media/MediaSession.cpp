@@ -226,6 +226,11 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::NegotiateSdp(IN IMS_UINTP nNegoId, IN ISes
         CloseMediaSessions(MEDIA_TYPE_VIDEO);
     }
 
+    if (!(GetNegotiatedMediaType(nNegoId) & MEDIA_TYPE_TEXT))
+    {
+        CloseMediaSessions(MEDIA_TYPE_TEXT);
+    }
+
     IMS_TRACE_I("NegotiateSdp() - Audio[%d], Video[%d], Text[%d]", *nAudioDirection,
             *nVideoDirection, *nTextDirection);
     return IMS_TRUE;
@@ -1213,7 +1218,8 @@ void MediaSession::UpdateMediaSessions(
     }
 
     // Update Text Session
-    if (eType & MEDIA_TYPE_TEXT && m_pTextController != IMS_NULL && m_bSessionConfirmed)
+    if (eType & MEDIA_TYPE_TEXT && m_pTextController != IMS_NULL &&
+            m_pTextController->IsSessionOpened() && m_bSessionConfirmed)
     {
         m_pTextController->UpdateRtpConfig(pMediaNego->GetTextNego());
         m_pTextController->UpdateAccessNetwork(nAccessNetwork);
