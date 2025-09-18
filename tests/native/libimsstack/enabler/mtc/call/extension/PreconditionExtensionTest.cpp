@@ -38,6 +38,7 @@ class PreconditionExtensionTest : public ::testing::Test
 public:
     PreconditionExtension* pExtension;
 
+    // cppcheck-suppress unusedStructMember It's a false-positive.
     MockIMessage objMessage;
     MockIMessage objMessageRequiresExtension;
     MockIMessage objMessageSupportsExtension;
