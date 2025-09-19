@@ -39,7 +39,6 @@ public:
     MOCK_METHOD(void, SetQosListener, (IN IMediaQosEventListener* pListener), (override));
     MOCK_METHOD(void, SetMediaInfo, (IN const ISession& objISession, IN const MediaInfo& objInfo),
             (override));
-    MOCK_METHOD(void, UpdateMediaInfo, (IN const ISession* piSession), (override));
     MOCK_METHOD(void, UpdateMediaDirection,
             (IN const ISession& objISession, IN IMS_UINT32 eMediaType, IN IMS_SINT32 eDir),
             (override));
