@@ -57,7 +57,6 @@ public:
     MtcCallState* pState;
     MockIMtcCallContext objContext;
     MockIMtcService objService;
-    // cppcheck-suppress unusedStructMember
     MockISession objISession;
     MockIMtcMediaManager objMediaManager;
     MockEpsFallbackTrigger* pEpsFbTrigger;

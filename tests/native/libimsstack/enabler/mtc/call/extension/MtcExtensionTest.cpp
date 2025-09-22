@@ -33,8 +33,6 @@ class MtcExtensionTest : public ::testing::Test
 {
 public:
     MtcExtension* pExtension;
-
-    // cppcheck-suppress unusedStructMember
     MockIMessage objMessage;
     MockIMtcCallContext objContext;
     MockIMessageUtils objMessageUtils;
