@@ -62,10 +62,9 @@ PUBLIC IMS_BOOL TextProfileNegotiator::Negotiate(IN TextProfile* pLocalProfile,
     }
     else
     {
-        IMS_TRACE_D("Negotiate(): no negotiated payload. use the LocalProfile and make port 0", 0,
+        IMS_TRACE_D("Negotiate(): no negotiated payload. use the peer profile and make port 0", 0,
                 0, 0);
-
-        bRet = ResetNegotiatedProfile(IMS_FALSE, pLocalProfile, pPeerProfile, &pNegotiatedProfile);
+        bRet = ResetNegotiatedProfile(IMS_TRUE, pLocalProfile, pPeerProfile, &pNegotiatedProfile);
     }
 
     NegotiateRtcpInterval(pNegotiatedProfile, pConfig);
@@ -82,22 +81,17 @@ IMS_BOOL TextProfileNegotiator::ResetNegotiatedProfile(IN IMS_BOOL bPeerPreferre
         IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
         OUT TextProfile** pNegotiatedProfile)
 {
-    IMS_BOOL bRet = IMS_FALSE;
-
     if (pLocalProfile == IMS_NULL || pPeerProfile == IMS_NULL)
     {
         IMS_TRACE_E(0, "ResetNegotiatedProfile(): invalid argument", 0, 0, 0);
-        return bRet;
+        return IMS_FALSE;
     }
 
     if (bPeerPreferred)
     {
         IMS_TRACE_D("ResetNegotiatedProfile(): by Peer Profile payload size[%d]",
                 pPeerProfile->GetPayloadList().GetSize(), 0, 0);
-
-        **pNegotiatedProfile =
-                (pPeerProfile->GetPayloadList().GetSize() > 0) ? *pPeerProfile : *pLocalProfile;
-
+        **pNegotiatedProfile = *pPeerProfile;
         (*pNegotiatedProfile)->SetIpAddress(pLocalProfile->GetIpAddress());
     }
     else
@@ -108,14 +102,12 @@ IMS_BOOL TextProfileNegotiator::ResetNegotiatedProfile(IN IMS_BOOL bPeerPreferre
         if (pLocalProfile->GetPayloadList().GetSize() > 0)
         {
             **pNegotiatedProfile = *pLocalProfile;
-            bRet = IMS_TRUE;
         }
     }
 
     (*pNegotiatedProfile)->SetDataPort(0);
     (*pNegotiatedProfile)->SetDirection(MEDIA_DIRECTION_INVALID);
-
-    return bRet;
+    return IMS_TRUE;
 }
 
 PRIVATE

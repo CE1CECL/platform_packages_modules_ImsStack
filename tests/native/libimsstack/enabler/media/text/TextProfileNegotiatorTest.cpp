@@ -287,7 +287,7 @@ TEST_F(TextProfileNegotiatorTest, NegotiateNoMatchingPayloadReturnsFalse)
     // Assert
     // Negotiation "succeeds" but results in port 0 / invalid direction because no payload match
     EXPECT_TRUE(bResult);
-    EXPECT_EQ(m_pNegotiatedProfile->GetPayloadList().GetSize(), 1);
+    EXPECT_EQ(m_pNegotiatedProfile->GetPayloadList().GetSize(), 0);
     EXPECT_EQ(m_pNegotiatedProfile->GetDataPort(), 0);
     EXPECT_EQ(m_pNegotiatedProfile->GetDirection(), MEDIA_DIRECTION_INVALID);
 }

@@ -43,6 +43,11 @@ PUBLIC IMS_BOOL TextSdpParser::Parse(IN ISessionDescriptor* pSessionDescriptor,
     MediaSdpParser::Parse(pSessionDescriptor, pDescriptor, pProfile);
     ParsePayloads(pDescriptor, pProfile);
 
+    if (pProfile->GetPayloadList().GetSize() == 0)
+    {
+        ParsePayloadTypeNumber(pDescriptor, pProfile);
+    }
+
     return IMS_TRUE;
 }
 
