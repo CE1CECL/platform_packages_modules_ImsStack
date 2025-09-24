@@ -62,6 +62,9 @@ public:
             objEventForInitRegOnTerminatedState(ImsVector<IMS_SINT32>()),
             objEventWithWtForInitRegOnTerminatedState(ImsVector<IMS_SINT32>())
     {
+        objEventForInitRegOnTerminatedState.Add(1);
+        objEventForInitRegOnTerminatedState.Add(2);
+        objEventForInitRegOnTerminatedState.Add(3);
     }
 
     AosNotifyTerminatedForInitRegBundle(IN const AosNotifyTerminatedForInitRegBundle&) = delete;

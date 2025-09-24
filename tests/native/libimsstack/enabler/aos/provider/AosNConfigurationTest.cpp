@@ -1261,17 +1261,19 @@ TEST_F(AosNConfigurationTest, InitBundleConfigForNotifyTerminatedForInitReg)
             .WillRepeatedly(Return(static_cast<ICarrierConfig*>(&objNotifyTerminated)));
 
     EXPECT_CALL(objNotifyTerminated,
-            GetInt(CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_WITH_WAIT_TIME_INT, -1))
+            GetInt(CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_WITH_WAIT_TIME_INT, 0))
             .WillOnce(Return(40));
 
     ImsVector<IMS_SINT32> objEventForInitRegOnTerminatedState;
     objEventForInitRegOnTerminatedState.Add(1);
     objEventForInitRegOnTerminatedState.Add(2);
     objEventForInitRegOnTerminatedState.Add(3);
+    IMS_BOOL bKeyExistValue = IMS_TRUE;
     EXPECT_CALL(objNotifyTerminated,
             GetIntArray(
                     CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_INT_ARRAY, _))
-            .WillOnce(Return(objEventForInitRegOnTerminatedState));
+            .WillOnce(DoAll(
+                    SetArgReferee<1>(bKeyExistValue), Return(objEventForInitRegOnTerminatedState)));
 
     ImsVector<IMS_SINT32> objEventWithWtForInitRegOnTerminatedState;
     objEventWithWtForInitRegOnTerminatedState.Add(2);
@@ -1281,7 +1283,8 @@ TEST_F(AosNConfigurationTest, InitBundleConfigForNotifyTerminatedForInitReg)
                     CarrierConfig::Ims ::
                             KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_WITH_WAIT_TIME_INT_ARRAY,
                     _))
-            .WillOnce(Return(objEventWithWtForInitRegOnTerminatedState));
+            .WillOnce(DoAll(SetArgReferee<1>(bKeyExistValue),
+                    Return(objEventWithWtForInitRegOnTerminatedState)));
 
     EXPECT_CALL(objNotifyTerminated, ReleaseBundle()).Times(1);
 
@@ -1307,6 +1310,52 @@ TEST_F(AosNConfigurationTest, InitBundleConfigForNotifyTerminatedForInitReg)
             (m_pAosNConfiguration->GetNotifyEventForInitialRegWithWaitTime()));
     EXPECT_TRUE(IAosNConfiguration::NOTIFY_TERMINATED_REJECTED &
             (m_pAosNConfiguration->GetNotifyEventForInitialRegWithWaitTime()));
+}
+
+TEST_F(AosNConfigurationTest, InitBundleConfigForNotifyTerminatedForInitRegWithoutIntArrayKeys)
+{
+    // GIVEN
+    MockICarrierConfig objCarrierConfig;
+    MockICarrierConfig objNotifyTerminated;
+
+    EXPECT_CALL(objCarrierConfig,
+            GetBundle(CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_BUNDLE))
+            .WillRepeatedly(Return(static_cast<ICarrierConfig*>(&objNotifyTerminated)));
+
+    ImsVector<IMS_SINT32> objEventForInitRegOnTerminatedState;
+    IMS_BOOL bKeyExistValue = IMS_FALSE;
+    EXPECT_CALL(objNotifyTerminated,
+            GetIntArray(
+                    CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_INT_ARRAY, _))
+            .WillOnce(DoAll(
+                    SetArgReferee<1>(bKeyExistValue), Return(objEventForInitRegOnTerminatedState)));
+
+    ImsVector<IMS_SINT32> objEventWithWtForInitRegOnTerminatedState;
+    EXPECT_CALL(objNotifyTerminated,
+            GetIntArray(
+                    CarrierConfig::Ims ::
+                            KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_WITH_WAIT_TIME_INT_ARRAY,
+                    _))
+            .WillOnce(DoAll(SetArgReferee<1>(bKeyExistValue),
+                    Return(objEventWithWtForInitRegOnTerminatedState)));
+
+    EXPECT_CALL(objNotifyTerminated, ReleaseBundle()).Times(1);
+
+    // WHEN
+    m_pAosNConfiguration->InitBundleForNotifyTerminatedForInitReg(
+            static_cast<ICarrierConfig*>(&objCarrierConfig));
+
+    // THEN
+    EXPECT_TRUE(IAosNConfiguration::NOTIFY_TERMINATED_EXPIRED &
+            (m_pAosNConfiguration->GetNotifyEventForInitialRegistration()));
+    EXPECT_TRUE(IAosNConfiguration::NOTIFY_TERMINATED_DEACTIVATED &
+            (m_pAosNConfiguration->GetNotifyEventForInitialRegistration()));
+    EXPECT_TRUE(IAosNConfiguration::NOTIFY_TERMINATED_PROBATION &
+            (m_pAosNConfiguration->GetNotifyEventForInitialRegistration()));
+    EXPECT_FALSE(IAosNConfiguration::NOTIFY_TERMINATED_UNREGISTERED &
+            (m_pAosNConfiguration->GetNotifyEventForInitialRegistration()));
+
+    EXPECT_EQ(0, m_pAosNConfiguration->GetNotifyEventForInitialRegWithWaitTime());
 }
 
 TEST_F(AosNConfigurationTest, InitBundleConfigForPcscfRecoveryConditions)

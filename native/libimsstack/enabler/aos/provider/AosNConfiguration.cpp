@@ -1173,18 +1173,32 @@ void AosNConfiguration::InitBundleForNotifyTerminatedForInitReg(IN const ICarrie
     if (piCcBundle != IMS_NULL)
     {
         m_objNotifyTerminated.nWaitTimeForInitRegOnTerminatedState = piCcBundle->GetInt(
-                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_WITH_WAIT_TIME_INT);
-        m_objNotifyTerminated.objEventForInitRegOnTerminatedState = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_INT_ARRAY);
-        m_objNotifyTerminated.objEventWithWtForInitRegOnTerminatedState = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_WITH_WAIT_TIME_INT, 0);
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objEventForInitRegOnTerminatedState = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_INT_ARRAY,
+                bKeyExist);
+        if (bKeyExist)
+        {
+            m_objNotifyTerminated.objEventForInitRegOnTerminatedState =
+                    objEventForInitRegOnTerminatedState;
+        }
+        IMS_BOOL bWtKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objEventWithWtForInitRegOnTerminatedState = piCcBundle->GetIntArray(
                 CarrierConfig::Ims::
-                        KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_WITH_WAIT_TIME_INT_ARRAY);
+                        KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_WITH_WAIT_TIME_INT_ARRAY,
+                bWtKeyExist);
+        if (bWtKeyExist)
+        {
+            m_objNotifyTerminated.objEventWithWtForInitRegOnTerminatedState =
+                    objEventWithWtForInitRegOnTerminatedState;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
         A_IMS_TRACE_D(LOGTAG,
                 "KEY_NOTIFY_TERMINATED_FOR_INIT_REG_BUNDLE :: "
-                "WTFIROTS(%d)",
-                m_objNotifyTerminated.nWaitTimeForInitRegOnTerminatedState, 0, 0);
+                "WTFIROTS(%d), KEY_ON(%d), WT_KEY_ON(%d)",
+                m_objNotifyTerminated.nWaitTimeForInitRegOnTerminatedState, bKeyExist, bWtKeyExist);
         IMS_UINT32 nSize = m_objNotifyTerminated.objEventForInitRegOnTerminatedState.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
