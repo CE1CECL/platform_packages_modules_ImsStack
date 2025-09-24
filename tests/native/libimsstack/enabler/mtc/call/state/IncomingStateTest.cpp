@@ -59,7 +59,6 @@ public:
     MockIMtcUiNotifier objUiNotifier;
     MockIMtcSession objMtcSession;
     MockISession objISession;
-    // cppcheck-suppress unusedStructMember
     MockIMessage objIMessage;
     MockIMtcMediaManager objMediaManager;
     MockIMessageUtils objMessageUtils;

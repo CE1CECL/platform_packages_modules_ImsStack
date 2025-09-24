@@ -84,7 +84,6 @@ public:
     MockIMtcSession objMockConfMtcSession;
     MockISession objMockJoiningSession;
     MockIMtcSession objMockJoiningMtcSession;
-    // cppcheck-suppress unusedStructMember
     MockIReference objMockReference;
     MockICoreService objMockICoreService;
 
