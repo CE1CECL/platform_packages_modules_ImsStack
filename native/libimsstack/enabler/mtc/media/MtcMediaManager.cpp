@@ -170,18 +170,6 @@ PUBLIC VIRTUAL void MtcMediaManager::SetMediaInfo(
     }
 }
 
-PUBLIC VIRTUAL void MtcMediaManager::UpdateMediaInfo(IN const ISession* piSession)
-{
-    MediaInfo objInfo(GetNegotiatedDirection(piSession, MEDIATYPE_AUDIO),
-            GetNegotiatedDirection(piSession, MEDIATYPE_VIDEO),
-            GetNegotiatedDirection(piSession, MEDIATYPE_TEXT),
-            GetNegotiatedQuality(piSession, MEDIATYPE_AUDIO),
-            GetNegotiatedQuality(piSession, MEDIATYPE_VIDEO),
-            MtcMediaUtil::GetGttModeFromTextQuality(
-                    GetNegotiatedQuality(piSession, MEDIATYPE_TEXT)));
-    SetMediaInfo(*piSession, objInfo);
-}
-
 PUBLIC VIRTUAL void MtcMediaManager::UpdateMediaDirection(
         IN const ISession& objISession, IN IMS_UINT32 eMediaType, IN IMS_SINT32 eDir)
 {

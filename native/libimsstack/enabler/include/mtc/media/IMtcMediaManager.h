@@ -63,18 +63,6 @@ public:
     virtual void SetMediaInfo(IN const ISession& objISession, IN const MediaInfo& objInfo) = 0;
 
     /**
-     * @brief Updates the media information for a specific session.
-     *
-     * This method queries the media enabler for the negotiated direction and quality for
-     * audio, video, and text streams. It then constructs a new MediaInfo object with these
-     * values.
-     *
-     * @param piSession The ISession instance whose media information needs to be synchronized
-     *                  with the negotiated SDP.
-     */
-    virtual void UpdateMediaInfo(IN const ISession* piSession) = 0;
-
-    /**
      * @brief Updates the media direction for a specific media type within a session.
      *
      * This method is used to change the direction of a media stream (audio, video, or text)

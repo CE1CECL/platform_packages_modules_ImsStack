@@ -90,7 +90,6 @@ public:
 
     /* Media Info */
     void SetMediaInfo(IN const ISession& objISession, IN const MediaInfo& objInfo) override;
-    void UpdateMediaInfo(IN const ISession* piSession) override;
     void UpdateMediaDirection(
             IN const ISession& objISession, IN IMS_UINT32 eMediaType, IN IMS_SINT32 eDir) override;
     // using enum values defined in MtcDef.h
