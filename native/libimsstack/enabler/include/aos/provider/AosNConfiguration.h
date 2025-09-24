@@ -235,6 +235,9 @@ private:
     void Init(IN IMS_SINT32 nSlotId = IMS_SLOT_0) override;
 
 protected:
+    ImsVector<IMS_SINT32>& GetNotifyTerminatedForInitRegUsedEvent();
+    ImsVector<IMS_SINT32>& GetNotifyTerminatedForInitRegUsedEventWithWaitTime();
+
     void InitBundleForExtraRegErr(IN const ICarrierConfig* piCc);
     void InitBundleForNotifyTerminatedForInitReg(IN const ICarrierConfig* piCc);
     void InitBundleForPcscfRecoveryConditions(IN const ICarrierConfig* piCc);
@@ -244,6 +247,7 @@ protected:
     void InitBundleForSubErrCodeForTerminated(IN const ICarrierConfig* piCc);
     void InitBundleForWfcErrMessage(IN const ICarrierConfig* piCc);
     void InitBundles(IN const ICarrierConfig* piCc);
+    void InitBundlesContainers();
     void InitConfig(IN const ICarrierConfig* piCc);
     void InitAssetsConfig(IN const ICarrierConfig* piCc);
     void InitIpsecAlgorithm(IN const ICarrierConfig* piCc);

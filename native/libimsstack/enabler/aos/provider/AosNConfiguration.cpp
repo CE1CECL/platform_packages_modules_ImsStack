@@ -1065,6 +1065,7 @@ PRIVATE VIRTUAL void AosNConfiguration::CarrierConfig_NotifyConfigChanged(IN IMS
 
     InitConfig(piCc);
     InitAssetsConfig(piCc);
+    InitBundlesContainers();
     InitBundles(piCc);
 
     for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
@@ -1100,6 +1101,17 @@ PRIVATE VIRTUAL void AosNConfiguration::Init(IN IN IMS_SINT32 nSlotId /* = IMS_S
     InitConfig(piCc);
     InitAssetsConfig(piCc);
     InitBundles(piCc);
+}
+
+PROTECTED ImsVector<IMS_SINT32>& AosNConfiguration::GetNotifyTerminatedForInitRegUsedEvent()
+{
+    return m_objNotifyTerminated.objEventForInitRegOnTerminatedState;
+}
+
+PROTECTED ImsVector<IMS_SINT32>&
+AosNConfiguration::GetNotifyTerminatedForInitRegUsedEventWithWaitTime()
+{
+    return m_objNotifyTerminated.objEventWithWtForInitRegOnTerminatedState;
 }
 
 PROTECTED
@@ -1491,6 +1503,17 @@ void AosNConfiguration::InitBundles(IN const ICarrierConfig* piCc)
     InitBundleForSubErrCodeForInitReg(piCc);
     InitBundleForSubErrCodeForTerminated(piCc);
     InitBundleForWfcErrMessage(piCc);
+}
+
+PROTECTED
+void AosNConfiguration::InitBundlesContainers()
+{
+    m_objExtraRegErr.InitializeContainers();
+    m_objNotifyTerminated.InitializeContainers();
+    m_objRegErrCodeWithRaTime.InitializeContainers();
+    m_objRegRetryInterval.InitializeContainers();
+    m_objSubErrCodeForInitReg.InitializeContainers();
+    m_objSubErrCodeForTerminated.InitializeContainers();
 }
 
 PROTECTED
