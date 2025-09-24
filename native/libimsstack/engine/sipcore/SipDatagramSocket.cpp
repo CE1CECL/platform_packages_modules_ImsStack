@@ -122,9 +122,3 @@ PROTECTED VIRTUAL void SipDatagramSocket::Socket_OnSendEnabled(IN ISocket* piSoc
     SetState(STATE_CONNECTED);
     SipSocket::Socket_OnSendEnabled(piSocket);
 }
-
-PROTECTED VIRTUAL void SipDatagramSocket::Socket_OnClosed(
-        IN ISocket* piSocket, IN IMS_SINT32 nReason /*= ISocket::CLOSE_REASON_UNKNOWN*/)
-{
-    SipSocket::Socket_OnClosed(piSocket, nReason);
-}
