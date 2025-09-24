@@ -32,9 +32,6 @@ public:
     Capabilities& operator=(IN const Capabilities&) = delete;
 
 public:
-    // Method class
-    inline void Destroy() override { ServiceMethod::Destroy(); }
-
     // ICapabilities interface
     ImsList<AString> GetRemoteUserIdentities() const;
     inline IMS_SINT32 GetState() const { return m_nState; }

@@ -40,8 +40,6 @@ protected:
     // ISocketListener interface
     void Socket_OnDataReceived(IN ISocket* piSocket) override;
     void Socket_OnSendEnabled(IN ISocket* piSocket) override;
-    void Socket_OnClosed(
-            IN ISocket* piSocket, IN IMS_SINT32 nReason = ISocket::CLOSE_REASON_UNKNOWN) override;
 
 private:
     ISipDatagramSocketListener* m_piListener;

@@ -31,9 +31,6 @@ public:
     PageMessage& operator=(IN const PageMessage&) = delete;
 
 public:
-    // Method class
-    inline void Destroy() override { ServiceMethod::Destroy(); }
-
     // IPageMessage interface
     const ByteArray& GetContent() const;
     AString GetContentType() const;
