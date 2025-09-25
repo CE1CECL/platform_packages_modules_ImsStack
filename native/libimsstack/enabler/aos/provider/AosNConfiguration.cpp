@@ -524,17 +524,17 @@ PUBLIC VIRTUAL IMS_BOOL AosNConfiguration::IsWfcErrorMessageSupported(IN IMS_SIN
     switch (nError)
     {
         case CarrierConfig::ImsWfc::WFC_ERROR_REG_403:
-            return !m_objWfcErrMessage.strWfcErrorReg403.IsEmpty();
+            return m_objWfcErrMessage.strWfcErrorReg403.GetLength() > 0;
         case CarrierConfig::ImsWfc::WFC_ERROR_REG_500:
-            return !m_objWfcErrMessage.strWfcErrorReg500.IsEmpty();
+            return m_objWfcErrMessage.strWfcErrorReg500.GetLength() > 0;
         case CarrierConfig::ImsWfc::WFC_ERROR_NOT_SUPPORTED_COUNTRY:
-            return !m_objWfcErrMessage.strWfcErrorNotSupportedCountry.IsEmpty();
+            return m_objWfcErrMessage.strWfcErrorNotSupportedCountry.GetLength() > 0;
         case CarrierConfig::ImsWfc::WFC_ERROR_SUB_403:
-            return !m_objWfcErrMessage.strWfcErrorSub403.IsEmpty();
+            return m_objWfcErrMessage.strWfcErrorSub403.GetLength() > 0;
         case CarrierConfig::ImsWfc::WFC_ERROR_NOTIFY_TERMINATED:
-            return !m_objWfcErrMessage.strWfcErrorNotifyTerminated.IsEmpty();
+            return m_objWfcErrMessage.strWfcErrorNotifyTerminated.GetLength() > 0;
         case CarrierConfig::ImsWfc::WFC_ERROR_OTHER_FAILURES:
-            return !m_objWfcErrMessage.strWfcErrorOtherFailures.IsEmpty();
+            return m_objWfcErrMessage.strWfcErrorOtherFailures.GetLength() > 0;
         default:
             return IMS_FALSE;
     }
@@ -1065,6 +1065,7 @@ PRIVATE VIRTUAL void AosNConfiguration::CarrierConfig_NotifyConfigChanged(IN IMS
 
     InitConfig(piCc);
     InitAssetsConfig(piCc);
+    InitBundlesContainers();
     InitBundles(piCc);
 
     for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
@@ -1102,6 +1103,17 @@ PRIVATE VIRTUAL void AosNConfiguration::Init(IN IN IMS_SINT32 nSlotId /* = IMS_S
     InitBundles(piCc);
 }
 
+PROTECTED ImsVector<IMS_SINT32>& AosNConfiguration::GetNotifyTerminatedForInitRegUsedEvent()
+{
+    return m_objNotifyTerminated.objEventForInitRegOnTerminatedState;
+}
+
+PROTECTED ImsVector<IMS_SINT32>&
+AosNConfiguration::GetNotifyTerminatedForInitRegUsedEventWithWaitTime()
+{
+    return m_objNotifyTerminated.objEventWithWtForInitRegOnTerminatedState;
+}
+
 PROTECTED
 void AosNConfiguration::InitBundleForExtraRegErr(IN const ICarrierConfig* piCc)
 {
@@ -1114,23 +1126,42 @@ void AosNConfiguration::InitBundleForExtraRegErr(IN const ICarrierConfig* piCc)
         m_objExtraRegErr.bExtraRegErrRetryCntSharedForRegAndSub = piCcBundle->GetBoolean(
                 CarrierConfig::Ims::KEY_EXTRA_REG_ERR_RETRY_CNT_SHARED_FOR_REG_AND_SUB_BOOL);
         m_objExtraRegErr.nExtraRegErrFinalType =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_FINAL_TYPE_INT);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_FINAL_TYPE_INT,
+                        CarrierConfig::Ims::ERROR_TYPE_NOT_SPECIFIED);
         m_objExtraRegErr.nExtraRegErrMaxCnt =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_MAX_CNT_INT);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_MAX_CNT_INT, 0);
         m_objExtraRegErr.nExtraRegErrPcscfsRepeatedCntForEps5gsOnlyAttached = piCcBundle->GetInt(
                 CarrierConfig::Ims::
-                        KEY_EXTRA_REG_ERR_PCSCFS_REPEATED_CNT_FOR_EPS_5GS_ONLY_ATTACHED_INT);
+                        KEY_EXTRA_REG_ERR_PCSCFS_REPEATED_CNT_FOR_EPS_5GS_ONLY_ATTACHED_INT,
+                0);
         m_objExtraRegErr.nExtraRegErrPcscfsRepeatedCntForLteCombinedAttached = piCcBundle->GetInt(
                 CarrierConfig::Ims::
-                        KEY_EXTRA_REG_ERR_PCSCFS_REPEATED_CNT_FOR_LTE_COMBINED_ATTACHED_INT);
+                        KEY_EXTRA_REG_ERR_PCSCFS_REPEATED_CNT_FOR_LTE_COMBINED_ATTACHED_INT,
+                0);
         m_objExtraRegErr.nExtraRegErrPolicy =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_POLICY_INT);
-        m_objExtraRegErr.objExtraRegErrCode =
-                piCcBundle->GetIntArray(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_CODE_INT_ARRAY);
-        m_objExtraRegErr.objExtraReregErrCode = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_EXTRA_REG_ERR_CODE_FOR_UPDATE_INT_ARRAY);
-        m_objExtraRegErr.objExtraRegErrWaitTimeSec = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_EXTRA_REG_ERR_WAIT_TIME_SEC_INT_ARRAY);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_EXTRA_REG_ERR_POLICY_INT,
+                        CarrierConfig::Ims::ERROR_POLICY_NOT_SPECIFIED);
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objExtraRegErrCode = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_EXTRA_REG_ERR_CODE_INT_ARRAY, bKeyExist);
+        if (bKeyExist)
+        {
+            m_objExtraRegErr.objExtraRegErrCode = objExtraRegErrCode;
+        }
+        IMS_BOOL bUpdateKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objExtraReregErrCode = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_EXTRA_REG_ERR_CODE_FOR_UPDATE_INT_ARRAY, bUpdateKeyExist);
+        if (bUpdateKeyExist)
+        {
+            m_objExtraRegErr.objExtraReregErrCode = objExtraReregErrCode;
+        }
+        IMS_BOOL bWtKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objExtraRegErrWaitTimeSec = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_EXTRA_REG_ERR_WAIT_TIME_SEC_INT_ARRAY, bWtKeyExist);
+        if (bWtKeyExist)
+        {
+            m_objExtraRegErr.objExtraRegErrWaitTimeSec = objExtraRegErrWaitTimeSec;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
         A_IMS_TRACE_D(LOGTAG, "KEY_EXTRA_REG_ERR_BUNDLE :: FinalType(%d), Policy(%d), MaxCnt(%d)",
@@ -1142,6 +1173,8 @@ void AosNConfiguration::InitBundleForExtraRegErr(IN const ICarrierConfig* piCc)
         A_IMS_TRACE_D(LOGTAG, "Pcscfs Repeated Cnt: EPS 5GS only(%d), LTE Combined(%d)",
                 m_objExtraRegErr.nExtraRegErrPcscfsRepeatedCntForEps5gsOnlyAttached,
                 m_objExtraRegErr.nExtraRegErrPcscfsRepeatedCntForLteCombinedAttached, 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_ON(%d), UP_KEY_ON(%d), WT_KEY_ON(%d)", bKeyExist,
+                bUpdateKeyExist, bWtKeyExist);
         IMS_UINT32 nSize = m_objExtraRegErr.objExtraRegErrCode.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
@@ -1173,18 +1206,32 @@ void AosNConfiguration::InitBundleForNotifyTerminatedForInitReg(IN const ICarrie
     if (piCcBundle != IMS_NULL)
     {
         m_objNotifyTerminated.nWaitTimeForInitRegOnTerminatedState = piCcBundle->GetInt(
-                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_WITH_WAIT_TIME_INT);
-        m_objNotifyTerminated.objEventForInitRegOnTerminatedState = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_INT_ARRAY);
-        m_objNotifyTerminated.objEventWithWtForInitRegOnTerminatedState = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_WITH_WAIT_TIME_INT, 0);
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objEventForInitRegOnTerminatedState = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_INT_ARRAY,
+                bKeyExist);
+        if (bKeyExist)
+        {
+            m_objNotifyTerminated.objEventForInitRegOnTerminatedState =
+                    objEventForInitRegOnTerminatedState;
+        }
+        IMS_BOOL bWtKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objEventWithWtForInitRegOnTerminatedState = piCcBundle->GetIntArray(
                 CarrierConfig::Ims::
-                        KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_WITH_WAIT_TIME_INT_ARRAY);
+                        KEY_NOTIFY_TERMINATED_FOR_INIT_REG_USED_EVENT_WITH_WAIT_TIME_INT_ARRAY,
+                bWtKeyExist);
+        if (bWtKeyExist)
+        {
+            m_objNotifyTerminated.objEventWithWtForInitRegOnTerminatedState =
+                    objEventWithWtForInitRegOnTerminatedState;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
         A_IMS_TRACE_D(LOGTAG,
                 "KEY_NOTIFY_TERMINATED_FOR_INIT_REG_BUNDLE :: "
-                "WTFIROTS(%d)",
-                m_objNotifyTerminated.nWaitTimeForInitRegOnTerminatedState, 0, 0);
+                "WTFIROTS(%d), KEY_ON(%d), WT_KEY_ON(%d)",
+                m_objNotifyTerminated.nWaitTimeForInitRegOnTerminatedState, bKeyExist, bWtKeyExist);
         IMS_UINT32 nSize = m_objNotifyTerminated.objEventForInitRegOnTerminatedState.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
@@ -1226,13 +1273,13 @@ void AosNConfiguration::InitBundleForPcscfRecoveryConditions(IN const ICarrierCo
     if (piCcBundle != IMS_NULL)
     {
         m_objPcscfRecoveryConditions.nMaxRetryCnt =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_MAX_CNT_INT);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_MAX_CNT_INT, 3);
         m_objPcscfRecoveryConditions.nWaitTime =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_WAIT_TIME_SEC_INT);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_WAIT_TIME_SEC_INT, 20);
         m_objPcscfRecoveryConditions.nBaseTime =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_BASE_TIME_SEC_INT);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_BASE_TIME_SEC_INT, 20);
         m_objPcscfRecoveryConditions.nMaxTime =
-                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_MAX_TIME_SEC_INT);
+                piCcBundle->GetInt(CarrierConfig::Ims::KEY_PCSCF_RECOVERY_MAX_TIME_SEC_INT, 1800);
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
         A_IMS_TRACE_D(LOGTAG, "KEY_PCSCF_RECOVERY_CONDITIONS_BUNDLE :: MRC(%d), WT(%d)",
@@ -1254,14 +1301,27 @@ void AosNConfiguration::InitBundleForRegErrCodeWithRaTime(IN const ICarrierConfi
     {
         m_objRegErrCodeWithRaTime.bRegErrCodeWithRaTimeOnlyDefined = piCcBundle->GetBoolean(
                 CarrierConfig::Ims::KEY_REG_ERR_CODE_WITH_RA_TIME_ONLY_DEFINED_BOOL);
-        m_objRegErrCodeWithRaTime.objRegErrCodeWithRaTime = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_REG_ERR_CODE_WITH_RA_TIME_INT_ARRAY);
-        m_objRegErrCodeWithRaTime.objReregErrCodeWithRaTime = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_REG_ERR_CODE_WITH_RA_TIME_FOR_UPDATE_INT_ARRAY);
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objRegErrCodeWithRaTime = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_REG_ERR_CODE_WITH_RA_TIME_INT_ARRAY, bKeyExist);
+        if (bKeyExist)
+        {
+            m_objRegErrCodeWithRaTime.objRegErrCodeWithRaTime = objRegErrCodeWithRaTime;
+        }
+        IMS_BOOL bUpdateKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objReregErrCodeWithRaTime = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_REG_ERR_CODE_WITH_RA_TIME_FOR_UPDATE_INT_ARRAY,
+                bUpdateKeyExist);
+        if (bUpdateKeyExist)
+        {
+            m_objRegErrCodeWithRaTime.objReregErrCodeWithRaTime = objReregErrCodeWithRaTime;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
-        A_IMS_TRACE_D(LOGTAG, "KEY_REG_ERR_CODE_WITH_RA_TIME_BUNDLE :: RECWRATOD(%d)",
-                m_objRegErrCodeWithRaTime.bRegErrCodeWithRaTimeOnlyDefined, 0, 0);
+        A_IMS_TRACE_D(LOGTAG,
+                "KEY_REG_ERR_CODE_WITH_RA_TIME_BUNDLE :: RECWRATOD(%d), KEY_ON(%d), UP_KEY_ON(%d)",
+                m_objRegErrCodeWithRaTime.bRegErrCodeWithRaTimeOnlyDefined, bKeyExist,
+                bUpdateKeyExist);
         IMS_UINT32 nSize = m_objRegErrCodeWithRaTime.objRegErrCodeWithRaTime.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
@@ -1286,15 +1346,27 @@ void AosNConfiguration::InitBundleForRegRetryInterval(IN const ICarrierConfig* p
     if (piCcBundle != IMS_NULL)
     {
         m_objRegRetryInterval.bUseRegRetryIntervalForSub = piCcBundle->GetBoolean(
-                CarrierConfig::Ims::KEY_REG_RETRY_INTERVAL_USED_FOR_SUB_BOOL);
-        m_objRegRetryInterval.objRegRetryRandomUpperValueSec = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_REG_RETRY_INTERVAL_RANDOM_UPPER_VALUE_SEC_INT_ARRAY);
-        m_objRegRetryInterval.objRegRetryIntervalSec =
-                piCcBundle->GetIntArray(CarrierConfig::Ims::KEY_REG_RETRY_INTERVAL_SEC_INT_ARRAY);
+                CarrierConfig::Ims::KEY_REG_RETRY_INTERVAL_USED_FOR_SUB_BOOL, IMS_TRUE);
+        IMS_BOOL bRandomKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objRegRetryRandomUpperValueSec = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_REG_RETRY_INTERVAL_RANDOM_UPPER_VALUE_SEC_INT_ARRAY,
+                bRandomKeyExist);
+        if (bRandomKeyExist)
+        {
+            m_objRegRetryInterval.objRegRetryRandomUpperValueSec = objRegRetryRandomUpperValueSec;
+        }
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objRegRetryIntervalSec = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_REG_RETRY_INTERVAL_SEC_INT_ARRAY, bKeyExist);
+        if (bKeyExist)
+        {
+            m_objRegRetryInterval.objRegRetryIntervalSec = objRegRetryIntervalSec;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
-        A_IMS_TRACE_D(LOGTAG, "KEY_REG_RETRY_INTERVAL_BUNDLE :: URRIFSR(%d)",
-                m_objRegRetryInterval.bUseRegRetryIntervalForSub, 0, 0);
+        A_IMS_TRACE_D(LOGTAG,
+                "KEY_REG_RETRY_INTERVAL_BUNDLE :: URRIFSR(%d), RANDOM_KEY_ON(%d), KEY_ON(%d)",
+                m_objRegRetryInterval.bUseRegRetryIntervalForSub, bRandomKeyExist, bKeyExist);
         IMS_UINT32 nSize = m_objRegRetryInterval.objRegRetryRandomUpperValueSec.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
@@ -1320,15 +1392,20 @@ void AosNConfiguration::InitBundleForSubErrCodeForInitReg(IN const ICarrierConfi
     if (piCcBundle != IMS_NULL)
     {
         m_objSubErrCodeForInitReg.nSubErrCodeForInitRegWithRetryMaxCnt = piCcBundle->GetInt(
-                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_INIT_REG_WITH_RETRY_MAX_CNT_INT);
-        m_objSubErrCodeForInitReg.objSubErrCodeForInitReg = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_INIT_REG_INT_ARRAY);
+                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_INIT_REG_WITH_RETRY_MAX_CNT_INT, 0);
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objSubErrCodeForInitReg = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_INIT_REG_INT_ARRAY, bKeyExist);
+        if (bKeyExist)
+        {
+            m_objSubErrCodeForInitReg.objSubErrCodeForInitReg = objSubErrCodeForInitReg;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
         A_IMS_TRACE_D(LOGTAG,
                 "KEY_SUB_ERR_CODE_FOR_INIT_REG_BUNDLE :: "
-                "SERMCWIR(%d)",
-                m_objSubErrCodeForInitReg.nSubErrCodeForInitRegWithRetryMaxCnt, 0, 0);
+                "SERMCWIR(%d), KEY_ON(%d)",
+                m_objSubErrCodeForInitReg.nSubErrCodeForInitRegWithRetryMaxCnt, bKeyExist, 0);
         IMS_UINT32 nSize = m_objSubErrCodeForInitReg.objSubErrCodeForInitReg.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
@@ -1348,13 +1425,18 @@ void AosNConfiguration::InitBundleForSubErrCodeForTerminated(IN const ICarrierCo
     if (piCcBundle != IMS_NULL)
     {
         m_objSubErrCodeForTerminated.nSubErrCodeForTerminatedRetryMaxCnt = piCcBundle->GetInt(
-                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_TERMINATED_WITH_RETRY_MAX_CNT_INT);
-        m_objSubErrCodeForTerminated.objSubErrCodeForTerminated = piCcBundle->GetIntArray(
-                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_TERMINATED_INT_ARRAY);
+                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_TERMINATED_WITH_RETRY_MAX_CNT_INT, 0);
+        IMS_BOOL bKeyExist = IMS_FALSE;
+        ImsVector<IMS_SINT32> objSubErrCodeForTerminated = piCcBundle->GetIntArray(
+                CarrierConfig::Ims::KEY_SUB_ERR_CODE_FOR_TERMINATED_INT_ARRAY, bKeyExist);
+        if (bKeyExist)
+        {
+            m_objSubErrCodeForTerminated.objSubErrCodeForTerminated = objSubErrCodeForTerminated;
+        }
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
-        A_IMS_TRACE_D(LOGTAG, "KEY_SUB_ERR_CODE_FOR_TERMINATED_BUNDLE :: STECRM(%d)",
-                m_objSubErrCodeForTerminated.nSubErrCodeForTerminatedRetryMaxCnt, 0, 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_SUB_ERR_CODE_FOR_TERMINATED_BUNDLE :: STECRM(%d), KEY_ON(%d)",
+                m_objSubErrCodeForTerminated.nSubErrCodeForTerminatedRetryMaxCnt, bKeyExist, 0);
         IMS_UINT32 nSize = m_objSubErrCodeForTerminated.objSubErrCodeForTerminated.GetSize();
         for (IMS_UINT32 i = 0; i < nSize; i++)
         {
@@ -1387,18 +1469,25 @@ void AosNConfiguration::InitBundleForWfcErrMessage(IN const ICarrierConfig* piCc
 
         piCcBundle->ReleaseBundle();
 #ifdef __IMS_DEBUG__
-        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_REG_403_STRING :: STECRM(%s)",
-                m_objWfcErrMessage.strWfcErrorReg403.GetStr(), 0, 0);
-        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_REG_500_STRING :: STECRM(%s)",
-                m_objWfcErrMessage.strWfcErrorReg500.GetStr(), 0, 0);
-        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_NOT_SUPPORTED_COUNTRY_STRING :: STECRM(%s)",
-                m_objWfcErrMessage.strWfcErrorNotSupportedCountry.GetStr(), 0, 0);
-        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_SUB_403_STRING :: STECRM(%s)",
-                m_objWfcErrMessage.strWfcErrorSub403.GetStr(), 0, 0);
-        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_NOTIFY_TERMINATED_STRING :: STECRM(%s)",
-                m_objWfcErrMessage.strWfcErrorNotifyTerminated.GetStr(), 0, 0);
-        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_OTHER_FAILURES_STRING :: STECRM(%s)",
-                m_objWfcErrMessage.strWfcErrorOtherFailures.GetStr(), 0, 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_REG_403_STRING :: STECRM(%s), ON(%d)",
+                m_objWfcErrMessage.strWfcErrorReg403.GetStr(),
+                IsWfcErrorMessageSupported(CarrierConfig::ImsWfc::WFC_ERROR_REG_403), 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_REG_500_STRING :: STECRM(%s), ON(%d)",
+                m_objWfcErrMessage.strWfcErrorReg500.GetStr(),
+                IsWfcErrorMessageSupported(CarrierConfig::ImsWfc::WFC_ERROR_REG_500), 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_NOT_SUPPORTED_COUNTRY_STRING :: STECRM(%s), ON(%d)",
+                m_objWfcErrMessage.strWfcErrorNotSupportedCountry.GetStr(),
+                IsWfcErrorMessageSupported(CarrierConfig::ImsWfc::WFC_ERROR_NOT_SUPPORTED_COUNTRY),
+                0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_SUB_403_STRING :: STECRM(%s), ON(%d)",
+                m_objWfcErrMessage.strWfcErrorSub403.GetStr(),
+                IsWfcErrorMessageSupported(CarrierConfig::ImsWfc::WFC_ERROR_SUB_403), 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_NOTIFY_TERMINATED_STRING :: STECRM(%s), ON(%d)",
+                m_objWfcErrMessage.strWfcErrorNotifyTerminated.GetStr(),
+                IsWfcErrorMessageSupported(CarrierConfig::ImsWfc::WFC_ERROR_NOTIFY_TERMINATED), 0);
+        A_IMS_TRACE_D(LOGTAG, "KEY_WFC_ERR_OTHER_FAILURES_STRING :: STECRM(%s), ON(%d)",
+                m_objWfcErrMessage.strWfcErrorOtherFailures.GetStr(),
+                IsWfcErrorMessageSupported(CarrierConfig::ImsWfc::WFC_ERROR_OTHER_FAILURES), 0);
 #endif
     }
 }
@@ -1414,6 +1503,17 @@ void AosNConfiguration::InitBundles(IN const ICarrierConfig* piCc)
     InitBundleForSubErrCodeForInitReg(piCc);
     InitBundleForSubErrCodeForTerminated(piCc);
     InitBundleForWfcErrMessage(piCc);
+}
+
+PROTECTED
+void AosNConfiguration::InitBundlesContainers()
+{
+    m_objExtraRegErr.InitializeContainers();
+    m_objNotifyTerminated.InitializeContainers();
+    m_objRegErrCodeWithRaTime.InitializeContainers();
+    m_objRegRetryInterval.InitializeContainers();
+    m_objSubErrCodeForInitReg.InitializeContainers();
+    m_objSubErrCodeForTerminated.InitializeContainers();
 }
 
 PROTECTED

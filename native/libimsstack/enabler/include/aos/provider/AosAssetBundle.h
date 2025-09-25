@@ -41,6 +41,13 @@ public:
     AosExtraRegErrBundle(IN const AosExtraRegErrBundle&) = delete;
     AosExtraRegErrBundle& operator=(IN const AosExtraRegErrBundle&) = delete;
 
+    void InitializeContainers()
+    {
+        objExtraRegErrCode.Clear();
+        objExtraReregErrCode.Clear();
+        objExtraRegErrWaitTimeSec.Clear();
+    }
+
 public:
     IMS_BOOL bExtraReregFailureWithErrCodeInRoaming;
     IMS_BOOL bExtraRegErrRetryCntSharedForRegAndSub;
@@ -62,11 +69,23 @@ public:
             objEventForInitRegOnTerminatedState(ImsVector<IMS_SINT32>()),
             objEventWithWtForInitRegOnTerminatedState(ImsVector<IMS_SINT32>())
     {
+        objEventForInitRegOnTerminatedState.Add(1);
+        objEventForInitRegOnTerminatedState.Add(2);
+        objEventForInitRegOnTerminatedState.Add(3);
     }
 
     AosNotifyTerminatedForInitRegBundle(IN const AosNotifyTerminatedForInitRegBundle&) = delete;
     AosNotifyTerminatedForInitRegBundle& operator=(
             IN const AosNotifyTerminatedForInitRegBundle&) = delete;
+
+    void InitializeContainers()
+    {
+        objEventForInitRegOnTerminatedState.Clear();
+        objEventForInitRegOnTerminatedState.Add(1);
+        objEventForInitRegOnTerminatedState.Add(2);
+        objEventForInitRegOnTerminatedState.Add(3);
+        objEventWithWtForInitRegOnTerminatedState.Clear();
+    }
 
 public:
     IMS_SINT32 nWaitTimeForInitRegOnTerminatedState;
@@ -109,6 +128,12 @@ public:
     AosRegErrCodeWithRaTimeBundle(IN const AosRegErrCodeWithRaTimeBundle&) = delete;
     AosRegErrCodeWithRaTimeBundle& operator=(IN const AosRegErrCodeWithRaTimeBundle&) = delete;
 
+    void InitializeContainers()
+    {
+        objRegErrCodeWithRaTime.Clear();
+        objReregErrCodeWithRaTime.Clear();
+    }
+
 public:
     IMS_BOOL bRegErrCodeWithRaTimeOnlyDefined;
     ImsVector<IMS_SINT32> objRegErrCodeWithRaTime;
@@ -128,6 +153,12 @@ public:
     AosRegRetryIntervalBundle(IN const AosRegRetryIntervalBundle&) = delete;
     AosRegRetryIntervalBundle& operator=(IN const AosRegRetryIntervalBundle&) = delete;
 
+    void InitializeContainers()
+    {
+        objRegRetryRandomUpperValueSec.Clear();
+        objRegRetryIntervalSec.Clear();
+    }
+
 public:
     IMS_BOOL bUseRegRetryIntervalForSub;
     ImsVector<IMS_SINT32> objRegRetryRandomUpperValueSec;
@@ -146,6 +177,8 @@ public:
     AosSubErrCodeForInitRegBundle(IN const AosSubErrCodeForInitRegBundle&) = delete;
     AosSubErrCodeForInitRegBundle& operator=(IN const AosSubErrCodeForInitRegBundle&) = delete;
 
+    void InitializeContainers() { objSubErrCodeForInitReg.Clear(); }
+
 public:
     IMS_SINT32 nSubErrCodeForInitRegWithRetryMaxCnt;
     ImsVector<IMS_SINT32> objSubErrCodeForInitReg;
@@ -163,6 +196,8 @@ public:
     AosSubErrCodeForTerminatedBundle(IN const AosSubErrCodeForTerminatedBundle&) = delete;
     AosSubErrCodeForTerminatedBundle& operator=(
             IN const AosSubErrCodeForTerminatedBundle&) = delete;
+
+    void InitializeContainers() { objSubErrCodeForTerminated.Clear(); }
 
 public:
     IMS_SINT32 nSubErrCodeForTerminatedRetryMaxCnt;
