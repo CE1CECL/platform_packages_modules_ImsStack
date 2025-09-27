@@ -69,14 +69,14 @@ class MtcTrafficInfo;
  * The decision is made as follows.
  * 1. Do `StartImsTraffic` and `StopImsTraffic`
  *    per same traffic type(EMERGENCY/VOICE/VIDEO) and call direction(MO/MT).
- * 2. Do not `StartImsTraffic` again if that traffic and direction pair was activated.
+ * 2. Do not `StartImsTraffic` again if that traffic was already unblocked.
  * 3. The Calling `StartImsTraffic` should call the `StopImsTraffic` at the end regardless of
  *    the IImsRadioConnectionListener notification.
  * 4. The IImsRadioConnectionListener callback will be invoked after StartImsTraffic.
  * 5. Do `StartImsTraffic` again when the RAT is changed.(handover including NR<->LTE, EPSFB)
  *    and with this case, still one `StopImsTraffic` is required at the end.
  * 6. Even if the UE received `OnConnectionFailed`, if the INVITE is not blocked for some reasons,
- *    consider that traffic and direction pair is activated.
+ *    consider that traffic is unblocked.
  */
 class MtcRadioChecker final :
         public IMtcRadioChecker,

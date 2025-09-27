@@ -72,7 +72,7 @@ protected:
     }
 };
 
-TEST_F(RadioBlockRuleTest, Check)
+TEST_F(RadioBlockRuleTest, CheckReturnsProperResult)
 {
     CreateRadioBlockRuleWithGivenValue(CallType::VOIP, PeerType::MT, EmergencyType::NONE);
 

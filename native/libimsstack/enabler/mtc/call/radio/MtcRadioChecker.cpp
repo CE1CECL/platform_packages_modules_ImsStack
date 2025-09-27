@@ -126,6 +126,7 @@ PUBLIC VIRTUAL IMtcRadioChecker::CheckResult MtcRadioChecker::Check(IN CallType 
     MtcTrafficInfo* pMtcTrafficInfo = GetCallTrafficInfo(eTrafficType, eCallDirection);
     if (!pMtcTrafficInfo)
     {
+        // Traffic info not found. Initiate new traffic type and direction for checking.
         pMtcTrafficInfo = CreateCallTrafficInfo(eTrafficType, eCallDirection, eRatType);
         AddCallKey(*pMtcTrafficInfo, nCallKey);
         StartTrafficChecking(*pMtcTrafficInfo, eRatType);
@@ -133,6 +134,21 @@ PUBLIC VIRTUAL IMtcRadioChecker::CheckResult MtcRadioChecker::Check(IN CallType 
         return eCallDirection == IImsRadio::DIRECTION_MO
                 ? IMtcRadioChecker::CheckResult::Pending()
                 : IMtcRadioChecker::CheckResult::Unblocked();
+    }
+
+    if (eCallDirection == IImsRadio::DIRECTION_MO &&
+            pMtcTrafficInfo->m_objCallKeys.Contains(nCallKey))
+    {
+        if (pMtcTrafficInfo->m_eRat == INetworkWatcher::RADIOTECH_TYPE_NR &&
+                eRatType == INetworkWatcher::RADIOTECH_TYPE_LTE)
+        {
+            // In the Eps-Fb case, the RAT is updated and the call is processed.
+            // Other RAT changes are handled in `OnRatChanged`.
+            UpdateTrafficIfRatChanged(*pMtcTrafficInfo, eRatType);
+            pMtcTrafficInfo->m_objResult = IMtcRadioChecker::CheckResult::Unblocked();
+        }
+
+        return pMtcTrafficInfo->m_objResult;
     }
 
     AddCallKey(*pMtcTrafficInfo, nCallKey);
@@ -404,7 +420,7 @@ PRIVATE void MtcRadioChecker::StartTrafficChecking(
     m_piImsRadio->StartImsTraffic(objTrafficInfo.m_eTrafficType, ConvertRatType(eRat),
             objTrafficInfo.m_eCallDirection, &objTrafficInfo);
 
-    IMS_TRACE_I("StartTrafficChecking TrafficType[%d] CallDirection[%d] CallKey[%d]",
+    IMS_TRACE_I("StartTrafficChecking TrafficType[%d] CallDirection[%d]",
             objTrafficInfo.m_eTrafficType, objTrafficInfo.m_eCallDirection, 0);
 }
 
@@ -441,7 +457,7 @@ PRIVATE IMS_BOOL MtcRadioChecker::IsInEpsfbSilentRedial(ImsList<CallKey>& objCal
     for (IMS_UINT32 nIndex = 0; nIndex < objCallKeys.GetSize(); nIndex++)
     {
         IMtcCall* pCall = m_objContext.GetCallManager().GetCallByCallKey(objCallKeys.GetAt(nIndex));
-        if(pCall->GetKey() == IMtcCall::CALL_KEY_INVALID)
+        if (pCall->GetKey() == IMtcCall::CALL_KEY_INVALID)
         {
             continue;
         }
