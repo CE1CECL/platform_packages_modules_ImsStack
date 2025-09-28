@@ -355,7 +355,8 @@ PUBLIC VIRTUAL NegotiationResult MtcMediaManager::NegotiateSdp(IN ISession* piSe
             GetNegotiatedQuality(piSession, MEDIATYPE_AUDIO),
             GetNegotiatedQuality(piSession, MEDIATYPE_VIDEO),
             MtcMediaUtil::GetGttModeFromTextQuality(
-                    GetNegotiatedQuality(piSession, MEDIATYPE_TEXT)));
+                    GetNegotiatedQuality(piSession, MEDIATYPE_TEXT)),
+            GetNegotiatedAudioCodecAttributes(*piSession));
     SetMediaInfo(*piSession, objInfo);
 
     if (GetNegotiationState(piSession) == NegotiationState::STATE_NEGOTIATED)
@@ -977,4 +978,29 @@ void MtcMediaManager::SetMediaPemType(IN IMS_UINTP nNegoId, IN PemType ePemType)
             break;
     }
     m_piMediaSession->SetMediaPemType(nNegoId, eMediaPemType);
+}
+
+PRIVATE
+AudioCodecAttributes MtcMediaManager::GetNegotiatedAudioCodecAttributes(
+        IN const ISession& objISession) const
+{
+    IMS_UINTP nNegoId = GetMediaNegoId(&objISession);
+    IMS_FLOAT nBitrateKbps = m_piMediaSession->GetNegotiatedCodecBitrateKbps(nNegoId);
+    IMS_FLOAT nBandwidthKhz = m_piMediaSession->GetNegotiatedCodecBandwidthKhz(nNegoId);
+    IMS_FLOAT nBitrateStartKbps = 0.0;
+    IMS_FLOAT nBitrateEndKbps = 0.0;
+    IMS_FLOAT nBandwidthStartKhz = 0.0;
+    IMS_FLOAT nBandwidthEndKhz = 0.0;
+
+    m_piMediaSession->GetNegotiatedCodecBitrateRange(nNegoId, nBitrateStartKbps, nBitrateEndKbps);
+    m_piMediaSession->GetNegotiatedCodecBandwidthRange(
+            nNegoId, nBandwidthStartKhz, nBandwidthEndKhz);
+
+    IMS_TRACE_D("GetNegotiatedAudioCodecAttributes BR[%.2f], start[%.2f], end[%.2f]", nBitrateKbps,
+            nBitrateStartKbps, nBitrateEndKbps);
+    IMS_TRACE_D("GetNegotiatedAudioCodecAttributes BW[%.2f], start[%.2f], end[%.2f]", nBandwidthKhz,
+            nBandwidthStartKhz, nBandwidthEndKhz);
+
+    return AudioCodecAttributes(nBitrateKbps, nBitrateStartKbps, nBitrateEndKbps, nBandwidthKhz,
+            nBandwidthStartKhz, nBandwidthEndKhz);
 }

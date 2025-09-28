@@ -151,6 +151,18 @@ PUBLIC GLOBAL void JniMtcUtils::WriteMediaInfoToParcel(
     objParcel.writeInt32(objMediaInfo.eVideoDirection);
     objParcel.writeInt32(objMediaInfo.eTextDirection);
     objParcel.writeInt32(objMediaInfo.eGttMode);
+    WriteAudioCodecAttributesToParcel(objMediaInfo.objAudioCodecAttributes, objParcel);
+}
+
+PUBLIC GLOBAL void JniMtcUtils::WriteAudioCodecAttributesToParcel(
+        IN const AudioCodecAttributes& objAudioCodecAttrs, IN_OUT Parcel& objParcel)
+{
+    objParcel.writeFloat(objAudioCodecAttrs.nBitrateKbps);
+    objParcel.writeFloat(objAudioCodecAttrs.nBitrateStartKbps);
+    objParcel.writeFloat(objAudioCodecAttrs.nBitrateEndKbps);
+    objParcel.writeFloat(objAudioCodecAttrs.nBandwidthKhz);
+    objParcel.writeFloat(objAudioCodecAttrs.nBandwidthStartKhz);
+    objParcel.writeFloat(objAudioCodecAttrs.nBandwidthEndKhz);
 }
 
 PUBLIC GLOBAL void JniMtcUtils::WriteSuppServicesToParcel(

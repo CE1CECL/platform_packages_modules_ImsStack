@@ -1501,3 +1501,43 @@ TEST_F(MtcMediaManagerTest, SessionMediaRestoreMediaInfoRestoresMediaInfo)
     objSessionMedia.RestoreMediaInfo();
     EXPECT_EQ(objSessionMedia.GetMediaInfo(), objFirstMediaInfo);
 }
+
+TEST_F(MtcMediaManagerTest, NegotiateSdpPopulatesAudioCodecAttributes)
+{
+    const IMS_UINTP nNegoId = 123;
+    const float nBitrateKbps = 64.0f;
+    const float nBandwidthKhz = 16.0f;
+    const float nBitrateStartKbps = 32.0f;
+    const float nBitrateEndKbps = 128.0f;
+    const float nBandwidthStartKhz = 8.0f;
+    const float nBandwidthEndKhz = 24.0f;
+
+    ON_CALL(*pMediaProfileManager, GetNegoId(&objISession)).WillByDefault(Return(nNegoId));
+
+    ON_CALL(objMediaSession, GetNegotiatedCodecBitrateKbps(nNegoId))
+            .WillByDefault(Return(nBitrateKbps));
+    ON_CALL(objMediaSession, GetNegotiatedCodecBandwidthKhz(nNegoId))
+            .WillByDefault(Return(nBandwidthKhz));
+    ON_CALL(objMediaSession, GetNegotiatedCodecBitrateRange(nNegoId, _, _))
+            .WillByDefault(DoAll(SetArgReferee<1>(nBitrateStartKbps),
+                    SetArgReferee<2>(nBitrateEndKbps), Return()));
+    ON_CALL(objMediaSession, GetNegotiatedCodecBandwidthRange(nNegoId, _, _))
+            .WillByDefault(DoAll(SetArgReferee<1>(nBandwidthStartKhz),
+                    SetArgReferee<2>(nBandwidthEndKhz), Return()));
+
+    ON_CALL(objMediaSession, NegotiateSdp(nNegoId, &objISession, _, _, _, _))
+            .WillByDefault(DoAll(SetArgReferee<5>(MediaNego::NO_ERROR), Return(IMS_TRUE)));
+    ON_CALL(objMediaSession, GetNegoState(nNegoId))
+            .WillByDefault(Return(NegotiationState::STATE_NEGOTIATED));
+
+    pMediaManager->NegotiateSdp(&objISession);
+    const AudioCodecAttributes& objAudioCodecAttributes =
+            pMediaManager->GetMediaInfo(objISession).objAudioCodecAttributes;
+
+    EXPECT_FLOAT_EQ(objAudioCodecAttributes.nBitrateKbps, nBitrateKbps);
+    EXPECT_FLOAT_EQ(objAudioCodecAttributes.nBitrateStartKbps, nBitrateStartKbps);
+    EXPECT_FLOAT_EQ(objAudioCodecAttributes.nBitrateEndKbps, nBitrateEndKbps);
+    EXPECT_FLOAT_EQ(objAudioCodecAttributes.nBandwidthKhz, nBandwidthKhz);
+    EXPECT_FLOAT_EQ(objAudioCodecAttributes.nBandwidthStartKhz, nBandwidthStartKhz);
+    EXPECT_FLOAT_EQ(objAudioCodecAttributes.nBandwidthEndKhz, nBandwidthEndKhz);
+}
