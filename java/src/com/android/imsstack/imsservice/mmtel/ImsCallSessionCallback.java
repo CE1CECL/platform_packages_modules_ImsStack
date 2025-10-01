@@ -134,17 +134,17 @@ public class ImsCallSessionCallback {
 
     public void invokeTerminated(final ImsCallSessionImplBase session,
             final ImsReasonInfo reasonInfo) {
+        final ImsCallSessionListener listener = mListener;
+        if (listener == null) {
+            return;
+        }
+
         postAndRunTask(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (mListener == null) {
-                        return;
-                    }
-
                     logi("invokeTerminated :: " + reasonInfo);
-
-                    mListener.callSessionTerminated(reasonInfo);
+                    listener.callSessionTerminated(reasonInfo);
                 } catch (Throwable t) {
                     log(t, "invokeTerminated");
                     closeSession(session, t);
