@@ -211,7 +211,7 @@ TEST_F(SessionTest, CreateTransaction)
     EXPECT_CALL(GetScc(), SetImplicitRouteHeader(Eq(strServiceRoute))).WillOnce(Return());
 
     SipMethod objMethod(SipMethod::INFO);
-    ISipClientConnection* piScc = m_pSession->CreateTransaction(objMethod);
+    const ISipClientConnection* piScc = m_pSession->CreateTransaction(objMethod);
 
     ASSERT_TRUE(piScc != nullptr);
 }
