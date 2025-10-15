@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -1174,8 +1175,9 @@ public class ImsCallSessionImplTest extends ImsStackTest {
         mockSrvccReasonInfo.mCode = CallReasonInfo.CODE_LOCAL_CALL_VCC_ON_PROGRESSING;
         mImsCallSession.getCallListenerProxy().onCallTerminated(mMockMtcCall, mockSrvccReasonInfo);
         assertTrue(mCallDetails.is(mCallDetails.CALL_END_FINISHED));
-        verify(mMockImsCallSessionCallback, times(2)).invokeTerminated(
-                any(ImsCallSessionImplBase.class), any(ImsReasonInfo.class));
+        verify(mMockImsCallSessionCallback, never()).invokeTerminated(
+                any(ImsCallSessionImplBase.class),
+                argThat(r -> r.getCode() == ImsReasonInfo.CODE_LOCAL_CALL_VCC_ON_PROGRESSING));
     }
 
     @Test
