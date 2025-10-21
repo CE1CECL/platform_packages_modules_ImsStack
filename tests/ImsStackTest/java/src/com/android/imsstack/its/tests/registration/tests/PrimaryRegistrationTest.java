@@ -459,18 +459,30 @@ public class PrimaryRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testCarrierDefaultLte_Register_NoResponse() throws Exception {
-        // TODO
-    }
-
-    @Test
-    public void testCarrierDefaultLte_Register_HandoverToNr() throws Exception {
-        // TODO
-    }
-
-    @Test
     public void testCarrierDefaultLte_Register_HandoverToWlan() throws Exception {
-        // TODO
+        ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
+        generator.addMessages(">REGISTER | <200-REGISTER | >SUBSCRIBE | <200-SUBSCRIBE"
+                + "| >REGISTER | <200-REGISTER");
+        mServerControlConnection.sendControlCommand(generator.build().toString());
+
+        RegistrationInfo regInfo = mInfoBuilder.build();
+
+        mRegistrationHelper.triggerRegistration(this, regInfo);
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_LTE);
+
+        mRegistration.expect(3000).nothing();
+
+        notifyPreciseDataConnectionState(getLtePreciseDataConnectionState(
+                TelephonyManager.DATA_HANDOVER_IN_PROGRESS), regInfo);
+
+        notifyPreciseDataConnectionState(getIwlanPreciseDataConnectionState(
+                TelephonyManager.DATA_CONNECTED), regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_IWLAN);
+
+        simulateSimStateChange(regInfo, TelephonyManager.SIM_STATE_ABSENT);
     }
 
     @Test
@@ -1233,21 +1245,43 @@ public class PrimaryRegistrationTest extends RegistrationTestBase {
                 action -> action
                         == RegistrationManager.SUGGESTED_ACTION_TRIGGER_PLMN_BLOCK_WITH_TIMEOUT,
                 networkType -> networkType == REGISTRATION_TECH_NR);
-    }
 
-    @Test
-    public void testCarrierDefaultNr_Register_NoResponse() throws Exception {
-        // TODO
-    }
-
-    @Test
-    public void testCarrierDefaultNr_Register_HandoverToLte() throws Exception {
-        // TODO
+        simulateSimStateChange(regInfo, TelephonyManager.SIM_STATE_ABSENT);
     }
 
     @Test
     public void testCarrierDefaultNr_Register_HandoverToWlan() throws Exception {
-        // TODO
+        ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
+        generator.addMessages(">REGISTER | <200-REGISTER | >SUBSCRIBE | <200-SUBSCRIBE"
+                + "| >REGISTER | <200-REGISTER");
+        mServerControlConnection.sendControlCommand(generator.build().toString());
+
+        ServiceState ss = new ServiceStateBuilder()
+                .addNetworkRegistrationInfoForNrCs()
+                .addNetworkRegistrationInfoForNr()
+                .build();
+
+        RegistrationInfo regInfo = mInfoBuilder
+                .setServiceState(ss)
+                .build();
+
+        mRegistrationHelper.triggerRegistration(this, regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_NR);
+
+        mRegistration.expect(3000).nothing();
+
+        notifyPreciseDataConnectionState(getNrPreciseDataConnectionState(
+                TelephonyManager.DATA_HANDOVER_IN_PROGRESS), regInfo);
+
+        notifyPreciseDataConnectionState(getIwlanPreciseDataConnectionState(
+                TelephonyManager.DATA_CONNECTED), regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_IWLAN);
+
+        simulateSimStateChange(regInfo, TelephonyManager.SIM_STATE_ABSENT);
     }
 
     @Test
@@ -2136,18 +2170,81 @@ public class PrimaryRegistrationTest extends RegistrationTestBase {
     }
 
     @Test
-    public void testCarrierDefaultWlan_Register_NoResponse() throws Exception {
-        // TODO
-    }
-
-    @Test
     public void testCarrierDefaultWlan_Register_HandoverToLte() throws Exception {
-        // TODO
+        ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
+        generator.addMessages(">REGISTER | <200-REGISTER | >SUBSCRIBE | <200-SUBSCRIBE"
+                + "| >REGISTER | <200-REGISTER");
+        mServerControlConnection.sendControlCommand(generator.build().toString());
+
+        mConfig.putBoolean(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true);
+
+        ServiceState ss = new ServiceStateBuilder()
+                .addNetworkRegistrationInfoForLtePs()
+                .addNetworkRegistrationInfoForIwlan()
+                .build();
+
+        RegistrationInfo regInfo = mInfoBuilder
+                .addConfig(mConfig)
+                .setServiceState(ss)
+                .build();
+
+        mRegistrationHelper.triggerRegistration(this, regInfo);
+
+        notifyPreciseDataConnectionState(getIwlanPreciseDataConnectionState(
+                TelephonyManager.DATA_CONNECTED), regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_IWLAN);
+
+        mRegistration.expect(3000).nothing();
+
+        notifyPreciseDataConnectionState(getIwlanPreciseDataConnectionState(
+                TelephonyManager.DATA_HANDOVER_IN_PROGRESS), regInfo);
+
+        notifyPreciseDataConnectionState(getLtePreciseDataConnectionState(
+                TelephonyManager.DATA_CONNECTED), regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_LTE);
     }
 
     @Test
     public void testCarrierDefaultWlan_Register_HandoverToNr() throws Exception {
-        // TODO
+        ScenarioGeneratorUtils generator = new ScenarioGeneratorUtils();
+        generator.addMessages(">REGISTER | <200-REGISTER | >SUBSCRIBE | <200-SUBSCRIBE"
+                + "| >REGISTER | <200-REGISTER");
+        mServerControlConnection.sendControlCommand(generator.build().toString());
+
+        mConfig.putBoolean(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true);
+
+        ServiceState ss = new ServiceStateBuilder()
+                .addNetworkRegistrationInfoForNr()
+                .addNetworkRegistrationInfoForIwlan()
+                .build();
+
+        RegistrationInfo regInfo = mInfoBuilder
+                .addConfig(mConfig)
+                .setServiceState(ss)
+                .build();
+
+        mRegistrationHelper.triggerRegistration(this, regInfo);
+
+        notifyPreciseDataConnectionState(getIwlanPreciseDataConnectionState(
+                TelephonyManager.DATA_CONNECTED), regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_IWLAN);
+
+        mRegistration.expect(3000).nothing();
+
+        notifyPreciseDataConnectionState(getIwlanPreciseDataConnectionState(
+                TelephonyManager.DATA_HANDOVER_IN_PROGRESS), regInfo);
+
+        notifyPreciseDataConnectionState(getNrPreciseDataConnectionState(
+                TelephonyManager.DATA_CONNECTED), regInfo);
+
+        mRegistration.expect().registered(
+                attributes -> attributes.getRegistrationTechnology() == REGISTRATION_TECH_NR);
     }
 
     @Test

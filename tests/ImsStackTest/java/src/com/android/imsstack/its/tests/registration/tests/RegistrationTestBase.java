@@ -65,6 +65,10 @@ public class RegistrationTestBase extends ImsStackTestBase {
     protected static final int NOTIFY_TERMINATED_UNREGISTERED = 4;
     protected static final int NOTIFY_TERMINATED_REJECTED = 5;
 
+    protected static final int ACCESS_NETWORK_TYPE_EUTRAN = 3;
+    protected static final int ACCESS_NETWORK_TYPE_IWLAN = 5;
+    protected static final int ACCESS_NETWORK_TYPE_NGRAN = 6;
+
     protected ControlConnection mServerControlConnection;
     protected TestRegistration mRegistration;
     protected RegistrationHelper mRegistrationHelper;
@@ -135,6 +139,42 @@ public class RegistrationTestBase extends ImsStackTestBase {
         return new PreciseDataConnectionState.Builder()
                 .setNetworkType(TelephonyManager.NETWORK_TYPE_IWLAN)
                 .setTransportType(AccessNetworkConstants.TRANSPORT_TYPE_WLAN)
+                .setApnSetting(mTestImsApn)
+                .setState(state)
+                .build();
+    }
+
+    /**
+     * Factory method to build a {@link PreciseDataConnectionState} object for NR
+     * using the common {@link #mTestImsApn} and the specified data state.
+     *
+     * @param state The desired data state (e.g., {@link TelephonyManager#DATA_CONNECTED}
+     * or {@link TelephonyManager#DATA_DISCONNECTED}).
+     * @return A new {@link PreciseDataConnectionState} object configured for NR.
+     */
+    protected PreciseDataConnectionState getNrPreciseDataConnectionState(
+            @Annotation.DataState int state) {
+        return new PreciseDataConnectionState.Builder()
+                .setNetworkType(TelephonyManager.NETWORK_TYPE_NR)
+                .setTransportType(AccessNetworkConstants.TRANSPORT_TYPE_WWAN)
+                .setApnSetting(mTestImsApn)
+                .setState(state)
+                .build();
+    }
+
+    /**
+     * Factory method to build a {@link PreciseDataConnectionState} object for LTE
+     * using the common {@link #mTestImsApn} and the specified data state.
+     *
+     * @param state The desired data state (e.g., {@link TelephonyManager#DATA_CONNECTED}
+     * or {@link TelephonyManager#DATA_DISCONNECTED}).
+     * @return A new {@link PreciseDataConnectionState} object configured for LTE.
+     */
+    protected PreciseDataConnectionState getLtePreciseDataConnectionState(
+            @Annotation.DataState int state) {
+        return new PreciseDataConnectionState.Builder()
+                .setNetworkType(TelephonyManager.NETWORK_TYPE_LTE_CA)
+                .setTransportType(AccessNetworkConstants.TRANSPORT_TYPE_WWAN)
                 .setApnSetting(mTestImsApn)
                 .setState(state)
                 .build();
