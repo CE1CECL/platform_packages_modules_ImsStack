@@ -198,11 +198,46 @@ TEST_F(TextProfileNegotiatorTest, NegotiateRedOfferReceivedSuccess)
     TextProfile::Payload* pNegoRed = m_pNegotiatedProfile->GetPayloadAt(1);
     EXPECT_EQ(pNegoRed->GetRtpMap().GetPayloadType(), "red");
     EXPECT_EQ(pNegoRed->GetRtpMap().GetPayloadNumber(), kPeerRedPayload);
+
     ASSERT_NE(pNegoRed->GetFmtp(), nullptr);
     auto pNegoFmtp = std::static_pointer_cast<TextProfile::RedFmtp>(pNegoRed->GetFmtp());
     // Check if the FMTP string reflects the peer's primary payload type
     EXPECT_EQ(pNegoFmtp->GetRedPayload(), kPeerT140Payload);
+    EXPECT_EQ(m_pNegotiatedProfile->GetDirection(), MEDIA_DIRECTION_SEND_RECEIVE);
+}
 
+TEST_F(TextProfileNegotiatorTest, NegotiateRedOnlyInPeer)
+{
+    // Arrange
+    // Local: T140, RED
+    m_pLocalProfile->AddPayload(CreateT140Payload(kLocalT140Payload));
+    m_pLocalProfile->AddPayload(CreateRedPayload(kLocalRedPayload, kLocalT140Payload, 1));
+
+    // Peer: RED only, with a T140 subtype that doesn't exist in the peer's own payload list
+    m_pPeerProfile->AddPayload(CreateRedPayload(kPeerRedPayload, kPeerT140Payload, 1));
+    m_pPeerProfile->SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+    m_pPeerProfile->SetDataPort(7018);
+
+    // Act
+    IMS_BOOL bResult = m_pNegotiator->Negotiate(
+            m_pLocalProfile, m_pPeerProfile, IMS_TRUE, m_pNegotiatedProfile, &m_objMockConfig);
+
+    // Assert
+    EXPECT_TRUE(bResult);
+    ASSERT_EQ(m_pNegotiatedProfile->GetPayloadList().GetSize(), 2);
+
+    // Check RED
+    TextProfile::Payload* pNegoRed = m_pNegotiatedProfile->GetPayloadAt(0);
+    ASSERT_NE(pNegoRed->GetFmtp(), nullptr);
+    EXPECT_EQ(pNegoRed->GetRtpMap().GetPayloadType(), "red");
+    EXPECT_EQ(pNegoRed->GetRtpMap().GetPayloadNumber(), kPeerRedPayload);
+
+    // Check T140
+    TextProfile::Payload* pNegoT140 = m_pNegotiatedProfile->GetPayloadAt(1);
+    EXPECT_EQ(pNegoT140->GetRtpMap().GetPayloadType(), "t140");
+    EXPECT_EQ(pNegoT140->GetRtpMap().GetPayloadNumber(), kPeerT140Payload);
+
+    // Check direction
     EXPECT_EQ(m_pNegotiatedProfile->GetDirection(), MEDIA_DIRECTION_SEND_RECEIVE);
 }
 

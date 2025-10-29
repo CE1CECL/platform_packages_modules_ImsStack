@@ -155,6 +155,6 @@ TEST_F(TextSdpParserTest, ParsePayloads_RedFmtpWithoutMatchingSubtype)
 
     objParser.ParsePayloads(&m_objMockMediaDescriptor, &objProfile);
 
-    // Expect no payloads to be added because the 'red' subtype is missing
-    EXPECT_EQ(objProfile.GetPayloadList().GetSize(), 0);
+    // Expect only 'red' payload to be added
+    EXPECT_EQ(objProfile.GetPayloadList().GetSize(), 1);
 }

@@ -47,9 +47,7 @@ PUBLIC IMS_BOOL TextProfileNegotiator::Negotiate(IN TextProfile* pLocalProfile,
     IMS_TRACE_I("Negotiate(): IsOfferReceived[%d]", m_bIsOfferReceived, 0, 0);
 
     NegotiateIpPort(pLocalProfile, pPeerProfile, pNegotiatedProfile);
-
     IMS_BOOL bPayloadNegotiated = NegotiatePayload(pLocalProfile, pPeerProfile, pNegotiatedProfile);
-    IMS_BOOL bRet = IMS_TRUE;
 
     if (bPayloadNegotiated)
     {
@@ -109,6 +107,30 @@ IMS_BOOL TextProfileNegotiator::NegotiatePayload(IN TextProfile* pLocalProfile,
         }
     }
 
+    // Add T140 payload if RED is negotiated but T140 is not present
+    IMS_BOOL bRedNegotiated = IMS_FALSE;
+    IMS_BOOL bT140Negotiated = IMS_FALSE;
+    std::shared_ptr<TextProfile::RedFmtp> pRedFmtp = nullptr;
+
+    for (IMS_UINT32 i = 0; i < pNegotiatedProfile->GetPayloadList().GetSize(); ++i)
+    {
+        TextProfile::Payload* pPayload = pNegotiatedProfile->GetPayloadAt(i);
+        if (pPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("red"))
+        {
+            bRedNegotiated = IMS_TRUE;
+            pRedFmtp = std::static_pointer_cast<TextProfile::RedFmtp>(pPayload->GetFmtp());
+        }
+        else if (pPayload->GetRtpMap().GetPayloadType().EqualsIgnoreCase("t140"))
+        {
+            bT140Negotiated = IMS_TRUE;
+        }
+    }
+
+    if (bRedNegotiated && !bT140Negotiated && pRedFmtp != nullptr)
+    {
+        pNegotiatedProfile->AddPayload(CreateT140PayloadFromRed(pRedFmtp));
+    }
+
     return bRet;
 }
 
@@ -135,6 +157,22 @@ TextProfile::Payload* TextProfileNegotiator::CreatePayload(
     }
 
     return pPayload;
+}
+
+PRIVATE
+TextProfile::Payload* TextProfileNegotiator::CreateT140PayloadFromRed(
+        IN std::shared_ptr<TextProfile::RedFmtp> pRedFmtp)
+{
+    if (pRedFmtp == nullptr)
+    {
+        return nullptr;
+    }
+
+    TextProfile::Payload* pT140Payload = new TextProfile::Payload();
+    pT140Payload->GetRtpMap().SetPayloadType("t140");
+    pT140Payload->GetRtpMap().SetSamplingRate(1000);
+    pT140Payload->GetRtpMap().SetPayloadNumber(pRedFmtp->GetRedPayload());
+    return pT140Payload;
 }
 
 PRIVATE

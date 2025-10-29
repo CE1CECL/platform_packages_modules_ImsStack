@@ -51,6 +51,8 @@ private:
             OUT TextProfile* pNegotiatedProfile);
     TextProfile::Payload* CreatePayload(IN const MediaBaseProfile::RtpMap& objRtpMap,
             IN std::shared_ptr<TextProfile::TextFmtp> pFmtp);
+    TextProfile::Payload* CreateT140PayloadFromRed(
+            IN std::shared_ptr<TextProfile::RedFmtp> pRedFmtp);
     void NegotiateDirection(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
             OUT TextProfile* pNegotiatedProfile);
     void NegotiateBandwidth(IN TextProfile* pLocalProfile, IN TextProfile* pPeerProfile,
