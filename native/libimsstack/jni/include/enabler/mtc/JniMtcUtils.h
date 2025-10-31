@@ -44,6 +44,8 @@ public:
             IN const JniCallInfo& objCallInfo, IN_OUT android::Parcel& objParcel);
     static void WriteMediaInfoToParcel(
             IN const MediaInfo& objMediaInfo, IN_OUT android::Parcel& objParcel);
+    static void WriteAudioCodecAttributesToParcel(
+            IN const AudioCodecAttributes& objAudioCodecAttrs, IN_OUT android::Parcel& objParcel);
     static void WriteSuppServicesToParcel(
             IN const ImsList<SuppService*>& objSuppServices, IN_OUT android::Parcel& objParcel);
     static void WriteConfUsersToParcel(

@@ -105,6 +105,30 @@ TEST_F(JniMtcUtilsTest, WtiteAndReadMediaInfo)
     EXPECT_EQ(objConvertedMediaInfo, objAnyMediaInfo);
 }
 
+TEST_F(JniMtcUtilsTest, WriteAudioCodecAttributesToParcel)
+{
+    const float nBitrateKbps = 64.0f;
+    const float nBitrateStartKbps = 32.0f;
+    const float nBitrateEndKbps = 128.0f;
+    const float nBandwidthKhz = 16.0f;
+    const float nBandwidthStartKhz = 8.0f;
+    const float nBandwidthEndKhz = 24.0f;
+
+    AudioCodecAttributes objAudioCodecAttributes(nBitrateKbps, nBitrateStartKbps, nBitrateEndKbps,
+            nBandwidthKhz, nBandwidthStartKhz, nBandwidthEndKhz);
+
+    Parcel parcel;
+    JniMtcUtils::WriteAudioCodecAttributesToParcel(objAudioCodecAttributes, parcel);
+
+    parcel.setDataPosition(0);
+    EXPECT_EQ(nBitrateKbps, parcel.readFloat());
+    EXPECT_EQ(nBitrateStartKbps, parcel.readFloat());
+    EXPECT_EQ(nBitrateEndKbps, parcel.readFloat());
+    EXPECT_EQ(nBandwidthKhz, parcel.readFloat());
+    EXPECT_EQ(nBandwidthStartKhz, parcel.readFloat());
+    EXPECT_EQ(nBandwidthEndKhz, parcel.readFloat());
+}
+
 TEST_F(JniMtcUtilsTest, WtiteAndReadSuppServices)
 {
     ImsList<SuppService*> objSuppServices;

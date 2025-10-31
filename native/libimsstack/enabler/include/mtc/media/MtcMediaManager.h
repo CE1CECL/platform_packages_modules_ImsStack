@@ -169,6 +169,7 @@ private:
     void DestroySessionMedia(IN const ISession& objISession);
 
     void SetMediaPemType(IN IMS_UINTP nNegoId, IN PemType ePemType);
+    AudioCodecAttributes GetNegotiatedAudioCodecAttributes(IN const ISession& objISession) const;
 
 protected:
     MediaManager& m_objMediaManager;

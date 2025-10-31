@@ -250,6 +250,97 @@ enum
     CALL_COMPOSER_PRIORITY_URGENT = 1,
 };
 
+/**
+ * @brief Represents the attributes of an audio codec, such as bitrate and bandwidth.
+ * This class is used to convey detailed codec parameters.
+ * The direction in which AudioCodecAttributes is relayed is always from native to Java,
+ * and the reverse is not allowed
+ */
+struct AudioCodecAttributes
+{
+public:
+    inline AudioCodecAttributes() :
+            nBitrateKbps(0.0f),
+            nBitrateStartKbps(0.0f),
+            nBitrateEndKbps(0.0f),
+            nBandwidthKhz(0.0f),
+            nBandwidthStartKhz(0.0f),
+            nBandwidthEndKhz(0.0f)
+    {
+    }
+
+    inline AudioCodecAttributes(IN const AudioCodecAttributes& objRhs) :
+            nBitrateKbps(objRhs.nBitrateKbps),
+            nBitrateStartKbps(objRhs.nBitrateStartKbps),
+            nBitrateEndKbps(objRhs.nBitrateEndKbps),
+            nBandwidthKhz(objRhs.nBandwidthKhz),
+            nBandwidthStartKhz(objRhs.nBandwidthStartKhz),
+            nBandwidthEndKhz(objRhs.nBandwidthEndKhz)
+    {
+    }
+
+    inline AudioCodecAttributes(IN IMS_FLOAT nInitBitrateKbps, IN IMS_FLOAT nInitBitrateStartKbps,
+            IN IMS_FLOAT nInitBitrateEndKbps, IN IMS_FLOAT nInitBandwidthKhz,
+            IN IMS_FLOAT nInitBandwidthStartKhz, IN IMS_FLOAT nInitBandwidthEndKhz) :
+            nBitrateKbps(nInitBitrateKbps),
+            nBitrateStartKbps(nInitBitrateStartKbps),
+            nBitrateEndKbps(nInitBitrateEndKbps),
+            nBandwidthKhz(nInitBandwidthKhz),
+            nBandwidthStartKhz(nInitBandwidthStartKhz),
+            nBandwidthEndKhz(nInitBandwidthEndKhz)
+    {
+    }
+
+    inline ~AudioCodecAttributes() {}
+
+public:
+    inline AudioCodecAttributes& operator=(IN const AudioCodecAttributes& objRhs)
+    {
+        if (this != &objRhs)
+        {
+            nBitrateKbps = objRhs.nBitrateKbps;
+            nBitrateStartKbps = objRhs.nBitrateStartKbps;
+            nBitrateEndKbps = objRhs.nBitrateEndKbps;
+            nBandwidthKhz = objRhs.nBandwidthKhz;
+            nBandwidthStartKhz = objRhs.nBandwidthStartKhz;
+            nBandwidthEndKhz = objRhs.nBandwidthEndKhz;
+        }
+
+        return (*this);
+    }
+
+    IMS_BOOL operator==(const AudioCodecAttributes& objRhs) const
+    {
+        if (this == &objRhs)
+        {
+            return IMS_TRUE;
+        }
+
+        return nBitrateKbps == objRhs.nBitrateKbps &&
+                nBitrateStartKbps == objRhs.nBitrateStartKbps &&
+                nBitrateEndKbps == objRhs.nBitrateEndKbps &&
+                nBandwidthKhz == objRhs.nBandwidthKhz &&
+                nBandwidthStartKhz == objRhs.nBandwidthStartKhz &&
+                nBandwidthEndKhz == objRhs.nBandwidthEndKhz;
+    }
+
+    IMS_BOOL operator!=(const AudioCodecAttributes& objRhs) const { return !(*this == objRhs); }
+
+public:
+    /** The audio codec bitrate in kbps. */
+    IMS_FLOAT nBitrateKbps;
+    /** The start of the audio codec bitrate range in kbps. */
+    IMS_FLOAT nBitrateStartKbps;
+    /** The end of the audio codec bitrate range in kbps. */
+    IMS_FLOAT nBitrateEndKbps;
+    /** The audio codec bandwidth in kHz. */
+    IMS_FLOAT nBandwidthKhz;
+    /** The start of the audio codec bandwidth range in kHz. */
+    IMS_FLOAT nBandwidthStartKhz;
+    /** The end of the audio codec bandwidth range in kHz. */
+    IMS_FLOAT nBandwidthEndKhz;
+};
+
 struct MediaInfo
 {
 public:
@@ -259,7 +350,8 @@ public:
             eTextDirection(DIRECTION_INVALID),
             eAudioQuality(AUDIO_QUALITY_NONE),
             eVideoQuality(VIDEO_QUALITY_NONE),
-            eGttMode(GTT_MODE_INVALID)
+            eGttMode(GTT_MODE_INVALID),
+            objAudioCodecAttributes()
     {
     }
     inline MediaInfo(IN const MediaInfo& objRhs) :
@@ -268,18 +360,21 @@ public:
             eTextDirection(objRhs.eTextDirection),
             eAudioQuality(objRhs.eAudioQuality),
             eVideoQuality(objRhs.eVideoQuality),
-            eGttMode(objRhs.eGttMode)
+            eGttMode(objRhs.eGttMode),
+            objAudioCodecAttributes(objRhs.objAudioCodecAttributes)
     {
     }
     inline MediaInfo(IN IMS_SINT32 eInitAudioDirection, IN IMS_SINT32 eInitVideoDirection,
             IN IMS_SINT32 eInitTextDirection, IN IMS_UINT32 eInitAudioQuality,
-            IN IMS_UINT32 eInitVideoQuality, IN IMS_SINT32 eInitGttMode) :
+            IN IMS_UINT32 eInitVideoQuality, IN IMS_SINT32 eInitGttMode,
+            IN const AudioCodecAttributes& objInitAudioCodecAttributes = AudioCodecAttributes()) :
             eAudioDirection(eInitAudioDirection),
             eVideoDirection(eInitVideoDirection),
             eTextDirection(eInitTextDirection),
             eAudioQuality(eInitAudioQuality),
             eVideoQuality(eInitVideoQuality),
-            eGttMode(eInitGttMode)
+            eGttMode(eInitGttMode),
+            objAudioCodecAttributes(objInitAudioCodecAttributes)
     {
     }
     inline ~MediaInfo() {}
@@ -295,6 +390,7 @@ public:
             eAudioQuality = objRhs.eAudioQuality;
             eVideoQuality = objRhs.eVideoQuality;
             eGttMode = objRhs.eGttMode;
+            objAudioCodecAttributes = objRhs.objAudioCodecAttributes;
         }
 
         return (*this);
@@ -310,7 +406,8 @@ public:
         return eAudioDirection == objRhs.eAudioDirection &&
                 eVideoDirection == objRhs.eVideoDirection &&
                 eTextDirection == objRhs.eTextDirection && eAudioQuality == objRhs.eAudioQuality &&
-                eVideoQuality == objRhs.eVideoQuality && eGttMode == objRhs.eGttMode;
+                eVideoQuality == objRhs.eVideoQuality && eGttMode == objRhs.eGttMode &&
+                objAudioCodecAttributes == objRhs.objAudioCodecAttributes;
     }
 
     IMS_BOOL operator!=(const MediaInfo& objRhs) const { return !(*this == objRhs); }
@@ -322,6 +419,7 @@ public:
     IMS_UINT32 eAudioQuality;
     IMS_UINT32 eVideoQuality;
     IMS_SINT32 eGttMode;
+    AudioCodecAttributes objAudioCodecAttributes;
 };
 
 class SuppService
