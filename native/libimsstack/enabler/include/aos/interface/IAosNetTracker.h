@@ -19,6 +19,7 @@
 #include "ImsTypeDef.h"
 
 class IAosNetTrackerListener;
+class IAosNetTrackerTimerListener;
 
 class IAosNetTracker
 {
@@ -56,6 +57,9 @@ public:
 
     virtual void SetListener(IN IAosNetTrackerListener* piListener) = 0;
     virtual void RemoveListener(IN IAosNetTrackerListener* piListener) = 0;
+
+    virtual void SetTimerListener(IN IAosNetTrackerTimerListener* piListener) = 0;
+    virtual void RemoveTimerListener(IN IAosNetTrackerTimerListener* piListener) = 0;
 
     enum
     {

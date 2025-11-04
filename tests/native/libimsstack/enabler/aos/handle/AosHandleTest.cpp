@@ -1456,6 +1456,58 @@ TEST_F(AosHandleTest, NetTracker_StatusChanged_Test9)
     delete pTestAosHandleEmergencyMtc;
 }
 
+TEST_F(AosHandleTest, ShouldNotifyImsResumedIfInGuardTimerStart)
+{
+    m_pAosHandle->SetState(AosHandle::STATE_CONNECTED);
+    m_pAosHandle->SetSuspendedReason(AosReason::SUSPEND_NO_SERVICE);
+    IImsAosListener* piListener = &m_objMockIImsAosListener;
+    m_pAosHandle->SetListener(piListener);
+
+    EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Resumed()).Times(1);
+    m_pAosHandle->NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_STARTED);
+    EXPECT_FALSE(m_pAosHandle->IsImsSuspended());
+}
+
+TEST_F(AosHandleTest, ShouldNotifyImsSuspendedIfInGuardTimerStop)
+{
+    m_pAosHandle->SetState(AosHandle::STATE_CONNECTED);
+    m_pAosHandle->SetSuspendedReason(AosReason::SUSPEND_NONE);
+    IImsAosListener* piListener = &m_objMockIImsAosListener;
+    m_pAosHandle->SetListener(piListener);
+
+    ON_CALL(m_objMockIAosNetTracker, IsSuspended()).WillByDefault(Return(IMS_TRUE));
+    EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Suspended(_)).Times(1);
+    m_pAosHandle->NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_STOPPED);
+
+    EXPECT_TRUE(m_pAosHandle->IsImsSuspended());
+}
+
+TEST_F(AosHandleTest, ShouldNotNotifyImsSuspendedIfInGuardTimerStopWhenImsSuspendedIsFalse)
+{
+    m_pAosHandle->SetState(AosHandle::STATE_CONNECTED);
+    m_pAosHandle->SetSuspendedReason(AosReason::SUSPEND_NONE);
+    IImsAosListener* piListener = &m_objMockIImsAosListener;
+    m_pAosHandle->SetListener(piListener);
+
+    ON_CALL(m_objMockIAosNetTracker, IsSuspended()).WillByDefault(Return(IMS_FALSE));
+    EXPECT_CALL(m_objMockIImsAosListener, ImsAos_Suspended(_)).Times(0);
+    m_pAosHandle->NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_STOPPED);
+
+    EXPECT_FALSE(m_pAosHandle->IsImsSuspended());
+}
+
+TEST_F(AosHandleTest, NetTracker_TimerInGuardChangedTimerExpired)
+{
+    // IMS will be resumed by NetTracker_StatusChanged() after IN_GUARD timer expired.
+    // But it will not be resumed in NetTracker_TimerInGuardChanged
+    // when IN_GUARD timer expired.
+    m_pAosHandle->SetState(AosHandle::STATE_CONNECTED);
+    m_pAosHandle->SetSuspendedReason(AosReason::SUSPEND_NO_SERVICE);
+
+    m_pAosHandle->NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_EXPIRED);
+    EXPECT_TRUE(m_pAosHandle->IsImsSuspended());
+}
+
 TEST_F(AosHandleTest, Init_CleanUp)
 {
     EXPECT_CALL(m_objMockIAosNetTracker, SetListener(_)).Times(1);

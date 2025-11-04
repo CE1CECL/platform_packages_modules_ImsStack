@@ -21,6 +21,7 @@
 #include "INetworkWatcher.h"
 #include "IWifiWatcher.h"
 #include "interface/IAosConnectionListener.h"
+#include "interface/IAosNetTrackerTimerListener.h"
 #include "interface/IAosNConfiguration.h"
 #include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosNetTracker.h"
@@ -71,6 +72,9 @@ public:
     void SetListener(IN IAosNetTrackerListener* piListener) override;
     void RemoveListener(IN IAosNetTrackerListener* piListener) override;
 
+    void SetTimerListener(IN IAosNetTrackerTimerListener* piListener) override;
+    void RemoveTimerListener(IN IAosNetTrackerTimerListener* piListener) override;
+
     // INetworkWatcherListener
     void NetworkWatcher_NotifyStatus(IN INetworkWatcher* piNetWatcherInfo) override;
 
@@ -120,6 +124,7 @@ protected:
 
     IMS_BOOL UpdateNetworkStatus();
     void Notify();
+    void NotifyTimerChanged(IN IMS_UINT32 nType, IN NetTrackerTimerState eState);
 
     void GetStatus(OUT IMS_SINT32& nService, OUT IMS_UINT32& nRadioTech, OUT IMS_BOOL& bIsIn);
     IMS_UINT32 GetAccessPolicy() const;
@@ -217,6 +222,7 @@ protected:
     ITimer* m_piVoiceRatTimer;
 
     ImsList<IAosNetTrackerListener*> m_objListeners;
+    ImsList<IAosNetTrackerTimerListener*> m_objTimerListeners;
 
     AString m_strTag;
 };

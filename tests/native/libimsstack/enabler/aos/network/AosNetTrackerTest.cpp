@@ -25,6 +25,7 @@
 #include "interface/MockIAosConnection.h"
 #include "interface/MockIAosNConfiguration.h"
 #include "interface/MockIAosNetTrackerListener.h"
+#include "interface/MockIAosNetTrackerTimerListener.h"
 #include "../../../platform/interface/MockINetworkWatcher.h"
 #include "../../../platform/interface/MockIWifiWatcher.h"
 
@@ -38,6 +39,7 @@ using ::testing::ReturnRef;
     using Base::InitObject;                     \
     using Base::UpdateNetworkStatus;            \
     using Base::Notify;                         \
+    using Base::NotifyTimerChanged;             \
     using Base::GetAccessPolicy;                \
     using Base::SetDataConnected;               \
     using Base::SetEpdgEnabled;                 \
@@ -83,6 +85,7 @@ public:
     inline void SetFeature(IMS_UINT32 nFeature) { m_nFeature = nFeature; }
     inline IMS_UINT32 GetFeature() { return m_nFeature; }
     inline ImsList<IAosNetTrackerListener*> GetListeners() { return m_objListeners; }
+    inline ImsList<IAosNetTrackerTimerListener*> GetTimerListeners() { return m_objTimerListeners; }
 
     ITimer* GetTimer(IN IMS_UINT32 nType)
     {
@@ -123,6 +126,7 @@ public:
     MockIAosConnection m_objMockIAosConnection;
     MockIAosNConfiguration m_objMockIAosNConfiguration;
     MockIAosNetTrackerListener m_objMockIAosNetTrackerListener;
+    MockIAosNetTrackerTimerListener m_objMockIAosNetTrackerTimerListener;
     MockINetworkWatcher m_objMockINetworkWatcher;
     MockIWifiWatcher m_objMockIWifiWatcher;
 
@@ -151,6 +155,7 @@ protected:
         ASSERT_TRUE(m_pAosNetTracker != nullptr);
 
         m_pAosNetTracker->SetListener(&m_objMockIAosNetTrackerListener);
+        m_pAosNetTracker->SetTimerListener(&m_objMockIAosNetTrackerTimerListener);
         m_pAosNetTracker->InitObject();
     }
 
@@ -351,6 +356,27 @@ TEST_F(AosNetTrackerTest, RemoveListener)
     EXPECT_EQ(m_pAosNetTracker->GetListeners().GetSize(), 0);
 
     m_pAosNetTracker->Notify();
+}
+
+TEST_F(AosNetTrackerTest, SetTimerListener_NotAddNullOrSameListenerAgain)
+{
+    // not set invalid listener
+    m_pAosNetTracker->SetTimerListener(IMS_NULL);
+
+    // not set same listener again
+    m_pAosNetTracker->SetTimerListener(&m_objMockIAosNetTrackerTimerListener);
+}
+
+TEST_F(AosNetTrackerTest, RemoveTimerListener)
+{
+    EXPECT_EQ(m_pAosNetTracker->GetTimerListeners().GetSize(), 1);
+
+    // not remove invalid listener
+    m_pAosNetTracker->RemoveTimerListener(nullptr);
+    EXPECT_EQ(m_pAosNetTracker->GetTimerListeners().GetSize(), 1);
+
+    m_pAosNetTracker->RemoveTimerListener(&m_objMockIAosNetTrackerTimerListener);
+    EXPECT_EQ(m_pAosNetTracker->GetTimerListeners().GetSize(), 0);
 }
 
 TEST_F(AosNetTrackerTest, GetMobileChangingNetworkType)
@@ -911,4 +937,35 @@ TEST_F(AosNetTrackerTest, IsRoaming)
             .WillOnce(Return(0));
     EXPECT_TRUE(m_pAosNetTracker->IsRoaming());
     EXPECT_FALSE(m_pAosNetTracker->IsRoaming());
+}
+
+TEST_F(AosNetTrackerTest, SetTimerListener_AddNewListener)
+{
+    MockIAosNetTrackerTimerListener objNewMockListener;
+
+    EXPECT_EQ(m_pAosNetTracker->GetTimerListeners().GetSize(), 1);
+
+    m_pAosNetTracker->SetTimerListener(&objNewMockListener);
+    EXPECT_EQ(m_pAosNetTracker->GetTimerListeners().GetSize(), 2);
+}
+
+TEST_F(AosNetTrackerTest, NotifyTimerChanged_NotifiesListenerCorrectly)
+{
+    EXPECT_CALL(m_objMockIAosNetTrackerTimerListener,
+            NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_STARTED))
+            .Times(1);
+    m_pAosNetTracker->NotifyTimerChanged(
+            AosNetTracker::TIMER_IN_GUARD, NetTrackerTimerState::TIMER_STARTED);
+
+    EXPECT_CALL(m_objMockIAosNetTrackerTimerListener,
+            NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_STOPPED))
+            .Times(1);
+    m_pAosNetTracker->NotifyTimerChanged(
+            AosNetTracker::TIMER_IN_GUARD, NetTrackerTimerState::TIMER_STOPPED);
+
+    EXPECT_CALL(m_objMockIAosNetTrackerTimerListener,
+            NetTracker_TimerInGuardChanged(NetTrackerTimerState::TIMER_STARTED))
+            .Times(0);
+    m_pAosNetTracker->NotifyTimerChanged(
+            AosNetTracker::TIMER_OUT_GUARD, NetTrackerTimerState::TIMER_STARTED);
 }

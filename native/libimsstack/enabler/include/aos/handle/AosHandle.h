@@ -26,6 +26,7 @@
 #include "interface/IAosHandle.h"
 #include "interface/IAosNConfigurationListener.h"
 #include "interface/IAosNetTrackerListener.h"
+#include "interface/IAosNetTrackerTimerListener.h"
 #include "interface/IAosRegistrationControlListener.h"
 #include "interface/IAosServiceSettingListener.h"
 
@@ -41,6 +42,7 @@ class AosHandle :
         public IEventListener,
         public IImsAos,
         public ImsStateMachine,
+        public AosNetTrackerTimerListener,
         public AosRegistrationControlListener,
         public AosServiceSettingListener
 {
@@ -113,6 +115,9 @@ public:
 
     // IAosNetTrackerListener
     void NetTracker_StatusChanged() override;
+
+    // IAosNetTrackerTimerListener
+    void NetTracker_TimerInGuardChanged(IN NetTrackerTimerState eState) override;
 
     // IAosNConfigurationListener
     void NConfiguration_NotifyConfigChanged() override;
