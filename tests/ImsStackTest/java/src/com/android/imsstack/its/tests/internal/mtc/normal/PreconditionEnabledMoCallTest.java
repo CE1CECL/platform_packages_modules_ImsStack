@@ -243,6 +243,8 @@ public class PreconditionEnabledMoCallTest extends CallTestBase {
                 .setSdp(ControlProtocolConstants.SDP_COPY)
                 .addConfig(ControlProtocolConstants.CONFIG_DELAY, "10")
                 .addConfig(ControlProtocolConstants.CONFIG_REQUIRE_PRECONDITION, "true")
+                .addConfig(ControlProtocolConstants.CONFIG_REQUIRE_100REL, "true")
+                .addHeader("Supported", "100rel")
                 .build());
         generator.addMessages(">PRACK | <200-PRACK");
 
@@ -294,6 +296,8 @@ public class PreconditionEnabledMoCallTest extends CallTestBase {
                 .setMethodOrCode("183-INVITE")
                 .setSdp(ControlProtocolConstants.SDP_COPY_WITHOUT_PRECONDITION)
                 .addConfig(ControlProtocolConstants.CONFIG_DELAY, "10")
+                .addConfig(ControlProtocolConstants.CONFIG_REQUIRE_100REL, "true")
+                .addHeader("Supported", "100rel")
                 .build());
         generator.addMessages(">PRACK | <200-PRACK");
 
