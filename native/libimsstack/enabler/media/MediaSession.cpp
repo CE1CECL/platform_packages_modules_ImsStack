@@ -450,7 +450,7 @@ PUBLIC VIRTUAL IMS_FLOAT MediaSession::GetNegotiatedCodecBitrateKbps(IN IMS_UINT
     if (m_pMediaNegoHandler == IMS_NULL)
     {
         IMS_TRACE_E(0, "GetNegotiatedCodecBitrateKbps() - invalid MediaNegoHandler", 0, 0, 0);
-        return 0;
+        return 0.0f;
     }
 
     return m_pMediaNegoHandler->GetNegotiatedCodecBitrateKbps(nNegoId, MEDIA_TYPE_AUDIO);
@@ -461,7 +461,7 @@ PUBLIC VIRTUAL IMS_FLOAT MediaSession::GetNegotiatedCodecBandwidthKhz(IN IMS_UIN
     if (m_pMediaNegoHandler == IMS_NULL)
     {
         IMS_TRACE_E(0, "GetNegotiatedCodecBandwidthKhz() - invalid MediaNegoHandler", 0, 0, 0);
-        return 0;
+        return 0.0f;
     }
 
     return m_pMediaNegoHandler->GetNegotiatedCodecBandwidthKhz(nNegoId, MEDIA_TYPE_AUDIO);
