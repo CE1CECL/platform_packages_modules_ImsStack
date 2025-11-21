@@ -389,6 +389,36 @@ PUBLIC VIRTUAL void MtcSession::SetCallType(IN CallType eNewCallType)
     SaveCallTypeHistory(m_eCallType);
 }
 
+PUBLIC VIRTUAL void MtcSession::SetCapableCallType(IN CallType eNewCallType)
+{
+    CallType eCapableCallType = eNewCallType;
+
+    if (!m_bVideoCapable)
+    {
+        if (eCapableCallType == CallType::VT)
+        {
+            eCapableCallType = CallType::VOIP;
+        }
+        else if (eCapableCallType == CallType::VIDEO_RTT)
+        {
+            eCapableCallType = CallType::RTT;
+        }
+    }
+    if (!m_bRttCapable)
+    {
+        if (eCapableCallType == CallType::RTT)
+        {
+            eCapableCallType = CallType::VOIP;
+        }
+        else if (eCapableCallType == CallType::VIDEO_RTT)
+        {
+            eCapableCallType = CallType::VT;
+        }
+    }
+
+    SetCallType(eCapableCallType);
+}
+
 PRIVATE
 ImsList<IMtcExtension*> MtcSession::GetSupportedExtensions() const
 {

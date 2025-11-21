@@ -151,6 +151,14 @@ public:
     virtual void SetCallType(IN CallType eCallType) = 0;
 
     /**
+     * @brief Sets the call type after adjusting it based on the session's capabilities.
+     *
+     * @param eCallType The CallType to set. It's downgraded if the session doesn't support the
+     *                  required features.
+     */
+    virtual void SetCapableCallType(IN CallType eCallType) = 0;
+
+    /**
      * @brief Gets the current CallType.
      *
      * @return The current CallType.

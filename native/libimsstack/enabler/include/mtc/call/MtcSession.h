@@ -73,6 +73,7 @@ public:
     void HandleResponse(IN ResponseType eType, IN const IMessage& objResponse) override;
 
     void SetCallType(IN CallType eNewCallType) override;
+    void SetCapableCallType(IN CallType eNewCallType) override;
     inline CallType GetCallType() const override { return m_eCallType; }
     inline CallType GetPreviousCallType() const override { return m_ePreviousCallType; }
     inline ISession& GetISession() override { return m_objSession; }

@@ -302,6 +302,8 @@ PUBLIC VIRTUAL CallStateName IdleState::OnAttached()
         m_objContext.GetMediaManager().AdjustDirectionForAutoOffer(
                 *piSession, m_objContext.GetSession()->GetCallType());
     }
+    m_objContext.GetSession()->SetCapableCallType(
+            m_objContext.GetMediaManager().GetNegotiatedCallType(piSession));
 
     m_objContext.GetPreconditionManager().OnMessageReceived(piSession, piMessage);
 
