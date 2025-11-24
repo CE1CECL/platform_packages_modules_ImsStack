@@ -44,6 +44,7 @@ public:
     IAosSubscriberManager* BuildSubscriberManager(IN IMS_SINT32 nSlotId) override;
     IAosRetryRepository* BuildRetryRepository(IN IMS_SINT32 nSlotId) override;
     IAosNConfiguration* BuildNConfiguration() override;
+    IAosTracer* BuildTracer(IN IMS_SINT32 nSlotId) override;
     IAosTransaction* BuildTransaction(IN IMS_SINT32 nSlotId) override;
 };
 #endif  // AOS_BUILDER_H_
