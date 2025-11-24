@@ -1526,11 +1526,12 @@ TEST_F(IdleStateTest, OnAttachedUpdatesCallTypeToNegotiatedType)
             .WillByDefault(Return(CallType::VT));
     ON_CALL(objMediaManager, NegotiateSdp(&objSession))
             .WillByDefault(Return(SdpNegotiationResult(MEDIA_NEGO_NO_ERROR)));
+    ON_CALL(objMtcSession, IsVideoCapable).WillByDefault(Return(IMS_TRUE));
 
     MtcExtensionSet objMtcExtensionSet(GetTestExtensionSet(AString("no100rel")));
     ON_CALL(objMtcSession, GetExtensionSet).WillByDefault(ReturnRef(objMtcExtensionSet));
 
-    EXPECT_CALL(objMtcSession, SetCallType(CallType::VT));
+    EXPECT_CALL(objMtcSession, SetCapableCallType(CallType::VT));
     EXPECT_EQ(CallStateName::ALERTING, pIdleState->OnAttached());
 }
 

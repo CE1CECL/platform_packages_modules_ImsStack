@@ -55,6 +55,7 @@ public:
     MOCK_METHOD(void, HandleResponse, (IN ResponseType eType, IN const IMessage& objResponse),
             (override));
     MOCK_METHOD(void, SetCallType, (IN CallType eCallType), (override));
+    MOCK_METHOD(void, SetCapableCallType, (IN CallType eCallType), (override));
     MOCK_METHOD(CallType, GetCallType, (), (const, override));
     MOCK_METHOD(CallType, GetPreviousCallType, (), (const, override));
     MOCK_METHOD(ISession&, GetISession, (), (override));

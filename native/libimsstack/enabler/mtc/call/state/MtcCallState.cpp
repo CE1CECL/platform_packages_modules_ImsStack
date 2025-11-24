@@ -726,8 +726,6 @@ const CallReasonInfo MtcCallState::HandleReceivedSdp(
         IMS_TRACE_D("HandleReceivedSdp - Nego SDP Failed", 0, 0, 0);
         return GetReasonByNegotiationResult(objNegoResult.eResult);
     }
-    m_objContext.GetSession()->SetCallType(
-            m_objContext.GetMediaManager().GetNegotiatedCallType(piSession));
 
     m_objContext.GetPreconditionManager().OnSdpReceived(piSession);
 

@@ -1526,6 +1526,62 @@ TEST_F(MtcSessionTest, SetCallTypeUpdatesCurrentCallTypeAndPreviousCallType)
     EXPECT_EQ(pMtcSession->GetPreviousCallType(), CallType::VOIP);
 }
 
+TEST_F(MtcSessionTest, SetCapableCallTypeUpdatesCurrentCallTypeWhenVideoRttCapable)
+{
+    CreateMtcSession(CallType::VOIP, PeerType::MO, IMS_TRUE, IMS_TRUE, IMS_TRUE);
+
+    pMtcSession->SetCapableCallType(CallType::VOIP);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::VT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VT);
+    pMtcSession->SetCapableCallType(CallType::RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::RTT);
+    pMtcSession->SetCapableCallType(CallType::VIDEO_RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VIDEO_RTT);
+}
+
+TEST_F(MtcSessionTest, SetCapableCallTypeUpdatesCurrentCallTypeWhenVideoCapable)
+{
+    CreateMtcSession(CallType::VOIP, PeerType::MO, IMS_TRUE, IMS_TRUE, IMS_FALSE);
+
+    pMtcSession->SetCapableCallType(CallType::VOIP);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::VT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VT);
+    pMtcSession->SetCapableCallType(CallType::RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::VIDEO_RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VT);
+}
+
+TEST_F(MtcSessionTest, SetCapableCallTypeUpdatesCurrentCallTypeWhenRttCapable)
+{
+    CreateMtcSession(CallType::VOIP, PeerType::MO, IMS_TRUE, IMS_FALSE, IMS_TRUE);
+
+    pMtcSession->SetCapableCallType(CallType::VOIP);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::VT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::RTT);
+    pMtcSession->SetCapableCallType(CallType::VIDEO_RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::RTT);
+}
+
+TEST_F(MtcSessionTest, SetCapableCallTypeUpdatesCurrentCallTypeWhenNoVideoRttCapable)
+{
+    CreateMtcSession(CallType::VOIP, PeerType::MO, IMS_TRUE, IMS_FALSE, IMS_FALSE);
+
+    pMtcSession->SetCapableCallType(CallType::VOIP);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::VT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+    pMtcSession->SetCapableCallType(CallType::VIDEO_RTT);
+    EXPECT_EQ(pMtcSession->GetCallType(), CallType::VOIP);
+}
+
 TEST_F(MtcSessionTest, HandleResponseUpdateCallTypeAndCapabilityFromMessage)
 {
     CreateMtcSession(CallType::VOIP, PeerType::MO, IMS_TRUE, IMS_TRUE, IMS_TRUE);
