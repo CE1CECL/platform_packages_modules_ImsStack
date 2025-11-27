@@ -123,17 +123,6 @@ public:
     virtual SdpNegotiationResult NegotiateSdp(IN IMS_UINTP nNegoId, IN ISession* pSession) = 0;
 
     /**
-     * @brief request to registering QoS callback of the given session to java layer
-     *
-     * @param nNegoId The identification of the session
-     * @param eMediaType The type of media
-     * @return IMS_BOOL Returns IMS_TRUE when request Qos is done successfully, IMS_FALSE if the
-     * arguments is invalid.
-     */
-    virtual IMS_BOOL RequestQos(
-            IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eMediaType = MEDIA_TYPE_AUDIO) = 0;
-
-    /**
      * @brief Check if QoS is available with the given nego id and media type.
      *
      * @param nNegoId The identification of the session.
