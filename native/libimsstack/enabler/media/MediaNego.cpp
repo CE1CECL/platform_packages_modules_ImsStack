@@ -674,7 +674,7 @@ IMS_FLOAT MediaNego::GetNegotiatedCodecBitrateKbps(IN MEDIA_CONTENT_TYPE eMediaT
     }
 
     IMS_TRACE_E(0, "GetNegotiatedCodecBitrateKbps(): invalid media type or nego object", 0, 0, 0);
-    return 0;
+    return 0.0f;
 }
 
 PUBLIC
@@ -686,7 +686,7 @@ IMS_FLOAT MediaNego::GetNegotiatedCodecBandwidthKhz(IN MEDIA_CONTENT_TYPE eMedia
     }
 
     IMS_TRACE_E(0, "GetNegotiatedCodecBandwidthKhz(): invalid media type or nego object", 0, 0, 0);
-    return 0;
+    return 0.0f;
 }
 
 PUBLIC

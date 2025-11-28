@@ -278,7 +278,7 @@ PUBLIC VIRTUAL IMS_FLOAT AudioNego::GetNegotiatedCodecBandwidthKhz(void)
         nBandWidth = 4.0f;
     }
 
-    IMS_TRACE_E(0, "GetNegotiatedCodecBandwidthKhz(): BandWidth[%f]", nBandWidth, 0, 0);
+    IMS_TRACE_D("GetNegotiatedCodecBandwidthKhz(): bandwidth[%f]", nBandWidth, 0, 0);
     return nBandWidth;
 }
 
@@ -376,7 +376,7 @@ PUBLIC VIRTUAL void AudioNego::GetNegotiatedCodecBandwidthRange(
         nBandwidthStart = 4.0f;
         nBandwidthEnd = 4.0f;
     }
-    IMS_TRACE_E(0, "GetNegotiatedCodecBandwidthRange(): start[%f] end[%f]", nBandwidthStart,
+    IMS_TRACE_D("GetNegotiatedCodecBandwidthRange(): start[%f] end[%f]", nBandwidthStart,
             nBandwidthEnd, 0);
 }
 
