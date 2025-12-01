@@ -25,6 +25,7 @@
 #include "interface/IAosAppContext.h"
 #include "interface/IAosConnection.h"
 #include "interface/IAosNetTrackerListener.h"
+#include "interface/IAosNetTrackerTimerListener.h"
 
 #include "provider/AosNConfiguration.h"
 #include "provider/AosProvider.h"
@@ -81,6 +82,7 @@ PUBLIC VIRTUAL AosNetTracker::~AosNetTracker()
 
     ClearTimers();
     m_objListeners.Clear();
+    m_objTimerListeners.Clear();
 
     if (m_piWifiWatcher != IMS_NULL)
     {
@@ -231,6 +233,52 @@ PUBLIC VIRTUAL void AosNetTracker::RemoveListener(IN IAosNetTrackerListener* piL
 
             A_IMS_TRACE_D(
                     CNXID, "RemoveListener - Listener (%" PFLS_x ") is removed", piListener, 0, 0);
+            return;
+        }
+    }
+}
+
+PUBLIC VIRTUAL void AosNetTracker::SetTimerListener(IN IAosNetTrackerTimerListener* piListener)
+{
+    if (piListener == IMS_NULL)
+    {
+        return;
+    }
+
+    for (IMS_UINT32 i = 0; i < m_objTimerListeners.GetSize(); ++i)
+    {
+        IAosNetTrackerTimerListener* pTmpListener = m_objTimerListeners.GetAt(i);
+
+        if (pTmpListener == piListener)
+        {
+            A_IMS_TRACE_D(CNXID, "SetTimerListener() - Listener (%" PFLS_x ") is already set",
+                    piListener, 0, 0);
+            return;
+        }
+    }
+
+    m_objTimerListeners.Append(piListener);
+
+    A_IMS_TRACE_D(CNXID, "SetTimerListener() - Listener (%" PFLS_x ") is set", piListener, 0, 0);
+}
+
+PUBLIC VIRTUAL void AosNetTracker::RemoveTimerListener(IN IAosNetTrackerTimerListener* piListener)
+{
+    if (piListener == IMS_NULL)
+    {
+        return;
+    }
+
+    for (IMS_UINT32 i = 0; i < m_objTimerListeners.GetSize(); ++i)
+    {
+        IAosNetTrackerTimerListener* pTmpListener = m_objTimerListeners.GetAt(i);
+
+        if (pTmpListener == piListener)
+        {
+            m_objTimerListeners.RemoveAt(i);
+
+            A_IMS_TRACE_D(CNXID, "RemoveTimerListener - Listener (%" PFLS_x ") is removed",
+                    piListener, 0, 0);
             return;
         }
     }
@@ -628,14 +676,33 @@ void AosNetTracker::Notify()
 {
     for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
     {
-        IAosNetTrackerListener* pListener = m_objListeners.GetAt(i);
+        IAosNetTrackerListener* piListener = m_objListeners.GetAt(i);
 
-        if (pListener == IMS_NULL)
+        if (piListener == IMS_NULL)
         {
             continue;
         }
 
-        pListener->NetTracker_StatusChanged();
+        piListener->NetTracker_StatusChanged();
+    }
+}
+
+PRIVATE
+void AosNetTracker::NotifyTimerChanged(IN IMS_UINT32 nType, IN NetTrackerTimerState eState)
+{
+    for (IMS_UINT32 i = 0; i < m_objTimerListeners.GetSize(); ++i)
+    {
+        IAosNetTrackerTimerListener* piListener = m_objTimerListeners.GetAt(i);
+
+        if (piListener == IMS_NULL)
+        {
+            continue;
+        }
+
+        if (nType == TIMER_IN_GUARD)
+        {
+            piListener->NetTracker_TimerInGuardChanged(eState);
+        }
     }
 }
 
@@ -766,8 +833,15 @@ void AosNetTracker::ProcessNetworkChanged(IMS_SINT32 nReason)
         }
         else
         {
+            IMS_BOOL bNotifyInGuardTimerStopped = (m_piServiceInTimer != IMS_NULL) && !bCurrIN;
+
             StopTimer(TIMER_IN_GUARD);
             StopTimer(TIMER_OUT_GUARD);
+
+            if (bNotifyInGuardTimerStopped)
+            {
+                NotifyTimerChanged(TIMER_IN_GUARD, NetTrackerTimerState::TIMER_STOPPED);
+            }
         }
     }
 
@@ -1024,6 +1098,11 @@ void AosNetTracker::StartTimer(IN IMS_UINT32 nType, IN IMS_UINT32 nDuration)
     }
 
     *ppiTimer = m_pUtil->StartTimer(nDuration, this, TimerToString(nType));
+
+    if (nType == TIMER_IN_GUARD)
+    {
+        NotifyTimerChanged(TIMER_IN_GUARD, NetTrackerTimerState::TIMER_STARTED);
+    }
 }
 
 PRIVATE

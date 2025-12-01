@@ -539,6 +539,24 @@ PUBLIC VIRTUAL void AosHandle::NetTracker_StatusChanged()
     }
 }
 
+PUBLIC VIRTUAL void AosHandle::NetTracker_TimerInGuardChanged(IN NetTrackerTimerState eState)
+{
+    A_IMS_TRACE_I(APPPROFILE, "NetTracker_TimerInGuardChanged :: eState(%d)", eState, 0, 0);
+
+    // IN Service
+    if (eState == NetTrackerTimerState::TIMER_STARTED)
+    {
+        ProcessImsResumed(AosReason::SUSPEND_NO_SERVICE);
+    }
+    else if (eState == NetTrackerTimerState::TIMER_STOPPED)
+    {
+        if (m_piAppContext->GetNetTracker()->IsSuspended())
+        {
+            ProcessImsSuspended(AosReason::SUSPEND_NO_SERVICE);
+        }
+    }
+}
+
 PUBLIC VIRTUAL void AosHandle::NConfiguration_NotifyConfigChanged()
 {
     A_IMS_TRACE_D(APPPROFILE, "NConfiguration_NotifyConfigChanged", 0, 0, 0);
@@ -1407,6 +1425,7 @@ PROTECTED VIRTUAL void AosHandle::AddListeners()
     if (piNetTracker != IMS_NULL)
     {
         piNetTracker->SetListener(this);
+        piNetTracker->SetTimerListener(this);
     }
 
     IAosService* piAosService = AosProvider::GetInstance()->GetService(m_nSlotId);
@@ -1430,6 +1449,7 @@ PROTECTED VIRTUAL void AosHandle::RemoveListeners()
     if (piNetTracker != IMS_NULL)
     {
         piNetTracker->RemoveListener(this);
+        piNetTracker->RemoveTimerListener(this);
     }
 }
 

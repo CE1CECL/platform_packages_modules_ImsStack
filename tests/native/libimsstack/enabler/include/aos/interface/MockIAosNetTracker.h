@@ -48,6 +48,9 @@ public:
     MOCK_METHOD(void, SetSrvInGuardTime, (IN IMS_UINT32 nGuardTime), (override));
     MOCK_METHOD(void, SetListener, (IN IAosNetTrackerListener * piListener), (override));
     MOCK_METHOD(void, RemoveListener, (IN IAosNetTrackerListener * piListener), (override));
+    MOCK_METHOD(void, SetTimerListener, (IN IAosNetTrackerTimerListener * piListener), (override));
+    MOCK_METHOD(
+            void, RemoveTimerListener, (IN IAosNetTrackerTimerListener * piListener), (override));
     MOCK_METHOD(void, Init, (), (override));
 };
 
