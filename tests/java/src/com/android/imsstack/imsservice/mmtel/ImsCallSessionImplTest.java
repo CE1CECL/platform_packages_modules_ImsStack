@@ -967,6 +967,43 @@ public class ImsCallSessionImplTest extends ImsStackTest {
     }
 
     @Test
+    public void testNotifySuppServiceForForwardedCallWithCdivCauseZero() {
+        SuppInfo suppInfo = new SuppInfo();
+        when(mMockMtcCall.getCallExtra(Call.EXTRA_CDIV_HISTORY, null)).thenReturn("12345");
+        when(mMockMtcCall.getCallExtraInt(Call.EXTRA_CDIV_CAUSE, 0)).thenReturn(0);
+
+        mImsCallSession = createImsCallSession("1");
+        mImsCallSession.getCallListenerProxy().onCallProgressing(mMockMtcCall, mMockCallInfo,
+                mMockMediaInfo, suppInfo);
+
+        processAllFutureMessages();
+        verify(mMockImsCallSessionCallback).invokeSuppServiceReceived(
+                any(ImsCallSessionImplBase.class), any(ImsSuppServiceNotification.class));
+    }
+
+    @Test
+    public void testNotifySuppServiceForForwardedCallWithEmptyCdivHistory() {
+        SuppInfo suppInfo = new SuppInfo();
+
+        // 1. cdivHistory is null
+        when(mMockMtcCall.getCallExtra(Call.EXTRA_CDIV_HISTORY, null)).thenReturn(null);
+        mImsCallSession = createImsCallSession("1");
+        mImsCallSession.getCallListenerProxy().onCallProgressing(mMockMtcCall, mMockCallInfo,
+                mMockMediaInfo, suppInfo);
+        processAllFutureMessages();
+        verify(mMockImsCallSessionCallback, never()).invokeSuppServiceReceived(
+                any(ImsCallSessionImplBase.class), any(ImsSuppServiceNotification.class));
+
+        // 2. cdivHistory is empty
+        when(mMockMtcCall.getCallExtra(Call.EXTRA_CDIV_HISTORY, null)).thenReturn("");
+        mImsCallSession.getCallListenerProxy().onCallProgressing(mMockMtcCall, mMockCallInfo,
+                mMockMediaInfo, suppInfo);
+        processAllFutureMessages();
+        verify(mMockImsCallSessionCallback, never()).invokeSuppServiceReceived(
+                any(ImsCallSessionImplBase.class), any(ImsSuppServiceNotification.class));
+    }
+
+    @Test
     public void testOnCallStarted() {
         SuppInfo suppInfo = new SuppInfo();
         suppInfo.addServiceBool(SuppInfo.SUPP_TYPE_CW, false);

@@ -1945,23 +1945,13 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             return;
         }
 
-        final int cdivCause = mCall.getCallExtraInt(
-                Call.EXTRA_CDIV_CAUSE, 0);
-
-        if (cdivCause <= 0) {
-            return;
-        }
-
-        final String cdivHistory = mCall.getCallExtra(
-                Call.EXTRA_CDIV_HISTORY, null);
-
+        final String cdivHistory = mCall.getCallExtra(Call.EXTRA_CDIV_HISTORY, null);
         if (TextUtils.isEmpty(cdivHistory)) {
             return;
         }
-
+        final int cdivCause = mCall.getCallExtraInt(Call.EXTRA_CDIV_CAUSE, 0);
         logi("Forwarded call :: number=" + ImsLog.hiddenString(cdivHistory)
                 + ", cause=" + cdivCause);
-
         getCallHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
