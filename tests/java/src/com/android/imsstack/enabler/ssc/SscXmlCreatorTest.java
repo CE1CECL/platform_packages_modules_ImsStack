@@ -850,7 +850,7 @@ public class SscXmlCreatorTest {
         String xmlData = "<ss:simservs>"
                 + "<ss:communication-diversion active=\"true\">"
                 + "<cp:ruleset>"
-                + "<cp:rule id=\"call-diversion-busy\">"
+                + "<cp:rule id=\"call-diversion-busy-audio\">"
                 + "<cp:conditions>"
                 + "<ss:rule-deactivated/>"
                 + "</cp:conditions>"
@@ -909,7 +909,7 @@ public class SscXmlCreatorTest {
 
         assertNotNull(xml);
         assertEquals(SscXmlFormat.getSsElement(SLOT_0, SscXmlFormat.RULE), xml.getTagName());
-        assertEquals("call-diversion-busy", xml.getAttribute(SscXmlFormat.ID));
+        assertEquals("call-diversion-busy-audio", xml.getAttribute(SscXmlFormat.ID));
 
         NodeList nodeList = xml.getElementsByTagName(
                 SscXmlFormat.getSsElement(SLOT_0, SscXmlFormat.RULE_DEACTIVATED));
@@ -987,7 +987,7 @@ public class SscXmlCreatorTest {
 
         assertNotNull(xml);
         assertEquals(SscXmlFormat.getSsElement(SLOT_0, SscXmlFormat.RULE), xml.getTagName());
-        assertEquals("call-barring-all-outgoing", xml.getAttribute(SscXmlFormat.ID));
+        assertEquals("call-barring-all-outgoing-audio", xml.getAttribute(SscXmlFormat.ID));
 
         NodeList nodeList = xml.getElementsByTagName(
                 SscXmlFormat.getSsElement(SLOT_0, SscXmlFormat.RULE_DEACTIVATED));
