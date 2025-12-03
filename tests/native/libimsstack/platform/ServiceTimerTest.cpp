@@ -53,7 +53,7 @@ public:
 public:
     IMS_BOOL Equals(IN const ITimer* /*piTimer*/) const override { return IMS_TRUE; }
 
-    IMS_UINTP SetTimer(IN IMS_UINT32 /*nDuration*/, IN ITimerListener* /*piListener*/) override
+    IMS_UINTP SetTimer(IN IMS_SINT64 /*nDuration*/, IN ITimerListener* /*piListener*/) override
     {
         return reinterpret_cast<IMS_UINTP>(this);
     }

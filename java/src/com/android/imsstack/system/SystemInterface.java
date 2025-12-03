@@ -491,7 +491,7 @@ public class SystemInterface implements JniSystemListener {
 
     private void handleSystemCallForTimer(int method, Parcel in, Parcel out) {
         if (method == SystemConstants.SET_TIMER) {
-            int duration = in.readInt();
+            long duration = in.readLong();
             long tid = in.readLong();
             out.writeInt(mDefaultSystemCall.startTimer(tid, duration) ? 1 : 0);
         } else if (method == SystemConstants.KILL_TIMER) {

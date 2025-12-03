@@ -42,7 +42,7 @@ static IMS_BOOL osTimerService_KillTimer(IN IMS_UINTP nTimerId)
     return (nResult == 0) ? IMS_FALSE : IMS_TRUE;
 }
 
-static IMS_BOOL osTimerService_SetTimer(IN IMS_UINTP nTimerId, IN IMS_UINT32 nDuration)
+static IMS_BOOL osTimerService_SetTimer(IN IMS_UINTP nTimerId, IN IMS_SINT64 nDuration)
 {
     ISystem* piSystem = PlatformContext::GetInstance()->GetSystem();
     IMS_SINT32 nResult = piSystem->SetTimer(nDuration, nTimerId);
@@ -146,7 +146,7 @@ void OsTimerService::KillTimer(IN const OsTimer* pTimer)
 }
 
 PUBLIC
-IMS_BOOL OsTimerService::SetTimer(IN IMS_UINT32 nDuration, IN OsTimer* pTimer)
+IMS_BOOL OsTimerService::SetTimer(IN IMS_SINT64 nDuration, IN OsTimer* pTimer)
 {
     if (pTimer == IMS_NULL)
     {

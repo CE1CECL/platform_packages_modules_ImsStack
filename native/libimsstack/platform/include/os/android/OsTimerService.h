@@ -34,7 +34,7 @@ public:
 
 public:
     void KillTimer(IN const OsTimer* pTimer);
-    IMS_BOOL SetTimer(IN IMS_UINT32 nDuration, IN OsTimer* pTimer);
+    IMS_BOOL SetTimer(IN IMS_SINT64 nDuration, IN OsTimer* pTimer);
 
     static void CleanUp();
     static void StartUp();
