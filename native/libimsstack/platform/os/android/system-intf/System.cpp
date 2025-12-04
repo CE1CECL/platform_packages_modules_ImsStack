@@ -1112,7 +1112,7 @@ AString System::GetWifiSsId()
 }
 
 PUBLIC
-IMS_SINT32 System::SetTimer(IN IMS_UINT32 nDuration, IN IMS_UINTP nTimerId)
+IMS_SINT32 System::SetTimer(IN IMS_SINT64 nDuration, IN IMS_UINTP nTimerId)
 {
     if (m_pCallback == IMS_NULL)
     {
@@ -1125,7 +1125,7 @@ IMS_SINT32 System::SetTimer(IN IMS_UINT32 nDuration, IN IMS_UINTP nTimerId)
     in.writeInt32(IMS_SLOT_0);
     in.writeInt32(SystemConstants::SET_TIMER);
 
-    in.writeInt32(nDuration);
+    in.writeInt64(nDuration);
     in.writeInt64(nTimerId);
 
     if (m_pCallback->SendDataToJava(in, out) == 1)

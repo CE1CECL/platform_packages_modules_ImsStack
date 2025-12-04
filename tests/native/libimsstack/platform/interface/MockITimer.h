@@ -30,7 +30,7 @@ public:
     ~MockITimer() override = default;
 
     MOCK_METHOD(IMS_BOOL, Equals, (IN const ITimer*), (const, override));
-    MOCK_METHOD(IMS_UINTP, SetTimer, (IN IMS_UINT32, IN ITimerListener*), (override));
+    MOCK_METHOD(IMS_UINTP, SetTimer, (IN IMS_SINT64, IN ITimerListener*), (override));
     MOCK_METHOD(void, KillTimer, (), (override));
 };
 

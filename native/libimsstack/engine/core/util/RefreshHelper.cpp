@@ -386,7 +386,7 @@ IMS_BOOL RefreshHelper::SetTimer(IN IMS_SINT32 nTimerDuration)
         return IMS_FALSE;
     }
 
-    m_piTimer->SetTimer(nTimerDuration * 1000, this);
+    m_piTimer->SetTimer(nTimerDuration * 1000L, this);
 
     IMS_TRACE_I("Refresh Timer (%p) :: START - Duration (%d)", m_piTimer, nTimerDuration, 0);
 

@@ -788,7 +788,7 @@ public class SystemInterfaceTest {
         try {
             data.writeInt(MSimUtils.DEFAULT_SLOT_ID);
             data.writeInt(SystemConstants.SET_TIMER);
-            data.writeInt(duration);
+            data.writeLong(duration);
             data.writeLong(tid);
             data.setDataPosition(0);
             mSystemInterface.onMessage(data, null);

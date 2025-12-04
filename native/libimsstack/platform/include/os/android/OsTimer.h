@@ -30,7 +30,7 @@ public:
 public:
     // ITimer class
     IMS_BOOL Equals(IN const ITimer* piTimer) const override;
-    IMS_UINTP SetTimer(IN IMS_UINT32 nDuration, IN ITimerListener* piListener) override;
+    IMS_UINTP SetTimer(IN IMS_SINT64 nDuration, IN ITimerListener* piListener) override;
     void KillTimer() override;
 
     // ImsTimer class

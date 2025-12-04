@@ -150,7 +150,7 @@ public:
     ////
     // Timer APIs
     ////
-    MOCK_METHOD(IMS_SINT32, SetTimer, (IN IMS_UINT32 nDuration, IN IMS_UINTP nTimerId), (override));
+    MOCK_METHOD(IMS_SINT32, SetTimer, (IN IMS_SINT64 nDuration, IN IMS_UINTP nTimerId), (override));
     MOCK_METHOD(IMS_SINT32, KillTimer, (IN IMS_UINTP nTimerId), (override));
 
     ////
