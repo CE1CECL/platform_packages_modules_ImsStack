@@ -4571,7 +4571,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         }
 
         private void onRttChanged(boolean isRttOn, boolean oldRttOn) {
-            log("onRttChanged :: isRttOn=" + isRttOn + "oldRttOn=" + oldRttOn);
+            log("onRttChanged :: isRttOn=" + isRttOn + ", oldRttOn=" + oldRttOn);
 
             if (mCallDetails.is(CallDetails.RTT_TURNING_ON)) {
                 mCallDetails.clear(CallDetails.RTT_TURNING_ON);
@@ -4579,10 +4579,10 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
                 if (isRttOn) {
                     mCallback.invokeRttModifyResponseReceived(ImsCallSessionImpl.this,
-                        RttModifyStatus.SESSION_MODIFY_REQUEST_SUCCESS);
+                            RttModifyStatus.SESSION_MODIFY_REQUEST_SUCCESS);
                 } else {
                     mCallback.invokeRttModifyResponseReceived(ImsCallSessionImpl.this,
-                        RttModifyStatus.SESSION_MODIFY_REQUEST_FAIL);
+                            RttModifyStatus.SESSION_MODIFY_REQUEST_REJECTED_BY_REMOTE);
                 }
             } else if (mCallDetails.is(CallDetails.RTT_TURNING_OFF)) {
                 mCallDetails.clear(CallDetails.RTT_TURNING_OFF);
@@ -4590,10 +4590,10 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
                 if (!isRttOn) {
                     mCallback.invokeRttModifyResponseReceived(ImsCallSessionImpl.this,
-                        RttModifyStatus.SESSION_MODIFY_REQUEST_SUCCESS);
+                            RttModifyStatus.SESSION_MODIFY_REQUEST_SUCCESS);
                 } else {
                     mCallback.invokeRttModifyResponseReceived(ImsCallSessionImpl.this,
-                        RttModifyStatus.SESSION_MODIFY_REQUEST_FAIL);
+                            RttModifyStatus.SESSION_MODIFY_REQUEST_REJECTED_BY_REMOTE);
                 }
             }
 
