@@ -35,8 +35,7 @@
 #include "helper/sipinterfaceholder/IMtcSipInterfaceFactory.h"
 #include "helper/sipinterfaceholder/ReferenceInterfaceHolder.h"
 #include "utility/IMessageUtils.h"
-// TODO: move UriFormatter to common part.
-#include "conferencecall/UriFormatter.h"
+#include "utility/UriFormatter.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 

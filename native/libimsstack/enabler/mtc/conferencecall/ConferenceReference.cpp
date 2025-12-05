@@ -36,12 +36,12 @@
 #include "conferencecall/ConferenceReference.h"
 #include "conferencecall/IConferenceReference.h"
 #include "conferencecall/IConferenceReferenceListener.h"
-#include "conferencecall/UriFormatter.h"
 #include "configuration/ConfigDef.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "helper/sipinterfaceholder/IMtcSipInterfaceFactory.h"
 #include "helper/sipinterfaceholder/ReferenceInterfaceHolder.h"
 #include "utility/IMessageUtils.h"
+#include "utility/UriFormatter.h"
 
 __IMS_TRACE_TAG_COM_MTC__;
 
