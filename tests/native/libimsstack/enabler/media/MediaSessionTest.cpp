@@ -528,10 +528,22 @@ TEST_F(MediaSessionTest, testQosRequestAndCallbackUnmatch)
 {
     ON_CALL(*m_pMockMediaNegoHandler, GetRemotePort(_, _)).WillByDefault(Return(REMOTE_PORT));
     ON_CALL(*m_pMockAudioController, DeleteSession(_)).WillByDefault(Return(IMS_TRUE));
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
 
     IMS_UINTP nNegoId = m_pSession->CreateProfile(0, MEDIA_TYPE_AUDIO);
-    EXPECT_NE(nNegoId, 0);
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
+    ASSERT_NE(nNegoId, 0);
+
+    // Trigger RequestQos via NegotiateSdp
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_AUDIO);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .WillOnce(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockAudioController, OpenSession(nNegoId)).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
+            .WillOnce(Return(IMS_TRUE));
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 
     // send unmatched port number
     ImsMediaMsgQosParam objParam =
@@ -558,9 +570,21 @@ TEST_F(MediaSessionTest, testQosRequestAndCallbackAudio)
             .WillRepeatedly(Return(REMOTE_PORT));
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_AUDIO))
             .WillRepeatedly(ReturnRef(m_objRemoteIpAddress));
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
 
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);  // check request twice
+    // Trigger RequestQos via NegotiateSdp
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_AUDIO);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .Times(2)
+            .WillRepeatedly(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockAudioController, OpenSession(nNegoId)).WillRepeatedly(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
+            .WillRepeatedly(Return(IMS_TRUE));
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());  // check request twice
 
     EXPECT_CALL(
             m_objMockClientListener, MediaSession_NotifyQos(nNegoId, IMS_TRUE, MEDIA_TYPE_AUDIO))
@@ -586,11 +610,23 @@ TEST_F(MediaSessionTest, testQosRequestAndCallbackVideo)
             .WillRepeatedly(Return(REMOTE_PORT));
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_VIDEO))
             .WillRepeatedly(ReturnRef(m_objRemoteIpAddress));
-    // Need VideoController CreateSession for CreateProfile to succeed
-    EXPECT_CALL(*m_pMockVideoController, CreateSession(_, _)).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pMockVideoController, CreateSession(_, _))
+            .Times(2)
+            .WillRepeatedly(Return(IMS_TRUE));
     ASSERT_EQ(m_pSession->CreateProfile(0, MEDIA_TYPE_VIDEO), nNegoId);
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
 
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_VIDEO), IMS_TRUE);
+    // Trigger RequestQos via NegotiateSdp
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_VIDEO);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .WillOnce(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockVideoController, OpenSession()).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
+            .WillOnce(Return(IMS_TRUE));
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 
     ImsMediaMsgQosParam objParam =
             ImsMediaMsgQosParam(MEDIA_TYPE_VIDEO, m_objRemoteIpAddress, REMOTE_PORT);
@@ -617,10 +653,23 @@ TEST_F(MediaSessionTest, testQosRequestAndCallbackText)
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_TEXT))
             .WillRepeatedly(ReturnRef(m_objRemoteIpAddress));
     // Need TextController CreateSession for CreateProfile to succeed
-    EXPECT_CALL(*m_pMockTextController, CreateSession(_, _)).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pMockTextController, CreateSession(_, _))
+            .Times(2)
+            .WillRepeatedly(Return(IMS_TRUE));
     ASSERT_EQ(m_pSession->CreateProfile(0, MEDIA_TYPE_TEXT), nNegoId);
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
 
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_TEXT), IMS_TRUE);
+    // Trigger RequestQos via NegotiateSdp
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_TEXT);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .WillOnce(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockTextController, OpenSession()).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
+            .WillOnce(Return(IMS_TRUE));
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 
     ImsMediaMsgQosParam objParam =
             ImsMediaMsgQosParam(MEDIA_TYPE_TEXT, m_objRemoteIpAddress, REMOTE_PORT);
@@ -636,6 +685,42 @@ TEST_F(MediaSessionTest, testQosRequestAndCallbackText)
     EXPECT_EQ(m_pSession->DestroyProfile(nNegoId), IMS_TRUE);
 }
 
+TEST_F(MediaSessionTest, testFormSdpAndRequestQos)
+{
+    IMS_UINTP nNegoId = m_pSession->CreateProfile(0, MEDIA_TYPE_AUDIO);
+    ASSERT_NE(nNegoId, 0);
+
+    // Mock dependencies for FormSdp to succeed and trigger RequestQos
+    EXPECT_CALL(*m_pMockMediaNegoHandler,
+            FormSdp(nNegoId, m_pIsession.get(), MEDIA_TYPE_AUDIO, MEDIA_DIRECTION_SEND_RECEIVE,
+                    MEDIA_DIRECTION_INACTIVE, MEDIA_DIRECTION_INACTIVE, false))
+            .WillOnce(Return(IMS_TRUE));
+
+    // Make GetNegoState return NEGOTIATED to trigger RequestQos
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(nNegoId))
+            .WillByDefault(Return(STATE_NEGOTIATED));
+
+    // Mocks for RequestQos internals
+    EXPECT_CALL(*m_pMockMediaNegoHandler, GetRemotePort(nNegoId, MEDIA_TYPE_AUDIO))
+            .WillOnce(Return(REMOTE_PORT));
+    EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_AUDIO))
+            .WillOnce(ReturnRef(m_objRemoteIpAddress));
+
+    // The main expectation: RequestQos should lead to this call
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(
+                            testing::Field(&ImsMediaMsgQosParam::m_eMediaType, MEDIA_TYPE_AUDIO))))
+            .Times(1)
+            .WillOnce(Return(IMS_TRUE));
+
+    // Act: Call FormSdp
+    m_pSession->FormSdp(nNegoId, m_pIsession.get(), MEDIA_TYPE_AUDIO, MEDIA_DIRECTION_SEND_RECEIVE,
+            MEDIA_DIRECTION_INACTIVE, MEDIA_DIRECTION_INACTIVE, false);
+
+    EXPECT_EQ(m_pSession->DestroyProfile(nNegoId), IMS_TRUE);
+}
+
 TEST_F(MediaSessionTest, testRequestQosWhenAlreadyAcquiredNotifiesAsync)
 {
     IMS_UINTP nNegoId = m_pSession->CreateProfile(0, MEDIA_TYPE_AUDIO);
@@ -645,11 +730,21 @@ TEST_F(MediaSessionTest, testRequestQosWhenAlreadyAcquiredNotifiesAsync)
             .WillRepeatedly(Return(REMOTE_PORT));
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_AUDIO))
             .WillRepeatedly(ReturnRef(m_objRemoteIpAddress));
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
 
-    EXPECT_CALL(*m_pSession, MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS, _))
+    // Trigger RequestQos via NegotiateSdp
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_AUDIO);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .Times(2)
+            .WillRepeatedly(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockAudioController, OpenSession(nNegoId)).WillRepeatedly(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
             .Times(1)
-            .WillOnce(Return(IMS_TRUE));
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
+            .WillRepeatedly(Return(IMS_TRUE));
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 
     // Simulate receiving the QoS success notification.
     EXPECT_CALL(
@@ -664,7 +759,7 @@ TEST_F(MediaSessionTest, testRequestQosWhenAlreadyAcquiredNotifiesAsync)
             IMS_TRUE);
 
     // Act: Call RequestQos again. This should enter the 'if (pQosParams->m_bResult)' block.
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 
     EXPECT_EQ(m_pSession->DestroyProfile(nNegoId), IMS_TRUE);
 }
@@ -678,15 +773,26 @@ TEST_F(MediaSessionTest, testRequestQosWhenPendingResendsRequest)
             .WillRepeatedly(Return(REMOTE_PORT));
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_AUDIO))
             .WillRepeatedly(ReturnRef(m_objRemoteIpAddress));
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
+
+    // Trigger RequestQos via NegotiateSdp
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_AUDIO);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .Times(2)
+            .WillRepeatedly(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockAudioController, OpenSession(nNegoId)).WillRepeatedly(Return(IMS_TRUE));
 
     // Expect two calls to send the REQUEST_QOS message to the manager.
-    EXPECT_CALL(*m_pSession, MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS, _))
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
             .Times(2)
             .WillRepeatedly(Return(IMS_TRUE));
 
     // Act: First call adds the request. Second call finds the pending request and re-sends.
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 }
 
 TEST_F(MediaSessionTest, testIsQosAvailable)
@@ -698,12 +804,22 @@ TEST_F(MediaSessionTest, testIsQosAvailable)
             .WillRepeatedly(Return(REMOTE_PORT));
     EXPECT_CALL(*m_pMockMediaNegoHandler, GetNegotiatedRemoteAddress(nNegoId, MEDIA_TYPE_AUDIO))
             .WillRepeatedly(ReturnRef(m_objRemoteIpAddress));
-
+    ON_CALL(*m_pMockMediaNegoHandler, GetNegoState(_)).WillByDefault(Return(STATE_NEGOTIATED));
     // 1. Before requesting, QoS should not be available.
     EXPECT_FALSE(m_pSession->IsQosAvailable(nNegoId, MEDIA_TYPE_AUDIO));
 
     // 2. Request QoS.
-    EXPECT_EQ(m_pSession->RequestQos(nNegoId, MEDIA_TYPE_AUDIO), IMS_TRUE);
+    SdpNegotiationResult objNegoResult(MEDIA_NEGO_NO_ERROR, MEDIA_TYPE_AUDIO);
+    EXPECT_CALL(*m_pMockMediaNegoHandler, NegotiateSdp(nNegoId, m_pIsession.get()))
+            .WillOnce(Return(objNegoResult));
+    EXPECT_CALL(*m_pMockAudioController, OpenSession(nNegoId)).WillOnce(Return(IMS_TRUE));
+    EXPECT_CALL(*m_pSession,
+            MediaSession_SendMsgToMediaManager(IJniMedia::REQUEST_QOS,
+                    testing::Pointee(testing::Field(
+                            &ImsMediaMsgQosParam::m_eMediaType, objNegoResult.eNegotiatedType))))
+            .WillOnce(Return(IMS_TRUE));
+
+    m_pSession->NegotiateSdp(nNegoId, m_pIsession.get());
 
     // 3. After requesting but before notification, it should still be considered unavailable
     //    as the result is not yet successful.

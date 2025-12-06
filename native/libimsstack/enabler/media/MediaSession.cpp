@@ -196,6 +196,11 @@ PUBLIC VIRTUAL IMS_BOOL MediaSession::FormSdp(IN IMS_UINTP nNegoId, OUT ISession
         CloseMediaSessions(MEDIA_TYPE_VIDEO);
     }
 
+    if (GetNegoState(nNegoId) == STATE_NEGOTIATED)
+    {
+        RequestQos(nNegoId, eType);
+    }
+
     return IMS_TRUE;
 }
 
@@ -248,41 +253,14 @@ PUBLIC VIRTUAL SdpNegotiationResult MediaSession::NegotiateSdp(
         CloseMediaSessions(MEDIA_TYPE_TEXT);
     }
 
+    if (GetNegoState(nNegoId) == STATE_NEGOTIATED)
+    {
+        RequestQos(nNegoId, objResult.eNegotiatedType);
+    }
+
     IMS_TRACE_I("NegotiateSdp() - Audio[%d], Video[%d], Text[%d]", objResult.eAudioDirection,
             objResult.eVideoDirection, objResult.eTextDirection);
     return objResult;
-}
-
-PUBLIC VIRTUAL IMS_BOOL MediaSession::RequestQos(IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eType)
-{
-    IMS_TRACE_I("RequestQos() - NegoId[%" PFLS_x "], Type[%d] CurMediaType[%d]", nNegoId, eType,
-            m_eCurMediaType);
-
-    if ((eType & MEDIA_TYPE_AUDIO))
-    {
-        RequestQosParam(nNegoId, MEDIA_TYPE_AUDIO);
-    }
-
-    if ((eType & MEDIA_TYPE_VIDEO))
-    {
-        RequestQosParam(nNegoId, MEDIA_TYPE_VIDEO);
-    }
-    else if (m_eCurMediaType & MEDIA_TYPE_VIDEO)
-    {
-        ReleaseQosParam(MEDIA_TYPE_VIDEO);
-    }
-
-    if ((eType & MEDIA_TYPE_TEXT))
-    {
-        RequestQosParam(nNegoId, MEDIA_TYPE_TEXT);
-    }
-    else if (m_eCurMediaType & MEDIA_TYPE_TEXT)
-    {
-        ReleaseQosParam(MEDIA_TYPE_TEXT);
-    }
-
-    m_eCurMediaType = eType;
-    return IMS_TRUE;
 }
 
 PUBLIC
@@ -660,6 +638,39 @@ QosRequestParam* MediaSession::FindQosParam(const QosRequestParam* targetParam)
     }
 
     return IMS_NULL;
+}
+
+PROTECTED VIRTUAL IMS_BOOL MediaSession::RequestQos(
+        IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eType)
+{
+    IMS_TRACE_I("RequestQos() - NegoId[%" PFLS_x "], Type[%d] CurMediaType[%d]", nNegoId, eType,
+            m_eCurMediaType);
+
+    if ((eType & MEDIA_TYPE_AUDIO))
+    {
+        RequestQosParam(nNegoId, MEDIA_TYPE_AUDIO);
+    }
+
+    if ((eType & MEDIA_TYPE_VIDEO))
+    {
+        RequestQosParam(nNegoId, MEDIA_TYPE_VIDEO);
+    }
+    else if (m_eCurMediaType & MEDIA_TYPE_VIDEO)
+    {
+        ReleaseQosParam(MEDIA_TYPE_VIDEO);
+    }
+
+    if ((eType & MEDIA_TYPE_TEXT))
+    {
+        RequestQosParam(nNegoId, MEDIA_TYPE_TEXT);
+    }
+    else if (m_eCurMediaType & MEDIA_TYPE_TEXT)
+    {
+        ReleaseQosParam(MEDIA_TYPE_TEXT);
+    }
+
+    m_eCurMediaType = eType;
+    return IMS_TRUE;
 }
 
 PROTECTED QosRequestParam* MediaSession::createQosParam(

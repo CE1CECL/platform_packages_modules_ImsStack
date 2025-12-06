@@ -99,8 +99,6 @@ public:
     virtual MEDIA_CONTENT_TYPE GetSupportedMediaTypesFromSdp(
             IN IMS_UINTP nNegoId, IN ISession* pSession) override;
     SdpNegotiationResult NegotiateSdp(IN IMS_UINTP nNegoId, IN ISession* pSession) override;
-    IMS_BOOL RequestQos(
-            IN IMS_UINTP nNegoID, IN MEDIA_CONTENT_TYPE eType = MEDIA_TYPE_AUDIO) override;
     IMS_BOOL IsQosAvailable(
             IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eMediaType = MEDIA_TYPE_AUDIO) override;
     void FinalizeSdp(IN IMS_UINTP nNegoId, IN ISession* pSession) override;
@@ -133,6 +131,15 @@ public:
     void OnMediaMtuChanged(IN const IMS_UINT32 nMtu) override;
 
 protected:
+    /**
+     * @brief request to registering QoS callback of the given session to java layer
+     *
+     * @param nNegoId The identification of the session
+     * @param eMediaType The type of media
+     * @return IMS_BOOL Returns IMS_TRUE when request Qos is done successfully, IMS_FALSE if the
+     * arguments is invalid.
+     */
+    IMS_BOOL RequestQos(IN IMS_UINTP nNegoID, IN MEDIA_CONTENT_TYPE eType = MEDIA_TYPE_AUDIO);
     // QoS methods
     QosRequestParam* FindQosParam(const QosRequestParam* param);
     QosRequestParam* createQosParam(IN IMS_UINTP nNegoId, IN MEDIA_CONTENT_TYPE eType);
