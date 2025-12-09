@@ -19,11 +19,11 @@
 #include "call/MockIMtcCallContext.h"
 #include "call/ParticipantInfo.h"
 #include "conferencecall/ConferenceDef.h"
-#include "conferencecall/UriFormatter.h"
 #include "configuration/MockMtcConfigurationProxy.h"
 #include "configuration/MtcConfigurationProxy.h"
 #include "dialingplan/MockIMtcDialingPlan.h"
 #include "helper/MtcSupplementaryService.h"
+#include "utility/UriFormatter.h"
 #include <gtest/gtest.h>
 
 using ::testing::_;
@@ -66,7 +66,6 @@ TEST_F(UriFormatterTest, GetReferToForInvite)
     ON_CALL(objService, IsEmergency).WillByDefault(Return(IMS_FALSE));
     ON_CALL(objContext, GetService).WillByDefault(ReturnRef(objService));
 
-    // TODO: test for PAID should be added
     MtcSupplementaryService objSupplementaryService(objContext, *pConfigurationProxy);
     ON_CALL(objContext, GetSupplementaryService).WillByDefault(ReturnRef(objSupplementaryService));
 
