@@ -4107,7 +4107,7 @@ PROTECTED VIRTUAL void AosRegistration::ProcessIpsecFallback(IN IMS_BOOL bIsSupp
 
     if ((bIsSupported && !IsIpsecSupported()) || (!bIsSupported && IsIpsecSupported()))
     {
-        Destroy();
+        DestroyEx();
         UpdateIpsecSupported(bIsSupported, IPSEC_BLOCK_ERROR);
 
         if (!CreateRegistration())
