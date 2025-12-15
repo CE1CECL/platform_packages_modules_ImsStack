@@ -17,6 +17,7 @@
 package com.android.imsstack.enabler.ssc;
 
 import android.text.TextUtils;
+import android.util.SparseBooleanArray;
 
 import com.android.imsstack.enabler.ssc.data.CbServiceData;
 import com.android.imsstack.enabler.ssc.data.CfServiceData;
@@ -38,6 +39,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class SscXmlParser {
     public SscXmlParser() {
@@ -190,15 +192,22 @@ public class SscXmlParser {
             return;
         }
 
+        // Tracks if an audio rule has already been processed for a given condition.
+        SparseBooleanArray hasMediaAudioMap = new SparseBooleanArray();
         for(SscRuleData ruleData : ruleSet) {
             if (ruleData.getSsCondition() == SscConstant.CONDITION_INVALID) {
                 continue;
             }
 
-            if (SscServiceClassUtil.hasVideo(ruleData.getServiceClass())) {
+            int serviceClass = ruleData.getServiceClass();
+            int condition = ruleData.getSsCondition();
+            if (SscServiceClassUtil.hasVideo(serviceClass)) {
                 SscXmlFormat.setRuleId(slotId, SscXmlFormat.MEDIA_TYPE_VIDEO, ssType.getSsName(),
                         ruleData.getSsCondition(), ruleData.getRuleId());
-            } else {
+            } else if (!hasMediaAudioMap.get(condition)) {
+                if (SscServiceClassUtil.hasVoice(serviceClass)) {
+                    hasMediaAudioMap.put(condition, true);
+                }
                 SscXmlFormat.setRuleId(slotId, SscXmlFormat.MEDIA_TYPE_AUDIO, ssType.getSsName(),
                         ruleData.getSsCondition(), ruleData.getRuleId());
             }
@@ -642,6 +651,18 @@ public class SscXmlParser {
             }
 
             ruleSet.add(ruleData);
+        }
+
+        if (ruleSet != null && ruleSet.size() > 1
+                && queryData.getServiceClass() == SscServiceClassUtil.SERVICE_CLASS_VOICE) {
+            // If there are multiple rules and the query is for VOICE, and one of the rules is for
+            // VOICE, remove any rule that is SERVICE_CLASS_NONE.
+            Iterator<SscRuleData> it = ruleSet.iterator();
+            while (it.hasNext()) {
+                if (it.next().getServiceClass() == SscServiceClassUtil.SERVICE_CLASS_NONE) {
+                    it.remove();
+                }
+            }
         }
 
         return ruleSet;
