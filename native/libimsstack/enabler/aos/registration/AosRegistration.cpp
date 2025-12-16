@@ -4003,8 +4003,9 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessForbiddenFailed(IN IMS_SINT32
 
 PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT32 nStatusCode)
 {
-    if (GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy() !=
-            CarrierConfig::Ims::ERROR_POLICY_SUBSCRIBER_FAILED)
+    IMS_SINT32 nPolicy = GET_N_CONFIG(m_nSlotId)->GetExtraRegErrPolicy();
+    if (nPolicy != CarrierConfig::Ims::ERROR_POLICY_SUBSCRIBER_FAILED &&
+            nPolicy != CarrierConfig::Ims::ERROR_POLICY_SUBSCRIBER_FAILED_NO_IMSI_FALLBACK)
     {
         return IMS_FALSE;
     }
@@ -4041,6 +4042,13 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT3
     DestroySubscription();
 
     m_piContext->GetPcscf()->SetCurrentPcscfInvalid();
+
+    if (nPolicy == CarrierConfig::Ims::ERROR_POLICY_SUBSCRIBER_FAILED_NO_IMSI_FALLBACK)
+    {
+        ProcessRetryForSubscriberFailure();
+        return IMS_TRUE;
+    }
+
     const AStringArray& objPuids = m_piContext->GetSubscriber()->GetConfiguredImpus();
 
     if (objPuids.GetCount() > 1)
@@ -4055,7 +4063,8 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT3
             }
             else
             {
-                A_IMS_TRACE_D(REGID, "ProcessSubscriberFailed", 0, 0, 0);
+                A_IMS_TRACE_D(
+                        REGID, "ProcessSubscriberFailed - Fallback to IMSI based URI", 0, 0, 0);
 
                 m_strPuid = objPuids.GetElementAt(1);
                 const SipAddress objAor(m_strPuid);
@@ -4063,7 +4072,7 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT3
                 m_piRegistration->SetAor(objAor);
                 m_piContext->GetPcscf()->SetAllPcscfValid();
 
-                ProcessImsiBasedSubscriber();
+                ProcessRetryForSubscriberFailure();
 
                 SetMode(MODE_LIMITED);
             }
@@ -4071,7 +4080,7 @@ PROTECTED VIRTUAL IMS_BOOL AosRegistration::ProcessSubscriberFailed(IN IMS_SINT3
         }
     }
 
-    ProcessImsiBasedSubscriber();
+    ProcessRetryForSubscriberFailure();
     return IMS_TRUE;
 }
 
@@ -5072,9 +5081,11 @@ PROTECTED VIRTUAL void AosRegistration::ProcessUpdateFailed_StatusCode(IN IMS_SI
         return;
     }
 
+    const ImsVector<IMS_SINT32>& objReregRetryErrCode =
+            GET_N_CONFIG(m_nSlotId)->GetReregRetryErrCodeForInitRegWithSamePcscf();
     if (m_pUtil->IsErrorCodeExisted(
-                GET_N_CONFIG(m_nSlotId)->GetReregRetryErrCodeForInitRegWithSamePcscf(),
-                CarrierConfig::Ims::REG_ERROR_CODE_ALL_RESP))
+                objReregRetryErrCode, CarrierConfig::Ims::REG_ERROR_CODE_ALL_RESP) ||
+            m_pUtil->IsErrorCodeExisted(objReregRetryErrCode, nStatusCode))
     {
         ProcessRegRequiredWithSamePcscf();
         return;
@@ -6782,9 +6793,9 @@ IMS_UINT32 AosRegistration::GetSpecificErrWaitTime()
 }
 
 PRIVATE
-void AosRegistration::ProcessImsiBasedSubscriber()
+void AosRegistration::ProcessRetryForSubscriberFailure()
 {
-    A_IMS_TRACE_D(REGID, "ProcessImsiBasedSubscriber", 0, 0, 0);
+    A_IMS_TRACE_D(REGID, "ProcessRetryForSubscriberFailure", 0, 0, 0);
 
     if (SetNextPcscf())
     {
