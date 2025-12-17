@@ -437,9 +437,8 @@ ImsList<IMtcExtension*> MtcSession::GetSupportedExtensions() const
     lstExtensions.Append(
             new MtcExtension(m_objContext, MtcExtensionSet::OPTION_TAG_SESSION_TIMER, {}, {}));
 
-    if (!m_objContext.GetCallInfo().bUssi &&
-            m_objContext.GetConfigurationProxy().GetBoolean(
-                    ConfigVoice::KEY_VOICE_QOS_PRECONDITION_SUPPORTED_BOOL))
+    if (m_objContext.GetConfigurationProxy().GetBoolean(
+                ConfigVoice::KEY_VOICE_QOS_PRECONDITION_SUPPORTED_BOOL))
     {
         lstExtensions.Append(new PreconditionExtension(m_objContext));
     }
