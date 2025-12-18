@@ -989,7 +989,33 @@ TEST_F(MtcSessionTest, GetExtensionSetReturnsMember)
 {
     CreateMtcSession();
     const MtcExtensionSet& objExtensionSet = pMtcSession->GetExtensionSet();
-    EXPECT_NE(&objExtensionSet, nullptr);
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(
+            MtcExtensionSet::OPTION_TAG_EARLY_DIALOG_TERMINATED));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_FROM_CHANGE));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_HISTORY_INFO));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_REPLACES));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_RPR));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_SESSION_TIMER));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_TARGET_DIALOG));
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_PRECONDITION));
+}
+
+TEST_F(MtcSessionTest, PreconditionExtensionIsNotAvailableByConfig)
+{
+    ON_CALL(*pConfigurationProxy,
+            GetBoolean(ConfigVoice::KEY_VOICE_QOS_PRECONDITION_SUPPORTED_BOOL))
+            .WillByDefault(Return(IMS_FALSE));
+    CreateMtcSession();
+    const MtcExtensionSet& objExtensionSet = pMtcSession->GetExtensionSet();
+    EXPECT_FALSE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_PRECONDITION));
+}
+
+TEST_F(MtcSessionTest, PreconditionExtensionIsAvailableForUssi)
+{
+    CreateMtcSession();
+    objCallInfo.bUssi = IMS_TRUE;
+    const MtcExtensionSet& objExtensionSet = pMtcSession->GetExtensionSet();
+    EXPECT_TRUE(objExtensionSet.IsAvailableOnLocal(MtcExtensionSet::OPTION_TAG_PRECONDITION));
 }
 
 TEST_F(MtcSessionTest, HandleStartRequestUpdatesCallTypeIfVideoTextInRegAndVideoTextInMessage)
