@@ -34,6 +34,7 @@
 #include "interface/MockIAosRegStateManager.h"
 #include "interface/MockIAosRetryRepository.h"
 #include "interface/MockIAosSubscriberManager.h"
+#include "interface/MockIAosTracer.h"
 
 #include "../../interface/aos/MockIAosService.h"
 
@@ -151,6 +152,19 @@ TEST_F(AosProviderTest, SucceedsGetSubscriberManager)
 
     // THEN
     EXPECT_TRUE(piAosSubscriberManager != nullptr);
+}
+
+TEST_F(AosProviderTest, SucceedsGetTracer)
+{
+    // GIVEN
+    MockIAosTracer objMockIAosTracer;
+    m_pProvider->SetTracer(&objMockIAosTracer);
+
+    // WHEN
+    const IAosTracer* piAosTracer = m_pProvider->GetTracer();
+
+    // THEN
+    EXPECT_TRUE(piAosTracer != nullptr);
 }
 
 TEST_F(AosProviderTest, SucceedsGetRetryRepository)

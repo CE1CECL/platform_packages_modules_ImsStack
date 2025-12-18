@@ -48,6 +48,7 @@
 #include "provider/AosNConfiguration.h"
 #include "provider/AosSubscriberManager.h"
 #include "provider/AosRetryRepository.h"
+#include "provider/AosTracer.h"
 #include "external/AosService.h"
 #include "manager/AosBuilder.h"
 
@@ -289,4 +290,11 @@ TEST_F(AosBuilderTest, SucceedBuildingAosNConfiguration)
             static_cast<AosNConfiguration*>(m_pAosBuilder->BuildNConfiguration());
     ASSERT_TRUE(pAosNConfiguration != nullptr);
     delete pAosNConfiguration;
+}
+
+TEST_F(AosBuilderTest, SucceedBuildingAosTracer)
+{
+    AosTracer* pAosTracer = static_cast<AosTracer*>(m_pAosBuilder->BuildTracer(SLOT_ID));
+    ASSERT_TRUE(pAosTracer != nullptr);
+    delete pAosTracer;
 }
