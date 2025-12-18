@@ -3883,6 +3883,19 @@ TEST_F(AosRegistrationTest,
     // THEN: The GIVEN expectation should be met.
 }
 
+TEST_F(AosRegistrationTest, ClearRetryCountButNotClearPcscfWhenIpsecFallback)
+{
+    m_pAosRegistration->SetFeature(AosRegistration::FEATURE_IPSEC);
+    m_pAosRegistration->UpdateIpsecSupported(IMS_FALSE, AosRegistration::IPSEC_BLOCK_ERROR);
+    m_pAosRegistration->SetConsecutiveFailureCount(1);
+
+    m_pAosRegistration->ProcessIpsecFallback(IMS_TRUE);
+
+    EXPECT_TRUE(m_pAosRegistration->IsIpsecSupported());
+    EXPECT_EQ(m_pAosRegistration->GetConsecutiveFailureCount(), 0);
+    EXPECT_EQ(m_pAosRegistration->GetInvokedCount("ClearPcscf"), 0);
+}
+
 TEST_F(AosRegistrationTest, ReportFailureIfFailToCreateRegistrationWhenIpsecFallback)
 {
     m_pAosRegistration->SetFeature(AosRegistration::FEATURE_IPSEC);
