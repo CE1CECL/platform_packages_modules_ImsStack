@@ -32,6 +32,7 @@
 #include "SessionEx.h"
 #include "SessionRefreshHelper.h"
 #include "Sip.h"
+#include "SipError.h"
 #include "SipHeaderUtils.h"
 #include "SipParameter.h"
 #include "SipParsingHelper.h"

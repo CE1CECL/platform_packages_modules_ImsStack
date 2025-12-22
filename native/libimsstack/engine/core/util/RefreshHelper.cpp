@@ -19,6 +19,7 @@
 
 #include "ISipClientConnection.h"
 #include "Sip.h"
+#include "SipError.h"
 #include "SipMethod.h"
 #include "SipParsingHelper.h"
 #include "SipStatusCode.h"

@@ -16,6 +16,8 @@
 #ifndef RELIABLE_PROV_RESPONSE_HELPER_H_
 #define RELIABLE_PROV_RESPONSE_HELPER_H_
 
+#include "SipMethod.h"
+
 class ReliableProvResponseHelper
 {
 public:

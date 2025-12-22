@@ -20,6 +20,7 @@
 #include "Sip.h"
 #include "SipHeaderName.h"
 #include "SipHeaderProperty.h"
+#include "SipMethod.h"
 #include "SipParsingHelper.h"
 #include "SipStatusCode.h"
 #include "SubscriberState.h"

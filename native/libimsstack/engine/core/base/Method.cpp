@@ -27,6 +27,7 @@
 #include "ISipServerConnection.h"
 #include "Sip.h"
 #include "SipDebug.h"
+#include "SipError.h"
 #include "SipParsingHelper.h"
 #include "SipStatusCode.h"
 #include "base/Ims.h"
