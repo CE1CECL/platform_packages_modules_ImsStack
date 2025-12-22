@@ -62,10 +62,15 @@ public class TestCall extends ServerFailureHandler {
     }
 
     /** Triggers {@link ImsCallSessionWrapper#start}. */
-    public void start(@NonNull String callee, int serviceType, int callType) {
+    public void start(@NonNull String callee, int serviceType, int callType,
+            @Nullable Bundle extras) {
         final ImsCallProfile profile = mMmTelFeature.createCallProfile(serviceType, callType);
+        if (extras != null) {
+            profile.getCallExtras().putAll(extras);
+        }
         mCallSession = mMmTelFeature.createCallSession(profile, mCallSessionListener);
         if (mCallSession == null) {
+            fail("Failed to create call session");
             return;
         }
 
@@ -74,7 +79,24 @@ public class TestCall extends ServerFailureHandler {
 
     /** Triggers {@link ImsCallSessionWrapper#start} with parameters for a voice call. */
     public void startVoiceCall() {
-        start("123456789", ImsCallProfile.SERVICE_TYPE_NORMAL, ImsCallProfile.CALL_TYPE_VOICE);
+        start("123456789", ImsCallProfile.SERVICE_TYPE_NORMAL, ImsCallProfile.CALL_TYPE_VOICE,
+                null);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#startConference}. */
+    public void startConference(@NonNull String[] participants, int serviceType, int callType,
+            @Nullable Bundle extras) {
+        final ImsCallProfile profile = mMmTelFeature.createCallProfile(serviceType, callType);
+        if (extras != null) {
+            profile.getCallExtras().putAll(extras);
+        }
+        mCallSession = mMmTelFeature.createCallSession(profile, mCallSessionListener);
+        if (mCallSession == null) {
+            fail("Failed to create call session");
+            return;
+        }
+
+        mCallSession.startConference(participants, profile);
     }
 
     /** Triggers {@link ImsCallSessionWrapper#accept}. */
@@ -87,14 +109,70 @@ public class TestCall extends ServerFailureHandler {
         accept(ImsCallProfile.CALL_TYPE_VOICE, null);
     }
 
+    /** Triggers {@link ImsCallSessionWrapper#deflect}. */
+    public void deflect(@Nullable String deflectNumber) {
+        mCallSession.deflect(deflectNumber);
+    }
+
     /** Triggers {@link ImsCallSessionWrapper#reject}. */
     public void reject(int reason) {
         mCallSession.reject(reason);
     }
 
+    /** Triggers {@link ImsCallSessionWrapper#transfer(String, boolean)}. */
+    public void transfer(@Nullable String number, boolean isConfirmationRequired) {
+        mCallSession.transfer(number, isConfirmationRequired);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#consultativeTransfer}. */
+    public void consultativeTransfer(@Nullable TestCall transferToSession) {
+        // TODO: b/333956737
+        mCallSession.consultativeTransfer(null);
+    }
+
     /** Triggers {@link ImsCallSessionWrapper#terminate}. */
     public void terminate(int reason) {
         mCallSession.terminate(reason);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#hold}. */
+    public void hold(@Nullable ImsStreamMediaProfile profile) {
+        mCallSession.hold(profile);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#resume}. */
+    public void resume(@Nullable ImsStreamMediaProfile profile) {
+        mCallSession.resume(profile);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#merge}. */
+    public void merge() {
+        mCallSession.merge();
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#update}. */
+    public void update(int callType, @Nullable ImsStreamMediaProfile profile) {
+        mCallSession.update(callType, profile);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#extendToConference}. */
+    public void extendToConference(String[] participants) {
+        mCallSession.extendToConference(participants);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#inviteParticipants}. */
+    public void inviteParticipants(String[] participants) {
+        mCallSession.inviteParticipants(participants);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#removeParticipants}. */
+    public void removeParticipants(String[] participants) {
+        mCallSession.removeParticipants(participants);
+    }
+
+    /** Triggers {@link ImsCallSessionWrapper#sendUssd}. */
+    public void sendUssd(String ussdMessage) {
+        mCallSession.sendUssd(ussdMessage);
     }
 
     /** Shortcut of {@link TestCall#expectWithin} with the default timeout. */
@@ -149,6 +227,7 @@ public class TestCall extends ServerFailureHandler {
         mEventRecords.put(eventType, record);
 
         if (!mExpectedEvent.is(eventType)) {
+            Log.i(this, "Expected Event : " + mExpectedEvent + ", actual Event : " + eventType);
             return;
         }
 
@@ -197,10 +276,11 @@ public class TestCall extends ServerFailureHandler {
         }
 
         @Override
-        public void incomingCall() {
+        public void incomingCall(@Nullable Predicate<Bundle> extrasMatcher) {
             mMmTelFeature.setIncomingCallListener(mIncomingCallListener);
 
-            waitFor(new CallEvent<>(CallEvent.Type.MMTEL_INCOMING_CALL));
+            waitFor(new CallEvent<Bundle, Void, Void>(
+                    CallEvent.Type.MMTEL_INCOMING_CALL, extrasMatcher));
 
             mMmTelFeature.setIncomingCallListener(null);
         }
@@ -352,8 +432,9 @@ public class TestCall extends ServerFailureHandler {
         public void nothing() {}
 
         @Override
-        public void incomingCall() {
-            assertTriggered(CallEvent.Type.MMTEL_INCOMING_CALL, (record) -> true);
+        public void incomingCall(@NonNull Predicate<Bundle> extrasMatcher) {
+            assertTriggered(CallEvent.Type.MMTEL_INCOMING_CALL,
+                    (record) -> extrasMatcher.test((Bundle) record.param1));
         }
 
         @Override
@@ -531,7 +612,8 @@ public class TestCall extends ServerFailureHandler {
             mCallSession = new ImsCallSessionWrapper(c, mCallSessionListener);
 
             Log.d(this, "onIncomingCall");
-            onCallEventReceived(CallEvent.Type.MMTEL_INCOMING_CALL, new CallEvent.EventRecord());
+            onCallEventReceived(
+                    CallEvent.Type.MMTEL_INCOMING_CALL, new CallEvent.EventRecord(extras));
 
             return mCallSessionListener;
         }
