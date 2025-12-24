@@ -17,6 +17,7 @@
 #include "ServiceTrace.h"
 
 #include "ISipMessage.h"
+#include "SipMethod.h"
 #include "SipStatusCode.h"
 #include "SubState.h"
 #include "SubscriberRefreshHelper.h"

@@ -44,6 +44,7 @@
 #include "Sip.h"
 #include "SipConfigProxy.h"
 #include "SipDebug.h"
+#include "SipError.h"
 #include "SipHeaderName.h"
 #include "SipHeaderUtils.h"
 #include "SipMethod.h"

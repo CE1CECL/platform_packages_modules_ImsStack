@@ -18,6 +18,7 @@
 
 #include "PubState.h"
 #include "PublicationRefreshHelper.h"
+#include "SipMethod.h"
 #include "SipStatusCode.h"
 
 __IMS_TRACE_TAG_IMS_CORE__;

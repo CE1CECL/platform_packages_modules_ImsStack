@@ -22,6 +22,7 @@
 #include "ISipServerConnection.h"
 #include "ServiceMethod.h"
 #include "SipConfigProxy.h"
+#include "SipError.h"
 #include "SipParameter.h"
 #include "SipParsingHelper.h"
 #include "SipStatusCode.h"

@@ -37,6 +37,7 @@
 #include "Service.h"
 #include "SipConfigProxy.h"
 #include "SipDebug.h"
+#include "SipError.h"
 #include "SipParameter.h"
 #include "SipParsingHelper.h"
 #include "SipStatusCode.h"

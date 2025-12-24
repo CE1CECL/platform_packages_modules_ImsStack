@@ -19,6 +19,7 @@
 
 #include "ISipHeader.h"
 #include "ISipMessage.h"
+#include "ISipMessageBodyPart.h"
 #include "SipParameter.h"
 #include "SipParsingHelper.h"
 #include "TriggerPoint.h"

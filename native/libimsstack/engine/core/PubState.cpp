@@ -19,6 +19,7 @@
 #include "ISipHeader.h"
 #include "PubState.h"
 #include "SipHeaderName.h"
+#include "SipMethod.h"
 #include "SipParsingHelper.h"
 #include "SipStatusCode.h"
 

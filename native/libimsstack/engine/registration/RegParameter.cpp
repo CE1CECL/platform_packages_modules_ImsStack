@@ -23,6 +23,7 @@
 #include "ISipClientConnection.h"
 #include "ISipHeader.h"
 #include "ISipMessage.h"
+#include "ISipMessageBodyPart.h"
 #include "RegParameter.h"
 #include "Sip.h"
 #include "SipConfigProxy.h"

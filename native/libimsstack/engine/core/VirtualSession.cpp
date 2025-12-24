@@ -24,6 +24,7 @@
 
 #include "ISipHeader.h"
 #include "ISipMessage.h"
+#include "ISipMessageBodyPart.h"
 #include "SdpOaState.h"
 #include "SessionDescriptor.h"
 #include "Sip.h"

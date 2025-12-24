@@ -54,6 +54,7 @@
 #include "Sip.h"
 #include "SipConfigProxy.h"
 #include "SipDebug.h"
+#include "SipError.h"
 #include "SipFactory.h"
 #include "SipParameter.h"
 #include "SipParsingHelper.h"

@@ -23,6 +23,7 @@
 #include "offeranswer/SdpSessionParameter.h"
 
 #include "ISipMessage.h"
+#include "ISipMessageBodyPart.h"
 #include "SdpOaState.h"
 #include "Service.h"
 #include "SipDebug.h"
