@@ -1465,3 +1465,144 @@ TEST_F(AudioProfileNegotiatorTest, NegotiateDirectionMoStrictCheckSuccess)
     EXPECT_TRUE(bResult);
     EXPECT_EQ(m_pNegotiatedProfile->GetDirection(), MEDIA_DIRECTION_SEND_RECEIVE);
 }
+TEST_F(AudioProfileNegotiatorTest, NegotiateEvsOfferB0ReceivedA1ReturnA1)
+{
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(98, 0x04, 0x10));  // Local: EVS B0+A1
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(99, 0x07, 0x01F));
+    m_pPeerProfile->AddPayload(
+            CreateEvsPayload(98, 0x07, 0x01F));  // Peer: EVS A1
+    m_pPeerProfile->SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+    m_pPeerProfile->SetDataPort(6020);
+
+    // Act: Negotiate with offer received (triggers IR.92 Table mapping)
+    IMS_BOOL bResult = m_pNegotiator->Negotiate(m_pLocalProfile.get(), m_pPeerProfile.get(),
+            IMS_TRUE, m_pNegotiatedProfile.get(), &m_objMockConfig);
+
+    // Assert
+    EXPECT_TRUE(bResult);  // Expect success
+    ASSERT_EQ(m_pNegotiatedProfile->GetPayloadListSize(), 1);
+    auto pNegoPayload = m_pNegotiatedProfile->GetPayloadAt(0);
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadType(), "EVS");
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadNumber(), 98);
+    ASSERT_NE(pNegoPayload->GetFmtp(), IMS_NULL);
+    auto pNegoFmtp = std::static_pointer_cast<AudioProfile::EvsFmtp>(pNegoPayload->GetFmtp());
+    // Check negotiated BW/BR (intersection from CompareEvsBwBrMode)
+    EXPECT_EQ(pNegoFmtp->GetBwList(), 0x07);   // EVS A1
+    EXPECT_EQ(pNegoFmtp->GetBrList(), 0x01F);
+}
+
+TEST_F(AudioProfileNegotiatorTest, NegotiateEvsOfferB0ReceivedA2ReturnB1)
+{
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(98, 0x04, 0x10));  // Local: EVS B0+A1
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(99, 0x07, 0x01F));
+    m_pPeerProfile->AddPayload(
+            CreateEvsPayload(98, 0x07, 0x07F));  // Peer: EVS A2
+    m_pPeerProfile->SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+    m_pPeerProfile->SetDataPort(6020);
+
+    // Act: Negotiate with offer received (triggers IR.92 Table mapping)
+    IMS_BOOL bResult = m_pNegotiator->Negotiate(m_pLocalProfile.get(), m_pPeerProfile.get(),
+            IMS_TRUE, m_pNegotiatedProfile.get(), &m_objMockConfig);
+
+    // Assert
+    EXPECT_TRUE(bResult);  // Expect success
+    ASSERT_EQ(m_pNegotiatedProfile->GetPayloadListSize(), 1);
+    auto pNegoPayload = m_pNegotiatedProfile->GetPayloadAt(0);
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadType(), "EVS");
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadNumber(), 98);
+    ASSERT_NE(pNegoPayload->GetFmtp(), IMS_NULL);
+    auto pNegoFmtp = std::static_pointer_cast<AudioProfile::EvsFmtp>(pNegoPayload->GetFmtp());
+    // Check negotiated BW/BR (intersection from CompareEvsBwBrMode)
+    EXPECT_EQ(pNegoFmtp->GetBwList(), 0x07);   // EVS A1
+    EXPECT_EQ(pNegoFmtp->GetBrList(), 0x01F);
+}
+
+TEST_F(AudioProfileNegotiatorTest, NegotiateEvsOfferB2ReceivedA2ReturnA2)
+{
+    // Arrange: Setup compatible EVS profiles (e.g., EVS B2+A2)
+    // This should succeed on the return of non-subset bitrate list but follow to IR92 table.
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(98, 0x04, 0x78));  // Local: EVS B2+A2
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(99, 0x07, 0x07F));
+    m_pPeerProfile->AddPayload(
+            CreateEvsPayload(98, 0x07, 0x07F));  // Peer: EVS A2
+    m_pPeerProfile->SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+    m_pPeerProfile->SetDataPort(6020);
+
+    // Act: Negotiate with offer received (triggers IR.92 Table mapping)
+    IMS_BOOL bResult = m_pNegotiator->Negotiate(m_pLocalProfile.get(), m_pPeerProfile.get(),
+            IMS_TRUE, m_pNegotiatedProfile.get(), &m_objMockConfig);
+
+    // Assert
+    EXPECT_TRUE(bResult);  // Expect success
+    ASSERT_EQ(m_pNegotiatedProfile->GetPayloadListSize(), 1);
+    auto pNegoPayload = m_pNegotiatedProfile->GetPayloadAt(0);
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadType(), "EVS");
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadNumber(), 98);
+    ASSERT_NE(pNegoPayload->GetFmtp(), IMS_NULL);
+    auto pNegoFmtp = std::static_pointer_cast<AudioProfile::EvsFmtp>(pNegoPayload->GetFmtp());
+    // Check negotiated BW/BR (intersection from CompareEvsBwBrMode)
+    EXPECT_EQ(pNegoFmtp->GetBwList(), 0x07);   // EVS A2
+    EXPECT_EQ(pNegoFmtp->GetBrList(), 0x07F);
+}
+
+TEST_F(AudioProfileNegotiatorTest, NegotiateEvsOfferA2ReceivedB1OnlyReturnSubset)
+{
+    // Arrange: Setup compatible EVS profiles (e.g., EVS B2+A2)
+    // This should succeed on the return of non-subset bitrate list but follow to IR92 table.
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(98, 0x07, 0x07F));  // Local: EVS A2
+    m_pPeerProfile->AddPayload(
+            CreateEvsPayload(98, 0x04, 0x18));  // Peer: EVS B1 only
+    m_pPeerProfile->SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+    m_pPeerProfile->SetDataPort(6020);
+
+    // Act: Negotiate with offer received (triggers IR.92 Table mapping)
+    IMS_BOOL bResult = m_pNegotiator->Negotiate(m_pLocalProfile.get(), m_pPeerProfile.get(),
+            IMS_TRUE, m_pNegotiatedProfile.get(), &m_objMockConfig);
+
+    // Assert
+    EXPECT_TRUE(bResult);  // Expect success
+    ASSERT_EQ(m_pNegotiatedProfile->GetPayloadListSize(), 1);
+    auto pNegoPayload = m_pNegotiatedProfile->GetPayloadAt(0);
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadType(), "EVS");
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadNumber(), 98);
+    ASSERT_NE(pNegoPayload->GetFmtp(), IMS_NULL);
+    auto pNegoFmtp = std::static_pointer_cast<AudioProfile::EvsFmtp>(pNegoPayload->GetFmtp());
+    // Check negotiated BW/BR (intersection from CompareEvsBwBrMode)
+    EXPECT_EQ(pNegoFmtp->GetBwList(), 0x04);   // Subset of B1+A2
+    EXPECT_EQ(pNegoFmtp->GetBrList(), 0x018);
+}
+
+TEST_F(AudioProfileNegotiatorTest, NegotiateEvsOfferA2ReceivedNonIR92ReturnSubset)
+{
+    // Arrange: Setup compatible EVS profiles (e.g., EVS B2+A2)
+    // This should succeed on the return of non-subset bitrate list but follow to IR92 table.
+    m_pLocalProfile->AddPayload(
+            CreateEvsPayload(98, 0x07, 0x07F));  // Local: EVS B1
+    m_pPeerProfile->AddPayload(
+            CreateEvsPayload(98, 0x04, 0x01F));  // Peer: Non IR92 config
+    m_pPeerProfile->SetDirection(MEDIA_DIRECTION_SEND_RECEIVE);
+    m_pPeerProfile->SetDataPort(6020);
+
+    // Act: Negotiate with offer received (triggers IR.92 Table mapping)
+    IMS_BOOL bResult = m_pNegotiator->Negotiate(m_pLocalProfile.get(), m_pPeerProfile.get(),
+            IMS_TRUE, m_pNegotiatedProfile.get(), &m_objMockConfig);
+
+    // Assert
+    EXPECT_TRUE(bResult);  // Expect success
+    ASSERT_EQ(m_pNegotiatedProfile->GetPayloadListSize(), 1);
+    auto pNegoPayload = m_pNegotiatedProfile->GetPayloadAt(0);
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadType(), "EVS");
+    EXPECT_EQ(pNegoPayload->GetRtpMap().GetPayloadNumber(), 98);
+    ASSERT_NE(pNegoPayload->GetFmtp(), IMS_NULL);
+    auto pNegoFmtp = std::static_pointer_cast<AudioProfile::EvsFmtp>(pNegoPayload->GetFmtp());
+    // Check negotiated BW/BR (intersection from CompareEvsBwBrMode)
+    EXPECT_EQ(pNegoFmtp->GetBwList(), 0x04);   // Subset of offer+answer
+    EXPECT_EQ(pNegoFmtp->GetBrList(), 0x01F);
+}
