@@ -40,8 +40,8 @@ public:
     void Timer_TimerExpired(IN ITimer* piTimer) override;
 
     // IMtsTraffic
-    inline IMS_UINT32 GetDirection() override { return m_nDirection; }
-    inline IMS_UINT32 GetTrafficType() override { return m_nTrafficType; }
+    inline IMS_UINT32 GetDirection() const override { return m_nDirection; }
+    inline IMS_UINT32 GetTrafficType() const override { return m_nTrafficType; }
     IMS_BOOL IsRadioGuardTimerActive() override;
     void StartRadioGuardTimer(IN IMS_UINT32 nDuration = MTS_RADIO_GUARD_TIMER_MS) override;
 

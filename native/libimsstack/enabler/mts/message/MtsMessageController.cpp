@@ -462,7 +462,6 @@ PRIVATE void MtsMessageController::ReceiveMtsMessage(
 
     // When SIP MESSAGE(RP-ACK) is received before SIP 202 Accepted,
     // remove the MtsMessage(RP-DATA) for further MO SMS request.
-    // CleanMtsMessageWithInReplyTo(piPageMessage);
     CleanMtsMessageWithMessageReference(piPageMessage);
 
     IMtsMessage* piMtsMessage = new MtsMessage(m_objContext.GetSlotId());
@@ -745,7 +744,7 @@ IMS_BOOL MtsMessageController::ConstructSendMessage(IN IMessage* piMessage,
 
 PRIVATE
 IMS_RESULT MtsMessageController::AddContactHeader(
-        IN IMessage* piMessage, IN MtsServiceType eServiceType)
+        IN const IMessage* piMessage, IN MtsServiceType eServiceType)
 {
     const ICoreService* piCoreService = m_objContext.GetService(eServiceType).GetICoreService();
     if (piCoreService == IMS_NULL || piMessage->GetMessage() == IMS_NULL)
@@ -1083,56 +1082,6 @@ void MtsMessageController::CleanMtsMessageWithRpMr(IMS_SINT32 nMrOfRp)
     else
     {
         IMS_TRACE_E(0, "piMtsMessage is null", 0, 0, 0);
-    }
-}
-
-PRIVATE void MtsMessageController::CleanMtsMessageWithInReplyTo(
-        IN const IPageMessage* piPageMessage)
-{
-    if (m_objMsgList.GetSize() == 0)
-    {
-        return;
-    }
-
-    // received page message
-    const IMessage* piCurrentMessage = piPageMessage != IMS_NULL
-            ? piPageMessage->GetPreviousRequest(IMessage::PAGEMESSAGE_SEND)
-            : IMS_NULL;
-    const ISipMessage* piCurrentSipMessage =
-            piCurrentMessage != IMS_NULL ? piCurrentMessage->GetMessage() : IMS_NULL;
-    AString strInReplyTo = piCurrentSipMessage != IMS_NULL
-            ? piCurrentSipMessage->GetHeader(ISipHeader::IN_REPLY_TO)
-            : AString::ConstEmpty();
-
-    if (strInReplyTo.GetLength() <= 0)
-    {
-        return;
-    }
-
-    for (IMS_UINT32 i = 0; i < m_objMsgList.GetSize(); i++)
-    {
-        IMtsMessage* piMtsMessage = m_objMsgList.GetAt(i);
-        if (IsReceivedMessage(piMtsMessage) == IMS_TRUE)
-        {
-            continue;
-        }
-
-        // sent page message
-        const IPageMessage* piTargetPageMessage = piMtsMessage->GetPageMessage();
-        const IMessage* piTargetMessage =
-                piTargetPageMessage->GetPreviousRequest(IMessage::PAGEMESSAGE_SEND);
-        const ISipMessage* piTargetSipMessage =
-                piTargetMessage != IMS_NULL ? piTargetMessage->GetMessage() : IMS_NULL;
-        AString strCallId = piTargetSipMessage != IMS_NULL
-                ? piTargetSipMessage->GetHeader(ISipHeader::CALL_ID)
-                : AString::ConstEmpty();
-
-        if (strCallId.EqualsIgnoreCase(strInReplyTo))
-        {
-            Remove(piMtsMessage);
-            delete piMtsMessage;
-            return;
-        }
     }
 }
 

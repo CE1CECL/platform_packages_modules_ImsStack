@@ -31,7 +31,7 @@ public:
      *
      * @return The direction of the traffic. (e.g., IImsRadio::DIRECTION_MO)
      */
-    virtual IMS_UINT32 GetDirection() = 0;
+    virtual IMS_UINT32 GetDirection() const = 0;
 
     /**
      * @brief Gets the type of the SMS traffic.
@@ -39,7 +39,7 @@ public:
      * @return The type of the traffic (e.g., IImsRadio::TRAFFIC_TYPE_SMS).
      */
 
-    virtual IMS_UINT32 GetTrafficType() = 0;
+    virtual IMS_UINT32 GetTrafficType() const = 0;
 
     /**
      * @brief Checks whether the radio guard timer is currently active.

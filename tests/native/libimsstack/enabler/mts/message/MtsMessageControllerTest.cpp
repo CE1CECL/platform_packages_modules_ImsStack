@@ -109,28 +109,20 @@ public:
     TestMtsMessageController* pMtsMessageController;
 
     JniEnablerConnector* pConnector;
-    // cppcheck-suppress unusedStructMember
     MockICoreService objMockCoreService;
     MockIJniEnabler objMockJniEnabler;
     MockIJniMtsAppThread objJniMtsAppThread;
     MockILocationInfo objMockILocationInfo;
     MockILocationProperties objMockILocationProperties;
-    // cppcheck-suppress unusedStructMember
     MockIMessage objMockMessage;
-    // cppcheck-suppress unusedStructMember
     MockIMessageBodyPart objMockMessageBodyPart;
     MockIMtsContext objContext;
     MockIMtsService objMockMtsService;
     MockIMtsService objMockEmergencyMtsService;
-    // cppcheck-suppress unusedStructMember
     MockIMtsServiceState objMockMtsServiceState;
-    // cppcheck-suppress unusedStructMember
     MockIPageMessage objMockPageMessage;
     MockISipHeader objMockSipHeader;
-    // cppcheck-suppress unusedStructMember
     MockISipMessage objMockSipMessage;
-    MockIImsAos objMockImsAos;
-    MockIImsAosInfo objMockImsAosInfo;
     MtsDynamicLoader* pMtsDynamicLoader;
     TestConfigService objConfigService;
     TestPhoneInfoService objPhoneInfoService;

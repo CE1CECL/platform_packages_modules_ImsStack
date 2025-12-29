@@ -91,12 +91,12 @@ protected:
     {
         for (IMS_UINT32 i = 0; i < objMtsTraffics.GetSize(); i++)
         {
-            MtsTraffic* pTmpMtsTraffic = objMtsTraffics.GetAt(i);
+            const MtsTraffic* pTmpMtsTraffic = objMtsTraffics.GetAt(i);
 
             if ((pTmpMtsTraffic->GetDirection() == nDirection) &&
                     (pTmpMtsTraffic->GetTrafficType() == nTrafficType))
             {
-                return pTmpMtsTraffic;
+                return objMtsTraffics.GetAt(i);
             }
         }
 
@@ -108,7 +108,7 @@ TEST_F(MtsTrafficTest, Constructor)
 {
     for (IMS_UINT32 i = 0; i < objMtsTraffics.GetSize(); i++)
     {
-        MtsTraffic* pTmpMtsTraffic = objMtsTraffics.GetAt(i);
+        const MtsTraffic* pTmpMtsTraffic = objMtsTraffics.GetAt(i);
 
         ASSERT_NE(pTmpMtsTraffic, nullptr);
     }
