@@ -17,6 +17,7 @@ package com.android.imsstack.imsservice.mmtel.sms;
 
 import android.telephony.SmsManager;
 import android.telephony.ims.stub.ImsSmsImplBase;
+import com.android.internal.annotations.VisibleForTesting;
 
 /**
  * Handles the SMS Error Cause
@@ -102,7 +103,8 @@ public enum  SmsRPErrorCause {
      * returns the RP-Cause Value
      * @return the RP-Cause Value
      */
-    private int getRPCauseCode() {
+    @VisibleForTesting
+    public int getRPCauseCode() {
         return mRPCauseCode;
     }
 
