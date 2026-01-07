@@ -2892,65 +2892,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
         @Override
         public void onCommandResponse(Usat.CommandResponse response) {
-            Usat.CallControlCommandResponse cmdRes = (Usat.CallControlCommandResponse) response;
-            Usat.CallControlCommand cmd = (Usat.CallControlCommand) cmdRes.getCommand();
-
-            synchronized (mLock) {
-                if (!cmd.equals(mCcCmd)) {
-                    loge("Command mismatched - " + cmd);
-                    return;
-                }
-            }
-
-            log("onCommandResponse :: cmd=" + cmd + ", result=" + cmdRes.getResult()
-                    + ", dialedString=" + ImsLog.hiddenString(cmdRes.getDialedString()));
-
-            if (cmdRes.getResult() == Usat.RESULT_NOT_ALLOWED) {
-                notifyCallStartFailed(ImsReasonInfo.CODE_UNSPECIFIED);
-                return;
-            }
-
-            String dialedString = cmd.getDialedString();
-
-            if (cmdRes.getResult() == Usat.RESULT_ALLOWED_WITH_MODIFICATION) {
-                dialedString = cmdRes.getDialedString();
-                int reasonCode = getReasonCodeForUsatCallControlType(cmd.getCcType(),
-                        cmdRes.getCcType(), cmd.getMediaType(), dialedString);
-
-                if (reasonCode == ImsReasonInfo.CODE_UNSPECIFIED) {
-                    reasonCode = getReasonCodeForUsatMediaType(
-                            cmd.getMediaType(), cmdRes.getMediaType());
-                }
-
-                if (reasonCode != ImsReasonInfo.CODE_UNSPECIFIED) {
-                    notifyCallStartFailed(reasonCode);
-                    return;
-                }
-
-                if (TextUtils.isEmpty(dialedString)) {
-                    // Use the original dialed string if this is not present.
-                    dialedString = cmd.getDialedString();
-                } else {
-                    mCallProfile.setCallExtra(ImsCallProfile.EXTRA_OI, dialedString);
-                    // This will be used in onCallStarted callback.
-                    mRemoteCallProfile.setCallExtraInt(ImsCallProfile.EXTRA_OIR,
-                            ImsCallProfile.OIR_PRESENTATION_NOT_RESTRICTED);
-
-                    mCallback.invokeUpdated(ImsCallSessionImpl.this,
-                            ImsCallUtils.getSanitizedCallProfileForVideoDirection(mCallProfile));
-                }
-            }
-
-            // OFFLINE_DIALING
-            if (!startMoPendingCall(dialedString, mCallProfile)) {
-                // Normal call
-                startInternal(dialedString, mCallProfile);
-            }
-
-            synchronized (mLock) {
-                mStartDone = true;
-                mCcCmd = null;
-            }
+            postAndRunTask(() -> handleCommandResponse(response));
         }
 
         public void dispose() {
@@ -3025,6 +2967,68 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             }
 
             synchronized (mLock) {
+                mCcCmd = null;
+            }
+        }
+
+        private void handleCommandResponse(Usat.CommandResponse response) {
+            Usat.CallControlCommandResponse cmdRes = (Usat.CallControlCommandResponse) response;
+            Usat.CallControlCommand cmd = (Usat.CallControlCommand) cmdRes.getCommand();
+
+            synchronized (mLock) {
+                if (!cmd.equals(mCcCmd)) {
+                    loge("Command mismatched - " + cmd);
+                    return;
+                }
+            }
+
+            log("onCommandResponse :: cmd=" + cmd + ", result=" + cmdRes.getResult()
+                    + ", dialedString=" + ImsLog.hiddenString(cmdRes.getDialedString()));
+
+            if (cmdRes.getResult() == Usat.RESULT_NOT_ALLOWED) {
+                notifyCallStartFailed(ImsReasonInfo.CODE_UNSPECIFIED);
+                return;
+            }
+
+            String dialedString = cmd.getDialedString();
+
+            if (cmdRes.getResult() == Usat.RESULT_ALLOWED_WITH_MODIFICATION) {
+                dialedString = cmdRes.getDialedString();
+                int reasonCode = getReasonCodeForUsatCallControlType(cmd.getCcType(),
+                        cmdRes.getCcType(), cmd.getMediaType(), dialedString);
+
+                if (reasonCode == ImsReasonInfo.CODE_UNSPECIFIED) {
+                    reasonCode = getReasonCodeForUsatMediaType(
+                            cmd.getMediaType(), cmdRes.getMediaType());
+                }
+
+                if (reasonCode != ImsReasonInfo.CODE_UNSPECIFIED) {
+                    notifyCallStartFailed(reasonCode);
+                    return;
+                }
+
+                if (TextUtils.isEmpty(dialedString)) {
+                    // Use the original dialed string if this is not present.
+                    dialedString = cmd.getDialedString();
+                } else {
+                    mCallProfile.setCallExtra(ImsCallProfile.EXTRA_OI, dialedString);
+                    // This will be used in onCallStarted callback.
+                    mRemoteCallProfile.setCallExtraInt(ImsCallProfile.EXTRA_OIR,
+                            ImsCallProfile.OIR_PRESENTATION_NOT_RESTRICTED);
+
+                    mCallback.invokeUpdated(ImsCallSessionImpl.this,
+                            ImsCallUtils.getSanitizedCallProfileForVideoDirection(mCallProfile));
+                }
+            }
+
+            // OFFLINE_DIALING
+            if (!startMoPendingCall(dialedString, mCallProfile)) {
+                // Normal call
+                startInternal(dialedString, mCallProfile);
+            }
+
+            synchronized (mLock) {
+                mStartDone = true;
                 mCcCmd = null;
             }
         }

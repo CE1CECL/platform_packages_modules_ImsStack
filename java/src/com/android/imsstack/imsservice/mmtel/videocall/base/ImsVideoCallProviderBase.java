@@ -318,24 +318,25 @@ public class ImsVideoCallProviderBase extends ImsVideoCallProvider
         @Override
         public void onMediaSessionDataUsageChanged(MtcMediaSession session,
                 long dataSize) {
-            handleMediaSessionDataUsageChanged(dataSize);
+            mExecutor.execute(() -> handleMediaSessionDataUsageChanged(dataSize));
         }
 
         @Override
         public void onMediaSessionMediaInfoChanged(MtcMediaSession session,
                 int mediaInfo, int intParam, String strParam) {
-            handleMediaSessionMediaInfoChanged(mediaInfo, intParam, strParam);
+            mExecutor.execute(() -> handleMediaSessionMediaInfoChanged(
+                    mediaInfo, intParam, strParam));
         }
 
         @Override
         public void onMediaSessionPeerFirstVideoReceived(MtcMediaSession session) {
-            handleMediaSessionPeerFirstVideoReceived();
+            mExecutor.execute(() -> handleMediaSessionPeerFirstVideoReceived());
         }
 
         @Override
         public void onMediaSessionPeerDimensionsChanged(MtcMediaSession session,
                 final int width, final int height) {
-            handleMediaSessionPeerDimensionsChanged(width, height);
+            mExecutor.execute(() -> handleMediaSessionPeerDimensionsChanged(width, height));
         }
     }
 }
