@@ -289,6 +289,7 @@ public class ImsVideoCallProviderBaseTest extends ImsVideoCallProviderTestBase {
         MtcMediaSession.VideoListener listener = listenerCaptor.getValue();
 
         listener.onMediaSessionDataUsageChanged(mMockMediaSession, 1024);
+        processAllMessages();
 
         verify(mMockCallback).changeCallDataUsage(1024);
     }
@@ -318,6 +319,7 @@ public class ImsVideoCallProviderBaseTest extends ImsVideoCallProviderTestBase {
         MtcMediaSession.VideoListener listener = listenerCaptor.getValue();
 
         listener.onMediaSessionPeerDimensionsChanged(mMockMediaSession, 1920, 1080);
+        processAllMessages();
 
         verify(mMockCallback).changePeerDimensions(1920, 1080);
     }

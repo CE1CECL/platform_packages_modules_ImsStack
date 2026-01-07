@@ -56,7 +56,6 @@ public class ImsCallManager {
             new ConcurrentHashMap<String, ImsCallSessionImpl>(8, 0.9f, 1);
     protected final ConcurrentHashMap<String, ImsCallSessionImpl> mPendingSessions =
             new ConcurrentHashMap<String, ImsCallSessionImpl>(4, 0.9f, 1);
-    private final Object mLock = new Object();
     private final ICallContext mCallContext;
     private final MtcApp mMtcApp;
     private final IMmTelCallListener mMmTelCallListener;
@@ -127,13 +126,8 @@ public class ImsCallManager {
         removePendingSessions();
         destroyAllSessions();
 
-        synchronized (mPendingSessions) {
-            mPendingSessions.clear();
-        }
-
-        synchronized (mSessions) {
-            mSessions.clear();
-        }
+        mPendingSessions.clear();
+        mSessions.clear();
     }
 
     /**
@@ -206,24 +200,22 @@ public class ImsCallManager {
     public boolean takeSession(ImsCallSessionImpl callSession) {
         ImsCallSessionImpl newSession = null;
 
-        synchronized (mPendingSessions) {
-            log("takeSession :: callId=" + callSession.getCallId() +
-                    ", pendingSessions=" + mPendingSessions.size());
+        log("takeSession :: callId=" + callSession.getCallId()
+                + ", pendingSessions=" + mPendingSessions.size());
 
-            newSession = mPendingSessions.get(callSession.getCallId());
+        newSession = mPendingSessions.get(callSession.getCallId());
 
-            if (newSession != null) {
-                onCallCreate(newSession);
-                // MT call is taken.
-                updateImsCallState(TelephonyManager.CALL_STATE_OFFHOOK);
+        if (newSession != null) {
+            onCallCreate(newSession);
+            // MT call is taken.
+            updateImsCallState(TelephonyManager.CALL_STATE_OFFHOOK);
 
-                // CALL_CONNECTION_ID
-                int ccId = ImsCallConnectionIds.getNewId(mCallContext.getSlotId());
-                newSession.setCallConnectionId(ccId);
-                ImsCallConnectionIds.add(mCallContext.getSlotId(), ccId);
+            // CALL_CONNECTION_ID
+            int ccId = ImsCallConnectionIds.getNewId(mCallContext.getSlotId());
+            newSession.setCallConnectionId(ccId);
+            ImsCallConnectionIds.add(mCallContext.getSlotId(), ccId);
 
-                newSession.takeCall();
-            }
+            newSession.takeCall();
         }
 
         if (newSession != null) {
@@ -267,24 +259,22 @@ public class ImsCallManager {
      * @return ImsCallSessionImpl
      */
     public ImsCallSessionImpl getConnectingSession() {
-        synchronized (mSessions) {
-            if (!mSessions.isEmpty()) {
-                for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                    MtcCall call = entry.getValue().getMtcCall();
+        if (!mSessions.isEmpty()) {
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                MtcCall call = entry.getValue().getMtcCall();
 
-                    if ((call != null) && !call.isInCall() && !call.isOnHold()) {
-                        return entry.getValue();
-                    }
+                if ((call != null) && !call.isInCall() && !call.isOnHold()) {
+                    return entry.getValue();
                 }
             }
+        }
 
-            if (!mPendingSessions.isEmpty()) {
-                for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
-                    MtcCall call = entry.getValue().getMtcCall();
+        if (!mPendingSessions.isEmpty()) {
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
+                MtcCall call = entry.getValue().getMtcCall();
 
-                    if ((call != null)) {
-                        return entry.getValue();
-                    }
+                if ((call != null)) {
+                    return entry.getValue();
                 }
             }
         }
@@ -293,17 +283,15 @@ public class ImsCallManager {
     }
 
     public ImsCallSessionImpl getActiveSession() {
-        synchronized (mSessions) {
-            if (mSessions.isEmpty()) {
-                return null;
-            }
+        if (mSessions.isEmpty()) {
+            return null;
+        }
 
-            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                MtcCall call = entry.getValue().getMtcCall();
+        for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+            MtcCall call = entry.getValue().getMtcCall();
 
-                if ((call != null) && call.isInCall() && !call.isOnHold()) {
-                    return entry.getValue();
-                }
+            if ((call != null) && call.isInCall() && !call.isOnHold()) {
+                return entry.getValue();
             }
         }
 
@@ -311,17 +299,15 @@ public class ImsCallManager {
     }
 
     public ImsCallSessionImpl getHoldSession() {
-        synchronized (mSessions) {
-            if (mSessions.isEmpty()) {
-                return null;
-            }
+        if (mSessions.isEmpty()) {
+            return null;
+        }
 
-            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                MtcCall call = entry.getValue().getMtcCall();
+        for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+            MtcCall call = entry.getValue().getMtcCall();
 
-                if ((call != null) && call.isOnHold()) {
-                    return entry.getValue();
-                }
+            if ((call != null) && call.isOnHold()) {
+                return entry.getValue();
             }
         }
 
@@ -341,16 +327,12 @@ public class ImsCallManager {
         Set<Map.Entry<String, ImsCallSessionImpl>> sessionsEntrySet = null;
         Set<Map.Entry<String, ImsCallSessionImpl>> pendingEntrySet = null;
 
-        synchronized (mSessions) {
-            if (!mSessions.isEmpty()) {
-                sessionsEntrySet = mSessions.entrySet();
-            }
+        if (!mSessions.isEmpty()) {
+            sessionsEntrySet = mSessions.entrySet();
         }
 
-        synchronized (mPendingSessions) {
-            if (!mPendingSessions.isEmpty()) {
-                pendingEntrySet =  mPendingSessions.entrySet();
-            }
+        if (!mPendingSessions.isEmpty()) {
+            pendingEntrySet =  mPendingSessions.entrySet();
         }
 
         if (sessionsEntrySet != null) {
@@ -386,27 +368,21 @@ public class ImsCallManager {
         String newCallId = "0";
 
         do {
-            synchronized (mLock) {
-                newId = mCallId;
-                mCallId++;
-                if (mCallId == MAX_CALL_ID) {
-                    mCallId = 1;
-                }
+            newId = mCallId;
+            mCallId++;
+            if (mCallId == MAX_CALL_ID) {
+                mCallId = 1;
             }
 
             newCallId = String.valueOf(newId);
-            synchronized (mSessions) {
-                if (mSessions.get(newCallId) != null) {
-                    log("createCallId: collision in active sessions - newId=" + newCallId);
-                    newId = 0;
-                }
+            if (mSessions.get(newCallId) != null) {
+                log("createCallId: collision in active sessions - newId=" + newCallId);
+                newId = 0;
             }
 
-            synchronized (mPendingSessions) {
-                if (mPendingSessions.get(newCallId) != null) {
-                    log("createCallId: collision in pending sessions - newId=" + newCallId);
-                    newId = 0;
-                }
+            if (mPendingSessions.get(newCallId) != null) {
+                log("createCallId: collision in pending sessions - newId=" + newCallId);
+                newId = 0;
             }
         } while (newId == 0);
 
@@ -435,31 +411,26 @@ public class ImsCallManager {
     }
 
     private void addPendingSession(ImsCallSessionImpl session) {
-        synchronized (mPendingSessions) {
-            mPendingSessions.put(session.getCallId(), session);
+        mPendingSessions.put(session.getCallId(), session);
 
-            log("pendingSessions=" + mPendingSessions.size() +
-                    ", session=" + session.getCallId());
-        }
+        log("pendingSessions=" + mPendingSessions.size()
+                + ", session=" + session.getCallId());
     }
 
     private void removePendingSession(ImsCallSessionImpl session) {
         String key = session.getCallId();
+        ImsCallSessionImpl s = mPendingSessions.remove(key);
 
-        synchronized (mPendingSessions) {
-            ImsCallSessionImpl s = mPendingSessions.remove(key);
+        // Validity check
+        if ((s != null) && (s != session)) {
+            log("removePendingSession :: " + session
+                    + " is not associated with key(" + key + ")");
 
-            // Validity check
-            if ((s != null) && (s != session)) {
-                log("removePendingSession :: " + session +
-                        " is not associated with key(" + key + ")");
+            mPendingSessions.put(key, s);
 
-                mPendingSessions.put(key, s);
-
-                for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
-                    if (entry.getValue() == s) {
-                        mPendingSessions.remove(entry.getKey());
-                    }
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
+                if (entry.getValue() == s) {
+                    mPendingSessions.remove(entry.getKey());
                 }
             }
         }
@@ -479,16 +450,14 @@ public class ImsCallManager {
     }
 
     private void onCallCreate(ImsCallSessionImpl session) {
-        synchronized (mSessions) {
-            mSessions.put(session.getCallId(), session);
+        mSessions.put(session.getCallId(), session);
 
-            // SRVCC_STATE_TRACKING
-            if (mSessions.size() == 1) {
-                SrvccStateTracker sst = (SrvccStateTracker) mCallContext.getSrvccStateTracker();
+        // SRVCC_STATE_TRACKING
+        if (mSessions.size() == 1) {
+            SrvccStateTracker sst = (SrvccStateTracker) mCallContext.getSrvccStateTracker();
 
-                if (sst != null) {
-                    sst.start();
-                }
+            if (sst != null) {
+                sst.start();
             }
         }
 
@@ -499,54 +468,50 @@ public class ImsCallManager {
     private void onCallDestroy(ImsCallSessionImpl session) {
         String key = session.getCallId();
 
-        synchronized (mPendingSessions) {
-            if (mPendingSessions.containsKey(key)) {
-                removePendingSession(session);
-                return;
+        if (mPendingSessions.containsKey(key)) {
+            removePendingSession(session);
+            return;
+        }
+
+        ImsCallSessionImpl s = mSessions.remove(key);
+
+        // Validity check
+        if ((s != null) && (s != session)) {
+            log("onCallDestroy :: " + session
+                    + " is not associated with key(" + key + ")");
+            mSessions.put(key, s);
+
+            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+                if (entry.getValue() == s) {
+                    mSessions.remove(entry.getKey());
+                }
             }
         }
 
-        synchronized (mSessions) {
-            ImsCallSessionImpl s = mSessions.remove(key);
+        // If all the sessions are destroyed,
+        // then remove all the ConferenceInfo if present.
+        if (mSessions.isEmpty()) {
+            updateImsCallState(TelephonyManager.CALL_STATE_IDLE);
+            ConferenceInfoHelper.destroyAllConferenceInfos();
 
-            // Validity check
-            if ((s != null) && (s != session)) {
-                log("onCallDestroy :: " + session +
-                        " is not associated with key(" + key + ")");
-                mSessions.put(key, s);
+            ImsGarbageCalls gc = ImsGarbageCalls.getInstance();
 
-                for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                    if (entry.getValue() == s) {
-                        mSessions.remove(entry.getKey());
-                    }
-                }
+            if (gc.getCount(mCallContext.getSlotId()) >= ImsGarbageCalls.MAX_CALL) {
+                gc.removeAll(mCallContext.getSlotId());
             }
 
-            // If all the sessions are destroyed,
-            // then remove all the ConferenceInfo if present.
-            if (mSessions.isEmpty()) {
-                updateImsCallState(TelephonyManager.CALL_STATE_IDLE);
-                ConferenceInfoHelper.destroyAllConferenceInfos();
+            // SRVCC_STATE_TRACKING
+            SrvccStateTracker sst = (SrvccStateTracker) mCallContext.getSrvccStateTracker();
 
-                ImsGarbageCalls gc = ImsGarbageCalls.getInstance();
+            if (sst != null) {
+                sst.stop();
+            }
 
-                if (gc.getCount(mCallContext.getSlotId()) >= ImsGarbageCalls.MAX_CALL) {
-                    gc.removeAll(mCallContext.getSlotId());
-                }
+            // CALL_CONNECTION_ID
+            ImsCallConnectionIds.removeAll(mCallContext.getSlotId());
 
-                // SRVCC_STATE_TRACKING
-                SrvccStateTracker sst = (SrvccStateTracker) mCallContext.getSrvccStateTracker();
-
-                if (sst != null) {
-                    sst.stop();
-                }
-
-                // CALL_CONNECTION_ID
-                ImsCallConnectionIds.removeAll(mCallContext.getSlotId());
-
-                if (mWifiCallWakeLock != null) {
-                    mWifiCallWakeLock.clearLock();
-                }
+            if (mWifiCallWakeLock != null) {
+                mWifiCallWakeLock.clearLock();
             }
         }
 
@@ -633,88 +598,80 @@ public class ImsCallManager {
 
     @SuppressWarnings("unchecked")
     private void destroyAllSessions() {
-        synchronized (mSessions) {
-            if (mSessions.isEmpty()) {
-                return;
-            }
+        if (mSessions.isEmpty()) {
+            return;
+        }
 
-            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                onCallDestroy(entry.getValue());
-            }
+        for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+            onCallDestroy(entry.getValue());
         }
     }
 
     @SuppressWarnings("unchecked")
     private void terminateAllSessions(int reason /* not used */) {
-        synchronized (mSessions) {
-            if (mSessions.isEmpty()) {
-                return;
-            }
-
-            int count = 0;
-
-            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                ImsCallSessionImpl callSession = entry.getValue();
-                callSession.notifyCallTerminatedByServiceUnavailable();
-
-                try {
-                    callSession.close();
-                    count++;
-                } catch (Throwable t) {
-                    loge("terminateAllSessions Exception" + t.getMessage(), t);
-                }
-            }
-
-            log("terminateAllSessions :: closed=" + count);
+        if (mSessions.isEmpty()) {
+            return;
         }
+
+        int count = 0;
+
+        for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+            ImsCallSessionImpl callSession = entry.getValue();
+            callSession.notifyCallTerminatedByServiceUnavailable();
+
+            try {
+                callSession.close();
+                count++;
+            } catch (Throwable t) {
+                loge("terminateAllSessions Exception" + t.getMessage(), t);
+            }
+        }
+
+        log("terminateAllSessions :: closed=" + count);
     }
 
     @SuppressWarnings("unchecked")
     private void terminateAllPendingSessions() {
-        synchronized (mPendingSessions) {
-            if (mPendingSessions.isEmpty()) {
-                return;
-            }
+        if (mPendingSessions.isEmpty()) {
+            return;
+        }
 
-            int count = 0;
+        int count = 0;
 
-            for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
-                ImsCallSessionImpl callSession = entry.getValue();
+        for (Map.Entry<String, ImsCallSessionImpl> entry : mPendingSessions.entrySet()) {
+            ImsCallSessionImpl callSession = entry.getValue();
 
-                if (callSession.getState() == ImsCallSession.State.IDLE) {
-                    try {
-                        callSession.close();
-                        count++;
-                    } catch (Throwable t) {
-                        loge("terminateAllPendingSessions exception:" + t.getMessage(), t);
-                    }
+            if (callSession.getState() == ImsCallSession.State.IDLE) {
+                try {
+                    callSession.close();
+                    count++;
+                } catch (Throwable t) {
+                    loge("terminateAllPendingSessions exception:" + t.getMessage(), t);
                 }
             }
-
-            log("terminateAllPendingSessions :: closed=" + count);
         }
+
+        log("terminateAllPendingSessions :: closed=" + count);
     }
 
     private int getActiveSessionCount() {
-        synchronized (mSessions) {
-            int count = mSessions.size();
+        int count = mSessions.size();
 
-            if (count == 0) {
-                return 0;
-            }
-
-            int activeSessionCount = 0;
-
-            for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
-                ImsCallSessionImpl session = entry.getValue();
-
-                if ((session != null) && session.isInCall()) {
-                    activeSessionCount++;
-                }
-            }
-
-            return activeSessionCount;
+        if (count == 0) {
+            return 0;
         }
+
+        int activeSessionCount = 0;
+
+        for (Map.Entry<String, ImsCallSessionImpl> entry : mSessions.entrySet()) {
+            ImsCallSessionImpl session = entry.getValue();
+
+            if ((session != null) && session.isInCall()) {
+                activeSessionCount++;
+            }
+        }
+
+        return activeSessionCount;
     }
 
     private static void log(String s) {

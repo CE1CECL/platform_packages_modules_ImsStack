@@ -126,7 +126,6 @@ public class MtcConference {
     /** Args: Parcel */
     private static final int MSG_SEND_REQUEST = 101;
 
-    private final Object mLock = new Object();
     private final Call mParent;
     private final ConferenceTracker mCT;
     private final MessageHandler mHandler;
@@ -154,10 +153,8 @@ public class MtcConference {
 
         log("dispose");
 
-        synchronized (mLock) {
-            mListener = null;
-            mDisposed = true;
-        }
+        mListener = null;
+        mDisposed = true;
     }
 
     public Call getParent() {
@@ -273,17 +270,13 @@ public class MtcConference {
     }
 
     public void setListener(MtcConference.Listener listener) {
-        synchronized (mLock) {
-            mListener = listener;
-        }
+        mListener = listener;
     }
 
     public void handleMessage(int msg, Parcel parcel) {
         Listener listener = null;
 
-        synchronized (mLock) {
-            listener = mListener;
-        }
+        listener = mListener;
 
         // Checks if the listener is alive
         if (listener == null) {
@@ -476,9 +469,7 @@ public class MtcConference {
     }
 
     private boolean isConferenceValid() {
-        synchronized (mLock) {
-            return !mDisposed;
-        }
+        return !mDisposed;
     }
 
     private void sendRequest(Parcel parcel) {

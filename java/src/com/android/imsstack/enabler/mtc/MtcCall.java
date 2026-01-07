@@ -549,23 +549,21 @@ public class MtcCall extends Call implements ConferenceTracker {
         long nativeCallId = 0L;
         String callId = null;
 
-        synchronized (this) {
-            if (!isCallValid() && !isTerminatedByAutoRejectedCall()) {
-                if (isEmergencyCall() && !mJniCreated) {
-                    logi("close :: emergency call has been terminated before Native is ready");
-                } else {
-                    logi("close :: already closed");
-                    return;
-                }
+        if (!isCallValid() && !isTerminatedByAutoRejectedCall()) {
+            if (isEmergencyCall() && !mJniCreated) {
+                logi("close :: emergency call has been terminated before Native is ready");
+            } else {
+                logi("close :: already closed");
+                return;
             }
-
-            log(toString());
-
-            nativeCallId = getNativeCallId();
-            callId = getCallId();
-
-            super.close();
         }
+
+        log(toString());
+
+        nativeCallId = getNativeCallId();
+        callId = getCallId();
+
+        super.close();
 
         logi("close :: object=" + nativeCallId);
 

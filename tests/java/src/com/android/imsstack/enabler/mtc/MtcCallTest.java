@@ -1250,10 +1250,12 @@ public class MtcCallTest extends ImsStackTest {
         mTestMtcCall.setListener(mListener);
 
         mTestMtcCall.getTextListener().onRttMessageReceived(mMtcMediaSession, "");
+        processAllMessages();
 
         verify(mListener, times(1)).onCallRttMessageReceived(eq(mTestMtcCall), any());
 
         mTestMtcCall.getTextListener().onRttAudioIndication(mMtcMediaSession, true);
+        processAllMessages();
 
         verify(mListener, times(1)).onCallRttAudioIndication(eq(mTestMtcCall), eq(true));
     }

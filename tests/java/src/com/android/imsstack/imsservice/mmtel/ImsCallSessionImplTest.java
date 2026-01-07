@@ -622,17 +622,17 @@ public class ImsCallSessionImplTest extends ImsStackTest {
     @Test
     public void testMerge() {
         mImsCallSession.setState(ImsCallSessionImplBase.State.RENEGOTIATING);
+        when(mMockCallContext.getApp()).thenReturn(mMockImsCallApp);
+        when(mMockImsCallApp.getCallManager()).thenReturn(mMockImsCallManager);
         when(mMockImsCallSessionCallback.hasListener()).thenReturn(true);
         mImsCallSession.merge();
-        processAllMessages();
         verify(mMockImsCallSessionCallback).invokeMergeFailed(any(ImsCallSessionImplBase.class),
                 any(ImsReasonInfo.class));
 
         mImsCallSession = createImsCallSession("2", true);
         mImsCallSession.merge();
-        processAllMessages();
-        verify(mMockImsCallSessionCallback).invokeMergeFailed(any(ImsCallSessionImplBase.class),
-                any(ImsReasonInfo.class));
+        verify(mMockImsCallSessionCallback, times(2)).invokeMergeFailed(
+                any(ImsCallSessionImplBase.class), any(ImsReasonInfo.class));
     }
 
     @Test
@@ -2188,7 +2188,7 @@ public class ImsCallSessionImplTest extends ImsStackTest {
     }
 
     private TestImsCallSessionImpl createImsCallSession(String callId, boolean isMo) {
-        TestImsCallSessionImpl callSession =  new TestImsCallSessionImpl(mMockCallContext,
+        TestImsCallSessionImpl callSession = new TestImsCallSessionImpl(mMockCallContext,
                 mMockCallTracker, mMockMtcCall, callId, mImsCallProfile, isMo,
                 mMockImsCallSessionCallback, mVideoCallSession);
         mCallFeaturemap = new HashMap<Integer, Boolean>();
