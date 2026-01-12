@@ -72,13 +72,13 @@ public class UceAgent extends Thread implements IUceJNIListener {
     private int mRegistrationTech = UceConstant.RADIO_TECHNOLOGY_TYPE_UNKNOWN;
 
     @VisibleForTesting
-    public Looper mLoop = null;
+    Looper mLoop = null;
 
     private UceJNI mUceJNI;
     private PreferenceInterface mPf;
 
     @VisibleForTesting
-    public final NativeStateInterface.Listener mNativeStateListener =
+    final NativeStateInterface.Listener mNativeStateListener =
             new NativeStateInterface.Listener() {
                 @Override
                 public void onNativeServiceReady() {
@@ -283,7 +283,7 @@ public class UceAgent extends Thread implements IUceJNIListener {
     }
 
     @VisibleForTesting
-    public void initialize() {
+    void initialize() {
         ImsLog.d(mSlotId, "initialize");
         mUcePublishRequestController = new UcePublishRequestController(mSlotId, mLoop);
         mUceSubscribeRequestController = new UceSubscribeRequestController(mSlotId, mLoop);
@@ -313,7 +313,7 @@ public class UceAgent extends Thread implements IUceJNIListener {
     }
 
     @VisibleForTesting
-    public void deInitialize() {
+    void deInitialize() {
         ImsLog.d(mSlotId, "deInitialize");
 
         NativeStateInterface nsi =

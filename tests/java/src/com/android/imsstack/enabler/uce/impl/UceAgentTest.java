@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.enabler.uce;
+package com.android.imsstack.enabler.uce.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,7 +38,6 @@ import android.testing.TestableLooper;
 import com.android.imsstack.ImsStackTest;
 import com.android.imsstack.core.agents.AgentFactory;
 import com.android.imsstack.core.agents.NativeStateInterface;
-import com.android.imsstack.enabler.uce.impl.UceAgent;
 import com.android.imsstack.enabler.uce.impl.define.UceConstant;
 import com.android.imsstack.enabler.uce.impl.define.UceFeatureTags;
 import com.android.imsstack.enabler.uce.impl.define.UceMessage;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.enabler.uce.publish;
+package com.android.imsstack.enabler.uce.impl.publish;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,8 +35,6 @@ import com.android.imsstack.enabler.uce.impl.define.UceMessage;
 import com.android.imsstack.enabler.uce.impl.define.UceServiceIds;
 import com.android.imsstack.enabler.uce.impl.jni.IUceJNIListener;
 import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
-import com.android.imsstack.enabler.uce.impl.publish.UcePublishRequest;
-import com.android.imsstack.enabler.uce.impl.publish.UcePublishRequestController;
 import com.android.imsstack.enabler.uce.interf.PublishResponse;
 import com.android.imsstack.enabler.uce.interf.UceApiConstant;
 

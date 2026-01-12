@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.enabler.uce.utils;
+package com.android.imsstack.enabler.uce.impl.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,7 +23,6 @@ import android.util.ArraySet;
 import androidx.test.filters.SmallTest;
 
 import com.android.imsstack.enabler.uce.impl.define.UceFeatureTags;
-import com.android.imsstack.enabler.uce.impl.utils.UceUtils;
 
 import org.junit.After;
 import org.junit.Before;
