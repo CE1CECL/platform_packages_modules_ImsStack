@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.enabler.uce.options;
+package com.android.imsstack.enabler.uce.impl.options;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,7 +29,6 @@ import androidx.test.filters.SmallTest;
 import com.android.imsstack.enabler.uce.impl.define.UceFeatureTags;
 import com.android.imsstack.enabler.uce.impl.define.UceMessage;
 import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
-import com.android.imsstack.enabler.uce.impl.options.UceOptionsResponseCallback;
 
 import org.junit.After;
 import org.junit.Before;

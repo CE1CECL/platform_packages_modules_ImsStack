@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.imsstack.enabler.uce.subscribe;
+package com.android.imsstack.enabler.uce.impl.subscribe;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,8 +30,6 @@ import androidx.test.filters.SmallTest;
 
 import com.android.imsstack.enabler.uce.impl.define.UceMessage;
 import com.android.imsstack.enabler.uce.impl.jni.UceJNI;
-import com.android.imsstack.enabler.uce.impl.subscribe.UceResourceInfo;
-import com.android.imsstack.enabler.uce.impl.subscribe.UceSubscribeRequest;
 import com.android.imsstack.enabler.uce.interf.SubscribeResponse;
 import com.android.imsstack.enabler.uce.interf.UceApiConstant;
 
