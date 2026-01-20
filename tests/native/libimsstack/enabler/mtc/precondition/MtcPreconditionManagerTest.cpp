@@ -1405,7 +1405,9 @@ TEST_F(MtcPreconditionManagerTest,
     SetUpNothingOnDefaultBearerSupported();
 
     ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+            Contains(
+                    ConfigVoice::
+                            KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                     ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_EPS_FALLBACK))
             .WillByDefault(Return(IMS_TRUE));
 
@@ -1426,7 +1428,9 @@ TEST_F(MtcPreconditionManagerTest,
     SetUpNothingOnDefaultBearerSupported();
 
     ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+            Contains(
+                    ConfigVoice::
+                            KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                     ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_EPS_ONLY_ATTACH))
             .WillByDefault(Return(IMS_TRUE));
     ON_CALL(objService, IsEpsOnlyAttach()).WillByDefault(Return(IMS_TRUE));
@@ -1706,15 +1710,18 @@ TEST_F(MtcPreconditionManagerTest,
     pPreconditionManager->OnMessageReceived(nullptr, &objIMessage);
 }
 
-TEST_F(MtcPreconditionManagerTest,
-        DoNotStartQosTimerOnCallEstablishedIfDedicatedWaitTimerIsNotUsedByRatCondition)
+TEST_F(MtcPreconditionManagerTest, DoNotStartQosTimerOnCallEstablishedOnWlan)
 {
     SetUpMockQosInfo();
     pPreconditionManager->SetCurrentRatTypeForPrerequisite(INetworkWatcher::RADIOTECH_TYPE_NR);
+    pPreconditionManager->SetOnWlanForPrerequisite(IMS_TRUE);
+    ON_CALL(*pInfo, GetTextStatus()).WillByDefault(Return(QosStatus::IDLE));
+    SetUpNothingOnDefaultBearerSupported();
+    SetUpSupportingPreconditionInLocal(CallType::RTT, IMS_TRUE);
     ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
-                    ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_NR))
-            .WillByDefault(Return(IMS_TRUE));
+            GetInt(ConfigVoice::
+                            KEY_WAIT_VIDEO_TEXT_QOS_AFTER_AUDIO_QOS_ACQUISITION_TIMER_MILLIS_INT))
+            .WillByDefault(Return(1000));
 
     EXPECT_CALL(objTimer, StartQosTimer(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE, _)).Times(0);
     pPreconditionManager->OnCallEstablished(&objISession);
@@ -1723,6 +1730,7 @@ TEST_F(MtcPreconditionManagerTest,
 TEST_F(MtcPreconditionManagerTest, StartsQosTimerOnCallEstablishedIfLocalResourceIsNotReserved)
 {
     SetUpMockQosInfo();
+    pPreconditionManager->SetCurrentRatTypeForPrerequisite(INetworkWatcher::RADIOTECH_TYPE_NR);
     pPreconditionManager->SetOnWlanForPrerequisite(IMS_FALSE);
     ON_CALL(*pInfo, GetTextStatus()).WillByDefault(Return(QosStatus::IDLE));
     SetUpNothingOnDefaultBearerSupported();
@@ -1732,7 +1740,7 @@ TEST_F(MtcPreconditionManagerTest, StartsQosTimerOnCallEstablishedIfLocalResourc
                             KEY_WAIT_VIDEO_TEXT_QOS_AFTER_AUDIO_QOS_ACQUISITION_TIMER_MILLIS_INT))
             .WillByDefault(Return(1000));
 
-    EXPECT_CALL(objTimer, StartQosTimer(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE, 1000)).Times(1);
+    EXPECT_CALL(objTimer, StartQosTimer(QosTimerType::WAIT_VIDEO_TEXT_AVAILABLE, 1000));
     pPreconditionManager->OnCallEstablished(&objISession);
 }
 
@@ -2095,7 +2103,9 @@ TEST_F(MtcPreconditionManagerTest, OnQosStatusChangedStartsWaitVideoTextAvailabl
 {
     pPreconditionManager->SetCurrentRatTypeForPrerequisite(INetworkWatcher::RADIOTECH_TYPE_NR);
     ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+            Contains(
+                    ConfigVoice::
+                            KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                     ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_NR))
             .WillByDefault(Return(IMS_FALSE));
 
@@ -2126,7 +2136,9 @@ TEST_F(MtcPreconditionManagerTest,
 {
     pPreconditionManager->SetCurrentRatTypeForPrerequisite(INetworkWatcher::RADIOTECH_TYPE_NR);
     ON_CALL(*pConfigurationProxy,
-            Contains(ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+            Contains(
+                    ConfigVoice::
+                            KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                     ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_NR))
             .WillByDefault(Return(IMS_TRUE));
 

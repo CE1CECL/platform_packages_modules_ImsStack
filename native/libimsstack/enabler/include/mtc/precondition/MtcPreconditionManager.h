@@ -180,7 +180,7 @@ private:
     QosLossPolicy GetQosLossPolicy(IN IMS_UINT32 eMediaType) const;
     QosLossPolicy GetActionForQosLoss(IN ISession* piSession) const;
     IMS_BOOL IsConfirmationRequired(IN const ISession& objISession) const;
-    IMS_BOOL IsNotUsingDedicatedWaitTimerByRatCondition() const;
+    IMS_BOOL IsAudioDedicatedBearerWaitTimerRequiredByRatCondition() const;
     IMS_BOOL IsVideoOrTextIncluded(IN CallType eCallType) const;
 
 protected:

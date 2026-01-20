@@ -390,7 +390,7 @@ PUBLIC VIRTUAL void MtcPreconditionManager::OnCallEstablished(IN ISession* piSes
 {
     IMS_TRACE_D("OnCallEstablished", 0, 0, 0);
 
-    if (IsNotUsingDedicatedWaitTimerByRatCondition())
+    if (m_bOnWlan)
     {
         return;
     }
@@ -410,7 +410,7 @@ PUBLIC VIRTUAL void MtcPreconditionManager::OnCallModified(IN ISession* piSessio
             ConfigVoice::KEY_POLICY_FOR_CHECKING_QOS_WHILE_CALL_UPGRADING_INT);
     if (nPolicy == ConfigVoice::QOS_CHECK_POLICY_ON_UPGRADING_CALL_AFTER_UPGRADE)
     {
-        if (IsNotUsingDedicatedWaitTimerByRatCondition())
+        if (m_bOnWlan)
         {
             return;
         }
@@ -1308,9 +1308,8 @@ IMS_BOOL MtcPreconditionManager::IsNeedToStartWaitAudioDedicatedBearerTimer(
         return IMS_FALSE;
     }
 
-    if (IsNotUsingDedicatedWaitTimerByRatCondition())
+    if (!IsAudioDedicatedBearerWaitTimerRequiredByRatCondition())
     {
-        IMS_TRACE_D("No need to start audio dedicated bearer wait timer.", 0, 0, 0);
         return IMS_FALSE;
     }
 
@@ -1494,42 +1493,45 @@ IMS_BOOL MtcPreconditionManager::IsConfirmationRequired(IN const ISession& objIS
 }
 
 PRIVATE
-IMS_BOOL MtcPreconditionManager::IsNotUsingDedicatedWaitTimerByRatCondition() const
+IMS_BOOL MtcPreconditionManager::IsAudioDedicatedBearerWaitTimerRequiredByRatCondition() const
 {
-    IMS_TRACE_D("IsNotUsingDedicatedWaitTimerByRatCondition pre[%s] curr[%s]",
+    IMS_TRACE_D("IsAudioDedicatedBearerWaitTimerRequiredByRatCondition pre[%s] curr[%s]",
             MtcCallStringUtils::ConvertRatType(m_ePreviousRatType),
             MtcCallStringUtils::ConvertRatType(m_eCurrentRatType), 0);
 
     if (m_bOnWlan)
     {
-        return IMS_TRUE;
+        return IMS_FALSE;
     }
 
     if (m_objContext.GetConfigurationProxy().Contains(
-                ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+                ConfigVoice::
+                        KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                 ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_NR) &&
             m_eCurrentRatType == INetworkWatcher::RADIOTECH_TYPE_NR)
     {
-        return IMS_TRUE;
+        return IMS_FALSE;
     }
 
     if (m_objContext.GetConfigurationProxy().Contains(
-                ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+                ConfigVoice::
+                        KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                 ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_EPS_FALLBACK) &&
             IsEpsFallback())
     {
-        return IMS_TRUE;
+        return IMS_FALSE;
     }
 
     if (m_objContext.GetConfigurationProxy().Contains(
-                ConfigVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY,
+                ConfigVoice::
+                        KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY,
                 ConfigVoice::NO_WAIT_DEDICATED_BEARER_IN_EPS_ONLY_ATTACH) &&
             m_objContext.GetService().IsEpsOnlyAttach())
     {
-        return IMS_TRUE;
+        return IMS_FALSE;
     }
 
-    return IMS_FALSE;
+    return IMS_TRUE;
 }
 
 PRIVATE

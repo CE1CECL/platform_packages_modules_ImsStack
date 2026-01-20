@@ -1021,9 +1021,10 @@ const IMS_CHAR CarrierConfig::ImsVoice::KEY_QOS_LOST_GUARD_TIMER_MILLIS_INT[] =
         KEY_IMS_VOICE_PREFIX "qos_lost_guard_timer_millis_int";
 const IMS_CHAR CarrierConfig::ImsVoice::KEY_QOS_FORCED_ACQUISITION_TIMER_MILLIS_INT[] =
         KEY_IMS_VOICE_PREFIX "qos_forced_acquisition_timer_millis_int";
-const IMS_CHAR
-        CarrierConfig::ImsVoice::KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_INT_ARRAY[] =
-                KEY_IMS_VOICE_PREFIX "rat_condition_for_not_waiting_dedicated_bearer_int_array";
+const IMS_CHAR CarrierConfig::ImsVoice::
+        KEY_RAT_CONDITION_FOR_NOT_WAITING_DEDICATED_BEARER_BEFORE_ESTABLISHED_INT_ARRAY[] =
+                KEY_IMS_VOICE_PREFIX
+        "rat_condition_for_not_waiting_dedicated_bearer_before_established_int_array";
 const IMS_CHAR CarrierConfig::ImsVoice::
         KEY_TRIGGER_DEDICATED_BEARER_WAIT_TIMER_BY_SENDING_INITIAL_INVITE_BOOL[] =
                 KEY_IMS_VOICE_PREFIX
