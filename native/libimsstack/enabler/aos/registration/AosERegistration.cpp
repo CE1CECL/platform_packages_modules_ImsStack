@@ -213,16 +213,16 @@ PROTECTED VIRTUAL void AosERegistration::Init()
 {
     A_IMS_TRACE_D(REGID, "Init", 0, 0, 0);
 
+    IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
+    if (piService != IMS_NULL)
+    {
+        piService->AddListener(DYNAMIC_CAST(IAosEmergencyListener*, this));
+        piService->AddListener(DYNAMIC_CAST(IAosServicePhoneListener*, this));
+    }
+
     if (GET_N_CONFIG(m_nSlotId)->IsEmergencyCallbackModeSupported())
     {
         m_pEModeInfo = new EmergencyModeInfo();
-
-        IAosService* piService = AosProvider::GetInstance()->GetService(m_nSlotId);
-        if (piService != IMS_NULL)
-        {
-            piService->AddListener(DYNAMIC_CAST(IAosEmergencyListener*, this));
-            piService->AddListener(DYNAMIC_CAST(IAosServicePhoneListener*, this));
-        }
     }
 
     IAosCallTracker* piCt = AosProvider::GetInstance()->GetCallTracker(m_nSlotId);
@@ -264,6 +264,8 @@ PROTECTED VIRTUAL void AosERegistration::CleanUp()
         delete m_pEModeInfo;
         m_pEModeInfo = IMS_NULL;
     }
+
+    m_objEmergencyMode.Clear();
 }
 
 PROTECTED VIRTUAL IMS_BOOL AosERegistration::CreateRegistration()
@@ -649,6 +651,16 @@ PROTECTED VIRTUAL void AosERegistration::ProcessWaitEmergencyNetworkTimerExpired
     StopTimer(TIMER_WAIT_EMERGENCY_NETWORK);
 }
 
+PROTECTED VIRTUAL void AosERegistration::ProcessExitEmergencyModeTimerExpired()
+{
+    StopTimer(TIMER_EXIT_EMERGENCY_MODE);
+
+    if (GetState() != STATE_OFFLINE)
+    {
+        ProcessRegTerminated();
+    }
+}
+
 PROTECTED VIRTUAL void AosERegistration::ProcessScscfRestoration(
         IN IMS_UINT32 /* nUnavailableTimeForCurrentPcscf */)
 {
@@ -951,9 +963,33 @@ PROTECTED void AosERegistration::CallbackModeChanged(
 
 PROTECTED void AosERegistration::EmergencyModeChanged(IN IMS_UINT32 nType, IN IMS_BOOL bEntered)
 {
-    A_IMS_TRACE_I(REGID, "EmergencyModeChanged :: nType (%d), bEntered(%d)", nType, bEntered, 0);
-    // TODO: Release the EPDN when the UE exits emergency mode (for both calls and SMS) if an EPDN
-    // exists without an emergency IMS registration even when the UICC is inserted.
+    A_IMS_TRACE_D(REGID, "EmergencyModeChanged :: nType (%d), bEntered(%d)", nType, bEntered, 0);
+
+    if (bEntered)
+    {
+        if (!m_objEmergencyMode.Contains(nType))
+        {
+            m_objEmergencyMode.Add(nType);
+        }
+
+        StopTimer(TIMER_EXIT_EMERGENCY_MODE);
+    }
+    else
+    {
+        m_objEmergencyMode.Remove(nType);
+
+        if (m_objEmergencyMode.IsEmpty() && GetMode() == MODE_FAKE && GetState() != STATE_OFFLINE &&
+                m_piContext->GetSubscriber()->GetSimState() != SimState::ABSENT)
+        {
+            IMS_SINT32 nDelayTime =
+                    GET_N_CONFIG(m_nSlotId)
+                            ->GetWaitTimeMillisForReleaseEpdnAfterEmcModeExitInFakeModeWithUicc();
+            if (nDelayTime > 0)
+            {
+                StartTimer(TIMER_EXIT_EMERGENCY_MODE, nDelayTime);
+            }
+        }
+    }
 }
 
 PROTECTED void AosERegistration::ServicePhone_EmergencyRegistrationStateChanged(
