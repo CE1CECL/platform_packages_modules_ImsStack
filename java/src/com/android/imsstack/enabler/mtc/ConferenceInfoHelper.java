@@ -26,11 +26,16 @@ public final class ConferenceInfoHelper {
     private ConferenceInfoHelper() {
     }
 
-    public static synchronized int getAnonymousId() {
+    public static int getAnonymousId() {
         return sAnonymousId;
     }
 
-    public static synchronized void setAnonymousId(int anonymousId) {
+    /**
+     * Sets the anonymous ID.
+     *
+     * @param anonymousId The anonymous ID to set.
+     */
+    public static void setAnonymousId(int anonymousId) {
         sAnonymousId = anonymousId;
 
         if (sAnonymousId == Integer.MAX_VALUE) {

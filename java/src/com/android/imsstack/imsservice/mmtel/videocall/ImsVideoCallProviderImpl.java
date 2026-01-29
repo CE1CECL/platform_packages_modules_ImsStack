@@ -35,7 +35,6 @@ import com.android.imsstack.imsservice.mmtel.videocall.base.VideoCallUtils;
 
 /** IMS extended interface implementation */
 public class ImsVideoCallProviderImpl extends ImsVideoCallProviderBase {
-    private final Object mLock = new Object();
     private String mCameraId = null;
     private int mSessionModificationType = IVideoCallSession.MODIFICATION_NONE;
 
@@ -93,9 +92,7 @@ public class ImsVideoCallProviderImpl extends ImsVideoCallProviderBase {
 
         mSessionModificationType = IVideoCallSession.MODIFICATION_NONE;
 
-        synchronized (mLock) {
-            setCallState(CALL_STATE_ESTABLISHED);
-        }
+        setCallState(CALL_STATE_ESTABLISHED);
     }
 
     /**
@@ -139,9 +136,7 @@ public class ImsVideoCallProviderImpl extends ImsVideoCallProviderBase {
             if (mSessionModificationType == IVideoCallSession.MODIFICATION_CALL_TYPE
                     && !VideoProfile.isAudioOnly(toProfile.getVideoState())) {
                 logi("Prepare preview for video call upgrade request (TX)");
-                synchronized (mLock) {
-                    setCallState(CALL_STATE_VIDEO_UPGRADE_REQUESTED);
-                }
+                setCallState(CALL_STATE_VIDEO_UPGRADE_REQUESTED);
             }
         }
     }
@@ -149,9 +144,7 @@ public class ImsVideoCallProviderImpl extends ImsVideoCallProviderBase {
     @Override
     protected void sendSessionModifyResponse(VideoProfile responseProfile) {
         super.sendSessionModifyResponse(responseProfile);
-        synchronized (mLock) {
-            setCallState(CALL_STATE_ESTABLISHED);
-        }
+        setCallState(CALL_STATE_ESTABLISHED);
     }
 
     @Override

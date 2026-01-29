@@ -102,7 +102,6 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
     public static final int CF_ONE_WAY_VIDEO_REMOTE = 6;
     public static final int CF_CONF_USER_ANONYMOUS = 7;
 
-    private final Object mLock = new Object();
     private final ICallContext mCallContext;
     private final MtcCallListenerProxy mListenerProxy = new MtcCallListenerProxy();
     private final EmergencyCallFailureListener mEmergencyCallFailureListener =
@@ -167,8 +166,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
     public ImsCallSessionImpl(ICallContext callContext,
             CallTracker ct, MtcCall call,
             String callId, ImsCallProfile profile, boolean isMO) {
-        this(callContext, ct, call, callId, profile, isMO,
-                new ImsCallSessionCallback(callContext.getExecutor()), null);
+        this(callContext, ct, call, callId, profile, isMO, new ImsCallSessionCallback(), null);
     }
 
     @VisibleForTesting
@@ -363,9 +361,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
     public void setListener(ImsCallSessionListener listener) {
         log("setListener : " + listener);
 
-        synchronized (mLock) {
-            mCallback.setListener(listener);
-        }
+        mCallback.setListener(listener);
 
         // Notify the supplementary service for call forwarding if present.
         if ((listener != null)
@@ -861,30 +857,24 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             return;
         }
 
-        // To merge the calls in a single thread
-        postAndRunTask(new Runnable() {
-            @Override
-            public void run() {
-                int state = getState();
+        int state = getState();
 
-                if ((state == ImsCallSessionImplBase.State.RENEGOTIATING)
-                        || (state == ImsCallSessionImplBase.State.REESTABLISHING)) {
-                    loge("merge :: Illegal state - callId=" + getCallId()
-                            + ", state=" + ImsCallSessionImplBase.State.toString(state));
+        if ((state == ImsCallSessionImplBase.State.RENEGOTIATING)
+                || (state == ImsCallSessionImplBase.State.REESTABLISHING)) {
+            loge("merge :: Illegal state - callId=" + getCallId()
+                    + ", state=" + ImsCallSessionImplBase.State.toString(state));
 
-                    notifyCallSessionMergeFailed(
-                            ImsCallUtils.createImsReasonInfo(
-                            ImsReasonInfo.CODE_LOCAL_ILLEGAL_STATE));
-                    return;
-                }
+            notifyCallSessionMergeFailed(
+                    ImsCallUtils.createImsReasonInfo(
+                    ImsReasonInfo.CODE_LOCAL_ILLEGAL_STATE));
+            return;
+        }
 
-                if (!ImsConferenceHelper.getInstance().merge(mCallContext)) {
-                    notifyCallSessionMergeFailed(
-                            ImsCallUtils.createImsReasonInfo(
-                            ImsReasonInfo.CODE_LOCAL_INTERNAL_ERROR));
-                }
-            }
-        });
+        if (!ImsConferenceHelper.getInstance().merge(mCallContext)) {
+            notifyCallSessionMergeFailed(
+                    ImsCallUtils.createImsReasonInfo(
+                    ImsReasonInfo.CODE_LOCAL_INTERNAL_ERROR));
+        }
     }
 
     @Override
@@ -909,12 +899,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         final int requestedCallType = callType;
         final ImsStreamMediaProfile requestedProfile = profile;
 
-        postAndRunTask(new Runnable() {
-            @Override
-            public void run() {
-                updateInternal(requestedCallType, requestedProfile);
-            }
-        });
+        updateInternal(requestedCallType, requestedProfile);
     }
 
     @Override
@@ -930,23 +915,17 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
         final String[] users = Arrays.copyOf(participants, participants.length);
 
-        // To extend the call to the conference in a single thread
-        postAndRunTask(new Runnable() {
-            @Override
-            public void run() {
-                if (!ImsConferenceHelper.getInstance().extendToConference(
-                        mCallContext, users)) {
-                    MtcConference conference = MtcCall.getConference(mCall);
-                    if (conference == null) {
-                        return;
-                    }
-
-                    mConferenceListenerProxy.onCallConferenceExtendFailed(
-                            conference,
-                            new CallReasonInfo(CallReasonInfo.CODE_UNSPECIFIED, 0, ""));
-                }
+        if (!ImsConferenceHelper.getInstance().extendToConference(
+                mCallContext, users)) {
+            MtcConference conference = MtcCall.getConference(mCall);
+            if (conference == null) {
+                return;
             }
-        });
+
+            mConferenceListenerProxy.onCallConferenceExtendFailed(
+                    conference,
+                    new CallReasonInfo(CallReasonInfo.CODE_UNSPECIFIED, 0, ""));
+        }
     }
 
     @Override
@@ -1685,12 +1664,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
     }
 
     private void notifyCallEventForVideoCallSession(final int event) {
-        postAndRunTask(new Runnable() {
-            @Override
-            public void run() {
-                mVideoCallSession.notifyCallEvent(event);
-            }
-        });
+        mVideoCallSession.notifyCallEvent(event);
     }
 
     private void notifyCallHoldOrResumeFailed(int code, boolean isHold) {
@@ -1755,10 +1729,8 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         if (getState() == ImsCallSessionImplBase.State.TERMINATED) {
             boolean callStartFailedNotification = false;
 
-            synchronized (mLock) {
-                callStartFailedNotification = ((mImmediateCallEndReason != null)
-                        && !mCallDetails.is(CallDetails.CALL_END_CALLBACK_NOTIFIED));
-            }
+            callStartFailedNotification = ((mImmediateCallEndReason != null)
+                    && !mCallDetails.is(CallDetails.CALL_END_CALLBACK_NOTIFIED));
 
             if (callStartFailedNotification) {
                 notifyCallEnd(mImmediateCallEndReason);
@@ -1895,14 +1867,9 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
     private void rejectSessionUpdateAsync(final MtcCall call,
             final int reason, final String dbgLog) {
-        postAndRunTask(new Runnable() {
-            @Override
-            public void run() {
-                log(dbgLog);
-                call.reject((reason != 0) ? reason :
-                        CallReasonInfo.CODE_USER_REJECTED_SESSION_MODIFICATION);
-            }
-        });
+        log(dbgLog);
+        call.reject((reason != 0) ? reason :
+                CallReasonInfo.CODE_USER_REJECTED_SESSION_MODIFICATION);
     }
 
     private void removeCallConnectionId() {
@@ -2533,9 +2500,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         }
 
         public boolean isStartDone() {
-            synchronized (mLock) {
-                return mStartDone;
-            }
+            return mStartDone;
         }
 
         public void start(String callee) {
@@ -2728,9 +2693,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         }
 
         private void setStartDone(boolean done) {
-            synchronized (mLock) {
-                mStartDone = done;
-            }
+            mStartDone = done;
         }
 
         private void stopImsRegWaitingTimer() {
@@ -2763,9 +2726,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
         }
 
         public boolean isStartDone() {
-            synchronized (mLock) {
-                return mStartDone;
-            }
+            return mStartDone;
         }
 
         public void start(String callee) {
@@ -2773,12 +2734,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
             mCallee = callee;
 
-            postAndRunTask(new Runnable() {
-                @Override
-                public void run() {
-                    startLocationUpdate();
-                }
-            });
+            startLocationUpdate();
 
             notifyCallStartFailedIfAlreadyTerminated();
         }
@@ -2830,9 +2786,7 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
             startInternal(mCallee, mCallProfile);
 
-            synchronized (mLock) {
-                mStartDone = true;
-            }
+            mStartDone = true;
         }
 
         private boolean checkImsRegistrationAndNotifyError() {
@@ -2892,91 +2846,27 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
         @Override
         public void onCommandResponse(Usat.CommandResponse response) {
-            Usat.CallControlCommandResponse cmdRes = (Usat.CallControlCommandResponse) response;
-            Usat.CallControlCommand cmd = (Usat.CallControlCommand) cmdRes.getCommand();
+            postAndRunTask(() -> handleCommandResponse(response));
+        }
 
-            synchronized (mLock) {
-                if (!cmd.equals(mCcCmd)) {
-                    loge("Command mismatched - " + cmd);
-                    return;
-                }
-            }
+        public void dispose() {
+            if (mCcCmd != null) {
+                UsatInterface usat = mCallContext.getUsatInterface();
 
-            log("onCommandResponse :: cmd=" + cmd + ", result=" + cmdRes.getResult()
-                    + ", dialedString=" + ImsLog.hiddenString(cmdRes.getDialedString()));
-
-            if (cmdRes.getResult() == Usat.RESULT_NOT_ALLOWED) {
-                notifyCallStartFailed(ImsReasonInfo.CODE_UNSPECIFIED);
-                return;
-            }
-
-            String dialedString = cmd.getDialedString();
-
-            if (cmdRes.getResult() == Usat.RESULT_ALLOWED_WITH_MODIFICATION) {
-                dialedString = cmdRes.getDialedString();
-                int reasonCode = getReasonCodeForUsatCallControlType(cmd.getCcType(),
-                        cmdRes.getCcType(), cmd.getMediaType(), dialedString);
-
-                if (reasonCode == ImsReasonInfo.CODE_UNSPECIFIED) {
-                    reasonCode = getReasonCodeForUsatMediaType(
-                            cmd.getMediaType(), cmdRes.getMediaType());
+                if (usat != null) {
+                    usat.cancelCommand(mCcCmd);
                 }
 
-                if (reasonCode != ImsReasonInfo.CODE_UNSPECIFIED) {
-                    notifyCallStartFailed(reasonCode);
-                    return;
-                }
-
-                if (TextUtils.isEmpty(dialedString)) {
-                    // Use the original dialed string if this is not present.
-                    dialedString = cmd.getDialedString();
-                } else {
-                    mCallProfile.setCallExtra(ImsCallProfile.EXTRA_OI, dialedString);
-                    // This will be used in onCallStarted callback.
-                    mRemoteCallProfile.setCallExtraInt(ImsCallProfile.EXTRA_OIR,
-                            ImsCallProfile.OIR_PRESENTATION_NOT_RESTRICTED);
-
-                    mCallback.invokeUpdated(ImsCallSessionImpl.this,
-                            ImsCallUtils.getSanitizedCallProfileForVideoDirection(mCallProfile));
-                }
-            }
-
-            // OFFLINE_DIALING
-            if (!startMoPendingCall(dialedString, mCallProfile)) {
-                // Normal call
-                startInternal(dialedString, mCallProfile);
-            }
-
-            synchronized (mLock) {
-                mStartDone = true;
                 mCcCmd = null;
             }
         }
 
-        public void dispose() {
-            synchronized (mLock) {
-                if (mCcCmd != null) {
-                    UsatInterface usat = mCallContext.getUsatInterface();
-
-                    if (usat != null) {
-                        usat.cancelCommand(mCcCmd);
-                    }
-
-                    mCcCmd = null;
-                }
-            }
-        }
-
         public boolean isIdle() {
-            synchronized (mLock) {
-                return (mCcCmd == null);
-            }
+            return (mCcCmd == null);
         }
 
         public boolean isStartDone() {
-            synchronized (mLock) {
-                return mStartDone;
-            }
+            return mStartDone;
         }
 
         public void start(String callee) {
@@ -3024,9 +2914,65 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
                 mListenerProxy.onCallStartFailed(mCall, callReasonInfo);
             }
 
-            synchronized (mLock) {
-                mCcCmd = null;
+            mCcCmd = null;
+        }
+
+        private void handleCommandResponse(Usat.CommandResponse response) {
+            Usat.CallControlCommandResponse cmdRes = (Usat.CallControlCommandResponse) response;
+            Usat.CallControlCommand cmd = (Usat.CallControlCommand) cmdRes.getCommand();
+
+            if (!cmd.equals(mCcCmd)) {
+                    loge("Command mismatched - " + cmd);
+                    return;
             }
+
+            log("onCommandResponse :: cmd=" + cmd + ", result=" + cmdRes.getResult()
+                    + ", dialedString=" + ImsLog.hiddenString(cmdRes.getDialedString()));
+
+            if (cmdRes.getResult() == Usat.RESULT_NOT_ALLOWED) {
+                notifyCallStartFailed(ImsReasonInfo.CODE_UNSPECIFIED);
+                return;
+            }
+
+            String dialedString = cmd.getDialedString();
+
+            if (cmdRes.getResult() == Usat.RESULT_ALLOWED_WITH_MODIFICATION) {
+                dialedString = cmdRes.getDialedString();
+                int reasonCode = getReasonCodeForUsatCallControlType(cmd.getCcType(),
+                        cmdRes.getCcType(), cmd.getMediaType(), dialedString);
+
+                if (reasonCode == ImsReasonInfo.CODE_UNSPECIFIED) {
+                    reasonCode = getReasonCodeForUsatMediaType(
+                            cmd.getMediaType(), cmdRes.getMediaType());
+                }
+
+                if (reasonCode != ImsReasonInfo.CODE_UNSPECIFIED) {
+                    notifyCallStartFailed(reasonCode);
+                    return;
+                }
+
+                if (TextUtils.isEmpty(dialedString)) {
+                    // Use the original dialed string if this is not present.
+                    dialedString = cmd.getDialedString();
+                } else {
+                    mCallProfile.setCallExtra(ImsCallProfile.EXTRA_OI, dialedString);
+                    // This will be used in onCallStarted callback.
+                    mRemoteCallProfile.setCallExtraInt(ImsCallProfile.EXTRA_OIR,
+                            ImsCallProfile.OIR_PRESENTATION_NOT_RESTRICTED);
+
+                    mCallback.invokeUpdated(ImsCallSessionImpl.this,
+                            ImsCallUtils.getSanitizedCallProfileForVideoDirection(mCallProfile));
+                }
+            }
+
+            // OFFLINE_DIALING
+            if (!startMoPendingCall(dialedString, mCallProfile)) {
+                // Normal call
+                startInternal(dialedString, mCallProfile);
+            }
+
+            mStartDone = true;
+            mCcCmd = null;
         }
     }
 
@@ -3988,20 +3934,15 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
             } else if (!MtcCallUtils.isGttEnabled(mediaInfo.gttMode)
                     && MtcCallUtils.isGttEnabled(mCall.getMediaInfo().gttMode)) {
                 log("onCallUpdateReceived :: RTT downgrade request");
-                postAndRunTask(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            logi("Voice call is automatically accepted (RTT)");
-                            sendRttModifyResponse(false);
-                            mCallback.invokeUpdated(ImsCallSessionImpl.this,
-                                    ImsCallUtils.getSanitizedCallProfileForVideoDirection(
-                                            mCallProfile));
-                        } catch (Throwable t) {
-                            loge("onCallUpdateReceived: " + t.toString());
-                        }
-                    }
-                });
+                try {
+                    logi("Voice call is automatically accepted (RTT)");
+                    sendRttModifyResponse(false);
+                    mCallback.invokeUpdated(ImsCallSessionImpl.this,
+                            ImsCallUtils.getSanitizedCallProfileForVideoDirection(
+                                    mCallProfile));
+                } catch (Throwable t) {
+                    loge("onCallUpdateReceived: " + t.toString());
+                }
                 return;
             }
 
@@ -4341,80 +4282,65 @@ public class ImsCallSessionImpl extends ImsCallSessionImplBase {
 
         private void onVideoCallHoldReceived(final MtcCall call,
                 final CallInfo callInfo, final MediaInfo mediaInfo, final SuppInfo suppInfo) {
-            postAndRunTask(new Runnable() {
-                @Override
-                public void run() {
-                    logi("onVideoCallHoldReceived");
-                    call.accept(MtcCallInfo.getCallType(callInfo), mediaInfo);
-                    onCallHoldReceived(call, callInfo, mediaInfo, suppInfo);
-                }
-            });
+            logi("onVideoCallHoldReceived");
+            call.accept(MtcCallInfo.getCallType(callInfo), mediaInfo);
+            onCallHoldReceived(call, callInfo, mediaInfo, suppInfo);
         }
 
         private void onVideoCallResumeReceived(final MtcCall call,
                 final CallInfo callInfo, final MediaInfo mediaInfo, final SuppInfo suppInfo) {
-            postAndRunTask(new Runnable() {
-                @Override
-                public void run() {
-                    logi("onVideoCallResumeReceived");
+            logi("onVideoCallResumeReceived");
 
-                    if (call.isOnHold()) {
-                        // Accept the resume request without any changes
-                        log("onVideoCallResumeReceived :: on-hold");
-                    } else if ((mVideoCallSession != null)
-                            && !mVideoCallSession.isCameraOn()) {
-                        if (mediaInfo.videoDir == MediaInfo.DIRECTION_SEND_RECEIVE) {
-                            if (mVideoCallSession.isMultitaskingState()) {
-                                log("onVideoCallResumeReceived :: inactive");
-                                mediaInfo.videoDir = MediaInfo.DIRECTION_INACTIVE;
-                            } else {
-                                log("onVideoCallResumeReceived :: recvonly");
-                                mediaInfo.videoDir = MediaInfo.DIRECTION_RECEIVE;
-                            }
-                        } else if (mediaInfo.videoDir == MediaInfo.DIRECTION_SEND) {
-                            log("onVideoCallResumeReceived :: call type is changed");
-                            MtcCallInfo.setCallType(callInfo, IUMtcCall.CALLTYPE_VOIP);
-                            mediaInfo.videoDir = MediaInfo.DIRECTION_SEND_RECEIVE;
-                        }
-                    } else if ((mVideoCallSession != null)
-                            && mVideoCallSession.isMultitaskingState()) {
-                        log("onVideoCallResumeReceived :: inactive by multitasking");
+            if (call.isOnHold()) {
+                // Accept the resume request without any changes
+                log("onVideoCallResumeReceived :: on-hold");
+            } else if ((mVideoCallSession != null)
+                    && !mVideoCallSession.isCameraOn()) {
+                if (mediaInfo.videoDir == MediaInfo.DIRECTION_SEND_RECEIVE) {
+                    if (mVideoCallSession.isMultitaskingState()) {
+                        log("onVideoCallResumeReceived :: inactive");
                         mediaInfo.videoDir = MediaInfo.DIRECTION_INACTIVE;
+                    } else {
+                        log("onVideoCallResumeReceived :: recvonly");
+                        mediaInfo.videoDir = MediaInfo.DIRECTION_RECEIVE;
                     }
-
-                    call.accept(MtcCallInfo.getCallType(callInfo), mediaInfo);
-
-                    if (MtcCallInfo.getCallType(callInfo) == IUMtcCall.CALLTYPE_VOIP) {
-                        mediaInfo.videoQuality = MediaInfo.VIDEO_QUALITY_NONE;
-                        mediaInfo.videoDir = MediaInfo.DIRECTION_INVALID;
-                    }
-
-                    onCallResumeReceived(call, callInfo, mediaInfo, suppInfo);
+                } else if (mediaInfo.videoDir == MediaInfo.DIRECTION_SEND) {
+                    log("onVideoCallResumeReceived :: call type is changed");
+                    MtcCallInfo.setCallType(callInfo, IUMtcCall.CALLTYPE_VOIP);
+                    mediaInfo.videoDir = MediaInfo.DIRECTION_SEND_RECEIVE;
                 }
-            });
+            } else if ((mVideoCallSession != null)
+                    && mVideoCallSession.isMultitaskingState()) {
+                log("onVideoCallResumeReceived :: inactive by multitasking");
+                mediaInfo.videoDir = MediaInfo.DIRECTION_INACTIVE;
+            }
+
+            call.accept(MtcCallInfo.getCallType(callInfo), mediaInfo);
+
+            if (MtcCallInfo.getCallType(callInfo) == IUMtcCall.CALLTYPE_VOIP) {
+                mediaInfo.videoQuality = MediaInfo.VIDEO_QUALITY_NONE;
+                mediaInfo.videoDir = MediaInfo.DIRECTION_INVALID;
+            }
+
+            onCallResumeReceived(call, callInfo, mediaInfo, suppInfo);
         }
 
         private void onVoiceCallResumeReceived(final MtcCall call,
                 final CallInfo callInfo, final MediaInfo mediaInfo, final SuppInfo suppInfo) {
-            postAndRunTask(new Runnable() {
-                @Override
-                public void run() {
-                    logi("onVoiceCallResumeReceived");
+            logi("onVoiceCallResumeReceived");
 
-                    if (call.isOnHold()) {
-                        if (isCallFeatureSupported(CF_AUDIO_HOLD_WITH_INACTIVE)) {
-                            mediaInfo.audioDir = MediaInfo.DIRECTION_INACTIVE;
-                        } else if (mediaInfo.audioDir == MediaInfo.DIRECTION_SEND_RECEIVE) {
-                            mediaInfo.audioDir = MediaInfo.DIRECTION_SEND;
-                        } else if (mediaInfo.audioDir == MediaInfo.DIRECTION_RECEIVE) {
-                            mediaInfo.audioDir = MediaInfo.DIRECTION_INACTIVE;
-                        }
-                    }
-
-                    call.accept(MtcCallInfo.getCallType(callInfo), mediaInfo);
-                    onCallResumeReceived(call, callInfo, mediaInfo, suppInfo);
+            if (call.isOnHold()) {
+                if (isCallFeatureSupported(CF_AUDIO_HOLD_WITH_INACTIVE)) {
+                    mediaInfo.audioDir = MediaInfo.DIRECTION_INACTIVE;
+                } else if (mediaInfo.audioDir == MediaInfo.DIRECTION_SEND_RECEIVE) {
+                    mediaInfo.audioDir = MediaInfo.DIRECTION_SEND;
+                } else if (mediaInfo.audioDir == MediaInfo.DIRECTION_RECEIVE) {
+                    mediaInfo.audioDir = MediaInfo.DIRECTION_INACTIVE;
                 }
-            });
+            }
+
+            call.accept(MtcCallInfo.getCallType(callInfo), mediaInfo);
+            onCallResumeReceived(call, callInfo, mediaInfo, suppInfo);
         }
 
         private void onTtyModeReceived(int gttMode, boolean onCallStarted) {

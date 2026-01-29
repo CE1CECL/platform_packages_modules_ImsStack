@@ -73,16 +73,12 @@ public final class ImsVideoCallSession implements IVideoCallSession {
 
     @Override
     public int getSessionModificationType() {
-        synchronized (this) {
-            return mModificationType;
-        }
+        return mModificationType;
     }
 
     @Override
     public ImsStreamMediaProfile getProposedStreamMediaProfile() {
-        synchronized (this) {
-            return mProposalMediaProfile;
-        }
+        return mProposalMediaProfile;
     }
 
     @Override
@@ -449,16 +445,12 @@ public final class ImsVideoCallSession implements IVideoCallSession {
     }
 
     public boolean isSessionModificationFinalizing() {
-        synchronized (this) {
-            return (mUpdateState == UPDATE_STATE_FINALIZING);
-        }
+        return (mUpdateState == UPDATE_STATE_FINALIZING);
     }
 
     public boolean isSessionModificationInProgress() {
-        synchronized (this) {
-            return (mUpdateState == UPDATE_STATE_SENT)
-                    || (mUpdateState == UPDATE_STATE_RECEIVED);
-        }
+        return (mUpdateState == UPDATE_STATE_SENT)
+                || (mUpdateState == UPDATE_STATE_RECEIVED);
     }
 
     public void notifyCallEvent(int event) {
@@ -682,49 +674,39 @@ public final class ImsVideoCallSession implements IVideoCallSession {
     }
 
     private void setProposedStreamMediaProfile(ImsStreamMediaProfile profile) {
-        synchronized (this) {
-            mProposalMediaProfile = profile;
-        }
+        mProposalMediaProfile = profile;
     }
 
     private void setUpdateState(int state) {
-        synchronized (this) {
-            if ((mUpdateState == UPDATE_STATE_IDLE)
-                    && (state == UPDATE_STATE_FINALIZING)) {
-                log("ImsVideoCallSession :: FINALIZING on IDLE - Ignored");
-                return;
-            }
+        if ((mUpdateState == UPDATE_STATE_IDLE)
+                && (state == UPDATE_STATE_FINALIZING)) {
+            log("ImsVideoCallSession :: FINALIZING on IDLE - Ignored");
+            return;
+        }
 
-            if (mUpdateState != state) {
-                logi("ImsVideoCallSession :: " + updateStateToString(mUpdateState)
-                        + " >> " + updateStateToString(state));
+        if (mUpdateState != state) {
+            logi("ImsVideoCallSession :: " + updateStateToString(mUpdateState)
+                    + " >> " + updateStateToString(state));
 
-                mUpdateState = state;
-            }
+            mUpdateState = state;
         }
     }
 
     private VideoProfile getProposalProfile() {
-        synchronized (this) {
-            return mProposalProfile;
-        }
+        return mProposalProfile;
     }
 
     private void setProposalProfile(VideoProfile profile) {
-        synchronized (this) {
-            mProposalProfile = profile;
-        }
+        mProposalProfile = profile;
     }
 
     private void setSessionModificationType(int type) {
-        synchronized (this) {
-            if (mModificationType != type) {
-                log("ImsVideoCallSession(mod-type) :: "
-                        + modificationTypeToString(mModificationType)
-                        + " >> " + modificationTypeToString(type));
+        if (mModificationType != type) {
+            log("ImsVideoCallSession(mod-type) :: "
+                    + modificationTypeToString(mModificationType)
+                    + " >> " + modificationTypeToString(type));
 
-                mModificationType = type;
-            }
+            mModificationType = type;
         }
     }
 

@@ -111,7 +111,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
 
     // For originating call
     @Override
-    public synchronized void attachCall(Call call) {
+    public void attachCall(Call call) {
         if (call == null) {
             return;
         }
@@ -125,7 +125,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
      * Adds pending call for incoming call.
      */
     @Override
-    public synchronized void attachPreIncomingCall(Call call) {
+    public void attachPreIncomingCall(Call call) {
         if (call == null) {
             return;
         }
@@ -134,7 +134,13 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         mPendingCallNodes.add(node);
     }
 
-    public synchronized void closeAllCalls(boolean terminate) {
+    /**
+     * Closes all active and pending calls.
+     *
+     * @param terminate {@code true} if the calls should be terminated before closing,
+     *                  {@code false} otherwise.
+     */
+    public void closeAllCalls(boolean terminate) {
         List<Call> allCalls = getAllCalls();
 
         // Closes all the calls
@@ -160,7 +166,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
     }
 
     @Override
-    public synchronized Call getCall(long callId) {
+    public Call getCall(long callId) {
         CallNode node = getCallNode(callId);
 
         if (node != null) {
@@ -174,13 +180,18 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
      * Gets pending call for incoming call.
      */
     @Override
-    public synchronized Call getPendingCall(long callId) {
+    public Call getPendingCall(long callId) {
         CallNode node = getPendingCallNode(callId);
 
         return (node != null) ? node.mCall : null;
     }
 
-    public synchronized boolean hasAtLeastOneEstablishedCall() {
+    /**
+     * Checks if there is at least one established call (in OFFHOOK state).
+     *
+     * @return {@code true} if there is at least one established call, {@code false} otherwise.
+     */
+    public boolean hasAtLeastOneEstablishedCall() {
         if (mCallNodes.isEmpty()) {
             return false;
         }
@@ -195,15 +206,28 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         return false;
     }
 
-    public synchronized boolean hasCalls() {
+    /**
+     * Checks if there are any active calls.
+     *
+     * @return {@code true} if there are active calls, {@code false} otherwise.
+     */
+    public boolean hasCalls() {
         return !mCallNodes.isEmpty();
     }
 
-    public synchronized boolean hasPendingCalls() {
+    /**
+     * Checks if there are any pending calls.
+     *
+     * @return {@code true} if there are pending calls, {@code false} otherwise.
+     */
+    public boolean hasPendingCalls() {
         return !mPendingCallNodes.isEmpty();
     }
 
-    public synchronized void terminateAllCalls() {
+    /**
+     * Terminates all active and pending calls.
+     */
+    public void terminateAllCalls() {
         List<Call> allCalls = getAllCalls();
 
         // Terminates all the calls
@@ -215,7 +239,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
     }
 
     @Override
-    public synchronized int getNextCallIndex() {
+    public int getNextCallIndex() {
         if (sNextCallIndex >= MAX_CALL_INDEX) {
             sNextCallIndex = 1;
         }
@@ -280,7 +304,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         return allCalls;
     }
 
-    private synchronized int getActiveCallCount() {
+    private int getActiveCallCount() {
         if (mCallNodes.isEmpty()) {
             return 0;
         }
@@ -297,7 +321,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         return activeCallCount;
     }
 
-    private synchronized void onCallCreate(Call call) {
+    private void onCallCreate(Call call) {
         CallNode node = new CallNode(call);
 
         if (call.isConference() && call.isInCall()) {
@@ -309,7 +333,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         mCallStateNotifier.onCallCreated(call);
     }
 
-    private synchronized void onCallEstablishing(Call call) {
+    private void onCallEstablishing(Call call) {
         CallNode node = getCallNode(call.getNativeCallId());
 
         if (node != null) {
@@ -319,11 +343,11 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         }
     }
 
-    private synchronized void onCallRinging(Call call) {
+    private void onCallRinging(Call call) {
         mCallStateNotifier.onCallRinging(call);
     }
 
-    private synchronized void onCallAccept(Call call) {
+    private void onCallAccept(Call call) {
         CallNode node = getCallNode(call.getNativeCallId());
 
         if (node != null) {
@@ -333,7 +357,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         }
     }
 
-    private synchronized void onCallEstablished(Call call) {
+    private void onCallEstablished(Call call) {
         CallNode node = getCallNode(call.getNativeCallId());
 
         if (node != null) {
@@ -344,16 +368,16 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         mCallStateNotifier.onCallEstablished(call);
     }
 
-    private synchronized void onCallUpdated(Call call) {
+    private void onCallUpdated(Call call) {
         doCallStateChanged();
         mCallStateNotifier.onCallUpdated(call);
     }
 
-    private synchronized void onCallTerminating(Call call) {
+    private void onCallTerminating(Call call) {
         mCallStateNotifier.onCallTerminating(call);
     }
 
-    private synchronized void onCallTerminated(Call call) {
+    private void onCallTerminated(Call call) {
         CallNode node = getPendingCallNode(call.getNativeCallId());
 
         if (node != null) {
@@ -376,7 +400,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         }
     }
 
-    private synchronized void onCallDestroy(Call call) {
+    private void onCallDestroy(Call call) {
         CallNode node = getPendingCallNode(call.getNativeCallId());
 
         if (node != null) {
@@ -405,7 +429,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
                 ", pendingCalls=" + mPendingCallNodes.size());
     }
 
-    private synchronized void onCallIncomingReceived(Call call) {
+    private void onCallIncomingReceived(Call call) {
         CallNode node = getPendingCallNode(call.getNativeCallId());
 
         if (node != null) {
@@ -424,7 +448,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
     /**
      * @return the IMS call state - IMS (VoLTE or VT) call state (IDLE / OFFHOOK)
      */
-    private synchronized int updateCallState() {
+    private int updateCallState() {
         int voipCallState = MtcStateUtils.STATE_INACTIVE;
         int vtCallState = MtcStateUtils.STATE_INACTIVE;
 
@@ -515,7 +539,7 @@ public final class MtcCallManager implements ICallStateTracker, IMtcCallManager 
         return true;
     }
 
-    private synchronized void updateTelephonyCallState() {
+    private void updateTelephonyCallState() {
         int callState = CallTracker.CALL_STATE_IDLE;
         String incomingNumber = "";
 
