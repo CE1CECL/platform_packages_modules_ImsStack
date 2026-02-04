@@ -294,7 +294,7 @@ public class MtcTerminalBasedSupplementaryServiceNotifier {
     }
 
     private static void log(String s) {
-        ImsLog.d("[GII-MTC] " + s);
+        ImsLog.d("[ISIL] " + s);
     }
 
     @VisibleForTesting
