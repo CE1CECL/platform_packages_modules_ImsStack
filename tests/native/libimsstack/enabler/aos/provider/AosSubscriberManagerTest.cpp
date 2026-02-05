@@ -197,10 +197,15 @@ public:
     MockIConfigurable m_objMockIConfigurable;
     MockIAosService m_objMockIAosService;
 
+    // cppcheck-suppress unusedStructMember
     MockIAosSubscriberManagerListener m_objListener1;
+    // cppcheck-suppress unusedStructMember
     MockIAosSubscriberManagerListener m_objListener2;
+    // cppcheck-suppress unusedStructMember
     MockIAosSubscriberManagerListener m_objListener3;
+    // cppcheck-suppress unusedStructMember
     MockIAosSubscriberManagerListener m_objListener4;
+    // cppcheck-suppress unusedStructMember
     MockIAosSubscriberManagerListener m_objListener5;
 
     // cppcheck-suppress unusedStructMember

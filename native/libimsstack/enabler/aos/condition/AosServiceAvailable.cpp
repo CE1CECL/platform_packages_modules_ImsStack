@@ -112,7 +112,7 @@ void AosServiceAvailable::SetListener(IN IAosServiceAvailableListener* piListene
 }
 
 PUBLIC
-void AosServiceAvailable::RemoveListener(IN IAosServiceAvailableListener* piListener)
+void AosServiceAvailable::RemoveListener(IN const IAosServiceAvailableListener* piListener)
 {
     if (piListener == IMS_NULL)
     {
@@ -223,7 +223,7 @@ PROTECTED VIRTUAL void AosServiceAvailable::HandleNetworkStateChanged()
 }
 
 PRIVATE VIRTUAL void AosServiceAvailable::HandleBlockChanged(
-        IN IMS_UINT32 nState, IN IMS_UINT32 nStateEx)
+        IN IMS_UINT32 /* nState*/, IN IMS_UINT32 /* nStateEx*/)
 {
     // Default no-op; subclasses should override.
 }

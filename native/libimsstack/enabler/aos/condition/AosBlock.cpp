@@ -53,7 +53,7 @@ PUBLIC VIRTUAL void AosBlock::SetListener(IN IAosBlockListener* piListener)
 
     for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
     {
-        IAosBlockListener* pTmpListener = m_objListeners.GetAt(i);
+        const IAosBlockListener* pTmpListener = m_objListeners.GetAt(i);
 
         if (pTmpListener == piListener)
         {
@@ -73,7 +73,7 @@ PUBLIC VIRTUAL void AosBlock::RemoveListener(IN IAosBlockListener* piListener)
 
     for (IMS_UINT32 i = 0; i < m_objListeners.GetSize(); ++i)
     {
-        IAosBlockListener* pTmpListener = m_objListeners.GetAt(i);
+        const IAosBlockListener* pTmpListener = m_objListeners.GetAt(i);
 
         if (pTmpListener == piListener)
         {
@@ -92,7 +92,7 @@ PUBLIC VIRTUAL void AosBlock::SetSilentListener(IN IAosBlockSilentListener* piLi
 
     for (IMS_UINT32 i = 0; i < m_objSilentListeners.GetSize(); ++i)
     {
-        IAosBlockSilentListener* pTmpListener = m_objSilentListeners.GetAt(i);
+        const IAosBlockSilentListener* pTmpListener = m_objSilentListeners.GetAt(i);
 
         if (pTmpListener == piListener)
         {
@@ -112,7 +112,7 @@ PUBLIC VIRTUAL void AosBlock::RemoveSilentListener(IN IAosBlockSilentListener* p
 
     for (IMS_UINT32 i = 0; i < m_objSilentListeners.GetSize(); ++i)
     {
-        IAosBlockSilentListener* pTmpListener = m_objSilentListeners.GetAt(i);
+        const IAosBlockSilentListener* pTmpListener = m_objSilentListeners.GetAt(i);
 
         if (pTmpListener == piListener)
         {
