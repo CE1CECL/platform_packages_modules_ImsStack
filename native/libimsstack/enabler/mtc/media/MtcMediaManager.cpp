@@ -715,7 +715,7 @@ PRIVATE void MtcMediaManager::DestroySessionMedia(IN const ISession& objISession
 
 PRIVATE
 void MtcMediaManager::UpdateLocalTone(
-        IN ISession* piSession, IN const IMessage* piMessage, IN NegotiationState eNegoState)
+        IN const ISession* piSession, IN const IMessage* piMessage, IN NegotiationState eNegoState)
 {
     IMS_SINT32 nStatusCode = piMessage ? piMessage->GetStatusCode() : SipStatusCode::SC_INVALID;
     IMS_TRACE_D("UpdateLocalTone status code[%d], 180received[%d]", nStatusCode, m_b180Received, 0);
@@ -782,7 +782,7 @@ void MtcMediaManager::SetNetworkToneRtpTimer(IN IMS_UINTP nNegoId, IN IMS_UINT32
 
 PRIVATE
 IMS_BOOL MtcMediaManager::IsNecessaryToRunMedia(
-        IN ISession* piSession, IN const IMessage* piMessage)
+        IN const ISession* piSession, IN const IMessage* piMessage)
 {
     if (m_pProfileManager->IsConfirmed(piSession))
     {
@@ -831,7 +831,7 @@ IMS_UINTP MtcMediaManager::GetMediaNegoId(IN const ISession* piSession) const
 
 PRIVATE
 IMS_UINT32 MtcMediaManager::GetWaitingNetworkToneDuration(
-        IN ISession* piSession, IN const IMessage* piMessage)
+        IN const ISession* piSession, IN const IMessage* piMessage)
 {
     if (m_pProfileManager->IsConfirmed(piSession))
     {
@@ -1025,7 +1025,7 @@ AudioCodecAttributes MtcMediaManager::GetNegotiatedAudioCodecAttributes(
 }
 
 PRIVATE
-IMS_BOOL MtcMediaManager::ContainsSendInPem(IN ISession* piSession) const
+IMS_BOOL MtcMediaManager::ContainsSendInPem(IN const ISession* piSession) const
 {
     PemType ePemType = m_pProfileManager->GetPemType(piSession);
     return (ePemType == PemType::SENDONLY || ePemType == PemType::SENDRECV);
