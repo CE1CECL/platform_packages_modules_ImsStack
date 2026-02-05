@@ -151,14 +151,15 @@ public:
     void Set180Received() override;
 
 private:
-    void UpdateLocalTone(
-            IN ISession* piSession, IN const IMessage* piMessage, IN NegotiationState eNegoState);
+    void UpdateLocalTone(IN const ISession* piSession, IN const IMessage* piMessage,
+            IN NegotiationState eNegoState);
     void UpdateLocalTone(IN IMS_BOOL bNetworkToneReceived);
     void SetNetworkToneRtpTimer(IN IMS_UINTP nNegoId, IN IMS_UINT32 nDuration);
 
-    IMS_BOOL IsNecessaryToRunMedia(IN ISession* piSession, IN const IMessage* piMessage);
+    IMS_BOOL IsNecessaryToRunMedia(IN const ISession* piSession, IN const IMessage* piMessage);
     IMS_UINTP GetMediaNegoId(IN const ISession* piSession) const;
-    IMS_UINT32 GetWaitingNetworkToneDuration(IN ISession* piSession, IN const IMessage* piMessage);
+    IMS_UINT32 GetWaitingNetworkToneDuration(
+            IN const ISession* piSession, IN const IMessage* piMessage);
 
     static void HandleReceivingMediaDataStarted(IN IMS_UINT32 eMediaType);
     void HandleReceivingNetworkTone(IN IMS_BOOL bNetworkToneReceived);
@@ -172,7 +173,7 @@ private:
 
     void SetMediaPemType(IN IMS_UINTP nNegoId, IN PemType ePemType);
     AudioCodecAttributes GetNegotiatedAudioCodecAttributes(IN const ISession& objISession) const;
-    IMS_BOOL ContainsSendInPem(IN ISession* piSession) const;
+    IMS_BOOL ContainsSendInPem(IN const ISession* piSession) const;
 
 protected:
     MediaManager& m_objMediaManager;
