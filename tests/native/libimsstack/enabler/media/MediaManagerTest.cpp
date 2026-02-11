@@ -288,7 +288,7 @@ TEST_F(MediaManagerTest, TestHandleMessageAndDispatch)
     m_pMediaManager->CreateSession(
             MEDIA_NETWORK_WIFI, MEDIA_SERVICE_DEFAULT, &m_objCoreService, CALL_KEY_1);
 
-    auto pParam = new ImsMediaMsgDtmfParam();
+    auto pParam = new ImsMediaMsgQosParam();
     ImsMessage msg(IJniMedia::NOTIFY_QOS_INFO, CALL_KEY_1, reinterpret_cast<IMS_UINTP>(pParam));
 
     // DispatchMessage calls HandleMessage, which in turn calls SendMessage.
