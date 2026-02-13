@@ -229,28 +229,7 @@ PROTECTED
 VIRTUAL void MediaManager::HandleMessage(
         IN IMS_SINT32 nMsg, IN IMS_UINTP wParam, IN IMS_SINTP lParam)
 {
-    IMS_TRACE_I("HandleMessage(): nMsg[%d]", nMsg, 0, 0);
-
-    switch (nMsg)
-    {
-        case IJniMedia::NOTIFY_QOS_INFO:
-        {
-            ImsMediaMsgQosParam* pQosNotifyParam = reinterpret_cast<ImsMediaMsgQosParam*>(lParam);
-
-            if (pQosNotifyParam != IMS_NULL)
-            {
-                IMS_SINTP nCallKey = wParam;
-                MediaSession* pSession = GetSession(nCallKey);
-                if (pSession != IMS_NULL)
-                {
-                    IMS_TRACE_I("HandleMessage(): QOS - CallKey[%d], nPort[%d], bResult[%d]",
-                            nCallKey, pQosNotifyParam->m_nPort, pQosNotifyParam->m_bResult);
-                    pSession->SendMessage(nMsg, lParam);
-                }
-            }
-        }
-        break;
-    }
+    SendMessage(nMsg, wParam, lParam);
 }
 
 PROTECTED
@@ -322,7 +301,6 @@ PROTECTED VIRTUAL IMS_BOOL MediaManager::SendMessageToSessions(
 
     if (pMediaSession != IMS_NULL)
     {
-        IMS_TRACE_I("SendMessageToSessions(): nMsg[%d], CallKey[%d]", nMsg, nCallKey, 0);
         return pMediaSession->SendMessage(nMsg, pParam);
     }
 
