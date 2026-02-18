@@ -783,7 +783,7 @@ public class CarrierConfig {
                 KEY_PREFIX + "p_emergency_info_header_in_invite_string";
         public static final String KEY_CONTACT_HEADER_ADDRESS_IN_INVITE_STRING_ARRAY =
                 KEY_PREFIX + "contact_header_address_in_invite_string_array";
-        public static final String KEY_P_PREFERRED_IDENTITY_INFO_HEADER_IN_INVITE_STRING_ARRAY =
+        public static final String KEY_P_PREFERRED_IDENTITY_HEADER_IN_INVITE_STRING_ARRAY =
                 KEY_PREFIX + "p_preferred_identity_header_in_invite_string_array";
         public static final String KEY_SUPPORT_ECBM_FOR_VOLTE_BOOL =
                 KEY_PREFIX + "support_ecbm_for_volte_bool";
