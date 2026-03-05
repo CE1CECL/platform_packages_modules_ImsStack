@@ -3325,6 +3325,28 @@ GLOBAL IMS_BOOL RemoveHeader(IN IMS_SINT32 nType, IN_OUT ::SipMessage*& pMessage
     return IMS_TRUE;
 }
 
+GLOBAL void RemoveHeader(IN IMS_SINT32 nType, IN IMS_UINT32 nIndex, IN_OUT ::SipMessage*& pMessage)
+{
+    nType = GetHdrEnumType(nType);
+    SipHeaderList* pHeaderList = pMessage->GetHdrList(nType);
+
+    if (pHeaderList == IMS_NULL)
+    {
+        // Single header types.
+        pMessage->RemoveHdr(nType);
+    }
+    else
+    {
+        // Multiple header types.
+        pHeaderList->RemoveHdr(nIndex);
+        if (pHeaderList->GetSize() == 0)
+        {
+            pMessage->RemoveHdr(nType);
+        }
+        pHeaderList->SipDelete();
+    }
+}
+
 GLOBAL void RemoveParameter(IN const AString& strName, IN_OUT SipHeaderBase*& pHeader)
 {
     if (pHeader == IMS_NULL)
