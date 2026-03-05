@@ -13,40 +13,32 @@
 // limitations under the License.
 
 package {
-    default_team: "trendy_team_pmw_telephony",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-cc_library_headers {
-    name: "libimsstack_test_protocol_headers",
-    export_include_dirs: [
-        "interface/xml",
-    ],
-}
-
-cc_defaults {
-    name: "imsstack_native_test_protocol_defaults",
+cc_test {
+    name: "ImsStackNativeJniTests",
     defaults: [
         "imsstack_native_test_defaults",
-    ],
-    header_libs: [
-        "libimsstack_platform_headers",
-        "libimsstack_protocol_headers",
-    ],
-    static_libs: [
-        "libimsstack-platform",
-        "libimsstack-protocol",
-    ],
-}
-
-cc_test {
-    name: "ImsStackNativeProtocolTests",
-    defaults: [
-        "imsstack_native_test_protocol_defaults",
     ],
     srcs: [
         "**/*.cpp",
     ],
+    header_libs: [
+        "libimsstack_config_headers",
+        "libimsstack_enabler_headers",
+        "libimsstack_platform_headers",
+        "libimsstack_platform_os_android_system-intf_headers",
+        "libimsstack_test_enabler_headers",
+        "libimsstack_test_platform_headers",
+        "libpixelimsmedia_config_headers",
+    ],
+    static_libs: [
+        "libimsstack-jni",
+        "libimsstack-platform",
+        "libimsstack-enabler",
+        "libpixelimsmedia_config",
+    ],
 
-    test_config: "ImsStackNativeProtocolTests.xml",
+    test_config: "ImsStackNativeJniTests.xml",
 }

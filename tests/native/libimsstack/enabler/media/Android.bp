@@ -16,26 +16,16 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-cc_library_headers {
-    name: "libimsstack_main_headers",
-    export_include_dirs: [
-        "include",
-    ],
-}
-
-cc_library_static {
-    name:"libimsstack-main",
+cc_test {
+    name: "ImsStackNativeEnablerMediaTests",
     defaults: [
-        "imsstack_native_defaults",
+        "imsstack_native_test_enabler_defaults",
     ],
     srcs: [
         "**/*.cpp",
     ],
     header_libs: [
-        "libimsstack_config_headers",
-        "libimsstack_enabler_loader_headers",
-        "libimsstack_engine_headers",
-        "libimsstack_main_headers",
-        "libimsstack_platform_headers",
+        "libimsstack_test_enabler_include_headers",
     ],
+    test_config: "ImsStackNativeEnablerMediaTests.xml",
 }
