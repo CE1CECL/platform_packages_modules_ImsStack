@@ -1797,14 +1797,9 @@ public class CarrierConfig {
                     case "MANUFACTURE":
                         sb.append(Build.MANUFACTURER.replaceAll("\\s", ""));
                         break;
-                    case "MODEL": {
-                        String model = Build.MODEL.replaceAll("\\s", "");
-                        if (model.contains("eepspace") || model.contains("pacecraft")) {
-                            model = "Pixel9";
-                        }
-                        sb.append(model);
+                    case "MODEL":
+                        sb.append(Build.MODEL.replaceAll("\\s", ""));
                         break;
-                    }
                     case "AV":
                         sb.append(Build.VERSION.RELEASE.replaceAll("\\s", ""));
                         break;
