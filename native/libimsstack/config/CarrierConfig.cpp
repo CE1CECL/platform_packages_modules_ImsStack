@@ -523,9 +523,6 @@ const IMS_CHAR
 const IMS_CHAR CarrierConfig::ImsEmergency::KEY_PREFERRED_EMERGENCY_REGISTRATION_INT[] =
         KEY_IMS_EMERGENCY_PREFIX "preferred_emergency_registration_int";
 const IMS_CHAR
-        CarrierConfig::ImsEmergency::KEY_WAIT_TIME_MILLIS_FOR_RELEASE_EPDN_AFTER_ECALL_END_INT[] =
-                KEY_IMS_EMERGENCY_PREFIX "wait_time_millis_for_release_epdn_after_ecall_end_int";
-const IMS_CHAR
         CarrierConfig::ImsEmergency::KEY_ECALL_BASED_ON_P_ASSOCIATED_URI_OF_NORMAL_REG_BOOL[] =
                 KEY_IMS_EMERGENCY_PREFIX "ecall_based_on_p_associated_uri_of_normal_reg_bool";
 const IMS_CHAR CarrierConfig::ImsEmergency::KEY_EREG_ON_RANDOM_PCSCF_BOOL[] =
@@ -568,6 +565,10 @@ const IMS_CHAR CarrierConfig::ImsEmergency::KEY_REG_TIMER_FOR_ECALL_MILLIS_INT[]
         KEY_IMS_EMERGENCY_PREFIX "reg_timer_for_ecall_millis_int";
 const IMS_CHAR CarrierConfig::ImsEmergency::KEY_ROAMING_PREFERRED_EREG_INT[] =
         KEY_IMS_EMERGENCY_PREFIX "roaming_preferred_ereg_int";
+const IMS_CHAR CarrierConfig::ImsEmergency::
+        KEY_WAIT_TIME_MILLIS_FOR_RELEASE_EPDN_AFTER_EMC_MODE_EXIT_IN_FAKE_MODE_WITH_UICC_INT[] =
+                KEY_IMS_EMERGENCY_PREFIX
+        "wait_time_millis_for_release_epdn_after_emc_mode_exit_in_fake_mode_with_uicc_int";
 const IMS_CHAR
         CarrierConfig::ImsEmergency::KEY_EPDN_REJECT_CAUSES_FOR_CROSS_STACK_REDIAL_INT_ARRAY[] =
                 KEY_IMS_EMERGENCY_PREFIX "epdn_reject_causes_for_cross_stack_redial_int_array";

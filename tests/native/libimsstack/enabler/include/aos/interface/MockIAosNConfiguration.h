@@ -138,7 +138,6 @@ public:
     MOCK_METHOD(IMS_SINT32, GetIpv6MtuSize, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetIpcanReleaseEmergencyPdnUponEmergencyCallEnd, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetPreferredEmergencyRegistration, (), (const, override));
-    MOCK_METHOD(IMS_SINT32, GetWaitTimeMillisForReleaseEPdnAfterECallEnd, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetEmergencyRegistrationTimerMillis, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetImsSignallingDscp, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetMaxAllowedNetworkMtu, (), (const, override));
@@ -149,6 +148,8 @@ public:
     MOCK_METHOD(IMS_SINT32, GetRegDefaultWaitTime, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetRegOutOfServicePolicy, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetRoamingPreferredEmcReg, (), (const, override));
+    MOCK_METHOD(IMS_SINT32, GetWaitTimeMillisForReleaseEpdnAfterEmcModeExitInFakeModeWithUicc, (),
+            (const, override));
     MOCK_METHOD(IMS_SINT32, GetSipMessageThresholdForTransportChange, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetSubRetrySip503CodePolicy, (), (const, override));
     MOCK_METHOD(IMS_SINT32, GetUsatRegEventDownloadPolicy, (), (const, override));

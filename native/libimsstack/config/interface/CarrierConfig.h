@@ -1652,26 +1652,6 @@ public:
         };
 
         /**
-         * Specifies the delay time from the end of the call to the start of the emergency
-         * PDN release. If this is set to zero, it means not set the delay time to release
-         * emergency PDN when call ends.
-         *
-         * And this configuration can have a dependency with following configurations.
-         * Those configuration is used to release emergency PDN just after the emergency call ends.
-         * So, if you want to set the emergency PDN to be released after a specific amount of
-         * time after the emergency call ends, you should not set the following configurations.
-         * Because if that is set, it would release the emergency PDN just after the emergency
-         * call ends.
-         *
-         * #KEY_IPCAN_RELEASE_EMERGENCY_PDN_UPON_EMERGENCY_CALL_END_INT
-         * #KEY_RELEASE_EPDN_UPON_ECALL_END_IN_FAKE_MODE_BOOL
-         *
-         * Possible Values:
-         *   {@code 240000}
-         */
-        static const IMS_CHAR KEY_WAIT_TIME_MILLIS_FOR_RELEASE_EPDN_AFTER_ECALL_END_INT[];
-
-        /**
          * Specifies whether the authorized IMPU from P-Associated-URI header in 200 OK for IMS
          * registration is used in emergency call.
          *
@@ -1910,6 +1890,18 @@ public:
          *                                                           failed.
          */
         static const IMS_CHAR KEY_ROAMING_PREFERRED_EREG_INT[];
+
+        /**
+         * Specifies the delay time from the exit of the emergency mode to the start of the
+         * emergency PDN release. The time will start only when FAKE mode EIMS registration. If this
+         * is set to zero, it means that the EPDN won't be released when UE exits emergency mode.
+         *
+         * Possible Values:
+         *   {@code 3000}
+         */
+        static const IMS_CHAR
+                KEY_WAIT_TIME_MILLIS_FOR_RELEASE_EPDN_AFTER_EMC_MODE_EXIT_IN_FAKE_MODE_WITH_UICC_INT
+                        [];
 
         /**
          * Specifies the error codes of emergency registration which does not support the
