@@ -301,6 +301,7 @@ GLOBAL void ParseHostNPort(
 
 GLOBAL IMS_BOOL RemoveAllMessageBodies(IN_OUT ::SipMessage*& pMessage);
 GLOBAL IMS_BOOL RemoveHeader(IN IMS_SINT32 nType, IN_OUT ::SipMessage*& pMessage);
+GLOBAL void RemoveHeader(IN IMS_SINT32 nType, IN IMS_UINT32 nIndex, IN_OUT ::SipMessage*& pMessage);
 GLOBAL void RemoveParameter(IN const AString& strName, IN_OUT SipHeaderBase*& pHeader);
 GLOBAL IMS_BOOL RemoveParameter(IN const AString& strName, IN_OUT SipAddrSpec*& pAddrSpec);
 GLOBAL void RemoveUserAndPassword(IN_OUT SipAddrSpec*& pAddrSpec);

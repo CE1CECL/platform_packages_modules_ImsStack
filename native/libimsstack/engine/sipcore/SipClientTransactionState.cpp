@@ -647,11 +647,6 @@ IMS_BOOL SipClientTransactionState::InitRequest(
         return IMS_FALSE;
     }
 
-    if (!CorrectRouteHeader(m_pSipMsg))
-    {
-        return IMS_FALSE;
-    }
-
     // P-Access-Network-Info header if required
     if (objMethod.Equals(SipMethod::ACK) && SipFeatures::IsPaniHeaderForAckRequired(GetSlotId()))
     {
@@ -1131,6 +1126,9 @@ IMS_BOOL SipClientTransactionState::CorrectRouteHeader(IN_OUT ::SipMessage*& pSi
     }
 
     SipStack::FreeAddrSpec(pAddrSpec);
+
+    // Remove topmost Route header
+    SipStack::RemoveHeader(ISipHeader::ROUTE, 0, pSipMsg);
 
     return IMS_TRUE;
 }
