@@ -257,4 +257,82 @@ TEST_F(SipStackTest, CorrectMessageBody_MultipartWithBoundary_PreservesBoundaryP
     SipStack::FreeMessage(pMessage);
 }
 
+TEST_F(SipStackTest, RemoveHeader_WithIndex_RemovesCorrectHeader)
+{
+    // Given a message with multiple Route headers
+    ::SipMessage* pMessage = SipStack::CreateMessage(::SipMessage::REQ_TYPE);
+    ASSERT_NE(pMessage, nullptr);
+    EXPECT_EQ(pMessage->GetHdrList(SipHeaderBase::ROUTE), nullptr);
+
+    const AString strRoute1("<sip:p1@ims.com;lr>");
+    const AString strRoute2("<sip:p2@ims.com;lr>");
+
+    SipHeaderBase* pHdr1 =
+            SipStack::DecodeHeader(SipHeaderBase::ROUTE, AString::ConstNull(), strRoute1);
+    SipStack::AppendHeader(pHdr1, pMessage);
+    SipStack::FreeHeader(pHdr1);
+
+    SipHeaderBase* pHdr2 =
+            SipStack::DecodeHeader(SipHeaderBase::ROUTE, AString::ConstNull(), strRoute2);
+    SipStack::AppendHeader(pHdr2, pMessage);
+    SipStack::FreeHeader(pHdr2);
+
+    EXPECT_EQ(2, SipStack::GetHeaderCount(pMessage, SipHeaderBase::ROUTE));
+
+    // When RemoveHeader is called with index 0
+    SipStack::RemoveHeader(SipHeaderBase::ROUTE, 0, pMessage);
+
+    // Then the first Route header is removed and the second remains
+    EXPECT_EQ(1, SipStack::GetHeaderCount(pMessage, SipHeaderBase::ROUTE));
+    EXPECT_NE(pMessage->GetHdrList(SipHeaderBase::ROUTE), nullptr);
+
+    AString strValue = SipStack::GetHeaderAsString(pMessage, SipHeaderBase::ROUTE, IMS_TRUE);
+    EXPECT_EQ(strRoute2, strValue);
+
+    // When RemoveHeader is called with index 0
+    SipStack::RemoveHeader(SipHeaderBase::ROUTE, 0, pMessage);
+
+    // No Route headers
+    EXPECT_EQ(0, SipStack::GetHeaderCount(pMessage, SipHeaderBase::ROUTE));
+    EXPECT_EQ(pMessage->GetHdrList(SipHeaderBase::ROUTE), nullptr);
+
+    SipStack::FreeMessage(pMessage);
+}
+
+TEST_F(SipStackTest, RemoveHeader_WithIndex_NonExistentHeader_DoesNothing)
+{
+    // Given a message without any Route headers
+    ::SipMessage* pMessage = SipStack::CreateMessage(::SipMessage::REQ_TYPE);
+    ASSERT_NE(pMessage, nullptr);
+
+    // When RemoveHeader is called for Route header
+    SipStack::RemoveHeader(SipHeaderBase::ROUTE, 0, pMessage);
+
+    // Then the message remains unchanged and no crash occurs
+    EXPECT_EQ(0, SipStack::GetHeaderCount(pMessage, SipHeaderBase::ROUTE));
+
+    SipStack::FreeMessage(pMessage);
+}
+
+TEST_F(SipStackTest, RemoveHeader_WithIndex_SingleHeader_RemovesHeader)
+{
+    // Given a message with a non-list header (e.g., To)
+    ::SipMessage* pMessage = SipStack::CreateMessage(::SipMessage::REQ_TYPE);
+    ASSERT_NE(pMessage, nullptr);
+    const AString strTo("sip:user@ims.com");
+    SipHeaderBase* pTo = SipStack::DecodeHeader(SipHeaderBase::TO, AString::ConstNull(), strTo);
+    SipStack::SetHeader(pTo, pMessage);
+    SipStack::FreeHeader(pTo);
+
+    EXPECT_EQ(1, SipStack::GetHeaderCount(pMessage, SipHeaderBase::TO));
+
+    // When RemoveHeader is called with index 0
+    SipStack::RemoveHeader(SipHeaderBase::TO, 0, pMessage);
+
+    // Then the header is removed
+    EXPECT_EQ(0, SipStack::GetHeaderCount(pMessage, SipHeaderBase::TO));
+
+    SipStack::FreeMessage(pMessage);
+}
+
 }  // namespace android
