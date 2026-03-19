@@ -620,6 +620,8 @@ const IMS_CHAR CarrierConfig::ImsEmergency::KEY_DYNAMIC_ROUTING_NUMBER_PER_PLMN_
         KEY_IMS_EMERGENCY_PREFIX "dynamic_routing_number_per_plmn_string_array";
 const IMS_CHAR CarrierConfig::ImsEmergency::KEY_EMERGENCY_SERVICE_CATEGORY_PER_PLMN_STRING_ARRAY[] =
         KEY_IMS_EMERGENCY_PREFIX "emergency_service_category_per_plmn_string_array";
+const IMS_CHAR CarrierConfig::ImsEmergency::KEY_KEEP_INVITE_TRANSACTION_TIMEOUT_DURING_CALL_BOOL[] =
+        KEY_IMS_EMERGENCY_PREFIX "keep_invite_transaction_timeout_during_call_bool";
 
 //// ImsRtt
 #define KEY_IMS_RTT_PREFIX "imsrtt."

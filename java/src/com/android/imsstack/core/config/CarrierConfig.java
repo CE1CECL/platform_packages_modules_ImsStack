@@ -825,6 +825,8 @@ public class CarrierConfig {
                 KEY_PREFIX + "dynamic_routing_number_per_plmn_string_array";
         public static final String KEY_EMERGENCY_SERVICE_CATEGORY_PER_PLMN_STRING_ARRAY =
                 KEY_PREFIX + "emergency_service_category_per_plmn_string_array";
+        public static final String KEY_KEEP_INVITE_TRANSACTION_TIMEOUT_DURING_CALL_BOOL =
+                KEY_PREFIX + "keep_invite_transaction_timeout_during_call_bool";
 
         /** Emergency URN policy **/
         public static final int NOT_USE_SERVICE_CATEGORY = 1;

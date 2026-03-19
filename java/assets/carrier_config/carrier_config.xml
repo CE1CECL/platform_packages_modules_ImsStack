@@ -854,6 +854,7 @@
         <item value="tw,,119,4"/>
         <item value="sg,05,995,2"/>
     </string-array>
+    <boolean name="imsemergency.keep_invite_transaction_timeout_during_call_bool" value="false"/>
     <boolean name="imswfc.override_media_inactivity_to_wifi_lost_bool" value="false"/>
     <int name="imsvoice.policy_for_multiple_p_asserted_identity_headers_int" value="0"/>
 
