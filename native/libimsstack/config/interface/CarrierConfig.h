@@ -2346,6 +2346,25 @@ public:
          *   String array.
          */
         static const IMS_CHAR KEY_EMERGENCY_SERVICE_CATEGORY_PER_PLMN_STRING_ARRAY[];
+
+        /**
+         * Specifies whether to keep the INVITE transaction timeout history during the entire call.
+         *
+         * If {@code true}, the INVITE transaction timeout history is retained during the entire
+         * call even after a silent redial, so if the user ends the call, the termination reason is
+         * treated as a SIP timeout.
+         *
+         * Possible Values:
+         *   {@code true}
+         *   {@code false}
+         */
+        static const IMS_CHAR KEY_KEEP_INVITE_TRANSACTION_TIMEOUT_DURING_CALL_BOOL[];
+
+        /**
+         * Specifies the Reason header text when user ends call during SIP response timeout.
+         */
+        static const IMS_CHAR
+                KEY_CALL_TERMINATE_REASON_HEADER_USER_ENDS_AND_SIP_RESPONSE_TIMEOUT_STRING[];
     };
 
     class ImsRtt
