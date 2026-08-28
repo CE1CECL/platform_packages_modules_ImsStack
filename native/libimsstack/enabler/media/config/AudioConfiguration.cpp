@@ -190,6 +190,14 @@ PROTECTED VIRTUAL IMS_BOOL AudioConfiguration::CreateCodecConfigs(IN ICarrierCon
         return IMS_FALSE;
     }
 
+    #if 0
+    ImsVector<IMS_SINT32> objPcmuPayloadType;
+    objPcmuPayloadType.Push(0);
+    #endif
+    #if 0
+    ImsVector<IMS_SINT32> objPcmaPayloadType;
+    objPcmaPayloadType.Push(8);
+    #endif
     ImsVector<IMS_SINT32> objEvsPayloadType =
             piCcBundle->GetIntArray(CarrierConfig::ImsVoice::KEY_EVS_PAYLOAD_TYPE_INT_ARRAY);
     ImsVector<IMS_SINT32> objAmrwbPayloadType =
@@ -205,30 +213,60 @@ PROTECTED VIRTUAL IMS_BOOL AudioConfiguration::CreateCodecConfigs(IN ICarrierCon
 
     IMS_UINT32 nCodecCnt = 0;
 
+    #if 0
+    if (objPcmuPayloadType.GetSize() > 0)
+    {
+        nCodecCnt = MakeEachCodecs(piCc, ImsCodec::AUDIO_PCMU, nCodecCnt, objPcmuPayloadType);
+        IMS_TRACE_D("CreateCodecConfigs - Read Pcmu Codecs", 0, 0, 0);
+        /**  TODO: pcmu is not supported for now */
+    }
+    #endif
+    #if 0
+    if (objPcmaPayloadType.GetSize() > 0)
+    {
+        nCodecCnt = MakeEachCodecs(piCc, ImsCodec::AUDIO_PCMA, nCodecCnt, objPcmaPayloadType);
+        IMS_TRACE_D("CreateCodecConfigs - Read Pcma Codecs", 0, 0, 0);
+        /**  TODO: pcma is not supported for now */
+    }
+    #endif
+    #if 0
     if (m_bEvsSupported == IMS_TRUE && objEvsPayloadType.GetSize() > 0)
     {
         nCodecCnt = MakeEachCodecs(piCc, ImsCodec::AUDIO_EVS, nCodecCnt, objEvsPayloadType);
         IMS_TRACE_D("CreateCodecConfigs - Read Evs Codecs", 0, 0, 0);
         /**  TODO: evs is not supported for now */
     }
+    #endif
+    #if 0
     if (objAmrwbPayloadType.GetSize() > 0)
     {
         nCodecCnt = MakeEachCodecs(piCc, ImsCodec::AUDIO_AMR_WB, nCodecCnt, objAmrwbPayloadType);
+        IMS_TRACE_D("CreateCodecConfigs - Read Amrwb Codecs", 0, 0, 0);
     }
+    #endif
+    #if 1
     if (objAmrnbPayloadType.GetSize() > 0)
     {
         nCodecCnt = MakeEachCodecs(piCc, ImsCodec::AUDIO_AMR, nCodecCnt, objAmrnbPayloadType);
+        IMS_TRACE_D("CreateCodecConfigs - Read Amrnb Codecs", 0, 0, 0);
     }
+    #endif
+    #if 0
     if (objDtmfwbPayloadType.GetSize() > 0)
     {
         nCodecCnt = MakeEachCodecs(
                 piCc, ImsCodec::AUDIO_TELEPHONE_EVENT_WB, nCodecCnt, objDtmfwbPayloadType);
+        IMS_TRACE_D("CreateCodecConfigs - Read Dtmfwb Codecs", 0, 0, 0);
     }
+    #endif
+    #if 1
     if (objDtmfnbPayloadType.GetSize() > 0)
     {
         nCodecCnt = MakeEachCodecs(
                 piCc, ImsCodec::AUDIO_TELEPHONE_EVENT, nCodecCnt, objDtmfnbPayloadType);
+        IMS_TRACE_D("CreateCodecConfigs - Read Dtmfnb Codecs", 0, 0, 0);
     }
+    #endif
 
     // to avoid static analysis issue (not used variable and variable scope)
     IMS_TRACE_D("nCodecCnt(%d)", nCodecCnt, 0, 0);

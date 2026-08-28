@@ -326,11 +326,11 @@ IMS_BOOL AudioMediaSession::UpdateRtpConfig(IN const IMS_UINT32 nAccessNetwork,
     {
         if (pNegoPayload->objRtpMap.strPayloadType.EqualsIgnoreCase("PCMU"))
         {
-            objAudioConfig.setCodecType((int32_t)AudioConfig::CODEC_PCMA);
+            objAudioConfig.setCodecType((int32_t)AudioConfig::CODEC_PCMU);
         }
         else
         {
-            objAudioConfig.setCodecType((int32_t)AudioConfig::CODEC_PCMU);
+            objAudioConfig.setCodecType((int32_t)AudioConfig::CODEC_PCMA);
         }
         objAudioConfig.setSamplingRateKHz((int8_t)(pNegoPayload->objRtpMap.nSamplingRate / 1000));
         objAudioConfig.setPtimeMillis((int8_t)pNegoProfile->nPtime);
